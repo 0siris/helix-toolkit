@@ -16,14 +16,14 @@ public class Example {
     public string Title { get; private set; }
     public string Description { get; set; }
     private Type MainWindowType { get; set; }
-    public ImageSource Thumbnail { get; set; }
+    public ImageSource? Thumbnail { get; set; }
 
-    public string ThumbnailFileName => MainWindowType.Namespace + "_small.png";
+    public string ThumbnailFileName => (MainWindowType.Namespace ?? MainWindowType.Name) + "_small.png";
 
     public Example(Type mainWindowType, string? title = null, string? description = null) {
         MainWindowType = mainWindowType;
-        Title = title ?? mainWindowType.Namespace;
-        Description = description;
+        Title = title ?? mainWindowType.Namespace ?? mainWindowType.Name;
+        Description = description ?? string.Empty;
         try {
             Thumbnail =
                 new BitmapImage(new Uri("pack://application:,,,/Images/" + ThumbnailFileName));
@@ -34,5 +34,7 @@ public class Example {
 
     public override string ToString() => Title;
 
-    public Window Create() => Activator.CreateInstance(MainWindowType) as Window;
+    public Window Create() => Activator.CreateInstance(MainWindowType) as Window
+                              ?? throw new InvalidOperationException(
+                                  $"Example type {MainWindowType.FullName} is not a Window.");
 }

@@ -82,7 +82,8 @@ public class MainViewModel : BaseViewModel {
         // ----------------------------------------------
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(10, 2, 10), LookDirection = new Vector3D(-10, -2, -10),
+            Position = new Point3D(10, 2, 10),
+            LookDirection = new Vector3D(-10, -2, -10),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
@@ -91,7 +92,8 @@ public class MainViewModel : BaseViewModel {
         lineBuilder.AddLine(new Vector3(0, 0, 0), new Vector3(0, 10, 0));
         lineBuilder.AddLine(new Vector3(0, 0, 0), new Vector3(0, 0, 10));
         AxisModel = lineBuilder.ToLineGeometry3D();
-        AxisModel.Colors = new Color4Collection(AxisModel.Positions.Count) {
+        var axisPositions = AxisModel.Positions ?? throw new InvalidOperationException("Axis positions are required.");
+        AxisModel.Colors = new Color4Collection(axisPositions.Count) {
             Colors.Red.ToColor4(),
             Colors.Red.ToColor4(),
             Colors.Green.ToColor4(),
@@ -101,9 +103,21 @@ public class MainViewModel : BaseViewModel {
         };
 
         AxisLabel = new BillboardText3D();
-        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(11, 0, 0), Text = "X", Foreground = Colors.Red.ToColor4() });
-        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(0, 11, 0), Text = "Y", Foreground = Colors.Green.ToColor4() });
-        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(0, 0, 11), Text = "Z", Foreground = Colors.Blue.ToColor4() });
+        AxisLabel.TextInfo.Add(new TextInfo() {
+            Origin = new Vector3(11, 0, 0),
+            Text = "X",
+            Foreground = Colors.Red.ToColor4()
+        });
+        AxisLabel.TextInfo.Add(new TextInfo() {
+            Origin = new Vector3(0, 11, 0),
+            Text = "Y",
+            Foreground = Colors.Green.ToColor4()
+        });
+        AxisLabel.TextInfo.Add(new TextInfo() {
+            Origin = new Vector3(0, 0, 11),
+            Text = "Z",
+            Foreground = Colors.Blue.ToColor4()
+        });
 
         var meshBuilder = new MeshBuilder(true);
         meshBuilder.AddSphere(new Vector3(0, 0, 0), 0.5);
@@ -135,7 +149,7 @@ public class MainViewModel : BaseViewModel {
         });
     }
 
-    private void AddGroupModel(object o) {
+    private void AddGroupModel(object? o) {
         var model = new MeshGeometryModel3D {
             Geometry = SphereModel,
             Material = BlueMaterial,
@@ -144,13 +158,13 @@ public class MainViewModel : BaseViewModel {
         GroupModelSource.Add(model);
     }
 
-    private void RemoveGroupModel(object o) {
+    private void RemoveGroupModel(object? o) {
         if (GroupModelSource.Count > 0) {
             GroupModelSource.RemoveAt(GroupModelSource.Count - 1);
         }
     }
 
-    private void AddItemsModel(object o) {
+    private void AddItemsModel(object? o) {
         var model = new MeshDataModel {
             Geometry = SphereModel,
             Material = GreenMaterial,
@@ -159,19 +173,19 @@ public class MainViewModel : BaseViewModel {
         ItemsSource.Add(model);
     }
 
-    private void RemoveItemsModel(object o) {
+    private void RemoveItemsModel(object? o) {
         if (ItemsSource.Count > 0) {
             ItemsSource.RemoveAt(ItemsSource.Count - 1);
         }
     }
 
-    private void AnimateGroupModel(object o) {
+    private void AnimateGroupModel(object? o) {
         GroupModel3DTransform =
             CreateAnimatedTransform1(new Media3D.Transform3DGroup(), new Vector3D(5, 0, 0), new Vector3D(0, 1, 0));
         OnPropertyChanged(nameof(GroupModel3DTransform));
     }
 
-    private void AnimateItemsModel(object o) {
+    private void AnimateItemsModel(object? o) {
         ItemsModel3DTransform =
             CreateAnimatedTransform1(new Media3D.Transform3DGroup(), new Vector3D(0, 0, 5), new Vector3D(0, 0, 1));
         OnPropertyChanged(nameof(ItemsModel3DTransform));
@@ -203,7 +217,7 @@ public class MainViewModel : BaseViewModel {
         return transformGroup;
     }
 
-    private void AddTransparentMesh(object o) {
+    private void AddTransparentMesh(object? o) {
         var model = new MeshGeometryModel3D();
         int val = rnd.Next(0, 2);
         switch (val) {
@@ -221,17 +235,17 @@ public class MainViewModel : BaseViewModel {
         val = rnd.Next(0, materialCollection.Count - 1);
         var material = materialCollection[val];
         var diffuse = material.DiffuseColor;
-        diffuse.W = (float)rnd.Next(20, 60) / 100f;
+        diffuse.W = (float) rnd.Next(20, 60) / 100f;
         material.DiffuseColor = diffuse;
         model.Material = material;
-        model.Transform = new TranslateTransform3D((float)rnd.Next(10, 100) / 10,
-                                                           (float)rnd.Next(10, 100) / 10,
-                                                           (float)rnd.Next(10, 100) / 10);
+        model.Transform = new TranslateTransform3D((float) rnd.Next(10, 100) / 10,
+            (float) rnd.Next(10, 100) / 10,
+            (float) rnd.Next(10, 100) / 10);
         model.IsTransparent = true;
         TransparentGroupModelSource.Add(model);
     }
 
-    private void RemoveTransparentModel(object o) {
+    private void RemoveTransparentModel(object? o) {
         if (TransparentGroupModelSource.Count > 0) {
             TransparentGroupModelSource.RemoveAt(TransparentGroupModelSource.Count - 1);
         }
@@ -239,7 +253,7 @@ public class MainViewModel : BaseViewModel {
 }
 
 public class MeshDataModel {
-    public Geometry3D Geometry { set; get; }
-    public Material Material { set; get; }
-    public Transform3D Transform { set; get; }
+    public Geometry3D? Geometry { set; get; }
+    public Material? Material { set; get; }
+    public Transform3D? Transform { set; get; }
 }

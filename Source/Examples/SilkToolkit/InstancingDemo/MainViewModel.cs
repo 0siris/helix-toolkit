@@ -23,19 +23,19 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
-    public MeshGeometry3D Model { get; private set; }
-    public LineGeometry3D Lines { get; private set; }
-    public LineGeometry3D Grid { get; private set; }
-    public Matrix[] ModelInstances { get; private set; }
+    public MeshGeometry3D Model { get; private set; } = new();
+    public LineGeometry3D Lines { get; private set; } = new();
+    public LineGeometry3D Grid { get; private set; } = new();
+    public Matrix[] ModelInstances { get; private set; } = [];
 
-    public Matrix[] SelectedLineInstances { private set; get; }
+    public Matrix[] SelectedLineInstances { private set; get; } = [];
 
-    public InstanceParameter[] InstanceParam { get; private set; }
+    public InstanceParameter[] InstanceParam { get; private set; } = [];
 
-    public BillboardSingleImage3D BillboardModel { private set; get; }
-    public Matrix[] BillboardInstances { private set; get; }
+    public BillboardSingleImage3D? BillboardModel { private set; get; }
+    public Matrix[] BillboardInstances { private set; get; } = [];
 
-    public BillboardInstanceParameter[] BillboardInstanceParams { private set; get; }
+    public BillboardInstanceParameter[] BillboardInstanceParams { private set; get; } = [];
 
     public PhongMaterial ModelMaterial { get; private set; }
     public Transform3D ModelTransform { get; private set; }
@@ -43,7 +43,7 @@ public class MainViewModel : BaseViewModel {
     public Vector3D DirectionalLightDirection { get; private set; }
     public Color DirectionalLightColor { get; private set; }
     public Color AmbientLightColor { get; private set; }
-    public TextureModel Texture { private set; get; }
+    public TextureModel? Texture { private set; get; }
     public bool EnableAnimation { set; get; }
 
     private DispatcherTimer timer = new();
@@ -58,7 +58,8 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(40, 40, 40), LookDirection = new Vector3D(-40, -40, -40),
+            Position = new Point3D(40, 40, 40),
+            LookDirection = new Vector3D(-40, -40, -40),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
@@ -71,30 +72,33 @@ public class MainViewModel : BaseViewModel {
         var b1 = new MeshBuilder(true, true, true);
         b1.AddBox(new Vector3(0, 0, 0), 1, 1, 1, BoxFaces.All);
         Model = b1.ToMeshGeometry3D();
-        for (int i = 0; i < Model.TextureCoordinates.Count; ++i) {
-            var tex = Model.TextureCoordinates[i];
-            Model.TextureCoordinates[i] = new Vector2(tex.X * 0.5f, tex.Y * 0.5f);
+        if (Model.TextureCoordinates is { } textureCoordinates) {
+            for (int i = 0; i < textureCoordinates.Count; ++i) {
+                var tex = textureCoordinates[i];
+                textureCoordinates[i] = new Vector2(tex.X * 0.5f, tex.Y * 0.5f);
+            }
         }
 
         var l1 = new LineBuilder();
         l1.AddBox(new Vector3(0, 0, 0), 1.1, 1.1, 1.1);
         Lines = l1.ToLineGeometry3D();
-        Lines.Colors = [.. Enumerable.Repeat(Colors.White.ToColor4(), Lines.Positions.Count)];
+        Lines.Colors = [.. Enumerable.Repeat(Colors.White.ToColor4(), Lines.Positions?.Count ?? 0)];
         // model trafo
         ModelTransform =
             Transform3D
-                   .Identity; // new Media3D.RotateTransform3D(new Media3D.AxisAngleRotation3D(new Vector3D(0, 0, 1), 45));
+                .Identity; // new Media3D.RotateTransform3D(new Media3D.AxisAngleRotation3D(new Vector3D(0, 0, 1), 45));
 
         // model material
         ModelMaterial = PhongMaterials.White;
-        ModelMaterial.DiffuseMap =
-            TextureModel.Create(
-                new Uri(@"TextureCheckerboard2.jpg", UriKind.RelativeOrAbsolute).ToString());
+        var diffuseMap = TextureModel.Create(
+                             new Uri(@"TextureCheckerboard2.jpg", UriKind.RelativeOrAbsolute).ToString())
+                         ?? throw new InvalidOperationException("The instancing diffuse texture is required.");
+        ModelMaterial.DiffuseMap = diffuseMap;
         ModelMaterial.NormalMap =
             TextureModel.Create(new Uri(@"TextureCheckerboard2_dot3.jpg", UriKind.RelativeOrAbsolute)
-                                    .ToString());
+                .ToString());
 
-        BillboardModel = new BillboardSingleImage3D(ModelMaterial.DiffuseMap, 20, 20);
+        BillboardModel = new BillboardSingleImage3D(diffuseMap, 20, 20);
         Texture = TextureModel.Create("Cubemap_Grandcanyon.dds");
         CreateModels();
         timer.Interval = TimeSpan.FromMilliseconds(30);
@@ -102,7 +106,7 @@ public class MainViewModel : BaseViewModel {
         timer.Start();
     }
 
-    private void Timer_Tick(object sender, EventArgs e) {
+    private void Timer_Tick(object? sender, EventArgs e) {
         if (!EnableAnimation) {
             return;
         }
@@ -138,14 +142,14 @@ public class MainViewModel : BaseViewModel {
             aniDir = true;
         }
 
-        for (int i = -Num - (int)aniX; i < Num + aniX; i++) {
-            for (int j = -Num - (int)aniX; j < Num + aniX; j++) {
+        for (int i = -Num - (int) aniX; i < Num + aniX; i++) {
+            for (int j = -Num - (int) aniX; j < Num + aniX; j++) {
                 var matrix = RotationAxis(new Vector3(0, 1, 0), aniX * Math.Sign(j))
                              * Translation(new Vector3(i * 1.2f + Math.Sign(i), j * 1.2f + Math.Sign(j), i * j / 2.0f));
                 var color = new Color4(1,
-                                       1,
-                                       1,
-                                       1); //new Color4((float)Math.Abs(i) / num, (float)Math.Abs(j) / num, (float)Math.Abs(i + j) / (2 * num), 1);
+                    1,
+                    1,
+                    1); //new Color4((float)Math.Abs(i) / num, (float)Math.Abs(j) / num, (float)Math.Abs(i + j) / (2 * num), 1);
                 //  var emissiveColor = new Color4( rnd.NextFloat(0,1) , rnd.NextFloat(0, 1), rnd.NextFloat(0, 1), rnd.NextFloat(0, 0.2f));
                 var k = Math.Abs(i + j) % 4;
                 Vector2 offset;
@@ -159,7 +163,10 @@ public class MainViewModel : BaseViewModel {
                     offset = new Vector2(aniX, 0.5f);
                 }
 
-                parameters.Add(new InstanceParameter() { DiffuseColor = color, TexCoordOffset = offset });
+                parameters.Add(new InstanceParameter() {
+                    DiffuseColor = color,
+                    TexCoordOffset = offset
+                });
                 instances.Add(matrix);
             }
         }
@@ -168,7 +175,7 @@ public class MainViewModel : BaseViewModel {
         ModelInstances = [.. instances];
         SubTitle = "Number of Instances: " + parameters.Count.ToString();
 
-        if (BillboardInstances == null) {
+        if (billboardinstances.Count == 0) {
             for (int i = 0; i < 2 * Num; ++i) {
                 billboardParams.Add(new BillboardInstanceParameter() {
                     TexCoordOffset = new Vector2(1f / 6 * rnd.Next(0, 6), 1f / 6 * rnd.Next(0, 6)),
@@ -184,9 +191,15 @@ public class MainViewModel : BaseViewModel {
         } else {
             for (int i = 0; i < billboardinstances.Count; ++i) {
                 var current = billboardinstances[i];
-                current.M41 += i % 3 == 0 ? aniX / 50 : -aniX / 50;
-                current.M42 += i % 4 == 0 ? aniY / 50 : -aniY / 30;
-                current.M43 += i % 5 == 0 ? aniZ / 100 : -aniZ / 50;
+                current.M41 += i % 3 == 0
+                    ? aniX / 50
+                    : -aniX / 50;
+                current.M42 += i % 4 == 0
+                    ? aniY / 50
+                    : -aniY / 30;
+                current.M43 += i % 5 == 0
+                    ? aniZ / 100
+                    : -aniZ / 50;
                 billboardinstances[i] = current;
             }
 
@@ -208,16 +221,14 @@ public class MainViewModel : BaseViewModel {
         var hitTests = viewport.FindHits(point);
         if (hitTests.Count > 0) {
             foreach (var hit in hitTests) {
-                if (hit.ModelHit is InstancingMeshGeometryModel3D) {
-                    var index = (int)hit.Tag;
+                if (hit.ModelHit is InstancingMeshGeometryModel3D && hit.Tag is int index) {
                     InstanceParam[index].EmissiveColor = InstanceParam[index].EmissiveColor != Colors.Yellow.ToColor4()
-                                                             ? Colors.Yellow.ToColor4()
-                                                             : Colors.Black.ToColor4();
-                    InstanceParam = (InstanceParameter[])InstanceParam.Clone();
+                        ? Colors.Yellow.ToColor4()
+                        : Colors.Black.ToColor4();
+                    InstanceParam = (InstanceParameter[]) InstanceParam.Clone();
                     break;
-                } else if (hit.ModelHit is LineGeometryModel3D) {
-                    var index = (int)hit.Tag;
-                    SelectedLineInstances = [ModelInstances[index]];
+                } else if (hit.ModelHit is LineGeometryModel3D && hit.Tag is int lineIndex) {
+                    SelectedLineInstances = [ModelInstances[lineIndex]];
                     break;
                 }
             }
@@ -232,7 +243,7 @@ public class MainViewModel : BaseViewModel {
 
     private static Matrix RotationAxis(Vector3 axis, float angle) {
         var m = System.Numerics.Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z),
-                                                              angle);
+            angle);
         return ToMatrix(m);
     }
 
@@ -263,5 +274,5 @@ public class MainViewModel : BaseViewModel {
         m.M43,
         m.M44);
 
-    private float NextFloat(float min, float max) => min + (max - min) * (float)rnd.NextDouble();
+    private float NextFloat(float min, float max) => min + (max - min) * (float) rnd.NextDouble();
 }

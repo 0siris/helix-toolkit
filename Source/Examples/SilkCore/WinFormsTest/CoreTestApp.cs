@@ -16,10 +16,7 @@ public static class DpiHelper {
     [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
     public static extern int GetDeviceCaps(IntPtr hDc, int nIndex);
 
-    public enum DeviceCap {
-        Vertres = 10,
-        Desktopvertres = 117
-    }
+    public enum DeviceCap { Vertres = 10, Desktopvertres = 117 }
 
     public static double GetWindowsScreenScalingFactor(bool percentage = true) {
         //Create Graphics object from the current windows handle
@@ -27,10 +24,10 @@ public static class DpiHelper {
         //Get Handle to the device context associated with this Graphics object
         IntPtr deviceContextHandle = graphicsObject.GetHdc();
         //Call GetDeviceCaps with the Handle to retrieve the Screen Height
-        int logicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int)DeviceCap.Vertres);
-        int physicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int)DeviceCap.Desktopvertres);
+        int logicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int) DeviceCap.Vertres);
+        int physicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int) DeviceCap.Desktopvertres);
         //Divide the Screen Heights to get the scaling factor and round it to two decimals
-        double screenScalingFactor = Math.Round((double)physicalScreenHeight / (double)logicalScreenHeight, 2);
+        double screenScalingFactor = Math.Round((double) physicalScreenHeight / (double) logicalScreenHeight, 2);
         //If requested as percentage - convert it
         if (percentage) {
             screenScalingFactor *= 100.0;
@@ -51,13 +48,24 @@ public class CoreTestApp {
     private readonly Form window;
     private readonly EffectsManager effectsManager;
     private CameraCore camera;
-    private Geometry3D box, sphere, points, lines;
-    private GroupNode groupSphere, groupBox, groupPoints, groupLines, groupModel, groupEffects;
+
+    private Geometry3D box,
+        sphere,
+        points,
+        lines;
+
+    private GroupNode groupSphere,
+        groupBox,
+        groupPoints,
+        groupLines,
+        groupModel,
+        groupEffects;
+
     private EnvironmentMapNode environmentMap;
     private DirectionalLightNode directionalLight;
     private AmbientLightNode ambientLight;
     private const int NumItems = 400;
-    private Random rnd = new((int)Stopwatch.GetTimestamp());
+    private Random rnd = new((int) Stopwatch.GetTimestamp());
     private List<Tuple<bool, MaterialCore>> materials = [];
     private long previousTime;
     private bool resizeRequested = false;
@@ -138,13 +146,17 @@ public class CoreTestApp {
     }
 
     private void AssignViewportOption() {
-        viewport.FxaaLevel = options.EnableFxaa ? FxaaLevel.Low : FxaaLevel.None;
+        viewport.FxaaLevel = options.EnableFxaa
+            ? FxaaLevel.Low
+            : FxaaLevel.None;
         viewport.EnableRenderFrustum = options.EnableFrustum;
         viewport.BackgroundColor =
             new Color4(options.BackgroundColor.X, options.BackgroundColor.Y, options.BackgroundColor.Z, 1);
         viewport.EnableSsao = options.EnableSsao;
         viewport.ShowRenderDetail = options.ShowRenderDetail;
-        viewport.DpiScale = options.EnableDpiScale ? dpiScale : 1;
+        viewport.DpiScale = options.EnableDpiScale
+            ? dpiScale
+            : 1;
         if (options.ShowWireframeChanged) {
             options.ShowWireframeChanged = false;
             foreach (var node in groupModel.Items.Traverse(true, stackCache)) {
@@ -156,6 +168,10 @@ public class CoreTestApp {
     }
 
 
+    [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(camera), nameof(box), nameof(sphere), nameof(points),
+        nameof(lines), nameof(groupSphere), nameof(groupBox), nameof(groupPoints), nameof(groupLines),
+        nameof(groupModel), nameof(groupEffects), nameof(environmentMap), nameof(directionalLight),
+        nameof(ambientLight))]
     private void InitializeScene() {
         camera = new PerspectiveCameraCore() {
             LookDirection = new Vector3(0, 0, 50),
@@ -168,12 +184,14 @@ public class CoreTestApp {
         viewport.CameraCore = camera;
         directionalLight = new DirectionalLightNode() {
             Direction = new Vector3(0, -1, 1),
-            Color = ToColor4(DrawingColor.White).ChangeIntensity(options.DirectionLightIntensity)
+            Color = ToColor4(DrawingColor.White)
+                .ChangeIntensity(options.DirectionLightIntensity)
         };
         viewport.Items.AddChildNode(directionalLight);
 
         ambientLight = new AmbientLightNode() {
-            Color = ToColor4(DrawingColor.White).ChangeIntensity(options.AmbientLightIntensity)
+            Color = ToColor4(DrawingColor.White)
+                .ChangeIntensity(options.AmbientLightIntensity)
         };
         viewport.Items.AddChildNode(ambientLight);
 
@@ -185,7 +203,9 @@ public class CoreTestApp {
         builder = new MeshBuilder(true, true, true);
         builder.AddBox(Vector3.Zero, 1, 1, 1);
         box = builder.ToMesh();
-        points = new PointGeometry3D() { Positions = sphere.Positions };
+        points = new PointGeometry3D() {
+            Positions = sphere.Positions
+        };
         var lineBuilder = new LineBuilder();
         lineBuilder.AddBox(Vector3.Zero, 2, 2, 2);
         lines = lineBuilder.ToLineGeometry3D();
@@ -213,7 +233,8 @@ public class CoreTestApp {
                 };
                 node.Attach(effectsManager);
                 context.Post((o) => { groupSphere.AddChildNode(node); }, null);
-                Task.Delay(1).Wait();
+                Task.Delay(1)
+                    .Wait();
             }
         });
 
@@ -231,7 +252,8 @@ public class CoreTestApp {
                 };
                 node.Attach(effectsManager);
                 context.Post((o) => { groupBox.AddChildNode(node); }, null);
-                Task.Delay(1).Wait();
+                Task.Delay(1)
+                    .Wait();
             }
         });
 
@@ -240,12 +262,16 @@ public class CoreTestApp {
                 var transform =
                     Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
                 var node = new PointNode() {
-                    Geometry = points, ModelMatrix = transform,
-                    Material = new PointMaterialCore() { PointColor = ToColor4(DrawingColor.Red) }
+                    Geometry = points,
+                    ModelMatrix = transform,
+                    Material = new PointMaterialCore() {
+                        PointColor = ToColor4(DrawingColor.Red)
+                    }
                 };
                 node.Attach(effectsManager);
                 context.Post((o) => { groupPoints.AddChildNode(node); }, null);
-                Task.Delay(1).Wait();
+                Task.Delay(1)
+                    .Wait();
             }
         });
 
@@ -254,12 +280,16 @@ public class CoreTestApp {
                 var transform =
                     Translation(new Vector3(rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50), rnd.NextFloat(-50, 50)));
                 var node = new LineNode() {
-                    Geometry = lines, ModelMatrix = transform,
-                    Material = new LineMaterialCore() { LineColor = ToColor4(DrawingColor.LightBlue) }
+                    Geometry = lines,
+                    ModelMatrix = transform,
+                    Material = new LineMaterialCore() {
+                        LineColor = ToColor4(DrawingColor.LightBlue)
+                    }
                 };
                 node.Attach(effectsManager);
                 context.Post((o) => { groupLines.AddChildNode(node); }, null);
-                Task.Delay(1).Wait();
+                Task.Delay(1)
+                    .Wait();
             }
         });
 
@@ -271,14 +301,19 @@ public class CoreTestApp {
         var imGui = new ImGuiNode();
         viewport.Items.AddChildNode(imGui);
         imGui.UpdatingImGuiUi += ImGui_UpdatingImGuiUI;
-        groupEffects.AddChildNode(new NodePostEffectBorderHighlight() { EffectName = "highlightEffect", Color = ToColor4(DrawingColor.Yellow) });
+        groupEffects.AddChildNode(new NodePostEffectBorderHighlight() {
+            EffectName = "highlightEffect",
+            Color = ToColor4(DrawingColor.Yellow)
+        });
         viewport.Items.AddChildNode(groupEffects);
-        environmentMap = new EnvironmentMapNode() { Texture = TextureModel.Create("Cubemap_Grandcanyon.dds") };
+        environmentMap = new EnvironmentMapNode() {
+            Texture = TextureModel.Create("Cubemap_Grandcanyon.dds")
+        };
         viewport.Items.AddChildNode(environmentMap);
         viewport.NodeHitOnMouseDown += Viewport_NodeHitOnMouseDown;
     }
 
-    private void Viewport_NodeHitOnMouseDown(object sender, SceneNodeMouseDownArgs e) {
+    private void Viewport_NodeHitOnMouseDown(object? sender, SceneNodeMouseDownArgs e) {
         currentHighlight?.PostEffects = "";
 
         currentHighlight = null;
@@ -288,125 +323,142 @@ public class CoreTestApp {
         }
     }
 
-    private void ImGui_UpdatingImGuiUI(object sender, EventArgs e) {
-        SceneUi.DrawUi((int)viewport.ActualWidth, (int)viewport.ActualHeight, ref options, groupModel);
+    private void ImGui_UpdatingImGuiUI(object? sender, EventArgs e) {
+        SceneUi.DrawUi((int) viewport.ActualWidth, (int) viewport.ActualHeight, ref options, groupModel);
     }
 
     private void InitializeMaterials() {
         var diffuse = TextureModel.Create("TextureCheckerboard2.jpg");
         var normal = TextureModel.Create("TextureCheckerboard2_dot3.jpg");
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new DiffuseMaterialCore() {
-                                                        DiffuseColor = ToColor4(DrawingColor.Red), DiffuseMap = diffuse
-                                                    }));
+            new DiffuseMaterialCore() {
+                DiffuseColor = ToColor4(DrawingColor.Red),
+                DiffuseMap = diffuse
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new DiffuseMaterialCore() {
-                                                        DiffuseColor = ToColor4(DrawingColor.Green),
-                                                        DiffuseMap = diffuse
-                                                    }));
+            new DiffuseMaterialCore() {
+                DiffuseColor = ToColor4(DrawingColor.Green),
+                DiffuseMap = diffuse
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new DiffuseMaterialCore() {
-                                                        DiffuseColor = ToColor4(DrawingColor.Blue), DiffuseMap = diffuse
-                                                    }));
+            new DiffuseMaterialCore() {
+                DiffuseColor = ToColor4(DrawingColor.Blue),
+                DiffuseMap = diffuse
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new PhongMaterialCore() {
-                                                        DiffuseColor = ToColor4(DrawingColor.DodgerBlue),
-                                                        ReflectiveColor = ToColor4(DrawingColor.DarkGray),
-                                                        SpecularShininess = 10,
-                                                        SpecularColor = ToColor4(DrawingColor.Red),
-                                                        DiffuseMap = diffuse, NormalMap = normal
-                                                    }));
+            new PhongMaterialCore() {
+                DiffuseColor = ToColor4(DrawingColor.DodgerBlue),
+                ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10,
+                SpecularColor = ToColor4(DrawingColor.Red),
+                DiffuseMap = diffuse,
+                NormalMap = normal
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new PhongMaterialCore() {
-                                                        DiffuseColor = ToColor4(DrawingColor.Orange),
-                                                        ReflectiveColor = ToColor4(DrawingColor.DarkGray),
-                                                        SpecularShininess = 10,
-                                                        SpecularColor = ToColor4(DrawingColor.Red),
-                                                        DiffuseMap = diffuse, NormalMap = normal
-                                                    }));
+            new PhongMaterialCore() {
+                DiffuseColor = ToColor4(DrawingColor.Orange),
+                ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10,
+                SpecularColor = ToColor4(DrawingColor.Red),
+                DiffuseMap = diffuse,
+                NormalMap = normal
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new PhongMaterialCore() {
-                                                        DiffuseColor = ToColor4(DrawingColor.PaleGreen),
-                                                        ReflectiveColor = ToColor4(DrawingColor.DarkGray),
-                                                        SpecularShininess = 10,
-                                                        SpecularColor = ToColor4(DrawingColor.Red),
-                                                        DiffuseMap = diffuse, NormalMap = normal
-                                                    }));
+            new PhongMaterialCore() {
+                DiffuseColor = ToColor4(DrawingColor.PaleGreen),
+                ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10,
+                SpecularColor = ToColor4(DrawingColor.Red),
+                DiffuseMap = diffuse,
+                NormalMap = normal
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(false, new NormalMaterialCore()));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new PbrMaterialCore() {
-                                                        AlbedoColor = ToColor4(DrawingColor.Beige),
-                                                        MetallicFactor = 0.8f, RoughnessFactor = 0.6f
-                                                    }));
+            new PbrMaterialCore() {
+                AlbedoColor = ToColor4(DrawingColor.Beige),
+                MetallicFactor = 0.8f,
+                RoughnessFactor = 0.6f
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new PbrMaterialCore() {
-                                                        AlbedoColor = ToColor4(DrawingColor.Bisque),
-                                                        MetallicFactor = 0.4f, RoughnessFactor = 0.9f
-                                                    }));
+            new PbrMaterialCore() {
+                AlbedoColor = ToColor4(DrawingColor.Bisque),
+                MetallicFactor = 0.4f,
+                RoughnessFactor = 0.9f
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(false,
-                                                    new PbrMaterialCore() {
-                                                        AlbedoColor = ToColor4(DrawingColor.Chartreuse),
-                                                        MetallicFactor = 0.2f, RoughnessFactor = 0.2f
-                                                    }));
+            new PbrMaterialCore() {
+                AlbedoColor = ToColor4(DrawingColor.Chartreuse),
+                MetallicFactor = 0.2f,
+                RoughnessFactor = 0.2f
+            }));
 
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new DiffuseMaterialCore() {
-                                                        DiffuseColor = new Color4(1, 0, 1, 0.6f), DiffuseMap = diffuse
-                                                    }));
+            new DiffuseMaterialCore() {
+                DiffuseColor = new Color4(1, 0, 1, 0.6f),
+                DiffuseMap = diffuse
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new DiffuseMaterialCore() {
-                                                        DiffuseColor = new Color4(0, 1, 1, 0.4f), DiffuseMap = diffuse
-                                                    }));
+            new DiffuseMaterialCore() {
+                DiffuseColor = new Color4(0, 1, 1, 0.4f),
+                DiffuseMap = diffuse
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new DiffuseMaterialCore() {
-                                                        DiffuseColor = new Color4(1, 0, 1, 0.3f), DiffuseMap = diffuse
-                                                    }));
+            new DiffuseMaterialCore() {
+                DiffuseColor = new Color4(1, 0, 1, 0.3f),
+                DiffuseMap = diffuse
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new PhongMaterialCore() {
-                                                        DiffuseColor = new Color4(1, 1, 0, 0.6f),
-                                                        ReflectiveColor = ToColor4(DrawingColor.DarkGray),
-                                                        SpecularShininess = 10,
-                                                        SpecularColor = ToColor4(DrawingColor.Red),
-                                                        DiffuseMap = diffuse, NormalMap = normal
-                                                    }));
+            new PhongMaterialCore() {
+                DiffuseColor = new Color4(1, 1, 0, 0.6f),
+                ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10,
+                SpecularColor = ToColor4(DrawingColor.Red),
+                DiffuseMap = diffuse,
+                NormalMap = normal
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new PhongMaterialCore() {
-                                                        DiffuseColor = new Color4(0, 1, 1, 0.4f),
-                                                        ReflectiveColor = ToColor4(DrawingColor.DarkGray),
-                                                        SpecularShininess = 10,
-                                                        SpecularColor = ToColor4(DrawingColor.Red),
-                                                        DiffuseMap = diffuse, NormalMap = normal
-                                                    }));
+            new PhongMaterialCore() {
+                DiffuseColor = new Color4(0, 1, 1, 0.4f),
+                ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10,
+                SpecularColor = ToColor4(DrawingColor.Red),
+                DiffuseMap = diffuse,
+                NormalMap = normal
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new PhongMaterialCore() {
-                                                        DiffuseColor = new Color4(1, 0, 1, 0.3f),
-                                                        ReflectiveColor = ToColor4(DrawingColor.DarkGray),
-                                                        SpecularShininess = 10,
-                                                        SpecularColor = ToColor4(DrawingColor.Red),
-                                                        DiffuseMap = diffuse, NormalMap = normal
-                                                    }));
+            new PhongMaterialCore() {
+                DiffuseColor = new Color4(1, 0, 1, 0.3f),
+                ReflectiveColor = ToColor4(DrawingColor.DarkGray),
+                SpecularShininess = 10,
+                SpecularColor = ToColor4(DrawingColor.Red),
+                DiffuseMap = diffuse,
+                NormalMap = normal
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new PbrMaterialCore() {
-                                                        AlbedoColor = new Color4(1, 1, 0, 0.6f), MetallicFactor = 0.8f,
-                                                        RoughnessFactor = 0.6f
-                                                    }));
+            new PbrMaterialCore() {
+                AlbedoColor = new Color4(1, 1, 0, 0.6f),
+                MetallicFactor = 0.8f,
+                RoughnessFactor = 0.6f
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new PbrMaterialCore() {
-                                                        AlbedoColor = new Color4(0, 1, 1, 0.4f), MetallicFactor = 0.4f,
-                                                        RoughnessFactor = 0.9f
-                                                    }));
+            new PbrMaterialCore() {
+                AlbedoColor = new Color4(0, 1, 1, 0.4f),
+                MetallicFactor = 0.4f,
+                RoughnessFactor = 0.9f
+            }));
         materials.Add(new Tuple<bool, MaterialCore>(true,
-                                                    new PbrMaterialCore() {
-                                                        AlbedoColor = new Color4(1, 0, 1, 0.6f), MetallicFactor = 0.2f,
-                                                        RoughnessFactor = 0.2f
-                                                    }));
+            new PbrMaterialCore() {
+                AlbedoColor = new Color4(1, 0, 1, 0.6f),
+                MetallicFactor = 0.2f,
+                RoughnessFactor = 0.2f
+            }));
     }
 
-    private void Viewport_OnErrorOccurred(object sender, Exception e) { }
+    private void Viewport_OnErrorOccurred(object? sender, Exception e) { }
 
-    private void Viewport_OnStopRendering(object sender, EventArgs e) { }
+    private void Viewport_OnStopRendering(object? sender, EventArgs e) { }
 
-    private void Viewport_OnStartRendering(object sender, EventArgs e) {
+    private void Viewport_OnStartRendering(object? sender, EventArgs e) {
         bool isGoingOut = true;
         bool isAddingNode = false;
         RunRenderLoop(() => {
@@ -426,8 +478,10 @@ public class CoreTestApp {
             }
 
             AssignViewportOption();
-            directionalLight.Color = ToColor4(DrawingColor.White).ChangeIntensity(options.DirectionLightIntensity);
-            ambientLight.Color = ToColor4(DrawingColor.White).ChangeIntensity(options.AmbientLightIntensity);
+            directionalLight.Color = ToColor4(DrawingColor.White)
+                .ChangeIntensity(options.DirectionLightIntensity);
+            ambientLight.Color = ToColor4(DrawingColor.White)
+                .ChangeIntensity(options.AmbientLightIntensity);
             ChangeEnvironmentMapVisibility(options.ShowEnvironmentMap);
             viewport.Render();
 
@@ -483,7 +537,7 @@ public class CoreTestApp {
         }
     }
 
-    private void Window_ResizeEnd(object sender, EventArgs e) {
+    private void Window_ResizeEnd(object? sender, EventArgs e) {
         resizeRequested = true;
     }
 
@@ -491,17 +545,17 @@ public class CoreTestApp {
         resizeRequested = true;
     }
 
-    private void Window_FormClosing(object sender, FormClosingEventArgs e) {
+    private void Window_FormClosing(object? sender, FormClosingEventArgs e) {
         viewport.EndD3D();
     }
 
-    private void Window_Load(object sender, EventArgs e) {
+    private void Window_Load(object? sender, EventArgs e) {
         viewport.StartD3D(window.ClientSize.Width, window.ClientSize.Height);
     }
 
     #region Handle mouse event
 
-    private void Window_MouseMove(object sender, MouseEventArgs e) {
+    private void Window_MouseMove(object? sender, MouseEventArgs e) {
         var io = ImGui.GetIO();
         if (!cameraController.IsMouseCaptured) {
             io.MousePos = new System.Numerics.Vector2(e.X, e.Y);
@@ -511,7 +565,7 @@ public class CoreTestApp {
         }
     }
 
-    private void Window_MouseUp(object sender, MouseEventArgs e) {
+    private void Window_MouseUp(object? sender, MouseEventArgs e) {
         var io = ImGui.GetIO();
         switch (e.Button) {
             case MouseButtons.Left:
@@ -540,7 +594,7 @@ public class CoreTestApp {
         }
     }
 
-    private void Window_MouseDown(object sender, MouseEventArgs e) {
+    private void Window_MouseDown(object? sender, MouseEventArgs e) {
         var io = ImGui.GetIO();
         if (!cameraController.IsMouseCaptured) {
             switch (e.Button) {
@@ -582,10 +636,10 @@ public class CoreTestApp {
         }
     }
 
-    private void Window_MouseWheel(object sender, MouseEventArgs e) {
+    private void Window_MouseWheel(object? sender, MouseEventArgs e) {
         var io = ImGui.GetIO();
         if (!cameraController.IsMouseCaptured) {
-            io.MouseWheel = (int)(e.Delta * 0.01f);
+            io.MouseWheel = (int) (e.Delta * 0.01f);
         }
 
         if (!io.WantCaptureMouse) {
@@ -593,11 +647,11 @@ public class CoreTestApp {
         }
     }
 
-    private void Window_KeyDown(object sender, KeyEventArgs e) {
+    private void Window_KeyDown(object? sender, KeyEventArgs e) {
         UpdateImGuiKey(e, true);
     }
 
-    private void Window_KeyUp(object sender, KeyEventArgs e) {
+    private void Window_KeyUp(object? sender, KeyEventArgs e) {
         UpdateImGuiKey(e, false);
     }
 
@@ -614,58 +668,58 @@ public class CoreTestApp {
 
         int keyValue = e.KeyValue;
         ImGuiKey key = keyValue switch {
-            >= (int)Keys.D0 and <= (int)Keys.D9 => (ImGuiKey)((int)ImGuiKey._0 + keyValue - (int)Keys.D0),
-            >= (int)Keys.A and <= (int)Keys.Z => (ImGuiKey)((int)ImGuiKey.A + keyValue - (int)Keys.A),
-            >= (int)Keys.F1 and <= (int)Keys.F24 => (ImGuiKey)((int)ImGuiKey.F1 + keyValue - (int)Keys.F1),
-            >= (int)Keys.NumPad0 and <= (int)Keys.NumPad9 =>
-                (ImGuiKey)((int)ImGuiKey.Keypad0 + keyValue - (int)Keys.NumPad0),
-            (int)Keys.Tab => ImGuiKey.Tab,
-            (int)Keys.Left => ImGuiKey.LeftArrow,
-            (int)Keys.Right => ImGuiKey.RightArrow,
-            (int)Keys.Up => ImGuiKey.UpArrow,
-            (int)Keys.Down => ImGuiKey.DownArrow,
-            (int)Keys.PageUp => ImGuiKey.PageUp,
-            (int)Keys.PageDown => ImGuiKey.PageDown,
-            (int)Keys.Home => ImGuiKey.Home,
-            (int)Keys.End => ImGuiKey.End,
-            (int)Keys.Insert => ImGuiKey.Insert,
-            (int)Keys.Delete => ImGuiKey.Delete,
-            (int)Keys.Back => ImGuiKey.Backspace,
-            (int)Keys.Space => ImGuiKey.Space,
-            (int)Keys.Enter => ImGuiKey.Enter,
-            (int)Keys.Escape => ImGuiKey.Escape,
-            (int)Keys.ShiftKey or (int)Keys.LShiftKey => ImGuiKey.LeftShift,
-            (int)Keys.RShiftKey => ImGuiKey.RightShift,
-            (int)Keys.ControlKey or (int)Keys.LControlKey => ImGuiKey.LeftCtrl,
-            (int)Keys.RControlKey => ImGuiKey.RightCtrl,
-            (int)Keys.Menu or (int)Keys.LMenu => ImGuiKey.LeftAlt,
-            (int)Keys.RMenu => ImGuiKey.RightAlt,
-            (int)Keys.LWin => ImGuiKey.LeftSuper,
-            (int)Keys.RWin => ImGuiKey.RightSuper,
-            (int)Keys.Apps => ImGuiKey.Menu,
-            (int)Keys.Oem7 => ImGuiKey.Apostrophe,
-            (int)Keys.Oemcomma => ImGuiKey.Comma,
-            (int)Keys.OemMinus => ImGuiKey.Minus,
-            (int)Keys.OemPeriod => ImGuiKey.Period,
-            (int)Keys.OemQuestion => ImGuiKey.Slash,
-            (int)Keys.Oem1 => ImGuiKey.Semicolon,
-            (int)Keys.Oemplus => ImGuiKey.Equal,
-            (int)Keys.OemOpenBrackets => ImGuiKey.LeftBracket,
-            (int)Keys.Oem5 => ImGuiKey.Backslash,
-            (int)Keys.Oem6 => ImGuiKey.RightBracket,
-            (int)Keys.Oemtilde => ImGuiKey.GraveAccent,
-            (int)Keys.CapsLock => ImGuiKey.CapsLock,
-            (int)Keys.Scroll => ImGuiKey.ScrollLock,
-            (int)Keys.NumLock => ImGuiKey.NumLock,
-            (int)Keys.PrintScreen => ImGuiKey.PrintScreen,
-            (int)Keys.Pause => ImGuiKey.Pause,
-            (int)Keys.Decimal => ImGuiKey.KeypadDecimal,
-            (int)Keys.Divide => ImGuiKey.KeypadDivide,
-            (int)Keys.Multiply => ImGuiKey.KeypadMultiply,
-            (int)Keys.Subtract => ImGuiKey.KeypadSubtract,
-            (int)Keys.Add => ImGuiKey.KeypadAdd,
-            (int)Keys.BrowserBack => ImGuiKey.AppBack,
-            (int)Keys.BrowserForward => ImGuiKey.AppForward,
+            >= (int) Keys.D0 and <= (int) Keys.D9 => (ImGuiKey) ((int) ImGuiKey._0 + keyValue - (int) Keys.D0),
+            >= (int) Keys.A and <= (int) Keys.Z => (ImGuiKey) ((int) ImGuiKey.A + keyValue - (int) Keys.A),
+            >= (int) Keys.F1 and <= (int) Keys.F24 => (ImGuiKey) ((int) ImGuiKey.F1 + keyValue - (int) Keys.F1),
+            >= (int) Keys.NumPad0 and <= (int) Keys.NumPad9 =>
+                (ImGuiKey) ((int) ImGuiKey.Keypad0 + keyValue - (int) Keys.NumPad0),
+            (int) Keys.Tab => ImGuiKey.Tab,
+            (int) Keys.Left => ImGuiKey.LeftArrow,
+            (int) Keys.Right => ImGuiKey.RightArrow,
+            (int) Keys.Up => ImGuiKey.UpArrow,
+            (int) Keys.Down => ImGuiKey.DownArrow,
+            (int) Keys.PageUp => ImGuiKey.PageUp,
+            (int) Keys.PageDown => ImGuiKey.PageDown,
+            (int) Keys.Home => ImGuiKey.Home,
+            (int) Keys.End => ImGuiKey.End,
+            (int) Keys.Insert => ImGuiKey.Insert,
+            (int) Keys.Delete => ImGuiKey.Delete,
+            (int) Keys.Back => ImGuiKey.Backspace,
+            (int) Keys.Space => ImGuiKey.Space,
+            (int) Keys.Enter => ImGuiKey.Enter,
+            (int) Keys.Escape => ImGuiKey.Escape,
+            (int) Keys.ShiftKey or (int) Keys.LShiftKey => ImGuiKey.LeftShift,
+            (int) Keys.RShiftKey => ImGuiKey.RightShift,
+            (int) Keys.ControlKey or (int) Keys.LControlKey => ImGuiKey.LeftCtrl,
+            (int) Keys.RControlKey => ImGuiKey.RightCtrl,
+            (int) Keys.Menu or (int) Keys.LMenu => ImGuiKey.LeftAlt,
+            (int) Keys.RMenu => ImGuiKey.RightAlt,
+            (int) Keys.LWin => ImGuiKey.LeftSuper,
+            (int) Keys.RWin => ImGuiKey.RightSuper,
+            (int) Keys.Apps => ImGuiKey.Menu,
+            (int) Keys.Oem7 => ImGuiKey.Apostrophe,
+            (int) Keys.Oemcomma => ImGuiKey.Comma,
+            (int) Keys.OemMinus => ImGuiKey.Minus,
+            (int) Keys.OemPeriod => ImGuiKey.Period,
+            (int) Keys.OemQuestion => ImGuiKey.Slash,
+            (int) Keys.Oem1 => ImGuiKey.Semicolon,
+            (int) Keys.Oemplus => ImGuiKey.Equal,
+            (int) Keys.OemOpenBrackets => ImGuiKey.LeftBracket,
+            (int) Keys.Oem5 => ImGuiKey.Backslash,
+            (int) Keys.Oem6 => ImGuiKey.RightBracket,
+            (int) Keys.Oemtilde => ImGuiKey.GraveAccent,
+            (int) Keys.CapsLock => ImGuiKey.CapsLock,
+            (int) Keys.Scroll => ImGuiKey.ScrollLock,
+            (int) Keys.NumLock => ImGuiKey.NumLock,
+            (int) Keys.PrintScreen => ImGuiKey.PrintScreen,
+            (int) Keys.Pause => ImGuiKey.Pause,
+            (int) Keys.Decimal => ImGuiKey.KeypadDecimal,
+            (int) Keys.Divide => ImGuiKey.KeypadDivide,
+            (int) Keys.Multiply => ImGuiKey.KeypadMultiply,
+            (int) Keys.Subtract => ImGuiKey.KeypadSubtract,
+            (int) Keys.Add => ImGuiKey.KeypadAdd,
+            (int) Keys.BrowserBack => ImGuiKey.AppBack,
+            (int) Keys.BrowserForward => ImGuiKey.AppForward,
             _ => ImGuiKey.None
         };
 
@@ -678,7 +732,7 @@ public class CoreTestApp {
     }
 
 
-    private void Window_KeyPress(object sender, KeyPressEventArgs e) {
+    private void Window_KeyPress(object? sender, KeyPressEventArgs e) {
         var io = ImGui.GetIO();
         io.AddInputCharacter(e.KeyChar);
     }
@@ -687,5 +741,6 @@ public class CoreTestApp {
 }
 
 internal static class RandomExtensions {
-    public static float NextFloat(this Random random, float minimum, float maximum) => minimum + (float)random.NextDouble() * (maximum - minimum);
+    public static float NextFloat(this Random random, float minimum, float maximum)
+        => minimum + (float) random.NextDouble() * (maximum - minimum);
 }

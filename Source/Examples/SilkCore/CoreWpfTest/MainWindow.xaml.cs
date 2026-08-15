@@ -22,16 +22,14 @@ public partial class MainWindow : Window {
         InitializeComponent();
         DataContext = new MainViewModel();
         view.AddHandler(Element3D.MouseDown3DEvent,
-                        new RoutedEventHandler((s, e) => {
-                            var arg = e as MouseDown3DEventArgs;
+            new RoutedEventHandler((s, e) => {
+                if (e is not MouseDown3DEventArgs {HitTestResult: { } hitTestResult}) {
+                    return;
+                }
 
-                            if (arg.HitTestResult == null) {
-                                return;
-                            }
-
-                            if (arg.HitTestResult.ModelHit is SceneNode node && node.Tag is AttachedNodeViewModel vm) {
-                                vm.Selected = !vm.Selected;
-                            }
-                        }));
+                if (hitTestResult.ModelHit is SceneNode node && node.Tag is AttachedNodeViewModel vm) {
+                    vm.Selected = !vm.Selected;
+                }
+            }));
     }
 }

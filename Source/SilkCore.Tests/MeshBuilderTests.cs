@@ -2,6 +2,7 @@ using HelixToolkit.SharpDX.Core;
 using Silk.NET.Maths;
 
 namespace SilkCore.Tests;
+
 public class MeshBuilderTests {
     [Fact]
     [Trait("Category", "Unit")]
@@ -9,12 +10,15 @@ public class MeshBuilderTests {
         var builder = new MeshBuilder();
 
         builder.AddTriangle(new Vector3D<float>(0, 0, 0),
-                            new Vector3D<float>(1, 0, 0),
-                            new Vector3D<float>(1, 1, 0));
+            new Vector3D<float>(1, 0, 0),
+            new Vector3D<float>(1, 1, 0));
 
-        Assert.Equal(3, builder.Positions.Count);
-        Assert.Equal([0, 1, 2], builder.TriangleIndices);
-        Assert.All(builder.Normals, normal => Assert.Equal(new Vector3D<float>(0, 0, 1), normal));
+        var positions = builder.Positions;
+        var triangleIndices = builder.TriangleIndices ?? throw new InvalidOperationException();
+        var normals = builder.Normals ?? throw new InvalidOperationException();
+        Assert.Equal(3, positions.Count);
+        Assert.Equal([0, 1, 2], triangleIndices);
+        Assert.All(normals, normal => Assert.Equal(new Vector3D<float>(0, 0, 1), normal));
     }
 
     [Fact]
@@ -32,7 +36,7 @@ public class MeshBuilderTests {
         builder.ComputeNormalsAndTangents(MeshFaces.Default);
 
         Assert.True(builder.HasNormals);
-        Assert.Equal(3, builder.Normals.Count);
+        Assert.Equal(3, (builder.Normals ?? throw new InvalidOperationException()).Count);
     }
 
     [Theory]
@@ -45,9 +49,9 @@ public class MeshBuilderTests {
         builder.AddBox(new Vector3D<float>(0), 2, 4, 6, faces);
 
         Assert.Equal(vertices, builder.Positions.Count);
-        Assert.Equal(indices, builder.TriangleIndices.Count);
-        Assert.Equal(vertices, builder.Normals.Count);
-        Assert.Equal(vertices, builder.TextureCoordinates.Count);
+        Assert.Equal(indices, (builder.TriangleIndices ?? throw new InvalidOperationException()).Count);
+        Assert.Equal(vertices, (builder.Normals ?? throw new InvalidOperationException()).Count);
+        Assert.Equal(vertices, (builder.TextureCoordinates ?? throw new InvalidOperationException()).Count);
     }
 
     [Fact]
@@ -57,13 +61,13 @@ public class MeshBuilderTests {
         first.AddTriangle(new Vector3D<float>(0, 0, 0), new Vector3D<float>(1, 0, 0), new Vector3D<float>(0, 1, 0));
         var second = new MeshBuilder();
         second.AddTriangle(new Vector3D<float>(0, 0, 1),
-                           new Vector3D<float>(1, 0, 1),
-                           new Vector3D<float>(0, 1, 1));
+            new Vector3D<float>(1, 0, 1),
+            new Vector3D<float>(0, 1, 1));
 
         first.Append(second);
 
         Assert.Equal(6, first.Positions.Count);
-        Assert.Equal([0, 1, 2, 3, 4, 5], first.TriangleIndices);
+        Assert.Equal([0, 1, 2, 3, 4, 5], first.TriangleIndices ?? throw new InvalidOperationException());
     }
 
     [Fact]
@@ -76,7 +80,7 @@ public class MeshBuilderTests {
 
         Assert.Equal(new Vector3D<float>(1, 1, 1), mesh.Bound.Minimum);
         Assert.Equal(new Vector3D<float>(3, 5, 7), mesh.Bound.Maximum);
-        Assert.Equal(24, mesh.Positions.Count);
-        Assert.Equal(36, mesh.Indices.Count);
+        Assert.Equal(24, (mesh.Positions ?? throw new InvalidOperationException()).Count);
+        Assert.Equal(36, (mesh.Indices ?? throw new InvalidOperationException()).Count);
     }
 }

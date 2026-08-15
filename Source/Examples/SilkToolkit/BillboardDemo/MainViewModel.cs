@@ -43,9 +43,9 @@ public class MainViewModel : DemoCore.BaseViewModel {
     public PhongMaterial EarthMaterial { get; }
     public BillboardImage3D FlagsBillboard { get; }
 
-    public Geometry3D AxisLines { private set; get; }
+    public Geometry3D AxisLines { private set; get; } = new LineGeometry3D();
 
-    public BillboardImage3D AxisLabels { private set; get; }
+    public BillboardImage3D? AxisLabels { private set; get; }
 
     public BillboardSingleText3D SelectedFlagBillboard { get; } = new() {
         FontColor = Color.Blue,
@@ -55,11 +55,13 @@ public class MainViewModel : DemoCore.BaseViewModel {
         IsDynamic = true // Mark dynamic because it will change frequently
     };
 
-    public BillboardText3D LandmarkBillboards { get; } = new() { IsDynamic = true }; // Mark dynamic because it will change frequently
+    public BillboardText3D LandmarkBillboards { get; } = new() {
+        IsDynamic = true
+    }; // Mark dynamic because it will change frequently
 
-    public BillboardText3D LandmarkBillboards2 { get; }
-    public BillboardImage3D BatchedText { private set; get; }
-    public Stream BackgroundTexture { private set; get; }
+    public BillboardText3D LandmarkBillboards2 { get; } = new();
+    public BillboardImage3D? BatchedText { private set; get; }
+    public Stream BackgroundTexture { private set; get; } = Stream.Null;
 
     public Flag[] Flags => FlagsCollection.Flags;
 
@@ -68,7 +70,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
         get;
     } = true;
 
-    public Flag SelectedFlag {
+    public Flag? SelectedFlag {
         set {
             SetValue(ref field, value);
             UpdateSelectedFlagBillboard(value);
@@ -76,9 +78,14 @@ public class MainViewModel : DemoCore.BaseViewModel {
         get;
     }
 
-    private Color4 prevLocColor, prevLocColor2;
-    private Color4 prevLocBackColor, prevLocBackColor2;
-    private TextInfo highlightedLoc, highlightedLoc2;
+    private Color4 prevLocColor,
+        prevLocColor2;
+
+    private Color4 prevLocBackColor,
+        prevLocBackColor2;
+
+    private TextInfo? highlightedLoc,
+        highlightedLoc2;
 
     public MainViewModel() {
         Title = "HelixToolkit Billboard Demo";
@@ -112,26 +119,33 @@ public class MainViewModel : DemoCore.BaseViewModel {
         EarthMaterial.EnableAutoTangent = true;
         BackgroundTexture =
             BitmapExtensions.CreateLinearGradientBitmapStream(EffectsManager,
-                                                              128,
-                                                              128,
-                                                              Direct2DImageFormat.Bmp,
-                                                              new Vector2(0, 0),
-                                                              new Vector2(0, 128),
-                                                              [
-                                                                  new GradientStop()
-                                                                      {Color = Color.DarkBlue, Position = 0f},
-                                                                  new GradientStop()
-                                                                      {Color = Color.Black, Position = 1f}
-                                                              ]);
+                128,
+                128,
+                Direct2DImageFormat.Bmp,
+                new Vector2(0, 0),
+                new Vector2(0, 128),
+                [
+                    new GradientStop() {
+                        Color = Color.DarkBlue,
+                        Position = 0f
+                    },
+                    new GradientStop() {
+                        Color = Color.Black,
+                        Position = 1f
+                    }
+                ]);
 
-        FlagsBillboard = new BillboardImage3D(TextureModel.Create("Flags.jpg"));
+        FlagsBillboard = new BillboardImage3D(TextureModel.Create("Flags.jpg")
+                                              ?? throw new InvalidOperationException("The flags texture is required."));
         foreach (var info in FlagsCollection.Flags.Where(x => x.Position != Vector3.Zero)) {
             FlagsBillboard.ImageInfos.Add(info);
         }
 
         var segoeFont = new BitmapFont();
         segoeFont.Load(@"Fonts\SegoeScript.fnt");
-        LandmarkBillboards2 = new BillboardText3D(segoeFont, TextureModel.Create(@"Fonts\SegoeScript.dds"));
+        LandmarkBillboards2 = new BillboardText3D(segoeFont,
+            TextureModel.Create(@"Fonts\SegoeScript.dds")
+            ?? throw new InvalidOperationException("The font texture is required."));
         AddLocations();
         AddBatchedText();
         CreateCoordinateSystem();
@@ -146,19 +160,30 @@ public class MainViewModel : DemoCore.BaseViewModel {
         AxisLines.Colors = [Color.Red, Color.Red, Color.Green, Color.Green, Color.Blue, Color.Blue];
         var texts = new TextInfoExt[] {
             new() {
-                Text = "右", Origin = Vector3.UnitX * 8, Foreground = Color.Red, Size = 16,
+                Text = "右",
+                Origin = Vector3.UnitX * 8,
+                Foreground = Color.Red,
+                Size = 16,
                 FontWeight = D2DFontWeight.SemiBold
             },
             new() {
-                Text = "前", Origin = Vector3.UnitY * 8, Foreground = Color.Green, Size = 16,
+                Text = "前",
+                Origin = Vector3.UnitY * 8,
+                Foreground = Color.Green,
+                Size = 16,
                 FontWeight = D2DFontWeight.SemiBold
             },
             new() {
-                Text = "上", Origin = Vector3.UnitZ * 8, Foreground = Color.Blue, Size = 16,
+                Text = "上",
+                Origin = Vector3.UnitZ * 8,
+                Foreground = Color.Blue,
+                Size = 16,
                 FontWeight = D2DFontWeight.SemiBold
             }
         };
-        AxisLabels = texts.ToBillboardImage3D(EffectsManager);
+        AxisLabels = texts.ToBillboardImage3D(EffectsManager
+                                              ?? throw new InvalidOperationException(
+                                                  "An effects manager is required."));
     }
 
     private void AddLocations() {
@@ -175,21 +200,21 @@ public class MainViewModel : DemoCore.BaseViewModel {
             VerticalAlignment = BillboardVerticalAlignment.Bottom
         });
         LandmarkBillboards.TextInfo.Add(new TextInfo("Equator",
-                                                     new Vector3(0, offset, 0)) {
+            new Vector3(0, offset, 0)) {
             Foreground = Color.White,
             Scale = scale
         });
         LandmarkBillboards.TextInfo.Add(new TextInfo("Equator",
-                                                     new Vector3((float)Math.Cos(Math.PI / 6) * offset,
-                                                                 -(float)Math.Sin(Math.PI / 6) * offset,
-                                                                 0)) {
+            new Vector3((float) Math.Cos(Math.PI / 6) * offset,
+                -(float) Math.Sin(Math.PI / 6) * offset,
+                0)) {
             Foreground = Color.White,
             Scale = scale
         });
         LandmarkBillboards.TextInfo.Add(new TextInfo("Equator",
-                                                     new Vector3(-(float)Math.Cos(Math.PI / 6) * offset,
-                                                                 -(float)Math.Sin(Math.PI / 6) * offset,
-                                                                 0)) {
+            new Vector3(-(float) Math.Cos(Math.PI / 6) * offset,
+                -(float) Math.Sin(Math.PI / 6) * offset,
+                0)) {
             Foreground = Color.White,
             Scale = scale
         });
@@ -258,7 +283,8 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 FontFamily = "Segoe UI",
                 Padding = new Vector4(4),
                 Origin = new Vector3(-10, 0, -4),
-                Size = 18, HorizontalAlignment = BillboardHorizontalAlignment.Left
+                Size = 18,
+                HorizontalAlignment = BillboardHorizontalAlignment.Left
             },
             new() {
                 Text = "中文",
@@ -268,7 +294,8 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 Origin = new Vector3(-10, 0, -2),
                 Padding = new Vector4(4, 2, 4, 2),
                 FontFamily = "Microsoft YaHei",
-                Size = 16, HorizontalAlignment = BillboardHorizontalAlignment.Right
+                Size = 16,
+                HorizontalAlignment = BillboardHorizontalAlignment.Right
             },
             new() {
                 Text = "日本語",
@@ -344,33 +371,44 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 Size = 24
             }
         };
-        BatchedText = texts.ToBillboardImage3D(EffectsManager);
+        BatchedText = texts.ToBillboardImage3D(EffectsManager
+                                               ?? throw new InvalidOperationException(
+                                                   "An effects manager is required."));
     }
 
-    private void UpdateSelectedFlagBillboard(Flag flag) {
+    private void UpdateSelectedFlagBillboard(Flag? flag) {
+        if (flag is null) {
+            SelectedFlagBillboard.TextInfo = new TextInfo(string.Empty, Vector3.Zero);
+            return;
+        }
+
         if (flag.Position != Vector3.Zero) {
-            SelectedFlagBillboard.TextInfo = new TextInfo(flag.Name, flag.Position) { Scale = 0.015f };
+            SelectedFlagBillboard.TextInfo = new TextInfo(flag.Name, flag.Position) {
+                Scale = 0.015f
+            };
         } else {
-            SelectedFlagBillboard.TextInfo = null;
+            SelectedFlagBillboard.TextInfo = new TextInfo(string.Empty, Vector3.Zero);
         }
     }
 
     public void OnMouseUpHandler(object sender, MouseUp3DEventArgs e) {
-        if (e.HitTestResult != null && e.HitTestResult.ModelHit is BillboardTextModel3D model
-                                    && e.HitTestResult is BillboardHitResult res) {
+        if (e.HitTestResult is BillboardHitResult res
+            && res.ModelHit is BillboardTextModel3D model) {
             if (model.Geometry == FlagsBillboard) {
                 SelectedFlag = FlagsBillboard.ImageInfos[res.TextInfoIndex] as Flag;
             } else if (model.Geometry == LandmarkBillboards) {
                 RestoreLocColor();
-                BackupLocColor(LandmarkBillboards.TextInfo[res.TextInfoIndex]);
-                highlightedLoc.Background = Color.Yellow;
-                highlightedLoc.Foreground = Color.Black;
+                var location = LandmarkBillboards.TextInfo[res.TextInfoIndex];
+                BackupLocColor(location);
+                location.Background = Color.Yellow;
+                location.Foreground = Color.Black;
                 LandmarkBillboards.Invalidate();
             } else if (model.Geometry == LandmarkBillboards2) {
                 RestoreLocColor2();
-                BackupLocColor2(LandmarkBillboards2.TextInfo[res.TextInfoIndex]);
-                highlightedLoc2.Background = Color.Yellow;
-                highlightedLoc2.Foreground = Color.Black;
+                var location = LandmarkBillboards2.TextInfo[res.TextInfoIndex];
+                BackupLocColor2(location);
+                location.Background = Color.Yellow;
+                location.Foreground = Color.Black;
                 LandmarkBillboards2.Invalidate();
             }
         }
@@ -411,7 +449,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
 
     public void OnFlag_Drop(object sender, DragEventArgs e) {
         if (e.Data.GetData("Flag") is Flag flag && sender is Viewport3DX viewport) {
-            var point = e.GetPosition(sender as IInputElement);
+            var point = e.GetPosition(viewport);
             var hits = viewport.FindHits(point);
             if (hits.Count == 0) {
                 return;
@@ -428,7 +466,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
     }
 
     //private DataObject dragData;
-    private ListBox dragSource;
+    private ListBox? dragSource;
 
     public void ListBox_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
         dragSource = sender as ListBox;
@@ -436,14 +474,13 @@ public class MainViewModel : DemoCore.BaseViewModel {
 
     public void ListBox_MouseMove(object sender, MouseEventArgs e) {
         if (e.MouseDevice.LeftButton == MouseButtonState.Pressed) {
-            var parent = sender as ListBox;
-            if (parent == null || parent != dragSource) {
+            if (sender is not ListBox parent || !ReferenceEquals(parent, dragSource)) {
                 return;
             }
 
             if (e.OriginalSource is FrameworkElement dp && dp.DataContext is Flag flag) {
                 DataObject dragData = new DataObject("Flag", flag);
-                DragDrop.DoDragDrop(dragSource, dragData, DragDropEffects.Move);
+                DragDrop.DoDragDrop(parent, dragData, DragDropEffects.Move);
                 dragSource = null;
             }
         }

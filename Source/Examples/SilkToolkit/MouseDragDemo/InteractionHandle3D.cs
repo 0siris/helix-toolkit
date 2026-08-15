@@ -10,6 +10,7 @@
 namespace MouseDragDemo;
 
 using System.Linq;
+using System;
 using System.Windows;
 using System.Windows.Input;
 using HelixToolkit.SharpDX.Core.Cameras;
@@ -33,15 +34,18 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     private DraggableGeometryModel3D[] midpointHandles = new DraggableGeometryModel3D[4];
     private MeshGeometryModel3D[] edgeHandles = new MeshGeometryModel3D[4];
     private bool isCaptured;
-    private Viewport3DX viewport;
-    private CameraCore camera;
+    private Viewport3DX? viewport;
+    private CameraCore? camera;
     private System.Windows.Media.Media3D.Point3D lastHitPos;
     private MatrixTransform3D dragTransform;
     //private Material selectionMaterial;
 
 
     private static Geometry3D _nodeGeometry;
-    private static Geometry3D _edgeHGeometry, _edgeVGeometry;
+
+    private static Geometry3D _edgeHGeometry,
+        _edgeVGeometry;
+
     private static Geometry3D _boxGeometry;
 
     static InteractionHandle3D() {
@@ -72,7 +76,8 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
         //selectionColor.ReflectiveColor = Color.Black;
 
         for (int i = 0; i < 4; i++) {
-            var translate = Matrix3DExtensions.Translate3D(positions[i].ToVector3D());
+            var translate = Matrix3DExtensions.Translate3D(positions[i]
+                .ToVector3D());
             cornerHandles[i] = new DraggableGeometryModel3D() {
                 DragZ = false,
                 Visibility = Visibility.Visible,
@@ -85,7 +90,9 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
             cornerHandles[i].MouseDown3D += OnNodeMouse3DDown;
 
             edgeHandles[i] = new MeshGeometryModel3D() {
-                Geometry = (i % 2 == 0) ? _edgeHGeometry : _edgeVGeometry,
+                Geometry = (i % 2 == 0)
+                    ? _edgeHGeometry
+                    : _edgeVGeometry,
                 Material = Material,
                 Visibility = Visibility.Visible,
                 Transform = new MatrixTransform3D(translate),
@@ -126,21 +133,21 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
         var m3 = Scaling(1, +2, 1) * Translation(positions[0]);
         edgeHandles[3].Transform = new MatrixTransform3D(m3.ToMatrix3D());
 
-        dragTransform = new MatrixTransform3D(Transform.Value);
+        dragTransform = new MatrixTransform3D(Transform is { } initialTransform
+            ? initialTransform.Value
+            : throw new InvalidOperationException("A drag transform is required."));
     }
 
 
     private void OnNodeMouse3DDown(object sender, RoutedEventArgs e) {
-        var args = e as Mouse3DEventArgs;
-        if (args == null) return;
-        if (args.Viewport == null) return;
+        if (e is not Mouse3DEventArgs {Viewport: not null}) return;
 
         isCaptured = true;
     }
 
     private void OnNodeMouse3DUp(object sender, RoutedEventArgs e) {
         if (isCaptured) {
-            Application.Current.MainWindow.Cursor = Cursors.Arrow;
+            Application.Current.MainWindow?.Cursor = Cursors.Arrow;
             //UpdateTransforms(sender);
         }
     }
@@ -152,19 +159,17 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     }
 
     private void OnEdgeMouse3DDown(object sender, RoutedEventArgs e) {
-        var args = e as Mouse3DEventArgs;
-        if (args == null) return;
-        if (args.Viewport == null) return;
+        if (e is not Mouse3DEventArgs {Viewport: not null, HitTestResult: { } hitTestResult} args) return;
 
         isCaptured = true;
         viewport = args.Viewport;
         camera = args.Viewport.Camera;
-        lastHitPos = args.HitTestResult.PointHit.ToPoint3D();
+        lastHitPos = hitTestResult.PointHit.ToPoint3D();
     }
 
     private void OnEdgeMouse3DUp(object sender, RoutedEventArgs e) {
         if (isCaptured) {
-            Application.Current.MainWindow.Cursor = Cursors.Arrow;
+            Application.Current.MainWindow?.Cursor = Cursors.Arrow;
             isCaptured = false;
             camera = null;
             viewport = null;
@@ -172,18 +177,18 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     }
 
     private void OnEdgeMouse3DMove(object sender, RoutedEventArgs e) {
-        if (isCaptured) {
-            Application.Current.MainWindow.Cursor = Cursors.SizeAll;
-            var args = e as Mouse3DEventArgs;
+        if (isCaptured && camera is { } activeCamera && viewport is { } activeViewport
+            && e is Mouse3DEventArgs args) {
+            Application.Current.MainWindow?.Cursor = Cursors.SizeAll;
 
             // move dragmodel
-            var normal = camera.LookDirection;
+            var normal = activeCamera.LookDirection;
 
             // hit position
-            var newHit = viewport.UnProjectOnPlane(args.Position, lastHitPos, normal.ToVector3D());
+            var newHit = activeViewport.UnProjectOnPlane(args.Position, lastHitPos, normal.ToVector3D());
             if (newHit.HasValue) {
                 var offset = (newHit.Value - lastHitPos);
-                var trafo = Transform.Value;
+                var trafo = dragTransform.Matrix;
 
                 if (DragX)
                     trafo.OffsetX += offset.X;
@@ -202,25 +207,33 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     }
 
     private void UpdateTransforms(object sender) {
-        var cornerTrafos = cornerHandles.Select(x => (x.Transform as MatrixTransform3D)).ToArray();
-        var cornerMatrix = cornerTrafos.Select(x => (x).Value).ToArray();
+        var cornerTrafos = cornerHandles.Select(x => x.Transform as MatrixTransform3D
+                                                     ?? throw new InvalidOperationException(
+                                                         "A corner handle transform is required."))
+            .ToArray();
+        var cornerMatrix = cornerTrafos.Select(x => x.Value)
+            .ToArray();
         positions = [.. cornerMatrix.Select(x => TranslationVector(x.ToMatrix()))];
 
         BoundingBox bb;
         if (sender == cornerHandles[0] || sender == cornerHandles[2]) {
-            Application.Current.MainWindow.Cursor = Cursors.SizeNESW;
+            Application.Current.MainWindow?.Cursor = Cursors.SizeNESW;
             bb = BoundingBoxExtensions.FromPoints([positions[0], positions[2]]);
         } else if (sender == cornerHandles[1] || sender == cornerHandles[3]) {
-            Application.Current.MainWindow.Cursor = Cursors.SizeNWSE;
+            Application.Current.MainWindow?.Cursor = Cursors.SizeNWSE;
             bb = BoundingBoxExtensions.FromPoints([positions[1], positions[3]]);
         } else {
             if (sender == midpointHandles[0] || sender == midpointHandles[2]) {
-                Application.Current.MainWindow.Cursor = Cursors.SizeNS;
+                Application.Current.MainWindow?.Cursor = Cursors.SizeNS;
             } else {
-                Application.Current.MainWindow.Cursor = Cursors.SizeWE;
+                Application.Current.MainWindow?.Cursor = Cursors.SizeWE;
             }
 
-            positions = [.. midpointHandles.Select(x => TranslationVector(x.Transform.Value.ToMatrix()))];
+            positions = [
+                .. midpointHandles.Select(x => x.Transform is { } transform
+                    ? TranslationVector(transform.ToMatrix())
+                    : throw new InvalidOperationException("A midpoint handle transform is required."))
+            ];
             bb = BoundingBoxExtensions.FromPoints(positions);
         }
 
@@ -239,25 +252,36 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
 
         for (int i = 0; i < 4; i++) {
             if (sender != cornerHandles[i]) {
-                cornerTrafos[i].Matrix = Matrix3DExtensions.Translate3D(positions[i].ToVector3D());
+                cornerTrafos[i].Matrix = Matrix3DExtensions.Translate3D(positions[i]
+                    .ToVector3D());
             }
 
             var m = Matrix3DExtensions.Translate3D(0.5 * (positions[i] + positions[(i + 1) % 4]).ToVector3D());
-            ((MatrixTransform3D)midpointHandles[i].Transform).Matrix = m;
+            if (midpointHandles[i].Transform is not MatrixTransform3D midpointTransform)
+                throw new InvalidOperationException("A midpoint handle transform is required.");
+            midpointTransform.Matrix = m;
         }
 
         // 3 --- 2
         // |     |
         // 0 --- 1
         var m0 = Scaling(positions[1].X - positions[0].X, 1, 1) * Translation(positions[0]);
-        ((MatrixTransform3D)edgeHandles[0].Transform).Matrix = (m0.ToMatrix3D());
+        if (edgeHandles[0].Transform is not MatrixTransform3D edgeTransform0)
+            throw new InvalidOperationException("An edge handle transform is required.");
+        edgeTransform0.Matrix = m0.ToMatrix3D();
         var m2 = Scaling(positions[1].X - positions[0].X, 1, 1) * Translation(positions[3]);
-        ((MatrixTransform3D)edgeHandles[2].Transform).Matrix = (m2.ToMatrix3D());
+        if (edgeHandles[2].Transform is not MatrixTransform3D edgeTransform2)
+            throw new InvalidOperationException("An edge handle transform is required.");
+        edgeTransform2.Matrix = m2.ToMatrix3D();
 
         var m1 = Scaling(1, positions[2].Y - positions[1].Y, 1) * Translation(positions[1]);
-        ((MatrixTransform3D)edgeHandles[1].Transform).Matrix = (m1.ToMatrix3D());
+        if (edgeHandles[1].Transform is not MatrixTransform3D edgeTransform1)
+            throw new InvalidOperationException("An edge handle transform is required.");
+        edgeTransform1.Matrix = m1.ToMatrix3D();
         var m3 = Scaling(1, positions[2].Y - positions[1].Y, 1) * Translation(positions[0]);
-        ((MatrixTransform3D)edgeHandles[3].Transform).Matrix = (m3.ToMatrix3D());
+        if (edgeHandles[3].Transform is not MatrixTransform3D edgeTransform3)
+            throw new InvalidOperationException("An edge handle transform is required.");
+        edgeTransform3.Matrix = m3.ToMatrix3D();
     }
 
 
@@ -272,28 +296,28 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
 
     public static readonly DependencyProperty IsSelectedProperty =
         DependencyProperty.Register("IsSelected",
-                                    typeof(bool),
-                                    typeof(InteractionHandle3D),
-                                    new UIPropertyMetadata(false));
+            typeof(bool),
+            typeof(InteractionHandle3D),
+            new UIPropertyMetadata(false));
 
 
     public bool DragX {
-        get => (bool)GetValue(DragXProperty);
+        get => (bool) GetValue(DragXProperty);
         set => SetValue(DragXProperty, value);
     }
 
     public bool DragY {
-        get => (bool)GetValue(DragYProperty);
+        get => (bool) GetValue(DragYProperty);
         set => SetValue(DragYProperty, value);
     }
 
     public bool DragZ {
-        get => (bool)GetValue(DragZProperty);
+        get => (bool) GetValue(DragZProperty);
         set => SetValue(DragZProperty, value);
     }
 
     public bool IsSelected {
-        get => (bool)GetValue(IsSelectedProperty);
+        get => (bool) GetValue(IsSelectedProperty);
         set => SetValue(IsSelectedProperty, value);
     }
 
@@ -301,7 +325,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     ///
     /// </summary>
     public Material Material {
-        get => (Material)GetValue(MaterialProperty);
+        get => (Material) GetValue(MaterialProperty);
         set => SetValue(MaterialProperty, value);
     }
 
@@ -310,18 +334,18 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     /// </summary>
     public static readonly DependencyProperty MaterialProperty =
         DependencyProperty.Register("Material",
-                                    typeof(Material),
-                                    typeof(InteractionHandle3D),
-                                    new UIPropertyMetadata(MaterialChanged));
+            typeof(Material),
+            typeof(InteractionHandle3D),
+            new UIPropertyMetadata(MaterialChanged));
 
     /// <summary>
     ///
     /// </summary>
     private static void MaterialChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
         if (e.NewValue is PhongMaterial) {
-            foreach (var item in ((GroupModel3D)d).Children) {
-                var model = item as MaterialGeometryModel3D;
-                model?.Material = e.NewValue as PhongMaterial;
+            foreach (var item in ((GroupModel3D) d).Children) {
+                if (item is MaterialGeometryModel3D model && e.NewValue is PhongMaterial material)
+                    model.Material = material;
             }
         }
     }

@@ -10,7 +10,7 @@ namespace MemoryLeakTester;
 /// Interaction logic for MainWindow.xaml
 /// </summary>
 public partial class MainWindow : Window {
-    private Window testWin;
+    private Window? testWin;
     private DispatcherTimer? timer = null;
     private SystemStateParams systemparams = new();
     private IList<Tuple<string, Type>> projectWinPairs = [];
@@ -48,17 +48,17 @@ public partial class MainWindow : Window {
     }
 
     private void StopButton_Click(object sender, RoutedEventArgs e) {
-        timer.Stop();
+        timer?.Stop();
         timer = null;
         startButton.Visibility = Visibility.Visible;
         stopButton.Visibility = Visibility.Collapsed;
     }
 
-    private void Timer_Tick(object sender, EventArgs e) {
-        if (testWin == null) {
+    private void Timer_Tick(object? sender, EventArgs e) {
+        if (testWin is null) {
             CreateWindow();
-        } else {
-            testWin.Close();
+        } else if (testWin is { } window) {
+            window.Close();
             testWin = null;
             GC.Collect(0, GCCollectionMode.Forced);
             GC.Collect();

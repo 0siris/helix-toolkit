@@ -17,26 +17,25 @@ using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
-public enum MaterialType {
-    BlinnPhong, Pbr, Diffuse
-};
+public enum MaterialType { BlinnPhong, Pbr, Diffuse };
 
 public class MainViewModel : BaseViewModel {
     private const string OpenFileFilter = "3D model files (*.obj;*.3ds;*.stl|*.obj;*.3ds;*.stl;";
 
     public ObservableElement3DCollection ModelGeometry { get; private set; }
 
-    public ObservableElement3DCollection PlaneGeometry { private set; get; }
+    public ObservableElement3DCollection PlaneGeometry { private set; get; } = [];
 
-    public LineGeometry3D GridModel { private set; get; }
+    public LineGeometry3D GridModel { private set; get; } = new();
 
-    public Media3D.Transform3D GridTransform { private set; get; }
+    public Media3D.Transform3D GridTransform { private set; get; } = Media3D.Transform3D.Identity;
 
     public bool ShowWireframe {
         set {
             if (SetValue(ref field, value)) {
                 foreach (var model in ModelGeometry) {
-                    (model as MeshGeometryModel3D).RenderWireframe = value;
+                    if (model is MeshGeometryModel3D mesh)
+                        mesh.RenderWireframe = value;
                 }
             }
         }
@@ -48,7 +47,9 @@ public class MainViewModel : BaseViewModel {
     public bool HighlightSeparated {
         set {
             if (SetValue(ref field, value)) {
-                DrawMode = value ? OutlineMode.Separated : OutlineMode.Merged;
+                DrawMode = value
+                    ? OutlineMode.Separated
+                    : OutlineMode.Merged;
                 OnPropertyChanged(nameof(DrawMode));
             }
         }
@@ -99,17 +100,21 @@ public class MainViewModel : BaseViewModel {
         get => materialType;
     }
 
-    public OitWeightMode[] OitWeights { get; } = [OitWeightMode.Linear0, OitWeightMode.Linear1, OitWeightMode.Linear2, OitWeightMode.NonLinear];
+    public OitWeightMode[] OitWeights { get; } =
+        [OitWeightMode.Linear0, OitWeightMode.Linear1, OitWeightMode.Linear2, OitWeightMode.NonLinear];
 
-    public OitRenderType[] OitRenderTypes { get; } = [OitRenderType.None, OitRenderType.DepthPeeling, OitRenderType.SinglePassWeighted];
+    public OitRenderType[] OitRenderTypes { get; } =
+        [OitRenderType.None, OitRenderType.DepthPeeling, OitRenderType.SinglePassWeighted];
 
     public MaterialType[] MaterialTypes { get; } = [MaterialType.BlinnPhong, MaterialType.Pbr, MaterialType.Diffuse];
 
     public int RedPlaneOpacity {
         set {
             if (SetValue(ref field, value)) {
-                var m = (PlaneGeometry[0] as MeshGeometryModel3D).Material as PhongMaterial;
-                m.DiffuseColor = new Color4(1, 0, 0, value / 100f);
+                if (PlaneGeometry.Count > 0 && PlaneGeometry[0] is MeshGeometryModel3D {
+                        Material: PhongMaterial material
+                    })
+                    material.DiffuseColor = new Color4(1, 0, 0, value / 100f);
             }
         }
         get;
@@ -118,8 +123,10 @@ public class MainViewModel : BaseViewModel {
     public int GreenPlaneOpacity {
         set {
             if (SetValue(ref field, value)) {
-                var m = (PlaneGeometry[1] as MeshGeometryModel3D).Material as PhongMaterial;
-                m.DiffuseColor = new Color4(0, 1, 0, value / 100f);
+                if (PlaneGeometry.Count > 1 && PlaneGeometry[1] is MeshGeometryModel3D {
+                        Material: PhongMaterial material
+                    })
+                    material.DiffuseColor = new Color4(0, 1, 0, value / 100f);
             }
         }
         get;
@@ -128,8 +135,10 @@ public class MainViewModel : BaseViewModel {
     public int BluePlaneOpacity {
         set {
             if (SetValue(ref field, value)) {
-                var m = (PlaneGeometry[2] as MeshGeometryModel3D).Material as PhongMaterial;
-                m.DiffuseColor = new Color4(0, 0, 1, value / 100f);
+                if (PlaneGeometry.Count > 2 && PlaneGeometry[2] is MeshGeometryModel3D {
+                        Material: PhongMaterial material
+                    })
+                    material.DiffuseColor = new Color4(0, 0, 1, value / 100f);
             }
         }
         get;
@@ -137,7 +146,9 @@ public class MainViewModel : BaseViewModel {
 
     public ICommand ResetCameraCommand { set; get; }
 
-    private SynchronizationContext context = SynchronizationContext.Current;
+    private readonly SynchronizationContext context = SynchronizationContext.Current
+                                                      ?? throw new InvalidOperationException(
+                                                          "The transparent rendering demo requires a synchronization context.");
 
 
     private readonly Random rnd = new();
@@ -245,22 +256,26 @@ public class MainViewModel : BaseViewModel {
         AttachModelList(objCol);
     }
 
-    public void AttachModelList(List<Object3D> objs) {
-        var rnd = new Random();
+    public void AttachModelList(List<Object3D>? objs) {
+        if (objs is null)
+            return;
 
         foreach (var ob in objs) {
-            ob.Geometry.UpdateOctree();
-            Task.Delay(50).Wait(); //Only for async loading demo
+            if (ob.Geometry is not { } geometry)
+                continue;
+            geometry.UpdateOctree();
+            Task.Delay(50)
+                .Wait(); //Only for async loading demo
             context.Post((o) => {
-                var s = new MeshGeometryModel3D {
-                    Geometry = ob.Geometry,
-                    IsTransparent = true,
-                    DepthBias = -100
-                };
-                UpdateMaterial(s);
-                ModelGeometry.Add(s);
-            },
-                         null);
+                    var s = new MeshGeometryModel3D {
+                        Geometry = geometry,
+                        IsTransparent = true,
+                        DepthBias = -100
+                    };
+                    UpdateMaterial(s);
+                    ModelGeometry.Add(s);
+                },
+                null);
         }
     }
 
@@ -274,32 +289,26 @@ public class MainViewModel : BaseViewModel {
 
     private void UpdateMaterial(MeshGeometryModel3D mesh) {
         var diffuse = new Color4 {
-            X = (float)rnd.NextDouble(),
-            Y = (float)rnd.NextDouble(),
-            Z = (float)rnd.NextDouble(),
+            X = (float) rnd.NextDouble(),
+            Y = (float) rnd.NextDouble(),
+            Z = (float) rnd.NextDouble(),
             W = 0.6f
         };
-        Material material = null;
-        switch (materialType) {
-            case MaterialType.BlinnPhong:
-                material = new PhongMaterial() {
-                    DiffuseColor = diffuse
-                };
-                break;
-            case MaterialType.Pbr:
-                material = new PbrMaterial() {
-                    AlbedoColor = diffuse,
-                    MetallicFactor = 0.7f,
-                    RoughnessFactor = 0.6f,
-                    ReflectanceFactor = 0.2,
-                };
-                break;
-            case MaterialType.Diffuse:
-                material = new DiffuseMaterial() {
-                    DiffuseColor = diffuse
-                };
-                break;
-        }
+        Material material = materialType switch {
+            MaterialType.BlinnPhong => new PhongMaterial() {
+                DiffuseColor = diffuse
+            },
+            MaterialType.Pbr => new PbrMaterial() {
+                AlbedoColor = diffuse,
+                MetallicFactor = 0.7f,
+                RoughnessFactor = 0.6f,
+                ReflectanceFactor = 0.2,
+            },
+            MaterialType.Diffuse => new DiffuseMaterial() {
+                DiffuseColor = diffuse
+            },
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
         mesh.Material = material;
     }

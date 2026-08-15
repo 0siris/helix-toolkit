@@ -39,11 +39,17 @@ public class MainViewModel : BaseViewModel {
             UpDirection = new Vector3D(0, 0, 1)
         };
 
-        var m1 = Load3Ds("suzanne.obj").Select(x => x.Geometry).ToArray();
-        MeshModel1 = m1[0];
+        MeshModel1 = Load3Ds("suzanne.obj")
+                         .Select(x => x.Geometry)
+                         .OfType<Geometry3D>()
+                         .FirstOrDefault()
+                     ?? throw new InvalidOperationException("The first model did not contain geometry.");
 
-        var m2 = Load3Ds("skeleton.3ds").Select(x => x.Geometry).ToArray();
-        MeshModel2 = m2[0];
+        MeshModel2 = Load3Ds("skeleton.3ds")
+                         .Select(x => x.Geometry)
+                         .OfType<Geometry3D>()
+                         .FirstOrDefault()
+                     ?? throw new InvalidOperationException("The second model did not contain geometry.");
 
         Model1Transform = new Media3D.TranslateTransform3D(new Vector3D(7, 0, 0));
         Model2Transform = new Media3D.TranslateTransform3D(new Vector3D(-5, 0, 0));

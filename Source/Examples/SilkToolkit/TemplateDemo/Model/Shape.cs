@@ -13,7 +13,7 @@ public abstract class Shape {
 
     protected abstract Geometry3D GetGeometry();
 
-    public System.Windows.Media.Media3D.Transform3D Transform { get; set; }
+    public required System.Windows.Media.Media3D.Transform3D Transform { get; set; }
 
-    public Material Material { get; set; }
+    public required Material Material { get; set; }
 }

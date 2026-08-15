@@ -12,6 +12,7 @@ namespace DeferredShadingDemo;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Data;
 using System.Windows.Media.Animation;
 using DemoCore;
@@ -32,8 +33,8 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Model { get; private set; }
     public MeshGeometry3D Plane { get; private set; }
-    public LineGeometry3D Lines { get; private set; }
-    public LineGeometry3D Grid { get; private set; }
+    public LineGeometry3D? Lines { get; private set; }
+    public LineGeometry3D? Grid { get; private set; }
 
     public PhongMaterial RedMaterial { get; private set; }
     public PhongMaterial GreenMaterial { get; private set; }
@@ -136,7 +137,8 @@ public class MainViewModel : BaseViewModel {
 
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(18, 64, 30), LookDirection = new Vector3D(-18, -64, -30),
+            Position = new Point3D(18, 64, 30),
+            LookDirection = new Vector3D(-18, -64, -30),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
@@ -147,16 +149,19 @@ public class MainViewModel : BaseViewModel {
         //load model
         var reader = new ObjReader();
         var objModel = reader.Read(@"./Media/bunny.obj");
-        Model = objModel[0].Geometry as MeshGeometry3D;
+        Model = objModel.Select(x => x.Geometry)
+                    .OfType<MeshGeometry3D>()
+                    .FirstOrDefault()
+                ?? throw new InvalidOperationException("The deferred shading model could not be loaded.");
         var scale = 2.0;
 
         // model trafos
         var transf1 = new Transform3DGroup();
         transf1.Children.Add(new ScaleTransform3D(scale, scale, scale));
         transf1.Children.Add(new RotateTransform3D(new Media3D.AxisAngleRotation3D(new Vector3D(0, 1, 0), 40),
-                                                   0.0,
-                                                   0.0,
-                                                   0.0));
+            0.0,
+            0.0,
+            0.0));
         transf1.Children.Add(new TranslateTransform3D(0, -2, 3));
         Model1Transform = transf1;
 
@@ -185,10 +190,10 @@ public class MainViewModel : BaseViewModel {
         PlaneMaterial = PhongMaterials.DefaultVrml;
         PlaneMaterial.DiffuseMap =
             LoadFileToMemory(new Uri(@"./Media/TextureCheckerboard2.jpg", UriKind.RelativeOrAbsolute)
-                                 .ToString());
+                .ToString());
         PlaneMaterial.NormalMap =
             LoadFileToMemory(new Uri(@"./Media/TextureCheckerboard2_dot3.jpg", UriKind.RelativeOrAbsolute)
-                                 .ToString());
+                .ToString());
 
         // setup lighting            
         AmbientLightColor = Colors.DarkGray;
@@ -254,10 +259,10 @@ public class MainViewModel : BaseViewModel {
     /// Update Pointlights
     /// </summary>
     private void UpdatePointLightCollection() {
-        if (PointLightCollection != null) {
-            for (int i = 0; i < PointLightCollection.Count; i++) {
-                (PointLightCollection[i] as PointLight3D).Attenuation = PointLightAttenuation;
-                (PointLightCollection[i] as PointLight3D).Color = PointLightColor;
+        for (int i = 0; i < PointLightCollection.Count; i++) {
+            if (PointLightCollection[i] is PointLight3D pointLight) {
+                pointLight.Attenuation = PointLightAttenuation;
+                pointLight.Color = PointLightColor;
             }
         }
     }
@@ -290,9 +295,9 @@ public class MainViewModel : BaseViewModel {
                 Position = new Point3D(0, 20, 0),
                 Direction = new Vector3D(0, -1, 0),
                 Transform = CreateAnimatedDirection(-new Vector3D(0, -1, 0),
-                                                    (2 * rndx.NextDouble() - 1) * new Vector3D(1, 0, 0) +
-                                                    (2 * rndz.NextDouble() - 1) * new Vector3D(0, 0, 1),
-                                                    rndx.Next(10) + 8),
+                    (2 * rndx.NextDouble() - 1) * new Vector3D(1, 0, 0) +
+                    (2 * rndz.NextDouble() - 1) * new Vector3D(0, 0, 1),
+                    rndx.Next(10) + 8),
             };
             SpotLightCollection.Add(spotLight);
         }
@@ -305,10 +310,10 @@ public class MainViewModel : BaseViewModel {
     /// Update Spotlights
     /// </summary>
     private void UpdateSpotLightCollection() {
-        if (SpotLightCollection != null) {
-            for (int i = 0; i < SpotLightCollection.Count; i++) {
-                (SpotLightCollection[i] as SpotLight3D).Attenuation = SpotLightAttenuation;
-                (SpotLightCollection[i] as SpotLight3D).Color = SpotLightColor;
+        for (int i = 0; i < SpotLightCollection.Count; i++) {
+            if (SpotLightCollection[i] is SpotLight3D spotLight) {
+                spotLight.Attenuation = SpotLightAttenuation;
+                spotLight.Color = SpotLightColor;
             }
         }
     }
@@ -366,7 +371,9 @@ public class MainViewModel : BaseViewModel {
     private void LoadModel(string filename, MeshFaces faces) {
         // load model
         var reader = new ObjReader();
-        var objModel = reader.Read(filename, new ModelInfo() { Faces = MeshFaces.Default });
+        var objModel = reader.Read(filename, new ModelInfo() {
+            Faces = MeshFaces.Default
+        });
         //this.Model = objModel[0].Geometry as MeshGeometry3D;
         //this.Model.Colors = this.Model.Positions.Select(x => new Color4(1, 0, 0, 1)).ToArray();
     }
@@ -384,13 +391,17 @@ public class MainViewModel : BaseViewModel {
 }
 
 public class ColorVectorConverter : IValueConverter {
-    public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) => value is Color4 color ? color.ToColor() : value;
+    public object? Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+        => value is Color4 color
+            ? color.ToColor()
+            : value;
 
-    public object ConvertBack(
-        object value,
+    public object? ConvertBack(
+        object? value,
         Type targetType,
-        object parameter,
+        object? parameter,
         System.Globalization.CultureInfo culture
     )
-        => targetType == typeof(Color) ? value : ((Color)value).ToColor4();
+        => targetType == typeof(Color) ? value :
+            value is Color color ? color.ToColor4() : null;
 }

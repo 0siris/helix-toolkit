@@ -4,8 +4,6 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace FileLoadDemo;
 
 using System.Collections.Generic;
@@ -48,8 +46,8 @@ public class MainViewModel : ObservableObject {
 
     public bool RenderEnvironmentMap {
         set {
-            if (Set(ref field, value) && scene != null && scene.Root != null) {
-                foreach (var node in scene.Root.Traverse()) {
+            if (Set(ref field, value) && scene?.Root is { } root) {
+                foreach (var node in root.Traverse()) {
                     if (node is MaterialGeometryNode m && m.Material is PbrMaterialCore material) {
                         material.RenderEnvironmentMap = value;
                     }
@@ -91,8 +89,7 @@ public class MainViewModel : ObservableObject {
 
     public SceneNodeGroupModel3D GroupModel { get; } = new();
 
-    [field: AllowNull, MaybeNull]
-    public Animation SelectedAnimation {
+    public Animation? SelectedAnimation {
         set {
             if (Set(ref field, value)) {
                 StopAnimation();
@@ -110,13 +107,12 @@ public class MainViewModel : ObservableObject {
         get;
     } = null;
 
-    public TextureModel EnvironmentMap { get; }
+    public TextureModel? EnvironmentMap { get; }
     public EffectsManager EffectsManager { get; }
     public Camera Camera { get; }
 
-    private SynchronizationContext context = SynchronizationContext.Current;
-    private HelixToolkitScene scene;
-    private NodeAnimationUpdater animationUpdater;
+    private HelixToolkitScene? scene;
+    private NodeAnimationUpdater? animationUpdater;
     private List<BoneSkinMeshNode> boneSkinNodes = [];
     private List<BoneSkinMeshNode> skeletonNodes = [];
     private CompositionTargetEx compositeHelper = new();
@@ -133,9 +129,11 @@ public class MainViewModel : ObservableObject {
             NearPlaneDistance = 0.1f
         };
         ResetCameraCommand = new DelegateCommand(() => {
-            (Camera as OrthographicCamera).Reset();
-            (Camera as OrthographicCamera).FarPlaneDistance = 5000;
-            (Camera as OrthographicCamera).NearPlaneDistance = 0.1f;
+            if (Camera is OrthographicCamera camera) {
+                camera.Reset();
+                camera.FarPlaneDistance = 5000;
+                camera.NearPlaneDistance = 0.1f;
+            }
         });
         ExportCommand = new DelegateCommand(ExportFile);
         EnvironmentMap = LoadFileToMemory("Cubemap_Grandcanyon.dds");
@@ -146,8 +144,8 @@ public class MainViewModel : ObservableObject {
             return;
         }
 
-        string path = OpenFileDialog(openFileFilter);
-        if (path == null) {
+        string? path = OpenFileDialog(openFileFilter);
+        if (path is null) {
             return;
         }
 
@@ -155,17 +153,17 @@ public class MainViewModel : ObservableObject {
 
         IsLoading = true;
         Task.Run(() => {
-            var loader = new Importer();
-            return loader.Load(path);
-        }).ContinueWith((result) => {
-            IsLoading = false;
-            if (result.IsCompleted) {
-                scene = result.Result;
-                Animations.Clear();
-                GroupModel.Clear();
-                if (scene != null) {
-                    if (scene.Root != null) {
-                        foreach (var node in scene.Root.Traverse()) {
+                var loader = new Importer();
+                return loader.Load(path)
+                       ?? throw new InvalidOperationException("The selected file did not contain a scene.");
+            })
+            .ContinueWith((result) => {
+                    IsLoading = false;
+                    if (result.Status == TaskStatus.RanToCompletion && result.Result is { } loadedScene) {
+                        scene = loadedScene;
+                        Animations.Clear();
+                        GroupModel.Clear();
+                        foreach (var node in loadedScene.Root.Traverse()) {
                             if (node is MaterialGeometryNode m) {
                                 if (m.Material is PbrMaterialCore pbr) {
                                     pbr.RenderEnvironmentMap = RenderEnvironmentMap;
@@ -174,24 +172,22 @@ public class MainViewModel : ObservableObject {
                                 }
                             }
                         }
-                    }
 
-                    GroupModel.AddNode(scene.Root);
-                    if (scene.HasAnimation) {
-                        foreach (var ani in scene.Animations) {
-                            Animations.Add(ani);
+                        GroupModel.AddNode(loadedScene.Root);
+                        if (loadedScene.HasAnimation) {
+                            foreach (var ani in loadedScene.Animations) {
+                                Animations.Add(ani);
+                            }
                         }
-                    }
 
-                    foreach (var n in scene.Root.Traverse()) {
-                        n.Tag = new AttachedNodeViewModel(n);
+                        foreach (var n in loadedScene.Root.Traverse()) {
+                            n.Tag = new AttachedNodeViewModel(n);
+                        }
+                    } else if (result.IsFaulted && result.Exception is { } exception) {
+                        MessageBox.Show(exception.Message);
                     }
-                }
-            } else if (result.IsFaulted && result.Exception != null) {
-                MessageBox.Show(result.Exception.Message);
-            }
-        },
-                        TaskScheduler.FromCurrentSynchronizationContext());
+                },
+                TaskScheduler.FromCurrentSynchronizationContext());
     }
 
     public void StartAnimation() {
@@ -202,7 +198,7 @@ public class MainViewModel : ObservableObject {
         compositeHelper.Rendering -= CompositeHelper_Rendering;
     }
 
-    private void CompositeHelper_Rendering(object sender, System.Windows.Media.RenderingEventArgs e) {
+    private void CompositeHelper_Rendering(object? sender, System.Windows.Media.RenderingEventArgs e) {
         animationUpdater?.Update(Stopwatch.GetTimestamp(), Stopwatch.Frequency);
     }
 
@@ -211,19 +207,20 @@ public class MainViewModel : ObservableObject {
         if (!string.IsNullOrEmpty(path) && index >= 0) {
             var id = HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormats[index].FormatId;
             var exporter = new HelixToolkit.SharpDX.Core.Assimp.Exporter();
-            exporter.ExportToFile(path, scene, id);
+            if (scene is { } loadedScene)
+                exporter.ExportToFile(path, loadedScene, id);
             return;
         }
     }
 
 
-    private string OpenFileDialog(string filter) {
+    private string? OpenFileDialog(string filter) {
         var d = new OpenFileDialog();
         d.CustomPlaces.Clear();
 
         d.Filter = filter;
 
-        if (!d.ShowDialog().Value) {
+        if (d.ShowDialog() != true) {
             return null;
         }
 

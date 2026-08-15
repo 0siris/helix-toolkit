@@ -2,6 +2,7 @@ using HelixToolkit.SharpDX.Core;
 using Silk.NET.Maths;
 
 namespace SilkCore.Tests;
+
 public class GeometryContractTests {
     [Fact]
     [Trait("Category", "Unit")]
@@ -13,7 +14,8 @@ public class GeometryContractTests {
             ]
         };
 
-        var triangles = polygon.Triangulate();
+        var triangles = polygon.Triangulate()
+                        ?? throw new InvalidOperationException("Triangulation returned no result.");
 
         Assert.Equal(6, triangles.Count);
         Assert.All(triangles, index => Assert.InRange(index, 0, 3));
@@ -35,7 +37,9 @@ public class GeometryContractTests {
         Assert.True(polygon.IsPlanar());
         Assert.Equal(1f, normal.Length, 5);
         Assert.Equal(4, flattened.Points.Count);
-        Assert.Equal(6, flattened.Triangulate().Count);
+        var triangles = flattened.Triangulate()
+                        ?? throw new InvalidOperationException("Triangulation returned no result.");
+        Assert.Equal(6, triangles.Count);
     }
 
     [Fact]
@@ -74,7 +78,7 @@ public class GeometryContractTests {
         Assert.True(sphere.Intersects(ref hit));
         Assert.False(sphere.Intersects(ref miss));
         Assert.Equal(ContainmentType.Contains,
-                     BoundingSphereExtensions.Contains(sphere, new Vector3D<float>(1, 0, 0)));
+            BoundingSphereExtensions.Contains(sphere, new Vector3D<float>(1, 0, 0)));
     }
 
     [Fact]

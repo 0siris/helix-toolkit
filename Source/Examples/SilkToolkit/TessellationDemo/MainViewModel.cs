@@ -10,6 +10,7 @@
 namespace TessellationDemo;
 
 using System.Collections.Generic;
+using System;
 using System.Linq;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
@@ -65,10 +66,10 @@ public class MainViewModel : BaseViewModel {
         set {
             /// if topology is changes, reload the model with proper type of faces
             meshTopology = value;
-            LoadModel(@"./Media/teapot_quads_tex.obj",
-                           meshTopology == MeshTopologyEnum.PnTriangles
-                               ? MeshFaces.Default
-                               : MeshFaces.QuadPatches);
+            DefaultModel = LoadModel(@"./Media/teapot_quads_tex.obj",
+                meshTopology == MeshTopologyEnum.PnTriangles
+                    ? MeshFaces.Default
+                    : MeshFaces.QuadPatches);
         }
     }
 
@@ -84,7 +85,8 @@ public class MainViewModel : BaseViewModel {
         // ---------------------------------------------
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(7, 10, 12), LookDirection = new Vector3D(-7, -10, -12),
+            Position = new Point3D(7, 10, 12),
+            LookDirection = new Vector3D(-7, -10, -12),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
@@ -112,13 +114,16 @@ public class MainViewModel : BaseViewModel {
                     new System.Uri(@"./Media/TextureCheckerboard2.dds", System.UriKind.RelativeOrAbsolute).ToString()),
             NormalMap = TextureModel.Create(
                 new System.Uri(@"./Media/TextureCheckerboard2_dot3.dds", System.UriKind.RelativeOrAbsolute).ToString()),
-            EnableTessellation = true, RenderShadowMap = true
+            EnableTessellation = true,
+            RenderShadowMap = true
         };
         FloorMaterial.RenderShadowMap = true;
         // ---------------------------------------------
         // init model
-        LoadModel(@"./Media/teapot_quads_tex.obj",
-                       meshTopology == MeshTopologyEnum.PnTriangles ? MeshFaces.Default : MeshFaces.QuadPatches);
+        DefaultModel = LoadModel(@"./Media/teapot_quads_tex.obj",
+            meshTopology == MeshTopologyEnum.PnTriangles
+                ? MeshFaces.Default
+                : MeshFaces.QuadPatches);
         // ---------------------------------------------
         // floor plane grid
         Grid = LineBuilder.GenerateGrid(10);
@@ -141,13 +146,20 @@ public class MainViewModel : BaseViewModel {
     /// <param name="filename">filename</param>
     /// <param name="faces">Determines if facades should be treated as triangles (Default) or as quads (Quads)</param>
     [System.Obsolete]
-    private void LoadModel(string filename, MeshFaces faces) {
+    private MeshGeometry3D LoadModel(string filename, MeshFaces faces) {
         // load model
         var reader = new ObjReader();
-        var objModel = reader.Read(filename, new ModelInfo() { Faces = faces });
-        var model = objModel[0].Geometry as MeshGeometry3D;
-        model.Colors = [.. model.Positions.Select(x => new Color4(1, 0, 0, 1))];
-        DefaultModel = model;
+        var objModel = reader.Read(filename, new ModelInfo() {
+            Faces = faces
+        });
+        var model = objModel.Select(x => x.Geometry)
+                        .OfType<MeshGeometry3D>()
+                        .FirstOrDefault()
+                    ?? throw new InvalidOperationException("The model did not contain mesh geometry.");
+        var positions = model.Positions
+                        ?? throw new InvalidOperationException("The model did not contain positions.");
+        model.Colors = [.. positions.Select(x => new Color4(1, 0, 0, 1))];
+        return model;
     }
 
     private static Matrix Translation(float x, float y, float z) {

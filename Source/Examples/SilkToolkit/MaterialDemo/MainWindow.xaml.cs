@@ -11,7 +11,7 @@ public partial class MainWindow : Window {
         Closed += MainWindow_Closed;
     }
 
-    private void MainWindow_Closed(object sender, EventArgs e) {
+    private void MainWindow_Closed(object? sender, EventArgs e) {
         if (DataContext is IDisposable d) {
             d.Dispose();
         }

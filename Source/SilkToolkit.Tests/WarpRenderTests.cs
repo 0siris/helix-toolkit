@@ -10,6 +10,7 @@ using Xunit;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace SilkToolkit.Tests;
+
 [Collection(WpfCollection.Name)]
 public sealed class WarpRenderTests {
     [Fact]
@@ -20,7 +21,9 @@ public sealed class WarpRenderTests {
             using var buffer = new DX11Texture2DRenderBufferProxy(effectsManager);
             var backBuffer = buffer.Initialize(64, 32, MsaaLevel.Disable);
             var context = effectsManager.DeviceContext2D;
-            context.Target = buffer.D2DTarget.D2DTarget;
+            if (buffer.D2DTarget is not {D2DTarget: { } target})
+                throw new InvalidOperationException("The D2D target is required.");
+            context.Target = target;
 
             context.BeginDraw();
             context.Clear(new Color4(0.25f, 0.5f, 0.75f, 1));
@@ -28,16 +31,18 @@ public sealed class WarpRenderTests {
             effectsManager.NativeDeviceResources.ImmediateContext.Flush();
 
             using var stream = new MemoryStream();
+            var resource = backBuffer.Resource ??
+                           throw new InvalidOperationException("The back buffer resource is required.");
             Assert.True(ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
-                                                                   (Texture2D)backBuffer.Resource,
-                                                                   stream));
+                (Texture2D) resource,
+                stream));
 
             var frame = new BmpBitmapDecoder(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad).Frames[0];
             Assert.Equal(64, frame.PixelWidth);
             Assert.Equal(32, frame.PixelHeight);
             BitmapSource source = frame.Format == PixelFormats.Bgra32
-                                      ? frame
-                                      : new FormatConvertedBitmap(frame, PixelFormats.Bgra32, null, 0);
+                ? frame
+                : new FormatConvertedBitmap(frame, PixelFormats.Bgra32, null, 0);
             var pixel = new byte[4];
             source.CopyPixels(new Int32Rect(0, 0, 1, 1), pixel, 4, 0);
             Assert.Contains(pixel, value => value != 0);
@@ -52,24 +57,30 @@ public sealed class WarpRenderTests {
             using var window = new HwndSource(new HwndSourceParameters(nameof(WarpRenderTests)) {
                 Width = 32,
                 Height = 24,
-                WindowStyle = unchecked((int)0x80000000)
+                WindowStyle = unchecked((int) 0x80000000)
             });
             using var effectsManager = CreateWarpEffectsManager();
             using var buffer = new DX11SwapChainRenderBufferProxy(window.Handle, effectsManager);
 
             var backBuffer = buffer.Initialize(32, 24, MsaaLevel.Disable);
-            Assert.NotEqual(IntPtr.Zero, backBuffer.Resource.NativePointer);
+            if (buffer.SwapChain is not { } swapChain)
+                throw new InvalidOperationException("The swap chain is required.");
+            if (backBuffer.Resource is not { } initialResource)
+                throw new InvalidOperationException("The initial back buffer resource is required.");
+            Assert.NotEqual(IntPtr.Zero, initialResource.NativePointer);
             Assert.True(buffer.Present());
 
             backBuffer = buffer.Resize(80, 60);
-            Assert.Equal(80, buffer.SwapChain.Description1.Width);
-            Assert.Equal(60, buffer.SwapChain.Description1.Height);
+            Assert.Equal(80, swapChain.Description1.Width);
+            Assert.Equal(60, swapChain.Description1.Height);
             Assert.True(buffer.Present());
 
             using var stream = new MemoryStream();
+            var resource = backBuffer.Resource ??
+                           throw new InvalidOperationException("The back buffer resource is required.");
             Assert.True(ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
-                                                                   (Texture2D)backBuffer.Resource,
-                                                                   stream));
+                (Texture2D) resource,
+                stream));
             var frame = new BmpBitmapDecoder(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad).Frames[0];
             Assert.Equal(80, frame.PixelWidth);
             Assert.Equal(60, frame.PixelHeight);

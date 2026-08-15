@@ -4,8 +4,6 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace FileLoadDemo;
 
 using System;
@@ -52,8 +50,8 @@ public class MainViewModel : BaseViewModel {
 
     public bool RenderEnvironmentMap {
         set {
-            if (SetValue(ref field, value) && scene != null && scene.Root != null) {
-                foreach (var node in scene.Root.Traverse()) {
+            if (SetValue(ref field, value) && scene?.Root is { } root) {
+                foreach (var node in root.Traverse()) {
                     if (node is MaterialGeometryNode m && m.Material is PbrMaterialCore material) {
                         material.RenderEnvironmentMap = value;
                     }
@@ -112,8 +110,7 @@ public class MainViewModel : BaseViewModel {
 
     public SceneNodeGroupModel3D GroupModel { get; } = new();
 
-    [field: AllowNull, MaybeNull]
-    public IAnimationUpdater SelectedAnimation {
+    public IAnimationUpdater? SelectedAnimation {
         set {
             if (SetValue(ref field, value)) {
                 StopAnimation();
@@ -152,19 +149,18 @@ public class MainViewModel : BaseViewModel {
         get => modelBound;
     }
 
-    public TextureModel EnvironmentMap { get; }
+    public TextureModel? EnvironmentMap { get; }
 
     public ICommand PlayCommand { get; }
 
-    private SynchronizationContext context = SynchronizationContext.Current;
-    private HelixToolkitScene scene;
-    private IAnimationUpdater animationUpdater;
+    private HelixToolkitScene? scene;
+    private IAnimationUpdater? animationUpdater;
     private List<BoneSkinMeshNode> boneSkinNodes = [];
     private List<BoneSkinMeshNode> skeletonNodes = [];
     private CompositionTargetEx compositeHelper = new();
     private long initTimeStamp = 0;
 
-    private MainWindow? mainWindow = null;
+    private readonly MainWindow mainWindow;
 
     public MainViewModel(MainWindow window) {
         mainWindow = window;
@@ -179,9 +175,11 @@ public class MainViewModel : BaseViewModel {
             NearPlaneDistance = 0.1f
         };
         ResetCameraCommand = new DelegateCommand(() => {
-            (Camera as OrthographicCamera).Reset();
-            (Camera as OrthographicCamera).FarPlaneDistance = 5000;
-            (Camera as OrthographicCamera).NearPlaneDistance = 0.1f;
+            if (Camera is OrthographicCamera camera) {
+                camera.Reset();
+                camera.FarPlaneDistance = 5000;
+                camera.NearPlaneDistance = 0.1f;
+            }
         });
         ExportCommand = new DelegateCommand(ExportFile);
 
@@ -203,7 +201,8 @@ public class MainViewModel : BaseViewModel {
         var bitmap = ViewportExtensions.RenderBitmap(viewport);
         try {
             Clipboard.Clear();
-            Clipboard.SetImage(bitmap);
+            if (bitmap is { } actualBitmap)
+                Clipboard.SetImage(actualBitmap);
         } catch (Exception e) {
             Debug.WriteLine(e);
         }
@@ -216,7 +215,8 @@ public class MainViewModel : BaseViewModel {
         var bitmap = ViewportExtensions.RenderBitmap(viewport, 1920, 1080);
         try {
             Clipboard.Clear();
-            Clipboard.SetImage(bitmap);
+            if (bitmap is { } actualBitmap)
+                Clipboard.SetImage(actualBitmap);
             stopwatch.Stop();
             Debug.WriteLine($"creating bitmap needs {stopwatch.ElapsedMilliseconds} ms");
         } catch (Exception e) {
@@ -229,45 +229,46 @@ public class MainViewModel : BaseViewModel {
             return;
         }
 
-        string path = OpenFileDialog(openFileFilter);
-        if (path == null) {
+        string? path = OpenFileDialog(openFileFilter);
+        if (path is null) {
             return;
         }
 
         StopAnimation();
-        var syncContext = SynchronizationContext.Current;
+        var syncContext = SynchronizationContext.Current
+                          ?? throw new InvalidOperationException("The file load must start on the UI thread.");
         IsLoading = true;
         Task.Run(() => {
-            var loader = new Importer();
-            var scene = loader.Load(path);
-            scene.Root.Attach(EffectsManager); // Pre attach scene graph
-            scene.Root.UpdateAllTransformMatrix();
-            if (scene.Root.TryGetBound(out var bound)) {
-                /// Must use UI thread to set value back.
-                syncContext.Post((o) => { ModelBound = bound; }, null);
-            }
+                var loader = new Importer();
+                var loadedScene = loader.Load(path)
+                                  ?? throw new InvalidOperationException("The selected file did not contain a scene.");
+                loadedScene.Root.Attach(EffectsManager); // Pre attach scene graph
+                loadedScene.Root.UpdateAllTransformMatrix();
+                if (loadedScene.Root.TryGetBound(out var bound)) {
+                    /// Must use UI thread to set value back.
+                    syncContext.Post((o) => { ModelBound = bound; }, null);
+                }
 
-            if (scene.Root.TryGetCentroid(out var centroid)) {
-                /// Must use UI thread to set value back.
-                syncContext.Post((o) => { ModelCentroid = centroid.ToPoint3D(); }, null);
-            }
+                if (loadedScene.Root.TryGetCentroid(out var centroid)) {
+                    /// Must use UI thread to set value back.
+                    syncContext.Post((o) => { ModelCentroid = centroid.ToPoint3D(); }, null);
+                }
 
-            return scene;
-        }).ContinueWith((result) => {
-            IsLoading = false;
-            if (result.IsCompleted) {
-                scene = result.Result;
-                Animations.Clear();
-                var oldNode = GroupModel.SceneNode.Items.ToArray();
-                GroupModel.Clear(false);
-                Task.Run(() => {
-                    foreach (var node in oldNode) {
-                        node.Dispose();
-                    }
-                });
-                if (scene != null) {
-                    if (scene.Root != null) {
-                        foreach (var node in scene.Root.Traverse()) {
+                return loadedScene;
+            })
+            .ContinueWith((result) => {
+                    IsLoading = false;
+                    if (result.Status == TaskStatus.RanToCompletion && result.Result is { } loadedScene) {
+                        scene = loadedScene;
+                        Animations.Clear();
+                        var oldNode = GroupModel.SceneNode.Items.ToArray();
+                        GroupModel.Clear(false);
+                        Task.Run(() => {
+                            foreach (var node in oldNode) {
+                                node.Dispose();
+                            }
+                        });
+                        foreach (var node in loadedScene.Root.Traverse()) {
                             if (node is MaterialGeometryNode m) {
                                 //m.Geometry.SetAsTransient();
                                 if (m.Material is PbrMaterialCore pbr) {
@@ -277,27 +278,25 @@ public class MainViewModel : BaseViewModel {
                                 }
                             }
                         }
-                    }
 
-                    GroupModel.AddNode(scene.Root);
-                    if (scene.HasAnimation) {
-                        var dict = scene.Animations.CreateAnimationUpdaters();
-                        foreach (var ani in dict.Values) {
-                            Animations.Add(ani);
+                        GroupModel.AddNode(loadedScene.Root);
+                        if (loadedScene.HasAnimation) {
+                            var dict = loadedScene.Animations.CreateAnimationUpdaters();
+                            foreach (var ani in dict.Values) {
+                                Animations.Add(ani);
+                            }
                         }
-                    }
 
-                    foreach (var n in scene.Root.Traverse()) {
-                        n.Tag = new AttachedNodeViewModel(n);
-                    }
+                        foreach (var n in loadedScene.Root.Traverse()) {
+                            n.Tag = new AttachedNodeViewModel(n);
+                        }
 
-                    FocusCameraToScene();
-                }
-            } else if (result.IsFaulted && result.Exception != null) {
-                MessageBox.Show(result.Exception.Message);
-            }
-        },
-                        TaskScheduler.FromCurrentSynchronizationContext());
+                        FocusCameraToScene();
+                    } else if (result.IsFaulted && result.Exception is { } exception) {
+                        MessageBox.Show(exception.Message);
+                    }
+                },
+                TaskScheduler.FromCurrentSynchronizationContext());
     }
 
     public void StartAnimation() {
@@ -311,7 +310,7 @@ public class MainViewModel : BaseViewModel {
         compositeHelper.Rendering -= CompositeHelper_Rendering;
     }
 
-    private void CompositeHelper_Rendering(object sender, System.Windows.Media.RenderingEventArgs e) {
+    private void CompositeHelper_Rendering(object? sender, System.Windows.Media.RenderingEventArgs e) {
         if (animationUpdater != null) {
             var elapsed = (Stopwatch.GetTimestamp() - initTimeStamp) * speed;
             CurrAnimationTime = elapsed / Stopwatch.Frequency;
@@ -335,19 +334,20 @@ public class MainViewModel : BaseViewModel {
         if (!string.IsNullOrEmpty(path) && index >= 0) {
             var id = HelixToolkit.SharpDX.Core.Assimp.Exporter.SupportedFormats[index].FormatId;
             var exporter = new HelixToolkit.SharpDX.Core.Assimp.Exporter();
-            exporter.ExportToFile(path, scene, id);
+            if (scene is { } loadedScene)
+                exporter.ExportToFile(path, loadedScene, id);
             return;
         }
     }
 
 
-    private string OpenFileDialog(string filter) {
+    private string? OpenFileDialog(string filter) {
         var d = new OpenFileDialog();
         d.CustomPlaces.Clear();
 
         d.Filter = filter;
 
-        if (!d.ShowDialog().Value) {
+        if (d.ShowDialog() != true) {
             return null;
         }
 

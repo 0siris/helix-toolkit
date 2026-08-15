@@ -5,6 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
@@ -17,9 +18,8 @@ namespace MorphTargetAnimationDemo;
 
 public class MainViewModel : BaseViewModel {
     public SceneNodeGroupModel3D ModelGroup { get; private set; }
-    public string DebugLabel { get; set; }
+    public string DebugLabel { get; set; } = string.Empty;
 
-    private HelixToolkitScene scn;
     private CompositionTargetEx compositeHelper = new();
     private List<IAnimationUpdater> animationUpdaters;
 
@@ -32,7 +32,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value)) {
                 foreach (IAnimationUpdater updater in animationUpdaters) {
-                    updater.Update((float)value, 1);
+                    updater.Update((float) value, 1);
                 }
             }
         }
@@ -57,14 +57,18 @@ public class MainViewModel : BaseViewModel {
         importer.Configuration.CreateSkeletonForBoneSkinningMesh = true;
         importer.Configuration.SkeletonSizeScale = 0.01f;
         importer.Configuration.GlobalScale = 0.1f;
-        scn = importer.Load("Gunan_animated.fbx");
+        var scene = importer.Load("Gunan_animated.fbx")
+                    ?? throw new InvalidOperationException("The animation scene could not be loaded.");
 
         //Add to model group for rendering
-        ModelGroup.AddNode(scn.Root);
+        ModelGroup.AddNode(scene.Root);
 
         //Setup each animation, this will actively play all (not always desired)
-        animationUpdaters = [.. scn.Animations.CreateAnimationUpdaters().Values];
-        EndTime = scn.Animations.Max(x => x.EndTime);
+        animationUpdaters = [
+            .. scene.Animations.CreateAnimationUpdaters()
+                .Values
+        ];
+        EndTime = scene.Animations.Max(x => x.EndTime);
         PlayCommand = new RelayCommand((o) => {
             if (!IsPlaying) {
                 initTime = 0;
@@ -77,7 +81,7 @@ public class MainViewModel : BaseViewModel {
         });
     }
 
-    private void Render(object sender, System.Windows.Media.RenderingEventArgs e) {
+    private void Render(object? sender, System.Windows.Media.RenderingEventArgs e) {
         //Animation with perf testing
         long t = Stopwatch.GetTimestamp();
         if (initTime == 0) {
@@ -85,7 +89,7 @@ public class MainViewModel : BaseViewModel {
         }
 
         //Update animation. Ensures all animation times are in sync
-        CurrTime = ((t - initTime) / (double)Stopwatch.Frequency) % EndTime;
+        CurrTime = ((t - initTime) / (double) Stopwatch.Frequency) % EndTime;
         t = Stopwatch.GetTimestamp() - t;
         DebugLabel = t.ToString();
     }

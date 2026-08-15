@@ -13,11 +13,16 @@ public partial class MainWindow : Window {
         InitializeComponent();
     }
 
-    private void MeshGeometryModel3D_Mouse3DDown(object sender, MouseDown3DEventArgs e) {
-        var normal = Normalize(e.HitTestResult.NormalAtHit);
+    private void MeshGeometryModel3D_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
+        if (e.HitTestResult is not {NormalAtHit: var normalAtHit}) {
+            return;
+        }
+
+        var normal = Normalize(normalAtHit);
         var upDirection = Vector3.Zero;
         var lookDirection = -normal;
-        if (Cross(normal, view1.ModelUpDirection.ToVector3()).LengthSquared < 1e-5) {
+        if (Cross(normal, view1.ModelUpDirection.ToVector3())
+                .LengthSquared < 1e-5) {
             var vecLeft = new Vector3(-normal.Y, -normal.Z, -normal.X);
             upDirection = vecLeft;
         } else {
@@ -26,7 +31,7 @@ public partial class MainWindow : Window {
 
         var target = view1.Camera.Position + view1.Camera.LookDirection;
         var distance = view1.Camera.LookDirection.Length;
-        lookDirection *= (float)distance;
+        lookDirection *= (float) distance;
         var newPosition = target.ToVector3() - lookDirection;
         view1.Camera.AnimateTo(newPosition.ToPoint3D(), lookDirection.ToVector3D(), upDirection.ToVector3D(), 500);
     }
@@ -35,7 +40,9 @@ public partial class MainWindow : Window {
         Debug.WriteLine("Line hitted.");
     }
 
-    private static Vector3 Normalize(Vector3 value) => value.Length > 0 ? value / value.Length : value;
+    private static Vector3 Normalize(Vector3 value) => value.Length > 0
+        ? value / value.Length
+        : value;
 
     private static Vector3 Cross(Vector3 left, Vector3 right) => new(left.Y * right.Z - left.Z * right.Y,
         left.Z * right.X - left.X * right.Z,

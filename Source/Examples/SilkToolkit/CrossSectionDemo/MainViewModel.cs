@@ -19,7 +19,7 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public MainViewModel ViewModel => this;
 
@@ -40,7 +40,7 @@ public class MainViewModel : BaseViewModel {
 
     public PhongMaterial ModelMaterial { get; set; }
 
-    public PhongMaterial LightModelMaterial { get; set; }
+    public PhongMaterial? LightModelMaterial { get; set; }
 
     public Color Light1Color { get; set; }
 
@@ -67,7 +67,7 @@ public class MainViewModel : BaseViewModel {
     public int CuttingOperationIndex {
         set {
             if (SetValue(ref field, value)) {
-                CuttingOperation = (CuttingOperation)value;
+                CuttingOperation = (CuttingOperation) value;
             }
         }
         get;
@@ -113,9 +113,18 @@ public class MainViewModel : BaseViewModel {
             SpecularColor = new Color4(0, 0, 0, 0)
         };
 
-        PlaneMaterial = new PhongMaterial() { DiffuseColor = new Color4(0.1f, 0.1f, 0.8f, 0.2f) };
+        PlaneMaterial = new PhongMaterial() {
+            DiffuseColor = new Color4(0.1f, 0.1f, 0.8f, 0.2f)
+        };
 
-        var landerItems = Load3Ds("Car.3ds").Select(x => x.Geometry as MeshGeometry3D).ToArray();
+        var landerItems = Load3Ds("Car.3ds")
+            .Select(x => x.Geometry)
+            .OfType<MeshGeometry3D>()
+            .ToArray();
+        if (landerItems.Length == 0) {
+            throw new InvalidOperationException("The model did not contain mesh geometry.");
+        }
+
         Model = MeshGeometry3D.Merge(landerItems);
         Model.UpdateOctree();
         ModelMaterial = PhongMaterials.Bronze;
@@ -170,7 +179,7 @@ public class MainViewModel : BaseViewModel {
         set => SetValue(ref field, value);
     } = new Vector3(0, 1, 0);
 
-    public object ModelAtCursor {
+    public object? ModelAtCursor {
         get;
         set {
             if (field != value) {
@@ -182,7 +191,7 @@ public class MainViewModel : BaseViewModel {
     }
 
 
-    public string NameOfModelAtCursor {
+    public string? NameOfModelAtCursor {
         get {
             if (ModelAtCursor is GeometryModel3D geometry) {
                 if (geometry.Geometry == BoxModel)

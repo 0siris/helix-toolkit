@@ -55,7 +55,8 @@ public class MainViewModel : BaseViewModel {
 
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(0, 0, 9), LookDirection = new Vector3D(-0, -0, -9),
+            Position = new Point3D(0, 0, 9),
+            LookDirection = new Vector3D(-0, -0, -9),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
@@ -74,7 +75,9 @@ public class MainViewModel : BaseViewModel {
         b1.AddSphere(new Vector3(0, 0, 0), 0.65);
         b1.AddBox(new Vector3(0, 0, 0), 1, 1, 1);
         var meshGeometry = b1.ToMeshGeometry3D();
-        meshGeometry.Colors = [.. meshGeometry.TextureCoordinates.Select(x => x.ToColor4())];
+        meshGeometry.Colors = meshGeometry.TextureCoordinates is { } textureCoordinates
+            ? [.. textureCoordinates.Select(x => x.ToColor4())]
+            : [];
         MeshGeometry = meshGeometry;
         Model1Instances = [];
         for (int i = 0; i < 5; i++) {
@@ -156,26 +159,30 @@ public class MainViewModel : BaseViewModel {
     public void DelShape() {
         //this.Element3DCollection = null;
         //this.Element3DCollection = new ObservableCollection<Element3D>();
-        Element3DCollection.Remove((Element3D)SelectedItem);
+        if (SelectedItem is Element3D element) {
+            Element3DCollection.Remove(element);
+        }
 
         //this.Shape3DCollection = null;
         //this.Shape3DCollection = new ObservableCollection<Shape3D>();
-        Shape3DCollection.Remove((Shape3D)SelectedItem);
+        if (SelectedItem is Shape3D shape) {
+            Shape3DCollection.Remove(shape);
+        }
     }
 
 
     public class Shape3D : BaseViewModel {
-        public Geometry3D Geometry { get; set; }
-        public Transform3D Transform { get; set; }
-        public Material Material { get; set; }
-        public IList<Matrix> Instances { get; set; }
+        public required Geometry3D Geometry { get; set; }
+        public required Transform3D Transform { get; set; }
+        public required Material Material { get; set; }
+        public IList<Matrix>? Instances { get; set; }
         public bool IsSelected { get; set; }
         public bool DragZ { get; set; }
     }
 
     public IList<Shape3D> Shape3DCollection { get; set; }
     public IList<Element3D> Element3DCollection { get; set; }
-    public object SelectedItem { get; set; }
+    public object? SelectedItem { get; set; }
 
     private static Matrix Translation(float x, float y, float z) {
         var result = Matrix.Identity;

@@ -24,7 +24,7 @@ public class MainViewModel : BaseViewModel {
     /// <summary>
     /// Gets or sets the render exception.
     /// </summary>
-    public Exception RenderException {
+    public Exception? RenderException {
         get;
 
         set {
@@ -38,7 +38,7 @@ public class MainViewModel : BaseViewModel {
     /// <summary>
     /// Gets or sets the viewport message.
     /// </summary>
-    public string ViewportMessage {
+    public string? ViewportMessage {
         get;
 
         set {
@@ -54,10 +54,8 @@ public class MainViewModel : BaseViewModel {
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="e">The event arguments.</param>
-    public void HandleRenderException(object sender, RelayExceptionEventArgs e) {
-        if (e.Exception != null) {
-            MessageBox.Show(e.Exception.ToString(), "RenderException");
-        }
+    public void HandleRenderException(object? sender, RelayExceptionEventArgs e) {
+        MessageBox.Show(e.Exception.ToString(), "RenderException");
     }
 
     /// <summary>
@@ -65,7 +63,7 @@ public class MainViewModel : BaseViewModel {
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="e">The event arguments.</param>
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e) {
         if ("RenderException".Equals(e.PropertyName)) {
             ViewportMessage = RenderException?.ToString();
         }

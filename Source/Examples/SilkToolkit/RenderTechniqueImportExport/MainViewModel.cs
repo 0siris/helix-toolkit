@@ -17,7 +17,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
     public LineGeometry3D LineModel { private set; get; }
     public PointGeometry3D PointModel { private set; get; }
     public ObservableCollection<string> TechniqueList { get; } = [];
-    public string SelectedTechnique { set; get; }
+    public string? SelectedTechnique { set; get; }
 
     public MainViewModel() {
         EffectsManager = new EffectsManager();
@@ -32,23 +32,29 @@ public class MainViewModel : DemoCore.BaseViewModel {
         LineModel = lineBuilder.ToLineGeometry3D();
 
         var offset = new Vector3(-4, 0, 0);
-        PointModel = new PointGeometry3D() { Positions = [.. MeshModel.Positions.Select(x => x + offset)] };
+        var meshPositions = MeshModel.Positions ??
+                            throw new InvalidOperationException("Technique mesh positions are required.");
+        PointModel = new PointGeometry3D() {
+            Positions = [.. meshPositions.Select(x => x + offset)]
+        };
 
         ExportCommand = new RelayCommand((o) => { Export(); });
         ImportCommand = new RelayCommand((o) => { Import(); });
         ExportSingleTechnique = new RelayCommand((o) => { Export(SelectedTechnique); });
     }
 
-    private void Export(string technique = "") {
+    private void Export(string? technique = "") {
         var path = CreateFileDialog(OpenFileFilter, technique);
         if (string.IsNullOrEmpty(path)) {
             return;
         }
 
+        if (EffectsManager is not { } effectsManager)
+            return;
         if (string.IsNullOrEmpty(technique)) {
-            EffectsManager.ExportTechniquesAsBinary(path);
+            effectsManager.ExportTechniquesAsBinary(path);
         } else {
-            EffectsManager.ExportTechniqueAsBinary(technique, path);
+            effectsManager.ExportTechniqueAsBinary(technique, path);
         }
     }
 
@@ -58,42 +64,38 @@ public class MainViewModel : DemoCore.BaseViewModel {
             return;
         }
 
-        var manager = EffectsManager;
+        var manager = EffectsManager ?? throw new InvalidOperationException("An effects manager is required.");
         EffectsManager = null;
         manager.ImportTechniques(path, true);
         EffectsManager = manager;
         TechniqueList.Clear();
-        foreach (var tech in EffectsManager.RenderTechniques) {
+        foreach (var tech in manager.RenderTechniques) {
             TechniqueList.Add(tech);
         }
     }
 
-    private string OpenFileDialog(string filter) {
+    private string? OpenFileDialog(string filter) {
         var d = new OpenFileDialog();
         d.CustomPlaces.Clear();
 
 
         d.Filter = filter;
         d.InitialDirectory = Environment.CurrentDirectory;
-        if (!d.ShowDialog().Value) {
-            return null;
-        }
-
-        return d.FileName;
+        return d.ShowDialog() == true
+            ? d.FileName
+            : null;
     }
 
-    private string CreateFileDialog(string filter, string fileName) {
+    private string? CreateFileDialog(string filter, string? fileName) {
         var d = new SaveFileDialog();
         d.CustomPlaces.Clear();
 
 
         d.Filter = filter;
-        d.FileName = fileName;
+        d.FileName = fileName ?? string.Empty;
         d.DefaultExt = "techniques";
-        if (!d.ShowDialog().Value) {
-            return null;
-        }
-
-        return d.FileName;
+        return d.ShowDialog() == true
+            ? d.FileName
+            : null;
     }
 }

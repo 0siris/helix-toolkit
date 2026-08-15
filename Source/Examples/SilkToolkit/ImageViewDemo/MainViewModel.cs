@@ -69,7 +69,7 @@ public class MainViewModel : BaseViewModel {
 
     public ICommand OpenCommand { get; private set; }
 
-    public ExifReader ExifReader { get; private set; }
+    public ExifReader? ExifReader { get; private set; }
 
     public MainViewModel() {
         Title = "ImageViewDemo";
@@ -81,12 +81,18 @@ public class MainViewModel : BaseViewModel {
 
         // camera setup
         DefaultPerspectiveCamera = new PerspectiveCamera {
-            Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5),
-            UpDirection = new Vector3D(0, 1, 0), NearPlaneDistance = 0.5, FarPlaneDistance = 150
+            Position = new Point3D(0, 0, 5),
+            LookDirection = new Vector3D(0, 0, -5),
+            UpDirection = new Vector3D(0, 1, 0),
+            NearPlaneDistance = 0.5,
+            FarPlaneDistance = 150
         };
         DefaultOrthographicCamera = new OrthographicCamera {
-            Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5),
-            UpDirection = new Vector3D(0, 1, 0), NearPlaneDistance = 0, FarPlaneDistance = 100
+            Position = new Point3D(0, 0, 5),
+            LookDirection = new Vector3D(0, 0, -5),
+            UpDirection = new Vector3D(0, 1, 0),
+            NearPlaneDistance = 0,
+            FarPlaneDistance = 100
         };
         Camera = DefaultPerspectiveCamera;
 
@@ -111,7 +117,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void SetImages(BitmapSource img) {
-        var ratio = img.PixelWidth / (double)img.PixelHeight;
+        var ratio = img.PixelWidth / (double) img.PixelHeight;
         var transform = Media3D.Transform3D.Identity;
         ushort orientation = 1;
         if (ExifReader != null && ExifReader.GetTagValue(ExifTags.Orientation, out orientation)) {
@@ -190,7 +196,7 @@ public class MainViewModel : BaseViewModel {
             var d = new Microsoft.Win32.OpenFileDialog() {
                 Filter = "image files|*.jpg; *.png; *.bmp; *.gif",
             };
-            if (d.ShowDialog().Value) {
+            if (d.ShowDialog() == true) {
                 if (File.Exists(d.FileName)) {
                     var img = new BitmapImage(new Uri(d.FileName, UriKind.RelativeOrAbsolute));
                     TryGetExif(d.FileName);

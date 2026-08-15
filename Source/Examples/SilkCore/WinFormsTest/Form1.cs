@@ -12,7 +12,8 @@ public partial class Form1 : Form {
             TopLevel = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
         };
-        var context = WindowsFormsSynchronizationContext.Current;
+        var context = WindowsFormsSynchronizationContext.Current ??
+                      throw new InvalidOperationException("Windows Forms synchronization context is unavailable.");
         renderForm.Dock = DockStyle.Fill;
         renderForm.FormBorderStyle = FormBorderStyle.None;
         renderForm.ShowIcon = false;
@@ -25,18 +26,18 @@ public partial class Form1 : Form {
         renderForm.Height = splitContainer1.Panel2.Height;
     }
 
-    private void Panel2_Resize(object sender, EventArgs e) {
+    private void Panel2_Resize(object? sender, EventArgs e) {
         Debug.WriteLine("Panel resize");
         app.RequestResize();
         renderForm.Width = splitContainer1.Panel2.Width;
         renderForm.Height = splitContainer1.Panel2.Height;
     }
 
-    private void Form1_Shown(object sender, EventArgs e) {
+    private void Form1_Shown(object? sender, EventArgs e) {
         renderForm.Show();
     }
 
-    private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
+    private void Form1_FormClosing(object? sender, FormClosingEventArgs e) {
         renderForm.Close();
     }
 }

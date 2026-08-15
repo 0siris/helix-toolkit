@@ -16,7 +16,7 @@ public partial class MainWindow : Window {
     /// <summary>
     /// List of Polygon Points to display
     /// </summary>
-    private List<Vector2> mPolygonPoints;
+    private List<Vector2> mPolygonPoints = [];
 
     /// <summary>
     /// The ViewModel
@@ -59,7 +59,7 @@ public partial class MainWindow : Window {
         var cnt = mViewModel.PointCount;
         mPolygonPoints = [];
         var angle = 0f;
-        var angleDiff = 2f * (Single)Math.PI / cnt;
+        var angleDiff = 2f * (Single) Math.PI / cnt;
         var radius = 4f;
         // Random Radii for the Polygon
         var radii = new List<float>();
@@ -72,27 +72,31 @@ public partial class MainWindow : Window {
         var hole1 = new List<Vector2>();
         var hole2 = new List<Vector2>();
         var holeDistance = 2f;
-        var holeAngle = NextFloat(random, 0, (float)Math.PI * 2);
-        var cos = (float)Math.Cos(holeAngle);
-        var sin = (float)Math.Sin(holeAngle);
+        var holeAngle = NextFloat(random, 0, (float) Math.PI * 2);
+        var cos = (float) Math.Cos(holeAngle);
+        var sin = (float) Math.Sin(holeAngle);
         var offset1 = new Vector2(holeDistance * cos, holeDistance * sin);
         var offset2 = new Vector2(-holeDistance * cos, -holeDistance * sin);
         for (int i = 0; i < cnt; i++) {
             // Flatten a bit
             var radiusUse = radii[i];
-            mPolygonPoints.Add(new Vector2(radii[i] * (Single)Math.Cos(angle), radii[i] * (Single)Math.Sin(angle)));
-            hole1.Add(offset1 + new Vector2(innerRadii[i] * (Single)Math.Cos(-angle),
-                                            innerRadii[i] * (Single)Math.Sin(-angle)));
-            hole2.Add(offset2 + new Vector2(innerRadii[i] * (Single)Math.Cos(-angle),
-                                            innerRadii[i] * (Single)Math.Sin(-angle)));
+            mPolygonPoints.Add(new Vector2(radii[i] * (Single) Math.Cos(angle), radii[i] * (Single) Math.Sin(angle)));
+            hole1.Add(offset1 + new Vector2(innerRadii[i] * (Single) Math.Cos(-angle),
+                innerRadii[i] * (Single) Math.Sin(-angle)));
+            hole2.Add(offset2 + new Vector2(innerRadii[i] * (Single) Math.Cos(-angle),
+                innerRadii[i] * (Single) Math.Sin(-angle)));
             angle += angleDiff;
         }
 
-        var holes = new List<List<Vector2>>() { hole1, hole2 };
+        var holes = new List<List<Vector2>>() {
+            hole1,
+            hole2
+        };
 
         // Triangulate and measure the Time needed for the Triangulation
         var before = DateTime.Now;
-        var sLti = SweepLinePolygonTriangulator.Triangulate(mPolygonPoints, holes);
+        var sLti = SweepLinePolygonTriangulator.Triangulate(mPolygonPoints, holes)
+                   ?? throw new InvalidOperationException("Polygon triangulation returned no result.");
         var after = DateTime.Now;
 
         // Generate the Output
@@ -100,9 +104,13 @@ public partial class MainWindow : Window {
             Positions = [],
             Normals = []
         };
+        var positions = geometry.Positions
+                        ?? throw new InvalidOperationException("The generated polygon has no positions.");
+        var normals = geometry.Normals
+                      ?? throw new InvalidOperationException("The generated polygon has no normals.");
         foreach (var point in mPolygonPoints.Union(holes.SelectMany(h => h))) {
-            geometry.Positions.Add(new Vector3(point.X, 0, point.Y + 5));
-            geometry.Normals.Add(new Vector3(0, 1, 0));
+            positions.Add(new Vector3(point.X, 0, point.Y + 5));
+            normals.Add(new Vector3(0, 1, 0));
         }
 
         geometry.Indices = [.. sLti];
@@ -110,9 +118,9 @@ public partial class MainWindow : Window {
 
         var lb = new LineBuilder();
         for (int i = 0; i < sLti.Count; i += 3) {
-            lb.AddLine(geometry.Positions[sLti[i]], geometry.Positions[sLti[i + 1]]);
-            lb.AddLine(geometry.Positions[sLti[i + 1]], geometry.Positions[sLti[i + 2]]);
-            lb.AddLine(geometry.Positions[sLti[i + 2]], geometry.Positions[sLti[i]]);
+            lb.AddLine(positions[sLti[i]], positions[sLti[i + 1]]);
+            lb.AddLine(positions[sLti[i + 1]], positions[sLti[i + 2]]);
+            lb.AddLine(positions[sLti[i + 2]], positions[sLti[i]]);
         }
 
         mViewModel.LineGeometry = lb.ToLineGeometry3D();
@@ -127,8 +135,8 @@ public partial class MainWindow : Window {
         // Set the InfoLabel Text
         var timeNeeded = (after - before).TotalMilliseconds;
         infoLabel.Content = String.Format("Last triangulation of {0} Points took {1:0.##} Milliseconds!",
-                                          triangulatedPolygon.Geometry.Positions.Count,
-                                          timeNeeded);
+            positions.Count,
+            timeNeeded);
     }
 
     /// <summary>
@@ -138,8 +146,12 @@ public partial class MainWindow : Window {
     /// <param name="e">Event Args</param>
     private void ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
         // Set the ViewModel's Material and the Polygon-Material
-        mViewModel.Material = PhongMaterials.GetMaterial(e.AddedItems[0].ToString());
+        if (e.AddedItems.Count > 0 && e.AddedItems[0]
+                ?.ToString() is { } materialName) {
+            mViewModel.Material = PhongMaterials.GetMaterial(materialName);
+        }
     }
 
-    private static float NextFloat(Random random, float min, float max) => min + (max - min) * (float)random.NextDouble();
+    private static float NextFloat(Random random, float min, float max)
+        => min + (max - min) * (float) random.NextDouble();
 }

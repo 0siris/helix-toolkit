@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 namespace OffScreenRendering;
 
 internal class MainWindowViewModel : CommunityToolkit.Mvvm.ComponentModel.ObservableObject {
-    public ImageSource Image {
+    public ImageSource? Image {
         get;
         set => SetProperty(ref field, value);
     }
@@ -17,9 +17,10 @@ internal class MainWindowViewModel : CommunityToolkit.Mvvm.ComponentModel.Observ
     public MainWindowViewModel() {
         RenderCommand = new RelayCommand(() => {
             renderer.Resize(1024, 768);
-            Task.Run(() => { return renderer.Render(); }).ContinueWith((result) => { Image = result.Result; },
-                                                                       TaskScheduler
-                                                                           .FromCurrentSynchronizationContext());
+            Task.Run(() => { return renderer.Render(); })
+                .ContinueWith((result) => { Image = result.Result; },
+                    TaskScheduler
+                        .FromCurrentSynchronizationContext());
         });
     }
 }

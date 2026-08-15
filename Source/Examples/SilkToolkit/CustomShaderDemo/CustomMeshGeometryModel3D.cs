@@ -8,20 +8,23 @@ public class CustomMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(double),
         typeof(CustomMeshGeometryModel3D),
         new PropertyMetadata(5.0,
-                             (d, e) => {
-                                 ((d as Element3D).SceneNode as CustomMeshNode).HeightScale =
-                                     (float)(double)e.NewValue;
-                             }));
+            (d, e) => {
+                if (d is Element3D {SceneNode: CustomMeshNode node}) {
+                    node.HeightScale = (float) (double) e.NewValue;
+                }
+            }));
 
     public double HeightScale {
         set => SetValue(HeightScaleProperty, value);
-        get => (double)GetValue(HeightScaleProperty);
+        get => (double) GetValue(HeightScaleProperty);
     }
 
     protected override SceneNode OnCreateSceneNode() => new CustomMeshNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);
-        (core as CustomMeshNode).HeightScale = (float)HeightScale;
+        if (core is CustomMeshNode node) {
+            node.HeightScale = (float) HeightScale;
+        }
     }
 }

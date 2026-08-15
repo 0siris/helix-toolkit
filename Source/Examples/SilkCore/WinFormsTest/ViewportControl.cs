@@ -13,7 +13,7 @@ public struct ViewportOptions {
     public bool ShowWireframe;
     public bool ShowWireframeChanged;
     public bool PlayAnimation;
-    public IAnimationUpdater AnimationUpdater;
+    public IAnimationUpdater? AnimationUpdater;
     public IViewport3DX Viewport;
     public bool ShowEnvironmentMap;
     public bool EnableDpiScale;

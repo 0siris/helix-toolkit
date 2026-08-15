@@ -12,8 +12,8 @@ public static class SceneUi {
     private static long _currentTime = 0;
     public static string SomeTextFromOutside = "";
 
-    public static HelixToolkitScene Scene;
-    public static IList<IAnimationUpdater> AnimationUpdaters;
+    public static HelixToolkitScene? Scene;
+    public static IList<IAnimationUpdater>? AnimationUpdaters;
 
     private static bool[] _animationSelection = [];
     private static string[] _animationNames = [];
@@ -29,8 +29,8 @@ public static class SceneUi {
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(250, 350));
         bool opened = true;
         ImGui.Begin("Model Loader Window",
-                    ref opened,
-                    ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse);
+            ref opened,
+            ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse);
         if (ImGui.BeginMenuBar()) {
             if (ImGui.BeginMenu("Load Model", !_loading)) {
                 if (ImGui.MenuItem("Open")) {
@@ -43,17 +43,17 @@ public static class SceneUi {
             if (ImGui.BeginMenu("Options")) {
                 ImGui.Checkbox("Dir Light Follow Camera", ref options.DirectionalLightFollowCamera);
                 ImGui.SliderFloat("Dir Light Intensity",
-                                  ref options.DirectionLightIntensity,
-                                  0,
-                                  1,
-                                  "",
-                                  ImGuiSliderFlags.AlwaysClamp);
+                    ref options.DirectionLightIntensity,
+                    0,
+                    1,
+                    "",
+                    ImGuiSliderFlags.AlwaysClamp);
                 ImGui.SliderFloat("Ambient Light Intensity",
-                                  ref options.AmbientLightIntensity,
-                                  0,
-                                  1,
-                                  "",
-                                  ImGuiSliderFlags.AlwaysClamp);
+                    ref options.AmbientLightIntensity,
+                    0,
+                    1,
+                    "",
+                    ImGuiSliderFlags.AlwaysClamp);
                 ImGui.Separator();
                 ImGui.Checkbox("Show EnvironmentMap", ref options.ShowEnvironmentMap);
                 ImGui.Checkbox("Enable SSAO", ref options.EnableSsao);
@@ -92,41 +92,44 @@ public static class SceneUi {
         ImGui.Separator();
         ImGui.Text("FPS");
         ImGui.PlotLines("",
-                        ref _fps[0],
-                        _fps.Length,
-                        0,
-                        $"{_fps[_currFpsIndex]}",
-                        30,
-                        70,
-                        new System.Numerics.Vector2(200, 50));
+            ref _fps[0],
+            _fps.Length,
+            0,
+            $"{_fps[_currFpsIndex]}",
+            30,
+            70,
+            new System.Numerics.Vector2(200, 50));
         ImGui.Text("Rendering Latency Ms");
         ImGui.PlotLines("",
-                        ref _latency[0],
-                        _latency.Length,
-                        0,
-                        $"{_latency[_currFpsIndex]}ms",
-                        0,
-                        5,
-                        new System.Numerics.Vector2(200, 50));
-        _fps[_currFpsIndex] = 1000f / (float)options.Viewport.RenderHost.RenderStatistics.LatencyStatistics.AverageValue;
-        _latency[_currFpsIndex] = (float)options.Viewport.RenderHost.RenderStatistics.LatencyStatistics.AverageValue;
-        _frustumTest[_currFpsIndex] = (float)options.Viewport.RenderHost.RenderStatistics.FrustumTestTime * 1000;
+            ref _latency[0],
+            _latency.Length,
+            0,
+            $"{_latency[_currFpsIndex]}ms",
+            0,
+            5,
+            new System.Numerics.Vector2(200, 50));
+        if (options.Viewport.RenderHost is {RenderStatistics: { } statistics}) {
+            _fps[_currFpsIndex] = 1000f / (float) statistics.LatencyStatistics.AverageValue;
+            _latency[_currFpsIndex] = (float) statistics.LatencyStatistics.AverageValue;
+            _frustumTest[_currFpsIndex] = (float) statistics.FrustumTestTime * 1000;
+        }
+
         ImGui.Text("Frustum Test Ms");
         ImGui.PlotLines("",
-                        ref _frustumTest[0],
-                        _frustumTest.Length,
-                        0,
-                        $"{_frustumTest[_currFpsIndex]}ms",
-                        0,
-                        5,
-                        new System.Numerics.Vector2(200, 50));
+            ref _frustumTest[0],
+            _frustumTest.Length,
+            0,
+            $"{_frustumTest[_currFpsIndex]}ms",
+            0,
+            5,
+            new System.Numerics.Vector2(200, 50));
         _currFpsIndex = (_currFpsIndex + 1) % FrameDataLength;
 
         if (!_loading && ImGui.CollapsingHeader("Scene Graph", ImGuiTreeNodeFlags.DefaultOpen)) {
             DrawSceneGraph(rootNode);
         }
 
-        if (!_loading && Scene != null && Scene.Animations != null) {
+        if (!_loading && Scene is not null && Scene.Animations.Count > 0) {
             DrawAnimations(ref options);
         }
 
@@ -137,7 +140,7 @@ public static class SceneUi {
 
         if (_loading) {
             ImGui.Text($"Loading: {_modelName}");
-            var progress = ((float)(Stopwatch.GetTimestamp() - _currentTime) / Stopwatch.Frequency) * 100 % 100;
+            var progress = ((float) (Stopwatch.GetTimestamp() - _currentTime) / Stopwatch.Frequency) * 100 % 100;
             ImGui.ProgressBar(progress / 100, new System.Numerics.Vector2(width, 20), "");
         }
 
@@ -159,43 +162,42 @@ public static class SceneUi {
             _loading = true;
             _modelName = Path.GetFileName(path);
             Task.Run(() => {
-                var importer = new Importer();
-                return importer.Load(path);
-            }).ContinueWith((x) => {
-                _loading = false;
-                if (x.IsCompleted && x.Result != null) {
-                    node.Clear();
-                    foreach (var model in x.Result.Root.Traverse()) {
-                        if (model is MeshNode mesh) {
-                            if (mesh.Material is PbrMaterialCore pbr) {
-                                pbr.RenderEnvironmentMap = renderEnvironmentMap;
-                            } else if (mesh.Material is PhongMaterialCore phong) {
-                                phong.RenderEnvironmentMap = renderEnvironmentMap;
+                    var importer = new Importer();
+                    return importer.Load(path);
+                })
+                .ContinueWith((x) => {
+                        _loading = false;
+                        if (x.Status == TaskStatus.RanToCompletion && x.Result is { } loadedScene) {
+                            node.Clear();
+                            foreach (var model in loadedScene.Root.Traverse()) {
+                                if (model is MeshNode mesh) {
+                                    if (mesh.Material is PbrMaterialCore pbr) {
+                                        pbr.RenderEnvironmentMap = renderEnvironmentMap;
+                                    } else if (mesh.Material is PhongMaterialCore phong) {
+                                        phong.RenderEnvironmentMap = renderEnvironmentMap;
+                                    }
+                                }
                             }
-                        }
-                    }
 
-                    node.AddChildNode(x.Result.Root);
-                    Scene = x.Result;
-                    if (Scene.Animations != null && Scene.Animations.Count > 0) {
-                        AnimationUpdaters = [.. Scene.Animations.CreateAnimationUpdaters().Values];
-                        _animationSelection = new bool[AnimationUpdaters.Count];
-                        _animationNames = [.. AnimationUpdaters.Select((ani) => ani.Name)];
-                        _currentSelectedAnimation = -1;
-                    }
-                } else if (x.Exception != null) {
-                    _exception = x.Exception.Message;
-                }
-            },
-                            TaskScheduler.FromCurrentSynchronizationContext());
+                            node.AddChildNode(loadedScene.Root);
+                            Scene = loadedScene;
+                            if (loadedScene.Animations.Count > 0) {
+                                var updaters = loadedScene.Animations.CreateAnimationUpdaters()
+                                    .Values.ToArray();
+                                AnimationUpdaters = updaters;
+                                _animationSelection = new bool[updaters.Length];
+                                _animationNames = [.. updaters.Select(ani => ani.Name)];
+                                _currentSelectedAnimation = -1;
+                            }
+                        } else if (x.Exception != null) {
+                            _exception = x.Exception.Message;
+                        }
+                    },
+                    TaskScheduler.FromCurrentSynchronizationContext());
         }
     }
 
     private static void DrawSceneGraph(SceneNode node) {
-        if (node.Name == null) {
-            return;
-        }
-
         if (node.Items.Count > 0) {
             if (node.IsAnimationNode) {
                 ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(0, 1, 1, 1));
@@ -220,14 +222,17 @@ public static class SceneUi {
     }
 
     private static void DrawAnimations(ref ViewportOptions options) {
-        if (_animationNames.Length > 0) {
+        if (_animationNames.Length > 0 && AnimationUpdaters is { } animationUpdaters) {
             ImGui.Text($"Animations: {_animationNames.Length}");
             if (ImGui.Combo(" ", ref _currentSelectedAnimation, _animationNames, _animationNames.Length)) {
                 options.InitTimeStamp = 0;
                 if (_currentSelectedAnimation >= 0 && _currentSelectedAnimation < _animationNames.Length) {
-                    options.AnimationUpdater = AnimationUpdaters[_currentSelectedAnimation];
-                    options.AnimationUpdater.Reset();
-                    options.AnimationUpdater.RepeatMode = AnimationRepeatMode.Loop;
+                    if (animationUpdaters[_currentSelectedAnimation] is { } animationUpdater) {
+                        options.AnimationUpdater = animationUpdater;
+                        animationUpdater.Reset();
+                        animationUpdater.RepeatMode = AnimationRepeatMode.Loop;
+                    }
+
                     options.PlayAnimation = true;
                 } else {
                     options.PlayAnimation = false;

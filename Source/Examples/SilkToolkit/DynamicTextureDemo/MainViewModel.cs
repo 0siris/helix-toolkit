@@ -83,13 +83,17 @@ public class MainViewModel : BaseViewModel {
         get;
     } = new(-10, -10, -10);
 
-    private Vector3Collection initialPosition;
-    private IntCollection initialIndicies;
+    private readonly Vector3Collection initialPosition;
+    private readonly IntCollection initialIndicies;
     private Random rnd = new();
     private bool isRemoving = true;
     private int removedIndex = 0;
     private CancellationTokenSource cts = new();
-    private SynchronizationContext context = SynchronizationContext.Current;
+
+    private readonly SynchronizationContext context = SynchronizationContext.Current
+                                                      ?? throw new InvalidOperationException(
+                                                          "The dynamic texture demo requires a synchronization context.");
+
     private int counter = 0;
 
     public MainViewModel() {
@@ -110,9 +114,11 @@ public class MainViewModel : BaseViewModel {
         b2.AddSphere(new Vector3(0f, 0f, 0f), 4, 64, 64);
         Model = b2.ToMeshGeometry3D();
         Model.IsDynamic = true;
+        var modelIndices = Model.Indices ?? throw new InvalidOperationException("Model indices are required.");
+        var modelPositions = Model.Positions ?? throw new InvalidOperationException("Model positions are required.");
         InnerModel = new MeshGeometry3D() {
-            Indices = Model.Indices,
-            Positions = Model.Positions,
+            Indices = modelIndices,
+            Positions = modelPositions,
             Normals = Model.Normals,
             TextureCoordinates = Model.TextureCoordinates,
             Tangents = Model.Tangents,
@@ -129,7 +135,7 @@ public class MainViewModel : BaseViewModel {
             DiffuseAlphaMap = image,
             DiffuseMap =
                 TextureModel.Create(new Uri(@"TextureCheckerboard2.dds", UriKind.RelativeOrAbsolute)
-                                        .ToString()),
+                    .ToString()),
             NormalMap = TextureModel.Create(
                 new Uri(@"TextureCheckerboard2_dot3.dds", UriKind.RelativeOrAbsolute).ToString()),
         };
@@ -146,15 +152,16 @@ public class MainViewModel : BaseViewModel {
         };
 
 
-        initialPosition = Model.Positions;
-        initialIndicies = Model.Indices;
+        initialPosition = modelPositions;
+        initialIndicies = modelIndices;
 
         #region Point Model
 
         PointModel = new PointGeometry3D() {
-            IsDynamic = true, Positions = Model.Positions
+            IsDynamic = true,
+            Positions = modelPositions
         };
-        int count = PointModel.Positions.Count;
+        int count = modelPositions.Count;
         var colors = new Color4Collection(count);
         for (int i = 0; i < count / 2; ++i) {
             colors.Add(new Color4(0, 1, 1, 1));
@@ -170,7 +177,10 @@ public class MainViewModel : BaseViewModel {
 
         #region Line Model
 
-        LineModel = new LineGeometry3D() { IsDynamic = true, Positions = [.. PointModel.Positions] };
+        LineModel = new LineGeometry3D() {
+            IsDynamic = true,
+            Positions = [.. PointModel.Positions]
+        };
         LineModel.Positions.Add(Vector3.Zero);
         var indices = new IntCollection(count * 2);
         for (int i = 0; i < count; ++i) {
@@ -181,23 +191,28 @@ public class MainViewModel : BaseViewModel {
         LineModel.Indices = indices;
         colors = new Color4Collection(LineModel.Positions.Count);
         for (int i = 0; i < count; ++i) {
-            colors.Add(new Color4((float)i / count, 1 - (float)i / count, 0, 1));
+            colors.Add(new Color4((float) i / count, 1 - (float) i / count, 0, 1));
         }
 
         colors.Add(Colors.Blue.ToColor4());
         LineModel.Colors = colors;
-        LineMaterial = new LineArrowHeadMaterial() { Color = Colors.White, Thickness = 0.5, ArrowSize = 0.02 };
+        LineMaterial = new LineArrowHeadMaterial() {
+            Color = Colors.White,
+            Thickness = 0.5,
+            ArrowSize = 0.02
+        };
 
         #endregion
 
         var token = cts.Token;
         Task.Run(() => {
-            while (!token.IsCancellationRequested) {
-                Timer_Tick();
-                Task.Delay(16).Wait();
-            }
-        },
-                 token);
+                while (!token.IsCancellationRequested) {
+                    Timer_Tick();
+                    Task.Delay(16)
+                        .Wait();
+                }
+            },
+            token);
         //timer.Interval = TimeSpan.FromMilliseconds(16);
         //timer.Tick += Timer_Tick;
         //timer.Start();
@@ -214,45 +229,44 @@ public class MainViewModel : BaseViewModel {
         ++counter;
         counter %= 128;
         if (DynamicTexture) {
-            Vector2Collection texture = null;
             if (!AnimateUvOffset) {
-                texture = [.. Model.TextureCoordinates];
-                var t0 = texture[0];
-                for (int i = 1; i < texture.Count; ++i) {
-                    texture[i - 1] = texture[i];
-                }
-
-                texture[texture.Count - 1] = t0;
-            }
-
-            context.Send((o) => {
-                if (!AnimateUvOffset) {
-                    Model.TextureCoordinates = texture;
-                    if (ReverseInnerRotation) {
-                        var texture1 = new Vector2Collection(texture);
-                        texture1.Reverse();
-                        InnerModel.TextureCoordinates = texture1;
-                    } else {
-                        InnerModel.TextureCoordinates = texture;
+                if (Model.TextureCoordinates is { } modelTextureCoordinates) {
+                    var texture = new Vector2Collection(modelTextureCoordinates);
+                    var t0 = texture[0];
+                    for (int i = 1; i < texture.Count; ++i) {
+                        texture[i - 1] = texture[i];
                     }
-                } else {
+
+                    texture[texture.Count - 1] = t0;
+                    context.Send((o) => {
+                        Model.TextureCoordinates = texture;
+                        if (ReverseInnerRotation) {
+                            var texture1 = new Vector2Collection(texture);
+                            texture1.Reverse();
+                            InnerModel.TextureCoordinates = texture1;
+                        } else {
+                            InnerModel.TextureCoordinates = texture;
+                        }
+                    }, null);
+                }
+            } else {
+                context.Send((o) => {
                     ModelMaterial.UvTransform = new UvTransform(0,
-                                                                Vector2.One,
-                                                                ModelMaterial.UvTransform.Translation +
-                                                                new Vector2(0.005f, -0.01f));
+                        Vector2.One,
+                        ModelMaterial.UvTransform.Translation +
+                        new Vector2(0.005f, -0.01f));
                     InnerModelMaterial.UvTransform = new UvTransform(0,
                         Vector2.One,
                         InnerModelMaterial.UvTransform.Translation +
                         new Vector2(-0.01f, 0.005f));
-                }
-            },
-                         null);
+                }, null);
+            }
         }
 
         if (DynamicVertices) {
             var positions = new Vector3Collection(initialPosition);
             for (int i = 0; i < positions.Count; ++i) {
-                var off = (float)Math.Sin(Math.PI * (float)(counter + i) / 64);
+                var off = (float) Math.Sin(Math.PI * (float) (counter + i) / 64);
                 var p = positions[i];
                 p *= 0.8f + off * 0.2f;
                 positions[i] = p;
@@ -264,14 +278,14 @@ public class MainViewModel : BaseViewModel {
             //var normals =  MeshGeometryHelper.CalculateNormals(positions, initialIndicies);
             //var innerNormals =  new Vector3Collection(normals.Select(x => { return x * -1; }));
             context.Send((o) => {
-                //Model.Normals = normals;
-                //InnerModel.Normals = innerNormals;
-                //Model.Positions = positions;
-                //InnerModel.Positions = positions;
-                PointModel.Positions = positions;
-                LineModel.Positions = linePositions;
-            },
-                         null);
+                    //Model.Normals = normals;
+                    //InnerModel.Normals = innerNormals;
+                    //Model.Positions = positions;
+                    //InnerModel.Positions = positions;
+                    PointModel.Positions = positions;
+                    LineModel.Positions = linePositions;
+                },
+                null);
         }
 
         if (DynamicTriangles) {
@@ -292,14 +306,16 @@ public class MainViewModel : BaseViewModel {
 
             indices.RemoveRange(0, removedIndex);
             context.Send((o) => {
-                Model.Indices = indices;
-                InnerModel.Indices = indices;
-            },
-                         null);
+                    Model.Indices = indices;
+                    InnerModel.Indices = indices;
+                },
+                null);
         }
 
         if (DynamicTexture) {
-            var colors = new Color4Collection(PointModel.Colors);
+            if (PointModel.Colors is not { } pointColors || LineModel.Colors is not { } lineColorsSource)
+                return;
+            var colors = new Color4Collection(pointColors);
             for (int k = 0; k < 10; ++k) {
                 var c = colors[colors.Count - 1];
                 for (int i = colors.Count - 1; i > 0; --i) {
@@ -309,7 +325,7 @@ public class MainViewModel : BaseViewModel {
                 colors[0] = c;
             }
 
-            var lineColors = new Color4Collection(LineModel.Colors);
+            var lineColors = new Color4Collection(lineColorsSource);
             for (int k = 0; k < 10; ++k) {
                 var c = lineColors[colors.Count - 2];
                 for (int i = lineColors.Count - 2; i > 0; --i) {
@@ -320,10 +336,10 @@ public class MainViewModel : BaseViewModel {
             }
 
             context.Send((o) => {
-                PointModel.Colors = colors;
-                LineModel.Colors = lineColors;
-            },
-                         null);
+                    PointModel.Colors = colors;
+                    LineModel.Colors = lineColors;
+                },
+                null);
         }
     }
 

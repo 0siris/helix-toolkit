@@ -23,8 +23,8 @@ public partial class MainWindow : Window {
         mvm = new MainViewModel();
         DataContext = mvm;
         Closed += (s, e) => {
-            if (DataContext is IDisposable) {
-                (DataContext as IDisposable).Dispose();
+            if (DataContext is IDisposable disposable) {
+                disposable.Dispose();
             }
         };
     }

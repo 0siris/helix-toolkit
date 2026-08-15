@@ -22,7 +22,7 @@ public class BindingProxy : Freezable {
     #endregion
 
     public object Data {
-        get => (object)GetValue(DataProperty);
+        get => (object) GetValue(DataProperty);
         set => SetValue(DataProperty, value);
     }
 
@@ -97,7 +97,7 @@ public class MainViewModel : BaseViewModel {
 
     public LineGeometry3D LinesModel { private set; get; }
     public ObservableCollection<DataModel> Items { set; get; }
-    public List<DataModel> LanderItems { private set; get; }
+    public List<DataModel> LanderItems { private set; get; } = [];
 
     public Vector3D CamLookDir {
         set {
@@ -179,11 +179,15 @@ public class MainViewModel : BaseViewModel {
         ClearModelCommand = new RelayCommand(ClearModel);
         AutoTestCommand = new RelayCommand(AutoTestAddRemove);
         MultiViewportCommand = new RelayCommand((o) => {
-            var win = new MultiviewportWin() { DataContext = this };
+            var win = new MultiviewportWin() {
+                DataContext = this
+            };
             win.Show();
         });
     }
 
+    [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(Material), nameof(DefaultModel), nameof(PointsModel),
+        nameof(PointsHitModel), nameof(LinesModel))]
     private void CreateDefaultModels() {
         Material = PhongMaterials.White;
         var b2 = new MeshBuilder(true, true, true);
@@ -196,7 +200,9 @@ public class MainViewModel : BaseViewModel {
         PointsModel = new PointGeometry3D();
         var offset = new Vector3(1, 1, 1);
 
-        PointsModel.Positions = [.. DefaultModel.Positions.Select(x => x + offset)];
+        var defaultPositions = DefaultModel.Positions
+                               ?? throw new InvalidOperationException("The default model positions are required.");
+        PointsModel.Positions = [.. defaultPositions.Select(x => x + offset)];
         PointsModel.Indices = [.. Enumerable.Range(0, PointsModel.Positions.Count)];
         PointsModel.OctreeParameter.RecordHitPathBoundingBoxes = true;
         for (int i = 0; i < 50; ++i) {
@@ -216,7 +222,10 @@ public class MainViewModel : BaseViewModel {
 
         LinesModel = b3.ToLineGeometry3D();
         LinesModel.OctreeParameter.RecordHitPathBoundingBoxes = true;
-        PointsHitModel = new PointGeometry3D() { Positions = [], Indices = [] };
+        PointsHitModel = new PointGeometry3D() {
+            Positions = [],
+            Indices = []
+        };
         //var landerItems = Load3ds("Car.3ds").Select(x => new DataModel() { Model = x.Geometry as MeshGeometry3D, Material = PhongMaterials.Copper }).ToList();
         //var scale = new Vector3(0.007f);
         //var offset = new Vector3(15, 15, 15);
@@ -273,14 +282,14 @@ public class MainViewModel : BaseViewModel {
 
         var point = e.GetPosition(viewport);
         var hitTests = viewport.FindHits(point);
-        if (hitTests != null && hitTests.Count > 0) {
+        if (hitTests.Count > 0) {
             if (HitThrough) {
                 foreach (var hit in hitTests) {
-                    if ((hit.ModelHit as Element3D).DataContext is DataModel) {
-                        var model = (hit.ModelHit as Element3D).DataContext as DataModel;
+                    if (hit.ModelHit is Element3D {DataContext: DataModel model}) {
                         model.Highlight = true;
                         highlightItems.Add(model);
-                    } else if ((hit.ModelHit as Element3D).DataContext == this) {
+                    } else if (hit.ModelHit is Element3D {DataContext: var dataContext}
+                               && ReferenceEquals(dataContext, this)) {
                         if (hit.TriangleIndices != null) {
                             Material = PhongMaterials.Yellow;
                         } else {
@@ -291,15 +300,17 @@ public class MainViewModel : BaseViewModel {
                             var idx = new IntCollection {
                                 0
                             };
-                            PointsHitModel = new PointGeometry3D() { Positions = v, Indices = idx };
+                            PointsHitModel = new PointGeometry3D() {
+                                Positions = v,
+                                Indices = idx
+                            };
                         }
                     }
                 }
             } else {
                 var hit = hitTests[0];
                 if (hit.ModelHit is Element3D elem) {
-                    if (elem.DataContext is DataModel) {
-                        var model = elem.DataContext as DataModel;
+                    if (elem.DataContext is DataModel model) {
                         model.Highlight = true;
                         highlightItems.Add(model);
                     } else if (elem.DataContext == this) {
@@ -313,7 +324,10 @@ public class MainViewModel : BaseViewModel {
                             var idx = new IntCollection {
                                 0
                             };
-                            PointsHitModel = new PointGeometry3D() { Positions = v, Indices = idx };
+                            PointsHitModel = new PointGeometry3D() {
+                                Positions = v,
+                                Indices = idx
+                            };
                         }
                     }
                 }
@@ -324,23 +338,25 @@ public class MainViewModel : BaseViewModel {
     private double theta = 0;
     private double newModelZ = -5;
 
-    private void AddModel(object o) {
-        var x = 10 * (float)Math.Sin(theta);
-        var y = 10 * (float)Math.Cos(theta);
+    private void AddModel(object? o) {
+        var x = 10 * (float) Math.Sin(theta);
+        var y = 10 * (float) Math.Cos(theta);
         theta += 0.3;
         newModelZ += 0.5;
-        var z = (float)(newModelZ);
+        var z = (float) (newModelZ);
         Items.Add(new SphereModel(new Vector3(x, y + 20, z + 14), 1));
     }
 
-    private void RemoveModel(object o) {
+    private void RemoveModel(object? o) {
         if (Items.Count > 0) {
             Items.RemoveAt(Items.Count - 1);
-            newModelZ = newModelZ > -5 ? newModelZ - 0.5 : 0;
+            newModelZ = newModelZ > -5
+                ? newModelZ - 0.5
+                : 0;
         }
     }
 
-    private void ClearModel(object o) {
+    private void ClearModel(object? o) {
         Items.Clear();
         highlightItems.Clear();
     }
@@ -364,7 +380,7 @@ public class MainViewModel : BaseViewModel {
 
     private Random rnd = new();
 
-    private void AutoTestAddRemove(object o) {
+    private void AutoTestAddRemove(object? o) {
         if (!timer.IsEnabled) {
             AutoTesting = true;
             timer.Start();
@@ -375,7 +391,7 @@ public class MainViewModel : BaseViewModel {
         }
     }
 
-    private void Timer_Tick(object sender, EventArgs e) {
+    private void Timer_Tick(object? sender, EventArgs e) {
         if (counter > 499) {
             counter = -500;
         }
@@ -389,17 +405,16 @@ public class MainViewModel : BaseViewModel {
         if (counter % 2 == 0) {
             int k = rnd.Next(0, Items.Count - 1);
             int radius = rnd.Next(1, 5);
-            (Items[k] as SphereModel).Radius = radius;
+            if (Items[k] is SphereModel sphere)
+                sphere.Radius = radius;
         }
 
         ++counter;
     }
 
     protected override void Dispose(bool disposing) {
-        if (timer != null) {
-            timer.Stop();
-            timer.Tick -= Timer_Tick;
-        }
+        timer.Stop();
+        timer.Tick -= Timer_Tick;
 
         base.Dispose(disposing);
     }

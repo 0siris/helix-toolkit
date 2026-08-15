@@ -17,7 +17,7 @@ public class PbrViewModel : BaseViewModel {
     private const int Row = 5;
     private const int Col = 5;
     private const int Size = 5 * 5;
-    public TextureModel EnvironmentMap { set; get; }
+    public required TextureModel EnvironmentMap { set; get; }
     public ObservableElement3DCollection Models { get; } = [];
     private List<PbrMaterial> materials = [];
     public Geometry3D Model { get; }
@@ -66,7 +66,8 @@ public class PbrViewModel : BaseViewModel {
     public PbrViewModel(IEffectsManager manager) {
         EffectsManager = manager;
         Camera = new PerspectiveCamera {
-            Position = new Point3D(0, 60, 60), LookDirection = new Vector3D(0, -60, -60),
+            Position = new Point3D(0, 60, 60),
+            LookDirection = new Vector3D(0, -60, -60),
             UpDirection = new Vector3D(0, 1, 0)
         };
         var builder = new MeshBuilder();
@@ -107,16 +108,22 @@ public class PbrViewModel : BaseViewModel {
             DisplacementMap = TextureModel.Create("Engraved_Metal_DISP.png"),
             RoughnessMetallicMap = TextureModel.Create("Engraved_Metal_RMC.png"),
             DisplacementMapScaleMask = new Vector4(0.1f, 0.1f, 0.1f, 0),
-            EnableAutoTangent = true, EnableTessellation = true, MaxDistanceTessellationFactor = 2,
+            EnableAutoTangent = true,
+            EnableTessellation = true,
+            MaxDistanceTessellationFactor = 2,
             MinDistanceTessellationFactor = 4
         };
-        ModelTransform = new Media3D.MatrixTransform3D(Translation(0, 30, 0).ToMatrix3D());
+        ModelTransform = new Media3D.MatrixTransform3D(Translation(0, 30, 0)
+            .ToMatrix3D());
 
         builder = new MeshBuilder();
         builder.AddBox(Vector3.Zero, 100, 0.5, 100);
         var floorGeo = builder.ToMesh();
-        for (int i = 0; i < floorGeo.TextureCoordinates.Count; ++i) {
-            floorGeo.TextureCoordinates[i] *= 5;
+        var textureCoordinates = floorGeo.TextureCoordinates
+                                 ?? throw new InvalidOperationException(
+                                     "The floor geometry has no texture coordinates.");
+        for (int i = 0; i < textureCoordinates.Count; ++i) {
+            textureCoordinates[i] *= 5;
         }
 
         FloorModel = floorGeo;
@@ -132,7 +139,8 @@ public class PbrViewModel : BaseViewModel {
             RenderShadowMap = true,
             EnableAutoTangent = true,
         };
-        FloorModelTransform = new Media3D.MatrixTransform3D(Translation(0, -5, 0).ToMatrix3D());
+        FloorModelTransform = new Media3D.MatrixTransform3D(Translation(0, -5, 0)
+            .ToMatrix3D());
     }
 
     private static Matrix Translation(float x, float y, float z) {

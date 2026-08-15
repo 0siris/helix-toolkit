@@ -51,14 +51,19 @@ public class MainViewModel : BaseViewModel {
         get;
     } = true;
 
-    public string SelectedAnimation {
+    public string? SelectedAnimation {
         set {
             if (SetValue(ref field, value)) {
                 reset = true;
-                var curr = scene.Animations.Where(x => x.Name == value).FirstOrDefault();
-                animationUpdater = new NodeAnimationUpdater(curr) {
-                    RepeatMode = selectedRepeatMode
-                };
+                if (scene is { } loadedScene && value is not null
+                                             && loadedScene.Animations.FirstOrDefault(x => x.Name == value) is
+                                                 { } animation) {
+                    animationUpdater = new NodeAnimationUpdater(animation) {
+                        RepeatMode = selectedRepeatMode
+                    };
+                } else {
+                    animationUpdater = null;
+                }
             }
         }
         get;
@@ -76,25 +81,26 @@ public class MainViewModel : BaseViewModel {
         get => selectedRepeatMode;
     }
 
-    public Media3D.Transform3D ModelTransform { private set; get; }
+    public Media3D.Transform3D? ModelTransform { private set; get; }
 
-    public LineGeometry3D HitLineGeometry { get; } = new() { IsDynamic = true };
+    public LineGeometry3D HitLineGeometry { get; } = new() {
+        IsDynamic = true
+    };
 
-    public string[] Animations { set; get; }
+    public string[] Animations { set; get; } = [];
 
     public GridPattern[] GridTypes { get; } = [GridPattern.Tile, GridPattern.Grid];
 
-    public AnimationRepeatMode[] RepeatModes { get; } = [AnimationRepeatMode.Loop, AnimationRepeatMode.PlayOnce, AnimationRepeatMode.PlayOnceHold];
+    public AnimationRepeatMode[] RepeatModes { get; } =
+        [AnimationRepeatMode.Loop, AnimationRepeatMode.PlayOnce, AnimationRepeatMode.PlayOnceHold];
 
     private const int NumSegments = 100;
     private const int Theta = 24;
     private long startAniTime = 0;
     private CancellationTokenSource cts = new();
-    private SynchronizationContext context = SynchronizationContext.Current;
-
     private bool reset = true;
-    private HelixToolkitScene scene;
-    private NodeAnimationUpdater animationUpdater;
+    private HelixToolkitScene? scene;
+    private NodeAnimationUpdater? animationUpdater;
     private List<BoneSkinMeshNode> boneSkinNodes = [];
     private List<BoneSkinMeshNode> skeletonNodes = [];
     private CompositionTargetEx compositeHelper = new();
@@ -122,10 +128,12 @@ public class MainViewModel : BaseViewModel {
         importer.Configuration.CreateSkeletonForBoneSkinningMesh = true;
         importer.Configuration.SkeletonSizeScale = 0.04f;
         importer.Configuration.GlobalScale = 0.1f;
-        scene = importer.Load("Solus The Knight\\Solus_The_Knight.fbx");
-        ModelGroup.AddNode(scene.Root);
-        Animations = [.. scene.Animations.Select(x => x.Name)];
-        foreach (var node in scene.Root.Items.Traverse(false)) {
+        var loadedScene = importer.Load("Solus The Knight\\Solus_The_Knight.fbx")
+                          ?? throw new InvalidOperationException("The animation scene could not be loaded.");
+        scene = loadedScene;
+        ModelGroup.AddNode(loadedScene.Root);
+        Animations = [.. loadedScene.Animations.Select(x => x.Name ?? string.Empty)];
+        foreach (var node in loadedScene.Root.Items.Traverse(false)) {
             if (node is BoneSkinMeshNode m) {
                 if (!m.IsSkeletonNode) {
                     m.IsThrowingShadow = true;
@@ -140,14 +148,16 @@ public class MainViewModel : BaseViewModel {
         }
     }
 
-    private void HandleMouseDown(object sender, SceneNodeMouseDownArgs e) {
+    private void HandleMouseDown(object? sender, SceneNodeMouseDownArgs e) {
         var result = e.HitResult;
-        HitLineGeometry.Positions[0] = result.PointHit - result.NormalAtHit * 0.5f;
-        HitLineGeometry.Positions[1] = result.PointHit + result.NormalAtHit * 0.5f;
+        if (HitLineGeometry.Positions is not { } positions)
+            return;
+        positions[0] = result.PointHit - result.NormalAtHit * 0.5f;
+        positions[1] = result.PointHit + result.NormalAtHit * 0.5f;
         HitLineGeometry.UpdateVertices();
     }
 
-    private void CompositeHelper_Rendering(object sender, System.Windows.Media.RenderingEventArgs e) {
+    private void CompositeHelper_Rendering(object? sender, System.Windows.Media.RenderingEventArgs e) {
         if (animationUpdater != null) {
             if (reset) {
                 animationUpdater.Reset();

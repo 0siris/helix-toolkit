@@ -27,10 +27,12 @@ public partial class MainWindow : Window {
             var hits = view1.FindHits(e.GetPosition(view1));
             if (hits.Count > 0) {
                 foreach (var hit in hits.Where(h => h.IsValid)) {
-                    (hit.ModelHit as Element3D).RaiseEvent(
-                        new MouseDown3DEventArgs(hit.ModelHit, hit, e.GetPosition(view1), null, e));
-                    if (e.Handled) {
-                        break;
+                    if (hit.ModelHit is Element3D element3D) {
+                        element3D.RaiseEvent(
+                            new MouseDown3DEventArgs(hit.ModelHit, hit, e.GetPosition(view1), null, e));
+                        if (e.Handled) {
+                            break;
+                        }
                     }
                 }
             }

@@ -19,14 +19,16 @@ public partial class MainWindow : Window {
     public MainWindow() {
         InitializeComponent();
         Closed += (s, e) => {
-            if (DataContext is IDisposable) {
-                (DataContext as IDisposable).Dispose();
+            if (DataContext is IDisposable disposable) {
+                disposable.Dispose();
             }
         };
     }
 
-    private void Button_Click(object sender, RoutedEventArgs e) {
-        var win = new MultiViewportWin() { DataContext = DataContext };
+    private void Button_Click(object? sender, RoutedEventArgs e) {
+        var win = new MultiViewportWin() {
+            DataContext = DataContext
+        };
         win.Show();
     }
 }

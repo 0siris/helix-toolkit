@@ -23,7 +23,7 @@ using Transform3D = System.Windows.Media.Media3D.Transform3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     public MainViewModel ViewModel => this;
 
@@ -31,16 +31,18 @@ public class MainViewModel : BaseViewModel {
         get;
         private set {
             if (SetValue(ref field, value)) {
-                NumberOfTriangles = field.Indices.Count / 3;
-                NumberOfVertices = field.Positions.Count;
+                var indices = field.Indices ?? throw new InvalidOperationException("Model indices are required.");
+                var positions = field.Positions ?? throw new InvalidOperationException("Model positions are required.");
+                NumberOfTriangles = indices.Count / 3;
+                NumberOfVertices = positions.Count;
             }
         }
     }
 
     public PhongMaterial ModelMaterial { get; set; }
-    public PhongMaterial LightModelMaterial { get; set; }
+    public PhongMaterial? LightModelMaterial { get; set; }
 
-    public Transform3D ModelTransform { private set; get; }
+    public Transform3D ModelTransform { private set; get; } = Transform3D.Identity;
 
     public Vector3D Light1Direction { get; set; }
     public Color Light1Color { get; set; }
@@ -67,7 +69,9 @@ public class MainViewModel : BaseViewModel {
     public bool ShowWireframe {
         set {
             if (SetValue(ref field, value)) {
-                FillMode = value ? FillMode.Wireframe : FillMode.Solid;
+                FillMode = value
+                    ? FillMode.Wireframe
+                    : FillMode.Solid;
             }
         }
         get;
@@ -78,7 +82,7 @@ public class MainViewModel : BaseViewModel {
     public int NumberOfTriangles { set; get; } = 0;
     public int NumberOfVertices { set; get; } = 0;
 
-    private MeshGeometry3D orgMesh;
+    private readonly MeshGeometry3D orgMesh;
 
     public bool Lossless { set; get; } = false;
 
@@ -95,7 +99,8 @@ public class MainViewModel : BaseViewModel {
         // ----------------------------------------------
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(100, 100, 100), LookDirection = new Vector3D(-100, -100, -100),
+            Position = new Point3D(100, 100, 100),
+            LookDirection = new Vector3D(-100, -100, -100),
             UpDirection = new Vector3D(0, 1, 0)
         };
         // ----------------------------------------------
@@ -111,7 +116,11 @@ public class MainViewModel : BaseViewModel {
         // scene model3d
         ModelMaterial = PhongMaterials.Silver;
 
-        var models = Load3Ds("wall12.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
+        var model = Load3Ds("wall12.obj")
+                        .Select(x => x.Geometry)
+                        .OfType<MeshGeometry3D>()
+                        .FirstOrDefault()
+                    ?? throw new InvalidOperationException("The sample mesh could not be loaded.");
         //var scale = new Vector3(1f);
 
         //foreach (var item in caritems)
@@ -122,17 +131,17 @@ public class MainViewModel : BaseViewModel {
         //    }
 
         //}
-        Model = models[0];
+        Model = model;
         orgMesh = Model;
 
         //ModelTransform = new Media3D.RotateTransform3D() { Rotation = new Media3D.AxisAngleRotation3D(new Vector3D(1, 0, 0), -90) };
 
         SimplifyCommand = new RelayCommand(Simplify, CanSimplify);
         ResetCommand = new RelayCommand((o) => {
-            Model = orgMesh;
-            simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
-        },
-                                        CanSimplify);
+                Model = orgMesh;
+                simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
+            },
+            CanSimplify);
         simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
     }
 
@@ -163,28 +172,30 @@ public class MainViewModel : BaseViewModel {
         BindingOperations.SetBinding(dobj, property, binding);
     }
 
-    private bool CanSimplify(object obj) => !Busy;
+    private bool CanSimplify(object? obj) => !Busy;
 
-    private void Simplify(object obj) {
+    private void Simplify(object? obj) {
         if (!CanSimplify(null)) {
             return;
         }
 
         Busy = true;
-        int size = Model.Indices.Count / 3 / 2;
+        var indices = Model.Indices ?? throw new InvalidOperationException("Model indices are required.");
+        int size = indices.Count / 3 / 2;
         CalculationTime = 0;
         Task.Factory.StartNew(() => {
-            var sw = Stopwatch.StartNew();
-            var model = simHelper.Simplify(size, 7, true, Lossless);
-            sw.Stop();
-            CalculationTime = sw.ElapsedMilliseconds;
-            model.Normals = model.CalculateNormals();
-            return model;
-        }).ContinueWith(x => {
-            Busy = false;
-            Model = x.Result;
-            CommandManager.InvalidateRequerySuggested();
-        },
-                        TaskScheduler.FromCurrentSynchronizationContext());
+                var sw = Stopwatch.StartNew();
+                var model = simHelper.Simplify(size, 7, true, Lossless);
+                sw.Stop();
+                CalculationTime = sw.ElapsedMilliseconds;
+                model.Normals = model.CalculateNormals();
+                return model;
+            })
+            .ContinueWith(x => {
+                    Busy = false;
+                    Model = x.Result;
+                    CommandManager.InvalidateRequerySuggested();
+                },
+                TaskScheduler.FromCurrentSynchronizationContext());
     }
 }

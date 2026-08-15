@@ -128,11 +128,13 @@ public abstract class StaticGeometryBatchingBufferBase<BatchedGeometry, VertStru
 
     protected virtual void OnSubmitGeometries(DeviceContextProxy deviceContext) {
         if (Geometries is null) {
-            VertexBuffer[0].UploadDataToBuffer(deviceContext, EmptyArray, 0);
+            VertexBuffer[0]
+                .UploadDataToBuffer(deviceContext, EmptyArray, 0);
             IndexBuffer?.UploadDataToBuffer(deviceContext, EmptyIntArray, 0);
             vertexBufferBindings = [];
             return;
         }
+
         var geometries = Geometries;
 #if OutputBuildTime
                 var time = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -157,23 +159,23 @@ public abstract class StaticGeometryBatchingBufferBase<BatchedGeometry, VertStru
         if (geometries.Length > 50 && totalVertex > 5000) {
             var partitionParams = Partitioner.Create(0, geometries.Length);
             Parallel.ForEach(partitionParams,
-                             range => {
-                                 for (var i = range.Item1; i < range.Item2; ++i) {
-                                     var geo = geometries[i];
-                                     var transform = geo.ModelTransform;
-                                     var vertStart = vertRange[i];
-                                     OnFillVertArray(tempVerts, vertStart, ref geo, ref transform);
+                range => {
+                    for (var i = range.Item1; i < range.Item2; ++i) {
+                        var geo = geometries[i];
+                        var transform = geo.ModelTransform;
+                        var vertStart = vertRange[i];
+                        OnFillVertArray(tempVerts, vertStart, ref geo, ref transform);
 
-                    var indices = geo.Geometry.Indices;
-                    if (IndexBuffer != null && indices != null) {
-                                         //Fill Indices, make sure to correct the offset
-                        var count = indices.Count;
-                                         var tempIdx = idxRange[i];
-                                         for (var j = 0; j < count; ++j, ++tempIdx)
-                                              tempIndices[tempIdx] = indices[j] + vertStart;
-                                     }
-                                 }
-                             });
+                        var indices = geo.Geometry.Indices;
+                        if (IndexBuffer != null && indices != null) {
+                            //Fill Indices, make sure to correct the offset
+                            var count = indices.Count;
+                            var tempIdx = idxRange[i];
+                            for (var j = 0; j < count; ++j, ++tempIdx)
+                                tempIndices[tempIdx] = indices[j] + vertStart;
+                        }
+                    }
+                });
         } else {
             var vertOffset = 0;
             var indexOffset = 0;
@@ -199,12 +201,13 @@ public abstract class StaticGeometryBatchingBufferBase<BatchedGeometry, VertStru
                 time = System.Diagnostics.Stopwatch.GetTimestamp() - time;
                 Logger.Debug("Build Batch Time: {Value0} ms", [(float)time / System.Diagnostics.Stopwatch.Frequency * 1000]);
 #endif
-        VertexBuffer[0].UploadDataToBuffer(deviceContext, tempVerts, tempVerts.Length);
+        VertexBuffer[0]
+            .UploadDataToBuffer(deviceContext, tempVerts, tempVerts.Length);
         IndexBuffer?.UploadDataToBuffer(deviceContext, tempIndices, tempIndices.Length);
         vertexBufferBindings = [
             new VertexBufferBinding(VertexBuffer[0].Buffer,
-                                    VertexBuffer[0].StructureSize,
-                                    VertexBuffer[0].Offset)
+                VertexBuffer[0].StructureSize,
+                VertexBuffer[0].Offset)
         ];
     }
 

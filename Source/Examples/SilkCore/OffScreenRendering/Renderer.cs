@@ -7,12 +7,18 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 namespace OffScreenRendering;
 
 internal class Renderer {
-    private readonly ViewportCore viewport = new() { EffectsManager = new DefaultEffectsManager() };
-    private readonly Random random = new((int)Stopwatch.GetTimestamp());
+    private readonly ViewportCore viewport = new() {
+        EffectsManager = new DefaultEffectsManager()
+    };
 
-    private readonly DirectionalLightNode lightNode = new() { Direction = new Vector3(-1, -1, 0), Color = new Color4(1, 1, 1, 1) };
+    private readonly Random random = new((int) Stopwatch.GetTimestamp());
 
-    private GroupNode currentScene;
+    private readonly DirectionalLightNode lightNode = new() {
+        Direction = new Vector3(-1, -1, 0),
+        Color = new Color4(1, 1, 1, 1)
+    };
+
+    private GroupNode? currentScene;
 
     public Renderer() {
         viewport.CameraCore = new OrthographicCameraCore() {
@@ -46,15 +52,18 @@ internal class Renderer {
         lock (viewport) {
             // Remove existing scene and create an new scene
             currentScene?.RemoveSelf();
-            currentScene = new GroupNode();
-            GenerateSomeMesh(currentScene);
-            viewport.Items.AddChildNode(currentScene);
+            var scene = new GroupNode();
+            currentScene = scene;
+            GenerateSomeMesh(scene);
+            viewport.Items.AddChildNode(scene);
             viewport.Render();
-            using var bitmapStream = viewport.RenderToBitmapStream();
+            using var bitmapStream = viewport.RenderToBitmapStream()
+                                     ?? throw new InvalidOperationException(
+                                         "The viewport did not produce a bitmap stream.");
             bitmapStream.Position = 0;
             var frame = BitmapFrame.Create(bitmapStream,
-                                           BitmapCreateOptions.IgnoreImageCache,
-                                           BitmapCacheOption.OnLoad);
+                BitmapCreateOptions.IgnoreImageCache,
+                BitmapCacheOption.OnLoad);
             return frame;
         }
     }
@@ -67,7 +76,9 @@ internal class Renderer {
         for (int i = 0; i < numSphere; ++i) {
             var meshNode = new MeshNode() {
                 Geometry = mesh,
-                Material = new PhongMaterialCore() { DiffuseColor = random.NextColor() },
+                Material = new PhongMaterialCore() {
+                    DiffuseColor = random.NextColor()
+                },
                 ModelMatrix = Translation(random.NextVector3(new Vector3(-50, -50, -50), new Vector3(50, 50, 50)))
             };
             root.AddChildNode(meshNode);
@@ -84,11 +95,14 @@ internal class Renderer {
 }
 
 internal static class RandomExtensions {
-    public static Color4 NextColor(this Random random) => new((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1);
+    public static Color4 NextColor(this Random random) => new((float) random.NextDouble(), (float) random.NextDouble(),
+        (float) random.NextDouble(), 1);
 
-    public static Vector3 NextVector3(this Random random, Vector3 min, Vector3 max) => new(NextFloat(random, min.X, max.X),
+    public static Vector3 NextVector3(this Random random, Vector3 min, Vector3 max) => new(
+        NextFloat(random, min.X, max.X),
         NextFloat(random, min.Y, max.Y),
         NextFloat(random, min.Z, max.Z));
 
-    private static float NextFloat(Random random, float min, float max) => min + (max - min) * (float)random.NextDouble();
+    private static float NextFloat(Random random, float min, float max)
+        => min + (max - min) * (float) random.NextDouble();
 }

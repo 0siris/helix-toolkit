@@ -23,18 +23,18 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     public MainViewModel ViewModel => this;
 
     public MeshGeometry3D Model { get; private set; }
     public MeshGeometry3D Floor { get; private set; }
 
-    public MeshGeometry3D CarModel { private set; get; }
+    public MeshGeometry3D? CarModel { private set; get; }
 
     public PhongMaterial ModelMaterial { get; set; }
     public PhongMaterial FloorMaterial { get; set; }
-    public PhongMaterial LightModelMaterial { get; set; }
+    public PhongMaterial? LightModelMaterial { get; set; }
 
     public Transform3D ModelTransform { private set; get; }
 
@@ -71,7 +71,8 @@ public class MainViewModel : BaseViewModel {
         // ----------------------------------------------
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(100, 100, 100), LookDirection = new Vector3D(-100, -100, -100),
+            Position = new Point3D(100, 100, 100),
+            LookDirection = new Vector3D(-100, -100, -100),
             UpDirection = new Vector3D(0, 1, 0)
         };
         // ----------------------------------------------
@@ -100,20 +101,31 @@ public class MainViewModel : BaseViewModel {
                 new Uri(@"TextureCheckerboard2.jpg", UriKind.RelativeOrAbsolute).ToString());
         FloorMaterial.NormalMap =
             TextureModel.Create(new Uri(@"TextureCheckerboard2_dot3.jpg", UriKind.RelativeOrAbsolute)
-                                    .ToString());
+                .ToString());
 
-        var caritems = Load3Ds("leone.3DBuilder.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
+        var caritems = Load3Ds("leone.3DBuilder.obj")
+            .Select(x => x.Geometry)
+            .OfType<MeshGeometry3D>()
+            .ToArray();
+        if (caritems.Length == 0) {
+            throw new InvalidOperationException("The car model did not contain mesh geometry.");
+        }
+
         var scale = new Vector3(1f, 1f, 1f);
 
         foreach (var item in caritems) {
-            for (int i = 0; i < item.Positions.Count; ++i) {
-                item.Positions[i] = item.Positions[i] * scale;
+            var positions = item.Positions
+                            ?? throw new InvalidOperationException("The car mesh did not contain positions.");
+            for (int i = 0; i < positions.Count; ++i) {
+                positions[i] = positions[i] * scale;
             }
         }
 
         Model = MeshGeometry3D.Merge(caritems);
 
-        ModelTransform = new Media3D.RotateTransform3D() { Rotation = new Media3D.AxisAngleRotation3D(new Vector3D(1, 0, 0), -90) };
+        ModelTransform = new Media3D.RotateTransform3D() {
+            Rotation = new Media3D.AxisAngleRotation3D(new Vector3D(1, 0, 0), -90)
+        };
 
         Instances = new Matrix[6];
         for (int i = 0; i < Instances.Length; ++i) {

@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.Wpf.SharpDX;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
@@ -28,10 +30,13 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
     }
 
 
+    [MemberNotNull(nameof(PhongMaterial))]
     private void CreateGenericPhongMaterial() {
+        var effectsManager = EffectsManager
+                             ?? throw new InvalidOperationException("The effects manager is not initialized.");
         PhongMaterial =
-            new GenericMeshMaterialCore(EffectsManager[DefaultRenderTechniqueNames.Mesh][DefaultPassNames.Default],
-                                        "cbMesh");
+            new GenericMeshMaterialCore(effectsManager[DefaultRenderTechniqueNames.Mesh][DefaultPassNames.Default],
+                "cbMesh");
         PhongMaterial.SetProperty(PhongPbrMaterialStruct.DiffuseStr, Color.Red.ToColor4());
         PhongMaterial.SetProperty(PhongPbrMaterialStruct.ReflectStr, Color.Black.ToColor4());
         PhongMaterial.SetProperty(PhongPbrMaterialStruct.UvTransformR1Str, new Vector4(1, 0, 0, 0));
@@ -39,7 +44,10 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
     }
 
     private void InitializeScene() {
-        var node = new MeshNode() { Geometry = Sphere, Material = PhongMaterial };
+        var node = new MeshNode() {
+            Geometry = Sphere,
+            Material = PhongMaterial
+        };
         ModelGroup.AddNode(node);
     }
 }

@@ -7,6 +7,8 @@
 namespace EnvironmentMapDemo;
 
 using System.Collections.Generic;
+using System;
+using System.Linq;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
 using Color = Color;
@@ -40,7 +42,8 @@ public class MainViewModel : BaseViewModel {
 
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(10, 0, 0), LookDirection = new Vector3D(-10, 0, 0),
+            Position = new Point3D(10, 0, 0),
+            LookDirection = new Vector3D(-10, 0, 0),
             UpDirection = new Vector3D(0, 1, 0)
         };
         //this.Camera = new OrthographicCamera { Position = new Point3D(3, 3, 5), LookDirection = new Vector3D(-3, -3, -5), UpDirection = new Vector3D(0, 1, 0) };
@@ -51,7 +54,7 @@ public class MainViewModel : BaseViewModel {
         DirectionalLightDirection = new Vector3(-2, -1, 1);
 
         // scene model3d
-        LoadModel("teapot_quads_tex.obj", MeshFaces.Default);
+        Model = LoadModel("teapot_quads_tex.obj", MeshFaces.Default);
         ModelTransform = new Media3D.TranslateTransform3D();
         ModelMaterial = PhongMaterials.PolishedSilver;
         ModelMaterial.ReflectiveColor = Color.Silver;
@@ -63,7 +66,8 @@ public class MainViewModel : BaseViewModel {
 
         EffectsManager = new DefaultEffectsManager();
 
-        SkyboxTexture = TextureModel.Create("Cubemap_Grandcanyon.dds");
+        SkyboxTexture = TextureModel.Create("Cubemap_Grandcanyon.dds")
+                        ?? throw new InvalidOperationException("The skybox texture could not be loaded.");
         int t = 5;
         for (int i = 0; i < 10; ++i) {
             Instances1.Add(Translation(t, t, (i - 5) * t));
@@ -103,31 +107,35 @@ public class MainViewModel : BaseViewModel {
     /// <param name="filename">filename</param>
     /// <param name="faces">Determines if facades should be treated as triangles (Default) or as quads (Quads)</param>
     [System.Obsolete]
-    private void LoadModel(string filename, MeshFaces faces) {
+    private MeshGeometry3D LoadModel(string filename, MeshFaces faces) {
         // load model
         var reader = new ObjReader();
-        var objModel = reader.Read(filename, new ModelInfo() { Faces = faces });
-        var model = objModel[0].Geometry as MeshGeometry3D;
-        Model = model;
+        var objModel = reader.Read(filename, new ModelInfo() {
+            Faces = faces
+        });
+        return objModel.Select(x => x.Geometry)
+                   .OfType<MeshGeometry3D>()
+                   .FirstOrDefault()
+               ?? throw new InvalidOperationException("The model did not contain mesh geometry.");
     }
 
     private static Matrix Translation(float x, float y, float z) {
         var m = System.Numerics.Matrix4x4.CreateTranslation(x, y, z);
         return new Matrix(m.M11,
-                          m.M12,
-                          m.M13,
-                          m.M14,
-                          m.M21,
-                          m.M22,
-                          m.M23,
-                          m.M24,
-                          m.M31,
-                          m.M32,
-                          m.M33,
-                          m.M34,
-                          m.M41,
-                          m.M42,
-                          m.M43,
-                          m.M44);
+            m.M12,
+            m.M13,
+            m.M14,
+            m.M21,
+            m.M22,
+            m.M23,
+            m.M24,
+            m.M31,
+            m.M32,
+            m.M33,
+            m.M34,
+            m.M41,
+            m.M42,
+            m.M43,
+            m.M44);
     }
 }

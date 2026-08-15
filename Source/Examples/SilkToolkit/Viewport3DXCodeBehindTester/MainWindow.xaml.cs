@@ -14,10 +14,10 @@ namespace Viewport3DXCodeBehindTester;
 /// </summary>
 public partial class MainWindow : Window {
     private EffectsManager manager;
-    private Viewport3DX viewport;
+    private Viewport3DX? viewport;
     private Models models = new();
     private ViewModel viewmodel = new();
-    private SceneNodeGroupModel3D sceneNodeGroup;
+    private SceneNodeGroupModel3D? sceneNodeGroup;
 
     public MainWindow() {
         InitializeComponent();
@@ -27,58 +27,82 @@ public partial class MainWindow : Window {
     }
 
     private void Button_Click_Add(object sender, RoutedEventArgs e) {
-        viewport.Items.Add(models.GetModelRandom());
+        if (viewport is { } activeViewport) {
+            activeViewport.Items.Add(models.GetModelRandom());
+        }
     }
 
     private void Button_Click_Remove(object sender, RoutedEventArgs e) {
-        var model = viewport.Items.Last();
+        if (viewport is not { } activeViewport) {
+            return;
+        }
+
+        var model = activeViewport.Items.Last();
         if (model is Light3D) {
             return;
         } else if (model is EnvironmentMap3D) {
             viewmodel.EnableEnvironmentButtons = true;
         }
 
-        viewport.Items.RemoveAt(viewport.Items.Count - 1);
+        activeViewport.Items.RemoveAt(activeViewport.Items.Count - 1);
     }
 
     private void Button_Click_Initialize(object sender, RoutedEventArgs e) {
-        viewport = new Viewport3DX {
+        var activeViewport = new Viewport3DX {
             BackgroundColor = Colors.Black,
             ShowCoordinateSystem = true,
             ShowFrameRate = true,
             EffectsManager = manager
         };
-        viewport.Items.Add(new DirectionalLight3D() { Direction = new System.Windows.Media.Media3D.Vector3D(-1, -1, -1) });
-        viewport.Items.Add(new AmbientLight3D() { Color = Color.FromArgb(255, 50, 50, 50) });
-        sceneNodeGroup = new SceneNodeGroupModel3D();
-        viewport.Items.Add(sceneNodeGroup);
-        viewport.MouseDown3D += Viewport_MouseDown3D;
-        Grid.SetColumn(viewport, 0);
-        mainGrid.Children.Add(viewport);
+        activeViewport.Items.Add(new DirectionalLight3D() {
+            Direction = new System.Windows.Media.Media3D.Vector3D(-1, -1, -1)
+        });
+        activeViewport.Items.Add(new AmbientLight3D() {
+            Color = Color.FromArgb(255, 50, 50, 50)
+        });
+        var group = new SceneNodeGroupModel3D();
+        activeViewport.Items.Add(group);
+        activeViewport.MouseDown3D += Viewport_MouseDown3D;
+        Grid.SetColumn(activeViewport, 0);
+        mainGrid.Children.Add(activeViewport);
+        viewport = activeViewport;
+        sceneNodeGroup = group;
         buttonInit.IsEnabled = false;
         buttonRemoveViewport.IsEnabled = true;
         viewmodel.EnableButtons = true;
     }
 
     private void Viewport_MouseDown3D(object sender, RoutedEventArgs e) {
-        if (e is MouseDown3DEventArgs args && args.HitTestResult != null) {
-            var model = args.HitTestResult.ModelHit;
+        if (e is MouseDown3DEventArgs {HitTestResult: { } hitTestResult}) {
+            var model = hitTestResult.ModelHit;
         }
     }
 
     private void buttonEnvironment_Click(object sender, RoutedEventArgs e) {
-        var texture = TextureModel.Create("Cubemap_Grandcanyon.dds");
-        var environment = new EnvironmentMap3D() { Texture = texture };
-        viewport.Items.Add(environment);
+        if (viewport is not { } activeViewport || TextureModel.Create("Cubemap_Grandcanyon.dds") is not { } texture) {
+            return;
+        }
+
+        var environment = new EnvironmentMap3D() {
+            Texture = texture
+        };
+        activeViewport.Items.Add(environment);
         viewmodel.EnableEnvironmentButtons = false;
     }
 
     private void buttonSceneNode_Click(object sender, RoutedEventArgs e) {
-        sceneNodeGroup.AddNode(models.GetSceneNodeRandom());
+        if (sceneNodeGroup is { } group) {
+            group.AddNode(models.GetSceneNodeRandom());
+        }
     }
 
     private void ButtonRemove_Click(object sender, RoutedEventArgs e) {
-        mainGrid.Children.Remove(viewport);
+        if (viewport is { } activeViewport) {
+            mainGrid.Children.Remove(activeViewport);
+        }
+
+        viewport = null;
+        sceneNodeGroup = null;
         buttonInit.IsEnabled = true;
         buttonRemoveViewport.IsEnabled = false;
     }
@@ -123,14 +147,17 @@ public class Models {
 
     public MeshGeometryModel3D GetModelRandom() {
         var idx = rnd.Next(0, models.Count);
-        MeshGeometryModel3D model = new MeshGeometryModel3D() { Geometry = models[idx], CullMode = CullMode.Back };
+        MeshGeometryModel3D model = new MeshGeometryModel3D() {
+            Geometry = models[idx],
+            CullMode = CullMode.Back
+        };
         var scale = new System.Windows.Media.Media3D.ScaleTransform3D(rnd.NextDouble(1, 5),
-                                                                      rnd.NextDouble(1, 5),
-                                                                      rnd.NextDouble(1, 5));
+            rnd.NextDouble(1, 5),
+            rnd.NextDouble(1, 5));
         var translate =
             new System.Windows.Media.Media3D.TranslateTransform3D(rnd.NextDouble(-20, 20),
-                                                                  rnd.NextDouble(-20, 20),
-                                                                  rnd.NextDouble(-20, 20));
+                rnd.NextDouble(-20, 20),
+                rnd.NextDouble(-20, 20));
         var group = new System.Windows.Media.Media3D.Transform3DGroup();
         group.Children.Add(scale);
         group.Children.Add(translate);
@@ -146,11 +173,14 @@ public class Models {
 
     public MeshNode GetSceneNodeRandom() {
         var idx = rnd.Next(0, models.Count);
-        MeshNode model = new MeshNode() { Geometry = models[idx], CullMode = CullMode.Back };
-        var scale = Scaling((float)rnd.NextDouble(1, 5), (float)rnd.NextDouble(1, 5), (float)rnd.NextDouble(1, 5));
-        var translate = Translation((float)rnd.NextDouble(-20, 20),
-                                    (float)rnd.NextDouble(-20, 20),
-                                    (float)rnd.NextDouble(-20, 20));
+        MeshNode model = new MeshNode() {
+            Geometry = models[idx],
+            CullMode = CullMode.Back
+        };
+        var scale = Scaling((float) rnd.NextDouble(1, 5), (float) rnd.NextDouble(1, 5), (float) rnd.NextDouble(1, 5));
+        var translate = Translation((float) rnd.NextDouble(-20, 20),
+            (float) rnd.NextDouble(-20, 20),
+            (float) rnd.NextDouble(-20, 20));
         model.ModelMatrix = scale * translate;
         var material = materials[rnd.Next(0, materials.Count - 1)];
         model.Material = material;
@@ -161,9 +191,11 @@ public class Models {
         return model;
     }
 
-    private static Matrix Scaling(float x, float y, float z) => ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
+    private static Matrix Scaling(float x, float y, float z)
+        => ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
 
-    private static Matrix Translation(float x, float y, float z) => ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(x, y, z));
+    private static Matrix Translation(float x, float y, float z)
+        => ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(x, y, z));
 
     private static Matrix ToMatrix(System.Numerics.Matrix4x4 matrix) => new(matrix.M11,
         matrix.M12,
@@ -184,5 +216,6 @@ public class Models {
 }
 
 internal static class RandomExtensions {
-    public static double NextDouble(this Random random, double min, double max) => min + random.NextDouble() * (max - min);
+    public static double NextDouble(this Random random, double min, double max)
+        => min + random.NextDouble() * (max - min);
 }

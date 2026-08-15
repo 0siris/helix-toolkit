@@ -7,11 +7,10 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 namespace OctreeDemo;
 
 public class DataModel : DemoCore.ObservableObject {
-    [field: AllowNull, MaybeNull]
-    public MeshGeometry3D Model {
-        set => SetValue<MeshGeometry3D>(ref field, value, nameof(Model));
+    public MeshGeometry3D? Model {
+        set => SetValue(ref field, value, nameof(Model));
         get;
-    } = null;
+    }
 
     public readonly Media3D.ScaleTransform3D ScaleTransform = new();
     public readonly Media3D.TranslateTransform3D TranslateTransform = new();
@@ -79,13 +78,15 @@ public class SphereModel : DataModel {
         CreateModel();
         if (enableTransform) {
             CreateAnimatedTransform1(DynamicTransform,
-                                     center.ToVector3D(),
-                                     new Media3D.Vector3D(rnd.Next(-1, 1), rnd.Next(-1, 1), rnd.Next(-1, 1)),
-                                     rnd.Next(10, 100));
+                center.ToVector3D(),
+                new Media3D.Vector3D(rnd.Next(-1, 1), rnd.Next(-1, 1), rnd.Next(-1, 1)),
+                rnd.Next(10, 100));
         }
 
         var color = rnd.NextColor();
-        Material = new PhongMaterial() { DiffuseColor = color.ToColor4() };
+        Material = new PhongMaterial() {
+            DiffuseColor = color.ToColor4()
+        };
     }
 
     public Vector3 Center {
@@ -163,10 +164,11 @@ public class SphereModel : DataModel {
 }
 
 internal static class RandomExtensions {
-    public static double NextDouble(this Random random, double min, double max) => min + random.NextDouble() * (max - min);
+    public static double NextDouble(this Random random, double min, double max)
+        => min + random.NextDouble() * (max - min);
 
     public static System.Windows.Media.Color NextColor(this Random random) => System.Windows.Media.Color.FromArgb(255,
-        (byte)random.Next(256),
-        (byte)random.Next(256),
-        (byte)random.Next(256));
+        (byte) random.Next(256),
+        (byte) random.Next(256),
+        (byte) random.Next(256));
 }

@@ -11,9 +11,11 @@ public partial class MainWindow : Window {
     }
 
     private void BatchedMeshGeometryModel3D_Mouse3DDown(
-        object sender,
+        object? sender,
         HelixToolkit.Wpf.SharpDX.MouseDown3DEventArgs e
     ) {
-        viewModel.SelectedGeometry = e.HitTestResult.Geometry;
+        if (e.HitTestResult is {Geometry: { } geometry}) {
+            viewModel.SelectedGeometry = geometry;
+        }
     }
 }

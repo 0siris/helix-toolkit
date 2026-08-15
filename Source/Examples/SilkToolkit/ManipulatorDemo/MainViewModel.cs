@@ -8,6 +8,7 @@ namespace ManipulatorDemo;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
@@ -39,7 +40,7 @@ public class MainViewModel : BaseViewModel {
     public Color DirectionalLightColor { get; private set; }
     public Color AmbientLightColor { get; private set; }
 
-    public Element3D Target { set; get; }
+    public Element3D? Target { set; get; }
     public Vector3 CenterOffset { set; get; }
 
     public ICommand ResetTransformsCommand { private set; get; }
@@ -48,11 +49,13 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
 
         Title = "Manipulator Demo";
-        SubTitle = null;
+        SubTitle = string.Empty;
 
         // camera setup
         Camera = new OrthographicCamera {
-            Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5), UpDirection = new Vector3D(0, 1, 0)
+            Position = new Point3D(0, 0, 5),
+            LookDirection = new Vector3D(0, 0, -5),
+            UpDirection = new Vector3D(0, 1, 0)
         };
 
         // setup lighting            
@@ -71,10 +74,15 @@ public class MainViewModel : BaseViewModel {
         b1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 1.5, BoxFaces.All);
         Model = b1.ToMeshGeometry3D();
         var m1 = Load3Ds("suzanne.3ds");
-        Model2 = m1[0].Geometry as MeshGeometry3D;
+        Model2 = m1.Select(x => x.Geometry)
+                     .OfType<MeshGeometry3D>()
+                     .FirstOrDefault()
+                 ?? throw new InvalidOperationException("The manipulator sample mesh could not be loaded.");
         //Manully set an offset for test
-        for (int i = 0; i < Model2.Positions.Count; ++i) {
-            Model2.Positions[i] = Model2.Positions[i] + new Vector3(2, 3, 4);
+        if (Model2.Positions is not { } model2Positions)
+            throw new InvalidOperationException("The manipulator sample positions are required.");
+        for (int i = 0; i < model2Positions.Count; ++i) {
+            model2Positions[i] = model2Positions[i] + new Vector3(2, 3, 4);
         }
 
         Model2.UpdateBounds();
@@ -106,9 +114,11 @@ public class MainViewModel : BaseViewModel {
     public void OnMouseDown3DHandler(object sender, MouseDown3DEventArgs e) {
         if (e.HitTestResult != null && e.HitTestResult.ModelHit is MeshGeometryModel3D m &&
             (m.Geometry == Model || m.Geometry == Model2)) {
+            if (m.Geometry is not { } geometry)
+                return;
             Target = null;
-            CenterOffset = m.Geometry.Bound.Center(); // Must update this before updating target
-            Target = e.HitTestResult.ModelHit as Element3D;
+            CenterOffset = geometry.Bound.Center(); // Must update this before updating target
+            Target = m;
         }
     }
 

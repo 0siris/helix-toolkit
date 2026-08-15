@@ -24,7 +24,7 @@ public partial class MainWindow : Window {
         CompositionTarget.Rendering += OnCompositionTargetRendering;
     }
 
-    private void OnCompositionTargetRendering(object sender, EventArgs e) {
+    private void OnCompositionTargetRendering(object? sender, EventArgs e) {
         viewModel.UpdatePoints();
     }
 }

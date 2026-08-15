@@ -1,4 +1,6 @@
 ﻿using HelixToolkit.Wpf.SharpDX;
+using System;
+using System.Diagnostics.CodeAnalysis;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
@@ -33,12 +35,15 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
     }
 
     [Obsolete]
+    [MemberNotNull(nameof(Geometry), nameof(Material), nameof(RectGeometry))]
     private void InitializeModels() {
         var builder = new MeshBuilder();
         builder.AddBox(Vector3.Zero, 1, 1, 1);
         var reader = new ObjReader();
         var models = reader.Read("bunny.obj");
-        Geometry = models[0].Geometry;
+        Geometry = models.Count > 0 && models[0].Geometry is { } geometry
+            ? geometry
+            : throw new InvalidOperationException("The model did not contain geometry.");
         Material = PhongMaterials.Red;
 
         builder = new MeshBuilder();
@@ -46,6 +51,8 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
         RectGeometry = builder.ToMeshGeometry3D();
     }
 
+    [MemberNotNull(nameof(ViewCubeGeometry1), nameof(ViewCubeGeometry2), nameof(ViewCubeMaterial1),
+        nameof(ViewCubeMaterial2), nameof(ViewCubeMaterial3), nameof(ViewCubeMaterial4), nameof(ViewCubeTransform3))]
     private void InitializeViewCubes() {
         var builder = new MeshBuilder();
         builder.AddPyramid(Vector3.Zero, 10, 10, true);
@@ -64,6 +71,7 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
         ViewCubeTransform3 = new System.Windows.Media.Media3D.MatrixTransform3D(transform.ToMatrix3D());
     }
 
+    [MemberNotNull(nameof(Coordinate), nameof(CoordinateText))]
     private void InitializeCoordinates() {
         var builder = new LineBuilder();
         builder.AddLine(Vector3.Zero, Vector3.UnitX * 5);
@@ -84,20 +92,20 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
     private static Matrix CreateTransform() {
         var m = System.Numerics.Matrix4x4.CreateTranslation(0, -2, 0) * System.Numerics.Matrix4x4.CreateScale(3.5f);
         return new Matrix(m.M11,
-                          m.M12,
-                          m.M13,
-                          m.M14,
-                          m.M21,
-                          m.M22,
-                          m.M23,
-                          m.M24,
-                          m.M31,
-                          m.M32,
-                          m.M33,
-                          m.M34,
-                          m.M41,
-                          m.M42,
-                          m.M43,
-                          m.M44);
+            m.M12,
+            m.M13,
+            m.M14,
+            m.M21,
+            m.M22,
+            m.M23,
+            m.M24,
+            m.M31,
+            m.M32,
+            m.M33,
+            m.M34,
+            m.M41,
+            m.M42,
+            m.M43,
+            m.M44);
     }
 }

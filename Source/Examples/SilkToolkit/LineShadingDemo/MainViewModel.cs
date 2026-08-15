@@ -23,8 +23,15 @@ public class MainViewModel : BaseViewModel {
     public LineGeometry3D Lines { get; private set; }
     public LineGeometry3D Grid { get; private set; }
     public double LineThickness { get; set; }
-    public double LineThicknessMaximum => FixedSize ? 10 : 0.05;
-    public double LineThicknessTickFrequency => FixedSize ? 1 : 0.005;
+
+    public double LineThicknessMaximum => FixedSize
+        ? 10
+        : 0.05;
+
+    public double LineThicknessTickFrequency => FixedSize
+        ? 1
+        : 0.005;
+
     public double LineSmoothness { get; set; }
     public bool LinesEnabled { get; set; }
     public bool GridEnabled { get; set; }
@@ -33,7 +40,9 @@ public class MainViewModel : BaseViewModel {
         get;
         set {
             field = value;
-            LineThickness = FixedSize ? 2 : 0.005;
+            LineThickness = FixedSize
+                ? 2
+                : 0.005;
         }
     } = true;
 
@@ -61,10 +70,16 @@ public class MainViewModel : BaseViewModel {
                 var tscale = LineMaterial.TextureScale;
                 LineMaterial = value
                     ? new LineArrowHeadTailMaterial() {
-                        ArrowSize = 0.04, Color = Colors.White, Texture = texture, TextureScale = tscale
+                        ArrowSize = 0.04,
+                        Color = Colors.White,
+                        Texture = texture,
+                        TextureScale = tscale
                     }
                     : new LineArrowHeadMaterial() {
-                        ArrowSize = 0.04, Color = Colors.White, Texture = texture, TextureScale = tscale
+                        ArrowSize = 0.04,
+                        Color = Colors.White,
+                        Texture = texture,
+                        TextureScale = tscale
                     };
                 OnPropertyChanged(nameof(LineMaterial));
             }
@@ -76,11 +91,12 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
 
         Title = "Line Shading Demo (HelixToolkitDX)";
-        SubTitle = null;
+        SubTitle = string.Empty;
 
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(0, 5, 5), LookDirection = new Vector3D(-0, -5, -5),
+            Position = new Point3D(0, 5, 5),
+            LookDirection = new Vector3D(-0, -5, -5),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
@@ -106,13 +122,15 @@ public class MainViewModel : BaseViewModel {
         //this.Lines = e1.ToLineGeometry3D().ToUnshared();
         Lines = e1.ToLineGeometry3D(true);
         Lines.Colors = [];
-        var linesCount = Lines.Indices.Count;
+        var indices = Lines.Indices
+                      ?? throw new InvalidOperationException("The generated lines have no indices.");
+        var linesCount = indices.Count;
         var rnd = new Random();
         while (linesCount-- > 0) {
-            Lines.Colors.Add(new Color4((float)rnd.NextDouble(),
-                                             (float)rnd.NextDouble(),
-                                             (float)rnd.NextDouble(),
-                                             1f));
+            Lines.Colors.Add(new Color4((float) rnd.NextDouble(),
+                (float) rnd.NextDouble(),
+                (float) rnd.NextDouble(),
+                1f));
         }
 
         // lines params
@@ -130,8 +148,15 @@ public class MainViewModel : BaseViewModel {
         Material1 = PhongMaterials.PolishedGold;
         Material2 = PhongMaterials.Copper;
         Material3 = PhongMaterials.Glass;
-        LineMaterial = new LineArrowHeadMaterial() { ArrowSize = 0.04, Color = Colors.White, TextureScale = 0.4 };
-        GridMaterial = new LineMaterial() { Color = Colors.Red, TextureScale = 0.4 };
+        LineMaterial = new LineArrowHeadMaterial() {
+            ArrowSize = 0.04,
+            Color = Colors.White,
+            TextureScale = 0.4
+        };
+        GridMaterial = new LineMaterial() {
+            Color = Colors.Red,
+            TextureScale = 0.4
+        };
         var dash = TextureModel.Create("Dash.png");
         var dotLine = TextureModel.Create("DotLine.png");
         GridMaterial.Texture = dotLine;

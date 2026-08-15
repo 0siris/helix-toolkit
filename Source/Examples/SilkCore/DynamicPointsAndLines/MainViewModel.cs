@@ -21,9 +21,9 @@ namespace DynamicPointsAndLines;
 public class MainViewModel : INotifyPropertyChanged, IDisposable {
     #region INotifyPropertyChanged Support
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected void OnPropertyChanged([CallerMemberName] string info = "") =>
+    protected void OnPropertyChanged([CallerMemberName] string? info = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     protected bool SetValue<T>(ref T backingField, T value, [CallerMemberName] string propertyName = "") {
@@ -50,10 +50,8 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
 
             // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
             // TODO: set large fields to null.
-            if (EffectsManager != null) {
-                var effectManager = EffectsManager as IDisposable;
-                Disposer.RemoveAndDispose(ref effectManager);
-            }
+            IDisposable? effectManager = EffectsManager;
+            Disposer.RemoveAndDispose(ref effectManager);
 
             disposedValue = true;
             GC.SuppressFinalize(this);
@@ -95,10 +93,12 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
             StopWatch.Stop();
 
             SetValue(ref field, value);
-            Lines.Indices = new IntCollection(field * 2);
+            var indices = new IntCollection(field * 2);
             for (int i = 0; i < field * 2; i++) {
-                Lines.Indices.Add(i);
+                indices.Add(i);
             }
+
+            Lines.Indices = indices;
 
             StopWatch.Start();
         }
@@ -122,8 +122,14 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
         Lines2Transform = new TranslateTransform3D(0, 0, -45);
         Points1Transform = new TranslateTransform3D(0, 0, 0);
 
-        Lines = new LineGeometry3D { IsDynamic = true, Positions = [] };
-        Points = new PointGeometry3D { IsDynamic = true, Positions = [] };
+        Lines = new LineGeometry3D {
+            IsDynamic = true,
+            Positions = []
+        };
+        Points = new PointGeometry3D {
+            IsDynamic = true,
+            Positions = []
+        };
 
         StopWatch = new Stopwatch();
         StopWatch.Start();
@@ -132,11 +138,11 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
     }
 
     public void UpdatePoints() {
-        if (StopWatch.IsRunning) {
-            Points.Positions.Clear();
-            Points.Positions.AddRange(GeneratePoints(NumberOfPoints, StopWatch.ElapsedMilliseconds * 0.003));
-            Lines.Positions.Clear();
-            Lines.Positions.AddRange(Points.Positions);
+        if (StopWatch.IsRunning && Points.Positions is { } pointPositions && Lines.Positions is { } linePositions) {
+            pointPositions.Clear();
+            pointPositions.AddRange(GeneratePoints(NumberOfPoints, StopWatch.ElapsedMilliseconds * 0.003));
+            linePositions.Clear();
+            linePositions.AddRange(pointPositions);
             Points.UpdateVertices();
             Lines.UpdateVertices();
         }
@@ -148,9 +154,9 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
         for (int i = 0; i < n; i++) {
             double t = Math.PI * 2 * i / (n - 1);
             double u = (t * 24) + (time * 5);
-            var pt = new Vector3((float)(Math.Cos(t) * (r + (q * Math.Cos(u)))),
-                                 (float)(Math.Sin(t) * (r + (q * Math.Cos(u)))),
-                                 (float)(q * Math.Sin(u)));
+            var pt = new Vector3((float) (Math.Cos(t) * (r + (q * Math.Cos(u)))),
+                (float) (Math.Sin(t) * (r + (q * Math.Cos(u)))),
+                (float) (q * Math.Sin(u)));
             yield return pt;
             if (i > 0 && i < n - 1) {
                 yield return pt;

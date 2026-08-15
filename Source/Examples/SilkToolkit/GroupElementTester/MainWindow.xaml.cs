@@ -7,20 +7,20 @@ namespace GroupElementTester;
 /// Interaction logic for MainWindow.xaml
 /// </summary>
 public partial class MainWindow : Window {
-    private GroupModel3D tempGroup;
+    private GroupModel3D? tempGroup;
 
     public MainWindow() {
         InitializeComponent();
         Closed += (s, e) => {
-            if (DataContext is IDisposable) {
-                (DataContext as IDisposable).Dispose();
+            if (DataContext is IDisposable disposable) {
+                disposable.Dispose();
             }
         };
     }
 
     private void AttachGroupButton_Click(object sender, RoutedEventArgs e) {
-        if (tempGroup != null) {
-            view1.Items.Add(tempGroup);
+        if (tempGroup is { } group) {
+            view1.Items.Add(group);
             tempGroup = null;
         }
     }

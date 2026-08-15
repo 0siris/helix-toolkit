@@ -12,7 +12,7 @@ public partial class TestWindow : Window {
         Closed += TestWindow_Closed;
     }
 
-    private void TestWindow_Closed(object sender, EventArgs e) {
+    private void TestWindow_Closed(object? sender, EventArgs e) {
         (DataContext as IDisposable)?.Dispose();
     }
 }

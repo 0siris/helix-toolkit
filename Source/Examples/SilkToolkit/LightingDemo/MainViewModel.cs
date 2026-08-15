@@ -7,6 +7,7 @@
 namespace LightingDemo;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Media.Animation;
 using DemoCore;
 using HelixToolkit.Wpf.SharpDX;
@@ -20,7 +21,7 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     public MainViewModel ViewModel => this;
 
@@ -28,7 +29,7 @@ public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Floor { get; private set; }
     public MeshGeometry3D Sphere { get; private set; }
     public MeshGeometry3D FlyingObject { get; private set; }
-    public LineGeometry3D CubeEdges { get; private set; }
+    public LineGeometry3D? CubeEdges { get; private set; }
     public Transform3D ModelTransform { get; private set; }
     public Transform3D Model1Transform { get; private set; }
     public Transform3D FloorTransform { get; private set; }
@@ -134,22 +135,30 @@ public class MainViewModel : BaseViewModel {
 
     public MsaaLevel Msaa { set; get; } = MsaaLevel.Disable;
 
-    public MsaaLevel[] MsaAs { get; } = [MsaaLevel.Disable, MsaaLevel.Two, MsaaLevel.Four, MsaaLevel.Eight, MsaaLevel.Maximum];
+    public MsaaLevel[] MsaAs { get; } =
+        [MsaaLevel.Disable, MsaaLevel.Two, MsaaLevel.Four, MsaaLevel.Eight, MsaaLevel.Maximum];
 
     public FxaaLevel Fxaa { set; get; } = FxaaLevel.None;
 
-    public FxaaLevel[] FxaAs { get; } = [FxaaLevel.None, FxaaLevel.Low, FxaaLevel.Medium, FxaaLevel.High, FxaaLevel.Ultra];
+    public FxaaLevel[] FxaAs { get; } =
+        [FxaaLevel.None, FxaaLevel.Low, FxaaLevel.Medium, FxaaLevel.High, FxaaLevel.Ultra];
 
     public Camera Camera2 { get; } = new PerspectiveCamera {
-        Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0)
+        Position = new Point3D(8, 9, 7),
+        LookDirection = new Vector3D(-5, -12, -5),
+        UpDirection = new Vector3D(0, 1, 0)
     };
 
     public Camera Camera3 { get; } = new PerspectiveCamera {
-        Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0)
+        Position = new Point3D(8, 9, 7),
+        LookDirection = new Vector3D(-5, -12, -5),
+        UpDirection = new Vector3D(0, 1, 0)
     };
 
     public Camera Camera4 { get; } = new PerspectiveCamera {
-        Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0)
+        Position = new Point3D(8, 9, 7),
+        LookDirection = new Vector3D(-5, -12, -5),
+        UpDirection = new Vector3D(0, 1, 0)
     };
 
     public MainViewModel() {
@@ -163,7 +172,8 @@ public class MainViewModel : BaseViewModel {
         // ----------------------------------------------
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5),
+            Position = new Point3D(8, 9, 7),
+            LookDirection = new Vector3D(-5, -12, -5),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
@@ -257,6 +267,9 @@ public class MainViewModel : BaseViewModel {
         InitialObjectTransforms();
     }
 
+    [MemberNotNull(nameof(FlyingObject), nameof(Object1Transform), nameof(Object2Transform), nameof(Object3Transform),
+        nameof(Object4Transform), nameof(Object5Transform), nameof(Object6Transform), nameof(Object7Transform),
+        nameof(Object8Transform))]
     private void InitialObjectTransforms() {
         var b = new MeshBuilder(true);
         b.AddTorus(1, 0.5);
@@ -337,5 +350,6 @@ public class MainViewModel : BaseViewModel {
 }
 
 internal static class RandomExtensions {
-    public static double NextDouble(this Random random, double min, double max) => min + (max - min) * random.NextDouble();
+    public static double NextDouble(this Random random, double min, double max)
+        => min + (max - min) * random.NextDouble();
 }

@@ -26,17 +26,17 @@ public class MainViewModel : BaseViewModel {
         get;
     }
 
-    public string[] Materials { private set; get; }
+    public string[] Materials { private set; get; } = [];
 
-    public string[] Models { private set; get; }
+    public string[] Models { private set; get; } = [];
 
     private List<Uri> SourceCodeUri { get; } = [];
     private Dictionary<string, string> fileDict = [];
     private Dictionary<string, Material> materialDict = [];
 
-    private string selectedModel;
+    private string? selectedModel;
 
-    public string SelectedModel {
+    public string? SelectedModel {
         set {
             if (SetValue(ref selectedModel, value)) {
                 LoadSourceCode();
@@ -57,7 +57,7 @@ public class MainViewModel : BaseViewModel {
     public string SourceCode {
         set => SetValue(ref field, value);
         get;
-    }
+    } = string.Empty;
 
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();
@@ -65,7 +65,8 @@ public class MainViewModel : BaseViewModel {
             Position = new System.Windows.Media.Media3D.Point3D(0, 0, -10),
             LookDirection = new System.Windows.Media.Media3D.Vector3D(0, 0, 10),
             UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0),
-            FarPlaneDistance = 2000, NearPlaneDistance = 1
+            FarPlaneDistance = 2000,
+            NearPlaneDistance = 1
         };
         //foreach (string m in Models)
         //{
@@ -74,12 +75,11 @@ public class MainViewModel : BaseViewModel {
         //}
 
         var dir = "Expressions";
-        if (!Directory.Exists(dir))
-            return;
-        string[] files = Directory.GetFiles(dir, "*.txt", SearchOption.AllDirectories);
-
-        foreach (string file in files) {
-            fileDict.Add(Path.GetFileNameWithoutExtension(file), Path.GetFullPath(file));
+        if (Directory.Exists(dir)) {
+            string[] files = Directory.GetFiles(dir, "*.txt", SearchOption.AllDirectories);
+            foreach (string file in files) {
+                fileDict.Add(Path.GetFileNameWithoutExtension(file), Path.GetFullPath(file));
+            }
         }
 
         Models = [.. fileDict.Keys];
@@ -92,28 +92,31 @@ public class MainViewModel : BaseViewModel {
         materialDict.Add("Pearl", PhongMaterials.Pearl);
         materialDict.Add("PolishedBronze", PhongMaterials.PolishedBronze);
         materialDict.Add("ColorStripe",
-                         new ColorStripeMaterial() {
-                             ColorStripeX = [
-                                 .. GetGradients(new Color4(1, 0, 0, 1),
-                                                 new Color4(0, 1, 0, 1),
-                                                 new Color4(0, 0, 1, 1),
-                                                 48)
-                             ]
-                         });
+            new ColorStripeMaterial() {
+                ColorStripeX = [
+                    .. GetGradients(new Color4(1, 0, 0, 1),
+                        new Color4(0, 1, 0, 1),
+                        new Color4(0, 0, 1, 1),
+                        48)
+                ]
+            });
         materialDict.Add("Diffuse", DiffuseMaterials.Orange);
         Materials = [.. materialDict.Keys];
+        Material = materialDict["Normal"];
         SelectedMaterial = "Normal";
     }
 
     private void LoadSourceCode() {
-        if (fileDict.TryGetValue(selectedModel, out string filePath)) {
+        if (selectedModel is { } model && fileDict.TryGetValue(model, out var filePath)) {
             using var reader = File.OpenRead(filePath);
             using var strReader = new StreamReader(reader);
             SourceCode = strReader.ReadToEnd();
         }
     }
 
-    public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps) => GetGradients(start, mid, steps / 2).Concat(GetGradients(mid, end, steps / 2));
+    public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps)
+        => GetGradients(start, mid, steps / 2)
+            .Concat(GetGradients(mid, end, steps / 2));
 
     public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps) {
         float stepA = ((end.W - start.W) / (steps - 1));
@@ -123,9 +126,9 @@ public class MainViewModel : BaseViewModel {
 
         for (int i = 0; i < steps; i++) {
             yield return new Color4((start.X + (stepR * i)),
-                                    (start.Y + (stepG * i)),
-                                    (start.Z + (stepB * i)),
-                                    (start.W + (stepA * i)));
+                (start.Y + (stepG * i)),
+                (start.Z + (stepB * i)),
+                (start.W + (stepA * i)));
         }
     }
 }

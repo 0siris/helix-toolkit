@@ -129,7 +129,7 @@ public class MainViewModel : BaseViewModel {
     /// <summary>
     /// The Geometry for the Triangle Lines
     /// </summary>
-    public LineGeometry3D LineGeometry;
+    public LineGeometry3D? LineGeometry;
 
     /// <summary>
     /// Constructor of the MainViewModel
@@ -140,11 +140,12 @@ public class MainViewModel : BaseViewModel {
         EffectsManager = new DefaultEffectsManager();
         // Window Setup
         Title = "Polygon Triangulation Demo";
-        SubTitle = null;
+        SubTitle = string.Empty;
 
         // Camera Setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(0, 5, 9), LookDirection = new Vector3D(0, -5, -4),
+            Position = new Point3D(0, 5, 9),
+            LookDirection = new Vector3D(0, -5, -4),
             UpDirection = new Vector3D(0, 1, 0)
         };
 

@@ -6,7 +6,7 @@ namespace CoreWpfTest;
 /// Interaction logic for App.xaml
 /// </summary>
 public partial class App : Application {
-    private static NvOptimusEnabler _enabler;
+    private static NvOptimusEnabler? _enabler;
 
     protected override void OnStartup(StartupEventArgs e) {
         _enabler = new NvOptimusEnabler();

@@ -19,11 +19,6 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
     public ObservableElement3DCollection ModelGeometry { get; private set; }
-    public MeshGeometry3D Model { get; private set; }
-    public LineGeometry3D Lines { get; private set; }
-    public LineGeometry3D Grid { get; private set; }
-
-    public PhongMaterial RedMaterial { get; private set; }
     public PhongMaterial DefaultMaterial { get; private set; }
     public Color GridColor { get; private set; }
 
@@ -45,7 +40,8 @@ public class MainViewModel : BaseViewModel {
 
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(1.5, 2.5, 2.5), LookDirection = new Vector3D(-1.5, -2.5, -2.5),
+            Position = new Point3D(1.5, 2.5, 2.5),
+            LookDirection = new Vector3D(-1.5, -2.5, -2.5),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
@@ -69,8 +65,7 @@ public class MainViewModel : BaseViewModel {
         var reader = new ObjReader();
         var objModel = reader.Read(@"./Media/CornellBox-Glossy.obj");
 
-        ModelGeometry =
-        [
+        ModelGeometry = [
             .. objModel.Select(x => new MeshGeometryModel3D() {
                 Geometry = x.Geometry as MeshGeometry3D,
                 Material = GetMaterialFromMaterialCore(x.Material as PhongMaterialCore),
@@ -81,9 +76,9 @@ public class MainViewModel : BaseViewModel {
         ModelTransform = new TranslateTransform3D(0, 0, 0);
     }
 
-    private static Material GetMaterialFromMaterialCore(PhongMaterialCore material) {
-        if (material == null) {
-            return null;
+    private static Material GetMaterialFromMaterialCore(PhongMaterialCore? material) {
+        if (material is null) {
+            return PhongMaterials.DefaultVrml;
         }
 
         var mat = new PhongMaterial {

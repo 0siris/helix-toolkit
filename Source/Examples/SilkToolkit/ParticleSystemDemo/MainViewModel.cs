@@ -62,11 +62,15 @@ public class MainViewModel : BaseViewModel {
         get;
     } = 0.5;
 
-    public Material EmitterMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(1, 0, 1, 1) };
+    public Material EmitterMaterial { get; } = new PhongMaterial() {
+        DiffuseColor = new Color4(1, 0, 1, 1)
+    };
 
-    public Material ConsumerMaterial { get; } = new PhongMaterial() { DiffuseColor = new Color4(0.5f, 1f, 0.5f, 1) };
+    public Material ConsumerMaterial { get; } = new PhongMaterial() {
+        DiffuseColor = new Color4(0.5f, 1f, 0.5f, 1)
+    };
 
-    public Stream ParticleTexture {
+    public Stream? ParticleTexture {
         set => SetValue(ref field, value);
         get;
     }
@@ -93,7 +97,7 @@ public class MainViewModel : BaseViewModel {
     public int SizeSlider {
         set {
             if (SetValue(ref field, value)) {
-                ParticleSize = new Size(((double)value) / 100, ((double)value) / 100);
+                ParticleSize = new Size(((double) value) / 100, ((double) value) / 100);
             }
         }
         get;
@@ -150,7 +154,7 @@ public class MainViewModel : BaseViewModel {
     public int RedValue {
         set {
             if (SetValue(ref field, value)) {
-                BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
+                BlendColor = Media.Color.FromRgb((byte) RedValue, (byte) GreenValue, (byte) BlueValue);
             }
         }
         get;
@@ -159,7 +163,7 @@ public class MainViewModel : BaseViewModel {
     public int GreenValue {
         set {
             if (SetValue(ref field, value)) {
-                BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
+                BlendColor = Media.Color.FromRgb((byte) RedValue, (byte) GreenValue, (byte) BlueValue);
             }
         }
         get;
@@ -168,7 +172,7 @@ public class MainViewModel : BaseViewModel {
     public int BlueValue {
         set {
             if (SetValue(ref field, value)) {
-                BlendColor = Media.Color.FromRgb((byte)RedValue, (byte)GreenValue, (byte)BlueValue);
+                BlendColor = Media.Color.FromRgb((byte) RedValue, (byte) GreenValue, (byte) BlueValue);
             }
         }
         get;
@@ -235,7 +239,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value)) {
                 BlendFactorColor =
-                    Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
+                    Media.Color.FromRgb((byte) RedFactorValue, (byte) GreenFactorValue, (byte) BlueFactorValue);
             }
         }
         get;
@@ -245,7 +249,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value)) {
                 BlendFactorColor =
-                    Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
+                    Media.Color.FromRgb((byte) RedFactorValue, (byte) GreenFactorValue, (byte) BlueFactorValue);
             }
         }
         get;
@@ -255,7 +259,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value)) {
                 BlendFactorColor =
-                    Media.Color.FromRgb((byte)RedFactorValue, (byte)GreenFactorValue, (byte)BlueFactorValue);
+                    Media.Color.FromRgb((byte) RedFactorValue, (byte) GreenFactorValue, (byte) BlueFactorValue);
             }
         }
         get;
@@ -270,7 +274,8 @@ public class MainViewModel : BaseViewModel {
 
     public readonly Tuple<int, int>[] TextureColumnsRows = [new(1, 1), new(4, 4), new(4, 4), new(6, 5)];
 
-    public readonly string[] Textures = [@"Snowflake.png", @"FXT_Explosion_Fireball_Atlas_d.png", @"FXT_Sparks_01_Atlas_d.png", @"Smoke30Frames_0.png"];
+    public readonly string[] Textures =
+        [@"Snowflake.png", @"FXT_Explosion_Fireball_Atlas_d.png", @"FXT_Sparks_01_Atlas_d.png", @"Smoke30Frames_0.png"];
 
     public readonly int[] DefaultParticleSizes = [20, 90, 40, 90];
 
@@ -286,7 +291,8 @@ public class MainViewModel : BaseViewModel {
         meshBuilder.AddSphere(new Vector3(0, 0, 0), 0.5, 16, 16);
         Model = meshBuilder.ToMesh();
         Camera = new PerspectiveCamera() {
-            Position = new Media3D.Point3D(0, 0, 20), UpDirection = new Media3D.Vector3D(0, 1, 0),
+            Position = new Media3D.Point3D(0, 0, 20),
+            UpDirection = new Media3D.Vector3D(0, 1, 0),
             LookDirection = new Media3D.Vector3D(0, 0, -20)
         };
         Instances = [
@@ -298,7 +304,7 @@ public class MainViewModel : BaseViewModel {
 
     private void LoadTexture(int index) {
         using (var file = new FileStream(new Uri(Textures[index], UriKind.RelativeOrAbsolute).ToString(),
-                                         FileMode.Open)) {
+                   FileMode.Open)) {
             var mem = new MemoryStream();
             file.CopyTo(mem);
             ParticleTexture = mem;
@@ -324,20 +330,22 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void UpdateAcceleration() {
-        Acceleration = new Media3D.Vector3D((double)AccelerationX / 100,
-                                            (double)AccelerationY / 100,
-                                            (double)AccelerationZ / 100);
+        Acceleration = new Media3D.Vector3D((double) AccelerationX / 100,
+            (double) AccelerationY / 100,
+            (double) AccelerationZ / 100);
     }
 
     private static Matrix RotationAxis(Vector3 axis, float angle) {
         var m = System.Numerics.Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z),
-                                                              angle);
+            angle);
         return ToMatrix(m);
     }
 
-    private static Matrix Scaling(float x, float y, float z) => ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
+    private static Matrix Scaling(float x, float y, float z)
+        => ToMatrix(System.Numerics.Matrix4x4.CreateScale(x, y, z));
 
-    private static Matrix Translation(float x, float y, float z) => ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(x, y, z));
+    private static Matrix Translation(float x, float y, float z)
+        => ToMatrix(System.Numerics.Matrix4x4.CreateTranslation(x, y, z));
 
     private static Matrix ToMatrix(System.Numerics.Matrix4x4 m) => new(m.M11,
         m.M12,

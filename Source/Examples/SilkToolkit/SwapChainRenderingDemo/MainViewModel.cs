@@ -20,16 +20,16 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     public MainViewModel ViewModel => this;
 
     public ObservableElement3DCollection LanderModels { get; private set; } = [];
-    public MeshGeometry3D Floor { get; private set; }
+    public MeshGeometry3D? Floor { get; private set; }
     public MeshGeometry3D Sphere { get; private set; }
-    public LineGeometry3D CubeEdges { get; private set; }
+    public LineGeometry3D? CubeEdges { get; private set; }
     public Transform3D ModelTransform { get; private set; }
-    public Transform3D FloorTransform { get; private set; }
+    public Transform3D? FloorTransform { get; private set; }
     public Transform3D Light1Transform { get; private set; }
     public Transform3D Light2Transform { get; private set; }
     public Transform3D Light3Transform { get; private set; }
@@ -37,8 +37,8 @@ public class MainViewModel : BaseViewModel {
     public Transform3D Light1DirectionTransform { get; private set; }
     public Transform3D Light4DirectionTransform { get; private set; }
 
-    public PhongMaterial ModelMaterial { get; set; }
-    public PhongMaterial FloorMaterial { get; set; }
+    public PhongMaterial? ModelMaterial { get; set; }
+    public PhongMaterial? FloorMaterial { get; set; }
     public PhongMaterial LightModelMaterial { get; set; }
 
     public Vector3D Light1Direction { get; set; }
@@ -71,31 +71,46 @@ public class MainViewModel : BaseViewModel {
     } = @"TextureCheckerboard2_dot3.jpg";
 
     public Color DiffuseColor {
-        set => FloorMaterial.DiffuseColor = ModelMaterial.DiffuseColor = value.ToColor4();
-        get => ModelMaterial.DiffuseColor.ToColor();
+        set {
+            if (FloorMaterial is { } floorMaterial && ModelMaterial is { } modelMaterial)
+                floorMaterial.DiffuseColor = modelMaterial.DiffuseColor = value.ToColor4();
+        }
+        get => ModelMaterial?.DiffuseColor.ToColor() ?? default;
     }
 
 
     public Color ReflectiveColor {
-        set => FloorMaterial.ReflectiveColor = ModelMaterial.ReflectiveColor = value.ToColor4();
-        get => ModelMaterial.ReflectiveColor.ToColor();
+        set {
+            if (FloorMaterial is { } floorMaterial && ModelMaterial is { } modelMaterial)
+                floorMaterial.ReflectiveColor = modelMaterial.ReflectiveColor = value.ToColor4();
+        }
+        get => ModelMaterial?.ReflectiveColor.ToColor() ?? default;
     }
 
     public Color EmissiveColor {
-        set => FloorMaterial.EmissiveColor = ModelMaterial.EmissiveColor = value.ToColor4();
-        get => ModelMaterial.EmissiveColor.ToColor();
+        set {
+            if (FloorMaterial is { } floorMaterial && ModelMaterial is { } modelMaterial)
+                floorMaterial.EmissiveColor = modelMaterial.EmissiveColor = value.ToColor4();
+        }
+        get => ModelMaterial?.EmissiveColor.ToColor() ?? default;
     }
 
     public Camera Camera2 { get; } = new PerspectiveCamera {
-        Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0)
+        Position = new Point3D(8, 9, 7),
+        LookDirection = new Vector3D(-5, -12, -5),
+        UpDirection = new Vector3D(0, 1, 0)
     };
 
     public Camera Camera3 { get; } = new PerspectiveCamera {
-        Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0)
+        Position = new Point3D(8, 9, 7),
+        LookDirection = new Vector3D(-5, -12, -5),
+        UpDirection = new Vector3D(0, 1, 0)
     };
 
     public Camera Camera4 { get; } = new PerspectiveCamera {
-        Position = new Point3D(8, 9, 7), LookDirection = new Vector3D(-5, -12, -5), UpDirection = new Vector3D(0, 1, 0)
+        Position = new Point3D(8, 9, 7),
+        LookDirection = new Vector3D(-5, -12, -5),
+        UpDirection = new Vector3D(0, 1, 0)
     };
 
     public FillMode FillMode { set; get; } = FillMode.Solid;
@@ -114,8 +129,11 @@ public class MainViewModel : BaseViewModel {
         get;
     } = false;
 
-    public LineGeometry3D LineGeo { set; get; }
-    private SynchronizationContext context = SynchronizationContext.Current;
+    public LineGeometry3D? LineGeo { set; get; }
+
+    private readonly SynchronizationContext context = SynchronizationContext.Current
+                                                      ?? throw new InvalidOperationException(
+                                                          "The swap-chain demo requires a synchronization context.");
 
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();
@@ -129,7 +147,8 @@ public class MainViewModel : BaseViewModel {
         // ----------------------------------------------
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(100, 100, 100), LookDirection = new Vector3D(-100, -100, -100),
+            Position = new Point3D(100, 100, 100),
+            LookDirection = new Vector3D(-100, -100, -100),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
@@ -188,47 +207,61 @@ public class MainViewModel : BaseViewModel {
 
     private void LoadLander() {
         foreach (var obj in Load3Ds("Car.3ds")) {
-            obj.Geometry.UpdateOctree();
-            Task.Delay(10).Wait();
+            if (obj.Geometry is not { } geometry)
+                continue;
+            geometry.UpdateOctree();
+            Task.Delay(10)
+                .Wait();
             context.Post((o) => {
-                var model = new MeshGeometryModel3D() { Geometry = obj.Geometry };
-                if (obj.Material is PhongMaterialCore p) {
-                    model.Material = p.ConvertToPhongMaterial();
-                }
+                    var model = new MeshGeometryModel3D() {
+                        Geometry = geometry
+                    };
+                    if (obj.Material is PhongMaterialCore p) {
+                        model.Material = p.ConvertToPhongMaterial();
+                    }
 
-                LanderModels.Add(model);
-                NumberOfTriangles += obj.Geometry.Indices.Count / 3;
-                NumberOfVertices += obj.Geometry.Positions.Count;
-                OnPropertyChanged(nameof(NumberOfTriangles));
-                OnPropertyChanged(nameof(NumberOfVertices));
-            },
-                         null);
+                    LanderModels.Add(model);
+                    if (geometry.Indices is { } indices)
+                        NumberOfTriangles += indices.Count / 3;
+                    if (geometry.Positions is { } positions)
+                        NumberOfVertices += positions.Count;
+                    OnPropertyChanged(nameof(NumberOfTriangles));
+                    OnPropertyChanged(nameof(NumberOfVertices));
+                },
+                null);
         }
     }
 
     private void LoadFloor() {
-        var models = Load3Ds("wall12.obj").Select(x => x.Geometry as MeshGeometry3D).ToArray();
+        var models = Load3Ds("wall12.obj")
+            .Select(x => x.Geometry)
+            .OfType<MeshGeometry3D>()
+            .ToArray();
         foreach (var model in models) {
             model.UpdateOctree();
         }
 
         context.Post((o) => {
-            Floor = models[0];
-            FloorTransform = new TranslateTransform3D(0, 0, 0);
-            FloorMaterial = new PhongMaterial {
-                AmbientColor = Colors.Gray.ToColor4(),
-                DiffuseColor = new Color4(0.75f, 0.75f, 0.75f, 1.0f),
-                SpecularColor = Colors.White.ToColor4(),
-                SpecularShininess = 100f
-            };
-            NumberOfTriangles += Floor.Indices.Count / 3;
-            NumberOfVertices += Floor.Positions.Count;
-            OnPropertyChanged(nameof(NumberOfTriangles));
-            OnPropertyChanged(nameof(NumberOfVertices));
-            OnPropertyChanged(nameof(Floor));
-            OnPropertyChanged(nameof(FloorMaterial));
-        },
-                     null);
+                if (models is not [var floorModel, ..])
+                    return;
+                Floor = floorModel;
+                FloorTransform = new TranslateTransform3D(0, 0, 0);
+                FloorMaterial = new PhongMaterial {
+                    AmbientColor = Colors.Gray.ToColor4(),
+                    DiffuseColor = new Color4(0.75f, 0.75f, 0.75f, 1.0f),
+                    SpecularColor = Colors.White.ToColor4(),
+                    SpecularShininess = 100f
+                };
+                if (floorModel.Indices is { } indices)
+                    NumberOfTriangles += indices.Count / 3;
+                if (floorModel.Positions is { } positions)
+                    NumberOfVertices += positions.Count;
+                OnPropertyChanged(nameof(NumberOfTriangles));
+                OnPropertyChanged(nameof(NumberOfVertices));
+                OnPropertyChanged(nameof(Floor));
+                OnPropertyChanged(nameof(FloorMaterial));
+            },
+            null);
     }
 
     [Obsolete]

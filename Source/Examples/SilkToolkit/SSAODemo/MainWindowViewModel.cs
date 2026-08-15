@@ -8,8 +8,6 @@ namespace SSAODemo;
 public class MainWindowViewModel : DemoCore.BaseViewModel {
     public Geometry3D FloorModel { get; }
     public Geometry3D SphereModel { get; }
-    public Geometry3D TeapotModel { get; }
-
     public Geometry3D BunnyModel { get; }
 
     public PhongMaterial FloorMaterial { get; }
@@ -46,7 +44,9 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
         var reader = new ObjReader();
 
         var models = reader.Read("bunny.obj");
-        BunnyModel = models[0].Geometry;
+        BunnyModel = models.Count > 0 && models[0].Geometry is { } bunnyModel
+            ? bunnyModel
+            : throw new InvalidOperationException("The bunny model did not contain geometry.");
         BunnyMaterial = PhongMaterials.Green;
         BunnyMaterial.AmbientColor = BunnyMaterial.DiffuseColor * 0.5f;
         FloorMaterial = PhongMaterials.PureWhite;
@@ -71,20 +71,20 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
     private static Matrix Translation(float x, float y, float z) {
         var m = System.Numerics.Matrix4x4.CreateTranslation(x, y, z);
         return new Matrix(m.M11,
-                          m.M12,
-                          m.M13,
-                          m.M14,
-                          m.M21,
-                          m.M22,
-                          m.M23,
-                          m.M24,
-                          m.M31,
-                          m.M32,
-                          m.M33,
-                          m.M34,
-                          m.M41,
-                          m.M42,
-                          m.M43,
-                          m.M44);
+            m.M12,
+            m.M13,
+            m.M14,
+            m.M21,
+            m.M22,
+            m.M23,
+            m.M24,
+            m.M31,
+            m.M32,
+            m.M33,
+            m.M34,
+            m.M41,
+            m.M42,
+            m.M43,
+            m.M44);
     }
 }

@@ -43,7 +43,8 @@ public class MainViewModel : BaseViewModel {
 
         // camera setup
         Camera = new PerspectiveCamera {
-            Position = new Point3D(3, 3, 5), LookDirection = new Vector3D(-3, -3, -5),
+            Position = new Point3D(3, 3, 5),
+            LookDirection = new Vector3D(-3, -3, -5),
             UpDirection = new Vector3D(0, 1, 0)
         };
 
@@ -64,7 +65,9 @@ public class MainViewModel : BaseViewModel {
         b1.AddBox(new Vector3(0, 0, 0), 1, 0.5, 2, BoxFaces.All);
 
         var meshGeometry = b1.ToMeshGeometry3D();
-        meshGeometry.Colors = [.. meshGeometry.TextureCoordinates.Select(x => x.ToColor4())];
+        meshGeometry.Colors = meshGeometry.TextureCoordinates is { } textureCoordinates
+            ? [.. textureCoordinates.Select(x => x.ToColor4())]
+            : [];
         Model = meshGeometry;
 
         // lines model3d

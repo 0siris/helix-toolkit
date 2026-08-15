@@ -6,19 +6,21 @@ using Silk.NET.Maths;
 using DxgiFormat = Silk.NET.DXGI.Format;
 
 namespace SilkCore.Tests;
+
 public class TextureAndResourceTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void DdsLoaderReadsBc1Pixels() {
-        var expected = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+        var expected = new byte[] {1, 2, 3, 4, 5, 6, 7, 8};
         using var stream = CreateDds(expected);
-        using var image = Image.Load(stream);
+        using var image = Image.Load(stream)
+                          ?? throw new InvalidOperationException("The DDS image could not be loaded.");
         var actual = new byte[expected.Length];
         Marshal.Copy(image.DataPointer, actual, 0, actual.Length);
 
         Assert.Equal(4, image.Description.Width);
         Assert.Equal(4, image.Description.Height);
-        Assert.Equal((int)DxgiFormat.FormatBC1Unorm, (int)image.Description.Format);
+        Assert.Equal((int) DxgiFormat.FormatBC1Unorm, (int) image.Description.Format);
         Assert.Equal(expected, actual);
     }
 
@@ -59,7 +61,7 @@ public class TextureAndResourceTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void ColorTextureUsesFloatRgbaFormat() {
-        var colors = new[] { new Vector4D<float>(1, 0, 0, 1), new Vector4D<float>(0, 1, 0, 1) };
+        var colors = new[] {new Vector4D<float>(1, 0, 0, 1), new Vector4D<float>(0, 1, 0, 1)};
 
         var texture = new TextureInfo(colors, 2, 1);
 
@@ -77,11 +79,11 @@ public class TextureAndResourceTests {
         var bytes = new byte[4];
 
         Assert.ThrowsAny<ArgumentException>(() =>
-                                                new TextureInfo(bytes,
-                                                                DxgiFormat.FormatR8Unorm,
-                                                                width,
-                                                                height,
-                                                                depth));
+            new TextureInfo(bytes,
+                DxgiFormat.FormatR8Unorm,
+                width,
+                height,
+                depth));
     }
 
     [Fact]
@@ -100,17 +102,19 @@ public class TextureAndResourceTests {
     public void EveryEmbeddedShaderCanBeRead() {
         var assembly = typeof(MeshBuilder).Assembly;
         var names = assembly.GetManifestResourceNames();
-        var csoNames = names.Where(name => name.EndsWith(".cso", StringComparison.Ordinal)).ToArray();
-        var dxilNames = names.Where(name => name.EndsWith(".dxil", StringComparison.Ordinal)).ToArray();
+        var csoNames = names.Where(name => name.EndsWith(".cso", StringComparison.Ordinal))
+            .ToArray();
+        var dxilNames = names.Where(name => name.EndsWith(".dxil", StringComparison.Ordinal))
+            .ToArray();
 
         Assert.NotEmpty(csoNames);
         Assert.NotEmpty(dxilNames);
         Assert.All(csoNames.Concat(dxilNames),
-                   name => {
-                       using var stream = assembly.GetManifestResourceStream(name);
-                       Assert.NotNull(stream);
-                       Assert.True(stream.Length > 0, name);
-                   });
+            name => {
+                using var stream = assembly.GetManifestResourceStream(name)
+                                   ?? throw new InvalidOperationException($"Missing shader resource: {name}");
+                Assert.True(stream.Length > 0, name);
+            });
     }
 
     private static MemoryStream CreateDds(byte[] pixels) {

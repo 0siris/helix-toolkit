@@ -48,11 +48,12 @@ public class MainViewModel : BaseViewModel {
     public Color StartColor {
         set {
             if (SetValue(ref startColor, value)) {
-                ColorGradient =
-                    [.. GetGradients(startColor.ToColor4(),
-                                                      midColor.ToColor4(),
-                                                      endColor.ToColor4(),
-                                                      100)];
+                ColorGradient = [
+                    .. GetGradients(startColor.ToColor4(),
+                        midColor.ToColor4(),
+                        endColor.ToColor4(),
+                        100)
+                ];
             }
         }
         get => startColor;
@@ -69,11 +70,12 @@ public class MainViewModel : BaseViewModel {
     public Color MidColor {
         set {
             if (SetValue(ref midColor, value)) {
-                ColorGradient =
-                    [.. GetGradients(startColor.ToColor4(),
-                                                      midColor.ToColor4(),
-                                                      endColor.ToColor4(),
-                                                      100)];
+                ColorGradient = [
+                    .. GetGradients(startColor.ToColor4(),
+                        midColor.ToColor4(),
+                        endColor.ToColor4(),
+                        100)
+                ];
             }
         }
         get => midColor;
@@ -90,11 +92,12 @@ public class MainViewModel : BaseViewModel {
     public Color EndColor {
         set {
             if (SetValue(ref endColor, value)) {
-                ColorGradient =
-                    [.. GetGradients(startColor.ToColor4(),
-                                                      midColor.ToColor4(),
-                                                      endColor.ToColor4(),
-                                                      100)];
+                ColorGradient = [
+                    .. GetGradients(startColor.ToColor4(),
+                        midColor.ToColor4(),
+                        endColor.ToColor4(),
+                        100)
+                ];
             }
         }
         get => endColor;
@@ -107,7 +110,7 @@ public class MainViewModel : BaseViewModel {
             }
         }
         get;
-    }
+    } = [];
 
     public FillMode FillMode {
         set => SetValue(ref field, value);
@@ -117,7 +120,9 @@ public class MainViewModel : BaseViewModel {
     public bool ShowWireframe {
         set {
             if (SetValue(ref field, value)) {
-                FillMode = value ? FillMode.Wireframe : FillMode.Solid;
+                FillMode = value
+                    ? FillMode.Wireframe
+                    : FillMode.Solid;
             }
         }
         get;
@@ -153,9 +158,12 @@ public class MainViewModel : BaseViewModel {
         }
 
         builder.AddRectangularMesh(points, width);
-        Model = builder.ToMesh();
-        for (int i = 0; i < Model.Normals.Count; ++i) {
-            Model.Normals[i] = new Vector3(0, Math.Abs(Model.Normals[i].Y), 0);
+        var model = builder.ToMesh();
+        var normals = model.Normals
+                      ?? throw new InvalidOperationException("The generated mesh has no normals.");
+        Model = model;
+        for (int i = 0; i < normals.Count; ++i) {
+            normals[i] = new Vector3(0, Math.Abs(normals[i].Y), 0);
         }
 
         StartColor = Colors.Blue;
@@ -167,8 +175,10 @@ public class MainViewModel : BaseViewModel {
         lineBuilder.AddLine(new Vector3(0, 0, 0), new Vector3(0, 10, 0));
         lineBuilder.AddLine(new Vector3(0, 0, 0), new Vector3(0, 0, 10));
 
-        AxisModel = lineBuilder.ToLineGeometry3D();
-        AxisModel.Colors = new Color4Collection(AxisModel.Positions.Count) {
+        var axisModel = lineBuilder.ToLineGeometry3D();
+        var positions = axisModel.Positions
+                        ?? throw new InvalidOperationException("The generated axis has no positions.");
+        axisModel.Colors = new Color4Collection(positions.Count) {
             Colors.Red.ToColor4(),
             Colors.Red.ToColor4(),
             Colors.Green.ToColor4(),
@@ -176,26 +186,45 @@ public class MainViewModel : BaseViewModel {
             Colors.Blue.ToColor4(),
             Colors.Blue.ToColor4()
         };
+        AxisModel = axisModel;
 
         AxisLabel = new BillboardText3D();
-        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(11, 0, 0), Text = "X", Foreground = Colors.Red.ToColor4() });
-        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(0, 11, 0), Text = "Y", Foreground = Colors.Green.ToColor4() });
-        AxisLabel.TextInfo.Add(new TextInfo() { Origin = new Vector3(0, 0, 11), Text = "Z", Foreground = Colors.Blue.ToColor4() });
+        AxisLabel.TextInfo.Add(new TextInfo() {
+            Origin = new Vector3(11, 0, 0),
+            Text = "X",
+            Foreground = Colors.Red.ToColor4()
+        });
+        AxisLabel.TextInfo.Add(new TextInfo() {
+            Origin = new Vector3(0, 11, 0),
+            Text = "Y",
+            Foreground = Colors.Green.ToColor4()
+        });
+        AxisLabel.TextInfo.Add(new TextInfo() {
+            Origin = new Vector3(0, 0, 11),
+            Text = "Z",
+            Foreground = Colors.Blue.ToColor4()
+        });
 
         builder = new MeshBuilder(true);
         builder.AddSphere(new Vector3(-15, 0, 0), 5);
-        SphereModel = builder.ToMesh();
+        var sphereModel = builder.ToMesh();
+        SphereModel = sphereModel;
 
         GenerateNoiseCommand = new RelayCommand((o) => { CreatePerlinNoise(); });
         CreatePerlinNoise();
 
         PointModel = new PointGeometry3D() {
-            Positions = SphereModel.Positions
+            Positions = sphereModel.Positions
+                        ?? throw new InvalidOperationException("The generated sphere has no positions.")
         };
-        CustomPointMaterial = new CustomPointMaterial() { Color = Colors.White };
+        CustomPointMaterial = new CustomPointMaterial() {
+            Color = Colors.White
+        };
     }
 
-    public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps) => GetGradients(start, mid, steps / 2).Concat(GetGradients(mid, end, steps / 2));
+    public static IEnumerable<Color4> GetGradients(Color4 start, Color4 mid, Color4 end, int steps)
+        => GetGradients(start, mid, steps / 2)
+            .Concat(GetGradients(mid, end, steps / 2));
 
     public static IEnumerable<Color4> GetGradients(Color4 start, Color4 end, int steps) {
         float stepA = ((end.W - start.W) / (steps - 1));
@@ -205,9 +234,9 @@ public class MainViewModel : BaseViewModel {
 
         for (int i = 0; i < steps; i++) {
             yield return new Color4((start.X + (stepR * i)),
-                                    (start.Y + (stepG * i)),
-                                    (start.Z + (stepB * i)),
-                                    (start.W + (stepA * i)));
+                (start.Y + (stepG * i)),
+                (start.Z + (stepB * i)),
+                (start.W + (stepA * i)));
         }
     }
 

@@ -77,35 +77,32 @@ public partial class Exporter {
             new Mesh(string.IsNullOrEmpty(info.Name)
                          ? $"Mesh_{Interlocked.Increment(ref meshIndexForNoName)}"
                          : info.Name) { MaterialIndex = info.MaterialIndex };
-        if (info.Mesh.Positions != null && info.Mesh.Positions.Count > 0)
+        if (info.Mesh.Positions is {Count: > 0})
             assimpMesh.Vertices.AddRange(info.Mesh.Positions.Select(x => x.ToAssimpVector3D()));
 
-        if (info.Mesh.Indices != null && info.Mesh.Indices.Count > 0)
+        if (info.Mesh.Indices is {Count: > 0})
             for (var i = 0; i < info.Mesh.Indices.Count; i += 3)
                 assimpMesh.Faces.Add(new Face([
                     info.Mesh.Indices[i], info.Mesh.Indices[i + 1], info.Mesh.Indices[i + 2]
                 ]));
 
-        if (info.Mesh.Colors != null && info.Mesh.Colors.Count > 0)
+        if (info.Mesh.Colors is {Count: > 0})
             assimpMesh.VertexColorChannels[0] =
                 [.. info.Mesh.Colors.Select(x => x.ToAssimpColor4D())];
         if (info.Mesh is MeshGeometry3D mesh) {
             assimpMesh.PrimitiveType = PrimitiveType.Triangle;
-            if (mesh.Normals != null && mesh.Normals.Count > 0) {
+            if (mesh.Normals is {Count: > 0}) {
                 assimpMesh.Normals.AddRange(mesh.Normals.Select(x => x.ToAssimpVector3D()));
-                if (mesh.BiTangents != null && mesh.BiTangents.Count > 0)
+                if (mesh.BiTangents is {Count: > 0})
                     assimpMesh.BiTangents.AddRange(mesh.BiTangents.Select(x => x.ToAssimpVector3D()));
-                if (mesh.Tangents != null && mesh.Tangents.Count > 0)
+                if (mesh.Tangents is {Count: > 0})
                     assimpMesh.Tangents.AddRange(mesh.Tangents.Select(x => x.ToAssimpVector3D()));
             }
 
-            if (mesh.TextureCoordinates != null && mesh.TextureCoordinates.Count > 0)
+            if (mesh.TextureCoordinates is {Count: > 0})
                 assimpMesh.TextureCoordinateChannels[0] =
                     [.. mesh.TextureCoordinates.Select(x => x.ToAssimpVector3D())];
-            if (info.Bones is { } bones && mesh is BoneSkinnedMeshGeometry3D boneSkinMesh
-                && boneSkinMesh.VertexBoneIds is { } vertexBoneIds
-                && boneSkinMesh.Positions is { } positions
-                && vertexBoneIds.Count == positions.Count) {
+            if (info.Bones is { } bones && mesh is BoneSkinnedMeshGeometry3D {VertexBoneIds: { } vertexBoneIds, Positions: { } positions} && vertexBoneIds.Count == positions.Count) {
                 foreach (var b in bones) {
                     var bone = new global::Assimp.Bone {
                         Name = b.Name,

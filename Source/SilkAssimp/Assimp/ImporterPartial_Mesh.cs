@@ -38,7 +38,7 @@ public partial class Importer {
                                    : CullMode.None;
                 if (Configuration.ForceCullMode)
                     cullMode = Configuration.CullMode;
-                var fillMode = material.Key.HasWireFrame && material.Key.IsWireFrameEnabled
+                var fillMode = material.Key is {HasWireFrame: true, IsWireFrameEnabled: true}
                                    ? FillMode.Wireframe
                                    : FillMode.Solid;
 

@@ -75,7 +75,7 @@ public static class Color4Extensions {
                     var colorName = text.Substring(1, text.Length - 2);
                     obj = GetNamedColor(colorName);
                     tryMappingToKnownColor = false;
-                } else if ((text.Length == 7 && text[0] == '#') ||
+                } else if (text is ['#', _, _, _, _, _, _] ||
                            (text.Length == 8 && (text.StartsWith("0x") || text.StartsWith("0X"))) ||
                            (text.Length == 8 && (text.StartsWith("&h") || text.StartsWith("&H")))) {
                     // Note: ConvertFromString will raise exception if value cannot be converted.

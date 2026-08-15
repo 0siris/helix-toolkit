@@ -150,7 +150,7 @@ public class CoreTestApp {
     }
 
     private void RunRenderLoop(Action render) {
-        while (!window.IsDisposed && window.Visible) {
+        while (window is {IsDisposed: false, Visible: true}) {
             Application.DoEvents();
             render();
         }
@@ -494,7 +494,7 @@ public class CoreTestApp {
             ChangeEnvironmentMapVisibility(options.ShowEnvironmentMap);
             viewport.Render();
 
-            if (options.PlayAnimation && options.AnimationUpdater != null) {
+            if (options is {PlayAnimation: true, AnimationUpdater: not null}) {
                 var elapsed = Stopwatch.GetTimestamp() - options.InitTimeStamp;
                 options.AnimationUpdater.Update(elapsed, Stopwatch.Frequency);
             }

@@ -122,7 +122,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     public void OnMouseDown3DHandler(object sender, MouseDown3DEventArgs e) {
-        if (e.HitTestResult != null && e.HitTestResult.ModelHit is MeshGeometryModel3D m &&
+        if (e.HitTestResult is {ModelHit: MeshGeometryModel3D m} &&
             (m.Geometry == Model || m.Geometry == Model2)) {
             if (m.Geometry is not { } geometry)
                 return;

@@ -217,7 +217,7 @@ public class ShadowMapNode : SceneNode {
     private BoundingBox FindSceneBound(FastList<SceneNode> nodes) {
         var box = new BoundingBox();
         if (nodes.Count > 0)
-            foreach (var node in nodes.Where(x => x is IThrowingShadow k && k.IsThrowingShadow)) {
+            foreach (var node in nodes.Where(x => x is IThrowingShadow {IsThrowingShadow: true})) {
                 if (node.BoundsWithTransform.Minimum == node.BoundsWithTransform.Maximum) continue;
                 if (box.Minimum == box.Maximum)
                     box = node.BoundsWithTransform;

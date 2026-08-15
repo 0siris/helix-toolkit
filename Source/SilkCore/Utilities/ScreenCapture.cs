@@ -43,7 +43,7 @@ public static class ScreenCapture {
             desc.OptionFlags &= ResourceOptionFlags.TextureCube;
             stagingTexture = context.NativeDevice.CreateTexture2D(desc);
             context.CopyResource(texture, stagingTexture);
-        } else if (desc.Usage == ResourceUsage.Staging && desc.CpuAccessFlags == CpuAccessFlags.Read) {
+        } else if (desc is {Usage: ResourceUsage.Staging, CpuAccessFlags: CpuAccessFlags.Read}) {
             stagingTexture = source;
         } else {
             desc.BindFlags = BindFlags.None;

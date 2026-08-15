@@ -59,7 +59,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value) && scene?.Root is { } root) {
                 foreach (var node in root.Traverse()) {
-                    if (node is MaterialGeometryNode m && m.Material is PbrMaterialCore material) {
+                    if (node is MaterialGeometryNode {Material: PbrMaterialCore material}) {
                         material.RenderEnvironmentMap = value;
                     }
                 }
@@ -259,7 +259,7 @@ public class MainViewModel : BaseViewModel {
             })
             .ContinueWith((result) => {
                     IsLoading = false;
-                    if (result.Status == TaskStatus.RanToCompletion && result.Result is { } loadedScene) {
+                    if (result is {Status: TaskStatus.RanToCompletion, Result: { } loadedScene}) {
                         scene = loadedScene;
                         Animations.Clear();
                         var oldNode = GroupModel.SceneNode.Items.ToArray();
@@ -293,7 +293,7 @@ public class MainViewModel : BaseViewModel {
                         }
 
                         FocusCameraToScene();
-                    } else if (result.IsFaulted && result.Exception is { } exception) {
+                    } else if (result is {IsFaulted: true, Exception: { } exception}) {
                         MessageBox.Show(exception.Message);
                     }
                 },

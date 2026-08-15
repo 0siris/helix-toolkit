@@ -190,16 +190,12 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
             getTriangleCountTask = parallelThread.EnqueueAction(() => {
                 var count = 0;
                 foreach (var core in OpaqueNodesInFrustum.Select(x => x.RenderCore))
-                    if (core is IGeometryRenderCore c)
-                        if (c.GeometryBuffer is IGeometryBufferModel geo && geo.Geometry != null &&
-                            geo.Geometry.Indices != null)
-                            count += geo.Geometry.Indices.Count / 3;
+                    if (core is IGeometryRenderCore {GeometryBuffer: IGeometryBufferModel {Geometry.Indices: not null} geo})
+                        count += geo.Geometry.Indices.Count / 3;
 
                 foreach (var core in TransparentNodesInFrustum.Select(x => x.RenderCore))
-                    if (core is IGeometryRenderCore c)
-                        if (c.GeometryBuffer is IGeometryBufferModel geo && geo.Geometry != null &&
-                            geo.Geometry.Indices != null)
-                            count += geo.Geometry.Indices.Count / 3;
+                    if (core is IGeometryRenderCore {GeometryBuffer: IGeometryBufferModel {Geometry.Indices: not null} geo})
+                        count += geo.Geometry.Indices.Count / 3;
 
                 RenderStatisticsInternal.NumTriangles = count;
             });
@@ -364,7 +360,7 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
         ViewportRenderable2D.Clear();
         var d2DRoot = viewport.D2DRenderables.FirstOrDefault();
         var renderD2D = false;
-        if (d2DRoot != null && d2DRoot.ItemsInternal.Count > 0 && RenderConfiguration.RenderD2D) {
+        if (d2DRoot is {ItemsInternal.Count: > 0} && RenderConfiguration.RenderD2D) {
             renderD2D = true;
             d2DRoot.Measure(new Size2F(ActualWidth, ActualHeight));
             d2DRoot.Arrange(new RectangleF(0, 0, ActualWidth, ActualHeight));

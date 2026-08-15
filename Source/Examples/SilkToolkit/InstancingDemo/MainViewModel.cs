@@ -230,13 +230,13 @@ public class MainViewModel : BaseViewModel {
         var hitTests = viewport.FindHits(point);
         if (hitTests.Count > 0) {
             foreach (var hit in hitTests) {
-                if (hit.ModelHit is InstancingMeshGeometryModel3D && hit.Tag is int index) {
+                if (hit is {ModelHit: InstancingMeshGeometryModel3D, Tag: int index}) {
                     InstanceParam[index].EmissiveColor = InstanceParam[index].EmissiveColor != Colors.Yellow.ToColor4()
                         ? Colors.Yellow.ToColor4()
                         : Colors.Black.ToColor4();
                     InstanceParam = (InstanceParameter[]) InstanceParam.Clone();
                     break;
-                } else if (hit.ModelHit is LineGeometryModel3D && hit.Tag is int lineIndex) {
+                } else if (hit is {ModelHit: LineGeometryModel3D, Tag: int lineIndex}) {
                     SelectedLineInstances = [ModelInstances[lineIndex]];
                     break;
                 }

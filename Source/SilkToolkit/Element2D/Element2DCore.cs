@@ -67,7 +67,7 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
     }
 
     private void SceneNode_OnDetached(object? sender, EventArgs e) {
-        if (Dispatcher != null && Dispatcher.Thread.IsAlive) {
+        if (Dispatcher is {Thread.IsAlive: true}) {
             if (Dispatcher.CheckAccess())
                 OnDetached();
             else

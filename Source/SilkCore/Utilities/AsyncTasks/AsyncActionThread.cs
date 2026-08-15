@@ -88,7 +88,7 @@ internal sealed class AsyncActionThread : IDisposable {
     }
 
     public void Start() {
-        if (jobThread != null && jobThread.IsAlive) return;
+        if (jobThread is {IsAlive: true}) return;
         running = true;
         Clear();
         jobThread = new Thread(() => {

@@ -38,7 +38,10 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     /// <param name="modelGuid"></param>
     /// <param name="geometry"></param>
     /// <returns></returns>
-    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D? geometry) => geometry != null && geometry.IsDynamic
+    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D? geometry) => geometry is
+    {
+        IsDynamic: true
+    }
         ? (EffectsManager ?? throw new InvalidOperationException("Effects manager is required.")).GeometryBufferManager.Register<DynamicMeshGeometryBufferModel>(
             modelGuid,
             geometry)

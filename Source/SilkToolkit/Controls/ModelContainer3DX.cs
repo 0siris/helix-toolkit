@@ -289,7 +289,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// </value>
     /// <exception cref="NotImplementedException"></exception>
     public bool IsShadowMapEnabled {
-        get => currentRenderHost != null && currentRenderHost.IsShadowMapEnabled;
+        get => currentRenderHost is {IsShadowMapEnabled: true};
         set => throw new NotImplementedException();
     }
 
@@ -341,7 +341,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     <c>true</c> if this instance is deferred lighting; otherwise, <c>false</c>.
     /// </value>
-    public bool IsDeferredLighting => CurrentRenderHost != null && CurrentRenderHost.IsDeferredLighting;
+    public bool IsDeferredLighting => CurrentRenderHost is {IsDeferredLighting: true};
 
     /// <summary>
     ///     Gets or sets the shared model container.

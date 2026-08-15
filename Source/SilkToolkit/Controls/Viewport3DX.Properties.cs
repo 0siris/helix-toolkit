@@ -1494,8 +1494,7 @@ public partial class Viewport3DX {
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
-                                                             if (viewport.hostPresenter != null &&
-                                                                 viewport.hostPresenter.Content is IRenderCanvas canvas)
+                                                             if (viewport.hostPresenter is {Content: IRenderCanvas canvas})
                                                                  canvas.DpiScale = (double)e.NewValue;
                                                          }));
 
@@ -1509,8 +1508,7 @@ public partial class Viewport3DX {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
-                                                             if (viewport.hostPresenter != null &&
-                                                                 viewport.hostPresenter.Content is IRenderCanvas canvas)
+                                                             if (viewport.hostPresenter is {Content: IRenderCanvas canvas})
                                                                  canvas.EnableDpiScale = (bool)e.NewValue;
                                                          }));
 
@@ -1521,9 +1519,9 @@ public partial class Viewport3DX {
                                     new PropertyMetadata(true,
                                                          (d, e) => {
                                                              var viewport = d as Viewport3DX;
-                                                             if (viewport.hostPresenter != null &&
-                                                                 viewport.hostPresenter.Content is DPFSurfaceSwapChain
-                                                                     surface)
+                                                             if (viewport.hostPresenter is {Content: DPFSurfaceSwapChain
+                                                                     surface
+                                                                 })
                                                                  surface.IncreaseFps = (bool)e.NewValue;
                                                          }));
 

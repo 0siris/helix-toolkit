@@ -3131,9 +3131,9 @@ public class MeshBuilder {
         var sectionLength = section.Count;
         if (pathLength < 2 || sectionLength < 2) throw new InvalidOperationException(WrongNumberOfDivisions);
 
-        if (values != null && values.Count == 0) throw new InvalidOperationException(WrongNumberOfTextureCoordinates);
+        if (values is {Count: 0}) throw new InvalidOperationException(WrongNumberOfTextureCoordinates);
 
-        if (diameters != null && diameters.Count == 0) throw new InvalidOperationException(WrongNumberOfDiameters);
+        if (diameters is {Count: 0}) throw new InvalidOperationException(WrongNumberOfDiameters);
 
         var index0 = positions.Count;
         var up = (path[1] - path[0]).FindAnyPerpendicular();
@@ -3266,11 +3266,11 @@ public class MeshBuilder {
         var sectionLength = section.Count;
         if (pathLength < 2 || sectionLength < 2) throw new InvalidOperationException(WrongNumberOfDivisions);
 
-        if (values != null && values.Count == 0) throw new InvalidOperationException(WrongNumberOfTextureCoordinates);
+        if (values is {Count: 0}) throw new InvalidOperationException(WrongNumberOfTextureCoordinates);
 
-        if (diameters != null && diameters.Count == 0) throw new InvalidOperationException(WrongNumberOfDiameters);
+        if (diameters is {Count: 0}) throw new InvalidOperationException(WrongNumberOfDiameters);
 
-        if (angles != null && angles.Count == 0) throw new InvalidOperationException(WrongNumberOfAngles);
+        if (angles is {Count: 0}) throw new InvalidOperationException(WrongNumberOfAngles);
         if (sectionXAxis.Equals(default)) throw new InvalidOperationException(nameof(sectionXAxis));
 
         var index0 = positions.Count;

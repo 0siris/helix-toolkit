@@ -32,7 +32,7 @@ public class CompositeModel3D : AbstractElements3D.Element3D, IHitable, ISelecta
                                     typeof(CompositeModel3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                              if (d is CompositeModel3D model && model.SceneNode is { } node)
+                                                              if (d is CompositeModel3D {SceneNode: { } node})
                                                                   node.AlwaysHittable = (bool)e.NewValue;
                                                          }));
 

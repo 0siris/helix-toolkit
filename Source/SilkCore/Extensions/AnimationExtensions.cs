@@ -15,7 +15,7 @@ public static class AnimationExtensions {
         foreach (var ani in animations)
             switch (ani.AnimationType) {
                 case AnimationType.Keyframe:
-                    if (ani.RootNode is IBoneMatricesNode bNode && bNode.Bones is { } bones)
+                    if (ani.RootNode is IBoneMatricesNode {Bones: { } bones})
                         AddUpdaterToDict(dict, new KeyFrameUpdater(ani, bones));
                     else
                         foreach (var b in ani.BoneSkinMeshes)

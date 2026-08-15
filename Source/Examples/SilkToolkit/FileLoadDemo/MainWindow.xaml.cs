@@ -28,7 +28,7 @@ public partial class MainWindow : Window {
                     return;
                 }
 
-                if (hitTestResult.ModelHit is SceneNode node && node.Tag is AttachedNodeViewModel vm) {
+                if (hitTestResult.ModelHit is SceneNode {Tag: AttachedNodeViewModel vm}) {
                     vm.Selected = !vm.Selected;
                 }
             }));

@@ -35,7 +35,7 @@ public abstract class GroupElement3D : Element3D {
                                     typeof(GroupElement3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             if (d is GroupElement3D group && group.IsAttached)
+                                                             if (d is GroupElement3D {IsAttached: true} group)
                                                                  group.OnItemsSourceChanged(
                                                                      e.NewValue as IEnumerable<Element3D>);
                                                          }));

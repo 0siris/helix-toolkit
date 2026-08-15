@@ -41,7 +41,7 @@ public static class ViewportExtensions {
         var count = 0;
         viewport.Renderables.PreorderDft(x => {
             if (x is GeometryNode g)
-                if (g.Visible && g.Geometry != null && g.Geometry.Indices != null)
+                if (g is {Visible: true, Geometry.Indices: not null})
                     count += g.Geometry.Indices.Count / 3;
 
             return true;
@@ -114,7 +114,7 @@ public static class ViewportExtensions {
     /// </param>
     public static void Traverse<T>(this Viewport3DX viewport, Action<T, Transform3D> action) where T : Model.Elements3D.AbstractElements3D.Element3D {
         viewport.Renderables.PreorderDft(node => {
-            if (node.WrapperSource is T element && element.Transform is { } transform)
+            if (node.WrapperSource is T {Transform: { } transform} element)
                 action(element, transform);
             return true;
         });
@@ -330,10 +330,7 @@ public static class ViewportExtensions {
         if (view.RenderHost is { IsRendering: true } host) {
             host.UpdateAndRender();
             using var memoryStream = new MemoryStream();
-            if (host.IsRendering
-                && host.RenderBuffer is { } buffer
-                && host.EffectsManager is { } effectsManager
-                && buffer.BackBuffer.Resource is NativeD3DTexture2D backBuffer) {
+            if (host is {IsRendering: true, RenderBuffer: {BackBuffer.Resource: NativeD3DTexture2D backBuffer}, EffectsManager: { } effectsManager}) {
                 if (view.EnableSwapChainRendering) host.UpdateAndRender();
                 // be sure to render the Scene before capture, otherwise the image is just black
                 ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,

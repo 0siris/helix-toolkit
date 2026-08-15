@@ -141,8 +141,7 @@ internal static class FormatHelper {
 
     public static bool IsVideo(Format format) {
         var value = format.NativeFormat;
-        return value >= Silk.NET.DXGI.Format.FormatAyuv
-               && value <= Silk.NET.DXGI.Format.FormatV408;
+        return value is >= Silk.NET.DXGI.Format.FormatAyuv and <= Silk.NET.DXGI.Format.FormatV408;
     }
 
     public static bool IsCompressed(Format format) {

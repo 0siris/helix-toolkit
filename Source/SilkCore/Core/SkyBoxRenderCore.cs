@@ -106,8 +106,7 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
         if (cubeTexture is { } texture && Device is { } device) {
             cubeTextureRes = new ShaderResourceViewProxy(device);
             cubeTextureRes.CreateView(texture);
-            if (cubeTextureRes.TextureView != null && cubeTextureRes.TextureView.Description.Dimension ==
-                ShaderResourceViewDimension.TextureCube)
+            if (cubeTextureRes.TextureView is {Description.Dimension: ShaderResourceViewDimension.TextureCube})
                 MipMapLevels = cubeTextureRes.TextureView.Description.TextureCube.MipLevels;
         }
     }

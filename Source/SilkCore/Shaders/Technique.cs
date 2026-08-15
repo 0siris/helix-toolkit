@@ -21,8 +21,7 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
         Description = description;
         Name = description.Name ?? string.Empty;
         effectsManager = manager;
-        if (description.InputLayoutDescription != null
-            && description.PassDescriptions != null
+        if (description is {InputLayoutDescription: not null, PassDescriptions: not null}
             && manager is { } actualManager)
                 foreach (var desc in description.PassDescriptions) {
                     if (desc.Name is not { } passName) continue;

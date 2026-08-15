@@ -575,11 +575,11 @@ public class ObjReader : IModelReader {
                 positions.Add(Points[vi - 1]);
                 if (Colors.Count == Points.Count) colors.Add(Colors[vi - 1]);
                 // add texture coordinate (if enabled)
-                if (builder.HasTexCoords && builder.TextureCoordinates is { } textureCoordinates)
+                if (builder is {HasTexCoords: true, TextureCoordinates: { } textureCoordinates})
                     textureCoordinates.Add(TextureCoordinates[vti - 1]);
 
                 // add normal (if enabled)
-                if (builder.HasNormals && builder.Normals is { } normals)
+                if (builder is {HasNormals: true, Normals: { } normals})
                     normals.Add(Normals[vni - 1]);
             }
         }

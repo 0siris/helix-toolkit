@@ -336,8 +336,7 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     }
 
     public void Attach(IRenderHost host) {
-        if (host.FeatureLevel >= FeatureLevel.Level110
-            && host.EffectsManager is { } effectsManager) {
+        if (host is {FeatureLevel: >= FeatureLevel.Level110, EffectsManager: { } effectsManager}) {
             oitWeightedCore.Attach(effectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOitQuad));
             oitDepthPeelingCore.Attach(
                 effectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOitDepthPeeling));

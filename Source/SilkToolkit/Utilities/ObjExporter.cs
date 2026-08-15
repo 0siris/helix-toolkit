@@ -158,7 +158,7 @@ public class ObjExporter : Exporter {
             exportedMaterials.Add(material, matName);
         }
 
-        if (model.HasInstances && model.Instances is { } instances) {
+        if (model is {HasInstances: true, Instances: { } instances}) {
             var m = transform.ToMatrix();
             for (var i = 0; i < instances.Count; ++i) ExportMesh(mesh, instances[i] * m);
         } else {

@@ -181,7 +181,7 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
             var created = OnCreateManager();
             manager = created;
             created.OnOctreeCreated += (_, e) => {
-                    if (octreeOpt != null && octreeOpt.Status == DispatcherOperationStatus.Pending) octreeOpt.Abort();
+                    if (octreeOpt is {Status: DispatcherOperationStatus.Pending}) octreeOpt.Abort();
                     if (enableOctreeOutput)
                         octreeOpt = Dispatcher.BeginInvoke(DispatcherPriority.Background,
                                                            new Action(() => {

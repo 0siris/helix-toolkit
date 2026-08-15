@@ -248,7 +248,7 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     ///     The <see cref="System.Windows.DependencyPropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
     protected static void ModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        if (d is UiManipulator3D m && m.IsAttached) {
+        if (d is UiManipulator3D {IsAttached: true} m) {
             m.OnModelChanged();
             m.InvalidateRender();
         }

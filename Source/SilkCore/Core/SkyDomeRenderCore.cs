@@ -56,8 +56,7 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
         if (CubeTexture is { } texture && Device is { } device) {
             cubeTextureRes = new ShaderResourceViewProxy(device);
             cubeTextureRes.CreateView(texture);
-            if (cubeTextureRes.TextureView != null && cubeTextureRes.TextureView.Description.Dimension ==
-                ShaderResourceViewDimension.TextureCube)
+            if (cubeTextureRes.TextureView is {Description.Dimension: ShaderResourceViewDimension.TextureCube})
                 MipMapLevels = cubeTextureRes.TextureView.Description.TextureCube.MipLevels;
         }
     }
@@ -123,8 +122,7 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
             Geometry3D? geometry,
             IDeviceResources deviceResources
         ) {
-            if (bufferIndex == 0 && geometry != null && geometry.Positions != null &&
-                geometry.Positions.Count > 0)
+            if (bufferIndex == 0 && geometry is {Positions.Count: > 0})
                 buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);
         }
     }

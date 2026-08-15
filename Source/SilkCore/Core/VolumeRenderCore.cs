@@ -217,7 +217,7 @@ public sealed class VolumeRenderCore : RenderCore {
             IDeviceResources deviceResources
         ) {
             // -- set geometry if given
-            if (geometry != null && geometry.Positions != null && geometry.Positions.Count > 0)
+            if (geometry is {Positions.Count: > 0})
                 buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);
             else
                 buffer.UploadDataToBuffer(context, EmptyVerts, 0);

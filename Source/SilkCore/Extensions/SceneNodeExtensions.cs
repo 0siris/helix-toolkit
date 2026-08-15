@@ -50,18 +50,15 @@ public static class SceneNodeExtensions {
         Vector3? result = null;
         var count = 0;
         foreach (var node in root.Traverse())
-            if (node is GeometryNode geoNode)
-                if (geoNode.Geometry != null
-                    && geoNode.Geometry.Positions != null
-                    && geoNode.Geometry.Positions.Count > 0) {
-                    var c = geoNode.Geometry.Positions.GetCentroid();
-                    c = SilkMath.Transform(c, geoNode.TotalModelMatrix).ToVector3();
-                    ++count;
-                    if (result.HasValue)
-                        result += (c - result.Value) / count;
-                    else
-                        result = c;
-                }
+            if (node is GeometryNode {Geometry.Positions.Count: > 0} geoNode) {
+                var c = geoNode.Geometry.Positions.GetCentroid();
+                c = SilkMath.Transform(c, geoNode.TotalModelMatrix).ToVector3();
+                ++count;
+                if (result.HasValue)
+                    result += (c - result.Value) / count;
+                else
+                    result = c;
+            }
 
         centroid = result.HasValue ? result.Value : Vector3.Zero;
         return result.HasValue;
@@ -79,18 +76,15 @@ public static class SceneNodeExtensions {
     public static bool TryGetBound(this SceneNode root, out BoundingBox bound) {
         BoundingBox? result = null;
         foreach (var node in root.Traverse())
-            if (node is GeometryNode geoNode)
-                if (geoNode.Geometry != null
-                    && geoNode.Geometry.Positions != null
-                    && geoNode.Geometry.Positions.Count > 0) {
-                    geoNode.Geometry.UpdateBounds();
-                    var b = geoNode.Geometry.Bound;
-                    b = b.Transform(geoNode.TotalModelMatrix);
-                    if (result.HasValue)
-                        result = BoundingBox.Merge(result.Value, b);
-                    else
-                        result = b;
-                }
+            if (node is GeometryNode {Geometry.Positions.Count: > 0} geoNode) {
+                geoNode.Geometry.UpdateBounds();
+                var b = geoNode.Geometry.Bound;
+                b = b.Transform(geoNode.TotalModelMatrix);
+                if (result.HasValue)
+                    result = BoundingBox.Merge(result.Value, b);
+                else
+                    result = b;
+            }
 
         bound = result.HasValue ? result.Value : new BoundingBox();
         return result.HasValue;

@@ -106,10 +106,10 @@ public class ShaderResourceViewProxy : DisposeObject {
         var info = texture.Load();
         var succeeded = false;
         try {
-            if (info.DataType == TextureDataType.Stream && info.IsCompressed) {
+            if (info is {DataType: TextureDataType.Stream, IsCompressed: true}) {
                 CreateView(info.Texture, createSrv, enableAutoGenMipMap);
                 succeeded = resource != null;
-            } else if (info.DataType == TextureDataType.ByteArray && info.Dimension == 2) {
+            } else if (info is {DataType: TextureDataType.ByteArray, Dimension: 2}) {
                 CreateView(info.TextureRaw,
                            info.Width,
                            info.Height,

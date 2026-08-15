@@ -325,7 +325,7 @@ public class UiCompositeManipulator3D : CompositeModel3D {
     ///     The event arguments.
     /// </param>
     private static void ChildrenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        if (d is UiCompositeManipulator3D model && model.SceneNode is { IsAttached: true })
+        if (d is UiCompositeManipulator3D {SceneNode.IsAttached: true} model)
             model.OnChildrenChanged();
     }
 }

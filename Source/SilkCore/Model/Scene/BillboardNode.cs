@@ -45,7 +45,7 @@ public class BillboardNode : MaterialGeometryNode {
 
     public override bool TestViewFrustum(ref BoundingFrustum viewFrustum) {
         if (!EnableViewFrustumCheck) return true;
-        if (Geometry is IBillboardText billboard && !billboard.IsInitialized) return true;
+        if (Geometry is IBillboardText {IsInitialized: false}) return true;
         return BoundingFrustumExtensions.Intersects(ref viewFrustum,
                                                     ref BoundManager
                                                         .BoundsSphereWithTransform); // viewFrustum.Intersects(ref sphere);

@@ -406,8 +406,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
     }
 
     public void OnMouseUpHandler(object sender, MouseUp3DEventArgs e) {
-        if (e.HitTestResult is BillboardHitResult res
-            && res.ModelHit is BillboardTextModel3D model) {
+        if (e.HitTestResult is BillboardHitResult {ModelHit: BillboardTextModel3D model} res) {
             if (model.Geometry == FlagsBillboard) {
                 SelectedFlag = FlagsBillboard.ImageInfos[res.TextInfoIndex] as Flag;
             } else if (model.Geometry == LandmarkBillboards) {
@@ -492,7 +491,7 @@ public class MainViewModel : DemoCore.BaseViewModel {
                 return;
             }
 
-            if (e.OriginalSource is FrameworkElement dp && dp.DataContext is Flag flag) {
+            if (e.OriginalSource is FrameworkElement {DataContext: Flag flag}) {
                 var dragData = new DataObject("Flag", flag);
                 DragDrop.DoDragDrop(parent, dragData, DragDropEffects.Move);
                 dragSource = null;

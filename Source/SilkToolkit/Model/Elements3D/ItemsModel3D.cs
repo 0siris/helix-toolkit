@@ -48,7 +48,7 @@ public class ItemsModel3D : CompositeModel3D {
         typeof(ItemsModel3D),
         new PropertyMetadata(null,
                              (s, e) => {
-                                 if (s is ItemsModel3D itemsModel && itemsModel.IsAttached)
+                                 if (s is ItemsModel3D {IsAttached: true} itemsModel)
                                      itemsModel.ItemsSourceChanged(e.NewValue as IEnumerable);
                              }));
 

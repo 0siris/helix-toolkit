@@ -110,20 +110,11 @@ internal static class DdsHelper {
             return Format.Unknown;
         }
 
-        if (pixelFormat.RGBBitCount == 32
-            && pixelFormat.RBitMask == 0x00ff0000
-            && pixelFormat.GBitMask == 0x0000ff00
-            && pixelFormat.BBitMask == 0x000000ff)
+        if (pixelFormat is {RGBBitCount: 32, RBitMask: 0x00ff0000, GBitMask: 0x0000ff00, BBitMask: 0x000000ff})
             return pixelFormat.ABitMask == 0 ? Format.B8G8R8X8_UNorm : Format.B8G8R8A8_UNorm;
-        if (pixelFormat.RGBBitCount == 32
-            && pixelFormat.RBitMask == 0x000000ff
-            && pixelFormat.GBitMask == 0x0000ff00
-            && pixelFormat.BBitMask == 0x00ff0000)
+        if (pixelFormat is {RGBBitCount: 32, RBitMask: 0x000000ff, GBitMask: 0x0000ff00, BBitMask: 0x00ff0000})
             return Format.R8G8B8A8_UNorm;
-        if (pixelFormat.RGBBitCount == 24
-            && pixelFormat.RBitMask == 0x00ff0000
-            && pixelFormat.GBitMask == 0x0000ff00
-            && pixelFormat.BBitMask == 0x000000ff) {
+        if (pixelFormat is {RGBBitCount: 24, RBitMask: 0x00ff0000, GBitMask: 0x0000ff00, BBitMask: 0x000000ff}) {
             expand24Bit = true;
             return Format.R8G8B8A8_UNorm;
         }

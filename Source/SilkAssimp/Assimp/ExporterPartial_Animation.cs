@@ -8,7 +8,7 @@ using Assimp;
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
 public partial class Exporter {
-    public static double DefaultTicksPerSecond = 30;
+    public const double DefaultTicksPerSecond = 30;
 
     private ErrorCode AddAnimationsToScene(Scene scene) {
         if (animations == null || animations.Count == 0) 

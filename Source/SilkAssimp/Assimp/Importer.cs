@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using Assimp;
 using Assimp.Configs;
 using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -39,9 +40,19 @@ public partial class Importer : IDisposable {
 
         var builder = new StringBuilder();
         builder.Append("All Supported |");
-        foreach (var s in SupportedFormats) builder.Append($"*{s};");
-        builder.Append("|");
-        foreach (var s in SupportedFormats) builder.Append($"(*{s})|*{s}|");
+        foreach (var s in SupportedFormats)
+            builder.Append('*')
+                .Append(s)
+                .Append(';');
+        builder.Append('|');
+        
+        foreach (var s in SupportedFormats)
+            builder.Append("(*")
+                .Append(s)
+                .Append(")|*")
+                .Append(s)
+                .Append('|');
+        
 
         SupportedFormatsString = builder.ToString(0, builder.Length - 1);
         SupportedTextureFormatDict = [.. SupportedTextureFormats];
@@ -219,7 +230,7 @@ public partial class Importer : IDisposable {
 
             return BuildScene(assimpScene, out scene);
         } catch (Exception ex) {
-            Logger.Error(ex.Message);
+            Logger.Error("{Exceptipn}",ex.Message);
             ErrorCode = ErrorCode.Failed;
             AssimpExceptionOccurred?.Invoke(this, ex);
             return ErrorCode;
@@ -280,7 +291,7 @@ public partial class Importer : IDisposable {
             var assimpScene = importer.ImportFileFromStream(fileStream, postProcess, formatHint);
             return BuildScene(assimpScene, out scene);
         } catch (Exception ex) {
-            Logger.Error(ex.Message);
+            Logger.Error("{Exceptipn}",ex.Message);
             ErrorCode = ErrorCode.Failed;
             AssimpExceptionOccurred?.Invoke(this, ex);
             return ErrorCode;
@@ -349,7 +360,7 @@ public partial class Importer : IDisposable {
         }
 
         if (!assimpScene.HasMeshes) {
-            scene = new HelixToolkitScene(new Model.Scene.GroupNode());
+            scene = new HelixToolkitScene(new GroupNode());
             ErrorCode = ErrorCode.Succeed;
             return ErrorCode.Succeed;
         }
@@ -362,9 +373,8 @@ public partial class Importer : IDisposable {
         if (Configuration.ImportAnimations) {
             LoadAnimations(internalScene);
             scene.Animations = [.. Animations];
-            if (Configuration.CreateSkeletonForBoneSkinningMesh
-                && Configuration.AddsPostEffectForSkeleton)
-                if (scene.Root is Model.Scene.GroupNode root)
+            if (Configuration is {CreateSkeletonForBoneSkinningMesh: true, AddsPostEffectForSkeleton: true})
+                if (scene.Root is GroupNode root)
                     root.AddChildNode(new NodePostEffectXRayGrid {
                         EffectName = Configuration.SkeletonEffects
                     });
@@ -414,10 +424,10 @@ public partial class Importer : IDisposable {
         return s;
     }
 
-    private SceneNode ConstructHelixScene(Node node, HelixInternalScene scene) {
-        var group = new Model.Scene.GroupNode {
+    private GroupNode ConstructHelixScene(Node node, HelixInternalScene scene) {
+        var group = new GroupNode {
             Name = string.IsNullOrEmpty(node.Name)
-                ? nameof(Model.Scene.GroupNode)
+                ? nameof(GroupNode)
                 : node.Name,
             ModelMatrix = node.Transform.ToSharpDXMatrix(configuration.IsSourceMatrixColumnMajor)
         };

@@ -10,6 +10,7 @@ using HelixToolkit.SharpDX.Core.Logger;
 using HelixToolkit.SharpDX.Core.Model.Animations;
 using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
@@ -88,9 +89,8 @@ public partial class Importer {
 
     private ErrorCode LoadAnimations(HelixInternalScene scene) {
         var dict = new Dictionary<string, SceneNode>(SceneNodes.Count);
-        foreach (var node in SceneNodes)
-            if (node is Model.Scene.GroupNode && !dict.ContainsKey(node.Name))
-                dict.Add(node.Name, node);
+        foreach (var node in SceneNodes.OfType<GroupNode>())
+            dict.TryAdd(node.Name, node);
 
         var nodeIdxDict = new Dictionary<string, int>();
         foreach (var node in SceneNodes
@@ -111,8 +111,7 @@ public partial class Importer {
                     }
 
                 if (Configuration.CreateSkeletonForBoneSkinningMesh
-                    && node is Model.Scene.BoneSkinMeshNode sk
-                    && sk.Parent is GroupNodeBase group) {
+                    && node is BoneSkinMeshNode {Parent: GroupNodeBase group} sk) {
                     var skeleton = sk.CreateSkeletonNode(Configuration.SkeletonMaterial,
                                                          Configuration.SkeletonEffects,
                                                          Configuration.SkeletonSizeScale);
@@ -121,14 +120,13 @@ public partial class Importer {
                 }
 
                 //Setup bone matrices initially if it's morphable (unable to render w/o bones)
-                if (node is Model.Scene.BoneSkinMeshNode sn
-                    && sn.MorphTargetWeights.Length > 0
-                    && sn.BoneMatrices?.Length == 0)
+                if (node is BoneSkinMeshNode {MorphTargetWeights.Length: > 0, BoneMatrices.Length: 0} sn)
                     sn.UpdateBoneMatrices();
             }
 
         if (scene.AssimpScene.HasAnimations) {
-            var hasBoneSkinnedMesh = scene.Meshes.Where(x => x.Mesh is BoneSkinnedMeshGeometry3D).Count() > 0;
+            var hasBoneSkinnedMesh = scene.Meshes.Any(x => x.Mesh is BoneSkinnedMeshGeometry3D);
+            
             var animationList = new List<Model.Animations.Animation>(scene.AssimpScene.AnimationCount);
             if (Configuration.EnableParallelProcessing)
                 Parallel.ForEach(scene.AssimpScene.Animations,
@@ -230,7 +228,7 @@ public partial class Importer {
                 var nodeName = aniChannel.Name.Replace("*0", "");
                 if (dict.TryGetValue(nodeName, out var node))
                     hxAni.RootNode = node.Items
-                                         .Where(i => i is Model.Scene.BoneSkinMeshNode {
+                                         .Where(i => i is BoneSkinMeshNode {
                                              MorphTargetWeights: { Length: > 0 }
                                          })
                                          .FirstOrDefault();
@@ -260,7 +258,7 @@ public partial class Importer {
         if (animation.NodeAnimationCollection is { Count: > 0 }) {
             // Search all the bone skinned meshes from the common animation node root
             var node = animation.NodeAnimationCollection[0].Node;
-            while (node != null && !node.IsAnimationNodeRoot) node = node.Parent;
+            while (node is {IsAnimationNodeRoot: false}) node = node.Parent;
 
             if (node == null) return;
 

@@ -72,7 +72,7 @@ public sealed partial class DeviceContextProxy : DisposeObject {
     /// </summary>
     /// <param name="disposeManagedResources"></param>
     protected override void OnDispose(bool disposeManagedResources) {
-        if (nativeDeviceContext is { } context && !context.IsDisposed) context.ClearState();
+        if (nativeDeviceContext is {IsDisposed: false} context) context.ClearState();
         if (IsDeferred) RemoveAndDispose(ref nativeDeviceContext);
         base.OnDispose(disposeManagedResources);
     }

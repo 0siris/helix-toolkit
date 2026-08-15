@@ -171,7 +171,7 @@ public static class SceneUi {
                 })
                 .ContinueWith((x) => {
                         loading = false;
-                        if (x.Status == TaskStatus.RanToCompletion && x.Result is { } loadedScene) {
+                        if (x is {Status: TaskStatus.RanToCompletion, Result: { } loadedScene}) {
                             node.Clear();
                             foreach (var model in loadedScene.Root.Traverse()) {
                                 if (model is MeshNode mesh) {

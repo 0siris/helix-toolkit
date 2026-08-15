@@ -189,7 +189,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <param name="context">The context.</param>
     public override void UpdateNotRender(RenderContext context) {
         base.UpdateNotRender(context);
-        if (IsHitTestVisible && context.AutoUpdateOctree && geometry != null && geometry.OctreeDirty)
+        if (IsHitTestVisible && context.AutoUpdateOctree && geometry is {OctreeDirty: true})
             geometry?.UpdateOctree();
     }
 

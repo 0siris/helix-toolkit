@@ -340,8 +340,7 @@ public static class IViewportExtensions {
     public static MemoryStream? RenderToBitmapStream(this IViewport3DX view) {
         if (view.RenderHost is {IsRendering: true} renderHost) {
             renderHost.UpdateAndRender();
-            if (renderHost is {IsRendering: true, EffectsManager: { } effectsManager, RenderBuffer: { } renderBuffer}
-                && renderBuffer.BackBuffer.Resource is NativeD3DTexture2D backBuffer) {
+            if (renderHost is {IsRendering: true, EffectsManager: { } effectsManager, RenderBuffer: {BackBuffer.Resource: NativeD3DTexture2D backBuffer}}) {
                 var memoryStream = new MemoryStream();
                 ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
                     backBuffer,

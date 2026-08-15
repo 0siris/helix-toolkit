@@ -15,7 +15,6 @@ using Animation = HelixToolkit.SharpDX.Core.Model.Animations.Animation;
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
 public partial class Exporter : IDisposable {
-    private const string ToUpperDictString = @"..\";
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     protected readonly Dictionary<Geometry3D, int> GeometryCollection = [];
     protected readonly Dictionary<MaterialCore, int> MaterialCollection = [];
@@ -32,7 +31,13 @@ public partial class Exporter : IDisposable {
 
         var builder = new StringBuilder();
         foreach (var s in SupportedFormats)
-            builder.Append($"{s.Description} (*.{s.FileExtension})|*.{s.FileExtension}|");
+            builder.Append(s.Description)
+                .Append(" (*.")
+                .Append(s.FileExtension)
+                .Append(")|*.")
+                .Append(s.FileExtension)
+                .Append('|');
+        
         SupportedFormatsString = builder.ToString(0, builder.Length - 1);
     }
 
@@ -78,13 +83,13 @@ public partial class Exporter : IDisposable {
         if (configuration.FlipWindingOrder) postProcessing |= PostProcessSteps.FlipWindingOrder;
         try {
             if (!exporter.ExportFile(scene, filePath, formatId, postProcessing)) {
-                Logger.Error("Export failed. FilePath: {Value0}; Format: {Value1}", [filePath, formatId]);
+                Logger.Error("Export failed. FilePath: {Value0}; Format: {Value1}", filePath, p2:formatId);
                 return ErrorCode.Failed;
             }
 
             return ErrorCode.Succeed;
         } catch (Exception ex) {
-            Logger.Error(ex.Message);
+            Logger.Error("{Exceptoin}",ex.Message);
             AssimpExceptionOccurred?.Invoke(this, ex);
         } finally {
             if (!useExtern) exporter.Dispose();
@@ -102,7 +107,7 @@ public partial class Exporter : IDisposable {
     /// <returns></returns>
     public ErrorCode ExportToBlob(SceneNode root, string formatId, out ExportDataBlob? blob) {
         Clear();
-        AssimpContext? exporter = null;
+        AssimpContext? exporter;
         var useExtern = false;
         if (Configuration.ExternalContext != null) {
             exporter = Configuration.ExternalContext;
@@ -119,7 +124,7 @@ public partial class Exporter : IDisposable {
             blob = exporter.ExportToBlob(scene, formatId, postProcessing);
             return ErrorCode.Succeed;
         } catch (Exception ex) {
-            Logger.Error(ex.Message);
+            Logger.Error("{Exception}", ex.Message);
             AssimpExceptionOccurred?.Invoke(this, ex);
         } finally {
             if (!useExtern) exporter.Dispose();
@@ -203,7 +208,7 @@ public partial class Exporter : IDisposable {
                     continue;
                 }
 
-                if (!MeshInfos.ContainsKey(info.MaterialMeshKey)) MeshInfos.Add(info.MaterialMeshKey, info);
+                MeshInfos.TryAdd(info.MaterialMeshKey, info);
             }
 
         if (configuration.EnableParallelProcessing)

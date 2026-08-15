@@ -72,7 +72,7 @@ public class InstancingMeshNode : MeshNode {
     ///     Builds the octree.
     /// </summary>
     private void BuildOctree() {
-        if (IsRenderable && InstanceBuffer.HasElements && InstanceBuffer.Elements is not null)
+        if (IsRenderable && InstanceBuffer is {HasElements: true, Elements: not null})
             octreeManager?.RebuildTree(Enumerable.Repeat<SceneNode>(this, 1));
         else
             octreeManager?.Clear();

@@ -805,7 +805,7 @@ internal class PolygonEdge {
     /// </summary>
     public PolygonEdge? Last {
         get {
-            if (mPointOne != null && mPointOne.EdgeOne != null)
+            if (mPointOne is {EdgeOne: not null})
                 return mPointOne.EdgeOne;
             return null;
         }
@@ -816,7 +816,7 @@ internal class PolygonEdge {
     /// </summary>
     public PolygonEdge? Next {
         get {
-            if (mPointTwo != null && mPointTwo.EdgeTwo != null)
+            if (mPointTwo is {EdgeTwo: not null})
                 return mPointTwo.EdgeTwo;
             return null;
         }

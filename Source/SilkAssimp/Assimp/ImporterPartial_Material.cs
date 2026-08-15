@@ -86,7 +86,7 @@ public partial class Importer {
 
         if (material.HasNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)) {
             var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE).GetFloatArrayValue();
-            if (values != null && values.Length == 5)
+            if (values is {Length: 5})
                 phong.UvTransform = new UvTransform(values[0],
                                                     new Vector2(values[1], values[2]),
                                                     new Vector2(values[3], values[4]));
@@ -119,7 +119,7 @@ public partial class Importer {
         if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor)) {
             pbr.RoughnessFactor = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor)
                                           .GetFloatValue();
-        } else if (material.HasColorSpecular && material.HasShininess) {
+        } else if (material is {HasColorSpecular: true, HasShininess: true}) {
             //Ref https://github.com/assimp/assimp/blob/master/code/glTF2Exporter.cpp
             var specularIntensity = material.ColorSpecular.R * 0.2125f
                                     + material.ColorSpecular.G * 0.7154f + material.ColorSpecular.B * 0.0721f;
@@ -196,7 +196,7 @@ public partial class Importer {
 
         if (material.HasNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)) {
             var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE).GetFloatArrayValue();
-            if (values != null && values.Length == 5)
+            if (values is {Length: 5})
                 pbr.UvTransform = new UvTransform(values[0],
                                                   new Vector2(values[1], values[2]),
                                                   new Vector2(values[3], values[4]));
@@ -351,9 +351,11 @@ public partial class Importer {
         actualPath = texturePath;
         try {
             //Check if is embedded material
-            if (texturePath.StartsWith("*") && int.TryParse(texturePath.Substring(1, texturePath.Length - 1),
-                                                            out var idx)
-                                            && embeddedTextures.Count > idx)
+            if (texturePath.StartsWith("*", StringComparison.OrdinalIgnoreCase) && int.TryParse(
+                    texturePath.AsSpan(1, texturePath.Length - 1),
+                    out var idx)
+                                            
+                && embeddedTextures.Count > idx)
                 return OnLoadEmbeddedTexture(embeddedTextures[idx]);
 
             if (embeddedTextureDict.TryGetValue(texturePath, out var embeddedTex))
@@ -362,7 +364,7 @@ public partial class Importer {
             var ext = Path.GetExtension(texturePath);
             if (string.IsNullOrEmpty(ext) ||
                 !SupportedTextureFormats.Contains(ext.TrimStart('.').ToLowerInvariant())) {
-                Logger.Warn("Load Texture Failed. Texture Format not supported = {Value0}.", ext);
+                Logger.Warn($"{nameof(Load)} Texture Failed. Texture Format not supported = {{Value0}}.", ext);
 
                 return null;
             }

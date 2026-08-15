@@ -32,10 +32,7 @@ namespace HelixToolkit.SharpDX.Core.Core.Buffers;
             if (boneIdChanged)
                 lock (BoneIdBuffer) {
                     if (boneIdChanged) {
-                        if (Geometry is BoneSkinnedMeshGeometry3D boneMesh
-                            && boneMesh.VertexBoneIds is { } boneIds
-                            && boneMesh.Positions is { } positions
-                            && boneIds.Count == positions.Count)
+                        if (Geometry is BoneSkinnedMeshGeometry3D {VertexBoneIds: { } boneIds, Positions: { } positions} && boneIds.Count == positions.Count)
                             BoneIdBuffer.UploadDataToBuffer(context,
                                                             boneIds,
                                                             boneIds.Count);

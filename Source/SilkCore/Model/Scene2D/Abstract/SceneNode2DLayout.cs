@@ -197,7 +197,7 @@ public partial class SceneNode2D {
         IsMeasureDirty = true;
         TraverseUp(this,
                    p => {
-                       if (p.IsArrangeDirty && p.IsMeasureDirty) return false;
+                       if (p is {IsArrangeDirty: true, IsMeasureDirty: true}) return false;
                        p.IsArrangeDirty = true;
                        p.IsMeasureDirty = true;
                        return true;
@@ -245,7 +245,7 @@ public partial class SceneNode2D {
         IsVisualDirty = true;
         TraverseUp(this,
                    p => {
-                       if (p.IsTransformDirty && p.IsMeasureDirty && p.IsArrangeDirty && p.IsVisualDirty)
+                       if (p is {IsTransformDirty: true, IsMeasureDirty: true, IsArrangeDirty: true, IsVisualDirty: true})
                            return false;
                        p.IsTransformDirty = true;
                        p.IsMeasureDirty = true;

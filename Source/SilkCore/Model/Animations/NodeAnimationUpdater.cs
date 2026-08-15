@@ -96,8 +96,7 @@ public class NodeAnimationUpdater : IAnimationUpdater {
         if (Animation.HasBoneSkinMeshes && changed) {
             foreach (var root in animationRoots) root.UpdateAllTransformMatrix();
             foreach (var m in Animation.BoneSkinMeshes)
-                if (m.IsRenderable &&
-                    !m.HasBoneGroup) // Do not update if has a bone group. Update the group only
+                if (m is {IsRenderable: true, HasBoneGroup: false}) // Do not update if has a bone group. Update the group only
                 {
                     var inv = m.TotalModelMatrix.Inverted();
                     if (m.Bones is not { } bones)

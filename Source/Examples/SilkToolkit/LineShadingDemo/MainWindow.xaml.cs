@@ -23,7 +23,7 @@ public partial class MainWindow : Window {
         DataContext = viewModel;
 
         // mouse events            
-        view1.MouseDown += (o, e) => {
+        view1.MouseDown += (_, e) => {
             var hits = view1.FindHits(e.GetPosition(view1));
             if (hits.Count > 0) {
                 foreach (var hit in hits.Where(h => h.IsValid)) {

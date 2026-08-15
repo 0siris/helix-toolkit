@@ -26,7 +26,7 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     /// </summary>
     public DefaultRenderHost() {
         frustumTestAction = NoFrustumTest;
-        FrustumEnabledChanged += (s, e) => { SetupFrustumTestFunctions(); };
+        FrustumEnabledChanged += (_, _) => { SetupFrustumTestFunctions(); };
     }
 
     /// <summary>
@@ -35,7 +35,7 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     /// <param name="createRenderer">The create renderer.</param>
     public DefaultRenderHost(Func<IDevice3DResources, IRenderer> createRenderer) : base(createRenderer) {
         frustumTestAction = NoFrustumTest;
-        FrustumEnabledChanged += (s, e) => { SetupFrustumTestFunctions(); };
+        FrustumEnabledChanged += (_, _) => { SetupFrustumTestFunctions(); };
     }
 
     /// <summary>

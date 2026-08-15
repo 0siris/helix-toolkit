@@ -46,7 +46,7 @@ public partial class MainWindow {
     /// <param name="delay">The delay before capturing the window (in milliseconds).</param>
     private static void CreateThumbnail(Window window, int width, string path, double delay) {
         var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(delay) };
-        timer.Tick += (s, a) => {
+        timer.Tick += (_, _) => {
             var bitmap = ScreenCapture.Capture((int)window.Left,
                                                (int)window.Top,
                                                (int)window.ActualWidth,

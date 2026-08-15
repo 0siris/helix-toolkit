@@ -309,7 +309,7 @@ public partial class Viewport3DX {
         typeof(IEffectsManager),
         typeof(Viewport3DX),
         new PropertyMetadata(null,
-                             (s, e) => ((Viewport3DX)s).EffectsManagerPropertyChanged()));
+                             (s, _) => ((Viewport3DX)s).EffectsManagerPropertyChanged()));
 
     /// <summary>
     ///     The field of view text property.
@@ -597,7 +597,7 @@ public partial class Viewport3DX {
     public static readonly DependencyProperty OrthographicProperty = DependencyProperty.Register("Orthographic",
         typeof(bool),
         typeof(Viewport3DX),
-        new PropertyMetadata(false, (s, e) => ((Viewport3DX)s).OrthographicChanged()));
+        new PropertyMetadata(false, (s, _) => ((Viewport3DX)s).OrthographicChanged()));
 
     /// <summary>
     ///     The orthographic toggle gesture property.
@@ -908,7 +908,7 @@ public partial class Viewport3DX {
         "UseDefaultGestures",
         typeof(bool),
         typeof(Viewport3DX),
-        new PropertyMetadata(true, (s, e) => ((Viewport3DX)s).UseDefaultGesturesChanged()));
+        new PropertyMetadata(true, (s, _) => ((Viewport3DX)s).UseDefaultGesturesChanged()));
 
     /// <summary>
     ///     The view cube texture. It must be a 6x1 (ex: 600x100) ratio image. You can also use
@@ -1128,7 +1128,7 @@ public partial class Viewport3DX {
         typeof(Point3D),
         typeof(Viewport3DX),
         new FrameworkPropertyMetadata(new Point3D(),
-                                      (d, e) => { },
+                                      (_, _) => { },
                                       (d, e) => {
                                           (d as Viewport3DX).LookAt((Point3D)e);
                                           return e;

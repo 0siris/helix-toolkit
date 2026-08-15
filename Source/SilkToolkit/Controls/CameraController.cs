@@ -396,7 +396,7 @@ public class CameraController {
         MouseHandlers.Add(ZoomHandler);
         MouseHandlers.Add(PanHandler);
         MouseHandlers.Add(ChangeFieldOfViewHandler);
-        Viewport.SizeChanged += (s, e) => {
+        Viewport.SizeChanged += (_, e) => {
             Width = (int)e.NewSize.Width;
             Height = (int)e.NewSize.Height;
         };

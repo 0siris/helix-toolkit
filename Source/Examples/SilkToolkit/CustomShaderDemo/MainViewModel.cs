@@ -210,7 +210,7 @@ public class MainViewModel : BaseViewModel {
         var sphereModel = builder.ToMesh();
         SphereModel = sphereModel;
 
-        GenerateNoiseCommand = new RelayCommand((o) => { CreatePerlinNoise(); });
+        GenerateNoiseCommand = new RelayCommand((_) => { CreatePerlinNoise(); });
         CreatePerlinNoise();
 
         PointModel = new PointGeometry3D() {

@@ -182,7 +182,7 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
         IRenderTechnique technique
     ) {
         return new VolumeMaterialVariable<T>(manager, technique, this, DefaultPassName) {
-            OnCreateTexture = (material, effectsManager) => OnCreateTexture(effectsManager)
+            OnCreateTexture = (_, effectsManager) => OnCreateTexture(effectsManager)
         };
     }
 

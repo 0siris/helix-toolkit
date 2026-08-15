@@ -37,14 +37,14 @@ public abstract class ContentElement2D : Element2D {
 
                                  model.InvalidateMeasure();
                              },
-                             (d, e) => e is Element2D ? e : new TextModel2D { Text = e?.ToString() ?? string.Empty }));
+                             (_, e) => e is Element2D ? e : new TextModel2D { Text = e?.ToString() ?? string.Empty }));
 
     public static readonly DependencyProperty BackgroundProperty
         = DependencyProperty.Register("Background",
                                       typeof(WpfBrush),
                                       typeof(ContentElement2D),
                                       new PropertyMetadata(new WpfSolidColorBrush(Colors.Transparent),
-                                                           (d, e) => {
+                                                           (d, _) => {
                                                                if (d is ContentElement2D model) {
                                                                    model.backgroundChanged = true;
                                                                    model.InvalidateRender();

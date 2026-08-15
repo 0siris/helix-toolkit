@@ -54,7 +54,7 @@ public class RelativePositionCanvas2D : Panel2D {
         "RelativeX",
         typeof(double),
         typeof(RelativePositionCanvas2D),
-        new PropertyMetadata(0.0, (d, e) => {
+        new PropertyMetadata(0.0, (d, _) => {
             if (d is Element2DCore element)
                 element.InvalidateMeasure();
         }));
@@ -82,7 +82,7 @@ public class RelativePositionCanvas2D : Panel2D {
         "RelativeY",
         typeof(double),
         typeof(RelativePositionCanvas2D),
-        new PropertyMetadata(0.0, (d, e) => {
+        new PropertyMetadata(0.0, (d, _) => {
             if (d is Element2DCore element)
                 element.InvalidateMeasure();
         }));

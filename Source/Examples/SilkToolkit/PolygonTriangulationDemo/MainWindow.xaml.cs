@@ -35,7 +35,7 @@ public partial class MainWindow : Window {
         DataContext = mViewModel;
 
         // Setup the Line Drawing Handler
-        mViewModel.PropertyChanged += ((s, e) => {
+        mViewModel.PropertyChanged += ((_, e) => {
             // Switch the Line Geometry
             if (e.PropertyName == "ShowTriangleLines") {
                 if (mViewModel.ShowTriangleLines) {

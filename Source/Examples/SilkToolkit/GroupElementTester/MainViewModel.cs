@@ -133,17 +133,17 @@ public class MainViewModel : BaseViewModel {
         RemoveGroupModelCommand = new RelayCommand(RemoveGroupModel);
         AddTransparentGroupModelCommand = new RelayCommand(AddTransparentMesh);
         RemoveTransparentGroupModelCommand = new RelayCommand(RemoveTransparentModel);
-        ClearGroupModelCommand = new RelayCommand((o) => { GroupModelSource.Clear(); });
+        ClearGroupModelCommand = new RelayCommand((_) => { GroupModelSource.Clear(); });
         AnimateGroupModelCommand = new RelayCommand(AnimateGroupModel);
         AddItemsModelCommand = new RelayCommand(AddItemsModel);
         RemoveItemsModelCommand = new RelayCommand(RemoveItemsModel);
-        ClearItemsModelCommand = new RelayCommand((o) => { ItemsSource.Clear(); });
+        ClearItemsModelCommand = new RelayCommand((_) => { ItemsSource.Clear(); });
         AnimateItemsModelCommand = new RelayCommand(AnimateItemsModel);
-        ReplaceGroupSourceCommand = new RelayCommand((o) => {
+        ReplaceGroupSourceCommand = new RelayCommand((_) => {
             GroupModelSource = [];
             OnPropertyChanged(nameof(GroupModelSource));
         });
-        ReplaceItemsModelSourceCommand = new RelayCommand((o) => {
+        ReplaceItemsModelSourceCommand = new RelayCommand((_) => {
             ItemsSource = [];
             OnPropertyChanged(nameof(ItemsSource));
         });

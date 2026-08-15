@@ -25,7 +25,7 @@ public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
 
             var v = material.CreateMaterialVariables(effectsManager, technique);
             v.Initialize();
-            v.Disposed += (s, e) => {
+            v.Disposed += (_, _) => {
                 lock (dictionary) {
                     dictionary.Remove((guid, techGuid));
                     --Count;

@@ -10,7 +10,7 @@ public class CustomNoiseMeshModel3D : MeshGeometryModel3D {
             throw new InvalidOperationException("The base model did not create a scene node.");
         }
 
-        node.OnSetRenderTechnique = (host) => {
+        node.OnSetRenderTechnique = (_) => {
             var effectsManager = node.EffectsManager
                                  ?? throw new InvalidOperationException("The scene node has no effects manager.");
             return effectsManager[CustomShaderNames.NoiseMesh];

@@ -131,7 +131,7 @@ public class ShadowMap3D : Element3D {
         DependencyProperty.Register("AutoCoverCompleteScene",
                                     typeof(bool),
                                     typeof(ShadowMap3D),
-                                    new PropertyMetadata(false, (d, e) => { }));
+                                    new PropertyMetadata(false, (_, _) => { }));
 
 
     // Using a DependencyProperty as the backing store for IsSceneDynamic.  This enables animation, styling, binding, etc...
@@ -139,7 +139,7 @@ public class ShadowMap3D : Element3D {
         DependencyProperty.Register("IsSceneDynamic",
                                     typeof(bool),
                                     typeof(ShadowMap3D),
-                                    new PropertyMetadata(false, (d, e) => { }));
+                                    new PropertyMetadata(false, (_, _) => { }));
 
 
     /// <summary>

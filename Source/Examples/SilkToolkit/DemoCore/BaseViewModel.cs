@@ -88,7 +88,7 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
         ];
 
         // on camera changed callback
-        CameraModelChanged += (s, e) => {
+        CameraModelChanged += (_, _) => {
             if (cameraModel == Orthographic) {
                 if (!(Camera is OrthographicCamera))
                     Camera = DefaultOrthographicCamera;

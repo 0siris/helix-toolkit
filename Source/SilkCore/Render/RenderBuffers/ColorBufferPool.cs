@@ -147,7 +147,7 @@ public sealed class TexturePool : DisposeObject {
             return proxy;
         }
 
-        bag ??= pool.GetOrAdd(format, d => []);
+        bag ??= pool.GetOrAdd(format, _ => []);
         var desc = description;
         desc.Format = format;
         ShaderResourceViewProxy? texture = null;
@@ -197,7 +197,7 @@ public sealed class TexturePool : DisposeObject {
         )
             : base(deviceResources, textureDesc) {
             this.pool = pool;
-            AddBackToPool = o => { pool.Add(this); };
+            AddBackToPool = _ => { pool.Add(this); };
         }
     }
 }

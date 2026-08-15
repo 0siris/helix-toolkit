@@ -72,7 +72,7 @@ public class Canvas2D : Panel2D {
     public static readonly DependencyProperty LeftProperty = DependencyProperty.RegisterAttached("Left",
         typeof(double),
         typeof(Canvas2D),
-        new PropertyMetadata(double.PositiveInfinity, (d, e) => {
+        new PropertyMetadata(double.PositiveInfinity, (d, _) => {
             if (d is Element2DCore element) element.InvalidateMeasure();
         }));
 
@@ -98,7 +98,7 @@ public class Canvas2D : Panel2D {
     public static readonly DependencyProperty TopProperty = DependencyProperty.RegisterAttached("Top",
         typeof(double),
         typeof(Canvas2D),
-        new PropertyMetadata(double.PositiveInfinity, (d, e) => {
+        new PropertyMetadata(double.PositiveInfinity, (d, _) => {
             if (d is Element2DCore element) element.InvalidateMeasure();
         }));
 
@@ -124,7 +124,7 @@ public class Canvas2D : Panel2D {
     public static readonly DependencyProperty RightProperty = DependencyProperty.RegisterAttached("Right",
         typeof(double),
         typeof(Canvas2D),
-        new PropertyMetadata(double.PositiveInfinity, (d, e) => {
+        new PropertyMetadata(double.PositiveInfinity, (d, _) => {
             if (d is Element2DCore element) element.InvalidateMeasure();
         }));
 
@@ -150,7 +150,7 @@ public class Canvas2D : Panel2D {
     public static readonly DependencyProperty BottomProperty = DependencyProperty.RegisterAttached("Bottom",
         typeof(double),
         typeof(Canvas2D),
-        new PropertyMetadata(double.PositiveInfinity, (d, e) => {
+        new PropertyMetadata(double.PositiveInfinity, (d, _) => {
             if (d is Element2DCore element) element.InvalidateMeasure();
         }));
 

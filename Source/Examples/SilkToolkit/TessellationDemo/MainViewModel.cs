@@ -158,7 +158,7 @@ public class MainViewModel : BaseViewModel {
                     ?? throw new InvalidOperationException("The model did not contain mesh geometry.");
         var positions = model.Positions
                         ?? throw new InvalidOperationException("The model did not contain positions.");
-        model.Colors = [.. positions.Select(x => new Color4(1, 0, 0, 1))];
+        model.Colors = [.. positions.Select(_ => new Color4(1, 0, 0, 1))];
         return model;
     }
 

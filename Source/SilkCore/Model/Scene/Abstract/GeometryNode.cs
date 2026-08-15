@@ -15,10 +15,10 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// </summary>
     public GeometryNode() {
         BoundManager = new GeometryBoundManager(this);
-        BoundManager.OnBoundChanged += (s, e) => { RaiseOnBoundChanged(e); };
-        BoundManager.OnTransformBoundChanged += (s, e) => { RaiseOnTransformBoundChanged(e); };
-        BoundManager.OnBoundSphereChanged += (s, e) => { RaiseOnBoundSphereChanged(e); };
-        BoundManager.OnTransformBoundSphereChanged += (s, e) => { RaiseOnTransformBoundSphereChanged(e); };
+        BoundManager.OnBoundChanged += (_, e) => { RaiseOnBoundChanged(e); };
+        BoundManager.OnTransformBoundChanged += (_, e) => { RaiseOnTransformBoundChanged(e); };
+        BoundManager.OnBoundSphereChanged += (_, e) => { RaiseOnBoundSphereChanged(e); };
+        BoundManager.OnTransformBoundSphereChanged += (_, e) => { RaiseOnTransformBoundSphereChanged(e); };
         BoundManager.OnCheckGeometry = OnCheckGeometry;
         HasBound = true;
     }

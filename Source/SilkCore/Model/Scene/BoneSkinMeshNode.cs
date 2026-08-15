@@ -194,7 +194,7 @@ public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
         if (Bones is not { } bones) return;
 
         BoneMatrices = new Matrix[bones.Length];
-        BoneMatrices = [.. BoneMatrices.Select((m, i) => bones[i].Node?.TotalModelMatrixInternal ?? Matrix.Identity)];
+        BoneMatrices = [.. BoneMatrices.Select((_, i) => bones[i].Node?.TotalModelMatrixInternal ?? Matrix.Identity)];
     }
 
     public void InvalidateBoneMatrices() {

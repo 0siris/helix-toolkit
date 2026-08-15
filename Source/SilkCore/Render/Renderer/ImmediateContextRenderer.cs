@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core.Render;
 /// <summary>
 /// </summary>
 public class ImmediateContextRenderer : DisposeObject, IRenderer {
-    private static readonly Func<SceneNode, RenderContext, bool> UpdateFunc = (x, context) => true;
+    private static readonly Func<SceneNode, RenderContext, bool> UpdateFunc = (_, _) => true;
 
     private readonly Stack<(int Key, IList<SceneNode2D> Value)> stack2DCache1 = new(20);
     private readonly Stack<(int Key, IList<SceneNode> Value)> stackCache1 = new(20);

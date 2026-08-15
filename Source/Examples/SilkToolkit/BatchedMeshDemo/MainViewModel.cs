@@ -109,7 +109,7 @@ public class MainViewModel : BaseViewModel {
             materials[materialDict[m]] = m.ConvertToMaterial();
         }
 
-        context.Post((o) => {
+        context.Post((_) => {
                 BatchedMeshes = modelList;
                 BatchedMaterials = materials;
             },

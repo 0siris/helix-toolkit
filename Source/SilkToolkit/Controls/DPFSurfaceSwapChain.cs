@@ -116,8 +116,8 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
             : 1;
         host.StartRenderLoop += RenderHost_StartRenderLoop;
         host.StopRenderLoop += RenderHost_StopRenderLoop;
-        host.ExceptionOccurred += (s, e) => { HandleExceptionOccured(e.Exception); };
-        host.EffectsManagerChanged += (s, e) => { SetupImage(); };
+        host.ExceptionOccurred += (_, e) => { HandleExceptionOccured(e.Exception); };
+        host.EffectsManagerChanged += (_, _) => { SetupImage(); };
         return host;
     }
 

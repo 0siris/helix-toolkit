@@ -35,7 +35,7 @@ public class MeshSimplification {
         var positions = model.Positions
             ?? throw new ArgumentException("Positions are required.", nameof(model));
         triangles = [.. Enumerable.Range(0, triangleIndices.Count / 3)
-                                                 .Select(x => new Triangle())];
+                                                 .Select(_ => new Triangle())];
         var i = 0;
         foreach (var tri in triangles) {
             tri.V[0] = triangleIndices[i++];
@@ -44,7 +44,7 @@ public class MeshSimplification {
         }
 
         vertices = [.. positions.Select(x => new Vertex(x))];
-        refs = [.. Enumerable.Range(0, triangleIndices.Count).Select(x => new Ref())];
+        refs = [.. Enumerable.Range(0, triangleIndices.Count).Select(_ => new Ref())];
     }
 
     /// <summary>
@@ -306,7 +306,7 @@ public class MeshSimplification {
         var totalTris = triangles.Count * 3;
         if (refs.Count < totalTris) {
             refs.Clear();
-            refs.AddRange(Enumerable.Range(0, totalTris).Select(x => new Ref()));
+            refs.AddRange(Enumerable.Range(0, totalTris).Select(_ => new Ref()));
         } else {
             refs.RemoveRange(totalTris, refs.Count - totalTris);
             refs.ForEach(x => x.Reset());

@@ -22,7 +22,7 @@ public partial class MainWindow : Window {
         DataContext = new MainViewModel(this);
 
         view.AddHandler(Element3D.MouseDown3DEvent,
-            new RoutedEventHandler((s, e) => {
+            new RoutedEventHandler((_, e) => {
                 if (e is not MouseDown3DEventArgs {HitTestResult: { } hitTestResult}) {
                     return;
                 }

@@ -49,10 +49,10 @@ public class MainViewModel : BaseViewModel {
             LookDirection = new Vector3D(0, 0, 5),
             UpDirection = new Vector3D(0, 1, 0)
         };
-        LoadTeapotCommand = new RelayCommand((o) => { Load(0); });
-        LoadSkullCommand = new RelayCommand((o) => { Load(1); });
-        LoadCloudCommand = new RelayCommand((o) => { Load(2); });
-        LoadBeetleCommand = new RelayCommand((o) => { Load(3); });
+        LoadTeapotCommand = new RelayCommand((_) => { Load(0); });
+        LoadSkullCommand = new RelayCommand((_) => { Load(1); });
+        LoadCloudCommand = new RelayCommand((_) => { Load(2); });
+        LoadBeetleCommand = new RelayCommand((_) => { Load(3); });
         var builder = new MeshBuilder();
         //builder.AddBox(new Vector3(0, 0, 0), 2, 2, 0.001);
         builder.AddSphere(Vector3.Zero, 0.1);

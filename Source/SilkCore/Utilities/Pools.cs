@@ -69,7 +69,7 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
                     pool.Add(key, created);
                     objOut = created;
                     created.AddBackToPool = Item_AddBackToPool;
-                    created.Disposed += (s, e) => { pool.Remove(key); };
+                    created.Disposed += (_, _) => { pool.Remove(key); };
                 } else {
                     objOut = existing;
                 }

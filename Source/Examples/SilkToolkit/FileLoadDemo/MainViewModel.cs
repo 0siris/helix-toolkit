@@ -246,12 +246,12 @@ public class MainViewModel : BaseViewModel {
                 loadedScene.Root.UpdateAllTransformMatrix();
                 if (loadedScene.Root.TryGetBound(out var bound)) {
                     /// Must use UI thread to set value back.
-                    syncContext.Post((o) => { ModelBound = bound; }, null);
+                    syncContext.Post((_) => { ModelBound = bound; }, null);
                 }
 
                 if (loadedScene.Root.TryGetCentroid(out var centroid)) {
                     /// Must use UI thread to set value back.
-                    syncContext.Post((o) => { ModelCentroid = centroid.ToPoint3D(); }, null);
+                    syncContext.Post((_) => { ModelCentroid = centroid.ToPoint3D(); }, null);
                 }
 
                 return loadedScene;

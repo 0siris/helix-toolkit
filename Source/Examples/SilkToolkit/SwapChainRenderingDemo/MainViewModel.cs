@@ -212,7 +212,7 @@ public class MainViewModel : BaseViewModel {
             geometry.UpdateOctree();
             Task.Delay(10)
                 .Wait();
-            context.Post((o) => {
+            context.Post((_) => {
                     var model = new MeshGeometryModel3D() {
                         Geometry = geometry
                     };
@@ -241,7 +241,7 @@ public class MainViewModel : BaseViewModel {
             model.UpdateOctree();
         }
 
-        context.Post((o) => {
+        context.Post((_) => {
                 if (models is not [var floorModel, ..])
                     return;
                 Floor = floorModel;

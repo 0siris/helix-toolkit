@@ -60,7 +60,7 @@ public sealed class GeometryBufferManager : IGeometryBufferManager {
                 container = new T();
                 var id = geometry.Guid;
                 obj = container.AssertTypeOf<IDisposeObject>();
-                obj.Disposed += (s, e) => {
+                obj.Disposed += (_, _) => {
                     if (Logger.IsEnabled(LogLevel.Trace))
                         Logger.Verbose("Disposing Geometry Buffer. GeomoetryGUID = {Value0}", id);
 

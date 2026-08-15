@@ -11,6 +11,6 @@ public partial class MainWindow : Window {
     public MainWindow() {
         InitializeComponent();
         DataContext = vm;
-        Closed += (s, e) => { vm.Dispose(); };
+        Closed += (_, _) => { vm.Dispose(); };
     }
 }

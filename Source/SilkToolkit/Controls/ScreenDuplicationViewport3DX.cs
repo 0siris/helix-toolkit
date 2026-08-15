@@ -29,7 +29,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
         typeof(IEffectsManager),
         typeof(ScreenDuplicationViewport3DX),
         new PropertyMetadata(null,
-                             (s, e) => ((ScreenDuplicationViewport3DX)s).EffectsManagerPropertyChanged()));
+                             (s, _) => ((ScreenDuplicationViewport3DX)s).EffectsManagerPropertyChanged()));
 
     /// <summary>
     ///     The Render Technique property
@@ -38,7 +38,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
         typeof(IRenderTechnique),
         typeof(ScreenDuplicationViewport3DX),
         new PropertyMetadata(null,
-                             (s, e) => ((ScreenDuplicationViewport3DX)s).RenderTechniquePropertyChanged()));
+                             (s, _) => ((ScreenDuplicationViewport3DX)s).RenderTechniquePropertyChanged()));
 
     /// <summary>
     ///     The render exception property.

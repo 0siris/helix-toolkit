@@ -60,7 +60,7 @@ public sealed class TextureResourceManager : IDisposable, ITextureResourceManage
             var proxy = new ShaderResourceViewProxy(device);
             proxy.CreateView(textureModel, true, enableAutoGenMipMap);
             proxy.Guid = textureModel.Guid;
-            proxy.Disposed += (s, e) => {
+            proxy.Disposed += (_, _) => {
                 lock (targetDict) {
                     targetDict.Remove(proxy.Guid);
                 }

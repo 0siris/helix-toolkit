@@ -18,7 +18,7 @@ public abstract class ShapeModel2D : Element2D {
                                       typeof(WpfBrush),
                                       typeof(ShapeModel2D),
                                       new PropertyMetadata(new WpfSolidColorBrush(Colors.Black),
-                                                           (d, e) => {
+                                                           (d, _) => {
                                                                (d as ShapeModel2D).fillChanged = true;
                                                            }));
 
@@ -71,7 +71,7 @@ public abstract class ShapeModel2D : Element2D {
                                       typeof(WpfBrush),
                                       typeof(ShapeModel2D),
                                       new PropertyMetadata(new WpfSolidColorBrush(Colors.Black),
-                                                           (d, e) => {
+                                                           (d, _) => {
                                                                (d as ShapeModel2D).strokeChanged = true;
                                                            }));
 

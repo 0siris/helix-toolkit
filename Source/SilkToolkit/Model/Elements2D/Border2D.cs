@@ -84,7 +84,7 @@ public class Border2D : ContentElement2D {
                                       typeof(WpfBrush),
                                       typeof(Border2D),
                                       new PropertyMetadata(new WpfSolidColorBrush(Colors.Black),
-                                                           (d, e) => {
+                                                           (d, _) => {
                                                                (d as Border2D).strokeChanged = true;
                                                            }));
 

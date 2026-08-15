@@ -104,7 +104,7 @@ public class MainViewModel : BaseViewModel {
 
         var dr = Colors.DarkRed;
         Console.WriteLine(dr);
-        ResetTransformsCommand = new RelayCommand((o) => {
+        ResetTransformsCommand = new RelayCommand((_) => {
             Model1Transform = new TranslateTransform3D(0, 0, 0);
             Model2Transform = new TranslateTransform3D(-3, 0, 0);
             Model3Transform = new TranslateTransform3D(+3, 0, 0);

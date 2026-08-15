@@ -327,7 +327,7 @@ public partial class Importer : IDisposable {
     /// <returns></returns>
     protected virtual ErrorCode ProcessSceneNodes(Model.Scene.SceneNode root) {
         SceneNodes.Add(root);
-        SceneNodes.AddRange(root.Items.PreorderDft(n => true));
+        SceneNodes.AddRange(root.Items.PreorderDft(_ => true));
         return ErrorCode.Succeed;
     }
 
@@ -381,7 +381,7 @@ public partial class Importer : IDisposable {
                 if (scene.HasMeshes) {
                     if (parallel)
                         Parallel.ForEach(scene.Meshes,
-                            (mesh, state, index) => { s.Meshes[index] = OnCreateHelixGeometry(mesh); });
+                            (mesh, _, index) => { s.Meshes[index] = OnCreateHelixGeometry(mesh); });
                     else
                         for (var i = 0; i < scene.MeshCount; ++i)
                             s.Meshes[i] = OnCreateHelixGeometry(scene.Meshes[i]);

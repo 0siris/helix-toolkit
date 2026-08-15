@@ -121,7 +121,7 @@ public class MainViewModel : BaseViewModel {
         if (FloorMaterial is PhongMaterial floorMaterial)
             floorMaterial.RenderShadowMap = true;
 
-        OpenPbrSampleCommand = new RelayCommand((o) => {
+        OpenPbrSampleCommand = new RelayCommand((_) => {
             PbrWindow w = new PbrWindow() {
                 DataContext = new PbrViewModel(EffectsManager) {
                     EnvironmentMap = EnvironmentMap
@@ -152,7 +152,7 @@ public class MainViewModel : BaseViewModel {
             geometry.UpdateOctree();
             geometry.UpdateBounds();
 
-            context.Post((o) => {
+            context.Post((_) => {
                     var scaleTransform = new Media3D.ScaleTransform3D(15, 15, 15);
                     var s = new MeshGeometryModel3D {
                         Geometry = geometry,

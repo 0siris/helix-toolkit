@@ -62,7 +62,7 @@ public partial class Importer {
                         foreach (var att in mesh.AssimpMesh.MeshAnimationAttachments)
                             //NOTE: It seems some files may have invalid normal/tangent data for morph targets.
                             //May need to provide option in future to use 0 normal/tangent deltas or recalculate
-                            mtv.AddRange(new MorphTargetVertex[mesh.AssimpMesh.VertexCount].Select((x, i) =>
+                            mtv.AddRange(new MorphTargetVertex[mesh.AssimpMesh.VertexCount].Select((_, i) =>
                                              new MorphTargetVertex {
                                                  deltaPosition = (att.Vertices[i] - mesh.AssimpMesh.Vertices[i])
                                                      .ToSharpDXVector3(),

@@ -163,7 +163,7 @@ public class MainViewModel : BaseViewModel {
             NearPlaneDistance = 0.1,
             Width = 100
         };
-        ResetCameraCommand = new RelayCommand((o) => { Camera.Reset(); });
+        ResetCameraCommand = new RelayCommand((_) => { Camera.Reset(); });
         Task.Run(() => { Load3Ds("NITRO_ENGINE.3ds"); });
 
         BuildGrid();
@@ -266,7 +266,7 @@ public class MainViewModel : BaseViewModel {
             geometry.UpdateOctree();
             Task.Delay(50)
                 .Wait(); //Only for async loading demo
-            context.Post((o) => {
+            context.Post((_) => {
                     var s = new MeshGeometryModel3D {
                         Geometry = geometry,
                         IsTransparent = true,

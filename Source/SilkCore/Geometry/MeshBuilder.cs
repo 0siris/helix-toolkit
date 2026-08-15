@@ -1047,9 +1047,9 @@ public class MeshBuilder {
 
         // Add Faces
         // Base Polygon
-        AddPolygonByTriangulation([.. positions.Skip(positionsCount).Take(5).Select((p, i) => i)]);
+        AddPolygonByTriangulation([.. positions.Skip(positionsCount).Take(5).Select((_, i) => i)]);
         // Top Polygon
-        AddPolygonByTriangulation([.. positions.Skip(positionsCount + 15).Select((p, i) => 15 + i)]);
+        AddPolygonByTriangulation([.. positions.Skip(positionsCount + 15).Select((_, i) => 15 + i)]);
         // SidePolygons
         for (var i = 0; i < 5; i++) {
             // Polygon one

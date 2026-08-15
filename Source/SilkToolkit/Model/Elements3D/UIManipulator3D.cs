@@ -33,7 +33,7 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
         typeof(UiManipulator3D),
         new FrameworkPropertyMetadata(null,
                                       FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                                      (d, e) => {
+                                      (d, _) => {
                                           if (d is Element3DCore element)
                                               element.InvalidateRender();
                                       }));

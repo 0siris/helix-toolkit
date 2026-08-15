@@ -37,7 +37,7 @@ public class TextModel2D : Element2D, ITextBlock {
                                       typeof(Media.Brush),
                                       typeof(TextModel2D),
                                       new PropertyMetadata(new Media.SolidColorBrush(Media.Colors.Black),
-                                                           (d, e) => {
+                                                           (d, _) => {
                                                                var model = d as TextModel2D;
                                                                model.foregroundChanged = true;
                                                            }));
@@ -47,7 +47,7 @@ public class TextModel2D : Element2D, ITextBlock {
                                       typeof(Media.Brush),
                                       typeof(TextModel2D),
                                       new PropertyMetadata(null,
-                                                           (d, e) => {
+                                                           (d, _) => {
                                                                var model = d as TextModel2D;
                                                                model.backgroundChanged = true;
                                                            }));

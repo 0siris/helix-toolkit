@@ -35,7 +35,7 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
         BackgroundColor = Color.Black;
         RenderHost.StartRenderLoop += RenderHost_StartRenderLoop;
         RenderHost.StopRenderLoop += RenderHost_StopRenderLoop;
-        RenderHost.ExceptionOccurred += (s, e) => HandleExceptionOccured(e.Exception);
+        RenderHost.ExceptionOccurred += (_, e) => HandleExceptionOccured(e.Exception);
         Items2D.ItemsInternal.Add(frameStatisticsNode);
     }
 

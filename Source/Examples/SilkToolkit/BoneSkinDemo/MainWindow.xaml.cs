@@ -8,7 +8,7 @@ namespace BoneSkinDemo;
 public partial class MainWindow : Window {
     public MainWindow() {
         InitializeComponent();
-        Closed += (s, e) => {
+        Closed += (_, _) => {
             if (DataContext is IDisposable disposable) {
                 disposable.Dispose();
             }

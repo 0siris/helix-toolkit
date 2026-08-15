@@ -232,7 +232,7 @@ public class CoreTestApp {
                     CullMode = CullMode.Back
                 };
                 node.Attach(effectsManager);
-                context.Post((o) => { groupSphere.AddChildNode(node); }, null);
+                context.Post((_) => { groupSphere.AddChildNode(node); }, null);
                 Task.Delay(1)
                     .Wait();
             }
@@ -251,7 +251,7 @@ public class CoreTestApp {
                     CullMode = CullMode.Back
                 };
                 node.Attach(effectsManager);
-                context.Post((o) => { groupBox.AddChildNode(node); }, null);
+                context.Post((_) => { groupBox.AddChildNode(node); }, null);
                 Task.Delay(1)
                     .Wait();
             }
@@ -269,7 +269,7 @@ public class CoreTestApp {
                     }
                 };
                 node.Attach(effectsManager);
-                context.Post((o) => { groupPoints.AddChildNode(node); }, null);
+                context.Post((_) => { groupPoints.AddChildNode(node); }, null);
                 Task.Delay(1)
                     .Wait();
             }
@@ -287,7 +287,7 @@ public class CoreTestApp {
                     }
                 };
                 node.Attach(effectsManager);
-                context.Post((o) => { groupLines.AddChildNode(node); }, null);
+                context.Post((_) => { groupLines.AddChildNode(node); }, null);
                 Task.Delay(1)
                     .Wait();
             }

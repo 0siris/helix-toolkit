@@ -27,7 +27,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         typeof(IEffectsManager),
         typeof(ModelContainer3DX),
         new PropertyMetadata(null,
-                             (s, e) => ((ModelContainer3DX)s).EffectsManagerPropertyChanged()));
+                             (s, _) => ((ModelContainer3DX)s).EffectsManagerPropertyChanged()));
 
     private readonly HashSet<IRenderHost> attachedRenderHosts = [];
 

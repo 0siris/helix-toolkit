@@ -137,7 +137,7 @@ public class MainViewModel : BaseViewModel {
         //ModelTransform = new Media3D.RotateTransform3D() { Rotation = new Media3D.AxisAngleRotation3D(new Vector3D(1, 0, 0), -90) };
 
         SimplifyCommand = new RelayCommand(Simplify, CanSimplify);
-        ResetCommand = new RelayCommand((o) => {
+        ResetCommand = new RelayCommand((_) => {
                 Model = orgMesh;
                 simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
             },

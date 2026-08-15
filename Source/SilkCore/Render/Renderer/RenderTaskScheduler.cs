@@ -126,7 +126,7 @@ public class AutoRenderTaskScheduler : IRenderTaskScheduler {
                                                      items.Count,
                                                      items.Count / schedulerParams.MaxNumberOfTasks + 1);
             Parallel.ForEach(partitionParams,
-                             (range, state) => {
+                             (range, _) => {
                                  try {
                                      var counter = 0;
                                      var deferred = pool.Get();

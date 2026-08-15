@@ -214,9 +214,9 @@ public class MainViewModel : BaseViewModel {
             Center = new Vector3(2, 2, 0)
         };
 
-        UpXCommand = new RelayCommand(x => { UpDirection = new Vector3D(1, 0, 0); });
-        UpYCommand = new RelayCommand(x => { UpDirection = new Vector3D(0, 1, 0); });
-        UpZCommand = new RelayCommand(x => { UpDirection = new Vector3D(0, 0, 1); });
+        UpXCommand = new RelayCommand(_ => { UpDirection = new Vector3D(1, 0, 0); });
+        UpYCommand = new RelayCommand(_ => { UpDirection = new Vector3D(0, 1, 0); });
+        UpZCommand = new RelayCommand(_ => { UpDirection = new Vector3D(0, 0, 1); });
         BackgroundTexture =
             BitmapExtensions.CreateLinearGradientBitmapStream(EffectsManager,
                 128,

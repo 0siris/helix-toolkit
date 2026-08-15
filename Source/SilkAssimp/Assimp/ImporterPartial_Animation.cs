@@ -260,7 +260,7 @@ public partial class Importer {
                 node = node.Parent;
             animation.BoneSkinMeshes = [];
             animation.RootNode = node;
-            foreach (var n in SceneNodes[0].Items.PreorderDft(m => true))
+            foreach (var n in SceneNodes[0].Items.PreorderDft(_ => true))
                 if (n is Animations.IBoneMatricesNode boneNode)
                     animation.BoneSkinMeshes.Add(boneNode);
         } else if (animation.MorphTargetKeyframes is { Count: > 0 }) {

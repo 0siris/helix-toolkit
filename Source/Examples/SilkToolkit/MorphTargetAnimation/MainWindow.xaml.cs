@@ -22,7 +22,7 @@ public partial class MainWindow : Window {
         InitializeComponent();
         mvm = new MainViewModel();
         DataContext = mvm;
-        Closed += (s, e) => {
+        Closed += (_, _) => {
             if (DataContext is IDisposable disposable) {
                 disposable.Dispose();
             }

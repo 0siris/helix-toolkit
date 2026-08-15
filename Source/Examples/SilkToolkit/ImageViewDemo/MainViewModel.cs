@@ -77,7 +77,7 @@ public class MainViewModel : BaseViewModel {
 
         EffectsManager = new DefaultEffectsManager();
 
-        OpenCommand = new RelayCommand((x) => OnOpenClick());
+        OpenCommand = new RelayCommand((_) => OnOpenClick());
 
         // camera setup
         DefaultPerspectiveCamera = new PerspectiveCamera {

@@ -178,7 +178,7 @@ public class MainViewModel : BaseViewModel {
         RemoveModelCommand = new RelayCommand(RemoveModel);
         ClearModelCommand = new RelayCommand(ClearModel);
         AutoTestCommand = new RelayCommand(AutoTestAddRemove);
-        MultiViewportCommand = new RelayCommand((o) => {
+        MultiViewportCommand = new RelayCommand((_) => {
             var win = new MultiviewportWin() {
                 DataContext = this
             };

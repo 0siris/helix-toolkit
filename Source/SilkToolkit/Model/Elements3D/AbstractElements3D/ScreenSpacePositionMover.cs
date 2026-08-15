@@ -141,10 +141,10 @@ public class ScreenSpacePositionMover : ScreenSpacePositionMoverBase {
             Children.Add(b);
         }
 
-        moveLeftTop.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.LeftTop); };
-        moveLeftBottom.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.LeftBottom); };
-        moveRightTop.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.RightTop); };
-        moveRightBottom.Clicked2D += (s, e) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.RightBottom); };
+        moveLeftTop.Clicked2D += (_, _) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.LeftTop); };
+        moveLeftBottom.Clicked2D += (_, _) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.LeftBottom); };
+        moveRightTop.Clicked2D += (_, _) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.RightTop); };
+        moveRightBottom.Clicked2D += (_, _) => { RaiseOnMoveClick(ScreenSpaceMoveDirection.RightBottom); };
     }
 
     protected override SceneNode2D OnCreateSceneNode() => new Node2DMover { Buttons = buttons };

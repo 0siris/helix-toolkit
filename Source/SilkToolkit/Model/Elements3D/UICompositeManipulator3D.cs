@@ -107,7 +107,7 @@ public class UiCompositeManipulator3D : CompositeModel3D {
         typeof(UiCompositeManipulator3D),
         new FrameworkPropertyMetadata(Transform3D.Identity,
                                       FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                                      (d, e) => {
+                                      (d, _) => {
                                           if (d is Element3DCore element)
                                               element.InvalidateRender();
                                       }));
@@ -122,7 +122,7 @@ public class UiCompositeManipulator3D : CompositeModel3D {
     /// <summary>
     /// </summary>
     public UiCompositeManipulator3D() {
-        OnSceneNodeCreated += (s, e) => { e.Node.Attached += SceneNode_OnAttached; };
+        OnSceneNodeCreated += (_, e) => { e.Node.Attached += SceneNode_OnAttached; };
         translateX = new UiTranslateManipulator3D { Direction = new Vector3(1, 0, 0), Material = DiffuseMaterials.Red };
         translateY = new UiTranslateManipulator3D { Direction = new Vector3(0, 1, 0), Material = DiffuseMaterials.Green };
         translateZ = new UiTranslateManipulator3D { Direction = new Vector3(0, 0, 1), Material = DiffuseMaterials.Blue };

@@ -69,7 +69,7 @@ public class MainViewModel : BaseViewModel {
                 .Values
         ];
         EndTime = scene.Animations.Max(x => x.EndTime);
-        PlayCommand = new RelayCommand((o) => {
+        PlayCommand = new RelayCommand((_) => {
             if (!IsPlaying) {
                 initTime = 0;
                 compositeHelper.Rendering += Render;

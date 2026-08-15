@@ -14,7 +14,7 @@ public class FrameStatisticsModel2D : Element2D {
                                       typeof(WpfBrush),
                                       typeof(FrameStatisticsModel2D),
                                       new PropertyMetadata(new WpfSolidColorBrush(Colors.Black),
-                                                           (d, e) => {
+                                                           (d, _) => {
                                                                if (d is FrameStatisticsModel2D model) model.foregroundChanged = true;
                                                            }));
 
@@ -24,7 +24,7 @@ public class FrameStatisticsModel2D : Element2D {
                                       typeof(FrameStatisticsModel2D),
                                       new PropertyMetadata(
                                           new WpfSolidColorBrush(WpfColor.FromArgb(64, 32, 32, 32)),
-                                          (d, e) => {
+                                          (d, _) => {
                                               if (d is FrameStatisticsModel2D model) model.backgroundChanged = true;
                                           }));
 

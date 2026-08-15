@@ -131,8 +131,8 @@ public class MainViewModel : BaseViewModel {
             },
         };
 
-        AddCmd = new RelayCommand((o) => AddShape());
-        DelCmd = new RelayCommand((o) => DelShape());
+        AddCmd = new RelayCommand((_) => AddShape());
+        DelCmd = new RelayCommand((_) => DelShape());
     }
 
 

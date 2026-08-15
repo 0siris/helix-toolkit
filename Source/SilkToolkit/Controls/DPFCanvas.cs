@@ -81,7 +81,7 @@ public sealed class DPFCanvas : Image, IRenderCanvas, IDisposable {
         Unloaded += OnUnloaded;
         RenderHost.StartRenderLoop += RenderHost_StartRenderLoop;
         RenderHost.StopRenderLoop += RenderHost_StopRenderLoop;
-        RenderHost.ExceptionOccurred += (s, e) => { HandleExceptionOccured(e.Exception); };
+        RenderHost.ExceptionOccurred += (_, e) => { HandleExceptionOccured(e.Exception); };
         renderhost.OnImageSourceChanged += DPFCanvas_OnImageSourceChanged;
         belongsToParentWindow = attachedToWindow;
     }

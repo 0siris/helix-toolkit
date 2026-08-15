@@ -38,9 +38,9 @@ public class MainViewModel : DemoCore.BaseViewModel {
             Positions = [.. meshPositions.Select(x => x + offset)]
         };
 
-        ExportCommand = new RelayCommand((o) => { Export(); });
-        ImportCommand = new RelayCommand((o) => { Import(); });
-        ExportSingleTechnique = new RelayCommand((o) => { Export(SelectedTechnique); });
+        ExportCommand = new RelayCommand((_) => { Export(); });
+        ImportCommand = new RelayCommand((_) => { Import(); });
+        ExportSingleTechnique = new RelayCommand((_) => { Export(SelectedTechnique); });
     }
 
     private void Export(string? technique = "") {

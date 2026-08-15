@@ -190,7 +190,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
         Loaded += ControlLoaded;
         Unloaded += ControlUnloaded;
-        IsVisibleChanged += (d, e) => {
+        IsVisibleChanged += (_, e) => {
             RenderHostInternal?.IsRendering = (bool)e.NewValue;
         };
     }

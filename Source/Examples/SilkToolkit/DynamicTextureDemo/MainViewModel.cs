@@ -238,7 +238,7 @@ public class MainViewModel : BaseViewModel {
                     }
 
                     texture[texture.Count - 1] = t0;
-                    context.Send((o) => {
+                    context.Send((_) => {
                         Model.TextureCoordinates = texture;
                         if (ReverseInnerRotation) {
                             var texture1 = new Vector2Collection(texture);
@@ -250,7 +250,7 @@ public class MainViewModel : BaseViewModel {
                     }, null);
                 }
             } else {
-                context.Send((o) => {
+                context.Send((_) => {
                     ModelMaterial.UvTransform = new UvTransform(0,
                         Vector2.One,
                         ModelMaterial.UvTransform.Translation +
@@ -277,7 +277,7 @@ public class MainViewModel : BaseViewModel {
             };
             //var normals =  MeshGeometryHelper.CalculateNormals(positions, initialIndicies);
             //var innerNormals =  new Vector3Collection(normals.Select(x => { return x * -1; }));
-            context.Send((o) => {
+            context.Send((_) => {
                     //Model.Normals = normals;
                     //InnerModel.Normals = innerNormals;
                     //Model.Positions = positions;
@@ -305,7 +305,7 @@ public class MainViewModel : BaseViewModel {
             }
 
             indices.RemoveRange(0, removedIndex);
-            context.Send((o) => {
+            context.Send((_) => {
                     Model.Indices = indices;
                     InnerModel.Indices = indices;
                 },
@@ -335,7 +335,7 @@ public class MainViewModel : BaseViewModel {
                 lineColors[0] = c;
             }
 
-            context.Send((o) => {
+            context.Send((_) => {
                     PointModel.Colors = colors;
                     LineModel.Colors = lineColors;
                 },

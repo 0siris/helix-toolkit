@@ -106,7 +106,8 @@ public class BillboardSingleImage3D : BillboardBase {
     /// <param name="imageStream">The image stream.</param>
     public BillboardSingleImage3D(Stream imageStream) {
         Texture = imageStream;
-        using var image = Image.Load(imageStream);
+        using var image = Image.Load(imageStream)
+            ?? throw new System.IO.InvalidDataException("The image could not be loaded.");
         Width = image.Description.Width;
         Height = image.Description.Height;
     }
@@ -172,7 +173,7 @@ public class BillboardSingleImage3D : BillboardBase {
         bool fixedSize
     ) {
         var rayWs = context.RayWs;
-        if (!IsInitialized || context == null || Width == 0 || Height == 0
+        if (!IsInitialized || Width == 0 || Height == 0
             || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWs)))
             return false;
 

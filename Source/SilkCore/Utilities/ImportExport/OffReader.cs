@@ -233,7 +233,7 @@ public class OffReader : IModelReader {
     ///     Array of integer values.
     /// </returns>
     private static int[] GetIntValues(string input) {
-        var fields = RemoveComments(input).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+        var fields = RemoveComments(input).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         var result = new int[fields.Length];
         for (var i = 0; i < fields.Length; i++) result[i] = int.Parse(fields[i]);
 
@@ -250,7 +250,7 @@ public class OffReader : IModelReader {
     ///     Array of double values.
     /// </returns>
     private static double[] GetValues(string input) {
-        var fields = RemoveComments(input).Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+        var fields = RemoveComments(input).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         var result = new double[fields.Length];
         for (var i = 0; i < fields.Length; i++) result[i] = double.Parse(fields[i], CultureInfo.InvariantCulture);
 

@@ -126,8 +126,8 @@ public static class CameraExtension {
             if (viewport.UnProject(new Vector2(zoomRectangle.Top, zoomRectangle.Left), out var topLeftRay)
                 && viewport.UnProject(new Vector2(zoomRectangle.Top, zoomRectangle.Right), out var topRightRay)
                 && viewport.UnProject(new Vector2((zoomRectangle.Left + zoomRectangle.Right) * 0.5f,
-                                                  (zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f),
-                                      out var centerRay)) {
+                        (zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f),
+                    out var centerRay)) {
                 var u = topLeftRay.Direction;
                 var v = topRightRay.Direction;
                 var w = centerRay.Direction;
@@ -174,7 +174,7 @@ public static class CameraExtension {
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public static void Reset(this PerspectiveCameraCore camera) {
+    public static void Reset(this PerspectiveCameraCore? camera) {
         if (camera == null) return;
 
         camera.Position = new Vector3(20, 10, 40);
@@ -191,7 +191,7 @@ public static class CameraExtension {
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public static void Reset(this OrthographicCameraCore camera) {
+    public static void Reset(this OrthographicCameraCore? camera) {
         if (camera == null) return;
 
         camera.Position = new Vector3(20, 10, 40);
@@ -248,19 +248,19 @@ public static class CameraExtension {
 
         if (diagonal.LengthSquared.Equals(0)) return;
         if (camera is PerspectiveCameraCore pCore) {
-            pCore.ZoomExtents((float)(viewport.ActualWidth / viewport.ActualHeight),
-                              bounds,
-                              out var pos,
-                              out var look,
-                              out var up);
+            pCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+                bounds,
+                out var pos,
+                out var look,
+                out var up);
             pCore.AnimateTo(pos, look, up, animationTime);
         } else if (camera is OrthographicCameraCore oCore) {
-            oCore.ZoomExtents((float)(viewport.ActualWidth / viewport.ActualHeight),
-                              bounds,
-                              out var pos,
-                              out var look,
-                              out var up,
-                              out var width);
+            oCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+                bounds,
+                out var pos,
+                out var look,
+                out var up,
+                out var width);
             oCore.AnimateWidth(width, animationTime);
             oCore.AnimateTo(pos, look, up, animationTime);
         }
@@ -293,9 +293,9 @@ public static class CameraExtension {
     ) {
         // var target = Camera.Position + Camera.LookDirection;
         if (camera is PerspectiveCameraCore pcam) {
-            var disth = radius / (float)Math.Tan(0.75 * pcam.FieldOfView * Math.PI / 180);
+            var disth = radius / (float) Math.Tan(0.75 * pcam.FieldOfView * Math.PI / 180);
             var vfov = pcam.FieldOfView / viewport.ViewportRectangle.Width * viewport.ViewportRectangle.Height;
-            var distv = radius / (float)Math.Tan(0.75 * vfov * Math.PI / 180);
+            var distv = radius / (float) Math.Tan(0.75 * vfov * Math.PI / 180);
 
             var dist = Math.Max(disth, distv);
             var dir = camera.LookDirection;
@@ -305,7 +305,7 @@ public static class CameraExtension {
             orth.LookAt(center, 0);
             var newWidth = radius * 2;
             if (viewport.ActualWidth > viewport.ActualHeight)
-                newWidth = radius * 2 * (float)(viewport.ActualWidth / viewport.ActualHeight);
+                newWidth = radius * 2 * (float) (viewport.ActualWidth / viewport.ActualHeight);
             orth.AnimateWidth(newWidth, animationTime);
         }
     }

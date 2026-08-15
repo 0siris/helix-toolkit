@@ -338,7 +338,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <value>
     ///     The shared model container.
     /// </value>
-    public IModelContainer SharedModelContainer {
+    public IModelContainer? SharedModelContainer {
         get => this;
         set { }
     }

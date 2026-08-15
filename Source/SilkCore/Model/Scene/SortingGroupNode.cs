@@ -96,7 +96,10 @@ public class SortingGroupNode : GroupNode {
         sortingOpaqueCache.Clear();
         notSorted.Clear();
 
-        var cameraPosition = context.Camera.Position;
+        if (context.Camera is not { } camera)
+            return;
+
+        var cameraPosition = camera.Position;
         if (SortTransparentOnly) {
             for (var i = 0; i < nodes.Count; ++i)
                 if (nodes[i].RenderCore.RenderType == RenderType.Transparent)

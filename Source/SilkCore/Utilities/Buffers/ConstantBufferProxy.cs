@@ -5,6 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
 
@@ -98,14 +99,15 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     /// </summary>
     /// <param name="device"></param>
     public void CreateBuffer(object device) {
+        var nativeDevice = device as NativeD3DDevice
+            ?? throw new ArgumentException("A native D3D device is required.", nameof(device));
         lock (lockObj) {
             RemoveAndDispose(ref buffer);
+            buffer = new Buffer(nativeDevice.CreateBuffer(BufferDesc), nativeDevice, BufferDesc);
         }
     }
 
-    private void EnsureBuffer(DeviceContextProxy context) {
-        buffer ??= new Buffer(context, BufferDesc);
-    }
+    private Buffer EnsureBuffer(DeviceContextProxy context) => buffer ??= new Buffer(context, BufferDesc);
 
     /// <summary>
     ///     <see cref="ConstantBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, ref T)" />
@@ -116,14 +118,14 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void UploadDataToBuffer<T>(DeviceContextProxy context, ref T data) where T : unmanaged {
         lock (lockObj) {
-            EnsureBuffer(context);
+            var currentBuffer = EnsureBuffer(context);
             if (BufferDesc.Usage == ResourceUsage.Dynamic) {
-                Debug.Assert(buffer.Description.SizeInBytes >= UnsafeHelper.SizeOf<T>());
-                var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
+                Debug.Assert(currentBuffer.Description.SizeInBytes >= UnsafeHelper.SizeOf<T>());
+                var dataBox = context.MapSubresource(currentBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
                 UnsafeHelper.Write(dataBox.DataPointer, ref data);
-                context.UnmapSubresource(buffer, 0);
+                context.UnmapSubresource(currentBuffer, 0);
             } else {
-                context.UpdateSubresource(ref data, buffer);
+                context.UpdateSubresource(ref data, currentBuffer);
             }
         }
     }
@@ -152,14 +154,14 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     public void UploadDataToBuffer<T>(DeviceContextProxy context, T[] data, int count, int offset)
         where T : unmanaged {
         lock (lockObj) {
-            EnsureBuffer(context);
+            var currentBuffer = EnsureBuffer(context);
             if (BufferDesc.Usage == ResourceUsage.Dynamic) {
-                Debug.Assert(count * UnsafeHelper.SizeOf<T>() <= buffer.Description.SizeInBytes);
-                var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
+                Debug.Assert(count * UnsafeHelper.SizeOf<T>() <= currentBuffer.Description.SizeInBytes);
+                var dataBox = context.MapSubresource(currentBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
                 UnsafeHelper.Write(dataBox.DataPointer, data, offset, count);
-                context.UnmapSubresource(buffer, 0);
+                context.UnmapSubresource(currentBuffer, 0);
             } else {
-                context.UpdateSubresource(data, buffer);
+                context.UpdateSubresource(data, currentBuffer);
             }
         }
     }
@@ -172,11 +174,11 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void UploadDataToBuffer(DeviceContextProxy context, Action<DataBox> writeFuc) {
         lock (lockObj) {
-            EnsureBuffer(context);
+            var currentBuffer = EnsureBuffer(context);
             if (BufferDesc.Usage == ResourceUsage.Dynamic) {
-                var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
-                writeFuc?.Invoke(dataBox);
-                context.UnmapSubresource(buffer, 0);
+                var dataBox = context.MapSubresource(currentBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
+                writeFuc(dataBox);
+                context.UnmapSubresource(currentBuffer, 0);
             } else {
 #if DEBUG
                 throw new Exception("Constant buffer must be dynamic to use this function.");
@@ -188,21 +190,23 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public DataBox Map(DeviceContextProxy context) {
         Monitor.Enter(lockObj);
-        EnsureBuffer(context);
-        return context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
+        var currentBuffer = EnsureBuffer(context);
+        return context.MapSubresource(currentBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public DataStream MapToStream(DeviceContextProxy context) {
         Monitor.Enter(lockObj);
-        EnsureBuffer(context);
-        context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None, out var stream);
+        var currentBuffer = EnsureBuffer(context);
+        context.MapSubresource(currentBuffer, 0, MapMode.WriteDiscard, MapFlags.None, out var stream);
         return stream;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Unmap(DeviceContextProxy context) {
-        context.UnmapSubresource(buffer, 0);
+        if (buffer is not { } currentBuffer)
+            throw new InvalidOperationException("The constant buffer has not been mapped.");
+        context.UnmapSubresource(currentBuffer, 0);
         Monitor.Exit(lockObj);
     }
 

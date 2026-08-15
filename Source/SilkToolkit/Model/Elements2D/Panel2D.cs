@@ -29,13 +29,13 @@ public class Panel2D : Element2D {
 
     public ObservableCollection<Element2D> Children { get; } = [];
 
-    private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+    private void Items_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
         if (e.OldItems != null) DetachChildren(e.OldItems);
 
         if (e.Action == NotifyCollectionChangedAction.Reset) {
             foreach (var item in SceneNode.Items) RemoveLogicalChild(item.WrapperSource);
-            (SceneNode as PanelNode2D).Clear();
-            if (IsAttached) AttachChildren(sender as IEnumerable);
+            if (SceneNode is PanelNode2D node) node.Clear();
+            if (IsAttached) AttachChildren(Children);
         } else if (e.NewItems != null && IsAttached) {
             AttachChildren(e.NewItems);
         }
@@ -44,7 +44,7 @@ public class Panel2D : Element2D {
     }
 
     protected void AttachChildren(IEnumerable children) {
-        var s = SceneNode as PanelNode2D;
+        if (SceneNode is not PanelNode2D s) return;
         foreach (Element2D c in children) {
             if (c.Parent == null) AddLogicalChild(c);
             s.AddChildNode(c);
@@ -52,7 +52,7 @@ public class Panel2D : Element2D {
     }
 
     protected void DetachChildren(IEnumerable children) {
-        var s = SceneNode as PanelNode2D;
+        if (SceneNode is not PanelNode2D s) return;
         foreach (Element2D c in children) {
             if (c.Parent == this) RemoveLogicalChild(c);
             s.RemoveChildNode(c);

@@ -204,9 +204,9 @@ public abstract class GeometryBufferModel : DisposeObject, IGuid, IGeometryBuffe
     /// <returns>
     ///     <c>true</c> if [is vertex buffer changed] [the specified property name]; otherwise, <c>false</c>.
     /// </returns>
-    protected virtual bool IsVertexBufferChanged(string propertyName, int vertexBufferIndex) =>
-        propertyName.Equals(Geometry3D.VertexBuffer, StringComparison.Ordinal) ||
-        propertyName.Equals(nameof(Geometry3D.Positions), StringComparison.Ordinal);
+    protected virtual bool IsVertexBufferChanged(string? propertyName, int vertexBufferIndex) =>
+        string.Equals(propertyName, Geometry3D.VertexBuffer, StringComparison.Ordinal) ||
+        string.Equals(propertyName, nameof(Geometry3D.Positions), StringComparison.Ordinal);
 
     /// <summary>
     ///     Determines whether [is index buffer changed] [the specified property name].
@@ -215,9 +215,9 @@ public abstract class GeometryBufferModel : DisposeObject, IGuid, IGeometryBuffe
     /// <returns>
     ///     <c>true</c> if [is index buffer changed] [the specified property name]; otherwise, <c>false</c>.
     /// </returns>
-    protected virtual bool IsIndexBufferChanged(string propertyName) =>
-        propertyName.Equals(Geometry3D.TriangleBuffer, StringComparison.Ordinal) ||
-        propertyName.Equals(nameof(Geometry3D.Indices), StringComparison.Ordinal);
+    protected virtual bool IsIndexBufferChanged(string? propertyName) =>
+        string.Equals(propertyName, Geometry3D.TriangleBuffer, StringComparison.Ordinal) ||
+        string.Equals(propertyName, nameof(Geometry3D.Indices), StringComparison.Ordinal);
 
     protected virtual VertexBufferBinding[] OnCreateVertexBufferBinding() => 
     [.. VertexBuffer.Select(x =>

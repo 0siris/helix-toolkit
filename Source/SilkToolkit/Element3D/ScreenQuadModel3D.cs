@@ -17,7 +17,7 @@ namespace HelixToolkit.Wpf.SharpDX;
     [SupportedOSPlatform("windows")]
 #endif
 public class ScreenQuadModel3D : Element3D {
-    public TextureModel Texture {
+    public TextureModel? Texture {
         get => (TextureModel)GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
@@ -28,8 +28,8 @@ public class ScreenQuadModel3D : Element3D {
                                     typeof(ScreenQuadModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as ScreenQuadModel3D).SceneNode as ScreenQuadNode)
-                                                                 .Texture = (TextureModel)e.NewValue;
+                                                             if (d is ScreenQuadModel3D { SceneNode: ScreenQuadNode node })
+                                                                 node.Texture = e.NewValue as TextureModel;
                                                          }));
 
 
@@ -45,9 +45,8 @@ public class ScreenQuadModel3D : Element3D {
                                     typeof(ScreenQuadModel3D),
                                     new PropertyMetadata(DefaultSamplers.LinearSamplerClampAni1,
                                                          (d, e) => {
-                                                             ((d as ScreenQuadModel3D).SceneNode as ScreenQuadNode)
-                                                                 .Sampler =
-                                                                 (SamplerStateDescription)e.NewValue;
+                                                             if (d is ScreenQuadModel3D { SceneNode: ScreenQuadNode node })
+                                                                 node.Sampler = (SamplerStateDescription)e.NewValue;
                                                          }));
 
 
@@ -68,9 +67,8 @@ public class ScreenQuadModel3D : Element3D {
                                     typeof(ScreenQuadModel3D),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as ScreenQuadModel3D).SceneNode as ScreenQuadNode)
-                                                                 .Depth =
-                                                                 (float)Math.Max(0, Math.Min(1, (double)e.NewValue));
+                                                             if (d is ScreenQuadModel3D { SceneNode: ScreenQuadNode node })
+                                                                 node.Depth = (float)Math.Max(0, Math.Min(1, (double)e.NewValue));
                                                          }));
 
 

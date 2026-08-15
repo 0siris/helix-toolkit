@@ -78,7 +78,7 @@ public interface IBoneMatricesNode {
     /// <value>
     ///     The bones.
     /// </value>
-    Bone[] Bones { get; set; }
+    Bone[]? Bones { get; set; }
 
     /// <summary>
     ///     Gets or sets the morph target weights.

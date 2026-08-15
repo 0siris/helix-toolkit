@@ -101,7 +101,8 @@ public class UiTranslateManipulator3D : UiManipulator3D {
     /// <summary>
     /// </summary>
     protected override void UpdateManipulator(RoutedEventArgs e) {
-        var args = e as Mouse3DEventArgs;
+        if (e is not Mouse3DEventArgs args || Viewport is not { } viewport)
+            return;
 
         // camera normal
         var normalWs = CameraNormal;
@@ -113,7 +114,7 @@ public class UiTranslateManipulator3D : UiManipulator3D {
         normalWs = SilkMath.Cross(upWs, directionWs);
         normalWs.Normalize();
         // find new hit on the camera-direction plane
-        if (Viewport.UnProjectOnPlane(args.Position.ToVector2(), LastHitPosWs, normalWs, out var newHit)) {
+        if (viewport.UnProjectOnPlane(args.Position.ToVector2(), LastHitPosWs, normalWs, out var newHit)) {
             // project point on ray
             // a: vec to project on
             //b(a) = (a.b)/(a.a)*a;
@@ -127,8 +128,8 @@ public class UiTranslateManipulator3D : UiManipulator3D {
             Value += SilkMath.Dot(delta, directionWs);
             var deltaTranslateTrafo = new TranslateTransform3D(delta.ToVector3D());
 
-            if (TargetTransform != null) {
-                TargetTransform = new MatrixTransform3D(TargetTransform.AppendTransform(deltaTranslateTrafo).Value);
+            if (TargetTransform is { } targetTransform) {
+                TargetTransform = new MatrixTransform3D(targetTransform.AppendTransform(deltaTranslateTrafo).Value);
             } else {
                 if (Transform == null)
                     Transform = deltaTranslateTrafo;

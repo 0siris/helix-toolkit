@@ -88,11 +88,12 @@ public static class ShaderExporter {
     /// <returns></returns>
     public static int ImportTechniques(this IEffectsManager manager, XmlReader reader, bool append = true) {
         var ser = new DataContractSerializer(typeof(List<TechniqueDescription>));
-        var techniques = ser.ReadObject(reader) as List<TechniqueDescription>;
+        var techniques = ser.ReadObject(reader) as List<TechniqueDescription> ?? [];
         if (!append) manager.RemoveAllTechniques();
         var count = 0;
         foreach (var t in techniques) {
-            if (append) manager.RemoveTechnique(t.Name);
+            if (t.Name is not { } name) continue;
+            if (append) manager.RemoveTechnique(name);
             manager.AddTechnique(t);
             ++count;
         }

@@ -15,12 +15,12 @@ public abstract class BillboardBufferModel<VertexStruct> : GeometryBufferModel, 
     where VertexStruct : unmanaged {
     private static readonly VertexStruct[] EmptyVerts = [];
 
-    private TextureModel texture;
+    private TextureModel? texture;
 
     /// <summary>
     ///     Use the shared texture resource proxy
     /// </summary>
-    private ShaderResourceViewProxy textureView;
+    private ShaderResourceViewProxy? textureView;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BillboardBufferModel{VertexStruct}" /> class.
@@ -29,10 +29,10 @@ public abstract class BillboardBufferModel<VertexStruct> : GeometryBufferModel, 
     /// <param name="dynamic"></param>
     public BillboardBufferModel(int structSize, bool dynamic = false)
         : base(PrimitiveTopology.PointList,
-               dynamic
-                   ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer)
-                   : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer),
-               null) { }
+            dynamic
+                ? new DynamicBufferProxy(structSize, BindFlags.VertexBuffer)
+                : new ImmutableBufferProxy(structSize, BindFlags.VertexBuffer),
+            null) { }
 
     /// <summary>
     ///     Gets the texture view.
@@ -40,7 +40,7 @@ public abstract class BillboardBufferModel<VertexStruct> : GeometryBufferModel, 
     /// <value>
     ///     The texture view.
     /// </value>
-    public ShaderResourceViewProxy TextureView => textureView;
+    public ShaderResourceViewProxy? TextureView => textureView;
 
     /// <summary>
     ///     Gets or sets the type.
@@ -81,18 +81,18 @@ public abstract class BillboardBufferModel<VertexStruct> : GeometryBufferModel, 
     ) {
         if (geometry is IBillboardText billboardGeometry) {
             billboardGeometry.DrawTexture(deviceResources);
-            if (billboardGeometry.BillboardVertices != null && billboardGeometry.BillboardVertices.Count > 0) {
+            if (billboardGeometry.BillboardVertices.Count > 0) {
                 Type = billboardGeometry.Type;
                 buffer.UploadDataToBuffer(context,
-                                          billboardGeometry.BillboardVertices,
-                                          billboardGeometry.BillboardVertices.Count,
-                                          0,
-                                          geometry.PreDefinedVertexCount);
+                    billboardGeometry.BillboardVertices,
+                    billboardGeometry.BillboardVertices.Count,
+                    0,
+                    geometry.PreDefinedVertexCount);
                 if (texture != billboardGeometry.Texture) {
                     texture = billboardGeometry.Texture;
                     var newView = texture == null
-                                      ? null
-                                      : deviceResources.MaterialTextureManager.Register(texture);
+                        ? null
+                        : deviceResources.MaterialTextureManager.Register(texture);
                     RemoveAndDispose(ref textureView);
                     textureView = newView;
                 }

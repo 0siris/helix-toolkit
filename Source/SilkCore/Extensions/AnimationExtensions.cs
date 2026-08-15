@@ -14,11 +14,12 @@ public static class AnimationExtensions {
         foreach (var ani in animations)
             switch (ani.AnimationType) {
                 case AnimationType.Keyframe:
-                    if (ani.RootNode is IBoneMatricesNode bNode)
-                        AddUpdaterToDict(dict, new KeyFrameUpdater(ani, bNode.Bones));
-                    else if (ani.BoneSkinMeshes != null)
+                    if (ani.RootNode is IBoneMatricesNode bNode && bNode.Bones is { } bones)
+                        AddUpdaterToDict(dict, new KeyFrameUpdater(ani, bones));
+                    else
                         foreach (var b in ani.BoneSkinMeshes)
-                            AddUpdaterToDict(dict, new KeyFrameUpdater(ani, b.Bones));
+                            if (b.Bones is { } meshBones)
+                                AddUpdaterToDict(dict, new KeyFrameUpdater(ani, meshBones));
 
                     break;
                 case AnimationType.Node:
@@ -27,7 +28,7 @@ public static class AnimationExtensions {
                 case AnimationType.MorphTarget:
                     if (ani.RootNode is IBoneMatricesNode mNode)
                         AddUpdaterToDict(dict, new MorphTargetKeyFrameUpdater(ani, mNode.MorphTargetWeights));
-                    else if (ani.BoneSkinMeshes != null)
+                    else
                         foreach (var b in ani.BoneSkinMeshes)
                             AddUpdaterToDict(dict, new MorphTargetKeyFrameUpdater(ani, b.MorphTargetWeights));
 

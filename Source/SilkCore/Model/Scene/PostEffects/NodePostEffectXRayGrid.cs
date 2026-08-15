@@ -9,6 +9,12 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class NodePostEffectXRayGrid : SceneNode {
+    private IPostEffect PostEffectCore => RenderCore as IPostEffect
+        ?? throw new InvalidOperationException("Post-effect render core is not initialized.");
+
+    private IPostEffectMeshXRayGrid GridCore => RenderCore as IPostEffectMeshXRayGrid
+        ?? throw new InvalidOperationException("X-ray grid render core is not initialized.");
+
     /// <summary>
     ///     Called when [create render core].
     /// </summary>
@@ -33,8 +39,8 @@ public class NodePostEffectXRayGrid : SceneNode {
     ///     The name of the effect.
     /// </value>
     public string EffectName {
-        get => (RenderCore as IPostEffect).EffectName;
-        set => (RenderCore as IPostEffect).EffectName = value;
+        get => PostEffectCore.EffectName;
+        set => PostEffectCore.EffectName = value;
     }
 
     /// <summary>
@@ -44,8 +50,8 @@ public class NodePostEffectXRayGrid : SceneNode {
     ///     The color.
     /// </value>
     public Color4 Color {
-        get => (RenderCore as IPostEffectMeshXRayGrid).Color;
-        set => (RenderCore as IPostEffectMeshXRayGrid).Color = value;
+        get => GridCore.Color;
+        set => GridCore.Color = value;
     }
 
     /// <summary>
@@ -55,8 +61,8 @@ public class NodePostEffectXRayGrid : SceneNode {
     ///     The grid density.
     /// </value>
     public int GridDensity {
-        get => (RenderCore as IPostEffectMeshXRayGrid).GridDensity;
-        set => (RenderCore as IPostEffectMeshXRayGrid).GridDensity = value;
+        get => GridCore.GridDensity;
+        set => GridCore.GridDensity = value;
     }
 
     /// <summary>
@@ -66,8 +72,8 @@ public class NodePostEffectXRayGrid : SceneNode {
     ///     The dimming factor.
     /// </value>
     public float DimmingFactor {
-        get => (RenderCore as IPostEffectMeshXRayGrid).DimmingFactor;
-        set => (RenderCore as IPostEffectMeshXRayGrid).DimmingFactor = value;
+        get => GridCore.DimmingFactor;
+        set => GridCore.DimmingFactor = value;
     }
 
     /// <summary>
@@ -77,8 +83,8 @@ public class NodePostEffectXRayGrid : SceneNode {
     ///     The blending factor.
     /// </value>
     public float BlendingFactor {
-        get => (RenderCore as IPostEffectMeshXRayGrid).BlendingFactor;
-        set => (RenderCore as IPostEffectMeshXRayGrid).BlendingFactor = value;
+        get => GridCore.BlendingFactor;
+        set => GridCore.BlendingFactor = value;
     }
 
     /// <summary>
@@ -89,16 +95,16 @@ public class NodePostEffectXRayGrid : SceneNode {
     ///     The name of the x ray drawing pass.
     /// </value>
     public string XRayDrawingPassName {
-        get => (RenderCore as IPostEffectMeshXRayGrid).XRayDrawingPassName;
-        set => (RenderCore as IPostEffectMeshXRayGrid).XRayDrawingPassName = value;
+        get => GridCore.XRayDrawingPassName;
+        set => GridCore.XRayDrawingPassName = value;
     }
 
     /// <summary>
     ///     Gets or sets whether the x-ray grid uses the scene depth buffer to remove visible parts.
     /// </summary>
     public bool UseDepthOcclusion {
-        get => (RenderCore as IPostEffectMeshXRayGrid).UseDepthOcclusion;
-        set => (RenderCore as IPostEffectMeshXRayGrid).UseDepthOcclusion = value;
+        get => GridCore.UseDepthOcclusion;
+        set => GridCore.UseDepthOcclusion = value;
     }
 
     #endregion

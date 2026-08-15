@@ -27,7 +27,8 @@ public class Texture2D : Texture2DBase {
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone() => new Texture2D(GraphicsDevice, Description);
+    public override Texture Clone() => new Texture2D(
+        GraphicsDevice ?? throw new InvalidOperationException("The texture has no graphics device."), Description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Texture2DDescription" />.
@@ -222,8 +223,6 @@ public class Texture2D : Texture2DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
-        if (image == null)
-            ArgumentNullException.ThrowIfNull(image);
         if (image.Description.Dimension != TextureDimension.Texture2D)
             throw new ArgumentException("Invalid image. Must be 2D", "image");
 
@@ -246,10 +245,9 @@ public class Texture2D : Texture2DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         var texture = Texture.Load(device, stream, flags, usage);
-        if (!(texture is Texture2D))
-            throw new ArgumentException(string.Format("Texture is not type of [Texture2D] but [{0}]",
-                                                      texture.GetType().Name));
-        return (Texture2D)texture;
+        if (texture is not Texture2D typedTexture)
+            throw new ArgumentException($"Texture is not type of [Texture2D] but [{texture?.GetType().Name ?? "null"}]");
+        return typedTexture;
     }
 
     /// <summary>

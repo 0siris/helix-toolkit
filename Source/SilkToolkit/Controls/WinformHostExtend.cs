@@ -28,7 +28,7 @@ public class WinformHostExtend : WindowsFormsHost {
         ChildChanged += OnChildChanged;
     }
 
-    protected UIElement ParentControl { get; set; }
+    protected UIElement? ParentControl { get; set; }
 
     public double DpiScale {
         get;
@@ -49,9 +49,9 @@ public class WinformHostExtend : WindowsFormsHost {
         remove => RemoveHandler(FormMouseWheelEvent, value);
     }
 
-    public event EventHandler<double> DpiScaleChanged;
+    public event EventHandler<double>? DpiScaleChanged;
 
-    private void OnChildChanged(object sender, ChildChangedEventArgs childChangedEventArgs) {
+    private void OnChildChanged(object? sender, ChildChangedEventArgs childChangedEventArgs) {
         var previousChild = childChangedEventArgs.PreviousChild as Control;
         if (previousChild != null) {
             previousChild.MouseDown -= OnMouseDown;
@@ -68,7 +68,7 @@ public class WinformHostExtend : WindowsFormsHost {
         }
     }
 
-    private void OnMouseMove(object sender, MouseEventArgs e) {
+    private void OnMouseMove(object? sender, MouseEventArgs e) {
         RaiseEvent(new FormMouseMoveEventArgs(FormMouseMoveEvent,
                                               new Point(e.Location.X / DpiScale, e.Location.Y / DpiScale),
                                               e.X,
@@ -76,7 +76,7 @@ public class WinformHostExtend : WindowsFormsHost {
                                               e.Delta) { Source = this });
     }
 
-    private void OnMouseWheel(object sender, MouseEventArgs e) {
+    private void OnMouseWheel(object? sender, MouseEventArgs e) {
         RaiseEvent(new FormMouseWheelEventArgs(FormMouseWheelEvent,
                                                Mouse.PrimaryDevice,
                                                Environment.TickCount,
@@ -85,7 +85,7 @@ public class WinformHostExtend : WindowsFormsHost {
         });
     }
 
-    private void OnMouseDown(object sender, MouseEventArgs mouseEventArgs) {
+    private void OnMouseDown(object? sender, MouseEventArgs mouseEventArgs) {
         var wpfButton = ConvertToWpf(mouseEventArgs.Button);
         if (!wpfButton.HasValue)
             return;
@@ -101,7 +101,7 @@ public class WinformHostExtend : WindowsFormsHost {
         });
     }
 
-    private void OnMouseUp(object sender, MouseEventArgs mouseEventArgs) {
+    private void OnMouseUp(object? sender, MouseEventArgs mouseEventArgs) {
         var wpfButton = ConvertToWpf(mouseEventArgs.Button);
         if (!wpfButton.HasValue)
             return;

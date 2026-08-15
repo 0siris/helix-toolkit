@@ -13,15 +13,15 @@ namespace HelixToolkit.SharpDX.Core.Core;
 public sealed class Sprite2DRenderCore : RenderCore {
     private readonly ConstantBufferComponent globalTransformCb;
 
-    private SamplerStateProxy sampler;
+    private SamplerStateProxy? sampler;
 
     private int samplerSlot;
 
-    private ShaderPass spritePass;
+    private ShaderPass spritePass = ShaderPass.NullPass;
 
     private int texSlot;
 
-    private ShaderResourceViewProxy textureView;
+    private ShaderResourceViewProxy? textureView;
 
     public Sprite2DRenderCore()
         : base(RenderType.ScreenSpaced) {
@@ -30,7 +30,7 @@ public sealed class Sprite2DRenderCore : RenderCore {
                                                                            GlobalTransformStruct.SizeInBytes)));
     }
 
-    public IAttachableBufferModel Buffer { get; set; }
+    public IAttachableBufferModel? Buffer { get; set; }
 
     public Matrix ProjectionMatrix { get; set; } = Matrix.Identity;
 
@@ -41,19 +41,25 @@ public sealed class Sprite2DRenderCore : RenderCore {
     }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (Buffer == null || textureView == null || spritePass.IsNull) return;
+        if (Buffer is not { } buffer
+            || textureView is null
+            || sampler is not { } state
+            || spritePass.IsNull
+            || EffectTechnique is not { } technique
+            || buffer.IndexBuffer is not { } indexBuffer)
+            return;
         var slot = 0;
-        if (!Buffer.AttachBuffers(deviceContext, ref slot, EffectTechnique.EffectsManager)) return;
+        if (!buffer.AttachBuffers(deviceContext, ref slot, technique.EffectsManager)) return;
         var globalTrans = context.GlobalTransform;
         globalTrans.Projection = ProjectionMatrix;
         globalTransformCb.Upload(deviceContext, ref globalTrans);
         spritePass.BindShader(deviceContext);
         spritePass.BindStates(deviceContext, StateType.All);
         spritePass.PixelShader.BindTexture(deviceContext, texSlot, textureView);
-        spritePass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
+        spritePass.PixelShader.BindSampler(deviceContext, samplerSlot, state);
         deviceContext.SetViewport(0, 0, context.ActualWidth, context.ActualHeight);
         deviceContext.SetScissorRectangle(0, 0, (int)context.ActualWidth, (int)context.ActualHeight);
-        deviceContext.DrawIndexed(Buffer.IndexBuffer.ElementCount, 0, 0);
+        deviceContext.DrawIndexed(indexBuffer.ElementCount, 0, 0);
         RaiseInvalidateRender();
     }
 
@@ -62,7 +68,7 @@ public sealed class Sprite2DRenderCore : RenderCore {
         texSlot = spritePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.SpriteTb);
         samplerSlot =
             spritePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SpriteSampler);
-        sampler = EffectTechnique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
+        sampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
         return true;
     }
 

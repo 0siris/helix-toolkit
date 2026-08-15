@@ -129,13 +129,13 @@ public class StudioReader : IModelReader {
         /// <summary>
         ///     Gets or sets the directory
         /// </summary>
-    public string Directory { get; set; }
+    public string? Directory { get; set; }
 
         /// <summary>
         ///     Gets or sets the texture path.
         /// </summary>
         /// <value>The texture path.</value>
-    public string TexturePath {
+    public string? TexturePath {
         get => Directory;
 
         set => Directory = value;
@@ -363,6 +363,9 @@ public class StudioReader : IModelReader {
             //no faces defined?? return...
             return;
 
+        if (positions is null)
+            return;
+
         if (facesets == null || facesets.Count == 0) {
             triangleIndices = faces;
             CreateMesh(positions,
@@ -412,13 +415,13 @@ public class StudioReader : IModelReader {
         /// <param name="transforms"></param>
     private void CreateMesh(
         Vector3Collection positions,
-        Vector2Collection textureCoordinates,
+        Vector2Collection? textureCoordinates,
         IntCollection triangleIndices,
         List<Matrix> transforms,
         out Vector3Collection normals,
         out Vector3Collection tangents,
         out Vector3Collection bitangents,
-        MaterialCore material
+        MaterialCore? material
     ) {
         ComputeNormals(positions, triangleIndices, out normals);
         if (textureCoordinates == null) {
@@ -645,8 +648,7 @@ public class StudioReader : IModelReader {
     private Stream? ReadBitmapSoure(string? texture, Color fallBackColor) {
         if (texture == null) return null;
         try {
-            var ext = Path.GetExtension(texture);
-            if (ext != null) ext = ext.ToLower();
+            var ext = Path.GetExtension(texture).ToLowerInvariant();
             // TGA not supported - convert textures to .png
             if (ext == ".tga") texture = Path.ChangeExtension(texture, ".png");
             var actualTexturePath = TexturePath ?? string.Empty;
@@ -788,11 +790,11 @@ public class StudioReader : IModelReader {
             /// <summary>
             ///     Gets or sets Faces.
             /// </summary>
-        public List<int> Faces { get; set; }
+        public List<int> Faces { get; set; } = [];
 
             /// <summary>
             ///     Gets or sets the name of the material.
             /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }

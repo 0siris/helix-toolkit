@@ -18,8 +18,8 @@ public class LineMaterialGeometryModel3D : GeometryModel3D {
                                     typeof(LineMaterialGeometryModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as LineNode).Material =
-                                                                 e.NewValue as Material;
+                                                             if (d is Element3DCore { SceneNode: LineNode node })
+                                                                 node.Material = e.NewValue as Material;
                                                          }));
 
     /// <summary>
@@ -31,8 +31,8 @@ public class LineMaterialGeometryModel3D : GeometryModel3D {
                                     typeof(LineMaterialGeometryModel3D),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as LineNode)
-                                                                 .HitTestThickness = (double)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: LineNode node })
+                                                                 node.HitTestThickness = (double)e.NewValue;
                                                          }));
 
     /// <summary>

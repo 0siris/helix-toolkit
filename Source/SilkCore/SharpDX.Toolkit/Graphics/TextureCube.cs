@@ -27,7 +27,8 @@ public class TextureCube : Texture2DBase {
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone() => new TextureCube(GraphicsDevice, Description);
+    public override Texture Clone() => new TextureCube(
+        GraphicsDevice ?? throw new InvalidOperationException("The texture has no graphics device."), Description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Texture2DDescription" />.
@@ -236,8 +237,6 @@ public class TextureCube : Texture2DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
-        if (image == null)
-            ArgumentNullException.ThrowIfNull(image);
         if (image.Description.Dimension != TextureDimension.TextureCube)
             throw new ArgumentException("Invalid image. Must be Cube", "image");
 
@@ -262,10 +261,9 @@ public class TextureCube : Texture2DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         var texture = Texture.Load(device, stream, flags | TextureFlags.ShaderResource, usage);
-        if (!(texture is TextureCube))
-            throw new ArgumentException(string.Format("Texture is not type of [TextureCube] but [{0}]",
-                                                      texture.GetType().Name));
-        return (TextureCube) texture;
+        if (texture is not TextureCube typedTexture)
+            throw new ArgumentException($"Texture is not type of [TextureCube] but [{texture?.GetType().Name ?? "null"}]");
+        return typedTexture;
     }
 
     /// <summary>

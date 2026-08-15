@@ -271,7 +271,7 @@ internal abstract class MouseGestureHandler {
     /// <param name="e">
     ///     The <see cref="System.Windows.Input.MouseEventArgs" /> instance containing the event data.
     /// </param>
-    protected virtual void OnMouseDown(object sender, MouseEventArgs e) {
+    protected virtual void OnMouseDown(object sender, MouseEventArgs? e) {
         Started(Mouse.GetPosition(Viewport));
 
         Controller.CursorHistory.Push(Viewport.Cursor);
@@ -317,7 +317,7 @@ internal abstract class MouseGestureHandler {
             if (handler.IsActive)
                 return;
 
-        Cursor cur = null;
+        Cursor? cur = null;
         while (Controller.CursorHistory.Count > 0) cur = Controller.CursorHistory.Pop();
         Viewport.Cursor = cur;
     }

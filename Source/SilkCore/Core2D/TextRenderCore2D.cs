@@ -8,14 +8,23 @@ using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Core2D;
 public class TextRenderCore2D : RenderCore2DBase {
-    private Brush background;
+    private Brush? background;
 
-    private Brush foreground;
+    private Brush? foreground;
 
-    private DirectWriteFactory textFactory;
-    private TextFormat textFormat;
+    private DirectWriteFactory? textFactory;
+    private TextFormat? textFormat;
 
-    private TextLayout textLayout;
+    private TextLayout? textLayout;
+
+    private DirectWriteFactory TextFactory => textFactory
+        ?? throw new InvalidOperationException("Text factory is not initialized.");
+
+    private TextFormat TextFormat => textFormat
+        ?? throw new InvalidOperationException("Text format is not initialized.");
+
+    private TextLayout TextLayout => textLayout
+        ?? throw new InvalidOperationException("Text layout is not initialized.");
 
     protected bool TextLayoutDirty = true;
 
@@ -27,7 +36,7 @@ public class TextRenderCore2D : RenderCore2DBase {
         }
     } = string.Empty;
 
-    public Brush Foreground {
+    public Brush? Foreground {
         get => foreground;
         set {
             var old = foreground;
@@ -36,7 +45,7 @@ public class TextRenderCore2D : RenderCore2DBase {
         }
     }
 
-    public Brush Background {
+    public Brush? Background {
         get => background;
         set {
             var old = background;
@@ -87,7 +96,7 @@ public class TextRenderCore2D : RenderCore2DBase {
     public TextMetrics Metrices {
         get {
             UpdateTextLayout();
-            return textLayout.Metrics;
+            return TextLayout.Metrics;
         }
     }
 
@@ -131,32 +140,34 @@ public class TextRenderCore2D : RenderCore2DBase {
 
     private void UpdateFontFormat() {
         RemoveAndDispose(ref textFormat);
-        textFormat = new TextFormat(textFactory,
+        var renderHost = RenderHost ?? throw new InvalidOperationException("Render host is not initialized.");
+        textFormat = new TextFormat(TextFactory,
                                     FontFamily,
                                     FontWeight,
                                     FontStyle,
-                                    FontSize * RenderHost.DpiScale);
+                                    FontSize * renderHost.DpiScale);
         TextLayoutDirty = true;
     }
 
     private void UpdateTextLayout() {
         if (TextLayoutDirty) {
             RemoveAndDispose(ref textLayout);
-            textLayout = new TextLayout(textFactory, Text, textFormat, MaxWidth, MaxHeight);
+            textLayout = new TextLayout(TextFactory, Text, TextFormat, MaxWidth, MaxHeight);
             TextLayoutDirty = false;
         }
 
-        textLayout.TextAlignment = TextAlignment;
+        TextLayout.TextAlignment = TextAlignment;
     }
 
-    protected override bool CanRender(RenderContext2D context) => base.CanRender(context) && Foreground != null && Text != null;
+    protected override bool CanRender(RenderContext2D context) => base.CanRender(context) && Foreground is not null;
 
     protected override void OnRender(RenderContext2D context) {
-        if (Background != null) context.DeviceContext.FillRectangle(LayoutBound, Background);
+        if (Background is { } background) context.DeviceContext.FillRectangle(LayoutBound, background);
+        if (Foreground is not { } foreground) return;
         UpdateTextLayout();
         context.DeviceContext.DrawTextLayout(new Vector2(LayoutBound.Left, LayoutBound.Top),
-                                             textLayout,
-                                             Foreground,
+                                             TextLayout,
+                                             foreground,
                                              DrawingOptions);
     }
 }

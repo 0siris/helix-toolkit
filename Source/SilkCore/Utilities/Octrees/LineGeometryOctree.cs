@@ -79,11 +79,11 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
 
     /// <summary>
     /// </summary>
-    public IList<Vector3> Positions { get; }
+    public IList<Vector3> Positions { get; } = [];
 
     /// <summary>
     /// </summary>
-    public IList<int> Indices { get; }
+    public IList<int> Indices { get; } = [];
 
     private BoundingBox GetBoundingBox(int triangleIndex) {
         var actual = triangleIndex * 2;
@@ -161,7 +161,8 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
             
             var result = new LineHitTestResult { IsValid = false, Distance = double.MaxValue };
             result.Distance = double.MaxValue;
-            var rayWs = context.RayWs;
+        if (context is not { } hitContext) return false;
+        var rayWs = hitContext.RayWs;
               
             foreach (var t in Objects) {
                 var idx = t.Key * 2;
@@ -175,7 +176,7 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
                 Vector3 sp, tp;
                 float sc, tc;
                 var rayToLineDistance = LineBuilder.GetRayToLineDistance(rayWs, t0, t1, out sp, out tp, out sc, out tc);
-                var svpm = context.RenderMatrices.ScreenViewProjectionMatrix;
+                var svpm = hitContext.RenderMatrices.ScreenViewProjectionMatrix;
                 Vector4 sp4;
                 Vector4 tp4;
                 SilkMath.Transform(ref sp, ref svpm, out sp4);

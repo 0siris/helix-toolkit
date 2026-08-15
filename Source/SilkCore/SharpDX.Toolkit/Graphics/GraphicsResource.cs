@@ -12,7 +12,7 @@ public abstract class GraphicsResource : Component {
     /// <summary>
     ///     The attached Direct3D11 resource to this instance.
     /// </summary>
-    internal NativeD3DResource Resource;
+    internal NativeD3DResource? Resource;
 
     internal GraphicsResource() { }
 
@@ -25,17 +25,14 @@ public abstract class GraphicsResource : Component {
     /// </summary>
     /// <param name="graphicsDevice"></param>
     /// <param name="name"></param>
-    protected GraphicsResource(NativeD3DDevice graphicsDevice, string name) : base(name) {
-        if (graphicsDevice == null)
-            ArgumentNullException.ThrowIfNull(graphicsDevice);
-
+    protected GraphicsResource(NativeD3DDevice graphicsDevice, string? name) : base(name) {
         GraphicsDevice = graphicsDevice;
     }
 
     /// <summary>
     ///     Device used to create this instance.
     /// </summary>
-    public NativeD3DDevice GraphicsDevice { get; internal set; }
+    public NativeD3DDevice? GraphicsDevice { get; internal set; }
 
     /// <summary>
     ///     Initializes the specified device local.

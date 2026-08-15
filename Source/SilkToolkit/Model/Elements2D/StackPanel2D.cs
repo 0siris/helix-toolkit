@@ -15,9 +15,8 @@ public class StackPanel2D : Panel2D {
                                     typeof(StackPanel2D),
                                     new PropertyMetadata(Orientation.Horizontal,
                                                          (d, e) => {
-                                                             ((d as Element2D).SceneNode as StackPanelNode2D)
-                                                                 .Orientation =
-                                                                 ((Orientation)e.NewValue).ToD2DOrientation();
+                                                             if (d is Element2D { SceneNode: StackPanelNode2D node })
+                                                                 node.Orientation = ((Orientation)e.NewValue).ToD2DOrientation();
                                                          }));
 
     /// <summary>

@@ -51,8 +51,9 @@ public class CameraModel3D : CompositeModel3D {
             Color = Colors.White,
             IsHitTestVisible = false
         };
-        var segment = mesh.Positions.Count / 3;
-        var colors = new Color4Collection(Enumerable.Repeat<Color4>(Color.Black, mesh.Positions.Count));
+        var positions = mesh.Positions ?? throw new System.InvalidOperationException("Line geometry positions are required.");
+        var segment = positions.Count / 3;
+        var colors = new Color4Collection(Enumerable.Repeat<Color4>(Color.Black, positions.Count));
         var i = 0;
         for (; i < segment; ++i) colors[i] = Color.Red;
         for (; i < segment * 2; ++i) colors[i] = Color.Green;
@@ -90,7 +91,8 @@ public class CameraModel3D : CompositeModel3D {
         IsCaptured = true;
         Viewport = args.Viewport;
         ViewportCamera = args.Viewport.Camera;
-        LastHitPos = args.HitTestResult.PointHit;
+        if (args.HitTestResult is { } hitTestResult)
+            LastHitPos = hitTestResult.PointHit;
     }
 
     protected override void OnMouse3DUp(object sender, RoutedEventArgs e) {

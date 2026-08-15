@@ -28,21 +28,20 @@ public class StackPanelNode2D : PanelNode2D {
                 break;
         }
 
-        foreach (var child in Items)
-            if (child is SceneNode2D c) {
+        foreach (var child in Items) {
                 child.Measure(availableSize);
                 switch (Orientation) {
                     case Orientation.Horizontal:
-                        size.Width += c.DesiredSize.X;
-                        size.Height = Math.Max(size.Height, c.DesiredSize.Y);
+                        size.Width += child.DesiredSize.X;
+                        size.Height = Math.Max(size.Height, child.DesiredSize.Y);
                         break;
 
                     case Orientation.Vertical:
-                        size.Width = Math.Max(c.DesiredSize.X, size.Width);
-                        size.Height += c.DesiredSize.Y;
+                        size.Width = Math.Max(child.DesiredSize.X, size.Width);
+                        size.Height += child.DesiredSize.Y;
                         break;
                 }
-            }
+        }
 
         return size;
     }
@@ -50,26 +49,25 @@ public class StackPanelNode2D : PanelNode2D {
     protected override RectangleF ArrangeOverride(RectangleF finalSize) {
         float lastSize = 0;
         var totalSize = finalSize;
-        foreach (var child in Items)
-            if (child is SceneNode2D c) {
+        foreach (var child in Items) {
                 switch (Orientation) {
                     case Orientation.Horizontal:
                         totalSize.Left += lastSize;
-                        lastSize = c.DesiredSize.X;
+                        lastSize = child.DesiredSize.X;
                         totalSize.Right = totalSize.Left + lastSize;
                         //totalSize.Bottom = totalSize.Top + Math.Min(finalSize.Height, c.DesiredSize.Y);
                         break;
 
                     case Orientation.Vertical:
                         totalSize.Top += lastSize;
-                        lastSize = c.DesiredSize.Y;
+                        lastSize = child.DesiredSize.Y;
                         //totalSize.Right = totalSize.Left + Math.Min(finalSize.Width, c.DesiredSize.X);
                         totalSize.Bottom = totalSize.Top + lastSize;
                         break;
                 }
 
-                c.Arrange(totalSize);
-            }
+                child.Arrange(totalSize);
+        }
 
         return finalSize;
     }

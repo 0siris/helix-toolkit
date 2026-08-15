@@ -7,7 +7,7 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 /// </summary>
 public sealed class CompositionTargetEx : IDisposable {
     private TimeSpan last = TimeSpan.Zero;
-    private event EventHandler<RenderingEventArgs> FrameUpdating;
+    private event EventHandler<RenderingEventArgs>? FrameUpdating;
 
     public event EventHandler<RenderingEventArgs> Rendering {
         add {
@@ -22,7 +22,7 @@ public sealed class CompositionTargetEx : IDisposable {
         }
     }
 
-    private void CompositionTarget_Rendering(object sender, EventArgs e) {
+    private void CompositionTarget_Rendering(object? sender, EventArgs e) {
         var args = (RenderingEventArgs)e;
         if (args.RenderingTime == last)
             return;

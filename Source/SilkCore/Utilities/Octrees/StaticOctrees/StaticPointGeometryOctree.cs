@@ -101,7 +101,7 @@ public class StaticPointGeometryOctree : StaticOctree<int> {
         float hitThickness
     ) {
         isIntersect = false;
-        if (!octant.IsBuilt || context == null) return false;
+        if (!octant.IsBuilt) return false;
         var isHit = false;
         var bound = octant.Bound;
         if (rayModel.Intersects(ref bound)) {

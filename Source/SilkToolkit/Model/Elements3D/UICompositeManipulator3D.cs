@@ -25,7 +25,10 @@ public class UiCompositeManipulator3D : CompositeModel3D {
         typeof(bool),
         typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as UiCompositeManipulator3D).rotateX.IsRendering = (bool)e.NewValue; }));
+                             (d, e) => {
+                                 if (d is UiCompositeManipulator3D manipulator)
+                                     manipulator.rotateX.IsRendering = (bool)e.NewValue;
+                             }));
 
     /// <summary>
     ///     The can rotate y property.
@@ -34,7 +37,10 @@ public class UiCompositeManipulator3D : CompositeModel3D {
         typeof(bool),
         typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as UiCompositeManipulator3D).rotateY.IsRendering = (bool)e.NewValue; }));
+                             (d, e) => {
+                                 if (d is UiCompositeManipulator3D manipulator)
+                                     manipulator.rotateY.IsRendering = (bool)e.NewValue;
+                             }));
 
     /// <summary>
     ///     The can rotate z property.
@@ -43,7 +49,10 @@ public class UiCompositeManipulator3D : CompositeModel3D {
         typeof(bool),
         typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as UiCompositeManipulator3D).rotateZ.IsRendering = (bool)e.NewValue; }));
+                             (d, e) => {
+                                 if (d is UiCompositeManipulator3D manipulator)
+                                     manipulator.rotateZ.IsRendering = (bool)e.NewValue;
+                             }));
 
     /// <summary>
     ///     The can translate x property.
@@ -53,7 +62,8 @@ public class UiCompositeManipulator3D : CompositeModel3D {
         typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 (d as UiCompositeManipulator3D).translateX.IsRendering = (bool)e.NewValue;
+                                 if (d is UiCompositeManipulator3D manipulator)
+                                     manipulator.translateX.IsRendering = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -64,7 +74,8 @@ public class UiCompositeManipulator3D : CompositeModel3D {
         typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 (d as UiCompositeManipulator3D).translateY.IsRendering = (bool)e.NewValue;
+                                 if (d is UiCompositeManipulator3D manipulator)
+                                     manipulator.translateY.IsRendering = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -75,7 +86,8 @@ public class UiCompositeManipulator3D : CompositeModel3D {
         typeof(UiCompositeManipulator3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 (d as UiCompositeManipulator3D).translateZ.IsRendering = (bool)e.NewValue;
+                                 if (d is UiCompositeManipulator3D manipulator)
+                                     manipulator.translateZ.IsRendering = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -95,7 +107,10 @@ public class UiCompositeManipulator3D : CompositeModel3D {
         typeof(UiCompositeManipulator3D),
         new FrameworkPropertyMetadata(Transform3D.Identity,
                                       FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                                      (d, e) => { (d as Element3DCore).InvalidateRender(); }));
+                                      (d, e) => {
+                                          if (d is Element3DCore element)
+                                              element.InvalidateRender();
+                                      }));
 
     private readonly UiRotateManipulator3D rotateX;
     private readonly UiRotateManipulator3D rotateY;
@@ -229,7 +244,7 @@ public class UiCompositeManipulator3D : CompositeModel3D {
         set => SetValue(DiameterProperty, value);
     }
 
-    private void SceneNode_OnAttached(object sender, EventArgs e) {
+    private void SceneNode_OnAttached(object? sender, EventArgs e) {
         OnChildrenChanged();
     }
 
@@ -308,7 +323,7 @@ public class UiCompositeManipulator3D : CompositeModel3D {
     ///     The event arguments.
     /// </param>
     private static void ChildrenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        var model = d as UiCompositeManipulator3D;
-        if (model.SceneNode.IsAttached) model.OnChildrenChanged();
+        if (d is UiCompositeManipulator3D model && model.SceneNode is { IsAttached: true })
+            model.OnChildrenChanged();
     }
 }

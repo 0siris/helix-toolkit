@@ -24,8 +24,8 @@ public sealed class SpotLight3D : PointLight3D {
                                     typeof(SpotLight3D),
                                     new PropertyMetadata(new Vector3D(),
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as SpotLightNode)
-                                                                 .Direction = ((Vector3D)e.NewValue).ToVector3();
+                                                             if (d is Element3DCore { SceneNode: SpotLightNode node })
+                                                                 node.Direction = ((Vector3D)e.NewValue).ToVector3();
                                                          }));
 
     public static readonly DependencyProperty FalloffProperty =
@@ -34,8 +34,8 @@ public sealed class SpotLight3D : PointLight3D {
                                     typeof(SpotLight3D),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as SpotLightNode).FallOff =
-                                                                 (float)(double)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: SpotLightNode node })
+                                                                 node.FallOff = (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty InnerAngleProperty =
@@ -44,8 +44,8 @@ public sealed class SpotLight3D : PointLight3D {
                                     typeof(SpotLight3D),
                                     new PropertyMetadata(5.0,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as SpotLightNode)
-                                                                 .InnerAngle = (float)(double)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: SpotLightNode node })
+                                                                 node.InnerAngle = (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty OuterAngleProperty =
@@ -54,8 +54,8 @@ public sealed class SpotLight3D : PointLight3D {
                                     typeof(SpotLight3D),
                                     new PropertyMetadata(45.0,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as SpotLightNode)
-                                                                 .OuterAngle = (float)(double)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: SpotLightNode node })
+                                                                 node.OuterAngle = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>

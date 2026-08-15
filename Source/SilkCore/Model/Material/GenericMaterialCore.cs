@@ -9,7 +9,7 @@ using HelixToolkit.SharpDX.Core.Shaders;
 namespace HelixToolkit.SharpDX.Core.Model;
 [DataContract]
 public abstract class GenericMaterialCore : MaterialCore {
-    protected readonly ConstantBufferDescription CbDescription;
+    protected readonly ConstantBufferDescription CbDescription = new(string.Empty, 0);
 
     public GenericMaterialCore(
         string materialShaderPassName,
@@ -81,19 +81,23 @@ public abstract class GenericMaterialCore : MaterialCore {
     [DataMember]
     public string WireframePassName { get; set; } = DefaultPassNames.Wireframe;
 
-    public string[] PropertieNames { get; }
+    public string[] PropertieNames { get; } = [];
 
-    public string[] TextureNames { get; }
+    public string[] TextureNames { get; } = [];
 
-    public string[] SamplerNames { get; }
+    public string[] SamplerNames { get; } = [];
 
     internal event EventHandler<UpdateEvent>? UpdatingResource;
 
     public void SetTexture(string name, Stream texture) {
-        if (TextureDict.ContainsKey(name))
-            TextureDict[name] = texture;
-        else
-            TextureDict.Add(name, texture);
+        TextureModel? value = texture;
+        if (value is not { } textureModel) {
+            TextureDict.Remove(name);
+        } else if (TextureDict.ContainsKey(name)) {
+            TextureDict[name] = textureModel;
+        } else {
+            TextureDict.Add(name, textureModel);
+        }
         UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Texture, name));
     }
 

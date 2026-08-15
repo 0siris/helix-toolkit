@@ -18,8 +18,8 @@ public class PointLight3D : Light3D {
                                     typeof(PointLight3D),
                                     new PropertyMetadata(new Vector3D(1.0f, 0.0f, 0.0f),
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as PointLightNode)
-                                                                 .Attenuation = ((Vector3D)e.NewValue).ToVector3();
+                                                             if (d is Element3DCore { SceneNode: PointLightNode node })
+                                                                 node.Attenuation = ((Vector3D)e.NewValue).ToVector3();
                                                          }));
 
     public static readonly DependencyProperty RangeProperty =
@@ -28,8 +28,8 @@ public class PointLight3D : Light3D {
                                     typeof(PointLight3D),
                                     new PropertyMetadata(100.0,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as PointLightNode).Range =
-                                                                 (float)(double)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: PointLightNode node })
+                                                                 node.Range = (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty PositionProperty =
@@ -38,8 +38,8 @@ public class PointLight3D : Light3D {
                                     typeof(PointLight3D),
                                     new PropertyMetadata(new Point3D(),
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as PointLightNode)
-                                                                 .Position = ((Point3D)e.NewValue).ToVector3();
+                                                             if (d is Element3DCore { SceneNode: PointLightNode node })
+                                                                 node.Position = ((Point3D)e.NewValue).ToVector3();
                                                          }));
 
     /// <summary>

@@ -23,7 +23,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
 
     private readonly List<BoundingBox> hitPathBoundingBoxes = [];
 
-    private OctantArray octants;
+    private OctantArray octants = new();
 
     /// <summary>
     /// </summary>
@@ -35,7 +35,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     /// <summary>
     ///     Internal octant array size.
     /// </summary>
-    public int OctantArraySize => octants != null ? octants.Count : 0;
+    public int OctantArraySize => octants.Count;
 
     /// <summary>
     ///     The minumum size for enclosing region is a 1x1x1 cube.
@@ -44,7 +44,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
 
     /// <summary>
     /// </summary>
-    protected T[] Objects { get; private set; }
+    protected T[] Objects { get; private set; } = [];
 
     /// <summary>
     /// </summary>
@@ -100,8 +100,10 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         Geometry3D? geometry,
         Matrix modelMatrix,
         ref List<HitTestResult> hits
-    )
-        => HitTest(context, model, geometry, modelMatrix, false, ref hits);
+    ) {
+        if (geometry is null) return false;
+        return HitTest(context, model, geometry, modelMatrix, false, ref hits);
+    }
 
     /// <summary>
     /// </summary>
@@ -119,8 +121,12 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         Matrix modelMatrix,
         bool returnMultiple,
         ref List<HitTestResult> hits
-    )
-        => HitTest(context, model, geometry, modelMatrix, returnMultiple, ref hits, 0);
+    ) {
+        List<HitTestResult>? nullableHits = hits;
+        var result = HitTest(context, model, geometry, modelMatrix, returnMultiple, ref nullableHits, 0);
+        hits = nullableHits ?? [];
+        return result;
+    }
 
     /// <summary>
     ///     Hits the test.
@@ -139,8 +145,13 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         Matrix modelMatrix,
         ref List<HitTestResult> hits,
         float hitThickness
-    )
-        => HitTest(context, model, geometry, modelMatrix, false, ref hits, hitThickness);
+    ) {
+        if (geometry is null) return false;
+        List<HitTestResult>? nullableHits = hits;
+        var result = HitTest(context, model, geometry, modelMatrix, false, ref nullableHits, hitThickness);
+        hits = nullableHits ?? [];
+        return result;
+    }
 
     /// <summary>
     /// </summary>
@@ -161,6 +172,8 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
         ref List<HitTestResult>? hits,
         float hitThickness
     ) {
+        if (geometry is null) return false;
+
         hits ??= [];
         hitPathBoundingBoxes.Clear();
         var hitStack = HitStackPool.GetObject();
@@ -774,6 +787,8 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
     /// </summary>
     protected sealed class OctantArray {
         internal Octant[] Array = new Octant[128];
+
+        public OctantArray() { }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="OctantArray" /> class.

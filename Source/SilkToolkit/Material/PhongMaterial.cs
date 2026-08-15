@@ -540,40 +540,40 @@ public class PhongMaterial : Material {
     ///     System.Windows.Media.Brush to be applied as a System.Windows.Media.Media3D.Material
     ///     to a 3-D model.
     /// </summary>
-    public TextureModel DiffuseMap {
-        get => (TextureModel)GetValue(DiffuseMapProperty);
+    public TextureModel? DiffuseMap {
+        get => GetValue(DiffuseMapProperty) as TextureModel;
         set => SetValue(DiffuseMapProperty, value);
     }
 
 
-    public TextureModel DiffuseAlphaMap {
-        get => (TextureModel)GetValue(DiffuseAlphaMapProperty);
+    public TextureModel? DiffuseAlphaMap {
+        get => GetValue(DiffuseAlphaMapProperty) as TextureModel;
         set => SetValue(DiffuseAlphaMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
-    public TextureModel NormalMap {
-        get => (TextureModel)GetValue(NormalMapProperty);
+    public TextureModel? NormalMap {
+        get => GetValue(NormalMapProperty) as TextureModel;
         set => SetValue(NormalMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
-    public TextureModel SpecularColorMap {
-        get => (TextureModel)GetValue(SpecularColorMapProperty);
+    public TextureModel? SpecularColorMap {
+        get => GetValue(SpecularColorMapProperty) as TextureModel;
         set => SetValue(SpecularColorMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
-    public TextureModel DisplacementMap {
-        get => (TextureModel)GetValue(DisplacementMapProperty);
+    public TextureModel? DisplacementMap {
+        get => GetValue(DisplacementMapProperty) as TextureModel;
         set => SetValue(DisplacementMapProperty, value);
     }
 
-    public TextureModel EmissiveMap {
-        get => (TextureModel)GetValue(EmissiveMapProperty);
+    public TextureModel? EmissiveMap {
+        get => GetValue(EmissiveMapProperty) as TextureModel;
         set => SetValue(EmissiveMapProperty, value);
     }
 

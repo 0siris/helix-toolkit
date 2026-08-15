@@ -597,14 +597,14 @@ public class PbrMaterial : Material {
         set => SetValue(ClearCoatRoughnessProperty, value);
     }
 
-    public TextureModel AlbedoMap {
-        get => (TextureModel)GetValue(AlbedoMapProperty);
+    public TextureModel? AlbedoMap {
+        get => GetValue(AlbedoMapProperty) as TextureModel;
         set => SetValue(AlbedoMapProperty, value);
     }
 
 
-    public TextureModel EmissiveMap {
-        get => (TextureModel)GetValue(EmissiveMapProperty);
+    public TextureModel? EmissiveMap {
+        get => GetValue(EmissiveMapProperty) as TextureModel;
         set => SetValue(EmissiveMapProperty, value);
     }
 
@@ -615,8 +615,8 @@ public class PbrMaterial : Material {
     /// <value>
     ///     The rma map.
     /// </value>
-    public TextureModel RoughnessMetallicMap {
-        get => (TextureModel)GetValue(RoughnessMetallicMapProperty);
+    public TextureModel? RoughnessMetallicMap {
+        get => GetValue(RoughnessMetallicMapProperty) as TextureModel;
         set => SetValue(RoughnessMetallicMapProperty, value);
     }
 
@@ -629,28 +629,28 @@ public class PbrMaterial : Material {
     /// <value>
     ///     The ao map.
     /// </value>
-    public TextureModel AmbientOcculsionMap {
-        get => (TextureModel)GetValue(AmbientOcculsionMapProperty);
+    public TextureModel? AmbientOcculsionMap {
+        get => GetValue(AmbientOcculsionMapProperty) as TextureModel;
         set => SetValue(AmbientOcculsionMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
-    public TextureModel NormalMap {
-        get => (TextureModel)GetValue(NormalMapProperty);
+    public TextureModel? NormalMap {
+        get => GetValue(NormalMapProperty) as TextureModel;
         set => SetValue(NormalMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
-    public TextureModel DisplacementMap {
-        get => (TextureModel)GetValue(DisplacementMapProperty);
+    public TextureModel? DisplacementMap {
+        get => GetValue(DisplacementMapProperty) as TextureModel;
         set => SetValue(DisplacementMapProperty, value);
     }
 
 
-    public TextureModel IrradianceMap {
-        get => (TextureModel)GetValue(IrradianceMapProperty);
+    public TextureModel? IrradianceMap {
+        get => GetValue(IrradianceMapProperty) as TextureModel;
         set => SetValue(IrradianceMapProperty, value);
     }
 

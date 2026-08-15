@@ -38,7 +38,8 @@ public static class ViewportExtensions {
     /// <param name="viewport">The viewport.</param>
     /// <param name="rectangle">The rectangle.</param>
     public static void ZoomToRectangle(this ViewportCore viewport, RectangleF rectangle) {
-        viewport.CameraCore.ZoomToRectangle(viewport, rectangle);
+        var camera = viewport.CameraCore.AssertNotNull("Camera must be initialized.");
+        camera.ZoomToRectangle(viewport, rectangle);
     }
 
     /// <summary>
@@ -51,7 +52,8 @@ public static class ViewportExtensions {
         var diagonal = bounds.Maximum - bounds.Minimum;
 
         if (diagonal.LengthSquared == 0) return;
-        viewport.CameraCore.ZoomExtents(viewport, bounds, animationTime);
+        var camera = viewport.CameraCore.AssertNotNull("Camera must be initialized.");
+        camera.ZoomExtents(viewport, bounds, animationTime);
     }
 
     /// <summary>
@@ -61,7 +63,8 @@ public static class ViewportExtensions {
     /// <param name="bounds">The bounding rectangle.</param>
     /// <param name="animationTime">The animation time.</param>
     public static void ZoomExtents(this ViewportCore viewport, BoundingBox bounds, float animationTime = 0) {
-        viewport.CameraCore.ZoomExtents(viewport, bounds, animationTime);
+        var camera = viewport.CameraCore.AssertNotNull("Camera must be initialized.");
+        camera.ZoomExtents(viewport, bounds, animationTime);
     }
 
     /// <summary>
@@ -72,6 +75,7 @@ public static class ViewportExtensions {
     /// <param name="radius">The radius of the sphere.</param>
     /// <param name="animationTime">The animation time.</param>
     public static void ZoomExtents(this ViewportCore viewport, Vector3 center, float radius, float animationTime = 0) {
-        viewport.CameraCore.ZoomExtents(viewport, center, radius, animationTime);
+        var camera = viewport.CameraCore.AssertNotNull("Camera must be initialized.");
+        camera.ZoomExtents(viewport, center, radius, animationTime);
     }
 }

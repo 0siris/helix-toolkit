@@ -224,8 +224,8 @@ public class ItemsModel3D : CompositeModel3D {
 
     public virtual void Clear() {
         elementDict.Clear();
-        var node = SceneNode as GroupNode;
-        node.Clear();
+        if (SceneNode is GroupNode node)
+            node.Clear();
         Children.Clear();
     }
 }

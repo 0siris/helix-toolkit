@@ -20,7 +20,7 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
     /// <value>
     ///     The vertex bone ids.
     /// </value>
-    public IList<BoneIds> VertexBoneIds {
+    public IList<BoneIds>? VertexBoneIds {
         get;
         set => Set(ref field, value);
     }
@@ -32,7 +32,7 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
     /// <param name="rootInvTransform">The root inv transform.</param>
     /// <returns></returns>
     public static Matrix[] CreateNodeBasedBoneMatrices(IList<Bone> bones, ref Matrix rootInvTransform) {
-        Matrix[]? m = null;
+        var m = new Matrix[bones.Count];
         CreateNodeBasedBoneMatrices(bones, ref rootInvTransform, ref m);
         return m;
     }
@@ -49,14 +49,11 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
         ref Matrix rootInvTransform,
         ref Matrix[] matrices
     ) {
-        var m = matrices ?? new Matrix[bones.Count];
         for (var i = 0; i < bones.Count; ++i)
-            if (bones[i].Node != null)
-                m[i] = bones[i].InvBindPose * bones[i].Node.TotalModelMatrixInternal * rootInvTransform;
+            if (bones[i].Node is { } node)
+                matrices[i] = bones[i].InvBindPose * node.TotalModelMatrixInternal * rootInvTransform;
             else
-                m[i] = Matrix.Identity;
-
-        matrices = m;
+                matrices[i] = Matrix.Identity;
     }
 
 
@@ -64,21 +61,23 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
         var builder = new MeshBuilder(true, false);
         builder.AddPyramid(new Vector3(0, scale / 2, 0), Vector3.UnitZ, Vector3.UnitY, scale, 0, true);
         var singleBone = builder.ToMesh();
+        if (singleBone.Positions is not { } singleBonePositions || singleBone.Indices is not { } singleBoneIndices)
+            throw new InvalidOperationException("The skeleton source mesh has no positions or indices.");
         var boneIds = new List<BoneIds>();
-        var positions = new Vector3Collection(bones.Count * singleBone.Positions.Count);
-        var tris = new IntCollection(bones.Count * singleBone.Indices.Count);
+        var positions = new Vector3Collection(bones.Count * singleBonePositions.Count);
+        var tris = new IntCollection(bones.Count * singleBoneIndices.Count);
 
         var offset = 0;
 
         for (var i = 0; i < bones.Count; ++i)
             if (bones[i].ParentIndex >= 0) {
                 var currPos = positions.Count;
-                tris.AddRange(singleBone.Indices.Select(x => x + offset));
+                tris.AddRange(singleBoneIndices.Select(x => x + offset));
                 var j = 0;
-                for (; j < singleBone.Positions.Count - 6; j += 3) {
-                    positions.Add(SilkMath.TransformCoordinate(singleBone.Positions[j],
+                for (; j < singleBonePositions.Count - 6; j += 3) {
+                    positions.Add(SilkMath.TransformCoordinate(singleBonePositions[j],
                                                                bones[bones[i].ParentIndex].BindPose));
-                    positions.Add(SilkMath.TransformCoordinate(singleBone.Positions[j + 1],
+                    positions.Add(SilkMath.TransformCoordinate(singleBonePositions[j + 1],
                                                                bones[bones[i].ParentIndex].BindPose));
                     positions.Add(new Vector3(bones[i].BindPose.M41,
                                               bones[i].BindPose.M42,
@@ -88,13 +87,13 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
                     boneIds.Add(new BoneIds { Bone1 = i, Weights = new Vector4(1, 0, 0, 0) });
                 }
 
-                for (; j < singleBone.Positions.Count; ++j) {
-                    positions.Add(SilkMath.TransformCoordinate(singleBone.Positions[j],
+                for (; j < singleBonePositions.Count; ++j) {
+                    positions.Add(SilkMath.TransformCoordinate(singleBonePositions[j],
                                                                bones[bones[i].ParentIndex].BindPose));
                     boneIds.Add(new BoneIds { Bone1 = bones[i].ParentIndex, Weights = new Vector4(1, 0, 0, 0) });
                 }
 
-                offset += singleBone.Positions.Count;
+                offset += singleBonePositions.Count;
             }
 
         builder = new MeshBuilder(true, false);
@@ -114,11 +113,11 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
         return mesh;
     }
 
-    private IEnumerable<Triangle> SkinnedTriangles(Vector3[] skinnedVertices) {
-        for (var i = 0; i < Indices.Count; i += 3)
+    private static IEnumerable<Triangle> SkinnedTriangles(Vector3[] skinnedVertices, IList<int> indices) {
+        for (var i = 0; i < indices.Count; i += 3)
             yield return new Triangle {
-                P0 = skinnedVertices[Indices[i]], P1 = skinnedVertices[Indices[i + 1]],
-                P2 = skinnedVertices[Indices[i + 2]]
+                P0 = skinnedVertices[indices[i]], P1 = skinnedVertices[indices[i + 1]],
+                P2 = skinnedVertices[indices[i + 2]]
             };
     }
 
@@ -129,8 +128,7 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
         ref List<HitTestResult> hits,
         object originalSource
     ) {
-        if (skinnedVertices == null || skinnedVertices.Length == 0
-                                    || Indices == null || Indices.Count == 0)
+        if (skinnedVertices.Length == 0 || Indices is not { Count: > 0 } indices)
             return false;
         var isHit = false;
         var result = new HitTestResult {
@@ -146,7 +144,7 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
 
         var index = 0;
         var minDistance = float.MaxValue;
-        foreach (var t in SkinnedTriangles(skinnedVertices)) {
+        foreach (var t in SkinnedTriangles(skinnedVertices, indices)) {
             // Used when geometry size is really small, causes hit test failure due to SharpDX.MathUtils.ZeroTolerance.
             var scaling = 1f;
             var rayScaled = rayModel;
@@ -180,7 +178,7 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
                     // transform hit-info to world space now:
                     result.NormalAtHit = n; // SilkMath.TransformNormal(n, m).ToVector3D();
                     result.TriangleIndices =
-                        new Tuple<int, int, int>(Indices[index], Indices[index + 1], Indices[index + 2]);
+                        new Tuple<int, int, int>(indices[index], indices[index + 1], indices[index + 2]);
                     result.Tag = index / 3;
                     result.Geometry = this;
                     isHit = true;

@@ -132,7 +132,7 @@ public sealed class ReadOnlyObservableFastList<T> : ReadOnlyCollection<T>, INoti
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void List_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+    private void List_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
         CollectionChanged?.Invoke(this, e);
         if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Remove ||
             e.Action == NotifyCollectionChangedAction.Reset) OnPropertyChanged(nameof(Count));

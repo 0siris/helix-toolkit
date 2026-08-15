@@ -348,10 +348,13 @@ public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
             Offset = CapacityUsed = 0;
         }
 
+        if (buffer is not { } currentBuffer)
+            return;
+
         var dataArray = data.GetArrayByType();
-        var dataBox = context.MapSubresource(buffer, 0, mapMode, MapFlags.None);
+        var dataBox = context.MapSubresource(currentBuffer, 0, mapMode, MapFlags.None);
         UnsafeHelper.Write(dataBox.DataPointer + Offset, dataArray, offset, count);
-        context.UnmapSubresource(buffer, 0);
+        context.UnmapSubresource(currentBuffer, 0);
     }
 
     /// <summary>
@@ -382,9 +385,12 @@ public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
             Offset = CapacityUsed = 0;
         }
 
-        var dataBox = context.MapSubresource(buffer, 0, mapMode, MapFlags.None);
+        if (buffer is not { } currentBuffer)
+            return;
+
+        var dataBox = context.MapSubresource(currentBuffer, 0, mapMode, MapFlags.None);
         UnsafeHelper.Write(dataBox.DataPointer + Offset, data, byteOffset, byteCount);
-        context.UnmapSubresource(buffer, 0);
+        context.UnmapSubresource(currentBuffer, 0);
     }
 
     /// <summary>
@@ -416,9 +422,12 @@ public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
     /// <param name="context">The context.</param>
     /// <param name="action">The action.</param>
     public void MapBuffer(DeviceContextProxy context, Action<DataBox> action) {
-        var dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
+        if (buffer is not { } currentBuffer)
+            return;
+
+        var dataBox = context.MapSubresource(currentBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
         action(dataBox);
-        context.UnmapSubresource(buffer, 0);
+        context.UnmapSubresource(currentBuffer, 0);
         Offset = CapacityUsed = 0;
     }
 
@@ -454,7 +463,7 @@ public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
 }
 
 public sealed class StructuredBufferProxy : DynamicBufferProxy {
-    private ShaderResourceViewProxy srv;
+    private ShaderResourceViewProxy? srv;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="StructuredBufferProxy" /> class.
@@ -467,11 +476,11 @@ public sealed class StructuredBufferProxy : DynamicBufferProxy {
     public StructuredBufferProxy(int structureSize, bool lazyResize = true)
         : base(structureSize, BindFlags.ShaderResource, ResourceOptionFlags.BufferStructured, lazyResize) { }
 
-    public ShaderResourceViewProxy Srv => srv;
+    public ShaderResourceViewProxy? Srv => srv;
 
     protected override void OnBufferChanged(Buffer newBuffer) {
         RemoveAndDispose(ref srv);
-        if (newBuffer == null || ElementCount <= 0) return;
+        if (ElementCount <= 0) return;
 
         var desc = new ShaderResourceViewDescription {
             Format = Format.FormatUnknown,
@@ -481,8 +490,8 @@ public sealed class StructuredBufferProxy : DynamicBufferProxy {
                 ElementCount = ElementCount
             }
         };
-        srv = new ShaderResourceViewProxy(newBuffer,
-                                          newBuffer.Device.CreateShaderResourceView(newBuffer, desc));
+        if (newBuffer.Device.CreateShaderResourceView(newBuffer, desc) is { } view)
+            srv = new ShaderResourceViewProxy(newBuffer, view);
     }
 
     protected override void OnDispose(bool disposeManagedResources) {
@@ -490,7 +499,7 @@ public sealed class StructuredBufferProxy : DynamicBufferProxy {
         base.OnDispose(disposeManagedResources);
     }
 
-    public static implicit operator ShaderResourceViewProxy(StructuredBufferProxy proxy) => proxy.srv;
+    public static implicit operator ShaderResourceViewProxy?(StructuredBufferProxy? proxy) => proxy?.srv;
 
-    public static implicit operator ShaderResourceView?(StructuredBufferProxy proxy) => proxy.srv;
+    public static implicit operator ShaderResourceView?(StructuredBufferProxy? proxy) => proxy?.srv;
 }

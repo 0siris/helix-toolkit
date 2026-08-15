@@ -190,14 +190,9 @@ public class BillboardSingleText3D : BillboardBase {
     ///     Updates the bounds.
     /// </summary>
     public override void UpdateBounds() {
-        if (TextInfo == null) {
-            BoundingSphere = new BoundingSphere();
-            Bound = new BoundingBox();
-        } else {
-            BoundingSphere =
-                new BoundingSphere(TextInfo.Origin, (float)Math.Sqrt(Width * Width + Height * Height) / 2);
-            Bound = BoundingBox.FromSphere(BoundingSphere);
-        }
+        BoundingSphere =
+            new BoundingSphere(TextInfo.Origin, (float)Math.Sqrt(Width * Width + Height * Height) / 2);
+        Bound = BoundingBox.FromSphere(BoundingSphere);
     }
 
     protected override void OnAssignTo(Geometry3D target) {
@@ -219,7 +214,7 @@ public class BillboardSingleText3D : BillboardBase {
     /// </summary>
     /// <param name="deviceResources">The device resources.</param>
     protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources) {
-        if (TextInfo != null && !string.IsNullOrEmpty(TextInfo.Text)) {
+        if (!string.IsNullOrEmpty(TextInfo.Text)) {
             var w = Width;
             var h = Height;
             Texture = TextInfo.Text.ToBitmapStream(FontSize,
@@ -250,7 +245,7 @@ public class BillboardSingleText3D : BillboardBase {
             }
         }
 
-        TextInfo?.UpdateTextInfo(Width, Height);
+        TextInfo.UpdateTextInfo(Width, Height);
     }
 
 
@@ -286,7 +281,7 @@ public class BillboardSingleText3D : BillboardBase {
         bool fixedSize
     ) {
         var rayWs = context.RayWs;
-        if (!IsInitialized || context == null || Width == 0 || Height == 0
+        if (!IsInitialized || Width == 0 || Height == 0
             || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWs)))
             return false;
 

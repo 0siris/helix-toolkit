@@ -11,8 +11,10 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// </summary>
 public sealed class DirectionalLightNode : LightNode {
     public Vector3 Direction {
-        get => (RenderCore as DirectionalLightCore).Direction;
-        set => (RenderCore as DirectionalLightCore).Direction = value;
+        get => (RenderCore as DirectionalLightCore
+                ?? throw new InvalidOperationException("Directional light render core was not created.")).Direction;
+        set => (RenderCore as DirectionalLightCore
+                ?? throw new InvalidOperationException("Directional light render core was not created.")).Direction = value;
     }
 
     protected override RenderCore OnCreateRenderCore() => new DirectionalLightCore();

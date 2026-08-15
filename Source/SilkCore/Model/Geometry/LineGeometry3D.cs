@@ -10,13 +10,18 @@ namespace HelixToolkit.SharpDX.Core;
 public class LineGeometry3D : Geometry3D {
     public IEnumerable<Line> Lines {
         get {
-            for (var i = 0; i < Indices.Count; i += 2)
-                yield return new Line { P0 = Positions[Indices[i]], P1 = Positions[Indices[i + 1]] };
+            if (Indices is not { } indices || Positions is not { } positions)
+                yield break;
+            for (var i = 0; i < indices.Count; i += 2)
+                yield return new Line { P0 = positions[indices[i]], P1 = positions[indices[i + 1]] };
         }
     }
 
     protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) 
-        => new StaticLineGeometryOctree(Positions, Indices, parameter);
+        => new StaticLineGeometryOctree(
+            Positions ?? throw new InvalidOperationException("Line positions are required to create an octree."),
+            Indices ?? throw new InvalidOperationException("Line indices are required to create an octree."),
+            parameter);
 
     protected override bool CanCreateOctree() => Positions is {Count: > 0} && Indices is {Count: > 0};
 

@@ -10,6 +10,9 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class SpotLightNode : PointLightNode {
+    private SpotLightCore LightCore => RenderCore as SpotLightCore
+        ?? throw new InvalidOperationException("Spot-light render core is not initialized.");
+
     /// <summary>
     ///     Gets or sets the direction.
     /// </summary>
@@ -17,8 +20,8 @@ public class SpotLightNode : PointLightNode {
     ///     The direction.
     /// </value>
     public Vector3 Direction {
-        get => (RenderCore as SpotLightCore).Direction;
-        set => (RenderCore as SpotLightCore).Direction = value;
+        get => LightCore.Direction;
+        set => LightCore.Direction = value;
     }
 
     /// <summary>
@@ -28,8 +31,8 @@ public class SpotLightNode : PointLightNode {
     ///     The fall off.
     /// </value>
     public float FallOff {
-        get => (RenderCore as SpotLightCore).FallOff;
-        set => (RenderCore as SpotLightCore).FallOff = value;
+        get => LightCore.FallOff;
+        set => LightCore.FallOff = value;
     }
 
     /// <summary>
@@ -39,8 +42,8 @@ public class SpotLightNode : PointLightNode {
     ///     The inner angle.
     /// </value>
     public float InnerAngle {
-        get => (RenderCore as SpotLightCore).InnerAngle;
-        set => (RenderCore as SpotLightCore).InnerAngle = value;
+        get => LightCore.InnerAngle;
+        set => LightCore.InnerAngle = value;
     }
 
     /// <summary>
@@ -50,8 +53,8 @@ public class SpotLightNode : PointLightNode {
     ///     The outer angle.
     /// </value>
     public float OuterAngle {
-        get => (RenderCore as SpotLightCore).OuterAngle;
-        set => (RenderCore as SpotLightCore).OuterAngle = value;
+        get => LightCore.OuterAngle;
+        set => LightCore.OuterAngle = value;
     }
 
     /// <summary>

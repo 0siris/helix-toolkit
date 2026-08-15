@@ -22,7 +22,7 @@ public abstract class Component : ComponentBase, IDisposable {
     ///     Initializes a new instance of the <see cref="Component" /> class with an immutable name.
     /// </summary>
     /// <param name="name">The name.</param>
-    protected Component(string name) : base(name) { }
+    protected Component(string? name) : base(name) { }
 
     /// <summary>
     ///     Gets or sets a value indicating whether this instance is attached to a collector.
@@ -73,11 +73,10 @@ public abstract class Component : ComponentBase, IDisposable {
     ///     disposed of in addition to unmanaged resources.
     /// </param>
     protected virtual void Dispose(bool disposeManagedResources) {
-        if (disposeManagedResources)
-            if (disposeCollector != null) {
-                for (var i = disposeCollector.Count - 1; i >= 0; i--) disposeCollector[i]?.Dispose();
-                disposeCollector = null;
-            }
+        if (disposeManagedResources && disposeCollector is { } collector) {
+            for (var i = collector.Count - 1; i >= 0; i--) collector[i].Dispose();
+            disposeCollector = null;
+        }
     }
 
     /// <summary>

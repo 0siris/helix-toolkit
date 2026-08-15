@@ -22,11 +22,11 @@ public class DiffuseMaterialVariables : MaterialVariable {
 
     private readonly ITextureResourceManager textureManager;
     private int samplerDiffuseSlot, samplerShadowSlot;
-    private SamplerStateProxy samplerResource;
+    private SamplerStateProxy? samplerResource;
 
     private int texDiffuseSlot;
     private uint textureIndex;
-    private ShaderResourceViewProxy textureResource;
+    private ShaderResourceViewProxy? textureResource;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DiffuseMaterialVariables" /> class.
@@ -147,7 +147,7 @@ public class DiffuseMaterialVariables : MaterialVariable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void CreateTextureView(TextureModel texture, int index) {
+    private void CreateTextureView(TextureModel? texture, int index) {
         var newTexture = texture == null ? null : textureManager.Register(texture);
         RemoveAndDispose(ref textureResource);
         textureResource = newTexture;
@@ -158,16 +158,11 @@ public class DiffuseMaterialVariables : MaterialVariable {
     }
 
     private void CreateTextureViews() {
-        if (material != null) {
-            CreateTextureView(material.DiffuseMap, DiffuseIdx);
-        } else {
-            RemoveAndDispose(ref textureResource);
-            textureIndex = 0;
-        }
+        CreateTextureView(material.DiffuseMap, DiffuseIdx);
     }
 
     private void CreateSamplers() {
-        var newSampler = material == null ? null : statePoolManager.Register(material.DiffuseMapSampler);
+        var newSampler = statePoolManager.Register(material.DiffuseMapSampler);
         RemoveAndDispose(ref samplerResource);
         samplerResource = newSampler;
     }
@@ -248,9 +243,10 @@ public class DiffuseMaterialVariables : MaterialVariable {
 
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) {
-        DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
+        if (bufferModel?.IndexBuffer is { } indexBuffer)
+            DrawIndexed(deviceContext, indexBuffer.ElementCount, instanceCount);
     }
 }

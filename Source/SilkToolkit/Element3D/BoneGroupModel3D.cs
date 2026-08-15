@@ -16,8 +16,8 @@ public sealed class BoneGroupModel3D : GroupModel3D {
                                     typeof(BoneGroupModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as BoneGroupNode)
-                                                                 .BoneMatrices = (Matrix[])e.NewValue;
+                                                             if (d is Element3D { SceneNode: BoneGroupNode node })
+                                                                 node.BoneMatrices = (Matrix[])e.NewValue;
                                                          }));
 
     /// <summary>

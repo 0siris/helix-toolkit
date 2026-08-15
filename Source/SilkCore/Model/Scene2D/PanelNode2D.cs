@@ -19,7 +19,7 @@ public class PanelNode2D : SceneNode2D {
             ItemHashSet.Add(node.Guid, node);
             ItemsInternal.Add(node);
             node.Parent = this;
-            if (IsAttached) node.Attach(RenderHost);
+            if (IsAttached && RenderHost is { } host) node.Attach(host);
             return true;
         }
 
@@ -61,7 +61,7 @@ public class PanelNode2D : SceneNode2D {
     /// <param name="guid">The unique identifier.</param>
     /// <param name="node">The node.</param>
     /// <returns></returns>
-    public bool TryGetNode(Guid guid, out SceneNode2D node) => ItemHashSet.TryGetValue(guid, out node);
+    public bool TryGetNode(Guid guid, out SceneNode2D? node) => ItemHashSet.TryGetValue(guid, out node);
 
     protected override bool OnAttach(IRenderHost host) {
         for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Attach(host);

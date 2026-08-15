@@ -194,7 +194,7 @@ public class TextModel2D : Element2D, ITextBlock {
         set => SetValue(ForegroundProperty, value);
     }
 
-    public Media.Brush Background {
+    public Media.Brush? Background {
         get => (Media.Brush)GetValue(BackgroundProperty);
         set => SetValue(BackgroundProperty, value);
     }
@@ -210,26 +210,27 @@ public class TextModel2D : Element2D, ITextBlock {
     protected override void OnUpdate(RenderContext2D context) {
         base.OnUpdate(context);
         if (foregroundChanged) {
-            (SceneNode as TextNode2D).Foreground =
-                Foreground?.ToD2DBrush(context.DeviceContext);
+            if (SceneNode is TextNode2D node)
+                node.Foreground = Foreground.ToD2DBrush(context.DeviceContext);
             foregroundChanged = false;
         }
 
         if (backgroundChanged) {
-            (SceneNode as TextNode2D).Background =
-                Background?.ToD2DBrush(context.DeviceContext);
+            if (SceneNode is TextNode2D node)
+                node.Background = Background?.ToD2DBrush(context.DeviceContext);
             backgroundChanged = false;
         }
     }
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode2D node) {
-        var t = node as TextNode2D;
-        t.Text = Text == null ? string.Empty : Text;
-        t.FontFamily = FontFamily == null ? DefaultFont : FontFamily;
-        t.FontWeight = FontWeight.ToDXFontWeight();
-        t.FontStyle = FontStyle.ToDXFontStyle();
-        t.FontSize = FontSize;
-        t.TextAlignment = TextAlignment.ToD2DTextAlignment();
-        t.FlowDirection = FlowDirection.ToD2DFlowDir();
+        if (node is not TextNode2D textNode)
+            return;
+        textNode.Text = Text;
+        textNode.FontFamily = FontFamily;
+        textNode.FontWeight = FontWeight.ToDXFontWeight();
+        textNode.FontStyle = FontStyle.ToDXFontStyle();
+        textNode.FontSize = FontSize;
+        textNode.TextAlignment = TextAlignment.ToD2DTextAlignment();
+        textNode.FlowDirection = FlowDirection.ToD2DFlowDir();
     }
 }

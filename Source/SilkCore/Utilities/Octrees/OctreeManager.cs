@@ -121,6 +121,10 @@ public abstract class OctreeManagerBase : ObservableObject, IOctreeManager {
         object model,
         Matrix modelMatrix,
         ref List<HitTestResult> hits
-    )
-        => Octree.HitTest(context, model, null, modelMatrix, ref hits);
+    ) {
+        if (Octree is not { } octree)
+            return false;
+
+        return octree.HitTest(context, model, null, modelMatrix, ref hits);
+    }
 }

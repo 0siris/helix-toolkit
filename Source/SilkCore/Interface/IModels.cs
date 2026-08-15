@@ -25,7 +25,7 @@ public interface IBillboardText {
     /// <value>
     ///     The texture.
     /// </value>
-    TextureModel Texture { get; }
+    TextureModel? Texture { get; }
 
     /// <summary>
     ///     Gets the billboard vertices.

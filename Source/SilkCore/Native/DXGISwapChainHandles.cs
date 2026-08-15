@@ -78,7 +78,7 @@ public unsafe class SwapChain1 : IDisposable {
     private static readonly DXGI DxgiApi = DXGI.GetApi(null);
     private static readonly Guid Factory2Guid = new("50c83a1c-e072-4c48-87b0-3630fa36a6d0");
     private static readonly Guid Texture2DGuid = new("6f15aaf2-d208-4e89-9ab4-489535d34f9c");
-    private readonly NativeD3DDevice device;
+    private readonly NativeD3DDevice? device;
 
     private SilkDXGIFactory2Ptr factory;
     private SilkDXGISwapChain1Ptr swapChain;
@@ -161,6 +161,8 @@ public unsafe class SwapChain1 : IDisposable {
 
     internal Texture2D GetBackBuffer() {
         ThrowIfDisposed();
+        var device = this.device
+            ?? throw new System.InvalidOperationException("The swap-chain device is not initialized.");
 
         ID3D11Texture2D* texture = null;
         var textureGuid = Texture2DGuid;
@@ -184,6 +186,8 @@ public unsafe class SwapChain1 : IDisposable {
     }
 
     private void CreateNativeSwapChain() {
+        var device = this.device
+            ?? throw new System.InvalidOperationException("The swap-chain device is not initialized.");
         IDXGIFactory2* factoryHandle = null;
         var factoryGuid = Factory2Guid;
         Marshal.ThrowExceptionForHR(DxgiApi.CreateDXGIFactory2(0, &factoryGuid, (void**)&factoryHandle));

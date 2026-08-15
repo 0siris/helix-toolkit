@@ -15,8 +15,8 @@ public class LineArrowHeadMaterial : LineMaterial {
                                     typeof(LineArrowHeadMaterial),
                                     new PropertyMetadata(0.1,
                                                          (d, e) => {
-                                                             ((d as LineMaterial).Core as LineArrowHeadMaterialCore)
-                                                                 .ArrowSize = (float)(double)e.NewValue;
+                                                             if (d is LineMaterial { Core: LineArrowHeadMaterialCore core })
+                                                                 core.ArrowSize = (float)(double)e.NewValue;
                                                          }));
 
     public double ArrowSize {

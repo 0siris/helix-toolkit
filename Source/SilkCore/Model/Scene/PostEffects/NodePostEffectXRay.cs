@@ -9,6 +9,9 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class NodePostEffectXRay : SceneNode {
+    private IPostEffectMeshXRay XRayCore => RenderCore as IPostEffectMeshXRay
+        ?? throw new InvalidOperationException("X-ray post-effect render core is not initialized.");
+
     /// <summary>
     ///     Called when [create render core].
     /// </summary>
@@ -33,8 +36,8 @@ public class NodePostEffectXRay : SceneNode {
     ///     The name of the effect.
     /// </value>
     public string EffectName {
-        get => (RenderCore as IPostEffectMeshXRay).EffectName;
-        set => (RenderCore as IPostEffectMeshXRay).EffectName = value;
+        get => XRayCore.EffectName;
+        set => XRayCore.EffectName = value;
     }
 
     /// <summary>
@@ -44,8 +47,8 @@ public class NodePostEffectXRay : SceneNode {
     ///     The color.
     /// </value>
     public Color4 Color {
-        get => (RenderCore as IPostEffectMeshXRay).Color;
-        set => (RenderCore as IPostEffectMeshXRay).Color = value;
+        get => XRayCore.Color;
+        set => XRayCore.Color = value;
     }
 
     /// <summary>
@@ -55,8 +58,8 @@ public class NodePostEffectXRay : SceneNode {
     ///     The outline fading factor.
     /// </value>
     public float OutlineFadingFactor {
-        get => (RenderCore as IPostEffectMeshXRay).OutlineFadingFactor;
-        set => (RenderCore as IPostEffectMeshXRay).OutlineFadingFactor = value;
+        get => XRayCore.OutlineFadingFactor;
+        set => XRayCore.OutlineFadingFactor = value;
     }
 
     /// <summary>
@@ -66,8 +69,8 @@ public class NodePostEffectXRay : SceneNode {
     ///     <c>true</c> if [enable double pass]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableDoublePass {
-        get => (RenderCore as IPostEffectMeshXRay).EnableDoublePass;
-        set => (RenderCore as IPostEffectMeshXRay).EnableDoublePass = value;
+        get => XRayCore.EnableDoublePass;
+        set => XRayCore.EnableDoublePass = value;
     }
 
     #endregion

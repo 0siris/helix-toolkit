@@ -9,13 +9,13 @@ namespace HelixToolkit.SharpDX.Core.Core2D;
 public class BorderRenderCore2D : RenderCore2DBase {
     private readonly PathRenderCore2D[] borderRenderCore = [new(), new(), new(), new()];
 
-    private Brush background;
+    private Brush? background;
 
     private bool isBorderGeometryChanged;
 
-    private Brush strokeBrush;
+    private Brush? strokeBrush;
 
-    private StrokeStyle strokeStyle;
+    private StrokeStyle? strokeStyle;
 
     /// <summary>
     ///     Gets or sets the background.
@@ -23,7 +23,7 @@ public class BorderRenderCore2D : RenderCore2DBase {
     /// <value>
     ///     The background.
     /// </value>
-    public Brush Background {
+    public Brush? Background {
         get => background;
         set {
             var old = background;
@@ -37,13 +37,14 @@ public class BorderRenderCore2D : RenderCore2DBase {
     /// <value>
     ///     The stroke brush.
     /// </value>
-    public Brush StrokeBrush {
+    public Brush? StrokeBrush {
         get => strokeBrush;
         set {
             var old = strokeBrush;
             if (SetAffectsRender(ref strokeBrush, value)) {
                 RemoveAndDispose(ref old);
-                foreach (var core in borderRenderCore) core.StrokeBrush = value.QueryInterface<Brush>();
+                foreach (var core in borderRenderCore)
+                    core.StrokeBrush = value?.QueryInterface<Brush>();
             }
         }
     }
@@ -65,13 +66,14 @@ public class BorderRenderCore2D : RenderCore2DBase {
     /// <value>
     ///     The stroke style.
     /// </value>
-    public StrokeStyle StrokeStyle {
+    public StrokeStyle? StrokeStyle {
         get => strokeStyle;
         set {
             var old = strokeStyle;
             if (SetAffectsRender(ref strokeStyle, value)) {
                 RemoveAndDispose(ref old);
-                foreach (var core in borderRenderCore) core.StrokeStyle = value.QueryInterface<StrokeStyle>();
+                foreach (var core in borderRenderCore)
+                    core.StrokeStyle = value?.QueryInterface<StrokeStyle>();
             }
         }
     }
@@ -118,11 +120,13 @@ public class BorderRenderCore2D : RenderCore2DBase {
     /// <param name="context">The context.</param>
     protected override void OnRender(RenderContext2D context) {
         var roundRect = new RoundedRectangle { Rect = LayoutBound, RadiusX = CornerRadius, RadiusY = CornerRadius };
-        if (Background != null) context.DeviceContext.FillRoundedRectangle(roundRect, Background);
+        if (Background is { } background) context.DeviceContext.FillRoundedRectangle(roundRect, background);
         var thickness = BorderThickness * context.DpiScale;
-        if (thickness.LengthSquared() > 0 && StrokeBrush != null && StrokeStyle != null) {
+        if (thickness.LengthSquared() > 0
+            && StrokeBrush is { } strokeBrush
+            && StrokeStyle is { } strokeStyle) {
             if (thickness.X == thickness.Y && thickness.X == thickness.Z && thickness.X == thickness.W) {
-                context.DeviceContext.DrawRoundedRectangle(roundRect, StrokeBrush, thickness.X, StrokeStyle);
+                context.DeviceContext.DrawRoundedRectangle(roundRect, strokeBrush, thickness.X, strokeStyle);
             } else {
                 if (isBorderGeometryChanged) {
                     var topLeft = LayoutBound.TopLeft + new Vector2(0, CornerRadius);

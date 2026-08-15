@@ -8,6 +8,7 @@ using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
+
 /// <summary>
 /// </summary>
 public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
@@ -28,7 +29,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         set;
     } = true;
 
-    private ParticleRenderCore ParticleCore => (ParticleRenderCore)RenderCore;
+    private ParticleRenderCore ParticleCore => (ParticleRenderCore) RenderCore;
 
     /// <summary>
     ///     Gets the instance buffer.
@@ -48,7 +49,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     /// <returns></returns>
     protected override RenderCore OnCreateRenderCore() => new ParticleRenderCore();
 
-    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.ParticleStorm];
+    protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager)
+        => effectsManager[DefaultRenderTechniqueNames.ParticleStorm];
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         base.OnAttach(effectsManager);
@@ -260,7 +262,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     /// <value>
     ///     The particle texture.
     /// </value>
-    public TextureModel ParticleTexture {
+    public TextureModel? ParticleTexture {
         get => ParticleCore.ParticleTexture;
         set => ParticleCore.ParticleTexture = value;
     }
@@ -510,7 +512,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
                 BoundChanged = true;
             }
         }
-    }
+    } = [];
 
     /// <summary>
     ///     Gets a value indicating whether this instance has instances.

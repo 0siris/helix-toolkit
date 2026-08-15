@@ -21,14 +21,12 @@ public class BillboardNode : MaterialGeometryNode {
     /// <param name="modelGuid"></param>
     /// <param name="geometry"></param>
     /// <returns></returns>
-    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) {
-        var buffer = geometry != null && geometry.IsDynamic
-                         ? EffectsManager.GeometryBufferManager.Register<DynamicBillboardBufferModel>(
-                             modelGuid,
-                             geometry)
-                         : EffectsManager.GeometryBufferManager.Register<DefaultBillboardBufferModel>(
-                             modelGuid,
-                             geometry);
+    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D? geometry) {
+        var effectsManager = EffectsManager
+            ?? throw new InvalidOperationException("An effects manager is required to create a billboard buffer.");
+        var buffer = geometry is { IsDynamic: true }
+                         ? effectsManager.GeometryBufferManager.Register<DynamicBillboardBufferModel>(modelGuid, geometry)
+                         : effectsManager.GeometryBufferManager.Register<DefaultBillboardBufferModel>(modelGuid, geometry);
         if (geometry is IBillboardText b && Material is IBillboardRenderParams m) m.Type = b.Type;
         return buffer;
     }
@@ -48,7 +46,7 @@ public class BillboardNode : MaterialGeometryNode {
     /// </summary>
     /// <param name="geometry">The geometry.</param>
     /// <returns></returns>
-    protected override bool OnCheckGeometry(Geometry3D geometry) => geometry is IBillboardText;
+    protected override bool OnCheckGeometry(Geometry3D? geometry) => geometry is IBillboardText;
 
     /// <summary>
     ///     Create raster state description.
@@ -80,12 +78,8 @@ public class BillboardNode : MaterialGeometryNode {
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
     ) {
-        if (Material is BillboardMaterialCore c)
-            return (Geometry as BillboardBase).HitTest(context,
-                                                       totalModelMatrix,
-                                                       ref hits,
-                                                       WrapperSource,
-                                                       c.FixedSize);
+        if (Material is BillboardMaterialCore c && Geometry is BillboardBase billboard)
+            return billboard.HitTest(context, totalModelMatrix, ref hits, WrapperSource ?? this, c.FixedSize);
 
         return false;
     }

@@ -30,17 +30,21 @@ public class MeshSimplification {
     /// </summary>
     /// <param name="model"></param>
     public MeshSimplification(MeshGeometry3D model) {
-        triangles = [.. Enumerable.Range(0, model.TriangleIndices.Count / 3)
+        var triangleIndices = model.TriangleIndices
+            ?? throw new ArgumentException("Triangle indices are required.", nameof(model));
+        var positions = model.Positions
+            ?? throw new ArgumentException("Positions are required.", nameof(model));
+        triangles = [.. Enumerable.Range(0, triangleIndices.Count / 3)
                                                  .Select(x => new Triangle())];
         var i = 0;
         foreach (var tri in triangles) {
-            tri.V[0] = model.TriangleIndices[i++];
-            tri.V[1] = model.TriangleIndices[i++];
-            tri.V[2] = model.TriangleIndices[i++];
+            tri.V[0] = triangleIndices[i++];
+            tri.V[1] = triangleIndices[i++];
+            tri.V[2] = triangleIndices[i++];
         }
 
-        vertices = [.. model.Positions.Select(x => new Vertex(x))];
-        refs = [.. Enumerable.Range(0, model.TriangleIndices.Count).Select(x => new Ref())];
+        vertices = [.. positions.Select(x => new Vertex(x))];
+        refs = [.. Enumerable.Range(0, triangleIndices.Count).Select(x => new Ref())];
     }
 
     /// <summary>

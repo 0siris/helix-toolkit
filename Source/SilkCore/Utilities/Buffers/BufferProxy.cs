@@ -4,13 +4,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
+
 /// <summary>
 /// </summary>
 public interface IBufferProxy : IDisposable {
     /// <summary>
     ///     Raw Buffer
     /// </summary>
-    Buffer Buffer { get; }
+    Buffer? Buffer { get; }
 
     /// <summary>
     ///     Element Size
@@ -33,13 +34,12 @@ public interface IBufferProxy : IDisposable {
     BindFlags BindFlags { get; }
 }
 
-
 /// <summary>
 /// </summary>
 public abstract class BufferProxyBase : DisposeObject, IBufferProxy {
     /// <summary>
     /// </summary>
-    protected Buffer Buffer;
+    protected Buffer? buffer;
 
     /// <summary>
     /// </summary>
@@ -69,7 +69,7 @@ public abstract class BufferProxyBase : DisposeObject, IBufferProxy {
     /// <summary>
     ///     <see cref="IBufferProxy.Buffer" />
     /// </summary>
-    public Buffer Buffer => buffer;
+    public Buffer? Buffer => buffer;
 
     /// <summary>
     ///     <see cref="IBufferProxy.BindFlags" />

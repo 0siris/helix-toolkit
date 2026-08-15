@@ -60,10 +60,13 @@ public sealed class LightsBufferModel : ILightsBufferProxy<LightStruct> {
             return;
         }
 
-        var dataBox = context.MapSubresource(buffer.Buffer, 0, MapMode.WriteDiscard, MapFlags.None);
+        if (buffer.Buffer is not { } rawBuffer)
+            return;
+
+        var dataBox = context.MapSubresource(rawBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
         if (dataBox.IsEmpty) return;
         Upload(dataBox);
-        context.UnmapSubresource(buffer.Buffer, 0);
+        context.UnmapSubresource(rawBuffer, 0);
     }
 
     private void Upload(DataBox dataBox) {

@@ -79,7 +79,7 @@ public class GroupNode : GroupNodeBase, IHitable {
     ) {
         bool isHit;
         if (octreeManager != null) {
-            isHit = octreeManager.HitTest(context, WrapperSource, totalModelMatrix, ref hits);
+            isHit = octreeManager.HitTest(context, WrapperSource ?? this, totalModelMatrix, ref hits);
             if (isHit && Logger.IsEnabled(LogLevel.Trace))
                 Logger.Verbose("Octree hit test, hit at {Value0}", hits[0].PointHit);
         } else {

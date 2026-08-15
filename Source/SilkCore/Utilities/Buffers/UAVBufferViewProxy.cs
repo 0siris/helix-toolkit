@@ -4,6 +4,7 @@ Copyright (c) 2026 Helix Toolkit contributors
 */
 
 using System.Diagnostics.CodeAnalysis;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
@@ -12,11 +13,11 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 /// </summary>
 public sealed class UavBufferViewProxy : IDisposable {
     private bool disposedValue;
-    private Resource resource;
+    private Resource? resource;
 
-    private ShaderResourceViewProxy srv;
+    private ShaderResourceViewProxy? srv;
 
-    private UnorderedAccessView uav;
+    private UnorderedAccessView? uav;
 
     public UavBufferViewProxy(
         DeviceContextProxy context,
@@ -25,7 +26,7 @@ public sealed class UavBufferViewProxy : IDisposable {
         ref ShaderResourceViewDescription srvDesc
     )
         : this(context, ref bufferDesc, ref uavDesc) {
-        srv = new ShaderResourceViewProxy(context, resource);
+        srv = new ShaderResourceViewProxy(context, Resource);
         srv.CreateTextureView(ref srvDesc);
     }
 
@@ -53,8 +54,11 @@ public sealed class UavBufferViewProxy : IDisposable {
         ref UnorderedAccessViewDescription uavDesc,
         ref ShaderResourceViewDescription srvDesc
     ) {
-        // Legacy construction without a native DeviceContextProxy is kept only for callers
-        // that are migrated in a later pass.
+        var nativeDevice = device as NativeD3DDevice
+            ?? throw new ArgumentException("A native D3D device is required.", nameof(device));
+        resource = new Buffer(nativeDevice.CreateBuffer(bufferDesc), nativeDevice, bufferDesc);
+        uav = nativeDevice.CreateUnorderedAccessView(resource, uavDesc);
+        srv = new ShaderResourceViewProxy(resource, nativeDevice.CreateShaderResourceView(resource, srvDesc));
     }
 
     public UavBufferViewProxy(
@@ -62,8 +66,10 @@ public sealed class UavBufferViewProxy : IDisposable {
         ref BufferDescription bufferDesc,
         ref UnorderedAccessViewDescription uavDesc
     ) {
-        // Legacy construction without a native DeviceContextProxy is kept only for callers
-        // that are migrated in a later pass.
+        var nativeDevice = device as NativeD3DDevice
+            ?? throw new ArgumentException("A native D3D device is required.", nameof(device));
+        resource = new Buffer(nativeDevice.CreateBuffer(bufferDesc), nativeDevice, bufferDesc);
+        uav = nativeDevice.CreateUnorderedAccessView(resource, uavDesc);
     }
 
     public UavBufferViewProxy(
@@ -72,12 +78,12 @@ public sealed class UavBufferViewProxy : IDisposable {
         ref UnorderedAccessViewDescription uavDesc,
         ref ShaderResourceViewDescription srvDesc
     ) {
-        // Texture based UAV views are migrated with the texture resource port.
+        throw new NotSupportedException("Texture based UAV views are not supported by this proxy.");
     }
 
-    public Resource Resource => resource;
-    public UnorderedAccessView Uav => uav;
-    public ShaderResourceViewProxy Srv => srv;
+    public Resource Resource => resource ?? throw new ObjectDisposedException(nameof(UavBufferViewProxy));
+    public UnorderedAccessView Uav => uav ?? throw new ObjectDisposedException(nameof(UavBufferViewProxy));
+    public ShaderResourceViewProxy? Srv => srv;
 
     public void Dispose() {
         Dispose(true);

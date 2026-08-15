@@ -15,8 +15,7 @@ public class FrameStatisticsModel2D : Element2D {
                                       typeof(FrameStatisticsModel2D),
                                       new PropertyMetadata(new WpfSolidColorBrush(Colors.Black),
                                                            (d, e) => {
-                                                               var model = d as FrameStatisticsModel2D;
-                                                               model.foregroundChanged = true;
+                                                               if (d is FrameStatisticsModel2D model) model.foregroundChanged = true;
                                                            }));
 
     public static readonly DependencyProperty BackgroundProperty
@@ -26,8 +25,7 @@ public class FrameStatisticsModel2D : Element2D {
                                       new PropertyMetadata(
                                           new WpfSolidColorBrush(WpfColor.FromArgb(64, 32, 32, 32)),
                                           (d, e) => {
-                                              var model = d as FrameStatisticsModel2D;
-                                              model.backgroundChanged = true;
+                                              if (d is FrameStatisticsModel2D model) model.backgroundChanged = true;
                                           }));
 
     private bool backgroundChanged = true;
@@ -54,14 +52,14 @@ public class FrameStatisticsModel2D : Element2D {
     protected override void OnUpdate(RenderContext2D context) {
         base.OnUpdate(context);
         if (foregroundChanged) {
-            (SceneNode as FrameStatisticsNode2D).Foreground =
-                Foreground?.ToD2DBrush(context.DeviceContext);
+            if (SceneNode is FrameStatisticsNode2D node)
+                node.Foreground = Foreground.ToD2DBrush(context.DeviceContext);
             foregroundChanged = false;
         }
 
         if (backgroundChanged) {
-            (SceneNode as FrameStatisticsNode2D).Background =
-                Background?.ToD2DBrush(context.DeviceContext);
+            if (SceneNode is FrameStatisticsNode2D node)
+                node.Background = Background.ToD2DBrush(context.DeviceContext);
             backgroundChanged = false;
         }
     }

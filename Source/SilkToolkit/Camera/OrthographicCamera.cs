@@ -26,8 +26,8 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel {
         typeof(OrthographicCamera),
         new PropertyMetadata(10.0,
                              (d, e) => {
-                                 ((d as Camera).CameraInternal as OrthographicCameraCore).Width =
-                                     (float)(double)e.NewValue;
+                                 if (d is Camera { CameraInternal: OrthographicCameraCore core })
+                                     core.Width = (float)(double)e.NewValue;
                              }));
 
     private double accumTime;
@@ -70,9 +70,11 @@ public class OrthographicCamera : ProjectionCamera, IOrthographicCameraModel {
 
     protected override void OnCoreCreated(CameraCore core) {
         base.OnCoreCreated(core);
-        (core as OrthographicCameraCore).FarPlaneDistance = (float)FarPlaneDistance;
-        (core as OrthographicCameraCore).NearPlaneDistance = (float)NearPlaneDistance;
-        (core as OrthographicCameraCore).Width = (float)Width;
+        if (core is OrthographicCameraCore orthographicCore) {
+            orthographicCore.FarPlaneDistance = (float)FarPlaneDistance;
+            orthographicCore.NearPlaneDistance = (float)NearPlaneDistance;
+            orthographicCore.Width = (float)Width;
+        }
     }
 
     protected override bool OnUpdateAnimation(float ellapsed) {

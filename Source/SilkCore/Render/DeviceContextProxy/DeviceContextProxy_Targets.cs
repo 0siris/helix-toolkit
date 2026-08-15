@@ -18,7 +18,7 @@ public partial class DeviceContextProxy {
         => NativeContext.SetRenderTargets(dsv, renderTarget);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetStreamOutputTarget(Buffer buffer, int offset = 0)
+    public void SetStreamOutputTarget(Buffer? buffer, int offset = 0)
         => NativeContext.SetStreamOutputTarget(buffer, offset);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -80,16 +80,20 @@ public partial class DeviceContextProxy {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ClearDepthStencilView(
-        DepthStencilView view,
+        DepthStencilView? view,
         DepthStencilClearFlags clearFlag,
         float depth = 1,
         byte stencil = 0
-    ) =>
-        NativeContext.ClearDepthStencilView(view, clearFlag, depth, stencil);
+    ) {
+        if (view is not null)
+            NativeContext.ClearDepthStencilView(view, clearFlag, depth, stencil);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ClearRenderTargetView(RenderTargetView renderTargetViewRef, Color4 colorRgba)
-        => NativeContext.ClearRenderTargetView(renderTargetViewRef, colorRgba);
+    public void ClearRenderTargetView(RenderTargetView? renderTargetViewRef, Color4 colorRgba) {
+        if (renderTargetViewRef is not null)
+            NativeContext.ClearRenderTargetView(renderTargetViewRef, colorRgba);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ClearRenderTagetBindings()

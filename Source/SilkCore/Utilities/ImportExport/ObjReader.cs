@@ -186,8 +186,6 @@ public class ObjReader : IModelReader {
     /// <summary>
     ///     Gets or sets the stream reader.
     /// </summary>
-    private StreamReader Reader { get; set; }
-
     /// <summary>
     ///     Gets or sets the texture coordinates.
     /// </summary>
@@ -226,25 +224,29 @@ public class ObjReader : IModelReader {
     ///     The model.
     /// </returns>
     public Object3DGroup Read(Stream s, ModelInfo info = default) {
-        using (Reader = new StreamReader(s)) {
+        using var reader = new StreamReader(s);
+        {
             currentLineNo = 0;
-            while (!Reader.EndOfStream) {
+            while (!reader.EndOfStream) {
                 currentLineNo++;
-                var line = Reader.ReadLine();
+                var line = reader.ReadLine();
                 if (line == null) break;
 
                 line = line.Trim();
                 while (line.EndsWith("\\")) {
-                    var nextLine = Reader.ReadLine();
-                    while (nextLine.Length == 0) nextLine = Reader.ReadLine();
+                    var nextLine = reader.ReadLine() ?? throw new InvalidDataException("Unexpected end of OBJ file.");
+                    while (nextLine.Length == 0)
+                        nextLine = reader.ReadLine() ?? throw new InvalidDataException("Unexpected end of OBJ file.");
 
                     line = line.TrimEnd('\\') + nextLine;
                 }
 
                 if (line.StartsWith("#") || line.Length == 0) continue;
 
-                string keyword, values;
+                string keyword;
+                string? values;
                 SplitLine(line, out keyword, out values);
+                values ??= string.Empty;
                 switch (keyword.ToLower()) {
                     // Vertex data
                     case "v": // geometric vertices
@@ -390,7 +392,7 @@ public class ObjReader : IModelReader {
     ///     List of input.
     /// </returns>
     private static IList<double> Split(string input) {
-        var fields = input.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+        var fields = input.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         var result = new double[fields.Length];
         for (var i = 0; i < fields.Length; i++) result[i] = DoubleParse(fields[i]);
 
@@ -409,7 +411,7 @@ public class ObjReader : IModelReader {
     /// <param name="arguments">
     ///     The arguments.
     /// </param>
-    private static void SplitLine(string line, out string keyword, out string arguments) {
+    private static void SplitLine(string line, out string keyword, out string? arguments) {
         var idx = line.IndexOf(' ');
         if (idx < 0) {
             keyword = line;
@@ -479,8 +481,6 @@ public class ObjReader : IModelReader {
         var builder = currentGroup.MeshBuilder;
         var positions = builder.Positions;
         var colors = currentGroup.VertexColors;
-        var textureCoordinates = builder.TextureCoordinates;
-        var normals = builder.Normals;
 
         Dictionary<Tuple<int, int, int>, int>? smoothingGroupMap = null;
 
@@ -491,7 +491,7 @@ public class ObjReader : IModelReader {
                 smoothingGroupMaps.Add(currentSmoothingGroup, smoothingGroupMap);
             }
 
-        var fields = values.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+        var fields = values.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         var faceIndices = new List<int>();
         foreach (var field in fields) {
             if (string.IsNullOrEmpty(field)) continue;
@@ -571,10 +571,12 @@ public class ObjReader : IModelReader {
                 positions.Add(Points[vi - 1]);
                 if (Colors.Count == Points.Count) colors.Add(Colors[vi - 1]);
                 // add texture coordinate (if enabled)
-                if (builder.HasTexCoords) textureCoordinates.Add(TextureCoordinates[vti - 1]);
+                if (builder.HasTexCoords && builder.TextureCoordinates is { } textureCoordinates)
+                    textureCoordinates.Add(TextureCoordinates[vti - 1]);
 
                 // add normal (if enabled)
-                if (builder.HasNormals) normals.Add(Normals[vni - 1]);
+                if (builder.HasNormals && builder.Normals is { } normals)
+                    normals.Add(Normals[vni - 1]);
             }
         }
 
@@ -678,8 +680,8 @@ public class ObjReader : IModelReader {
     ///     The material.
     /// </returns>
     private PhongMaterialCore GetMaterial(string materialName) {
-        MaterialDefinition mat;
-        if (!string.IsNullOrEmpty(materialName) && Materials.TryGetValue(materialName, out mat))
+        if (!string.IsNullOrEmpty(materialName)
+            && Materials.TryGetValue(materialName, out var mat))
             return mat.GetMaterial(TexturePath);
         return new PhongMaterialCore {
             Name = "DefaultVRML",
@@ -712,7 +714,8 @@ public class ObjReader : IModelReader {
 
             if (line.StartsWith("#") || line.Length == 0) continue;
 
-            string keyword, value;
+            string keyword;
+            string? value;
             SplitLine(line, out keyword, out value);
 
             switch (keyword.ToLower()) {
@@ -973,7 +976,7 @@ public class ObjReader : IModelReader {
         /// <returns>
         ///     The material.
         /// </returns>
-        public PhongMaterialCore GetMaterial(string texturePath) {
+        public PhongMaterialCore GetMaterial(string? texturePath) {
             Material ??= CreateMaterial(texturePath);
             //this.Material.Freeze();
             return Material;
@@ -984,7 +987,7 @@ public class ObjReader : IModelReader {
         /// </summary>
         /// <param name="texturePath">The texture path.</param>
         /// <returns>A WPF material.</returns>
-        private PhongMaterialCore CreateMaterial(string texturePath) {
+        private PhongMaterialCore CreateMaterial(string? texturePath) {
             MemoryStream? diffuseMapMs = null;
             if (DiffuseMap != null)
                 using (var fs = new FileStream(PathHelpers.GetFullPath(texturePath, DiffuseMap), FileMode.Open)) {
@@ -1055,13 +1058,13 @@ public class ObjReader : IModelReader {
         /// <param name="path">
         ///     The path.
         /// </param>
-        public static string GetFullPath(string basePath, string path) {
+        public static string GetFullPath(string? basePath, string path) {
             if (path.Length > 1
                 && (path[0] == Path.DirectorySeparatorChar || path[0] == Path.AltDirectorySeparatorChar)
                 && path[1] != Path.DirectorySeparatorChar && path[1] != Path.AltDirectorySeparatorChar)
                 path = path.Substring(1);
 
-            return Path.GetFullPath(Path.Combine(basePath, path));
+            return Path.GetFullPath(Path.Combine(basePath ?? string.Empty, path));
         }
     }
 }

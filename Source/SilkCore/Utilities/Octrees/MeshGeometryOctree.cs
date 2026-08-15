@@ -82,11 +82,11 @@ public class MeshGeometryOctree
 
     /// <summary>
     /// </summary>
-    public IList<Vector3> Positions { get; }
+    public IList<Vector3> Positions { get; } = [];
 
     /// <summary>
     /// </summary>
-    public IList<int> Indices { get; }
+    public IList<int> Indices { get; } = [];
 
     private BoundingBox GetBoundingBox(int triangleIndex) {
         var actual = triangleIndex * 3;
@@ -155,7 +155,8 @@ public class MeshGeometryOctree
             var result = new HitTestResult {
                 Distance = double.MaxValue
             };
-            var rayWs = context.RayWs;
+            if (context is not { } hitContext) return false;
+            var rayWs = hitContext.RayWs;
             for (var i = 0; i < Objects.Count; ++i) {
                 var idx = Objects[i].Key * 3;
                 var t1 = Indices[idx];

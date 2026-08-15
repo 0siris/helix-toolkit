@@ -24,7 +24,7 @@ public sealed class UavDescription {
     }
 
     [DataMember]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     public UavMapping CreateMapping(int slot) => new(slot, this);
 

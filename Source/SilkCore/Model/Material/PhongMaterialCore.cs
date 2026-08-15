@@ -83,7 +83,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     The diffuse map.
     /// </value>
-    public TextureModel DiffuseMap {
+    public TextureModel? DiffuseMap {
         get;
         set => Set(ref field, value);
     }
@@ -102,7 +102,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     DiffuseAlphaMap
     /// </value>
-    public TextureModel DiffuseAlphaMap {
+    public TextureModel? DiffuseAlphaMap {
         get;
         set => Set(ref field, value);
     }
@@ -121,7 +121,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     NormalMap
     /// </value>
-    public TextureModel NormalMap {
+    public TextureModel? NormalMap {
         get;
         set => Set(ref field, value);
     }
@@ -140,7 +140,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     The specular color map.
     /// </value>
-    public TextureModel SpecularColorMap {
+    public TextureModel? SpecularColorMap {
         get;
         set => Set(ref field, value);
     }
@@ -159,7 +159,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     DisplacementMap
     /// </value>
-    public TextureModel DisplacementMap {
+    public TextureModel? DisplacementMap {
         get;
         set => Set(ref field, value);
     }
@@ -178,7 +178,7 @@ public class PhongMaterialCore : MaterialCore {
     /// <value>
     ///     The emissive map.
     /// </value>
-    public TextureModel EmissiveMap {
+    public TextureModel? EmissiveMap {
         get;
         set => Set(ref field, value);
     }

@@ -8,6 +8,9 @@ using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public class ScreenQuadNode : SceneNode {
+    private DrawScreenQuadCore Core => RenderCore as DrawScreenQuadCore
+        ?? throw new InvalidOperationException("Render core is not a screen quad core.");
+
     public ScreenQuadNode() {
         IsHitTestVisible = false;
     }
@@ -18,9 +21,9 @@ public class ScreenQuadNode : SceneNode {
     /// <value>
     ///     The texture.
     /// </value>
-    public TextureModel Texture {
-        get => (RenderCore as DrawScreenQuadCore).Texture;
-        set => (RenderCore as DrawScreenQuadCore).Texture = value;
+    public TextureModel? Texture {
+        get => Core.Texture;
+        set => Core.Texture = value;
     }
 
     /// <summary>
@@ -30,15 +33,15 @@ public class ScreenQuadNode : SceneNode {
     ///     The sampler.
     /// </value>
     public SamplerStateDescription Sampler {
-        get => (RenderCore as DrawScreenQuadCore).SamplerDescription;
-        set => (RenderCore as DrawScreenQuadCore).SamplerDescription = value;
+        get => Core.SamplerDescription;
+        set => Core.SamplerDescription = value;
     }
 
     public float Depth {
         get;
         set {
             if (SetAffectsRender(ref field, value)) {
-                var core = RenderCore as DrawScreenQuadCore;
+                var core = Core;
                 core.ModelStruct.TopLeft.Z = core.ModelStruct.TopRight.Z =
                                                  core.ModelStruct.BottomLeft.Z =
                                                      core.ModelStruct.BottomRight.Z = value;

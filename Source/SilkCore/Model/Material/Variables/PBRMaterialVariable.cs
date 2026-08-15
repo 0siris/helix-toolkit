@@ -28,10 +28,10 @@ public class PbrMaterialVariable : MaterialVariable {
     private const int SurfaceSamplerIdx = 0, IblSamplerIdx = 1, ShadowSamplerIdx = 2, DisplaceSamplerIdx = 3;
 
     private readonly PbrMaterialCore material;
-    private readonly SamplerStateProxy[] samplerResources = new SamplerStateProxy[Numsamplers];
+    private readonly SamplerStateProxy?[] samplerResources = new SamplerStateProxy?[Numsamplers];
     private readonly IStatePoolManager statePoolManager;
     private readonly ITextureResourceManager textureManager;
-    private readonly ShaderResourceViewProxy[] textureResources = new ShaderResourceViewProxy[Numtextures];
+    private readonly ShaderResourceViewProxy?[] textureResources = new ShaderResourceViewProxy?[Numtextures];
     private int samplerSurfaceSlot, samplerIblSlot, samplerShadowSlot, samplerDisplaceSlot;
 
     private int texDiffuseSlot,
@@ -301,7 +301,7 @@ public class PbrMaterialVariable : MaterialVariable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void CreateTextureView(TextureModel texture, int index) {
+    private void CreateTextureView(TextureModel? texture, int index) {
         var newTexture = texture == null ? null : textureManager.Register(texture);
         RemoveAndDispose(ref textureResources[index]);
         textureResources[index] = newTexture;
@@ -312,18 +312,13 @@ public class PbrMaterialVariable : MaterialVariable {
     }
 
     private void CreateTextureViews() {
-        if (material != null) {
-            CreateTextureView(material.AlbedoMap, AlbedoMapIdx);
-            CreateTextureView(material.NormalMap, NormalMapIdx);
-            CreateTextureView(material.DisplacementMap, DisplaceMapIdx);
-            CreateTextureView(material.EmissiveMap, EmissiveMapIdx);
-            CreateTextureView(material.IrradianceMap, IrradianceMapIdx);
-            CreateTextureView(material.RoughnessMetallicMap, RmMapIdx);
-            CreateTextureView(material.AmbientOcculsionMap, AoMapIdx);
-        } else {
-            for (var i = 0; i < Numtextures; ++i) RemoveAndDispose(ref textureResources[i]);
-            textureIndex = 0;
-        }
+        CreateTextureView(material.AlbedoMap, AlbedoMapIdx);
+        CreateTextureView(material.NormalMap, NormalMapIdx);
+        CreateTextureView(material.DisplacementMap, DisplaceMapIdx);
+        CreateTextureView(material.EmissiveMap, EmissiveMapIdx);
+        CreateTextureView(material.IrradianceMap, IrradianceMapIdx);
+        CreateTextureView(material.RoughnessMetallicMap, RmMapIdx);
+        CreateTextureView(material.AmbientOcculsionMap, AoMapIdx);
     }
 
     private void CreateSamplers() {
@@ -335,12 +330,10 @@ public class PbrMaterialVariable : MaterialVariable {
         RemoveAndDispose(ref samplerResources[IblSamplerIdx]);
         RemoveAndDispose(ref samplerResources[DisplaceSamplerIdx]);
         RemoveAndDispose(ref samplerResources[ShadowSamplerIdx]);
-        if (material != null) {
-            samplerResources[SurfaceSamplerIdx] = newSurfaceSampler;
-            samplerResources[IblSamplerIdx] = newIblSampler;
-            samplerResources[DisplaceSamplerIdx] = newDisplaceSampler;
-            samplerResources[ShadowSamplerIdx] = newShadowSampler;
-        }
+        samplerResources[SurfaceSamplerIdx] = newSurfaceSampler;
+        samplerResources[IblSamplerIdx] = newIblSampler;
+        samplerResources[DisplaceSamplerIdx] = newDisplaceSampler;
+        samplerResources[ShadowSamplerIdx] = newShadowSampler;
     }
 
     private void CreateSampler(SamplerStateDescription desc, int index) {
@@ -464,10 +457,11 @@ public class PbrMaterialVariable : MaterialVariable {
 
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) {
-        DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
+        if (bufferModel?.IndexBuffer is { } indexBuffer)
+            DrawIndexed(deviceContext, indexBuffer.ElementCount, instanceCount);
     }
 
     public override ShaderPass GetPass(RenderType renderType, RenderContext context) {

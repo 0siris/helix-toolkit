@@ -145,14 +145,14 @@ public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVer
     /// <returns>
     ///     <c>true</c> if [is vertex buffer changed] [the specified property name]; otherwise, <c>false</c>.
     /// </returns>
-    protected override bool IsVertexBufferChanged(string propertyName, int bufferIndex) {
+    protected override bool IsVertexBufferChanged(string? propertyName, int bufferIndex) {
         switch (bufferIndex) {
             case 0:
                 return base.IsVertexBufferChanged(propertyName, bufferIndex);
             case 1:
-                return propertyName.Equals(nameof(MeshGeometry3D.TextureCoordinates), StringComparison.Ordinal);
+                return propertyName?.Equals(nameof(MeshGeometry3D.TextureCoordinates), StringComparison.Ordinal) == true;
             case 2:
-                return propertyName.Equals(nameof(MeshGeometry3D.Colors), StringComparison.Ordinal);
+                return propertyName?.Equals(nameof(MeshGeometry3D.Colors), StringComparison.Ordinal) == true;
             default:
                 return false;
         }
@@ -179,12 +179,12 @@ public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVer
         switch (bufferIndex) {
             case 0:
                 // -- set geometry if given
-                if (geometry.Positions is {Count: > 0}) {
+                if (mesh.Positions is { Count: > 0 } positions) {
                     // --- get geometry
                     var data = BuildVertexArray(mesh);
                     buffer.UploadDataToBuffer(context,
                                               data,
-                                              geometry.Positions.Count,
+                                              positions.Count,
                                               0,
                                               geometry.PreDefinedVertexCount);
                 } else {
@@ -223,8 +223,10 @@ public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVer
     /// <returns></returns>
     private DefaultVertex[] BuildVertexArray(MeshGeometry3D geometry) {
         //var geometry = this.geometryInternal as MeshGeometry3D;
-        var vertexCount = geometry.Positions.Count;
-        using var positions = geometry.Positions.GetEnumerator();
+        var positionsCollection = geometry.Positions
+            ?? throw new System.InvalidOperationException("Mesh geometry positions are required.");
+        var vertexCount = positionsCollection.Count;
+        using var positions = positionsCollection.GetEnumerator();
                 
         using var normals = GetEnumerator(geometry.Normals);
         using var tangents = GetEnumerator(geometry.Tangents);

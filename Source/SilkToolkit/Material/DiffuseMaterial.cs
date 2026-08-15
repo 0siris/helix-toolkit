@@ -127,8 +127,8 @@ public class DiffuseMaterial : Material {
     /// <value>
     ///     The diffuse map.
     /// </value>
-    public TextureModel DiffuseMap {
-        get => (TextureModel)GetValue(DiffuseMapProperty);
+    public TextureModel? DiffuseMap {
+        get => GetValue(DiffuseMapProperty) as TextureModel;
         set => SetValue(DiffuseMapProperty, value);
     }
 

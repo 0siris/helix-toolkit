@@ -3,6 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <summary>
 /// </summary>
@@ -102,21 +104,24 @@ public sealed class MappingCollection<Indextype, Nametype, Datatype>
     /// <param name="id"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public bool TryGetItem(Indextype id, out Datatype data) => indexDataMapping.TryGetValue(id, out data);
+    public bool TryGetItem(Indextype id, [MaybeNullWhen(false)] out Datatype data) =>
+        indexDataMapping.TryGetValue(id, out data);
 
     /// <summary>
     /// </summary>
     /// <param name="name"></param>
     /// <param name="index"></param>
     /// <returns></returns>
-    public bool TryGetSlot(Nametype name, out Indextype index) => nameIndexMapping.TryGetValue(name, out index);
+    public bool TryGetSlot(Nametype name, [MaybeNullWhen(false)] out Indextype index) =>
+        nameIndexMapping.TryGetValue(name, out index);
 
     /// <summary>
     /// </summary>
     /// <param name="id"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public bool TryGetName(Indextype id, out Nametype name) => indexNameMapping.TryGetValue(id, out name);
+    public bool TryGetName(Indextype id, [MaybeNullWhen(false)] out Nametype name) =>
+        indexNameMapping.TryGetValue(id, out name);
 
     /// <summary>
     /// </summary>
@@ -129,9 +134,8 @@ public sealed class MappingCollection<Indextype, Nametype, Datatype>
     /// <param name="name"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public bool TryGetItem(Nametype name, out Datatype data) {
-        Indextype idx;
-        if (nameIndexMapping.TryGetValue(name, out idx) && indexDataMapping.TryGetValue(idx, out data))
+    public bool TryGetItem(Nametype name, [MaybeNullWhen(false)] out Datatype data) {
+        if (nameIndexMapping.TryGetValue(name, out var idx) && indexDataMapping.TryGetValue(idx, out data))
             return true;
 
         data = default;

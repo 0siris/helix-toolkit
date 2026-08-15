@@ -17,7 +17,8 @@ public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(OutLineMeshGeometryModel3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as MeshOutlineNode).EnableOutline = (bool)e.NewValue;
+                                 if (d is Element3DCore { SceneNode: MeshOutlineNode node })
+                                     node.EnableOutline = (bool)e.NewValue;
                              }));
 
     public static DependencyProperty OutlineColorProperty = DependencyProperty.Register("OutlineColor",
@@ -25,8 +26,8 @@ public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(OutLineMeshGeometryModel3D),
         new PropertyMetadata(Colors.White,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as MeshOutlineNode).OutlineColor =
-                                     ((Color)e.NewValue).ToColor4();
+                                 if (d is Element3DCore { SceneNode: MeshOutlineNode node })
+                                     node.OutlineColor = ((Color)e.NewValue).ToColor4();
                              }));
 
     public static DependencyProperty IsDrawGeometryProperty = DependencyProperty.Register("IsDrawGeometry",
@@ -34,7 +35,8 @@ public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(OutLineMeshGeometryModel3D),
         new PropertyMetadata(true,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as MeshOutlineNode).IsDrawGeometry = (bool)e.NewValue;
+                                 if (d is Element3DCore { SceneNode: MeshOutlineNode node })
+                                     node.IsDrawGeometry = (bool)e.NewValue;
                              }));
 
 
@@ -43,8 +45,8 @@ public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(OutLineMeshGeometryModel3D),
         new PropertyMetadata(1.5,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as MeshOutlineNode).OutlineFadingFactor =
-                                     (float)(double)e.NewValue;
+                                 if (d is Element3DCore { SceneNode: MeshOutlineNode node })
+                                     node.OutlineFadingFactor = (float)(double)e.NewValue;
                              }));
 
     public bool EnableOutline {

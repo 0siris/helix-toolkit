@@ -12,8 +12,8 @@ public partial class DeviceContextProxy {
     public const int StageCount = Constants.NumShaderStages;
     public const int UnorderedAcccesViewCount = 8;
 
-    private readonly object[] constantBufferCheck = new object[ConstantBufferCount * StageCount];
-    private readonly object[] samplerStateCheck = new object[SamplerStateCount * StageCount];
+    private readonly object?[] constantBufferCheck = new object?[ConstantBufferCount * StageCount];
+    private readonly object?[] samplerStateCheck = new object?[SamplerStateCount * StageCount];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetShader(VertexShader shader, bool bindConstantBuffer = true) =>
@@ -40,44 +40,44 @@ public partial class DeviceContextProxy {
         SetShader(Constants.ComputeIdx, shader, bindConstantBuffer);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResource(VertexShaderType shaderType, int slot, ShaderResourceView texture) =>
+    public void SetShaderResource(VertexShaderType shaderType, int slot, ShaderResourceView? texture) =>
         SetShaderResource(Constants.VertexIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResources(VertexShaderType shaderType, int slot, ShaderResourceView[] texture) =>
+    public void SetShaderResources(VertexShaderType shaderType, int slot, ShaderResourceView?[] texture) =>
         SetShaderResources(Constants.VertexIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ShaderResourceView[] GetShaderResources(VertexShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResource(DomainShaderType shaderType, int slot, ShaderResourceView texture) =>
+    public void SetShaderResource(DomainShaderType shaderType, int slot, ShaderResourceView? texture) =>
         SetShaderResource(Constants.DomainIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResources(DomainShaderType shaderType, int slot, ShaderResourceView[] texture) =>
+    public void SetShaderResources(DomainShaderType shaderType, int slot, ShaderResourceView?[] texture) =>
         SetShaderResources(Constants.DomainIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ShaderResourceView[] GetShaderResources(DomainShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResource(HullShaderType shaderType, int slot, ShaderResourceView texture) =>
+    public void SetShaderResource(HullShaderType shaderType, int slot, ShaderResourceView? texture) =>
         SetShaderResource(Constants.HullIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResources(HullShaderType shaderType, int slot, ShaderResourceView[] texture) =>
+    public void SetShaderResources(HullShaderType shaderType, int slot, ShaderResourceView?[] texture) =>
         SetShaderResources(Constants.HullIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ShaderResourceView[] GetShaderResources(HullShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResource(GeometryShaderType shaderType, int slot, ShaderResourceView texture) =>
+    public void SetShaderResource(GeometryShaderType shaderType, int slot, ShaderResourceView? texture) =>
         SetShaderResource(Constants.GeometryIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResources(GeometryShaderType shaderType, int slot, ShaderResourceView[] texture) =>
+    public void SetShaderResources(GeometryShaderType shaderType, int slot, ShaderResourceView?[] texture) =>
         SetShaderResources(Constants.GeometryIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -88,25 +88,25 @@ public partial class DeviceContextProxy {
         SetShaderResource(Constants.PixelIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResources(PixelShaderType shaderType, int slot, ShaderResourceView[] texture) =>
+    public void SetShaderResources(PixelShaderType shaderType, int slot, ShaderResourceView?[] texture) =>
         SetShaderResources(Constants.PixelIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ShaderResourceView[] GetShaderResources(PixelShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResource(ComputeShaderType shaderType, int slot, ShaderResourceView texture) =>
+    public void SetShaderResource(ComputeShaderType shaderType, int slot, ShaderResourceView? texture) =>
         SetShaderResource(Constants.ComputeIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetShaderResources(ComputeShaderType shaderType, int slot, ShaderResourceView[] texture) =>
+    public void SetShaderResources(ComputeShaderType shaderType, int slot, ShaderResourceView?[] texture) =>
         SetShaderResources(Constants.ComputeIdx, slot, texture);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ShaderResourceView[] GetShaderResources(ComputeShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetUnorderedAccessView(ComputeShaderType shaderType, int slot, UnorderedAccessView uav) =>
+    public void SetUnorderedAccessView(ComputeShaderType shaderType, int slot, UnorderedAccessView? uav) =>
         NativeContext.SetUnorderedAccessView(slot, uav);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -138,66 +138,66 @@ public partial class DeviceContextProxy {
     public UnorderedAccessView[] GetUnorderedAccessView(ComputeShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSampler(VertexShaderType shaderType, int slot, SamplerStateProxy sampler) =>
+    public void SetSampler(VertexShaderType shaderType, int slot, SamplerStateProxy? sampler) =>
         TrackSampler(Constants.VertexIdx, slot, sampler);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSamplers(VertexShaderType shaderType, int slot, SamplerStateProxy[] samplers) =>
+    public void SetSamplers(VertexShaderType shaderType, int slot, SamplerStateProxy?[] samplers) =>
         TrackSamplers(Constants.VertexIdx, slot, samplers);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SamplerStateProxy[] GetSampler(VertexShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSampler(DomainShaderType shaderType, int slot, SamplerStateProxy sampler) =>
+    public void SetSampler(DomainShaderType shaderType, int slot, SamplerStateProxy? sampler) =>
         TrackSampler(Constants.DomainIdx, slot, sampler);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSamplers(DomainShaderType shaderType, int slot, SamplerStateProxy[] samplers) =>
+    public void SetSamplers(DomainShaderType shaderType, int slot, SamplerStateProxy?[] samplers) =>
         TrackSamplers(Constants.DomainIdx, slot, samplers);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SamplerStateProxy[] GetSampler(DomainShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSampler(HullShaderType shaderType, int slot, SamplerStateProxy sampler) =>
+    public void SetSampler(HullShaderType shaderType, int slot, SamplerStateProxy? sampler) =>
         TrackSampler(Constants.HullIdx, slot, sampler);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSamplers(HullShaderType shaderType, int slot, SamplerStateProxy[] samplers) =>
+    public void SetSamplers(HullShaderType shaderType, int slot, SamplerStateProxy?[] samplers) =>
         TrackSamplers(Constants.HullIdx, slot, samplers);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SamplerStateProxy[] GetSampler(HullShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSampler(GeometryShaderType shaderType, int slot, SamplerStateProxy sampler) =>
+    public void SetSampler(GeometryShaderType shaderType, int slot, SamplerStateProxy? sampler) =>
         TrackSampler(Constants.GeometryIdx, slot, sampler);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSamplers(GeometryShaderType shaderType, int slot, SamplerStateProxy[] samplers) =>
+    public void SetSamplers(GeometryShaderType shaderType, int slot, SamplerStateProxy?[] samplers) =>
         TrackSamplers(Constants.GeometryIdx, slot, samplers);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SamplerStateProxy[] GetSampler(GeometryShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSampler(PixelShaderType shaderType, int slot, SamplerStateProxy sampler) =>
+    public void SetSampler(PixelShaderType shaderType, int slot, SamplerStateProxy? sampler) =>
         TrackSampler(Constants.PixelIdx, slot, sampler);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSamplers(PixelShaderType shaderType, int slot, SamplerStateProxy[] samplers) =>
+    public void SetSamplers(PixelShaderType shaderType, int slot, SamplerStateProxy?[] samplers) =>
         TrackSamplers(Constants.PixelIdx, slot, samplers);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SamplerStateProxy[] GetSampler(PixelShaderType shaderType, int startSlot, int num) => [];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSampler(ComputeShaderType shaderType, int slot, SamplerStateProxy sampler) =>
+    public void SetSampler(ComputeShaderType shaderType, int slot, SamplerStateProxy? sampler) =>
         TrackSampler(Constants.ComputeIdx, slot, sampler);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetSamplers(ComputeShaderType shaderType, int slot, SamplerStateProxy[] samplers) =>
+    public void SetSamplers(ComputeShaderType shaderType, int slot, SamplerStateProxy?[] samplers) =>
         TrackSamplers(Constants.ComputeIdx, slot, samplers);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -205,7 +205,7 @@ public partial class DeviceContextProxy {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetShaderPass(ShaderPass pass, bool bindConstantBuffer = true) {
-        if (pass == null || CurrShaderPass == pass || pass.IsNull) return;
+        if (CurrShaderPass == pass || pass.IsNull) return;
 
         SetShader(pass.VertexShader, bindConstantBuffer);
         SetShader(pass.PixelShader, bindConstantBuffer);
@@ -219,12 +219,12 @@ public partial class DeviceContextProxy {
     private void SetShaderResource(int shaderStage, int slot, ShaderResourceView? texture) =>
         NativeContext.SetShaderResource(shaderStage, slot, texture);
 
-    private void SetShaderResources(int shaderStage, int slot, ShaderResourceView[] textures) =>
+    private void SetShaderResources(int shaderStage, int slot, ShaderResourceView?[] textures) =>
         NativeContext.SetShaderResources(shaderStage, slot, textures);
 
     private void SetShader(int shaderStage, ShaderBase shader, bool bindConstantBuffer) {
-        NativeContext.SetShader(shaderStage, shader == null || shader.IsNull ? null : shader.NativeShader);
-        if (!bindConstantBuffer || shader == null || shader.IsNull) return;
+        NativeContext.SetShader(shaderStage, shader.IsNull ? null : shader.NativeShader);
+        if (!bindConstantBuffer || shader.IsNull) return;
 
         foreach (var mapping in shader.ConstantBufferMapping.Mappings)
             TrackConstantBuffer(shaderStage, mapping.Key, mapping.Value);
@@ -242,7 +242,7 @@ public partial class DeviceContextProxy {
         constantBufferCheck[index] = buffer;
     }
 
-    private void TrackSampler(int shaderStage, int slot, SamplerStateProxy sampler) {
+    private void TrackSampler(int shaderStage, int slot, SamplerStateProxy? sampler) {
         if (slot < 0) return;
 
         var index = shaderStage * SamplerStateCount + slot;
@@ -254,8 +254,8 @@ public partial class DeviceContextProxy {
         samplerStateCheck[index] = sampler;
     }
 
-    private void TrackSamplers(int shaderStage, int slot, SamplerStateProxy[] samplers) {
-        if (slot < 0 || samplers == null) return;
+    private void TrackSamplers(int shaderStage, int slot, SamplerStateProxy?[] samplers) {
+        if (slot < 0) return;
 
         var start = shaderStage * SamplerStateCount + slot;
         var count = Math.Min(samplers.Length, samplerStateCheck.Length - start);
@@ -272,7 +272,7 @@ public partial class DeviceContextProxy {
             if (allSame) return;
         }
 
-        var nativeSamplers = new SamplerState[count];
+        var nativeSamplers = new SamplerState?[count];
         for (var i = 0; i < count; i++) {
             nativeSamplers[i] = samplers[i]?.State;
             samplerStateCheck[start + i] = samplers[i];

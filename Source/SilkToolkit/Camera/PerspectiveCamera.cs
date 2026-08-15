@@ -24,8 +24,8 @@ public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel {
         typeof(PerspectiveCamera),
         new PropertyMetadata(45.0,
                              (d, e) => {
-                                 ((d as Camera).CameraInternal as PerspectiveCameraCore).FieldOfView =
-                                     (float)(double)e.NewValue;
+                                 if (d is Camera { CameraInternal: PerspectiveCameraCore core })
+                                     core.FieldOfView = (float)(double)e.NewValue;
                              }));
 
     /// <summary>
@@ -43,9 +43,11 @@ public class PerspectiveCamera : ProjectionCamera, IPerspectiveCameraModel {
 
     protected override void OnCoreCreated(CameraCore core) {
         base.OnCoreCreated(core);
-        (core as PerspectiveCameraCore).FarPlaneDistance = (float)FarPlaneDistance;
-        (core as PerspectiveCameraCore).FieldOfView = (float)FieldOfView;
-        (core as PerspectiveCameraCore).NearPlaneDistance = (float)NearPlaneDistance;
+        if (core is PerspectiveCameraCore perspectiveCore) {
+            perspectiveCore.FarPlaneDistance = (float)FarPlaneDistance;
+            perspectiveCore.FieldOfView = (float)FieldOfView;
+            perspectiveCore.NearPlaneDistance = (float)NearPlaneDistance;
+        }
     }
 
     protected override Freezable CreateInstanceCore() => new PerspectiveCamera();

@@ -19,9 +19,9 @@ public class InstancingMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(InstancingMeshGeometryModel3D),
         new PropertyMetadata(null,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as InstancingMeshNode).InstanceIdentifiers =
-                                     e.NewValue as IList<Guid>;
-                             }));
+                                 if (d is Element3DCore { SceneNode: InstancingMeshNode node })
+                                     node.InstanceIdentifiers = e.NewValue as IList<Guid>;
+                              }));
 
     /// <summary>
     ///     Add octree manager to use octree hit test.
@@ -31,13 +31,13 @@ public class InstancingMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(InstancingMeshGeometryModel3D),
         new PropertyMetadata(null,
                              (s, e) => {
-                                 var d = s as InstancingMeshGeometryModel3D;
-                                 if (e.OldValue != null) d.RemoveLogicalChild(e.OldValue);
-
-                                 if (e.NewValue != null) d.AddLogicalChild(e.NewValue);
-                                 (d.SceneNode as InstancingMeshNode).OctreeManager =
-                                     e.NewValue == null ? null : (e.NewValue as IOctreeManagerWrapper).Manager;
-                             }));
+                                  if (s is not InstancingMeshGeometryModel3D model)
+                                      return;
+                                  if (e.OldValue is { } oldValue) model.RemoveLogicalChild(oldValue);
+                                  if (e.NewValue is { } newValue) model.AddLogicalChild(newValue);
+                                  if (model.SceneNode is InstancingMeshNode node)
+                                      node.OctreeManager = (e.NewValue as IOctreeManagerWrapper)?.Manager;
+                              }));
 
     /// <summary>
     ///     List of instance parameter.
@@ -47,30 +47,29 @@ public class InstancingMeshGeometryModel3D : MeshGeometryModel3D {
                                     typeof(IList<InstanceParameter>),
                                     typeof(InstancingMeshGeometryModel3D),
                                     new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as InstancingMeshNode)
-                                                                 .InstanceParamArray =
-                                                                 e.NewValue as IList<InstanceParameter>;
-                                                         }));
+                                                          (d, e) => {
+                                                              if (d is Element3DCore { SceneNode: InstancingMeshNode node })
+                                                                  node.InstanceParamArray = e.NewValue as IList<InstanceParameter>;
+                                                          }));
 
     /// <summary>
     ///     If bind to identifiers, hit test returns identifier as Tag in HitTestResult.
     /// </summary>
-    public IList<Guid> InstanceIdentifiers {
-        get => (IList<Guid>) GetValue(InstanceIdentifiersProperty);
+    public IList<Guid>? InstanceIdentifiers {
+        get => GetValue(InstanceIdentifiersProperty) as IList<Guid>;
         set => SetValue(InstanceIdentifiersProperty, value);
     }
 
-    public IOctreeManagerWrapper OctreeManager {
-        get => (IOctreeManagerWrapper) GetValue(OctreeManagerProperty);
+    public IOctreeManagerWrapper? OctreeManager {
+        get => GetValue(OctreeManagerProperty) as IOctreeManagerWrapper;
         set => SetValue(OctreeManagerProperty, value);
     }
 
     /// <summary>
     ///     List of instance parameters.
     /// </summary>
-    public IList<InstanceParameter> InstanceParamArray {
-        get => (IList<InstanceParameter>) GetValue(InstanceAdvArrayProperty);
+    public IList<InstanceParameter>? InstanceParamArray {
+        get => GetValue(InstanceAdvArrayProperty) as IList<InstanceParameter>;
         set => SetValue(InstanceAdvArrayProperty, value);
     }
 

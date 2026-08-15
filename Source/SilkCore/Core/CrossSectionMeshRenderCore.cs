@@ -52,7 +52,9 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         };
         
 
-        BackfaceRasterState = EffectTechnique.EffectsManager.StateManager.Register(desc);
+        if (EffectTechnique is not { } technique)
+            return false;
+        BackfaceRasterState = technique.EffectsManager.StateManager.Register(desc);
         
         return true;
     }
@@ -86,7 +88,9 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         drawBackfacePass.BindShader(deviceContext);
         drawBackfacePass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
         
-        DrawIndexed(deviceContext, GeometryBuffer.IndexBuffer, InstanceBuffer);
+        if (GeometryBuffer is not { IndexBuffer: { } indexBuffer })
+            return;
+        DrawIndexed(deviceContext, indexBuffer, InstanceBuffer);
 
         //Draw full screen quad to fill cross section            
         deviceContext.SetRasterState(RasterState);
@@ -98,8 +102,8 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
 
 #region Shader Variables
 
-    private ShaderPass drawBackfacePass;
-    private ShaderPass drawScreenQuadPass;
+    private ShaderPass drawBackfacePass = ShaderPass.NullPass;
+    private ShaderPass drawScreenQuadPass = ShaderPass.NullPass;
 
     /// <summary>
     ///     Used to draw back faced triangles onto stencil buffer

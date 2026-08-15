@@ -47,8 +47,8 @@ public abstract class GeometryModel3D : Element3D, IHitable, IThrowingShadow, IA
                                     typeof(GeometryModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as GeometryNode).Geometry =
-                                                                 e.NewValue as Geometry3D;
+                                                             if (d is Element3DCore { SceneNode: GeometryNode node })
+                                                                 node.Geometry = e.NewValue as Geometry3D;
                                                          }));
 
     public static readonly DependencyProperty IsThrowingShadowProperty =
@@ -190,8 +190,8 @@ public abstract class GeometryModel3D : Element3D, IHitable, IThrowingShadow, IA
     /// <value>
     ///     The geometry.
     /// </value>
-    public Geometry3D Geometry {
-        get => (Geometry3D)GetValue(GeometryProperty);
+    public Geometry3D? Geometry {
+        get => GetValue(GeometryProperty) as Geometry3D;
         set => SetValue(GeometryProperty, value);
     }
 
@@ -309,7 +309,7 @@ public abstract class GeometryModel3D : Element3D, IHitable, IThrowingShadow, IA
         set => SetValue(EnableViewFrustumCheckProperty, value);
     }
 
-    public string PostEffects {
+    public string? PostEffects {
         get => (string)GetValue(PostEffectsProperty);
         set => SetValue(PostEffectsProperty, value);
     }

@@ -17,9 +17,8 @@ public class PostEffectMeshBorderHighlight : PostEffectMeshOutlineBlur {
                                     typeof(PostEffectMeshBorderHighlight),
                                     new PropertyMetadata(OutlineMode.Merged,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as
-                                                              NodePostEffectBorderHighlight).DrawMode =
-                                                                 (OutlineMode) e.NewValue;
+                                                             if (d is Element3D { SceneNode: NodePostEffectBorderHighlight node })
+                                                                 node.DrawMode = (OutlineMode)e.NewValue;
                                                          }));
 
     /// <summary>

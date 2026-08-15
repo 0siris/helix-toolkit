@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public sealed class GeometryShader : ShaderBase {
     public static readonly GeometryShader NullGeometryShader = new("NULL");
     public static readonly GeometryShaderType Type;
-    private GeometryShaderHandle shader;
+    private GeometryShaderHandle? shader;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="GeometryShader" /> class.
@@ -50,8 +50,8 @@ public sealed class GeometryShader : ShaderBase {
     private GeometryShader(string name)
         : base(name, ShaderStage.Geometry, true) { }
 
-    internal GeometryShaderHandle Shader => shader;
-    internal override IShaderHandle NativeShader => shader;
+    internal GeometryShaderHandle? Shader => shader;
+    internal override IShaderHandle? NativeShader => shader;
 
     /// <summary>
     ///     Binds shader to pipeline

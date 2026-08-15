@@ -91,14 +91,14 @@ public class ObjExporter : Exporter {
     /// <param name="comment">
     ///     The comment.
     /// </param>
-    public ObjExporter(string outputFileName, string comment) {
+    public ObjExporter(string outputFileName, string? comment) {
         SwitchYz = true;
         ExportNormals = false;
 
         var fullPath = Path.GetFullPath(outputFileName);
         var mtlPath = Path.ChangeExtension(outputFileName, ".mtl");
         var mtlFilename = Path.GetFileName(mtlPath);
-        directory = Path.GetDirectoryName(fullPath);
+        directory = Path.GetDirectoryName(fullPath) ?? string.Empty;
 
         writer = new StreamWriter(outputFileName);
         mwriter = new StreamWriter(mtlPath);
@@ -142,8 +142,9 @@ public class ObjExporter : Exporter {
     ///     The transform.
     /// </param>
     protected override void ExportModel(MeshNode model, Transform3D transform) {
-        if (model.GeometryValid && model.Material != null) {
-            transform ??= Transform3D.Identity;
+        if (!model.GeometryValid || model.Geometry is not MeshGeometry3D mesh || model.Material is not { } material)
+            return;
+
             writer.WriteLine("o object{0}", objectNo++);
             writer.WriteLine("g group{0}", groupNo++);
 
@@ -152,18 +153,16 @@ public class ObjExporter : Exporter {
             } else {
                 matName = string.Format(CultureInfo.InvariantCulture, "mat{0}", matNo++);
                 writer.WriteLine("usemtl {0}", matName);
-                ExportMaterial(matName, model.Material);
-                exportedMaterials.Add(model.Material, matName);
+                ExportMaterial(matName, material);
+                exportedMaterials.Add(material, matName);
             }
 
-            var mesh = model.Geometry as MeshGeometry3D;
-            if (model.HasInstances) {
+            if (model.HasInstances && model.Instances is { } instances) {
                 var m = transform.ToMatrix();
-                for (var i = 0; i < model.Instances.Count; ++i) ExportMesh(mesh, model.Instances[i] * m);
+                for (var i = 0; i < instances.Count; ++i) ExportMesh(mesh, instances[i] * m);
             } else {
                 ExportMesh(mesh, transform.ToMatrix());
             }
-        }
     }
 
     /// <summary>
@@ -266,7 +265,7 @@ public class ObjExporter : Exporter {
         var pm = material as PhongMaterialCore;
 
         if (pm != null) {
-            if (pm.DiffuseMap == null) {
+            if (pm.DiffuseMap is not { } diffuseMap) {
                 mwriter.WriteLine("Kd {0}", ToColorString(pm.DiffuseColor));
 
                 if (UseDissolveForTransparency)
@@ -278,14 +277,14 @@ public class ObjExporter : Exporter {
             } else {
                 var textureFilename = matName + ".png";
                 var texturePath = Path.Combine(directory, textureFilename);
-                var texture = pm.DiffuseMap.TextureInfoLoader.Load(pm.DiffuseMap.Guid);
-                if (texture != null && texture.Texture != null && texture.Texture.CanRead) {
+                var texture = diffuseMap.TextureInfoLoader.Load(diffuseMap.Guid);
+                if (texture.Texture.CanRead) {
                     // create .png bitmap file for the brush
                     RenderBrush(texturePath, texture.Texture);
                     mwriter.WriteLine("map_Ka {0}", textureFilename);
-                    pm.DiffuseMap.TextureInfoLoader.Complete(pm.DiffuseMap.Guid, texture, true);
+                    diffuseMap.TextureInfoLoader.Complete(diffuseMap.Guid, texture, true);
                 } else {
-                    pm.DiffuseMap.TextureInfoLoader.Complete(pm.DiffuseMap.Guid, texture, false);
+                    diffuseMap.TextureInfoLoader.Complete(diffuseMap.Guid, texture, false);
                 }
             }
         }

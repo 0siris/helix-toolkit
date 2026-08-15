@@ -6,6 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
@@ -19,22 +20,25 @@ public class PointLineRenderCore : GeometryRenderCore, IMaterialRenderParams {
     /// <summary>
     ///     Used to wrap all material resources
     /// </summary>
+    [AllowNull]
     public MaterialVariable MaterialVariables {
         get => materialVariables;
         set {
             var old = materialVariables;
-            if (SetAffectsCanRenderFlag(ref materialVariables, value))
-                if (value == null)
-                    materialVariables = EmptyMaterialVariable.EmptyVariable;
+            value ??= EmptyMaterialVariable.EmptyVariable;
+            SetAffectsCanRenderFlag(ref materialVariables, value);
         }
     }
 
     protected virtual void OnUpdatePerModelStruct() {
         ModelStruct.World = ModelMatrix;
-        ModelStruct.HasInstances = InstanceBuffer.HasElements ? 1 : 0;
+        ModelStruct.HasInstances = InstanceBuffer.HasElements
+            ? 1
+            : 0;
     }
 
-    protected override bool OnUpdateCanRenderFlag() => base.OnUpdateCanRenderFlag() && materialVariables != EmptyMaterialVariable.EmptyVariable;
+    protected override bool OnUpdateCanRenderFlag()
+        => base.OnUpdateCanRenderFlag() && materialVariables != EmptyMaterialVariable.EmptyVariable;
 
     /// <summary>
     ///     Called when [render].
@@ -63,7 +67,9 @@ public class PointLineRenderCore : GeometryRenderCore, IMaterialRenderParams {
         if (pass.IsNull) return;
         var v = new SimpleMeshStruct {
             World = ModelMatrix,
-            HasInstances = InstanceBuffer.HasElements ? 1 : 0
+            HasInstances = InstanceBuffer.HasElements
+                ? 1
+                : 0
         };
         if (!materialVariables.UpdateNonMaterialStruct(deviceContext, ref v)) return;
         pass.BindShader(deviceContext);

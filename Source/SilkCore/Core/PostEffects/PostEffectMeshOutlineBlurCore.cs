@@ -170,7 +170,8 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
                 }
 
                 context.CustomPassName = DefaultPassNames.EffectOutlineP1;
-                var pass = mesh.EffectTechnique[DefaultPassNames.EffectOutlineP1];
+                if (mesh.EffectTechnique is not { } meshTechnique) continue;
+                var pass = meshTechnique[DefaultPassNames.EffectOutlineP1];
                 if (pass.IsNull) continue;
                 pass.BindShader(deviceContext);
                 pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
@@ -191,7 +192,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         ShaderResourceViewProxy depthStencilBuffer,
         ShaderResourceViewProxy source
     ) {
-        var buffer = context.RenderHost.RenderBuffer;
+        if (context.RenderHost.RenderBuffer is not { } buffer) return;
         var sourceViewport = new ViewportF(0, 0, buffer.FullResPpBuffer.Width, buffer.FullResPpBuffer.Height);
         deviceContext.SetViewport(ref sourceViewport);
         deviceContext.SetScissorRectangle(ref sourceViewport);
@@ -199,8 +200,9 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     #region Do Blur Pass
 
         if (UseBlurCore) {
+            if (BlurCore is not { } blurCore) return;
             for (var i = 0; i < numberOfBlurPass; ++i) {
-                BlurCore.Run(context,
+                blurCore.Run(context,
                              deviceContext,
                              source,
                              ref sourceViewport,
@@ -210,7 +212,8 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         } else {
             blurPassHorizontal.PixelShader.BindSampler(deviceContext, samplerSlot, Sampler);
             for (var i = 0; i < numberOfBlurPass; ++i) {
-                deviceContext.SetRenderTarget(context.RenderHost.RenderBuffer.FullResPpBuffer.NextRtv);
+                if (buffer.FullResPpBuffer.NextRtv is not { } nextRtv) return;
+                deviceContext.SetRenderTarget(nextRtv);
                 blurPassHorizontal.PixelShader.BindTexture(deviceContext, textureSlot, source);
                 blurPassHorizontal.BindShader(deviceContext);
                 blurPassHorizontal.BindStates(deviceContext, StateType.All);
@@ -219,8 +222,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
                 deviceContext.SetRenderTarget(source);
                 blurPassVertical.PixelShader.BindTexture(deviceContext,
                                                          textureSlot,
-                                                         context.RenderHost.RenderBuffer.FullResPpBuffer
-                                                                .NextRtv);
+                                                         nextRtv);
                 blurPassVertical.BindShader(deviceContext);
                 blurPassVertical.BindStates(deviceContext, StateType.All);
                 deviceContext.Draw(4, 0);
@@ -229,8 +231,9 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
 
     #region Draw back with stencil test
 
+        if (buffer.FullResPpBuffer.NextRtv is not { } finalRtv) return;
         deviceContext.SetRenderTarget(depthStencilBuffer,
-                                      context.RenderHost.RenderBuffer.FullResPpBuffer.NextRtv,
+                                      finalRtv,
                                       true,
                                       new Color4(0, 0, 0, 0),
                                       false);
@@ -245,9 +248,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     #region Draw outline onto original target
 
         deviceContext.SetRenderTarget(buffer.FullResPpBuffer.CurrentRtv);
-        screenOutlinePass.PixelShader.BindTexture(deviceContext,
-                                                  textureSlot,
-                                                  context.RenderHost.RenderBuffer.FullResPpBuffer.NextRtv);
+        screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, finalRtv);
         screenOutlinePass.BindShader(deviceContext);
         screenOutlinePass.BindStates(deviceContext, StateType.All);
         deviceContext.Draw(4, 0);
@@ -290,15 +291,15 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         }
     }
 
-    private ShaderPass screenQuadPass;
+    private ShaderPass screenQuadPass = ShaderPass.NullPass;
 
-    private ShaderPass blurPassVertical;
+    private ShaderPass blurPassVertical = ShaderPass.NullPass;
 
-    private ShaderPass blurPassHorizontal;
+    private ShaderPass blurPassHorizontal = ShaderPass.NullPass;
 
-    private ShaderPass smoothPass;
+    private ShaderPass smoothPass = ShaderPass.NullPass;
 
-    private ShaderPass screenOutlinePass;
+    private ShaderPass screenOutlinePass = ShaderPass.NullPass;
 
     private int textureSlot;
 

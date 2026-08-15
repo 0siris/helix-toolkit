@@ -12,7 +12,7 @@ public class MorphTargetKeyFrameUpdater : IAnimationUpdater {
 
     public MorphTargetKeyFrameUpdater(Animation animation, IList<float> weights) {
         Animation = animation;
-        Name = animation.Name;
+        Name = animation.Name ?? string.Empty;
         Weights = weights;
         StartTime = animation.StartTime;
         EndTime = animation.EndTime;

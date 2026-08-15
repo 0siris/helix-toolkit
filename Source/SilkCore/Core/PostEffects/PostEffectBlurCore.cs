@@ -129,7 +129,9 @@ public class PostEffectBlurCore : DisposeObject {
     private readonly ShaderPass screenBlurPassHorizontal;
     private readonly int textureSlot;
     private readonly int samplerSlot;
+    [System.Diagnostics.CodeAnalysis.AllowNull]
     private ConstantBufferComponent modelCb;
+    [System.Diagnostics.CodeAnalysis.AllowNull]
     private SamplerStateProxy sampler;
     private static readonly Color4 Transparent = new(0, 0, 0, 0);
 

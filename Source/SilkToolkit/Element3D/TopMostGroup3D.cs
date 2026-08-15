@@ -22,8 +22,8 @@ public class TopMostGroup3D : GroupModel3D {
                                     typeof(TopMostGroup3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as TopMostGroupNode)
-                                                                 .EnableTopMost = (bool)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: TopMostGroupNode node })
+                                                                 node.EnableTopMost = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -41,7 +41,8 @@ public class TopMostGroup3D : GroupModel3D {
     protected override SceneNode OnCreateSceneNode() => new TopMostGroupNode();
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
-        (node as TopMostGroupNode).EnableTopMost = EnableTopMost;
+        if (node is TopMostGroupNode topMostNode)
+            topMostNode.EnableTopMost = EnableTopMost;
         base.AssignDefaultValuesToSceneNode(node);
     }
 }

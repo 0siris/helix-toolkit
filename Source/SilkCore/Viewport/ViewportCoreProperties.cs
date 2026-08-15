@@ -40,12 +40,12 @@ public partial class ViewportCore {
     /// <value>
     ///     The effects manager.
     /// </value>
-    public IEffectsManager EffectsManager {
+    public IEffectsManager? EffectsManager {
         get;
         set {
             if (field != value) {
                 field = value;
-                RenderHost?.EffectsManager = value;
+                RenderHost.EffectsManager = value;
             }
         }
     }
@@ -56,7 +56,7 @@ public partial class ViewportCore {
     /// <value>
     ///     The camera core.
     /// </value>
-    public CameraCore CameraCore { get; set; }
+    public CameraCore? CameraCore { get; set; }
 
     /// <summary>
     ///     Gets the renderables.
@@ -200,7 +200,7 @@ public partial class ViewportCore {
     /// <value>
     ///     The render stat.
     /// </value>
-    public IRenderStatistics RenderStat => RenderHost.RenderStatistics;
+    public IRenderStatistics? RenderStat => RenderHost.RenderStatistics;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable vertical synchronize].
@@ -255,7 +255,7 @@ public partial class ViewportCore {
         get;
         set {
             field = value;
-            RenderHost?.DpiScale = (float) value;
+            RenderHost.DpiScale = (float)value;
         }
     } = 1;
 

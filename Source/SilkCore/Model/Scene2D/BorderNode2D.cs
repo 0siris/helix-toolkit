@@ -7,11 +7,14 @@ using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public class BorderNode2D : ContentNode2D {
+    private BorderRenderCore2D BorderCore => RenderCore as BorderRenderCore2D
+        ?? throw new InvalidOperationException("Border render core is not initialized.");
+
     private bool strokeStyleChanged = true;
 
     public float CornerRadius {
-        get => (RenderCore as BorderRenderCore2D).CornerRadius;
-        set => (RenderCore as BorderRenderCore2D).CornerRadius = value;
+        get => BorderCore.CornerRadius;
+        set => BorderCore.CornerRadius = value;
     }
 
     public Thickness Padding {
@@ -19,9 +22,9 @@ public class BorderNode2D : ContentNode2D {
         set => SetAffectsMeasure(ref field, value);
     } = new(0);
 
-    public Brush BorderBrush {
-        get => (RenderCore as BorderRenderCore2D).StrokeBrush;
-        set => (RenderCore as BorderRenderCore2D).StrokeBrush = value;
+    public Brush? BorderBrush {
+        get => BorderCore.StrokeBrush;
+        set => BorderCore.StrokeBrush = value;
     }
 
     public CapStyle StrokeDashCap {
@@ -77,7 +80,7 @@ public class BorderNode2D : ContentNode2D {
         get;
         set {
             if (SetAffectsMeasure(ref field, value))
-                (RenderCore as BorderRenderCore2D).BorderThickness = value;
+                BorderCore.BorderThickness = value;
         }
     }
 
@@ -93,7 +96,7 @@ public class BorderNode2D : ContentNode2D {
     public override void Update(RenderContext2D context) {
         base.Update(context);
         if (strokeStyleChanged) {
-            (RenderCore as BorderRenderCore2D).StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
+            BorderCore.StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
                 new StrokeStyleProperties {
                     DashCap = StrokeDashCap,
                     StartCap = StrokeStartLineCap,

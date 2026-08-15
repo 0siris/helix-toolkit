@@ -120,7 +120,7 @@ public sealed class Metadata : Dictionary<string, Metadata.Entry> {
             unchecked {
                 var hash = 17;
                 hash = hash * 31 + Data.GetHashCode();
-                hash = hash * 31 + (Data == null ? 0 : Data.GetHashCode());
+                hash = hash * 31 + Data.GetHashCode();
 
                 return hash;
             }

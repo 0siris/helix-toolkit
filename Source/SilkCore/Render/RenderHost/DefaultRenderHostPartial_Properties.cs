@@ -99,7 +99,7 @@ public partial class DefaultRenderHost {
     /// <value>
     ///     The per frame lights.
     /// </value>
-    public sealed override IEnumerable<LightNode> PerFrameLights => LightNodes.Select(x => x as LightNode);
+    public sealed override IEnumerable<LightNode> PerFrameLights => LightNodes.OfType<LightNode>();
 
     /// <summary>
     ///     Gets the per frame nodes for opaque rendering. <see cref="RenderType.Opaque" />

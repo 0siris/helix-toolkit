@@ -26,7 +26,7 @@ public sealed class SamplerMapping {
     ///     The name.
     /// </value>
     [DataMember]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     ///     Gets or sets the slot.

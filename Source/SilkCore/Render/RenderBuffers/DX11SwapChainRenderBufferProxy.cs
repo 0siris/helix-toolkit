@@ -17,8 +17,8 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
     /// </summary>
     protected readonly nint SurfacePtr;
 
-    private ShaderResourceViewProxy backBuffer;
-    private SwapChain1 swapChain;
+    private ShaderResourceViewProxy? backBuffer;
+    private SwapChain1? swapChain;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DX11SwapChainRenderBufferProxy" /> class.
@@ -51,7 +51,7 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
     /// <value>
     ///     The swap chain.
     /// </value>
-    public SwapChain1 SwapChain => swapChain;
+    public SwapChain1? SwapChain => swapChain;
 
     /// <summary>
     ///     Called when [create render target and depth buffers].
@@ -60,7 +60,7 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
     /// <param name="height">The height.</param>
     /// <returns></returns>
     protected override ShaderResourceViewProxy OnCreateBackBuffer(int width, int height) {
-        if (swapChain == null || swapChain.IsDisposed) {
+        if (swapChain is null || swapChain.IsDisposed) {
             swapChain = CreateSwapChain(SurfacePtr);
         } else {
             RemoveAndDispose(ref d2dTarget);
@@ -74,10 +74,15 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
                                     swapChain.Description.Flags);
         }
 
-        backBuffer = new ShaderResourceViewProxy(DeviceResources, swapChain.GetBackBuffer());
+        var currentSwapChain = swapChain ?? throw new InvalidOperationException("Swap chain was not created.");
+        var newBackBuffer = new ShaderResourceViewProxy(DeviceResources, currentSwapChain.GetBackBuffer());
+        if (newBackBuffer.Resource is not Texture2D texture)
+            throw new InvalidOperationException("The swap chain back buffer is not a 2D texture.");
+
+        backBuffer = newBackBuffer;
         d2dTarget = new D2DTargetProxy();
-        d2dTarget.Initialize(backBuffer.Resource as Texture2D, DeviceContext2D);
-        return backBuffer;
+        d2dTarget.Initialize(texture, DeviceContext2D);
+        return newBackBuffer;
     }
 
     private SwapChain1 CreateSwapChain(nint surfacePointer) {
@@ -115,7 +120,8 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
     ///     Presents this instance.
     /// </summary>
     /// <returns></returns>
-    public override bool Present() => swapChain.Present(VSyncInterval, PresentFlags.None, presentParams).Success;
+    public override bool Present() => swapChain is { } currentSwapChain
+        && currentSwapChain.Present(VSyncInterval, PresentFlags.None, presentParams).Success;
 
     /// <summary>
     ///     Must release swapchain at last after all its created resources have been released.

@@ -12,7 +12,7 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
-    private readonly WeakReference<SceneNode2D> parent = new(null);
+    private WeakReference<SceneNode2D>? parent;
 
     private RenderCore2D? renderCore;
 
@@ -39,12 +39,12 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </value>
     public SceneNode2D? Parent {
         get {
-            parent.TryGetTarget(out var target);
-            return target;
+            return parent is { } weak && weak.TryGetTarget(out var target) ? target : null;
         }
         set {
-            parent.TryGetTarget(out var target);
-            if (Set(ref target, value)) parent.SetTarget(value);
+            var current = Parent;
+            if (Set(ref current, value))
+                parent = value is { } node ? new WeakReference<SceneNode2D>(node) : null;
         }
     }
 
@@ -108,7 +108,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <value>
     ///     The render host.
     /// </value>
-    protected IRenderHost RenderHost { get; private set; }
+    protected IRenderHost? RenderHost { get; private set; }
 
     /// <summary>
     ///     Gets the items.
@@ -229,7 +229,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <param name="mousePoint">The mouse point.</param>
     /// <param name="hitResult">The hit result.</param>
     /// <returns></returns>
-    public bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult) {
+    public bool HitTest(Vector2 mousePoint, out HitTest2DResult? hitResult) {
         if (Parent == null) mousePoint *= DpiScale;
 
         if (CanHitTest()) return OnHitTest(ref mousePoint, out hitResult);
@@ -256,7 +256,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </summary>
     /// <param name="host">The host.</param>
     public void Attach(IRenderHost host) {
-        if (IsAttached || host == null) return;
+        if (IsAttached) return;
         RenderHost = host;
         DpiScale = host.DpiScale;
         IsAttached = OnAttach(host);
@@ -324,7 +324,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void RenderCore_OnInvalidateRenderer(object sender, EventArgs e) {
+    private void RenderCore_OnInvalidateRenderer(object? sender, EventArgs e) {
         InvalidateVisual();
     }
 
@@ -448,7 +448,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
                                     (int)Math.Ceiling(LayoutClipBound.Height)),
                           context.DeviceContext.MaximumBitmapSize);
 #endif
-        if (EnableBitmapCache && IsBitmapCacheValid) {
+        if (EnableBitmapCache && IsBitmapCacheValid && bitmapCache is { } cache) {
             if (IsVisualDirty) {
 #if DEBUGDRAWING
                 if (Logger.IsEnabled(LogLevel.Debug))
@@ -456,7 +456,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
                     Logger.Debug("Redraw bitmap cache");
                 }
 #endif
-                context.PushRenderTarget(bitmapCache, true);
+                context.PushRenderTarget(cache, true);
                 context.DeviceContext.Transform = Matrix3X2.Identity;
                 context.PushRelativeTransform(Matrix3X2.Identity);
                 RenderCore.Transform = context.RelativeTransform;
@@ -468,7 +468,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
 
             if (context.HasTarget) {
                 context.DeviceContext.Transform = context.RelativeTransform * RelativeMatrix;
-                context.DeviceContext.DrawImage(bitmapCache, new Vector2(0, 0), LayoutClipBound);
+                context.DeviceContext.DrawImage(cache, new Vector2(0, 0), LayoutClipBound);
             }
         } else if (context.HasTarget) {
             context.PushRelativeTransform(context.RelativeTransform * RelativeMatrix);
@@ -484,9 +484,10 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </summary>
     /// <param name="context">The context.</param>
     public void RenderBitmapCache(RenderContext2D context) {
-        if (IsRenderable && EnableBitmapCache && IsBitmapCacheValid && !IsVisualDirty && context.HasTarget) {
+        if (IsRenderable && EnableBitmapCache && IsBitmapCacheValid && !IsVisualDirty
+            && context.HasTarget && bitmapCache is { } cache) {
             context.DeviceContext.Transform = RelativeMatrix;
-            context.DeviceContext.DrawImage(bitmapCache,
+            context.DeviceContext.DrawImage(cache,
                                             new Vector2(0, 0),
                                             new RectangleF(0, 0, RenderSize.X, RenderSize.Y));
         } else {

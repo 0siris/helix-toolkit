@@ -29,12 +29,12 @@ public class RectangleAdorner : Adorner {
     /// <summary>
     ///     The pen.
     /// </summary>
-    private readonly Pen pen;
+    private readonly Pen pen = new(Brushes.Transparent, 0);
 
     /// <summary>
     ///     The pen 2.
     /// </summary>
-    private readonly Pen pen2;
+    private readonly Pen pen2 = new(Brushes.Transparent, 0);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RectangleAdorner" /> class.

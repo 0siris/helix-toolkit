@@ -17,8 +17,8 @@ public class LineMaterialVariable : MaterialVariable {
     private readonly ITextureResourceManager textureManager;
 
     private readonly int textureSamplerSlot;
-    private ShaderResourceViewProxy textureResource;
-    private SamplerStateProxy textureSampler;
+    private ShaderResourceViewProxy? textureResource;
+    private SamplerStateProxy? textureSampler;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="LineMaterialVariable" /> class.
@@ -113,7 +113,7 @@ public class LineMaterialVariable : MaterialVariable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void CreateTextureView(TextureModel texture) {
+    private void CreateTextureView(TextureModel? texture) {
         var newRes = texture == null ? null : textureManager.Register(texture);
         RemoveAndDispose(ref textureResource);
         textureResource = newRes;
@@ -121,10 +121,11 @@ public class LineMaterialVariable : MaterialVariable {
 
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) {
-        DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
+        if (bufferModel?.IndexBuffer is { } indexBuffer)
+            DrawIndexed(deviceContext, indexBuffer.ElementCount, instanceCount);
     }
 
     public override ShaderPass GetPass(RenderType renderType, RenderContext context) => LinePass;

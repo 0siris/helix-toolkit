@@ -23,7 +23,8 @@ public class Texture3D : Texture3DBase {
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone() => new Texture3D(GraphicsDevice, Description);
+    public override Texture Clone() => new Texture3D(
+        GraphicsDevice ?? throw new InvalidOperationException("The texture has no graphics device."), Description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Texture3DDescription" />.
@@ -224,8 +225,6 @@ public class Texture3D : Texture3DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
-        if (image == null)
-            ArgumentNullException.ThrowIfNull(image);
         if (image.Description.Dimension != TextureDimension.Texture3D)
             throw new ArgumentException("Invalid image. Must be 3D", "image");
 
@@ -248,10 +247,9 @@ public class Texture3D : Texture3DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         var texture = Texture.Load(device, stream, flags, usage);
-        if (!(texture is Texture3D))
-            throw new ArgumentException(string.Format("Texture is not type of [Texture3D] but [{0}]",
-                                                      texture.GetType().Name));
-        return (Texture3D)texture;
+        if (texture is not Texture3D typedTexture)
+            throw new ArgumentException($"Texture is not type of [Texture3D] but [{texture?.GetType().Name ?? "null"}]");
+        return typedTexture;
     }
 
     /// <summary>

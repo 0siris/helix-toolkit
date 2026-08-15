@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Reflection;
 using Cyotek.Drawing.BitmapFont;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 
 namespace HelixToolkit.SharpDX.Core;
@@ -27,7 +28,7 @@ public class TextInfo {
         Origin = origin;
     }
 
-    public string Text { get; set; }
+    public string Text { get; set; } = string.Empty;
 
     public Vector3 Origin { get; set; }
 
@@ -98,22 +99,26 @@ public class BillboardText3D : BillboardBase {
 
     static BillboardText3D() {
         var assembly = typeof(BillboardText3D).GetTypeInfo().Assembly;
-        var fontInfo = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.fnt");
+        var fontInfo = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.fnt")
+                       ?? throw new InvalidOperationException("The billboard font resource is missing.");
         BmpFont = new BitmapFont();
         BmpFont.Load(fontInfo);
-        var font = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.dds");
+        var font = assembly.GetManifestResourceStream($"SilkCore.Resources.{FontName}.dds")
+                   ?? throw new InvalidOperationException("The billboard texture resource is missing.");
         TextureStatic = font;
     }
 
     public BillboardText3D() {
         textInfo.CollectionChanged += CollectionChanged;
-        Texture = TextureStatic;
+        Texture = TextureModel.Create(TextureStatic)
+                  ?? throw new InvalidOperationException("The billboard texture could not be created.");
         BitmapFont = BmpFont;
     }
 
     public BillboardText3D(BitmapFont bitmapFont, Stream fontTexture) {
         textInfo.CollectionChanged += CollectionChanged;
-        Texture = fontTexture;
+        Texture = TextureModel.Create(fontTexture)
+                  ?? throw new ArgumentNullException(nameof(fontTexture));
         BitmapFont = bitmapFont;
     }
 
@@ -136,7 +141,7 @@ public class BillboardText3D : BillboardBase {
             if (Set(ref textInfo, value)) {
                 old.CollectionChanged -= CollectionChanged;
                 IsInitialized = false;
-                value?.CollectionChanged += CollectionChanged;
+                value.CollectionChanged += CollectionChanged;
             }
         }
     }
@@ -146,7 +151,7 @@ public class BillboardText3D : BillboardBase {
         if (target is BillboardText3D billboard) billboard.TextInfo = TextInfo;
     }
 
-    private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+    private void CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
         IsInitialized = false;
     }
 
@@ -293,7 +298,7 @@ public class BillboardText3D : BillboardBase {
         bool fixedSize
     ) {
         var rayWs = context.RayWs;
-        if (!IsInitialized || context == null || Width == 0 || Height == 0
+        if (!IsInitialized || Width == 0 || Height == 0
             || (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWs)))
             return false;
 

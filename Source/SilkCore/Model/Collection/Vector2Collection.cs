@@ -36,7 +36,7 @@ public sealed class Vector2Collection : FastList<Vector2> {
         return resource;
     }
 
-    public string ConvertToString(string format, IFormatProvider provider) {
+    public string ConvertToString(string? format, IFormatProvider? provider) {
         if (Count == 0) return string.Empty;
 
         var str = new StringBuilder();

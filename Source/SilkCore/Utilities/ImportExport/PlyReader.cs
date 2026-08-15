@@ -54,7 +54,10 @@ public class PlyReader : ModelReader {
     ///     A <see cref="MeshGeometry3D" />.
     /// </returns>
     public MeshGeometry3D CreateMesh() {
-        var mesh = new MeshGeometry3D();
+        var mesh = new MeshGeometry3D {
+            Positions = [],
+            Indices = []
+        };
         if (Vertices.Count > 0)
             foreach (var vert in Vertices)
                 mesh.Positions.Add(vert);
@@ -63,9 +66,11 @@ public class PlyReader : ModelReader {
             foreach (var face in Faces)
                 mesh.Indices.AddRange((int[])face.Clone());
 
-        if (TextureCoordinates is { Count: > 0 } textureCoordinates)
+        if (TextureCoordinates is { Count: > 0 } textureCoordinates) {
+            mesh.TextureCoordinates = [];
             foreach (var item in textureCoordinates)
                 mesh.TextureCoordinates.Add(new Vector2(item.X, item.Y));
+        }
 
         if (TextureCoordinates?.Count == 0) TextureCoordinates = null;
         return mesh;
@@ -90,6 +95,7 @@ public class PlyReader : ModelReader {
 
         if (Normals.Count > 0) {
             mb.CreateNormals = true;
+            mb.Normals ??= [];
             foreach (var item in Normals) mb.Normals.Add(item);
         }
 
@@ -97,6 +103,7 @@ public class PlyReader : ModelReader {
 
         if (TextureCoordinates is { Count: > 0 } textureCoordinates) {
             mb.CreateTextureCoordinates = true;
+            mb.TextureCoordinates ??= [];
             foreach (var item in textureCoordinates) mb.TextureCoordinates.Add(item);
         }
 
@@ -139,6 +146,9 @@ public class PlyReader : ModelReader {
             //!textReader.EndOfStream
             while (!textReader.EndOfStream) {
                 var lineTxt = textReader.ReadLine();
+                if (lineTxt is null)
+                    break;
+
                 var initarr = lineTxt.Split(' ');
                 if (initarr[0] == "format") {
                     if (initarr[1] == "ascii")
@@ -431,15 +441,15 @@ public class PlyReader : ModelReader {
         using var reader = new StreamReader(s);
         while (!reader.EndOfStream) {
             var curline = reader.ReadLine();
+            if (curline is null)
+                break;
+
             var strarr = curline.Split(' ');
-            if (curline == null) {
-                //reader.Close();
-            }
 
             #region Heading
 
             //comment Line
-            else if (strarr[0] == "comment" || strarr[0] == "format" || strarr[0] == "ply") { }
+            if (strarr[0] == "comment" || strarr[0] == "format" || strarr[0] == "ply") { }
 
             //obj_info Line
             else if (strarr[0] == "obj_info") {
@@ -572,7 +582,7 @@ public class PlyReader : ModelReader {
     /// <param name="s"></param>
     private void Load_binaryBE(Stream s) {
         using (var reader = new BinaryReader(s)) {
-            while (reader.ReadString() != null) {
+            while (reader.BaseStream.Position < reader.BaseStream.Length) {
                 var curline = reader.ReadString();
                 var strarr = curline.Split(' ');
                 //comment Line

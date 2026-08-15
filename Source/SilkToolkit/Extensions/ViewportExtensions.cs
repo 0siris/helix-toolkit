@@ -50,7 +50,7 @@ public static class ViewportExtensions {
     ///     Copies the specified viewport to the clipboard.
     /// </summary>
     public static void Copy(this Viewport3DX view) {
-        Clipboard.SetImage(view.RenderBitmap());
+        if (view.RenderBitmap() is { } bitmap) Clipboard.SetImage(bitmap);
     }
 
     /// <summary>
@@ -111,7 +111,8 @@ public static class ViewportExtensions {
     /// </param>
     public static void Traverse<T>(this Viewport3DX viewport, Action<T, Transform3D> action) where T : Element3D {
         viewport.Renderables.PreorderDft(node => {
-            if (node.WrapperSource is T element) action(element, element.Transform);
+            if (node.WrapperSource is T element && element.Transform is { } transform)
+                action(element, transform);
             return true;
         });
     }
@@ -187,8 +188,8 @@ public static class ViewportExtensions {
         Point position,
         out Point3D point,
         out Vector3D normal,
-        out Element3D model,
-        out SceneNode node
+        out Element3D? model,
+        out SceneNode? node
     ) {
         var succ = viewport.FindNearest(position.ToVector2(), out var p, out var n, out var m);
         point = p.ToPoint3D();
@@ -324,15 +325,17 @@ public static class ViewportExtensions {
     /// <param name="view">The viewport.</param>
     /// <returns>A bitmap.</returns>
     public static BitmapSource? RenderBitmap(this Viewport3DX view) {
-        if (view.RenderHost != null && view.RenderHost.IsRendering) {
-            view.RenderHost.UpdateAndRender();
+        if (view.RenderHost is { IsRendering: true } host) {
+            host.UpdateAndRender();
             using var memoryStream = new MemoryStream();
-            if (view.RenderHost != null && view.RenderHost.IsRendering) {
-                if (view.EnableSwapChainRendering) view.RenderHost.UpdateAndRender();
+            if (host.IsRendering
+                && host.RenderBuffer is { } buffer
+                && host.EffectsManager is { } effectsManager
+                && buffer.BackBuffer.Resource is Texture2D backBuffer) {
+                if (view.EnableSwapChainRendering) host.UpdateAndRender();
                 // be sure to render the Scene before capture, otherwise the image is just black
-                ScreenCapture.SaveWicTextureToBitmapStream(view.RenderHost.EffectsManager,
-                                                           view.RenderHost.RenderBuffer.BackBuffer
-                                                               .Resource as Texture2D,
+                ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
+                                                           backBuffer,
                                                            memoryStream);
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
@@ -428,10 +431,14 @@ public static class ViewportExtensions {
             if (!file.CanWrite) throw new IOException($"File cannot be written. {fileName}");
         }
 
-        if (view.RenderHost != null && view.RenderHost.IsRendering) {
-            view.RenderHost.UpdateAndRender();
-            ScreenCapture.SaveWicTextureToFile(view.RenderHost.EffectsManager,
-                                               view.RenderHost.RenderBuffer.BackBuffer.Resource as Texture2D,
+        if (view.RenderHost is { IsRendering: true } host) {
+            host.UpdateAndRender();
+            if (host.RenderBuffer is not { } buffer
+                || host.EffectsManager is not { } effectsManager
+                || buffer.BackBuffer.Resource is not Texture2D backBuffer)
+                return;
+            ScreenCapture.SaveWicTextureToFile(effectsManager,
+                                               backBuffer,
                                                fileName,
                                                format);
         }

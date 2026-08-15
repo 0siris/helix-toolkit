@@ -137,7 +137,6 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     public BoundingBox Bound {
         get => bound;
         
-        [MemberNotNull(nameof(Octants))]        
         protected set {
             if (bound == value) {
                 return;
@@ -170,7 +169,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// <summary>
     ///     <see cref="IDynamicOctree.Octants" />
     /// </summary>
-    public BoundingBox[] Octants { get; private set; }
+    public BoundingBox[] Octants { get; private set; } = [];
 
     /// <summary>
     ///     Gets the self array.
@@ -284,8 +283,13 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         Matrix modelMatrix,
         ref List<HitTestResult> hits,
         float hitThickness
-    )
-        => HitTest(context, model, geometry, modelMatrix, false, ref hits, hitThickness);
+    ) {
+        List<HitTestResult>? nullableHits = hits;
+        var result = HitTest(context, model, geometry, modelMatrix, false, ref nullableHits, hitThickness);
+        if (nullableHits is not null)
+            hits = nullableHits;
+        return result;
+    }
 
     /// <summary>
     /// </summary>
@@ -804,7 +808,8 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         nodeBase.Objects.Add(item);
         if (nodeBase.Objects.Count > Parameter.MinObjectSizeToSplit) {
             var index = ((DynamicOctreeBase<T>) node).Objects.Count - 1;
-            PushExistingToChild(nodeBase, index, IsContains, CreateNodeWithParent, out octant);
+            PushExistingToChild(nodeBase, index, IsContains, CreateNodeWithParent, out var childOctant);
+            octant = childOctant ?? node;
         }
 
         return true;
@@ -825,8 +830,11 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// <returns></returns>
     public virtual bool PushExistingToChild(int index, out IDynamicOctree octant) {
         octant = this;
-        if (Objects.Count > Parameter.MinObjectSizeToSplit)
-            return PushExistingToChild(this, index, IsContains, CreateNodeWithParent, out octant);
+        if (Objects.Count > Parameter.MinObjectSizeToSplit) {
+            var pushed = PushExistingToChild(this, index, IsContains, CreateNodeWithParent, out var childOctant);
+            octant = childOctant ?? this;
+            return pushed;
+        }
 
         return false;
     }
@@ -867,7 +875,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
                     node.ActiveNodes |= (byte)(1 << i);
                     childNodes.BuildTree();
 
-                    octant = ((DynamicOctreeBase<T>) childNodes).FindChildByItemBound(item, out _);
+                    octant = ((DynamicOctreeBase<T>)childNodes).FindChildByItemBound(item, out _) ?? childNodes;
                 }
 
                 pushToChild = true;
@@ -1007,8 +1015,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
 
         if (((DynamicOctreeBase<T>) root).Objects.Count == 0 && (root.ActiveNodes & (root.ActiveNodes - 1)) == 0) {
             for (var i = 0; i < root.ChildNodes.Length; ++i) {
-                if (root.ChildNodes[i] != null) {
-                    var newRoot = root.ChildNodes[i];
+                if (root.ChildNodes[i] is { } newRoot) {
                     newRoot.Parent = null;
                     root.ChildNodes[i] = null;
                     return newRoot;

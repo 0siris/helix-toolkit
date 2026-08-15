@@ -23,7 +23,7 @@ public class ShaderResourceViewProxy : DisposeObject {
 
     public ShaderResourceViewProxy(DeviceContextProxy context) {
         this.context = context;
-        nativeDevice = context?.NativeDevice;
+        nativeDevice = context.NativeDevice;
     }
 
     public ShaderResourceViewProxy(DeviceContextProxy context, Resource resource)
@@ -43,7 +43,7 @@ public class ShaderResourceViewProxy : DisposeObject {
     internal ShaderResourceViewProxy(Resource resource, ShaderResourceView textureView) {
         this.resource = resource;
         this.textureView = textureView;
-        TextureFormat = textureView == null ? default : textureView.Description.Format;
+        TextureFormat = textureView.Description.Format;
     }
 
     public ShaderResourceViewProxy(object device) {
@@ -84,7 +84,7 @@ public class ShaderResourceViewProxy : DisposeObject {
 
     public ShaderResourceViewProxy(ShaderResourceView view) {
         textureView = view;
-        TextureFormat = view == null ? default : view.Description.Format;
+        TextureFormat = view.Description.Format;
     }
 
     public Guid Guid { get; set; } = Guid.NewGuid();
@@ -101,8 +101,6 @@ public class ShaderResourceViewProxy : DisposeObject {
     public Format TextureFormat { get; private set; }
 
     public void CreateView(TextureModel texture, bool createSrv = true, bool enableAutoGenMipMap = true) {
-        if (texture == null) return;
-
         var info = texture.Load();
         var succeeded = false;
         try {
@@ -124,7 +122,7 @@ public class ShaderResourceViewProxy : DisposeObject {
     }
 
     public void CreateView(Stream texture, bool createSrv = true, bool enableAutoGenMipMap = true) {
-        if (nativeDevice == null || texture == null) return;
+        if (nativeDevice == null) return;
 
         var originalPosition = texture.CanSeek ? texture.Position : 0;
         try {
@@ -230,7 +228,6 @@ public class ShaderResourceViewProxy : DisposeObject {
     public void CreateView<T>(T[] array, Format format, bool createSrv = true, bool generateMipMaps = true)
         where T : unmanaged {
         TextureFormat = format;
-        if (array == null) return;
         CreateView(array, array.Length, format, createSrv, generateMipMaps);
     }
 
@@ -243,7 +240,7 @@ public class ShaderResourceViewProxy : DisposeObject {
     )
         where T : unmanaged {
         TextureFormat = format;
-        if (array == null || length <= 0) return;
+        if (length <= 0) return;
         unsafe {
             fixed (T* arrayPtr = array) {
                 CreateView((nint)arrayPtr, length, format, sizeof(T), createSrv, generateMipMaps);
@@ -271,7 +268,6 @@ public class ShaderResourceViewProxy : DisposeObject {
     )
         where T : unmanaged {
         TextureFormat = format;
-        if (array == null) return;
         unsafe {
             fixed (T* arrayPtr = array) {
                 CreateView((nint)arrayPtr,
@@ -629,7 +625,7 @@ public class ShaderResourceViewProxy : DisposeObject {
             DeviceContextProxy contextProxy => contextProxy.NativeDevice,
             NativeD3DDevice silkDevice => silkDevice,
             INativeDeviceResources nativeResources => nativeResources.Device,
-            IDevice3DResources deviceResources => deviceResources.NativeDeviceResources?.Device,
+            IDevice3DResources deviceResources => deviceResources.NativeDeviceResources.Device,
             _ => null
         };
     }

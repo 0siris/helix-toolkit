@@ -52,7 +52,9 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
     /// <param name="context">The context.</param>
     /// <param name="deviceContext">The device context.</param>
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        var buffer = context.RenderHost.RenderBuffer;
+        if (context.RenderHost.RenderBuffer is not { } buffer)
+            return;
+
         var depthStencilBuffer = buffer.DepthStencilBufferNoMsaa;
         deviceContext.SetRenderTarget(depthStencilBuffer, buffer.FullResPpBuffer.CurrentRtv);
         

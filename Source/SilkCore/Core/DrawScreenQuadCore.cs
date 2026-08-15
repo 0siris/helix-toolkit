@@ -15,7 +15,7 @@ public class DrawScreenQuadCore : RenderCore {
 
     public ScreenQuadModelStruct ModelStruct;
 
-    private ShaderPass pass;
+    private ShaderPass pass = ShaderPass.NullPass;
     private string passName = DefaultPassNames.Default;
 
     private SamplerStateProxy? Sampler {
@@ -30,7 +30,7 @@ public class DrawScreenQuadCore : RenderCore {
     private SamplerStateDescription samplerDescription = DefaultSamplers.LinearSamplerClampAni1;
     private int samplerSlot;
 
-    private TextureModel texture;
+    private TextureModel? texture;
 
     private ShaderResourceViewProxy? TextureProxy {
         get;
@@ -63,7 +63,8 @@ public class DrawScreenQuadCore : RenderCore {
         get => passName;
         set {
             if (SetAffectsRender(ref passName, value) && IsAttached) {
-                pass = EffectTechnique[value];
+                if (EffectTechnique is not { } technique || technique[value] is not { } selectedPass) return;
+                pass = selectedPass;
                 textureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTb);
                 samplerSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
             }
@@ -76,7 +77,7 @@ public class DrawScreenQuadCore : RenderCore {
     /// <value>
     ///     The texture.
     /// </value>
-    public TextureModel Texture {
+    public TextureModel? Texture {
         get => texture;
         set {
             if (SetAffectsRender(ref texture, value) && IsAttached) 
@@ -96,14 +97,17 @@ public class DrawScreenQuadCore : RenderCore {
     }
 
     private void UpdateTexture(TextureModel? texture) {
+        if (EffectTechnique is not { } technique) return;
         var newTexture = texture == null
                              ? null
-                             : EffectTechnique.EffectsManager.MaterialTextureManager.Register(texture);
+                             : technique.EffectsManager.MaterialTextureManager.Register(texture);
         TextureProxy = newTexture;
     }
 
-    private void UpdateSampler() 
-        => Sampler = EffectTechnique.EffectsManager.StateManager.Register(samplerDescription);
+    private void UpdateSampler() {
+        if (EffectTechnique is { } technique)
+            Sampler = technique.EffectsManager.StateManager.Register(samplerDescription);
+    }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         if (pass.IsNull) 

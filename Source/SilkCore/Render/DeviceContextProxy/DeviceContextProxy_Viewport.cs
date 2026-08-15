@@ -6,7 +6,7 @@ public partial class DeviceContextProxy {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetScissorRectangle(int left, int top, int right, int bottom) {
-        nativeDeviceContext.SetScissorRectangle(left, top, right, bottom);
+        NativeContext.SetScissorRectangle(left, top, right, bottom);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -19,7 +19,7 @@ public partial class DeviceContextProxy {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetViewport(float x, float y, float width, float height, float minZ = 0, float maxZ = 1) {
-        nativeDeviceContext.SetViewport(x, y, width, height, minZ, maxZ);
+        NativeContext.SetViewport(x, y, width, height, minZ, maxZ);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

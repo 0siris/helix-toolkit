@@ -26,7 +26,7 @@ public class KeyFrameUpdater : IAnimationUpdater {
     /// <param name="bones">The bones.</param>
     public KeyFrameUpdater(Animation animation, IList<Bone> bones) {
         Animation = animation;
-        Name = animation.Name;
+        Name = animation.Name ?? string.Empty;
         boneCount = bones.Count;
         tempKeyframes = new Keyframe?[boneCount];
         tempBones = new Matrix[boneCount];
@@ -56,7 +56,7 @@ public class KeyFrameUpdater : IAnimationUpdater {
     /// <param name="timeStamp">The time stamp (ticks).</param>
     /// <param name="frequency">The frequency (ticks per second).</param>
     public void Update(float timeStamp, long frequency) {
-        if (Animation.BoneSkinMeshes == null || Animation.BoneSkinMeshes.Count == 0) return;
+        if (Animation.BoneSkinMeshes.Count == 0) return;
         var timeSec = timeStamp / frequency;
         if (timeSec < StartTime) return;
         if (StartTime == EndTime) return;
@@ -115,7 +115,7 @@ public class KeyFrameUpdater : IAnimationUpdater {
 
 
     private void OutputBones(IBoneMatricesNode node) {
-        if (node.BoneMatrices == null || node.BoneMatrices.Length != boneCount)
+        if (node.BoneMatrices.Length != boneCount)
             node.BoneMatrices = [.. currentBones];
         else
             currentBones.CopyTo(node.BoneMatrices, 0);

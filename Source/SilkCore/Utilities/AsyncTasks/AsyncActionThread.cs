@@ -5,7 +5,7 @@ namespace HelixToolkit.SharpDX.Core;
 internal sealed class AsyncActionWaitable : DisposeObject {
     private static readonly ConcurrentBag<AsyncActionWaitable> Pool = [];
     private readonly object waitable = new();
-    private Action action;
+    private Action? action;
 
     private AsyncActionWaitable() { }
 
@@ -53,7 +53,7 @@ internal sealed class AsyncActionThread : IDisposable {
     private readonly Queue<AsyncActionWaitable> jobs = new();
     private bool disposedValue;
 
-    private Thread jobThread;
+    private Thread? jobThread;
     private volatile bool running = true;
 
     public bool Enabled { get; set; }

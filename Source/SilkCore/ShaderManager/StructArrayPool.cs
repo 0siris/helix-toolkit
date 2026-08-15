@@ -161,13 +161,14 @@ public interface IStructArrayPool : IDisposable {
 ///     A pool contains various of binary buffers defined by struct size.
 /// </summary>
 public sealed class StructArrayPool : DisposeObject, IStructArrayPool {
-    private ArrayPoolStorage storage;
+    private ArrayPoolStorage? storage;
 
     public StructArrayPool() {
         storage = new ArrayPoolStorage();
     }
 
-    public ArrayStorage Register(int structSize) => storage.TryCreateOrGet(structSize, structSize, out var result)
+    public ArrayStorage Register(int structSize) => storage is { } pool &&
+                                                    pool.TryCreateOrGet(structSize, structSize, out var result)
         ? result
         : throw new InvalidOperationException($"Unable to register storage for struct size {structSize}.");
 

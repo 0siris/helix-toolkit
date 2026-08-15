@@ -182,7 +182,7 @@ public class CmoReader : IModelReader {
         ///     Gets or sets the path to the textures.
         /// </summary>
         /// <value>The texture path.</value>
-    public string TexturePath { get; set; }
+    public string? TexturePath { get; set; }
 
         /// <summary>
         ///     Additional info how to treat the model
@@ -190,7 +190,7 @@ public class CmoReader : IModelReader {
     public ModelInfo ModelInfo { get; private set; }
 
     public List<Object3D> Read(string path, ModelInfo info = default) {
-        TexturePath = Path.GetDirectoryName(path);
+        TexturePath = Path.GetDirectoryName(path) ?? string.Empty;
         ModelInfo = info;
 
         using var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -207,12 +207,12 @@ public class CmoReader : IModelReader {
     }
 
     private IList<Object3D> Load(BinaryReader reader) {
-        var name = reader.ReadCMO_wchar();
+        var name = reader.ReadCMO_wchar() ?? string.Empty;
         var numMaterials = (int)reader.ReadUInt32();
         var materials = new List<Tuple<PhongMaterial, IList<string>>>(numMaterials);
         for (var i = 0; i < numMaterials; ++i) {
             var material = new PhongMaterial {
-                Name = reader.ReadCMO_wchar(),
+                Name = reader.ReadCMO_wchar() ?? string.Empty,
                 AmbientColor = reader.ReadStructure<Color4>(),
                 DiffuseColor = reader.ReadStructure<Color4>(),
                 SpecularColor = reader.ReadStructure<Color4>(),
@@ -225,9 +225,9 @@ public class CmoReader : IModelReader {
             material.UvTransform = new UvTransform(SilkMath.QuaternionAngle(r),
                                                    new Vector2(s.X, s.Y),
                                                    new Vector2(tra.X, tra.Y));
-            var pixelShaderName = reader.ReadCMO_wchar(); //Not used
+            reader.ReadCMO_wchar(); // Not used
             var textures = new List<string>();
-            for (var t = 0; t < MaxTextures; ++t) textures.Add(reader.ReadCMO_wchar());
+            for (var t = 0; t < MaxTextures; ++t) textures.Add(reader.ReadCMO_wchar() ?? string.Empty);
             materials.Add(new Tuple<PhongMaterial, IList<string>>(material, textures));
         }
 
@@ -242,7 +242,6 @@ public class CmoReader : IModelReader {
 
         // load sub meshes if any
 
-        var mesh = new MeshGeometry3D();
         var subMeshCount = (int)reader.ReadUInt32();
 
         var subMesh = new List<SubMesh>(subMeshCount);
@@ -282,9 +281,8 @@ public class CmoReader : IModelReader {
         for (var i = 0; i < skinningVertexBufferCount; i++)
             skinningVertexBuffers.Add(reader.ReadStructure<SkinningVertex>((int)reader.ReadUInt32()));
         // load mesh extent
-        var extent = reader.ReadStructure<MeshExtent>();
+        reader.ReadStructure<MeshExtent>();
         var animationHierarchy = new AnimationHierarchy();
-        IList<string>? boneNames = null;
         if (isAnimationData) {
             //      UINT - Bone count
             //      { [Bone count]
@@ -293,9 +291,8 @@ public class CmoReader : IModelReader {
             //          Bone structure
             //      }
             var boneCount = (int)reader.ReadUInt32();
-            boneNames = new string[boneCount];
             for (var i = 0; i < boneCount; i++) {
-                boneNames[i] = reader.ReadCMO_wchar();
+                reader.ReadCMO_wchar();
                 animationHierarchy.Bones.Add(reader.ReadStructure<BoneStruct>());
             }
 
@@ -313,7 +310,7 @@ public class CmoReader : IModelReader {
             var animationCount = (int)reader.ReadUInt32();
             for (var i = 0; i < animationCount; i++) {
                 var animation = new Animation(AnimationType.Keyframe);
-                var animationName = reader.ReadCMO_wchar();
+                var animationName = reader.ReadCMO_wchar() ?? string.Empty;
                 animation.StartTime = reader.ReadSingle();
                 animation.EndTime = reader.ReadSingle();
                 animation.Name = animationName;

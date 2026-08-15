@@ -8,53 +8,56 @@ using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public class TextNode2D : SceneNode2D {
-    private TextRenderCore2D textRenderable;
+    private TextRenderCore2D? textRenderable;
+
+    private TextRenderCore2D TextCore => textRenderable
+        ?? throw new InvalidOperationException("Text render core is not initialized.");
 
     public string Text {
         get;
         set {
-            if (SetAffectsMeasure(ref field, value)) (RenderCore as TextRenderCore2D).Text = value;
+            if (SetAffectsMeasure(ref field, value)) TextCore.Text = value;
         }
     } = string.Empty;
 
-    public Brush Foreground {
-        get => (RenderCore as TextRenderCore2D).Foreground;
-        set => (RenderCore as TextRenderCore2D).Foreground = value;
+    public Brush? Foreground {
+        get => TextCore.Foreground;
+        set => TextCore.Foreground = value;
     }
 
-    public Brush Background {
-        get => (RenderCore as TextRenderCore2D).Background;
-        set => (RenderCore as TextRenderCore2D).Background = value;
+    public Brush? Background {
+        get => TextCore.Background;
+        set => TextCore.Background = value;
     }
 
     public int FontSize {
-        get => (RenderCore as TextRenderCore2D).FontSize;
-        set => (RenderCore as TextRenderCore2D).FontSize = value;
+        get => TextCore.FontSize;
+        set => TextCore.FontSize = value;
     }
 
     public FontWeight FontWeight {
-        get => (RenderCore as TextRenderCore2D).FontWeight;
-        set => (RenderCore as TextRenderCore2D).FontWeight = value;
+        get => TextCore.FontWeight;
+        set => TextCore.FontWeight = value;
     }
 
     public FontStyle FontStyle {
-        get => (RenderCore as TextRenderCore2D).FontStyle;
-        set => (RenderCore as TextRenderCore2D).FontStyle = value;
+        get => TextCore.FontStyle;
+        set => TextCore.FontStyle = value;
     }
 
     public TextAlignment TextAlignment {
-        get => (RenderCore as TextRenderCore2D).TextAlignment;
-        set => (RenderCore as TextRenderCore2D).TextAlignment = value;
+        get => TextCore.TextAlignment;
+        set => TextCore.TextAlignment = value;
     }
 
     public FlowDirection FlowDirection {
-        get => (RenderCore as TextRenderCore2D).FlowDirection;
-        set => (RenderCore as TextRenderCore2D).FlowDirection = value;
+        get => TextCore.FlowDirection;
+        set => TextCore.FlowDirection = value;
     }
 
     public string FontFamily {
-        get => (RenderCore as TextRenderCore2D).FontFamily;
-        set => (RenderCore as TextRenderCore2D).FontFamily = value;
+        get => TextCore.FontFamily;
+        set => TextCore.FontFamily = value;
     }
 
     protected override RenderCore2D CreateRenderCore() {
@@ -73,16 +76,16 @@ protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? h
     }
 
     protected override Size2F MeasureOverride(Size2F availableSize) {
-        textRenderable.MaxWidth = availableSize.Width;
-        textRenderable.MaxHeight = availableSize.Height;
-        var metrices = textRenderable.Metrices;
+        TextCore.MaxWidth = availableSize.Width;
+        TextCore.MaxHeight = availableSize.Height;
+        var metrices = TextCore.Metrices;
         return new Size2F(metrices.WidthIncludingTrailingWhitespace, metrices.Height);
     }
 
     protected override RectangleF ArrangeOverride(RectangleF finalSize) {
-        textRenderable.MaxWidth = finalSize.Width;
-        textRenderable.MaxHeight = finalSize.Height;
-        var metrices = textRenderable.Metrices;
+        TextCore.MaxWidth = finalSize.Width;
+        TextCore.MaxHeight = finalSize.Height;
+        var metrices = TextCore.Metrices;
         return finalSize;
     }
 }

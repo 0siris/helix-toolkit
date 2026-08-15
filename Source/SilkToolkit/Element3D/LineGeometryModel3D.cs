@@ -51,8 +51,8 @@ public class LineGeometryModel3D : GeometryModel3D {
                                                          (d, e) =>
 #endif
                                                          {
-                                                             (d as LineGeometryModel3D).Material.LineColor =
-                                                                 ((Media.Color)e.NewValue).ToColor4();
+                                                             if (d is LineGeometryModel3D model)
+                                                                 model.Material.LineColor = ((Media.Color)e.NewValue).ToColor4();
                                                          }));
 
     /// <summary>
@@ -64,8 +64,8 @@ public class LineGeometryModel3D : GeometryModel3D {
                                     typeof(LineGeometryModel3D),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             (d as LineGeometryModel3D).Material.Thickness =
-                                                                 (float)(double)e.NewValue;
+                                                             if (d is LineGeometryModel3D model)
+                                                                 model.Material.Thickness = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -77,8 +77,8 @@ public class LineGeometryModel3D : GeometryModel3D {
                                     typeof(LineGeometryModel3D),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             (d as LineGeometryModel3D).Material.Smoothness =
-                                                                 (float)(double)e.NewValue;
+                                                             if (d is LineGeometryModel3D model)
+                                                                 model.Material.Smoothness = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -90,8 +90,8 @@ public class LineGeometryModel3D : GeometryModel3D {
                                     typeof(LineGeometryModel3D),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as LineNode)
-                                                                 .HitTestThickness = (double)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: LineNode node })
+                                                                 node.HitTestThickness = (double)e.NewValue;
                                                          }));
 
 
@@ -106,8 +106,8 @@ public class LineGeometryModel3D : GeometryModel3D {
                                       typeof(LineGeometryModel3D),
                                       new PropertyMetadata(true,
                                                            (d, e) => {
-                                                               (d as LineGeometryModel3D).Material.FixedSize =
-                                                                   (bool)e.NewValue;
+                                                               if (d is LineGeometryModel3D model)
+                                                                   model.Material.FixedSize = (bool)e.NewValue;
                                                            }));
 
     /// <summary>

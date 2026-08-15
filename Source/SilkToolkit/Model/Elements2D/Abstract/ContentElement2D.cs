@@ -37,7 +37,7 @@ public abstract class ContentElement2D : Element2D {
 
                                  model.InvalidateMeasure();
                              },
-                             (d, e) => e is Element2D ? e : new TextModel2D { Text = e?.ToString() }));
+                             (d, e) => e is Element2D ? e : new TextModel2D { Text = e?.ToString() ?? string.Empty }));
 
     public static readonly DependencyProperty BackgroundProperty
         = DependencyProperty.Register("Background",
@@ -45,9 +45,10 @@ public abstract class ContentElement2D : Element2D {
                                       typeof(ContentElement2D),
                                       new PropertyMetadata(new WpfSolidColorBrush(Colors.Transparent),
                                                            (d, e) => {
-                                                               var m = d as ContentElement2D;
-                                                               m.backgroundChanged = true;
-                                                               m.InvalidateRender();
+                                                               if (d is ContentElement2D model) {
+                                                                   model.backgroundChanged = true;
+                                                                   model.InvalidateRender();
+                                                               }
                                                            }));
 
     public static readonly DependencyProperty ForegroundProperty
@@ -62,10 +63,10 @@ public abstract class ContentElement2D : Element2D {
                                     typeof(ContentElement2D),
                                     new PropertyMetadata(HorizontalAlignment.Center,
                                                          (d, e) => {
-                                                             ((d as Element2DCore).SceneNode as ContentNode2D)
-                                                                 .HorizontalContentAlignment =
-                                                                 ((HorizontalAlignment)e.NewValue)
-                                                                 .ToD2DHorizontalAlignment();
+                                                             if (d is Element2DCore { SceneNode: ContentNode2D node })
+                                                                 node.HorizontalContentAlignment =
+                                                                     ((HorizontalAlignment)e.NewValue)
+                                                                     .ToD2DHorizontalAlignment();
                                                          }));
 
     public static readonly DependencyProperty VerticalContentAlignmentProperty =
@@ -74,16 +75,16 @@ public abstract class ContentElement2D : Element2D {
                                     typeof(ContentElement2D),
                                     new PropertyMetadata(VerticalAlignment.Center,
                                                          (d, e) => {
-                                                             ((d as Element2DCore).SceneNode as ContentNode2D)
-                                                                 .VerticalContentAlignment =
-                                                                 ((VerticalAlignment)e.NewValue)
-                                                                 .ToD2DVerticalAlignment();
+                                                             if (d is Element2DCore { SceneNode: ContentNode2D node })
+                                                                 node.VerticalContentAlignment =
+                                                                     ((VerticalAlignment)e.NewValue)
+                                                                     .ToD2DVerticalAlignment();
                                                          }));
 
     private bool backgroundChanged = true;
 
     [Bindable(true)]
-    public object Content2D {
+    public object? Content2D {
         get => GetValue(Content2DProperty);
         set => SetValue(Content2DProperty, value);
     }
@@ -112,7 +113,8 @@ public abstract class ContentElement2D : Element2D {
     protected override void OnUpdate(RenderContext2D context) {
         base.OnUpdate(context);
         if (backgroundChanged) {
-            (SceneNode as ContentNode2D).Background = Background.ToD2DBrush(context.DeviceContext);
+            if (SceneNode is ContentNode2D node)
+                node.Background = Background.ToD2DBrush(context.DeviceContext);
             backgroundChanged = false;
         }
     }

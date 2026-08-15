@@ -84,8 +84,8 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                                               BatchedMeshNode).Materials = e.NewValue == null
                                                                  ? null
                                                                  : ((IList<Material>)e.NewValue)
-                                                                   .Where(x => x.Core is PhongMaterialCore)
-                                                                   .Select(x => x.Core as PhongMaterialCore)
+                                                                   .Select(x => x.Core)
+                                                                   .OfType<PhongMaterialCore>()
                                                                    .ToArray();
                                                          }));
 
@@ -312,7 +312,7 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                                          }));
 
 
-    public string PostEffects {
+    public string? PostEffects {
         get => (string)GetValue(PostEffectsProperty);
         set => SetValue(PostEffectsProperty, value);
     }

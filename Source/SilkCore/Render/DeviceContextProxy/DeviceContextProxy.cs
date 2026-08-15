@@ -10,12 +10,12 @@ public sealed partial class DeviceContextProxy : DisposeObject {
     public static bool AutoSkipRedundantStateSetting = false;
     public readonly bool IsDeferred;
     private Color4? currBlendFactor;
-    private BlendStateProxy currBlendState;
-    private DepthStencilStateProxy currDepthStencilState;
-    private RasterizerStateProxy currRasterState;
+    private BlendStateProxy? currBlendState;
+    private DepthStencilStateProxy? currDepthStencilState;
+    private RasterizerStateProxy? currRasterState;
     private uint currSampleMask = uint.MaxValue;
     private int currStencilRef;
-    private SilkD3DDeviceContext nativeDeviceContext;
+    private SilkD3DDeviceContext? nativeDeviceContext;
 
     #region Constructor
 
@@ -32,7 +32,8 @@ public sealed partial class DeviceContextProxy : DisposeObject {
 
     #endregion Constructor
 
-    internal SilkD3DDeviceContext NativeContext => nativeDeviceContext;
+    internal SilkD3DDeviceContext NativeContext
+        => nativeDeviceContext ?? throw new ObjectDisposedException(nameof(DeviceContextProxy));
 
     internal SilkD3DDevice NativeDevice { get; }
 
@@ -62,7 +63,7 @@ public sealed partial class DeviceContextProxy : DisposeObject {
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ClearState() {
-        nativeDeviceContext.ClearState();
+        NativeContext.ClearState();
         Reset();
     }
 
@@ -70,7 +71,7 @@ public sealed partial class DeviceContextProxy : DisposeObject {
     /// </summary>
     /// <param name="disposeManagedResources"></param>
     protected override void OnDispose(bool disposeManagedResources) {
-        if (nativeDeviceContext != null && !nativeDeviceContext.IsDisposed) nativeDeviceContext.ClearState();
+        if (nativeDeviceContext is { } context && !context.IsDisposed) context.ClearState();
         if (IsDeferred) RemoveAndDispose(ref nativeDeviceContext);
         base.OnDispose(disposeManagedResources);
     }
@@ -83,7 +84,7 @@ public sealed partial class DeviceContextProxy : DisposeObject {
     /// <value>
     ///     The last shader pass.
     /// </value>
-    public ShaderPass CurrShaderPass { get; private set; }
+    public ShaderPass? CurrShaderPass { get; private set; }
 
     /// <summary>
     ///     Gets the number of draw calls.

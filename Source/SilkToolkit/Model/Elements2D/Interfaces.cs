@@ -6,7 +6,7 @@ public interface ITransformable2D {
 }
 
 public interface IBackground {
-    Media.Brush Background { get; set; }
+    Media.Brush? Background { get; set; }
 }
 
 public interface ITextBlock : IBackground {

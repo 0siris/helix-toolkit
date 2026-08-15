@@ -27,7 +27,7 @@ public class HelixToolkitScene {
     /// <param name="animations">The animations.</param>
     public HelixToolkitScene(SceneNode root, IList<Animation>? animations = null) {
         Root = root;
-        Animations = [.. animations];
+        Animations = [.. animations ?? []];
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public class HelixToolkitScene {
     /// <value>
     ///     The animations.
     /// </value>
-    public IList<Animation> Animations { get; set; }
+    public IList<Animation> Animations { get; set; } = [];
 
     /// <summary>
     ///     Gets a value indicating whether this instance has animation.
@@ -52,5 +52,5 @@ public class HelixToolkitScene {
     /// <value>
     ///     <c>true</c> if this instance has animation; otherwise, <c>false</c>.
     /// </value>
-    public bool HasAnimation => Animations != null && Animations.Count > 0;
+    public bool HasAnimation => Animations.Count > 0;
 }

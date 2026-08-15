@@ -34,11 +34,13 @@ public class PointNode : MaterialGeometryNode {
     /// <param name="modelGuid"></param>
     /// <param name="geometry"></param>
     /// <returns></returns>
-    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) => geometry != null && geometry.IsDynamic
-        ? EffectsManager.GeometryBufferManager.Register<DynamicPointGeometryBufferModel>(modelGuid,
-            geometry)
-        : EffectsManager.GeometryBufferManager.Register<DefaultPointGeometryBufferModel>(modelGuid,
-            geometry);
+    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D? geometry) {
+        var effectsManager = EffectsManager
+            ?? throw new InvalidOperationException("An effects manager is required to create a point buffer.");
+        return geometry is { IsDynamic: true }
+            ? effectsManager.GeometryBufferManager.Register<DynamicPointGeometryBufferModel>(modelGuid, geometry)
+            : effectsManager.GeometryBufferManager.Register<DefaultPointGeometryBufferModel>(modelGuid, geometry);
+    }
 
     /// <summary>
     ///     Called when [create render core].
@@ -75,7 +77,7 @@ public class PointNode : MaterialGeometryNode {
         return false;
     }
 
-    protected override bool OnCheckGeometry(Geometry3D geometry) => base.OnCheckGeometry(geometry) && geometry is PointGeometry3D;
+    protected override bool OnCheckGeometry(Geometry3D? geometry) => base.OnCheckGeometry(geometry) && geometry is PointGeometry3D;
 
     protected override bool PreHitTestOnBounds(HitTestContext context) {
         var center = BoundsSphereWithTransform.Center;
@@ -91,11 +93,12 @@ public class PointNode : MaterialGeometryNode {
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
     )
-        => (Geometry as PointGeometry3D).HitTest(context,
-            totalModelMatrix,
-            ref hits,
-            WrapperSource,
-            (float)HitTestThickness);
+    {
+        if (Geometry is not PointGeometry3D geometry)
+            return false;
+
+        return geometry.HitTest(context, totalModelMatrix, ref hits, WrapperSource ?? this, (float)HitTestThickness);
+    }
 
     #region Properties
 

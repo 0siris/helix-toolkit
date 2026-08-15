@@ -23,7 +23,6 @@ public static class LoggerLibCompatibilityExtensions {
         LogLevel.Information => LogEventLevel.Information,
         LogLevel.Warning => LogEventLevel.Warning,
         LogLevel.Error => LogEventLevel.Error,
-        LogLevel.Critical => LogEventLevel.Fatal,
         _ => LogEventLevel.Fatal
     };
 }

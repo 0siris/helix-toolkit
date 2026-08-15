@@ -263,15 +263,14 @@ public class CrossSectionMeshNode : MeshNode {
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
     ) {
-        var hitsBeforeCheck = hits?.Count ?? 0;
-        var meshGeometry3D = Geometry as MeshGeometry3D;
-        if (meshGeometry3D == null)
+        var hitsBeforeCheck = hits.Count;
+        if (Geometry is not MeshGeometry3D meshGeometry3D)
             return false;
         if (meshGeometry3D.ReturnMultipleHitsOnHitTest)
             throw new InvalidOperationException(
                 $"All hit tests should be called on the same thread, {nameof(Geometry)}.{nameof(meshGeometry3D.ReturnMultipleHitsOnHitTest)} would not be true if that was the case");
         meshGeometry3D.ReturnMultipleHitsOnHitTest = true;
-        var result = meshGeometry3D.HitTest(context, totalModelMatrix, ref hits, WrapperSource);
+        var result = meshGeometry3D.HitTest(context, totalModelMatrix, ref hits, WrapperSource ?? this);
         meshGeometry3D.ReturnMultipleHitsOnHitTest = false;
         var operation = CuttingOperation;
         if (result) {

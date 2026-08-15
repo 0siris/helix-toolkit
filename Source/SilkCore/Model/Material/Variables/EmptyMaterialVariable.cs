@@ -49,7 +49,7 @@ public sealed class EmptyMaterialVariable : MaterialVariable {
     /// <param name="instanceCount">The instance count.</param>
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) { }
 

@@ -24,8 +24,10 @@ public class NodePostEffectBorderHighlight : NodePostEffectMeshOutlineBlur {
     ///     The draw mode.
     /// </value>
     public OutlineMode DrawMode {
-        get => (RenderCore as PostEffectMeshOutlineBlurCore).DrawMode;
-        set => (RenderCore as PostEffectMeshOutlineBlurCore).DrawMode = value;
+        get => (RenderCore as PostEffectMeshOutlineBlurCore
+                ?? throw new InvalidOperationException("Post-effect render core was not created.")).DrawMode;
+        set => (RenderCore as PostEffectMeshOutlineBlurCore
+                ?? throw new InvalidOperationException("Post-effect render core was not created.")).DrawMode = value;
     }
 
     protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight];

@@ -210,7 +210,7 @@ public partial class Importer {
     /// <returns></returns>
     /// <exception cref="System.NotSupportedException">Shading Mode {material.ShadingMode}</exception>
     protected virtual KeyValuePair<Material, MaterialCore> OnCreateHelixMaterial(Material material) {
-        MaterialCore core = null;
+        MaterialCore? core = null;
         if (!material.HasShadingMode) {
             if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor)
                 || material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor)
@@ -296,9 +296,10 @@ public partial class Importer {
                     break;
             }
 
-        core?.Name = string.IsNullOrEmpty(material.Name)
-                            ? $"Material_{Interlocked.Increment(ref materialIndexForNoName)}"
-                            : material.Name;
+        if (core is null) throw new InvalidOperationException($"Unsupported shading mode: {material.ShadingMode}");
+        core.Name = string.IsNullOrEmpty(material.Name)
+                        ? $"Material_{Interlocked.Increment(ref materialIndexForNoName)}"
+                        : material.Name;
         return new KeyValuePair<Material, MaterialCore>(material, core);
     }
 
@@ -364,7 +365,7 @@ public partial class Importer {
                 return null;
             }
 
-            actualPath = configuration?.TexturePathResolver?.Resolve(path, texturePath);
+            actualPath = configuration.TexturePathResolver.Resolve(path, texturePath);
             return string.IsNullOrEmpty(actualPath) ? null : new TextureModel(actualPath);
         } catch (Exception ex) {
             Logger.Warn(ex, "Load Texture Exception. Texture Path = {Value0}", (object)texturePath);

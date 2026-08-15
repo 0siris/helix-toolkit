@@ -361,8 +361,6 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
         nint fixedPointer
     ) where T : unmanaged {
         // Check that the textureData size is correct
-        if (textureData == null)
-            ArgumentNullException.ThrowIfNull(textureData);
         int rowPitch;
         int slicePitch;
         int widthCount;

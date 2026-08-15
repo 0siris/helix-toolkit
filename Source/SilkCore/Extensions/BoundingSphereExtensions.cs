@@ -16,7 +16,7 @@ public static class BoundingSphereExtensions {
     /// <param name="count">The count.</param>
     /// <returns></returns>
     public static BoundingSphere FromPoints(IList<Vector3> points, int start, int count) {
-        if (points == null || start < 0 || start >= points.Count || count < 0 || start + count > points.Count)
+        if (start < 0 || start >= points.Count || count < 0 || start + count > points.Count)
             return new BoundingSphere();
 
         var upperEnd = start + count;
@@ -56,9 +56,6 @@ public static class BoundingSphereExtensions {
     /// <param name="points">The points.</param>
     /// <returns></returns>
     public static BoundingSphere FromPoints(IList<Vector3> points) {
-        if (points == null)
-            return new BoundingSphere();
-
         return FromPoints(points, 0, points.Count);
     }
 

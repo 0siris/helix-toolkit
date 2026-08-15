@@ -81,7 +81,7 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     public Color4 LabelColor {
         get;
         set {
-            if (Set(ref field, value)) UpdateLabelColor(value);
+            if (Set(ref field, value)) UpdateLabelColor();
         }
     } = Color.Gray;
 
@@ -133,9 +133,9 @@ public class CoordinateSystemNode : ScreenSpacedNode {
 
         var mesh = builder.ToMesh();
         arrowMeshModel.Geometry = mesh;
-        UpdateAxisColor(arrowMeshModel.Geometry, 0, AxisXColor, LabelX, LabelColor);
-        UpdateAxisColor(arrowMeshModel.Geometry, 1, AxisYColor, LabelY, LabelColor);
-        UpdateAxisColor(arrowMeshModel.Geometry, 2, AxisZColor, LabelZ, LabelColor);
+        UpdateAxisColor(mesh, 0, AxisXColor, LabelX, LabelColor);
+        UpdateAxisColor(mesh, 1, AxisYColor, LabelY, LabelColor);
+        UpdateAxisColor(mesh, 2, AxisZColor, LabelZ, LabelColor);
     }
 
     private void UpdateAxisColor(int which, Color4 color) {
@@ -154,7 +154,8 @@ public class CoordinateSystemNode : ScreenSpacedNode {
                 break;
         }
 
-        UpdateAxisColor(arrowMeshModel.Geometry, which, color, label, LabelColor);
+        if (arrowMeshModel.Geometry is { } mesh)
+            UpdateAxisColor(mesh, which, color, label, LabelColor);
     }
 
     private void UpdateAxisLabel(int which, string label) {
@@ -173,13 +174,15 @@ public class CoordinateSystemNode : ScreenSpacedNode {
                 break;
         }
 
-        UpdateAxisColor(arrowMeshModel.Geometry, which, color, label, LabelColor);
+        if (arrowMeshModel.Geometry is { } mesh)
+            UpdateAxisColor(mesh, which, color, label, LabelColor);
     }
 
-    private void UpdateLabelColor(Color4 color) {
-        UpdateAxisColor(arrowMeshModel.Geometry, 0, AxisXColor, LabelX, LabelColor);
-        UpdateAxisColor(arrowMeshModel.Geometry, 1, AxisYColor, LabelY, LabelColor);
-        UpdateAxisColor(arrowMeshModel.Geometry, 2, AxisZColor, LabelZ, LabelColor);
+    private void UpdateLabelColor() {
+        if (arrowMeshModel.Geometry is not { } mesh) return;
+        UpdateAxisColor(mesh, 0, AxisXColor, LabelX, LabelColor);
+        UpdateAxisColor(mesh, 1, AxisYColor, LabelY, LabelColor);
+        UpdateAxisColor(mesh, 2, AxisZColor, LabelZ, LabelColor);
     }
 
     /// <summary>
@@ -190,7 +193,7 @@ public class CoordinateSystemNode : ScreenSpacedNode {
     /// <param name="label"></param>
     /// <param name="labelColor"></param>
     protected void UpdateAxisColor(Geometry3D mesh, int which, Color4 color, string label, Color4 labelColor) {
-        var labelText = axisBillboard.Geometry as BillboardText3D;
+        if (axisBillboard.Geometry is not BillboardText3D labelText || mesh.Positions is not { } positions) return;
         switch (which) {
             case 0:
                 labelText.TextInfo[which] = new TextInfo(label, new Vector3(ArrowSize + 1.5f, 0, 0)) { Foreground = labelColor, Scale = 0.5f };
@@ -205,10 +208,10 @@ public class CoordinateSystemNode : ScreenSpacedNode {
                 break;
         }
 
-        var segment = mesh.Positions.Count / 3;
-        var colors = new Color4Collection(mesh.Colors == null
-                                              ? Enumerable.Repeat<Color4>(Color.Black, mesh.Positions.Count)
-                                              : mesh.Colors);
+        var segment = positions.Count / 3;
+        var colors = new Color4Collection(mesh.Colors is { } meshColors
+                                              ? meshColors
+                                              : Enumerable.Repeat<Color4>(Color.Black, positions.Count));
         for (var i = segment * which; i < segment * (which + 1); ++i) colors[i] = color;
         mesh.Colors = colors;
     }

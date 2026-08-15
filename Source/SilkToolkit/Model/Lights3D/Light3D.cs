@@ -9,6 +9,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Windows;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
@@ -25,8 +26,8 @@ public abstract class Light3D : Element3D {
                                     typeof(Light3D),
                                     new PropertyMetadata(Media.Colors.Gray,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as LightNode).Color =
-                                                                 ((Media.Color)e.NewValue).ToColor4();
+                                                             if (d is Element3DCore { SceneNode: LightNode node })
+                                                                 node.Color = ((Media.Color)e.NewValue).ToColor4();
                                                          }));
 
     /// <summary>
@@ -38,10 +39,13 @@ public abstract class Light3D : Element3D {
         set => SetValue(ColorProperty, value);
     }
 
-    public LightType LightType => (SceneNode as LightNode).LightType;
+    public LightType LightType => SceneNode is LightNode node
+        ? node.LightType
+        : throw new InvalidOperationException("The light scene node has not been created.");
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
-        (core as LightNode).Color = Color.ToColor4();
+        if (core is LightNode node)
+            node.Color = Color.ToColor4();
         base.AssignDefaultValuesToSceneNode(core);
     }
 }

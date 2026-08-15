@@ -43,12 +43,12 @@ public class BillboardImage3D : BillboardBase {
             if (Set(ref imageInfos, value)) {
                 old.CollectionChanged -= CollectionChanged;
                 IsInitialized = false;
-                value?.CollectionChanged += CollectionChanged;
+                value.CollectionChanged += CollectionChanged;
             }
         }
     }
 
-    private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+    private void CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
         IsInitialized = false;
     }
 
@@ -93,7 +93,7 @@ public class BillboardImage3D : BillboardBase {
         bool fixedSize
     ) {
         var rayWs = context.RayWs;
-        if (!IsInitialized || context == null ||
+        if (!IsInitialized ||
             (!fixedSize && !BoundingSphere.TransformBoundingSphere(modelMatrix).Intersects(ref rayWs))) return false;
 
         return fixedSize

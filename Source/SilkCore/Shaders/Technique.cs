@@ -9,22 +9,24 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public sealed class Technique : DisposeObject, IRenderTechnique {
     private readonly Dictionary<string, Lazy<ShaderPass>> passDict = [];
     private readonly List<Lazy<ShaderPass>> passList = [];
-    private InputLayoutProxy layout;
+    private InputLayoutProxy? layout;
 
     /// <summary>
     /// </summary>
     /// <param name="description"></param>
     /// <param name="manager"></param>
-    public Technique(TechniqueDescription description, IEffectsManager manager) {
+    public Technique(TechniqueDescription description, IEffectsManager? manager) {
         Description = description;
-        Name = description.Name;
-        EffectsManager = manager;
-        if (description.InputLayoutDescription != null && description.PassDescriptions != null)
-            if (description.PassDescriptions != null)
+        Name = description.Name ?? string.Empty;
+        effectsManager = manager;
+        if (description.InputLayoutDescription != null
+            && description.PassDescriptions != null
+            && manager is { } actualManager)
                 foreach (var desc in description.PassDescriptions) {
+                    if (desc.Name is not { } passName) continue;
                     desc.InputLayoutDescription ??= description.InputLayoutDescription;
-                    var pass = new Lazy<ShaderPass>(() => new ShaderPass(desc, manager), true);
-                    passDict.Add(desc.Name, pass);
+                    var pass = new Lazy<ShaderPass>(() => new ShaderPass(desc, actualManager), true);
+                    passDict.Add(passName, pass);
                     passList.Add(pass);
                 }
     }
@@ -59,12 +61,13 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     /// <summary>
     ///     <see cref="IRenderTechnique.Layout" />
     /// </summary>
-    public InputLayoutProxy Layout => layout;
+    public InputLayoutProxy Layout => layout
+        ?? throw new InvalidOperationException("The technique has no input layout.");
 
     /// <summary>
     ///     <see cref="IRenderTechnique.Device" />
     /// </summary>
-    public NativeD3DDevice? Device => EffectsManager?.NativeDeviceResources?.Device;
+    public NativeD3DDevice? Device => effectsManager?.NativeDeviceResources.Device;
 
     /// <summary>
     ///     <see cref="IRenderTechnique.Name" />
@@ -84,7 +87,10 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     /// <summary>
     ///     <see cref="IRenderTechnique.EffectsManager" />
     /// </summary>
-    public IEffectsManager EffectsManager { get; private set; }
+    private IEffectsManager? effectsManager;
+
+    public IEffectsManager EffectsManager => effectsManager
+        ?? throw new InvalidOperationException("The technique is not attached to an effects manager.");
 
     /// <summary>
     ///     <see cref="IRenderTechnique.GetPass(string)" />
@@ -108,9 +114,9 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     /// <param name="description">The description.</param>
     /// <returns></returns>
     public bool AddPass(ShaderPassDescription description) {
-        if (passDict.ContainsKey(description.Name)) return false;
+        if (description.Name is not { } name || passDict.ContainsKey(name)) return false;
         var pass = new Lazy<ShaderPass>(() => new ShaderPass(description, EffectsManager), true);
-        passDict.Add(description.Name, pass);
+        passDict.Add(name, pass);
         passList.Add(pass);
         return true;
     }
@@ -159,7 +165,7 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
 
         passList.Clear();
         RemoveAndDispose(ref layout);
-        EffectsManager = null;
+        effectsManager = null;
         base.OnDispose(disposeManagedResources);
     }
 }

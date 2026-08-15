@@ -36,10 +36,10 @@ public class DraggableGeometryModel3D : MeshGeometryModel3D, ISelectable {
                                     typeof(DraggableGeometryModel3D),
                                     new PropertyMetadata(true));
 
-    protected Camera Camera;
+    protected Camera? Camera;
     protected bool IsCaptured;
     protected Point3D LastHitPos;
-    protected Viewport3DX Viewport;
+    protected Viewport3DX? Viewport;
 
 
     public bool DragX {
@@ -65,13 +65,13 @@ public class DraggableGeometryModel3D : MeshGeometryModel3D, ISelectable {
         var args = e as Mouse3DEventArgs;
         if (args == null)
             return;
-        if (args.Viewport == null)
+        if (args.Viewport is not { } viewport || args.HitTestResult is not { } hitTestResult)
             return;
 
         IsCaptured = true;
-        Viewport = args.Viewport;
-        Camera = args.Viewport.Camera;
-        LastHitPos = args.HitTestResult.PointHit.ToPoint3D();
+        Viewport = viewport;
+        Camera = viewport.Camera;
+        LastHitPos = hitTestResult.PointHit.ToPoint3D();
     }
 
     protected override void OnMouse3DUp(object sender, RoutedEventArgs e) {
@@ -85,13 +85,12 @@ public class DraggableGeometryModel3D : MeshGeometryModel3D, ISelectable {
 
     protected override void OnMouse3DMove(object sender, RoutedEventArgs e) {
         base.OnMouse3DMove(sender, e);
-        if (IsCaptured) {
-            var args = e as Mouse3DEventArgs;
+        if (IsCaptured && Camera is { } camera && Viewport is { } viewport && e is Mouse3DEventArgs args) {
             // move dragmodel                         
-            var normal = Camera.LookDirection;
+            var normal = camera.LookDirection;
 
             // hit position                        
-            var newHit = Viewport.UnProjectOnPlane(args.Position, LastHitPos, normal);
+            var newHit = viewport.UnProjectOnPlane(args.Position, LastHitPos, normal);
             if (newHit.HasValue) {
                 var delta = newHit.Value - LastHitPos;
                 var offset = new Vector3D(DragX ? delta.X : 0,

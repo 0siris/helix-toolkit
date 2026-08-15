@@ -90,21 +90,24 @@ public class FrameStatisticsRenderCore : RenderCore2DBase {
     protected override void OnRender(RenderContext2D context) {
         Background ??= new SolidColorBrush(context.DeviceContext, new Color4(0.8f, 0.8f, 0.8f, 0.6f));
         Foreground ??= new SolidColorBrush(context.DeviceContext, new Color4(0, 0, 1, 1));
-        
+
+        var factory = Factory ?? throw new System.InvalidOperationException("Text factory is not initialized.");
+        var format = Format ?? throw new System.InvalidOperationException("Text format is not initialized.");
         var str = statistics.AssertNotNull("Must be attached")
                             .GetDetailString();
         
         if (str != previousStr || TextLayout == null) {
             previousStr = str;
-            TextLayout = new TextLayout(Factory, str, Format, float.MaxValue, float.MaxValue);
+            TextLayout = new TextLayout(factory, str, format, float.MaxValue, float.MaxValue);
         }
 
-        var metrices = TextLayout.Metrics;
+        var textLayout = TextLayout ?? throw new System.InvalidOperationException("Text layout is not initialized.");
+        var metrices = textLayout.Metrics;
         renderBound.Width = Math.Max(metrices.Width, renderBound.Width);
         renderBound.Height = metrices.Height;
         context.DeviceContext.Transform =
             Matrix3X2.Translation((float)context.ActualWidth - renderBound.Width, 0);
         context.DeviceContext.FillRectangle(renderBound, Background);
-        context.DeviceContext.DrawTextLayout(Vector2.Zero, TextLayout, Foreground);
+        context.DeviceContext.DrawTextLayout(Vector2.Zero, textLayout, Foreground);
     }
 }

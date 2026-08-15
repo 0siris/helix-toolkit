@@ -27,8 +27,8 @@ public abstract class ScreenSpacedElement3D : GroupModel3D {
         typeof(ScreenSpacedElement3D),
         new PropertyMetadata(-0.8,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as ScreenSpacedNode).RelativeScreenLocationX =
-                                     (float)(double)e.NewValue;
+                                 if (d is Element3DCore { SceneNode: ScreenSpacedNode node })
+                                     node.RelativeScreenLocationX = (float)(double)e.NewValue;
                              }));
 
     /// <summary>
@@ -40,8 +40,8 @@ public abstract class ScreenSpacedElement3D : GroupModel3D {
         typeof(ScreenSpacedElement3D),
         new PropertyMetadata(-0.8,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as ScreenSpacedNode).RelativeScreenLocationY =
-                                     (float)(double)e.NewValue;
+                                 if (d is Element3DCore { SceneNode: ScreenSpacedNode node })
+                                     node.RelativeScreenLocationY = (float)(double)e.NewValue;
                              }));
 
     /// <summary>
@@ -52,8 +52,8 @@ public abstract class ScreenSpacedElement3D : GroupModel3D {
         typeof(ScreenSpacedElement3D),
         new PropertyMetadata(1.0,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as ScreenSpacedNode).SizeScale =
-                                     (float)(double)e.NewValue;
+                                 if (d is Element3DCore { SceneNode: ScreenSpacedNode node })
+                                     node.SizeScale = (float)(double)e.NewValue;
                              }));
 
 
@@ -75,8 +75,8 @@ public abstract class ScreenSpacedElement3D : GroupModel3D {
                                     typeof(ScreenSpacedElement3D),
                                     new PropertyMetadata(ScreenSpacedMode.RelativeScreenSpaced,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as ScreenSpacedNode)
-                                                                 .Mode = (ScreenSpacedMode)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: ScreenSpacedNode node })
+                                                                 node.Mode = (ScreenSpacedMode)e.NewValue;
                                                          }));
 
 
@@ -89,9 +89,8 @@ public abstract class ScreenSpacedElement3D : GroupModel3D {
                                     typeof(ScreenSpacedElement3D),
                                     new PropertyMetadata(new Point3D(),
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as ScreenSpacedNode)
-                                                                 .AbsolutePosition3D =
-                                                                 ((Point3D)e.NewValue).ToVector3();
+                                                             if (d is Element3DCore { SceneNode: ScreenSpacedNode node })
+                                                                 node.AbsolutePosition3D = ((Point3D)e.NewValue).ToVector3();
                                                          }));
 
     /// <summary>
@@ -176,22 +175,23 @@ public abstract class ScreenSpacedElement3D : GroupModel3D {
 
     private void InitializeMover() {
         if (isMoverInitialized) return;
-        mover = OnCreateMover();
-        MoverCanvas.Children.Add(mover!);
-        SetBinding(nameof(RelativeScreenLocationX), mover!, RelativePositionCanvas2D.RelativeXProperty, this);
-        SetBinding(nameof(RelativeScreenLocationY), mover!, RelativePositionCanvas2D.RelativeYProperty, this);
+        var createdMover = OnCreateMover();
+        mover = createdMover;
+        MoverCanvas.Children.Add(createdMover);
+        SetBinding(nameof(RelativeScreenLocationX), createdMover, RelativePositionCanvas2D.RelativeXProperty, this);
+        SetBinding(nameof(RelativeScreenLocationY), createdMover, RelativePositionCanvas2D.RelativeYProperty, this);
         SetBinding(nameof(IsRendering),
-                   mover!,
+                   createdMover,
                    Element2D.VisibilityProperty,
                    this,
                    BindingMode.OneWay,
                    new BoolToVisibilityConverter());
         SetBinding(nameof(EnableMover),
-                   mover!,
+                   createdMover,
                    ScreenSpacePositionMoverBase.EnableMoverProperty,
                    this,
                    BindingMode.OneWay);
-        mover!.OnMoveClicked += Mover_OnMoveClicked;
+        createdMover.OnMoveClicked += Mover_OnMoveClicked;
         isMoverInitialized = true;
     }
 

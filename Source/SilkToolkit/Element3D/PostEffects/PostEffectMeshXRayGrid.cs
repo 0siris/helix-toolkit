@@ -39,8 +39,8 @@ public class PostEffectMeshXRayGrid : Element3D {
                                     typeof(PostEffectMeshXRayGrid),
                                     new PropertyMetadata(DefaultRenderTechniqueNames.PostEffectMeshXRayGrid,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid)
-                                                                 .EffectName = (string)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: NodePostEffectXRayGrid node })
+                                                                 node.EffectName = (string)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -63,8 +63,8 @@ public class PostEffectMeshXRayGrid : Element3D {
         typeof(PostEffectMeshXRayGrid),
         new PropertyMetadata(Colors.DarkBlue,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid).Color =
-                                     ((Color)e.NewValue).ToColor4();
+                                 if (d is Element3DCore { SceneNode: NodePostEffectXRayGrid node })
+                                     node.Color = ((Color)e.NewValue).ToColor4();
                              }));
 
     /// <summary>
@@ -98,8 +98,8 @@ public class PostEffectMeshXRayGrid : Element3D {
                                     typeof(PostEffectMeshXRayGrid),
                                     new PropertyMetadata(8,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid)
-                                                                 .GridDensity = (int)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: NodePostEffectXRayGrid node })
+                                                                 node.GridDensity = (int)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -122,9 +122,8 @@ public class PostEffectMeshXRayGrid : Element3D {
                                     typeof(PostEffectMeshXRayGrid),
                                     new PropertyMetadata(0.8,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid)
-                                                                 .DimmingFactor =
-                                                                 (float)(double)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: NodePostEffectXRayGrid node })
+                                                                 node.DimmingFactor = (float)(double)e.NewValue;
                                                          }));
 
 
@@ -148,9 +147,8 @@ public class PostEffectMeshXRayGrid : Element3D {
                                     typeof(PostEffectMeshXRayGrid),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as NodePostEffectXRayGrid)
-                                                                 .BlendingFactor =
-                                                                 (float)(double)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: NodePostEffectXRayGrid node })
+                                                                 node.BlendingFactor = (float)(double)e.NewValue;
                                                          }));
 
     #endregion

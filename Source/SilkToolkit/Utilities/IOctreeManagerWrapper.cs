@@ -11,7 +11,7 @@ public interface IOctreeManagerWrapper {
     /// <value>
     ///     The octree.
     /// </value>
-    IOctreeBasic Octree { get; }
+    IOctreeBasic? Octree { get; }
 
     /// <summary>
     ///     Gets the manager.

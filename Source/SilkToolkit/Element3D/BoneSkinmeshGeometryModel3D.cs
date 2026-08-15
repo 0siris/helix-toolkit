@@ -13,8 +13,8 @@ public class BoneSkinMeshGeometryModel3D : MeshGeometryModel3D {
         typeof(BoneSkinMeshGeometryModel3D),
         new PropertyMetadata(BoneMatricesStruct.DefaultBones,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as BoneSkinMeshNode).BoneMatrices =
-                                     (Matrix[])e.NewValue;
+                                 if (d is Element3DCore { SceneNode: BoneSkinMeshNode node })
+                                     node.BoneMatrices = (Matrix[])e.NewValue;
                              }));
 
     public Matrix[] BoneMatrices {

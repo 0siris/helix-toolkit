@@ -25,8 +25,8 @@ namespace HelixToolkit.Wpf.SharpDX;
 /// </remarks>
 public class VisualTargetPresentationSource : PresentationSource, IDisposable {
     private readonly VisualTarget visualTarget;
-    private object dataContext;
-    private string propertyName;
+    private object? dataContext;
+    private string? propertyName;
 
     public VisualTargetPresentationSource(HostVisual hostVisual) {
         visualTarget = new VisualTarget(hostVisual);
@@ -52,8 +52,8 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
                 rootFe.DataContext = dataContext;
 
                 // HACK!
-                if (propertyName != null) {
-                    var myBinding = new Binding(propertyName) {
+                if (propertyName is { } name) {
+                    var myBinding = new Binding(name) {
                         Source = dataContext
                     };
                     rootFe.SetBinding(TextBlock.TextProperty, myBinding);
@@ -74,7 +74,7 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
         }
     }
 
-    public object DataContext {
+    public object? DataContext {
         get => dataContext;
         set {
             dataContext = value;
@@ -84,7 +84,7 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
     }
 
     // HACK!
-    public string PropertyName {
+    public string? PropertyName {
         get => propertyName;
         set {
             propertyName = value;
@@ -93,7 +93,10 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
             if (rootElement != null) {
                 if (!rootElement.CheckAccess()) throw new InvalidOperationException("What?");
 
-                var myBinding = new Binding(propertyName) {
+                if (propertyName is not { } name)
+                    return;
+
+                var myBinding = new Binding(name) {
                     Source = dataContext
                 };
                 rootElement.SetBinding(TextBlock.TextProperty, myBinding);
@@ -105,13 +108,12 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
         // We don't support disposing this object.
         false;
 
-    public event SizeChangedEventHandler SizeChanged;
+    public event SizeChangedEventHandler? SizeChanged;
 
     protected override CompositionTarget GetCompositionTargetCore() => visualTarget;
 
     private void root_SizeChanged(object sender, SizeChangedEventArgs e) {
-        var handler = SizeChanged;
-        if (handler != null) handler(this, e);
+        SizeChanged?.Invoke(this, e);
     }
 
     #region IDisposable Support
@@ -121,7 +123,7 @@ public class VisualTargetPresentationSource : PresentationSource, IDisposable {
     [SuppressMessage("Microsoft.Usage", "CA2213", Justification = "False positive.")]
     protected virtual void Dispose(bool disposing) {
         if (!disposedValue) {
-            if (disposing) visualTarget?.Dispose();
+            if (disposing) visualTarget.Dispose();
             // TODO: dispose managed state (managed objects).
             // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
             // TODO: set large fields to null.

@@ -180,9 +180,11 @@ public partial class Importer {
     /// <returns></returns>
     protected virtual BoneSkinnedMeshGeometry3D OnCreateHelixMeshWithBones(Mesh mesh) {
         var m = OnCreateHelixMesh(mesh);
-        var vertBoneIds = new FastList<BoneIds>(Enumerable.Repeat(new BoneIds(), m.Positions.Count));
+        if (m.Positions is not { } positions)
+            throw new InvalidOperationException("The imported mesh has no positions.");
+        var vertBoneIds = new FastList<BoneIds>(Enumerable.Repeat(new BoneIds(), positions.Count));
         var vertBoneInternal = vertBoneIds.GetInternalArray();
-        var accumArray = new int[m.Positions.Count];
+        var accumArray = new int[positions.Count];
         var boneMesh = new BoneSkinnedMeshGeometry3D(m) {
             VertexBoneIds = vertBoneIds
         };
@@ -300,8 +302,6 @@ public partial class Importer {
         /// <summary>
         ///     Initializes a new instance of the <see cref="MeshInfo" /> class.
         /// </summary>
-        public MeshInfo() { }
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="MeshInfo" /> class.
         /// </summary>

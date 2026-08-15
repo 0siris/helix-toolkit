@@ -122,7 +122,7 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
         => RenderHost.EndD3D();
 
     private void Items_Invalidated(object? sender, InvalidateTypes e) 
-        => RenderHost?.Invalidate(e);
+        => RenderHost.Invalidate(e);
 
     /// <summary>
     ///     Mouses down.
@@ -195,7 +195,10 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
         => StartRendering?.Invoke(this, EventArgs.Empty);
 
     private bool ViewCubeHitTest(ref Ray ray, ref Vector2 position) {
-        var hitContext = new HitTestContext(RenderContext, ray, position);
+        if (RenderContext is not { } renderContext)
+            return false;
+
+        var hitContext = new HitTestContext(renderContext, ray, position);
         if (ViewCube.HitTest(hitContext, ref hits)) {
             ViewCube.RaiseMouseDownEvent(this, position, hits[0]);
             var normal = hits[0].NormalAtHit;
@@ -213,11 +216,14 @@ public partial class ViewportCore : DisposeObject, IViewport3DX {
     }
 
     private void ViewCubeClicked(Vector3 lookDirection, Vector3 upDirection) {
-        var target = CameraCore.Position + CameraCore.LookDirection;
-        var distance = CameraCore.LookDirection.Length;
+        if (CameraCore is not { } camera)
+            return;
+
+        var target = camera.Position + camera.LookDirection;
+        var distance = camera.LookDirection.Length;
         lookDirection *= distance;
         var newPosition = target - lookDirection;
-        CameraCore.AnimateTo(newPosition, lookDirection, upDirection, 500);
+        camera.AnimateTo(newPosition, lookDirection, upDirection, 500);
     }
 
     #endregion

@@ -13,8 +13,8 @@ public class SortingGroupModel3D : GroupModel3D {
                                     typeof(SortingGroupModel3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as SortingGroupNode)
-                                                                 .EnableSorting = (bool)e.NewValue;
+                                                             if (d is Element3D { SceneNode: SortingGroupNode node })
+                                                                 node.EnableSorting = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -26,8 +26,8 @@ public class SortingGroupModel3D : GroupModel3D {
                                     typeof(SortingGroupModel3D),
                                     new PropertyMetadata(500,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as SortingGroupNode)
-                                                                 .SortingInterval = (int)e.NewValue;
+                                                             if (d is Element3D { SceneNode: SortingGroupNode node })
+                                                                 node.SortingInterval = (int)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -39,8 +39,8 @@ public class SortingGroupModel3D : GroupModel3D {
                                     typeof(SortingGroupModel3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as SortingGroupNode)
-                                                                 .SortTransparentOnly = (bool)e.NewValue;
+                                                             if (d is Element3D { SceneNode: SortingGroupNode node })
+                                                                 node.SortTransparentOnly = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -52,8 +52,8 @@ public class SortingGroupModel3D : GroupModel3D {
                                     typeof(SortingGroupModel3D),
                                     new PropertyMetadata(SortingMethod.BoundingBoxCorners,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as SortingGroupNode)
-                                                                 .SortingMethod = (SortingMethod)e.NewValue;
+                                                             if (d is Element3D { SceneNode: SortingGroupNode node })
+                                                                 node.SortingMethod = (SortingMethod)e.NewValue;
                                                          }));
 
     /// <summary>

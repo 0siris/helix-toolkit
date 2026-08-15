@@ -41,7 +41,7 @@ public sealed class HitTestContext {
     public HitTestContext(IRenderMatrices metrices, ref Ray rayWs) {
         RenderMatrices = metrices;
         RayWs = rayWs;
-        if (metrices != null) HitPointSp = metrices.Project(rayWs.Position);
+        HitPointSp = metrices.Project(rayWs.Position);
     }
 
         /// <summary>
@@ -56,10 +56,8 @@ public sealed class HitTestContext {
     public HitTestContext(IRenderMatrices metrices, ref Vector2 hitSp) {
         RenderMatrices = metrices;
         HitPointSp = hitSp;
-        if (metrices != null) {
-            metrices.UnProject(hitSp, out var ray);
-            RayWs = ray;
-        }
+        metrices.UnProject(hitSp, out var ray);
+        RayWs = ray;
     }
 
         /// <summary>

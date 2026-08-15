@@ -27,10 +27,10 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// </summary>
     public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
         if (CanHitTest(context) && PreHitTestOnBounds(context)) {
-            if (InstanceBuffer.HasElements) {
+            if (InstanceBuffer is { HasElements: true, Elements: { } instanceElements }) {
                 var hit = false;
                 var idx = 0;
-                foreach (var modelMatrix in InstanceBuffer.Elements) {
+                foreach (var modelMatrix in instanceElements) {
                     if (OnHitTest(context, TotalModelMatrixInternal * modelMatrix, ref hits)) {
                         hit = true;
                         var lastHit = hits[hits.Count - 1];
@@ -55,13 +55,13 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// </summary>
     /// <param name="geometry">The geometry.</param>
     /// <returns></returns>
-    protected virtual bool OnCheckGeometry(Geometry3D geometry) => !(geometry == null || geometry.Positions == null || geometry.Positions.Count == 0);
+    protected virtual bool OnCheckGeometry(Geometry3D? geometry) => geometry?.Positions is { Count: > 0 };
 
     /// <summary>
     ///     Called when [create buffer model].
     /// </summary>
     /// <returns></returns>
-    protected virtual IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) => EmptyGeometryBufferModel.Empty;
+    protected virtual IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D? geometry) => EmptyGeometryBufferModel.Empty;
 
     /// <summary>
     ///     Called when [raster state changed].
@@ -76,7 +76,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// </summary>
     /// <param name="newGeometry">The new geometry.</param>
     /// <param name="oldGeometry">The old geometry.</param>
-    protected virtual void OnGeometryChanged(Geometry3D newGeometry, Geometry3D oldGeometry) { }
+    protected virtual void OnGeometryChanged(Geometry3D? newGeometry, Geometry3D? oldGeometry) { }
 
     /// <summary>
     ///     Create raster state description.
@@ -194,7 +194,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
 
     #region Properties
 
-    private Geometry3D geometry;
+    private Geometry3D? geometry;
 
     /// <summary>
     ///     Gets or sets the geometry.
@@ -202,7 +202,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <value>
     ///     The geometry.
     /// </value>
-    public Geometry3D Geometry {
+    public Geometry3D? Geometry {
         get => geometry;
         set {
             var old = geometry;
@@ -221,7 +221,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <value>
     ///     The instances.
     /// </value>
-    public IList<Matrix> Instances {
+    public IList<Matrix>? Instances {
         get;
         set {
             if (Set(ref field, value)) {
@@ -267,7 +267,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     Create raster state description delegate.
     ///     <para>If <see cref="OnCreateRasterState" /> is set, then <see cref="CreateRasterState" /> will not be called.</para>
     /// </summary>
-    public CreateRasterStateFunc OnCreateRasterState;
+    public CreateRasterStateFunc? OnCreateRasterState;
 
     /// <summary>
     ///     Gets the buffer model internal.
@@ -275,9 +275,9 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <value>
     ///     The buffer model internal.
     /// </value>
-    protected IAttachableBufferModel BufferModelInternal => bufferModelInternal;
+    protected IAttachableBufferModel? BufferModelInternal => bufferModelInternal;
 
-    private IAttachableBufferModel bufferModelInternal;
+    private IAttachableBufferModel? bufferModelInternal;
 
     /// <summary>
     ///     Gets a value indicating whether [geometry valid].
@@ -446,15 +446,14 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <value>
     ///     The post effects.
     /// </value>
-    public string PostEffects {
+    public string? PostEffects {
         get;
         set {
             if (Set(ref field, value)) {
                 ClearPostEffect();
-                if (value is string effects)
-                    if (!string.IsNullOrEmpty(effects))
-                        foreach (var effect in EffectAttributes.Parse(effects))
-                            AddPostEffect(effect);
+                if (!string.IsNullOrEmpty(value))
+                    foreach (var effect in EffectAttributes.Parse(value))
+                        AddPostEffect(effect);
             }
         }
     }

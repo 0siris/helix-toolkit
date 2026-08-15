@@ -76,9 +76,7 @@ public static class Noise2D {
         for (var i = 0; i < p.Length; i++) {
             var source = Random.Next(p.Length);
 
-            var t = p[i];
-            p[i] = p[source];
-            p[source] = t;
+            (p[i], p[source]) = (p[source], p[i]);
         }
     }
 

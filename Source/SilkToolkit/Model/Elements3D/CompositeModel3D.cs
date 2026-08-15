@@ -30,8 +30,8 @@ public class CompositeModel3D : Element3D, IHitable, ISelectable, IMouse3D {
                                     typeof(CompositeModel3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             (d as CompositeModel3D).SceneNode.AlwaysHittable =
-                                                                 (bool)e.NewValue;
+                                                              if (d is CompositeModel3D model && model.SceneNode is { } node)
+                                                                  node.AlwaysHittable = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -86,15 +86,18 @@ public class CompositeModel3D : Element3D, IHitable, ISelectable, IMouse3D {
     /// <param name="e">
     ///     The <see cref="NotifyCollectionChangedEventArgs" /> instance containing the event data.
     /// </param>
-    private void ChildrenChanged(object sender, NotifyCollectionChangedEventArgs e) {
-        var node = SceneNode as GroupNode;
+    private void ChildrenChanged(object? sender, NotifyCollectionChangedEventArgs e) {
+        if (SceneNode is not GroupNode node)
+            return;
+
         switch (e.Action) {
             case NotifyCollectionChangedAction.Remove:
             case NotifyCollectionChangedAction.Replace:
                 if (e.OldItems != null)
                     foreach (Element3D item in e.OldItems) {
                         if (item.Parent == this) RemoveLogicalChild(item);
-                        node.RemoveChildNode(item.SceneNode);
+                        if (item.SceneNode is { } childNode)
+                            node.RemoveChildNode(childNode);
                     }
 
                 break;
@@ -112,15 +115,20 @@ public class CompositeModel3D : Element3D, IHitable, ISelectable, IMouse3D {
             case NotifyCollectionChangedAction.Reset:
                 foreach (var item in Children) {
                     if (item.Parent == null) AddLogicalChild(item);
-                    node.AddChildNode(item.SceneNode);
+                    if (item.SceneNode is { } childNode)
+                        node.AddChildNode(childNode);
                 }
 
                 break;
             case NotifyCollectionChangedAction.Add:
             case NotifyCollectionChangedAction.Replace:
+                if (e.NewItems is null)
+                    break;
+
                 foreach (Element3D item in e.NewItems) {
                     if (item.Parent == null) AddLogicalChild(item);
-                    node.AddChildNode(item.SceneNode);
+                    if (item.SceneNode is { } childNode)
+                        node.AddChildNode(childNode);
                 }
 
                 break;

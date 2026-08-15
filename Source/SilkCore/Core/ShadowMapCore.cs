@@ -41,20 +41,26 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
         if (!FoundLightSource || currentFrame != 0) return;
         if (resolutionChanged) {
             RemoveAndDispose(ref viewResource);
-            viewResource = new ShaderResourceViewProxy(Device, ShadowMapTextureDesc);
-            viewResource.CreateView(DepthStencilViewDesc);
-            viewResource.CreateView(ShaderResourceViewDesc);
+            if (Device is not { } device)
+                return;
+            var resource = new ShaderResourceViewProxy(device, ShadowMapTextureDesc);
+            resource.CreateView(DepthStencilViewDesc);
+            resource.CreateView(ShaderResourceViewDesc);
+            viewResource = resource;
             resolutionChanged = false;
         }
 
-        deviceContext.ClearDepthStencilView(viewResource, DepthStencilClearFlags.Depth);
+        if (viewResource is not { } shadowMap)
+            return;
+
+        deviceContext.ClearDepthStencilView(shadowMap, DepthStencilClearFlags.Depth);
         var orgFrustum = context.BoundingFrustum;
         var frustum = new BoundingFrustum(LightView * LightProjection);
         context.BoundingFrustum = frustum;
 #if !TEST
         deviceContext.SetViewport(0, 0, Width, Height);
 
-        deviceContext.SetDepthStencil(viewResource.DepthStencilView);
+        deviceContext.SetDepthStencil(shadowMap.DepthStencilView);
         modelStruct.HasShadowMap = context.RenderHost.IsShadowMapEnabled ? 1 : 0;
         modelCb.Upload(deviceContext, ref modelStruct);
         for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodes.Count; ++i) {
@@ -66,7 +72,7 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 
         context.BoundingFrustum = orgFrustum;
         context.RenderHost.SetDefaultRenderTargets(false);
-        context.SharedResource.ShadowView = viewResource;
+        context.SharedResource.ShadowView = shadowMap;
 #endif
     }
 
@@ -87,7 +93,7 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 
 #region Variables
 
-    private ShaderResourceViewProxy viewResource;
+    private ShaderResourceViewProxy? viewResource;
     private int currentFrame;
     private bool resolutionChanged = true;
     private ShadowMapParamStruct modelStruct;

@@ -10,6 +10,15 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
+    private IInvertNormal InvertNormalCore => RenderCore as IInvertNormal
+        ?? throw new InvalidOperationException("Invert-normal render core is not initialized.");
+
+    private IMeshRenderParams MeshRenderParams => RenderCore as IMeshRenderParams
+        ?? throw new InvalidOperationException("Mesh render core is not initialized.");
+
+    private IDynamicReflectable DynamicReflectableCore => RenderCore as IDynamicReflectable
+        ?? throw new InvalidOperationException("Dynamic-reflector render core is not initialized.");
+
     /// <summary>
     ///     Called when [create render core].
     /// </summary>
@@ -22,11 +31,11 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     /// <param name="modelGuid"></param>
     /// <param name="geometry"></param>
     /// <returns></returns>
-    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) => geometry != null && geometry.IsDynamic
-        ? EffectsManager.GeometryBufferManager.Register<DynamicMeshGeometryBufferModel>(
+    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D? geometry) => geometry != null && geometry.IsDynamic
+        ? (EffectsManager ?? throw new InvalidOperationException("Effects manager is required.")).GeometryBufferManager.Register<DynamicMeshGeometryBufferModel>(
             modelGuid,
             geometry)
-        : EffectsManager.GeometryBufferManager
+        : (EffectsManager ?? throw new InvalidOperationException("Effects manager is required.")).GeometryBufferManager
             .Register<DefaultMeshGeometryBufferModel>(modelGuid, geometry);
 
     /// <summary>
@@ -45,14 +54,15 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
         IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
     };
 
-    protected override bool OnCheckGeometry(Geometry3D geometry) => base.OnCheckGeometry(geometry) && geometry is MeshGeometry3D;
+    protected override bool OnCheckGeometry(Geometry3D? geometry) => base.OnCheckGeometry(geometry) && geometry is MeshGeometry3D;
 
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
     )
-        => (Geometry as MeshGeometry3D).HitTest(context, totalModelMatrix, ref hits, WrapperSource);
+        => Geometry is MeshGeometry3D mesh
+            && mesh.HitTest(context, totalModelMatrix, ref hits, WrapperSource ?? this);
 
     #region Properties
 
@@ -89,8 +99,8 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     ///     <c>true</c> if [invert normal]; otherwise, <c>false</c>.
     /// </value>
     public bool InvertNormal {
-        get => (RenderCore as IInvertNormal).InvertNormal;
-        set => (RenderCore as IInvertNormal).InvertNormal = value;
+        get => InvertNormalCore.InvertNormal;
+        set => InvertNormalCore.InvertNormal = value;
     }
 
     /// <summary>
@@ -100,8 +110,8 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     ///     The color of the wireframe.
     /// </value>
     public Color4 WireframeColor {
-        get => (RenderCore as IMeshRenderParams).WireframeColor;
-        set => (RenderCore as IMeshRenderParams).WireframeColor = value;
+        get => MeshRenderParams.WireframeColor;
+        set => MeshRenderParams.WireframeColor = value;
     }
 
     /// <summary>
@@ -111,8 +121,8 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     ///     <c>true</c> if [render wireframe]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderWireframe {
-        get => (RenderCore as IMeshRenderParams).RenderWireframe;
-        set => (RenderCore as IMeshRenderParams).RenderWireframe = value;
+        get => MeshRenderParams.RenderWireframe;
+        set => MeshRenderParams.RenderWireframe = value;
     }
 
     /// <summary>
@@ -122,8 +132,8 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
     ///     The dynamic reflector.
     /// </value>
     public IDynamicReflector? DynamicReflector {
-        get => (RenderCore as IDynamicReflectable).DynamicReflector;
-        set => (RenderCore as IDynamicReflectable).DynamicReflector = value;
+        get => DynamicReflectableCore.DynamicReflector;
+        set => DynamicReflectableCore.DynamicReflector = value;
     }
 
     #endregion

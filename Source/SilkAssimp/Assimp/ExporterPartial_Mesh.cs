@@ -33,23 +33,21 @@ public partial class Exporter {
     /// <param name="geoNode">The geo node.</param>
     /// <returns></returns>
     private MeshInfo? OnCreateMeshInfo(GeometryNode geoNode) {
-        MeshInfo? info = null;
-        if (geoNode is MaterialGeometryNode materialNode && materialNode.Material != null) {
-            var key = GetMaterialGeoKey(geoNode, out var materialIndex, out var geoIndex);
-            if (!MeshInfos.TryGetValue(key, out var existing))
-                info = new MeshInfo(key, geoNode.Geometry, geoNode.Name, geoIndex, materialIndex);
-            else
-                info = existing;
-            if (info != null && info.Bones == null && materialNode is BoneSkinMeshNode boneNode)
-                info.Bones = boneNode.Bones;
-        }
+        if (geoNode is not MaterialGeometryNode { Material: not null } materialNode || geoNode.Geometry is not { } geometry)
+            return null;
 
+        var key = GetMaterialGeoKey(geoNode, out var materialIndex, out var geoIndex);
+        if (!MeshInfos.TryGetValue(key, out var info))
+            info = new MeshInfo(key, geometry, geoNode.Name, geoIndex, materialIndex);
+
+        if (info.Bones == null && materialNode is BoneSkinMeshNode boneNode)
+            info.Bones = boneNode.Bones;
         return info;
     }
 
     private ulong GetMaterialGeoKey(GeometryNode node, out int materialIndex, out int geoIndex) {
-        if (GeometryCollection.TryGetValue(node.Geometry, out geoIndex)) {
-            if (node is MaterialGeometryNode materialNode && materialNode.Material != null
+        if (node.Geometry is { } geometry && GeometryCollection.TryGetValue(geometry, out geoIndex)) {
+            if (node is MaterialGeometryNode { Material: not null } materialNode
                                                                       && MaterialCollection.TryGetValue(
                                                                           materialNode.Material,
                                                                           out materialIndex))
@@ -102,10 +100,11 @@ public partial class Exporter {
             if (mesh.TextureCoordinates != null && mesh.TextureCoordinates.Count > 0)
                 assimpMesh.TextureCoordinateChannels[0] =
                     [.. mesh.TextureCoordinates.Select(x => x.ToAssimpVector3D())];
-            if (info.Bones != null &&
-                mesh is BoneSkinnedMeshGeometry3D boneSkinMesh
-                && boneSkinMesh.VertexBoneIds.Count == boneSkinMesh.Positions.Count) {
-                foreach (var b in info.Bones) {
+            if (info.Bones is { } bones && mesh is BoneSkinnedMeshGeometry3D boneSkinMesh
+                && boneSkinMesh.VertexBoneIds is { } vertexBoneIds
+                && boneSkinMesh.Positions is { } positions
+                && vertexBoneIds.Count == positions.Count) {
+                foreach (var b in bones) {
                     var bone = new global::Assimp.Bone {
                         Name = b.Name,
                         OffsetMatrix = b.InvBindPose.ToAssimpMatrix(configuration.ToSourceMatrixColumnMajor)
@@ -114,8 +113,8 @@ public partial class Exporter {
                 }
 
                 var boneCount = assimpMesh.Bones.Count;
-                for (var i = 0; i < boneSkinMesh.VertexBoneIds.Count; ++i) {
-                    var id = boneSkinMesh.VertexBoneIds[i];
+                for (var i = 0; i < vertexBoneIds.Count; ++i) {
+                    var id = vertexBoneIds[i];
 
                     if (id.Weights.X != 0 && id.Bone1 < boneCount) {
                         var bone = assimpMesh.Bones[id.Bone1];
@@ -180,7 +179,7 @@ public partial class Exporter {
         /// <summary>
         ///     The Assimp mesh
         /// </summary>
-        public Mesh AssimpMesh;
+        public Mesh? AssimpMesh;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MeshInfo" /> class.
@@ -210,6 +209,6 @@ public partial class Exporter {
         /// <summary>
         ///     The bones if have
         /// </summary>
-        public Bone[] Bones { get; set; }
+        public Bone[]? Bones { get; set; }
     }
 }

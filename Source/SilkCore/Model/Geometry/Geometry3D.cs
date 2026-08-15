@@ -186,7 +186,7 @@ public abstract class Geometry3D : ObservableObject, IGuid {
         IsDynamic = isDynamic;
     }
 
-    private void OctreeParameter_PropertyChanged(object sender, PropertyChangedEventArgs e) {
+    private void OctreeParameter_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
         OctreeDirty = true;
     }
 
@@ -313,12 +313,12 @@ public abstract class Geometry3D : ObservableObject, IGuid {
     public virtual void UpdateBounds() {
         if (DisableUpdateBound) return;
 
-        if (position == null || position.Count == 0) {
+        if (position is not { Count: > 0 } positions) {
             Bound = new BoundingBox();
             BoundingSphere = new BoundingSphere();
         } else {
-            Bound = BoundingBoxExtensions.FromPoints(Positions);
-            BoundingSphere = BoundingSphereExtensions.FromPoints(Positions);
+            Bound = BoundingBoxExtensions.FromPoints(positions);
+            BoundingSphere = BoundingSphereExtensions.FromPoints(positions);
         }
 
         if (Bound.Maximum.IsUndefined() || Bound.Minimum.IsUndefined() || BoundingSphere.Center.IsUndefined()

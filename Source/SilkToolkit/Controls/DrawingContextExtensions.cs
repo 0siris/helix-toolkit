@@ -35,7 +35,7 @@ public static class DrawingContextExtensions {
     /// <param name="radiusY">The radius Y.</param>
     public static void DrawArc(
         this DrawingContext dc,
-        WpfBrush brush,
+        WpfBrush? brush,
         Pen pen,
         Point start,
         Point end,
@@ -89,7 +89,7 @@ public static class DrawingContextExtensions {
     /// </param>
     public static void DrawArc(
         this DrawingContext dc,
-        WpfBrush brush,
+        WpfBrush? brush,
         Pen pen,
         Point position,
         double startAngle,
@@ -134,7 +134,7 @@ public static class DrawingContextExtensions {
     /// </param>
     public static void DrawArc(
         this DrawingContext dc,
-        WpfBrush brush,
+        WpfBrush? brush,
         Pen pen,
         Point position,
         double startAngle,

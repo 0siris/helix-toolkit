@@ -101,12 +101,13 @@ public class BillboardMaterialVariable : MaterialVariable {
 
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) {
         if (bufferModel is IBillboardBufferModel billboardModel) {
             deviceContext.SetShaderResource(PixelShader.Type, shaderTextureSlot, billboardModel.TextureView);
-            DrawPoints(deviceContext, bufferModel.VertexBuffer[0].ElementCount, instanceCount);
+            if (bufferModel.VertexBuffer.FirstOrDefault() is { } vertexBuffer)
+                DrawPoints(deviceContext, vertexBuffer.ElementCount, instanceCount);
         }
     }
 
@@ -119,7 +120,7 @@ public class BillboardMaterialVariable : MaterialVariable {
 
     private readonly int textureSamplerSlot;
     private readonly int shaderTextureSlot;
-    private SamplerStateProxy textureSampler;
+    private SamplerStateProxy? textureSampler;
     private readonly BillboardMaterialCore materialCore;
 
     #endregion

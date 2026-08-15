@@ -14,12 +14,12 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     The back buffer
     /// </summary>
-    private ShaderResourceViewProxy backBuffer;
+    private ShaderResourceViewProxy? backBuffer;
 
     /// <summary>
     ///     The color buffer
     /// </summary>
-    private ShaderResourceViewProxy colorBuffer;
+    private ShaderResourceViewProxy? colorBuffer;
 
     /// <summary>
     ///     The D2D controls
@@ -29,14 +29,14 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     The depth stencil buffer
     /// </summary>
-    private ShaderResourceViewProxy depthStencilBuffer;
+    private ShaderResourceViewProxy? depthStencilBuffer;
 
     /// <summary>
     ///     The depth stencil buffer
     /// </summary>
-    private ShaderResourceViewProxy depthStencilBufferNoMsaa;
+    private ShaderResourceViewProxy? depthStencilBufferNoMsaa;
 
-    private IDeviceContextPool deviceContextPool;
+    private IDeviceContextPool? deviceContextPool;
 
     /// <summary>
     ///     The vertical synchronize internal. Only valid under swapchain rendering mode. Default = 0
@@ -55,18 +55,20 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         UseDepthStencilBuffer = useDepthStencilBuffer;
     }
 
-    public ShaderResourceViewProxy ColorBuffer => colorBuffer;
-    public ShaderResourceViewProxy BackBuffer => backBuffer;
+    public ShaderResourceViewProxy ColorBuffer
+        => colorBuffer ?? throw new InvalidOperationException("Render buffer is not initialized.");
+    public ShaderResourceViewProxy BackBuffer
+        => backBuffer ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
     /// <summary>
     ///     The depth stencil buffer
     /// </summary>
-    public ShaderResourceViewProxy DepthStencilBuffer => depthStencilBuffer;
+    public ShaderResourceViewProxy? DepthStencilBuffer => depthStencilBuffer;
 
     /// <summary>
     ///     The depth stencil buffer
     /// </summary>
-    public ShaderResourceViewProxy DepthStencilBufferNoMsaa => depthStencilBufferNoMsaa;
+    public ShaderResourceViewProxy? DepthStencilBufferNoMsaa => depthStencilBufferNoMsaa;
 
     /// <summary>
     ///     Gets the d2 d controls.
@@ -98,7 +100,8 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <value>
     ///     The device context pool.
     /// </value>
-    public IDeviceContextPool DeviceContextPool => deviceContextPool;
+    public IDeviceContextPool DeviceContextPool
+        => deviceContextPool ?? throw new InvalidOperationException("Render buffer is disposed.");
 
     /// <summary>
     ///     Gets or sets a value indicating whether this is initialized.
@@ -376,7 +379,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         int height,
         bool createDepthStencilBuffer,
         out ShaderResourceViewProxy colorBuffer,
-        out ShaderResourceViewProxy depthStencilBuffer
+        out ShaderResourceViewProxy? depthStencilBuffer
     ) {
         var sampleDesc = ColorBufferSampleDesc;
         var optionFlags = ResourceOptionFlags.None;
@@ -543,26 +546,33 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
 
     #region Offscreen Texture Pools
 
-    private PingPongColorBuffers fullResPpBuffer;
-    public PingPongColorBuffers FullResPpBuffer => fullResPpBuffer;
+    private PingPongColorBuffers? fullResPpBuffer;
+    public PingPongColorBuffers FullResPpBuffer
+        => fullResPpBuffer ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
-    private TexturePool fullResDepthStencilPool;
-    public TexturePool FullResDepthStencilPool => fullResDepthStencilPool;
+    private TexturePool? fullResDepthStencilPool;
+    public TexturePool FullResDepthStencilPool
+        => fullResDepthStencilPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
-    private TexturePool fullResRenderTargetPool;
-    public TexturePool FullResRenderTargetPool => fullResRenderTargetPool;
+    private TexturePool? fullResRenderTargetPool;
+    public TexturePool FullResRenderTargetPool
+        => fullResRenderTargetPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
-    private TexturePool halfResDepthStencilPool;
-    public TexturePool HalfResDepthStencilPool => halfResDepthStencilPool;
+    private TexturePool? halfResDepthStencilPool;
+    public TexturePool HalfResDepthStencilPool
+        => halfResDepthStencilPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
-    private TexturePool halfResRenderTargetPool;
-    public TexturePool HalfResRenderTargetPool => halfResRenderTargetPool;
+    private TexturePool? halfResRenderTargetPool;
+    public TexturePool HalfResRenderTargetPool
+        => halfResRenderTargetPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
-    private TexturePool quarterResDepthStencilPool;
-    public TexturePool QuarterResDepthStencilPool => quarterResDepthStencilPool;
+    private TexturePool? quarterResDepthStencilPool;
+    public TexturePool QuarterResDepthStencilPool
+        => quarterResDepthStencilPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
-    private TexturePool quarterResRenderTargetPool;
-    public TexturePool QuarterResRenderTargetPool => quarterResRenderTargetPool;
+    private TexturePool? quarterResRenderTargetPool;
+    public TexturePool QuarterResRenderTargetPool
+        => quarterResRenderTargetPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
     #endregion
 }

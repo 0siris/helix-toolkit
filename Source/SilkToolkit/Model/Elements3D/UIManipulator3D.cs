@@ -33,7 +33,10 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
         typeof(UiManipulator3D),
         new FrameworkPropertyMetadata(null,
                                       FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                                      (d, e) => { (d as Element3DCore).InvalidateRender(); }));
+                                      (d, e) => {
+                                          if (d is Element3DCore element)
+                                              element.InvalidateRender();
+                                      }));
 
     /// <summary>
     ///     The offset property.
@@ -54,7 +57,7 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
 
     protected bool IsMouseCaptured;
     protected Vector3 LastHitPosWs, CameraNormal;
-    protected Viewport3DX Viewport;
+    protected Viewport3DX? Viewport;
 
     public UiManipulator3D() {
         OnSceneNodeCreated += UIManipulator3D_OnSceneNodeCreated;
@@ -74,8 +77,8 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     /// <summary>
     ///     Gets or sets TargetTransform.
     /// </summary>
-    public Transform3D TargetTransform {
-        get => (Transform3D)GetValue(TargetTransformProperty);
+    public Transform3D? TargetTransform {
+        get => (Transform3D?)GetValue(TargetTransformProperty);
         set => SetValue(TargetTransformProperty, value);
     }
 
@@ -119,9 +122,10 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     ///     The <see cref="System.Windows.DependencyPropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
     private static void ValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        var m = d as UiManipulator3D;
-        m.OnValueChanged(e);
-        m.InvalidateRender();
+        if (d is UiManipulator3D m) {
+            m.OnValueChanged(e);
+            m.InvalidateRender();
+        }
     }
 
     /// <summary>
@@ -129,9 +133,10 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     /// <param name="d"></param>
     /// <param name="e"></param>
     private static void OffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        var m = d as UiManipulator3D;
-        m.OnOffetChanged(e);
-        m.InvalidateRender();
+        if (d is UiManipulator3D m) {
+            m.OnOffetChanged(e);
+            m.InvalidateRender();
+        }
     }
 
     /// <summary>
@@ -197,7 +202,10 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
         IsMouseCaptured = true;
         Viewport = args.Viewport;
         CameraNormal = args.Viewport.Camera.LookDirection.ToVector3();
-        LastHitPosWs = args.HitTestResult.PointHit;
+        if (args.HitTestResult is not { } hitTestResult)
+            return;
+
+        LastHitPosWs = hitTestResult.PointHit;
     }
 
     /// <summary>
@@ -236,18 +244,17 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     ///     The <see cref="System.Windows.DependencyPropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
     protected static void ModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        var m = d as UiManipulator3D;
-        if (m.IsAttached) {
+        if (d is UiManipulator3D m && m.IsAttached) {
             m.OnModelChanged();
             m.InvalidateRender();
         }
     }
 
-    private void UIManipulator3D_OnSceneNodeCreated(object sender, SceneNodeCreatedEventArgs e) {
+    private void UIManipulator3D_OnSceneNodeCreated(object? sender, SceneNodeCreatedEventArgs e) {
         e.Node.Attached += E_OnAttached;
     }
 
-    private void E_OnAttached(object sender, EventArgs e) {
+    private void E_OnAttached(object? sender, EventArgs e) {
         OnModelChanged();
     }
 

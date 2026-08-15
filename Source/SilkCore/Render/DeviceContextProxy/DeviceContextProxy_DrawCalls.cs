@@ -5,7 +5,7 @@ namespace HelixToolkit.SharpDX.Core.Render;
 public partial class DeviceContextProxy {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Flush() {
-        nativeDeviceContext.Flush();
+        NativeContext.Flush();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -20,19 +20,19 @@ public partial class DeviceContextProxy {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Draw(int vertexCount, int startVertexLocation) {
         ++NumberOfDrawCalls;
-        nativeDeviceContext.Draw((uint)vertexCount, (uint)startVertexLocation);
+        NativeContext.Draw((uint)vertexCount, (uint)startVertexLocation);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawAuto() {
         ++NumberOfDrawCalls;
-        nativeDeviceContext.DrawAuto();
+        NativeContext.DrawAuto();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawIndexed(int indexCount, int startIndexLocation, int baseVertexLocation) {
         ++NumberOfDrawCalls;
-        nativeDeviceContext.DrawIndexed((uint)indexCount, (uint)startIndexLocation, baseVertexLocation);
+        NativeContext.DrawIndexed((uint)indexCount, (uint)startIndexLocation, baseVertexLocation);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,7 +44,7 @@ public partial class DeviceContextProxy {
         int startInstanceLocation
     ) {
         ++NumberOfDrawCalls;
-        nativeDeviceContext.DrawIndexedInstanced((uint)indexCountPerInstance,
+        NativeContext.DrawIndexedInstanced((uint)indexCountPerInstance,
                                                  (uint)instanceCount,
                                                  (uint)startIndexLocation,
                                                  baseVertexLocation,
@@ -64,7 +64,7 @@ public partial class DeviceContextProxy {
         int startInstanceLocation
     ) {
         ++NumberOfDrawCalls;
-        nativeDeviceContext.DrawInstanced((uint)vertexCountPerInstance,
+        NativeContext.DrawInstanced((uint)vertexCountPerInstance,
                                           (uint)instanceCount,
                                           (uint)startVertexLocation,
                                           (uint)startInstanceLocation);
@@ -82,7 +82,7 @@ public partial class DeviceContextProxy {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispatch(int threadGroupCountX, int threadGroupCountY, int threadGroupCountZ) {
         ++NumberOfDrawCalls;
-        nativeDeviceContext.Dispatch((uint)threadGroupCountX,
+        NativeContext.Dispatch((uint)threadGroupCountX,
                                      (uint)threadGroupCountY,
                                      (uint)threadGroupCountZ);
     }
@@ -97,11 +97,11 @@ public partial class DeviceContextProxy {
     #region CommandList
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public CommandList FinishCommandList(bool restoreState) => nativeDeviceContext.FinishCommandList(restoreState);
+    public CommandList FinishCommandList(bool restoreState) => NativeContext.FinishCommandList(restoreState);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ExecuteCommandList(CommandList commandList, bool restoreContextState) {
-        nativeDeviceContext.ExecuteCommandList(commandList, restoreContextState);
+        NativeContext.ExecuteCommandList(commandList, restoreContextState);
     }
 
     #endregion CommandList

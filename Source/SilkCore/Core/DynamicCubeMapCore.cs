@@ -29,17 +29,24 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     private bool CreateCubeMapResources() {
         if (textureDesc.Width == faceSize && CubeMap is {IsDisposed: false}) 
             return false;
+
+        if (Device is not { } device)
+            return false;
         
         textureDesc.Width = textureDesc.Height = dsvTextureDesc.Width = dsvTextureDesc.Height = FaceSize;
 
-        CubeMap = new ShaderResourceViewProxy(Device, textureDesc);
+        var cubeMap = new ShaderResourceViewProxy(device, textureDesc);
+        if (cubeMap.Resource is not { } cubeMapResource) {
+            cubeMap.Dispose();
+            return false;
+        }
 
         var srvDesc = new ShaderResourceViewDescription {
             Format = textureDesc.Format,
             Dimension = ShaderResourceViewDimension.TextureCube,
             TextureCube = new ShaderResourceViewDescription.TextureCubeResource { MostDetailedMip = 0, MipLevels = -1 }
         };
-        CubeMap.CreateView(srvDesc);
+        cubeMap.CreateView(srvDesc);
 
         var rtsDesc = new RenderTargetViewDescription {
             Format = textureDesc.Format,
@@ -51,10 +58,15 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             ref var rtv = ref cubeRtVs[i];
             rtv.Dispose();
             rtsDesc.Texture2DArray.FirstArraySlice = i;
-            rtv = Device.CreateRenderTargetView(CubeMap.Resource, rtsDesc);
+            rtv = device.CreateRenderTargetView(cubeMapResource, rtsDesc);
         }
 
-        CubeDsv = new ShaderResourceViewProxy(Device, dsvTextureDesc);
+        var cubeDsv = new ShaderResourceViewProxy(device, dsvTextureDesc);
+        if (cubeDsv.Resource is not { } cubeDsvResource) {
+            cubeMap.Dispose();
+            cubeDsv.Dispose();
+            return false;
+        }
         var dsvDesc = new DepthStencilViewDescription {
             Format = dsvTextureDesc.Format,
             Dimension = DepthStencilViewDimension.Texture2DArray,
@@ -67,14 +79,20 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             ref var dsv = ref cubeDsVs[i];
             dsv.Dispose();
             dsvDesc.Texture2DArray.FirstArraySlice = i;
-            dsv = Device.CreateDepthStencilView(CubeDsv.Resource, dsvDesc);
+            dsv = device.CreateDepthStencilView(cubeDsvResource, dsvDesc);
         }
+
+        CubeMap = cubeMap;
+        CubeDsv = cubeDsv;
 
         return true;
     }
 
     protected override bool OnAttach(IRenderTechnique technique) {
-        DefaultShaderPass = technique[DefaultShaderPassName];
+        if (EffectTechnique is not { } effectTechnique)
+            return false;
+
+        DefaultShaderPass = effectTechnique[DefaultShaderPassName];
         contextPool = technique.EffectsManager.DeviceContextPool;
         TextureSampler = technique.EffectsManager.StateManager.Register(SamplerDescription);
         CreateCubeMapResources();
@@ -126,17 +144,21 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             throw new AggregateException(exception);
         
         for (var i = 0; i < commands.Length; ++i)
-            if (commands[i] != null) {
-                deviceContext.ExecuteCommandList(commands[i], true);
+            if (commands[i] is { } command) {
+                deviceContext.ExecuteCommandList(command, true);
                 Disposer.RemoveAndDispose(ref commands[i]);
             }
 
-        deviceContext.GenerateMips(CubeMap);
+        if (CubeMap?.TextureView is { } cubeMapView)
+            deviceContext.GenerateMips(cubeMapView);
         context.UpdatePerFrameData(true, false, deviceContext);
     }
 
     private void RenderCubeFace(RenderContext context, int index) {
-            var ctx = contextPool.Get();
+            if (contextPool is not { } pool)
+                return;
+
+            var ctx = pool.Get();
             ctx.ClearRenderTargetView(cubeRtVs[index], context.RenderHost.ClearColor);
             ctx.ClearDepthStencilView(cubeDsVs[index], DepthStencilClearFlags.Depth);
             ctx.SetRenderTarget(cubeDsVs[index], cubeRtVs[index]);
@@ -294,8 +316,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public string DefaultShaderPassName {
         get;
         set {
-            if (SetAffectsRender(ref field, value) && IsAttached)
-                DefaultShaderPass = EffectTechnique[value];
+            if (SetAffectsRender(ref field, value) && IsAttached && EffectTechnique is { } effectTechnique)
+                DefaultShaderPass = effectTechnique[value];
         }
     } = DefaultPassNames.Default;
 
@@ -323,8 +345,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public SamplerStateDescription SamplerDescription {
         get;
         set {
-            if (SetAffectsRender(ref field, value) && IsAttached) {
-                var newSampler = EffectTechnique.EffectsManager.StateManager.Register(value);
+            if (SetAffectsRender(ref field, value) && IsAttached && EffectTechnique is { } effectTechnique) {
+                var newSampler = effectTechnique.EffectsManager.StateManager.Register(value);
                 TextureSampler = newSampler;
             }
         }
@@ -421,8 +443,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
 
 #region IReflector
 
-    private SamplerStateProxy[] currSampler;
-    private ShaderResourceView[] currRes;
+    private SamplerStateProxy[]? currSampler;
+    private ShaderResourceView[]? currRes;
 
     /// <summary>
     ///     Binds the cube map.
@@ -442,8 +464,11 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     /// </summary>
     /// <param name="deviceContext">The device context.</param>
     public void UnBindCubeMap(DeviceContextProxy deviceContext) {
-        deviceContext.SetShaderResources(PixelShader.Type, cubeTextureSlot, currRes);
-        deviceContext.SetSamplers(PixelShader.Type, textureSamplerSlot, currSampler);
+        if (currRes is not { } resources || currSampler is not { } samplers)
+            return;
+
+        deviceContext.SetShaderResources(PixelShader.Type, cubeTextureSlot, resources);
+        deviceContext.SetSamplers(PixelShader.Type, textureSamplerSlot, samplers);
         
         currSampler.DisposeAll();
         currRes.DisposeAll();

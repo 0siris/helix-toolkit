@@ -7,6 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using HelixToolkit.SharpDX.Core;
 
 namespace HelixToolkit.Wpf.SharpDX;
@@ -23,20 +24,23 @@ public static class Geometry3DExtensions {
     /// <param name="source">This respective <see cref="Geometry3D" />.</param>
     /// <returns>A copy of this <see cref="Geometry3D" /> with unshared vertices.</returns>
     public static T ToUnshared<T>(this T source) where T : Geometry3D, new() {
+        if (source.Indices is not { } indices || source.Positions is not { } positions)
+            throw new InvalidOperationException("Unshared geometry requires indices and positions.");
+
         var result = new T {
-            Indices = new IntCollection(source.Indices.Count),
-            Positions = new Vector3Collection(source.Indices.Count)
+            Indices = new IntCollection(indices.Count),
+            Positions = new Vector3Collection(indices.Count)
         };
-        if (source.Colors != null && source.Colors.Count == source.Positions.Count) {
-            result.Colors = new Color4Collection(source.Indices.Count);
-            for (var i = 0; i < source.Indices.Count; i++) {
-                result.Colors.Add(source.Colors[source.Indices[i]]);
-                result.Positions.Add(source.Positions[source.Indices[i]]);
+        if (source.Colors is { } colors && colors.Count == positions.Count) {
+            result.Colors = new Color4Collection(indices.Count);
+            for (var i = 0; i < indices.Count; i++) {
+                result.Colors.Add(colors[indices[i]]);
+                result.Positions.Add(positions[indices[i]]);
                 result.Indices.Add(i);
             }
         } else {
-            for (var i = 0; i < source.Indices.Count; i++) {
-                result.Positions.Add(source.Positions[source.Indices[i]]);
+            for (var i = 0; i < indices.Count; i++) {
+                result.Positions.Add(positions[indices[i]]);
                 result.Indices.Add(i);
             }
         }

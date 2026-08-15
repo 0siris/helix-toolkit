@@ -8,9 +8,9 @@ using System.Runtime.CompilerServices;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public abstract class ParametricSurface3DNode : MeshNode {
-    private CancellationTokenSource cancelToken = new();
+    private CancellationTokenSource? cancelToken = new();
 
-    private Task tesselationTask;
+    private Task? tesselationTask;
 
     public int MeshSizeU {
         get;
@@ -37,13 +37,13 @@ public abstract class ParametricSurface3DNode : MeshNode {
     }
 
     protected override void OnDetach() {
-        cancelToken.Cancel(true);
+        cancelToken?.Cancel(true);
         RemoveAndDispose(ref cancelToken);
         base.OnDetach();
     }
 
     protected void TessellateAsync() {
-        cancelToken.Cancel(true);
+        cancelToken?.Cancel(true);
         RemoveAndDispose(ref cancelToken);
         cancelToken = new CancellationTokenSource();
         IsTessellating = true;
@@ -51,8 +51,8 @@ public abstract class ParametricSurface3DNode : MeshNode {
         tesselationTask = Task.Run(() => {
             var mesh = OnTesselatingAsync(token);
             mesh.Normals = mesh.CalculateNormals();
-            mesh?.UpdateOctree();
-            mesh?.UpdateBounds();
+            mesh.UpdateOctree();
+            mesh.UpdateBounds();
             return mesh;
         },
                                    token).ContinueWith(result => {
@@ -68,6 +68,9 @@ public abstract class ParametricSurface3DNode : MeshNode {
             TextureCoordinates = [],
             Indices = []
         };
+        if (mesh.Positions is not { } positions || mesh.TextureCoordinates is not { } textureCoordinates
+            || mesh.TriangleIndices is not { } triangleIndices)
+            throw new InvalidOperationException("The parametric mesh buffers were not initialized.");
 
         var n = MeshSizeU;
         var m = MeshSizeV;
@@ -92,8 +95,8 @@ public abstract class ParametricSurface3DNode : MeshNode {
         var idx = 0;
         for (var i = 0; i < n && !token.IsCancellationRequested; i++)
             for (var j = 0; j < m; j++) {
-                mesh.Positions.Add(p[idx]);
-                mesh.TextureCoordinates.Add(tc[idx]);
+                positions.Add(p[idx]);
+                textureCoordinates.Add(tc[idx]);
                 idx++;
             }
 
@@ -126,18 +129,20 @@ public abstract class ParametricSurface3DNode : MeshNode {
     ///     The i 3.
     /// </param>
     private static void AddTriangle(MeshGeometry3D mesh, int i1, int i2, int i3) {
-        var p1 = mesh.Positions[i1];
+        if (mesh.Positions is not { } positions) return;
+        var p1 = positions[i1];
         if (!IsDefined(p1)) return;
 
-        var p2 = mesh.Positions[i2];
+        var p2 = positions[i2];
         if (!IsDefined(p2)) return;
 
-        var p3 = mesh.Positions[i3];
+        var p3 = positions[i3];
         if (!IsDefined(p3)) return;
 
-        mesh.TriangleIndices.Add(i1);
-        mesh.TriangleIndices.Add(i2);
-        mesh.TriangleIndices.Add(i3);
+        if (mesh.TriangleIndices is not { } triangleIndices) return;
+        triangleIndices.Add(i1);
+        triangleIndices.Add(i2);
+        triangleIndices.Add(i3);
     }
 
     /// <summary>

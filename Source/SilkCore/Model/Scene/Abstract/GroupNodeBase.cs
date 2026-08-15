@@ -4,6 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
+using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
@@ -51,7 +52,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <value>
     ///     The metadata.
     /// </value>
-    public Metadata Metadata { get; set; }
+    public Metadata Metadata { get; set; } = new();
 
     public event EventHandler<OnChildNodeChangedArgs>? ChildNodeAdded;
     public event EventHandler<OnChildNodeChangedArgs>? ChildNodeRemoved;
@@ -64,7 +65,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <returns></returns>
     /// <exception cref="System.ArgumentException">SceneNode already attach to a different node</exception>
     public bool AddChildNode(SceneNode node) {
-        if (node != null && !ItemHashSet.ContainsKey(node.Guid)) {
+        if (!ItemHashSet.ContainsKey(node.Guid)) {
             ItemHashSet.Add(node.Guid, node);
             ItemsInternal.Add(node);
             if (node.Parent != null && node.Parent != this)
@@ -100,7 +101,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="node">The node.</param>
     /// <returns></returns>
     public bool InsertChildNode(int index, SceneNode node) {
-        if (node == null || node.IsAttached || ItemHashSet.ContainsKey(node.Guid)) return false;
+        if (node.IsAttached || ItemHashSet.ContainsKey(node.Guid)) return false;
         ItemHashSet.Add(node.Guid, node);
         ItemsInternal.Insert(index, node);
         node.Parent = this;
@@ -151,7 +152,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="detachChild">Whether to detach the child node automatically after removing. Default = true.</param>
     /// <returns></returns>
     public bool RemoveChildNode(SceneNode node, bool detachChild = true) {
-        if (node != null && ItemHashSet.Remove(node.Guid)) {
+        if (ItemHashSet.Remove(node.Guid)) {
             if (detachChild) node.Detach();
             ItemsInternal.Remove(node);
             node.Parent = null;
@@ -169,7 +170,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="guid">The unique identifier.</param>
     /// <param name="node">The node.</param>
     /// <returns></returns>
-    public bool TryGetNode(Guid guid, out SceneNode node) => ItemHashSet.TryGetValue(guid, out node);
+    public bool TryGetNode(Guid guid, [NotNullWhen(true)] out SceneNode? node) => ItemHashSet.TryGetValue(guid, out node);
 
     /// <summary>
     ///     Called when [attach].
@@ -219,7 +220,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="disposeManagedResources">if set to <c>true</c> [dispose managed resources].</param>
     protected override void OnDispose(bool disposeManagedResources) {
         Cleared = null;
-        foreach (var c in ItemsInternal) c?.Dispose();
+        foreach (var c in ItemsInternal) c.Dispose();
         base.OnDispose(disposeManagedResources);
     }
 
@@ -229,7 +230,7 @@ public abstract class GroupNodeBase : SceneNode {
         /// </summary>
         /// <param name="node">The node.</param>
         /// <param name="operation">if set to <c>true</c> [add or remove].</param>
-        public OnChildNodeChangedArgs(SceneNode node, Operation operation) {
+        public OnChildNodeChangedArgs(SceneNode? node, Operation operation) {
             Node = node;
             Operation = operation;
         }
@@ -240,7 +241,7 @@ public abstract class GroupNodeBase : SceneNode {
         /// <value>
         ///     The node.
         /// </value>
-        public SceneNode Node { get; }
+        public SceneNode? Node { get; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether [add =true or remove = false].
@@ -250,6 +251,6 @@ public abstract class GroupNodeBase : SceneNode {
         /// </value>
         public Operation Operation { get; private set; }
 
-        public static implicit operator SceneNode(OnChildNodeChangedArgs args) => args.Node;
+        public static implicit operator SceneNode?(OnChildNodeChangedArgs args) => args.Node;
     }
 }

@@ -102,9 +102,9 @@ public class DefaultPointGeometryBufferModel : PointGeometryBufferModel<PointsVe
     }
 
 
-    protected override bool IsVertexBufferChanged(string propertyName, int vertexBufferIndex) =>
+    protected override bool IsVertexBufferChanged(string? propertyName, int vertexBufferIndex) =>
         base.IsVertexBufferChanged(propertyName, vertexBufferIndex) ||
-        propertyName.Equals(nameof(Geometry3D.Colors), StringComparison.Ordinal);
+        propertyName?.Equals(nameof(Geometry3D.Colors), StringComparison.Ordinal) == true;
 
     /// <summary>
     ///     Called when [build vertex array].
@@ -112,8 +112,9 @@ public class DefaultPointGeometryBufferModel : PointGeometryBufferModel<PointsVe
     /// <param name="geometry">The geometry.</param>
     /// <returns></returns>
     private PointsVertex[] OnBuildVertexArray(Geometry3D geometry) {
-        var positions = geometry.Positions;
-        var vertexCount = geometry.Positions.Count;
+        var positions = geometry.Positions
+            ?? throw new InvalidOperationException("Point geometry requires positions.");
+        var vertexCount = positions.Count;
         var array = ThreadBufferManager<PointsVertex>.GetBuffer(vertexCount);
         
         var colors = geometry.Colors?.GetEnumerator() 

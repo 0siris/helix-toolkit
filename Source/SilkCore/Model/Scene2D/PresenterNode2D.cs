@@ -25,10 +25,10 @@ public class PresenterNode2D : SceneNode2D {
                 }
 
                 content = value;
-                if (content != null) {
-                    content.Parent = this;
-                    if (IsAttached) content.Attach(RenderHost);
-                    ItemsInternal.Add(value);
+                if (content is { } actualContent) {
+                    actualContent.Parent = this;
+                    if (IsAttached && RenderHost is { } host) actualContent.Attach(host);
+                    ItemsInternal.Add(actualContent);
                 }
 
                 InvalidateMeasure();

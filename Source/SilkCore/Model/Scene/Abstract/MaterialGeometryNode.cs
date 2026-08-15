@@ -24,7 +24,7 @@ public abstract class MaterialGeometryNode : GeometryNode {
         }
     }
 
-    public MaterialCore Material {
+    public MaterialCore? Material {
         get => material;
         set {
             if (!Set(ref material, value))
@@ -43,8 +43,9 @@ public abstract class MaterialGeometryNode : GeometryNode {
     }
 
     protected virtual void AttachMaterial() {
-        var newVar = material != null && RenderCore is IMaterialRenderParams
-                         ? EffectsManager.MaterialVariableManager.Register(material, EffectTechnique)
+        var newVar = material is { } currentMaterial && RenderCore is IMaterialRenderParams &&
+                     EffectsManager is { } effectsManager && EffectTechnique is { } technique
+                         ? effectsManager.MaterialVariableManager.Register(currentMaterial, technique)
                          : null;
         RemoveAndDispose(ref materialVariable);
         materialVariable = newVar;

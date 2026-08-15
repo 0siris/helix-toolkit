@@ -20,7 +20,7 @@ public partial class SceneNode2D {
 
 #pragma warning restore
 
-    private BitmapProxy bitmapCache;
+    private BitmapProxy? bitmapCache;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable bitmap cache].

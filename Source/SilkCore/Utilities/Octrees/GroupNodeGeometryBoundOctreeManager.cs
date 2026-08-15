@@ -30,8 +30,13 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
         lock (lockObj) {
             RequestUpdateOctree = false;
             if (Enabled) {
-                var nodes = items.Where(x => x.HasBound);
-                if (nodes.Count() == 0) 
+                if (items is null) {
+                    Clear();
+                    return;
+                }
+
+                var nodes = items.Where(x => x.HasBound).ToList();
+                if (nodes.Count == 0)
                     return;
                 
                 UpdateOctree(RebuildOctree(nodes));
@@ -77,12 +82,11 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
                     continue;
                 }
 
-                var node = MOctree.FindItemByGuid(item.Guid, item, out var index);
+                var tree = MOctree;
+                var node = tree.FindItemByGuid(item.Guid, item, out var index);
                 var rootAdd = true;
-                if (node != null) {
-                    var tree = MOctree;
+                if (node is BoundableNodeOctree geoNode) {
                     UpdateOctree(null);
-                    var geoNode = node as BoundableNodeOctree;
                     var itemBounds = item.BoundsWithTransform;
                     
                     if (geoNode.Bound.Contains(ref itemBounds) == ContainmentType.Contains) {
@@ -93,8 +97,8 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
                     }
 
                     UpdateOctree(tree);
-                } else {
-                    MOctree.RemoveByGuid(item.Guid, item, MOctree);
+                } else if (node is not null) {
+                    tree.RemoveByGuid(item.Guid, item, tree);
                 }
 
                 if (rootAdd) 
@@ -169,7 +173,7 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
         if (item.HasBound) {
             var tree = MOctree;
             UpdateOctree(null);
-            if (tree == null) {
+            if (tree is null) {
                 RequestRebuild();
             } else {
                 var succeed = true;
@@ -177,7 +181,11 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
                 while (!tree.Add(item)) {
                     var direction = item.Bounds.Minimum + item.Bounds.Maximum
                                     - (tree.Bound.Minimum + tree.Bound.Maximum);
-                    tree = tree.Expand(ref direction) as BoundableNodeOctree;
+                    if (tree.Expand(ref direction) is not BoundableNodeOctree expandedTree) {
+                        succeed = false;
+                        break;
+                    }
+                    tree = expandedTree;
                     ++counter;
                     if (counter > 10) {
 #if DEBUG
@@ -211,7 +219,8 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
         
         lock (lockObj) {
             if (item.HasBound) {
-                var tree = MOctree;
+                if (MOctree is not { } tree)
+                    return;
                 UpdateOctree(null);
                 item.TransformBoundChanged -= GeometryModel3DOctreeManager_OnBoundInitialized;
                 UnsubscribeBoundChangeEvent(item);

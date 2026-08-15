@@ -3,6 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Diagnostics.CodeAnalysis;
 using SharpDX.Toolkit.Graphics;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
@@ -44,7 +45,9 @@ public static class TextureLoader {
                 }
         }
 
-        return device.CreateShaderResourceView(texture.Resource);
+        return texture.Resource is { } resource
+            ? device.CreateShaderResourceView(resource)
+            : null;
     }
 
     /// <summary>
@@ -87,7 +90,9 @@ public static class TextureLoader {
                     return device.CreateShaderResourceView(textureMipmap);
                 }
 
-        return device.CreateShaderResourceView(texture.Resource);
+        return texture.Resource is { } resource
+            ? device.CreateShaderResourceView(resource)
+            : null;
     }
 
     /// <summary>
@@ -126,7 +131,11 @@ public static class TextureLoader {
     /// <param name="textMip">Returns a new texture with mipmaps if succeeded. Otherwise returns the input texture</param>
     /// <returns>True succeed. False: Format not supported.</returns>
     /// <exception cref="InvalidDataException">Input texture is invalid.</exception>
-    public static bool GenerateMipMaps(NativeD3DDevice device, Texture? texture, out Resource? textMip) {
+    public static bool GenerateMipMaps(
+        NativeD3DDevice device,
+        Texture? texture,
+        [NotNullWhen(true)] out Resource? textMip
+    ) {
         textMip = texture?.Resource;
         return false;
     }

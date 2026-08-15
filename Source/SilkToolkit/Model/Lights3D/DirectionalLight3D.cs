@@ -18,9 +18,8 @@ public sealed class DirectionalLight3D : Light3D {
                                     typeof(Light3D),
                                     new PropertyMetadata(new Vector3D(),
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as DirectionalLightNode)
-                                                                 .Direction =
-                                                                 ((Vector3D)e.NewValue).ToVector3();
+                                                             if (d is Element3DCore { SceneNode: DirectionalLightNode node })
+                                                                 node.Direction = ((Vector3D)e.NewValue).ToVector3();
                                                          }));
 
     /// <summary>
@@ -37,6 +36,7 @@ public sealed class DirectionalLight3D : Light3D {
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);
-        (core as DirectionalLightNode).Direction = Direction.ToVector3();
+        if (core is DirectionalLightNode node)
+            node.Direction = Direction.ToVector3();
     }
 }

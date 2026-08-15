@@ -205,9 +205,8 @@ public sealed class ShaderDescription {
     /// <param name="pool"></param>
     /// <returns></returns>
     internal ShaderBase? CreateShader(SilkD3DDevice device, IConstantBufferPool pool) {
-        if (ByteCode == null) return null;
-        ShaderReflector ??= new ShaderReflector();
-        ShaderReflector.Parse(ByteCode, ShaderType);
+        if (ByteCode is not { } byteCode) return null;
+        ShaderReflector.Parse(byteCode, ShaderType);
         Level = ShaderReflector.FeatureLevel;
         var deviceFeatureLevel = device.FeatureLevel.ToFeatureLevel();
         if (Level > deviceFeatureLevel) {
@@ -227,30 +226,30 @@ public sealed class ShaderDescription {
         ShaderBase? shader = null;
         switch (ShaderType) {
             case ShaderStage.Vertex:
-                shader = new VertexShader(device, Name, ByteCode);
+                shader = new VertexShader(device, Name ?? throw new InvalidOperationException("Shader name is required."), byteCode);
                 break;
             case ShaderStage.Pixel:
-                shader = new PixelShader(device, Name, ByteCode);
+                shader = new PixelShader(device, Name ?? throw new InvalidOperationException("Shader name is required."), byteCode);
                 break;
             case ShaderStage.Compute:
-                shader = new ComputeShader(device, Name, ByteCode);
+                shader = new ComputeShader(device, Name ?? throw new InvalidOperationException("Shader name is required."), byteCode);
                 break;
             case ShaderStage.Domain:
-                shader = new DomainShader(device, Name, ByteCode);
+                shader = new DomainShader(device, Name ?? throw new InvalidOperationException("Shader name is required."), byteCode);
                 break;
             case ShaderStage.Hull:
-                shader = new HullShader(device, Name, ByteCode);
+                shader = new HullShader(device, Name ?? throw new InvalidOperationException("Shader name is required."), byteCode);
                 break;
             case ShaderStage.Geometry:
                 if (IsGsStreamOut)
                     shader = new GeometryShader(device,
-                                                Name,
-                                                ByteCode,
+                                                Name ?? throw new InvalidOperationException("Shader name is required."),
+                                                byteCode,
                                                 GssoElement,
                                                 GssoStrides,
                                                 GssoRasterized);
                 else
-                    shader = new GeometryShader(device, Name, ByteCode);
+                    shader = new GeometryShader(device, Name ?? throw new InvalidOperationException("Shader name is required."), byteCode);
                 break;
         }
 
@@ -282,12 +281,12 @@ public sealed class ShaderDescription {
     /// </summary>
     /// <returns></returns>
     public ShaderDescription Clone() {
-        return new ShaderDescription(Name,
+        return new ShaderDescription(Name ?? throw new InvalidOperationException("Shader name is required."),
                                      ShaderType,
                                      Level,
-                                     ByteCode,
-                                     [.. ConstantBufferMappings.Select(x => x.Clone())],
-                                     [.. TextureMappings.Select(x => x.Clone())]);
+                                     ByteCode ?? throw new InvalidOperationException("Shader byte code is required."),
+                                     [.. (ConstantBufferMappings ?? []).Select(x => x.Clone())],
+                                     [.. (TextureMappings ?? []).Select(x => x.Clone())]);
     }
 
     #region GS Stream output Only
@@ -308,7 +307,7 @@ public sealed class ShaderDescription {
     ///     The gsso element.
     /// </value>
     [DataMember]
-    public StreamOutputElement[] GssoElement { get; set; }
+    public StreamOutputElement[] GssoElement { get; set; } = [];
 
     /// <summary>
     ///     Gets or sets the gs stream output strides.
@@ -317,7 +316,7 @@ public sealed class ShaderDescription {
     ///     The gsso strides.
     /// </value>
     [DataMember]
-    public int[] GssoStrides { get; set; }
+    public int[] GssoStrides { get; set; } = [];
 
     /// <summary>
     ///     Gets or sets the gs stream output rasterized stream index.

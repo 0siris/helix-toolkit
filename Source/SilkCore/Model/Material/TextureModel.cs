@@ -347,7 +347,7 @@ public sealed class TextureInfo {
     /// <param name="generateMipMaps">if set to <c>true</c> [generate mip maps].</param>
     /// <exception cref="ArgumentNullException">Texture cannot be null.</exception>
     public TextureInfo(Stream texture, bool generateMipMaps = true) {
-        Texture = texture ?? throw new ArgumentNullException("Texture cannot be null.");
+        Texture = texture ?? throw new ArgumentNullException(nameof(texture));
         DataType = TextureDataType.Stream;
         IsCompressed = true;
         GenerateMipMaps = generateMipMaps;
@@ -363,7 +363,7 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentNullException">Texture cannot be null.</exception>
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(Stream texture, Format pixelFormat, int width, bool generateMipMaps = true) {
-        Texture = texture ?? throw new ArgumentNullException("Texture cannot be null.");
+        Texture = texture ?? throw new ArgumentNullException(nameof(texture));
         Width = width == 0
             ? throw new ArgumentException("Height cannot be zero.")
             : width;
@@ -426,7 +426,7 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentNullException">Texture cannot be null.</exception>
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(byte[] texture, Format pixelFormat, int width, bool generateMipMaps = true) {
-        TextureRaw = texture ?? throw new ArgumentNullException("Texture cannot be null.");
+        TextureRaw = texture ?? throw new ArgumentNullException(nameof(texture));
         Width = width == 0
             ? throw new ArgumentException("Height cannot be zero.")
             : width;
@@ -487,7 +487,7 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentNullException">Texture cannot be null.</exception>
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(Color4[] texture, bool generateMipMaps = true) {
-        Color4Array = texture ?? throw new ArgumentNullException("Texture cannot be null.");
+        Color4Array = texture ?? throw new ArgumentNullException(nameof(texture));
         Width = texture.Length;
         DataType = TextureDataType.Color4;
         IsCompressed = false;
@@ -555,7 +555,7 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentException">Height cannot be zero.</exception>
     public TextureInfo(nint texture, Format pixelFormat, int width, bool generateMipMaps = true) {
         RawPointer = texture == nint.Zero
-            ? throw new ArgumentNullException("Texture cannot be null.")
+            ? throw new ArgumentNullException(nameof(texture))
             : texture;
         Width = width == 0
             ? throw new ArgumentException("Height cannot be zero.")

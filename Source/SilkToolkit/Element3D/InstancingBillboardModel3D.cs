@@ -26,9 +26,9 @@ public class InstancingBillboardModel3D : BillboardTextModel3D {
                                     typeof(InstancingBillboardModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as InstancingBillboardNode)
-                                                                 .InstanceParamArray =
-                                                                 e.NewValue as IList<BillboardInstanceParameter>;
+                                                             if (d is Element3DCore { SceneNode: InstancingBillboardNode node })
+                                                                 node.InstanceParamArray =
+                                                                     e.NewValue as IList<BillboardInstanceParameter>;
                                                          }));
 
     /// <summary>

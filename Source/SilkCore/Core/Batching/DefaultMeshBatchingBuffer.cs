@@ -39,9 +39,12 @@ public class DefaultStaticMeshBatchingBuffer : StaticGeometryBatchingBufferBase<
         if (geometry.Geometry is not MeshGeometry3D mesh)
             return;
 
+        if (mesh.Positions is not { } meshPositions)
+            return;
+
         var materialCount = Materials.Length;
-        var vertexCount = mesh.Positions.Count;
-        var positions = mesh.Positions.GetEnumerator();
+        var vertexCount = meshPositions.Count;
+        var positions = meshPositions.GetEnumerator();
 
         var normals = mesh.Normals?.GetEnumerator()
                       ?? GetZeroEnumerator();

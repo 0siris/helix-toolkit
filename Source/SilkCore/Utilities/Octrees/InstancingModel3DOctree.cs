@@ -85,7 +85,7 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
     /// <param name="hitThickness"></param>
     /// <returns></returns>
     public override bool HitTestCurrentNodeExcludeChild(
-        HitTestContext context,
+        HitTestContext? context,
         object model,
         Geometry3D? geometry,
         Matrix modelMatrix,
@@ -95,7 +95,7 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
         float hitThickness
     ) {
         isIntersect = false;
-        if (!treeBuilt) return false;
+        if (!treeBuilt || context is null) return false;
         var isHit = false;
         var
             bound = Bound.Transform(

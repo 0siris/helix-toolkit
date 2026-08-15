@@ -24,7 +24,10 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
                 DepthBiasClamp = -0.00008f
             };
 
-            var newState = EffectTechnique.EffectsManager.StateManager.Register(wireframeDesc);
+            if (EffectTechnique is not { EffectsManager: { } effectsManager })
+                return false;
+
+            var newState = effectsManager.StateManager.Register(wireframeDesc);
             RasterStateWireframe = newState;
             return true;
         }

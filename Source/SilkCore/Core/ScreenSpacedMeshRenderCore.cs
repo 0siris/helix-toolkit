@@ -225,10 +225,15 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     /// <param name="eye">The eye.</param>
     /// <returns></returns>
     protected Matrix CreateViewMatrix(RenderContext renderContext, out Vector3 eye) {
-        eye = -renderContext.Camera.LookDirection.Normalized() * CameraDistance;
-        if (IsRightHand) return SilkMath.LookAtRh(eye, Vector3.Zero, renderContext.Camera.UpDirection);
+        if (renderContext.Camera is not { } camera) {
+            eye = Vector3.Zero;
+            return Matrix.Identity;
+        }
 
-        return SilkMath.LookAtLh(eye, Vector3.Zero, renderContext.Camera.UpDirection);
+        eye = -camera.LookDirection.Normalized() * CameraDistance;
+        if (IsRightHand) return SilkMath.LookAtRh(eye, Vector3.Zero, camera.UpDirection);
+
+        return SilkMath.LookAtLh(eye, Vector3.Zero, camera.UpDirection);
     }
 
     /// <summary>
@@ -251,10 +256,12 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
         switch (mode) {
             case ScreenSpacedMode.AbsolutePosition3D:
                 if (IsPerspective)
-                    projectionMatrix =
-                        context.Camera.CreateProjectionMatrix(context.ActualWidth / context.ActualHeight,
-                                                              NearPlane,
-                                                              FarPlane);
+                    if (context.Camera is { } camera)
+                        projectionMatrix = camera.CreateProjectionMatrix(context.ActualWidth / context.ActualHeight,
+                                                                         NearPlane,
+                                                                         FarPlane);
+                    else
+                        return;
                 else
                     //projectionMatrix = context.ProjectionMatrix;
                     projectionMatrix = CreateProjectionMatrix(context.IsPerspective,
@@ -344,7 +351,8 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
             dsView.Dispose();
         }
 
-        IsRightHand = !context.Camera.CreateLeftHandSystem;
+        if (context.Camera is not { } camera) return;
+        IsRightHand = !camera.CreateLeftHandSystem;
         switch (mode) {
             case ScreenSpacedMode.RelativeScreenSpaced:
                 RenderRelativeScreenSpaced(context, deviceContext);
@@ -359,7 +367,8 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     }
 
     private void RenderRelativeScreenSpaced(RenderContext context, DeviceContextProxy deviceContext) {
-        IsRightHand = !context.Camera.CreateLeftHandSystem;
+        if (context.Camera is not { } camera) return;
+        IsRightHand = !camera.CreateLeftHandSystem;
         var viewportSize = Size * SizeScale * context.DpiScale;
         var globalTrans = context.GlobalTransform;
         UpdateParameters(context, context.ActualWidth, context.ActualHeight);
@@ -409,7 +418,8 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     }
 
     private void RenderAbsolutePositionOrtho(RenderContext context, DeviceContextProxy deviceContext) {
-        IsRightHand = !context.Camera.CreateLeftHandSystem;
+        if (context.Camera is not { } camera) return;
+        IsRightHand = !camera.CreateLeftHandSystem;
         var viewportSize = Size * SizeScale * context.DpiScale;
         var globalTrans = context.GlobalTransform;
         UpdateParameters(context, context.ActualWidth, context.ActualHeight);

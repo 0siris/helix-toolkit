@@ -224,7 +224,7 @@ public sealed class Image : Component {
     /// <param name="loader">The loader delegate (can be null).</param>
     /// <param name="saver">The saver delegate (can be null).</param>
     /// <exception cref="System.ArgumentException"></exception>
-    public static void Register(ImageFileType type, ImageLoadDelegate loader, ImageSaveDelegate saver) {
+    public static void Register(ImageFileType type, ImageLoadDelegate? loader, ImageSaveDelegate? saver) {
         // If reference equals, then it is null
         if (ReferenceEquals(loader, saver))
             throw new ArgumentNullException("loader/saver", "Can set both loader and saver to null");
@@ -843,7 +843,6 @@ public sealed class Image : Component {
     /// </param>
     public void Save(string fileName) {
         var extension = Path.GetExtension(fileName);
-        extension ??= string.Empty;
 
         ImageFileType fileType;
         extension = extension.TrimStart('.').ToLower();
@@ -921,8 +920,8 @@ public sealed class Image : Component {
         ImageFileType fileType
     ) {
         foreach (var loadSaveDelegate in LoadSaveDelegates)
-            if (loadSaveDelegate.FileType == fileType) {
-                loadSaveDelegate.Save(pixelBuffers, count, description, imageStream);
+            if (loadSaveDelegate.FileType == fileType && loadSaveDelegate.Save is { } save) {
+                save(pixelBuffers, count, description, imageStream);
                 return;
             }
 
@@ -945,7 +944,7 @@ public sealed class Image : Component {
 
         public readonly ImageSaveDelegate? Save;
 
-        public LoadSaveDelegate(ImageFileType fileType, ImageLoadDelegate load, ImageSaveDelegate save) {
+        public LoadSaveDelegate(ImageFileType fileType, ImageLoadDelegate? load, ImageSaveDelegate? save) {
             FileType = fileType;
             Load = load;
             Save = save;

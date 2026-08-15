@@ -23,7 +23,8 @@ public class Texture1D : Texture1DBase {
     /// <returns>
     ///     A copy of this texture.
     /// </returns>
-    public override Texture Clone() => new Texture1D(GraphicsDevice, Description);
+    public override Texture Clone() => new Texture1D(
+        GraphicsDevice ?? throw new InvalidOperationException("The texture has no graphics device."), Description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Texture1DDescription" />.
@@ -174,8 +175,6 @@ public class Texture1D : Texture1DBase {
         TextureFlags flags = TextureFlags.ShaderResource,
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
-        if (image == null)
-            ArgumentNullException.ThrowIfNull(image);
         if (image.Description.Dimension != TextureDimension.Texture1D)
             throw new ArgumentException("Invalid image. Must be 1D", "image");
 
@@ -198,10 +197,9 @@ public class Texture1D : Texture1DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         var texture = Texture.Load(device, stream, flags, usage);
-        if (!(texture is Texture1D))
-            throw new ArgumentException(string.Format("Texture is not type of [Texture1D] but [{0}]",
-                                                      texture.GetType().Name));
-        return (Texture1D)texture;
+        if (texture is not Texture1D typedTexture)
+            throw new ArgumentException($"Texture is not type of [Texture1D] but [{texture?.GetType().Name ?? "null"}]");
+        return typedTexture;
     }
 
     /// <summary>

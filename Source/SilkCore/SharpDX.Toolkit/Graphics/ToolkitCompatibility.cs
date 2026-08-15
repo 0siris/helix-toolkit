@@ -327,7 +327,7 @@ internal static unsafe class Utilities {
 
     public static int SizeOf<T>() where T : struct => Marshal.SizeOf<T>();
 
-    public static int SizeOf<T>(T[] values) where T : unmanaged => values == null ? 0 : sizeof(T) * values.Length;
+    public static int SizeOf<T>(T[] values) where T : unmanaged => sizeof(T) * values.Length;
 
     public static void CopyMemory(nint destination, nint source, int sizeInBytes) {
         Buffer.MemoryCopy(source.ToPointer(), destination.ToPointer(), sizeInBytes, sizeInBytes);

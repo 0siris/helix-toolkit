@@ -13,7 +13,7 @@ public static class BoundingBoxExtensions {
     /// </summary>
     /// <param name="points">The points.</param>
     /// <returns></returns>
-    public static BoundingBox FromPoints(IList<Vector3> points) {
+    public static BoundingBox FromPoints(IList<Vector3>? points) {
         if (points == null || points.Count == 0) return new BoundingBox();
         var min = new Vector3(float.MaxValue);
         var max = new Vector3(float.MinValue);
@@ -119,7 +119,8 @@ public static class BoundingBoxExtensions {
         return new BoundingBox(min, max);
     }
 
-    public static RectangleF Translate(this RectangleF rect, Vector2 translation) => new(rect.Left + translation.X, rect.Top + translation.Y, rect.Width, rect.Height);
+    public static RectangleF Translate(this RectangleF rect, Vector2 translation) => new(rect.Left + translation.X,
+        rect.Top + translation.Y, rect.Width, rect.Height);
 
     public static Vector3 Center(this BoundingBox box) => (box.Minimum + box.Maximum) * 0.5f;
 }

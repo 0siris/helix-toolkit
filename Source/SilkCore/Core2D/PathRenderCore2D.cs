@@ -7,13 +7,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics.CodeAnalysis;
 
 namespace HelixToolkit.SharpDX.Core.Core2D;
+
 /// <summary>
 /// </summary>
 public class PathRenderCore2D : ShapeRenderCore2DBase {
     /// <summary>
     ///     The geometry
     /// </summary>
-    protected PathGeometry Geometry;
+    protected PathGeometry? Geometry;
 
     /// <summary>
     ///     The is geometry changed
@@ -26,7 +27,7 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
     /// <value>
     ///     The figures.
     /// </value>
-    public List<Figure> Figures {
+    public List<Figure>? Figures {
         get;
         set {
             if (SetAffectsRender(ref field, value)) IsGeometryChanged = true;
@@ -61,8 +62,8 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
     /// </summary>
     /// <param name="context">The context.</param>
     [SuppressMessage("Microsoft.Usage",
-                     "CA2202: Do not dispose objects multiple times",
-                     Justification = "False positive.")]
+        "CA2202: Do not dispose objects multiple times",
+        Justification = "False positive.")]
     protected override void OnRender(RenderContext2D context) {
         if (IsGeometryChanged) {
             RemoveAndDispose(ref Geometry);
@@ -77,9 +78,10 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
             IsGeometryChanged = false;
         }
 
+        if (Geometry is not { } geometry) return;
         if (StrokeBrush != null && StrokeWidth > 0 && StrokeStyle != null)
-            context.DeviceContext.DrawGeometry(Geometry, StrokeBrush, StrokeWidth, StrokeStyle);
-        if (FillBrush != null) context.DeviceContext.FillGeometry(Geometry, FillBrush);
+            context.DeviceContext.DrawGeometry(geometry, StrokeBrush, StrokeWidth, StrokeStyle);
+        if (FillBrush != null) context.DeviceContext.FillGeometry(geometry, FillBrush);
     }
 
     protected override void OnDetach() {

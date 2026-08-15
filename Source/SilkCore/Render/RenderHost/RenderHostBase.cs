@@ -84,6 +84,16 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     public bool UpdateAndRender() {
         if (!CanRender())
             return false;
+
+        if (RenderBuffer is not { } renderBuffer
+            || Renderer is not { } renderer
+            || EffectsManager is not { } effectsManager
+            || Viewport is not { } viewport
+            || viewport.CameraCore is not { } camera)
+            return false;
+
+        if (RenderContext is not { } renderContext)
+            return false;
         
         if (EnableSharingModelMode && SharedModelContainer != null)
             SharedModelContainer.CurrentRenderHost = this;
@@ -92,30 +102,30 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         
         var t0 = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
         renderStatistics.FpsStatistics.Push((t0 - lastRenderTime).TotalMilliseconds);
-        renderStatistics.Camera = Viewport.CameraCore;
+        renderStatistics.Camera = camera;
         
         lastRenderTime = t0;
         
         UpdateRequested = false;
         ++updateCounter;
         
-        RenderContext.AutoUpdateOctree = RenderConfiguration.AutoUpdateOctree;
-        RenderContext.EnableBoundingFrustum = EnableRenderFrustum;
+        renderContext.AutoUpdateOctree = RenderConfiguration.AutoUpdateOctree;
+        renderContext.EnableBoundingFrustum = EnableRenderFrustum;
         
         if (RenderConfiguration.UpdatePerFrameData) {
-            Viewport.Update(t0);
-            RenderContext.TimeStamp = t0;
-            RenderContext.Camera = Viewport.CameraCore;
-            RenderContext.OitWeightPower = RenderConfiguration.OitWeightPower;
-            RenderContext.OitWeightDepthSlope = RenderConfiguration.OitWeightDepthSlope;
-            RenderContext.OitWeightMode = RenderConfiguration.OitWeightMode;
-            RenderContext.SsaoEnabled = RenderConfiguration.EnableSsao;
-            RenderContext.SsaoBias = RenderConfiguration.SsaoBias;
-            RenderContext.SsaoIntensity = RenderConfiguration.SsaoIntensity;
-            RenderContext.OitDepthPeelingIteration = RenderConfiguration.OitDepthPeelingIteration;
+            viewport.Update(t0);
+            renderContext.TimeStamp = t0;
+            renderContext.Camera = camera;
+            renderContext.OitWeightPower = RenderConfiguration.OitWeightPower;
+            renderContext.OitWeightDepthSlope = RenderConfiguration.OitWeightDepthSlope;
+            renderContext.OitWeightMode = RenderConfiguration.OitWeightMode;
+            renderContext.SsaoEnabled = RenderConfiguration.EnableSsao;
+            renderContext.SsaoBias = RenderConfiguration.SsaoBias;
+            renderContext.SsaoIntensity = RenderConfiguration.SsaoIntensity;
+            renderContext.OitDepthPeelingIteration = RenderConfiguration.OitDepthPeelingIteration;
         }
 
-        RenderBuffer.VSyncInterval = RenderConfiguration.EnableVSync 
+        renderBuffer.VSyncInterval = RenderConfiguration.EnableVSync
                                          ? 1 
                                          : 0;
         
@@ -128,21 +138,21 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         
         PreRender(updateSceneGraph, updatePerFrameRenderable);
         try {
-            if (RenderBuffer.BeginDraw()) {
+            if (renderBuffer.BeginDraw()) {
                 OnRender(t0);
-                RenderBuffer.EndDraw();
-                renderStatistics.NumDrawCalls = Renderer.ImmediateContext.ResetDrawCalls() +
-                                                EffectsManager.DeviceContextPool.ResetDrawCalls();
+                renderBuffer.EndDraw();
+                renderStatistics.NumDrawCalls = renderer.ImmediateContext.ResetDrawCalls() +
+                                                effectsManager.DeviceContextPool.ResetDrawCalls();
             }
 
-            if (RenderConfiguration.RenderD2D && D2DTarget.D2DTarget != null) 
+            if (RenderConfiguration.RenderD2D && D2DTarget?.D2DTarget is not null)
                 OnRender2D(t0);
             
-            RenderBuffer.Present();
+            renderBuffer.Present();
         } catch (COMException ex) {
             if (IsDeviceLost(ex.HResult)) {
                 Logger.Warn("Device Lost, code = {Value0}", ex.HResult);
-                RenderBuffer_OnDeviceLost(RenderBuffer, EventArgs.Empty);
+                RenderBuffer_OnDeviceLost(renderBuffer, EventArgs.Empty);
             } else {
                 Logger.Error(ex, "DirectX Error during rendering");
                 EndD3D();
@@ -192,20 +202,20 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
             ActualWidth = width * DpiScale;
             ActualHeight = height * DpiScale;
             isLoaded = true;
-            if (EffectsManager?.NativeDeviceResources?.Device == null ||
-                EffectsManager.NativeDeviceResources.Device.IsDisposed) {
+            var effectsManager = EffectsManager;
+            if (effectsManager?.NativeDeviceResources.Device is not { } device || device.IsDisposed) {
                 Logger.Info("EffectsManager is not valid");
                 return;
             }
 
             ImmediateDeviceContext = new DeviceContextProxy(effectsManager.NativeDeviceResources.ImmediateContext,
-                                                            effectsManager.NativeDeviceResources.Device);
+                                                            device);
             
-            RenderTechnique = EffectsManager[DefaultRenderTechniqueNames.Mesh];
+            RenderTechnique = effectsManager[DefaultRenderTechniqueNames.Mesh];
             CreateAndBindBuffers();
             IsInitialized = true;
             Logger.Info("Initialized");
-            AttachRenderable(EffectsManager);
+            AttachRenderable(effectsManager);
             OnStartD3D();
             StartRendering();
         }
@@ -311,13 +321,13 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <param name="context"></param>
     /// <param name="clear"></param>
     /// <returns>Set successful?</returns>
-    public bool SetDefaultRenderTargets(DeviceContextProxy context, bool clear = true) {
-        if (!IsInitialized) 
+    public bool SetDefaultRenderTargets(DeviceContextProxy? context, bool clear = true) {
+        if (!IsInitialized || context is null || RenderBuffer is not { } renderBuffer)
             return false;
         
-        RenderBuffer.SetDefaultRenderTargets(context);
+        renderBuffer.SetDefaultRenderTargets(context);
         if (clear) 
-            RenderBuffer.ClearRenderTarget(context, ClearColor);
+            renderBuffer.ClearRenderTarget(context, ClearColor);
         
         return true;
     }
@@ -367,8 +377,11 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     ///     Creates the renderer.
     /// </summary>
     /// <returns></returns>
-    private IRenderer CreateRenderer() 
-        => createRendererFunction?.Invoke(EffectsManager) ?? new ImmediateContextRenderer(EffectsManager);
+    private IRenderer CreateRenderer() {
+        var effectsManager = EffectsManager
+                             ?? throw new InvalidOperationException("Effects manager is required to create a renderer.");
+        return createRendererFunction?.Invoke(effectsManager) ?? new ImmediateContextRenderer(effectsManager);
+    }
 
     private void RenderBuffer_OnNewBufferCreated(object? sender, Texture2DArgs e) 
         => OnNewRenderTargetTexture?.Invoke(this, e);
@@ -452,7 +465,10 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         lock (lockObj) {
             if (IsInitialized) {
                 StopRendering();
-                var texture = RenderBuffer.Resize((int)Math.Floor(ActualWidth),
+                if (RenderBuffer is not { } renderBuffer)
+                    return;
+
+                var texture = renderBuffer.Resize((int)Math.Floor(ActualWidth),
                                                   (int)Math.Floor(ActualHeight));
                 OnNewRenderTargetTexture?.Invoke(this, new Texture2DArgs(texture));
                 if (Viewport != null) {
@@ -641,8 +657,8 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
             DetachRenderable();
             field = value;
             
-            if (IsInitialized) 
-                AttachRenderable(EffectsManager);
+            if (IsInitialized && EffectsManager is { } effectsManager)
+                AttachRenderable(effectsManager);
         }
     }
 

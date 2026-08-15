@@ -12,12 +12,21 @@ using HelixToolkit.SharpDX.Core.Utilities;
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public sealed class OitDepthPeeling : RenderCore {
-    private readonly ShaderResourceView[] finalSrVs = new ShaderResourceView[3];
-    private readonly ShaderResourceViewProxy[] minMaxZTargets = new ShaderResourceViewProxy[2];
-    private readonly RenderTargetView[] targets = new RenderTargetView[3];
+    private readonly ShaderResourceView?[] finalSrVs = new ShaderResourceView?[3];
+    private readonly ShaderResourceViewProxy?[] minMaxZTargets = new ShaderResourceViewProxy?[2];
+    private readonly RenderTargetView?[] targets = new RenderTargetView?[3];
     private int currWidth, currHeight;
     private ShaderPass finalPass = ShaderPass.NullPass;
-    private ShaderResourceViewProxy frontBlendingTarget, backBlendingTarget;
+    private ShaderResourceViewProxy? frontBlendingTarget, backBlendingTarget;
+
+    private ShaderResourceViewProxy MinMaxTarget(int index) => minMaxZTargets[index]
+        ?? throw new InvalidOperationException("OIT depth peeling targets are not initialized.");
+
+    private ShaderResourceViewProxy FrontBlendingTarget => frontBlendingTarget
+        ?? throw new InvalidOperationException("OIT front blending target is not initialized.");
+
+    private ShaderResourceViewProxy BackBlendingTarget => backBlendingTarget
+        ?? throw new InvalidOperationException("OIT back blending target is not initialized.");
 
 
     public OitDepthPeeling() : base(RenderType.Transparent) { }
@@ -58,7 +67,8 @@ public sealed class OitDepthPeeling : RenderCore {
     }
 
     private ShaderResourceViewProxy CreateRtv(Texture2DDescription desc) {
-        var rtv = new ShaderResourceViewProxy(Device, desc);
+        if (Device is not { } device) throw new InvalidOperationException("The device is not initialized.");
+        var rtv = new ShaderResourceViewProxy(device, desc);
         rtv.CreateRenderTargetView();
         rtv.CreateTextureView();
         return rtv;
@@ -74,30 +84,37 @@ public sealed class OitDepthPeeling : RenderCore {
 
     private void InitializeMinMaxRenderTarget(DeviceContextProxy deviceContext) {
         var color = new Color4(0, 0, 0, 1);
-        deviceContext.ClearRenderTargetView(frontBlendingTarget, color);
-        if (ExternRenderParameter.RenderTargetView is {Length: > 0} && backBlendingTarget.Resource != null) {
+        var frontTarget = FrontBlendingTarget;
+        var backTarget = BackBlendingTarget;
+        var minMaxTarget = MinMaxTarget(0);
+        deviceContext.ClearRenderTargetView(frontTarget, color);
+        if (ExternRenderParameter.RenderTargetView is { Length: > 0 } renderTargets
+            && renderTargets[0] is { Resource: { } externalResource } externalTarget
+            && backTarget.Resource is { } backResource) {
             if (ExternRenderParameter.IsMsaaTexture)
-                deviceContext.ResolveSubresource(ExternRenderParameter.RenderTargetView[0].Resource,
+                deviceContext.ResolveSubresource(externalResource,
                                                  0,
-                                                 backBlendingTarget.Resource,
+                                                 backResource,
                                                  0,
                                                  Format.FormatB8G8R8A8Unorm);
             else
-                deviceContext.CopyResource(ExternRenderParameter.RenderTargetView[0].Resource,
-                                           backBlendingTarget.Resource);
+                deviceContext.CopyResource(externalResource, backResource);
         } else {
             color = new Color4(0, 0, 0, 0);
-            deviceContext.ClearRenderTargetView(backBlendingTarget, color);
+            deviceContext.ClearRenderTargetView(backTarget, color);
         }
         
         color = new Color4(-1, -1, 0, 0);
-        deviceContext.ClearRenderTargetView(minMaxZTargets[0], color);
+        deviceContext.ClearRenderTargetView(minMaxTarget, color);
     }
 
     private void DrawMesh(RenderContext context, DeviceContextProxy deviceContext) {
         var parameter = ExternRenderParameter;
         if (!parameter.ScissorRegion.IsEmpty) {
-            RenderCount = context.RenderHost.Renderer.RenderOpaque(context,
+            if (context.RenderHost.Renderer is not { } renderer)
+                return;
+
+            RenderCount = renderer.RenderOpaque(context,
                                                                    context.RenderHost.PerFrameTransparentNodes,
                                                                    ref parameter,
                                                                    context.EnableBoundingFrustum);
@@ -117,7 +134,8 @@ public sealed class OitDepthPeeling : RenderCore {
             return;
         }
 
-        var buffer = context.RenderHost.RenderBuffer;
+        if (context.RenderHost.RenderBuffer is not { } buffer)
+            return;
         var hasMsaa = buffer.ColorBufferSampleDesc.Count > 1;
         var nonMsaaDepthBuffer = hasMsaa 
                                      ? context.RenderHost.RenderBuffer.DepthStencilBufferNoMsaa 
@@ -139,23 +157,25 @@ public sealed class OitDepthPeeling : RenderCore {
             currId = layer % 2;
             var prevId = 1 - currId;
             var color = new Color4(-1, -1, 0, 0);
-            deviceContext.ClearRenderTargetView(minMaxZTargets[currId], color);
+            var currentTarget = MinMaxTarget(currId);
+            var previousTarget = MinMaxTarget(prevId);
+            deviceContext.ClearRenderTargetView(currentTarget, color);
             
-            targets[0] = minMaxZTargets[currId];
-            targets[1] = frontBlendingTarget;
-            targets[2] = backBlendingTarget;
+            targets[0] = currentTarget;
+            targets[1] = FrontBlendingTarget;
+            targets[2] = BackBlendingTarget;
             
             deviceContext.SetRenderTargets(depthStencilView, targets);
-            deviceContext.SetShaderResource(new PixelShaderType(), 100, minMaxZTargets[prevId]);
+            deviceContext.SetShaderResource(new PixelShaderType(), 100, previousTarget);
             DrawMesh(context, deviceContext);
             deviceContext.SetShaderResource(new PixelShaderType(), 100, null);
         }
 
         context.OitRenderStage = OitRenderStage.None;
         
-        finalSrVs[0] = minMaxZTargets[currId];
-        finalSrVs[1] = frontBlendingTarget;
-        finalSrVs[2] = backBlendingTarget;
+        finalSrVs[0] = MinMaxTarget(currId);
+        finalSrVs[1] = FrontBlendingTarget;
+        finalSrVs[2] = BackBlendingTarget;
         
         finalPass.BindShader(deviceContext);
         finalPass.BindStates(deviceContext, StateType.All);

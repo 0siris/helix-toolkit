@@ -15,9 +15,8 @@ public class VolumeTextureModel3D : Element3D {
                                     typeof(VolumeTextureModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as VolumeTextureModel3D)
-                                                              .SceneNode as VolumeTextureNode).Material =
-                                                                 (Material)e.NewValue;
+                                                             if (d is VolumeTextureModel3D { SceneNode: VolumeTextureNode node })
+                                                                 node.Material = (Material)e.NewValue;
                                                          }));
 
     /// <summary>

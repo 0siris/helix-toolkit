@@ -118,7 +118,7 @@ public abstract class Texture2DBase : Texture {
     }
 
     protected override void Dispose(bool disposeManagedResources) {
-        Resource?.Dispose();
+        Resource.Dispose();
         base.Dispose(disposeManagedResources);
     }
 }

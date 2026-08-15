@@ -25,9 +25,8 @@ public class ScreenDuplicationModel : Element3D {
                                     new PropertyMetadata(new Rect(),
                                                          (d, e) => {
                                                              var rect = (Rect)e.NewValue;
-                                                             ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
-                                                                 .CaptureRectangle =
-                                                                 new Rectangle(
+                                                             if (d is Element3DCore { SceneNode: ScreenDuplicationNode node })
+                                                                 node.CaptureRectangle = new Rectangle(
                                                                      (int)rect.Left,
                                                                      (int)rect.Top,
                                                                      (int)rect.Width,
@@ -43,8 +42,8 @@ public class ScreenDuplicationModel : Element3D {
                                     typeof(ScreenDuplicationModel),
                                     new PropertyMetadata(0,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
-                                                                 .DisplayIndex = (int)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: ScreenDuplicationNode node })
+                                                                 node.DisplayIndex = (int)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -56,8 +55,8 @@ public class ScreenDuplicationModel : Element3D {
                                     typeof(ScreenDuplicationModel),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
-                                                                 .StretchToFill = (bool)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: ScreenDuplicationNode node })
+                                                                 node.StretchToFill = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -69,8 +68,8 @@ public class ScreenDuplicationModel : Element3D {
                                     typeof(ScreenDuplicationModel),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as ScreenDuplicationNode)
-                                                                 .ShowMouseCursor = (bool)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: ScreenDuplicationNode node })
+                                                                 node.ShowMouseCursor = (bool)e.NewValue;
                                                          }));
 
     /// <summary>

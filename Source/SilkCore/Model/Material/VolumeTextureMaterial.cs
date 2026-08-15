@@ -89,7 +89,7 @@ public interface IVolumeTextureMaterial {
     /// <value>
     ///     The transfer map.
     /// </value>
-    Color4[] TransferMap { get; set; }
+    Color4[]? TransferMap { get; set; }
 
     bool EnablePlaneAlignment { get; set; }
 }
@@ -99,7 +99,7 @@ public interface IVolumeTextureMaterial {
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTextureMaterial {
-    public T VolumeTexture {
+    public T? VolumeTexture {
         get;
         set => Set(ref field, value);
     }
@@ -167,7 +167,7 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
         set => Set(ref field, value);
     } = new(1, 1, 1, 1);
 
-    public Color4[] TransferMap {
+    public Color4[]? TransferMap {
         get;
         set => Set(ref field, value);
     }

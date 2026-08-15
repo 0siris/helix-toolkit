@@ -41,6 +41,7 @@ public static class SweepLinePolygonTriangulator {
         // Point-List from Input
         // (we don't want the first and last Point to be present two times)
         var points = polygon.ToList();
+        if (points.Count == 0) return null;
         if (points[0] == points[points.Count - 1]) points.RemoveAt(points.Count - 1);
         var count = points.Count;
 
@@ -85,7 +86,7 @@ public static class SweepLinePolygonTriangulator {
 
         // y-Monotone Polygons
         // Triangulate
-        foreach (var monoton in monotonePolygons.Where(m => m != null)) {
+        foreach (var monoton in monotonePolygons) {
             var indices = TriangulateMonotone(monoton);
             foreach (var index in indices) result.Add(index);
         }
@@ -253,18 +254,20 @@ public static class SweepLinePolygonTriangulator {
             switch (evClass) {
                 case PolygonPointClass.Start:
                     // Just add the left Edge (depending on the sweeping direction)
-                    statusAndHelper.Add(new StatusHelperElement(sweepDown ? ev.EdgeTwo : ev.EdgeOne, ev));
+                    statusAndHelper.Add(new StatusHelperElement(
+                        RequireEdge(sweepDown ? ev.EdgeTwo : ev.EdgeOne), ev));
                     break;
                 case PolygonPointClass.Stop:
                     // Just remove the left Edge (depending on the sweeping direction)
-                    statusAndHelper.Remove(sweepDown ? ev.EdgeOne : ev.EdgeTwo);
+                    statusAndHelper.Remove(RequireEdge(sweepDown ? ev.EdgeOne : ev.EdgeTwo));
                     break;
                 case PolygonPointClass.Regular:
                     // If the Polygon is positioned on the right Side of this Event
                     if (ev.Last > ev.Next) {
                         // Replace the corresponding (old) StatusHelperElement with the new one
-                        statusAndHelper.Remove(sweepDown ? ev.EdgeOne : ev.EdgeTwo);
-                        statusAndHelper.Add(new StatusHelperElement(sweepDown ? ev.EdgeTwo : ev.EdgeOne, ev));
+                        statusAndHelper.Remove(RequireEdge(sweepDown ? ev.EdgeOne : ev.EdgeTwo));
+                        statusAndHelper.Add(new StatusHelperElement(
+                            RequireEdge(sweepDown ? ev.EdgeTwo : ev.EdgeOne), ev));
                     } else {
                         // Search Edge left of the Event and set Event as it's Helper
                         she = statusAndHelper.SearchLeft(ev);
@@ -274,7 +277,7 @@ public static class SweepLinePolygonTriangulator {
                     break;
                 case PolygonPointClass.Merge:
                     // Just remove the left Edge (depending on the sweeping direction)
-                    statusAndHelper.Remove(sweepDown ? ev.EdgeOne : ev.EdgeTwo);
+                    statusAndHelper.Remove(RequireEdge(sweepDown ? ev.EdgeOne : ev.EdgeTwo));
                     // Search Edge left of the Event and set Event as it's Helper
                     she = statusAndHelper.SearchLeft(ev);
                     she?.Helper = ev;
@@ -292,7 +295,8 @@ public static class SweepLinePolygonTriangulator {
                         // Replace the Helper of the StatusHelperElement by Event
                         she.Helper = ev;
                         // Insert the right Edge from Event
-                        statusAndHelper.Add(new StatusHelperElement(sweepDown ? ev.EdgeTwo : ev.EdgeOne, ev));
+                        statusAndHelper.Add(new StatusHelperElement(
+                            RequireEdge(sweepDown ? ev.EdgeTwo : ev.EdgeOne), ev));
                     }
 
                     break;
@@ -301,6 +305,9 @@ public static class SweepLinePolygonTriangulator {
 
         return diagonals;
     }
+
+    private static PolygonEdge RequireEdge(PolygonEdge? edge) => edge
+        ?? throw new InvalidOperationException("Polygon point has no edge.");
 
     /// <summary>
     ///     Split Polygon into subpolagons using the calculated Diagonals
@@ -316,13 +323,15 @@ public static class SweepLinePolygonTriangulator {
         var edges = new SortedDictionary<int, List<PolygonEdge>>();
         foreach (var edge in poly.Points.Select(p => p.EdgeTwo)
                                  .Union(diagonals.Select(d => new PolygonEdge(poly.Points[d.Item1],
-                                                                              poly.Points[d.Item2])))
+                                                                               poly.Points[d.Item2])))
                                  .Union(diagonals.Select(d => new PolygonEdge(poly.Points[d.Item2],
-                                                                              poly.Points[d.Item1]))))
-            if (!edges.ContainsKey(edge.PointOne.Index))
-                edges.Add(edge.PointOne.Index, [edge]);
-            else
-                edges[edge.PointOne.Index].Add(edge);
+                                                                               poly.Points[d.Item1]))))
+            if (edge is { PointOne: { } pointOne }) {
+                if (!edges.TryGetValue(pointOne.Index, out var pointEdges))
+                    edges.Add(pointOne.Index, [edge]);
+                else
+                    pointEdges.Add(edge);
+            }
 
         var subPolygons = new List<PolygonData>();
 
@@ -332,8 +341,9 @@ public static class SweepLinePolygonTriangulator {
         // For each Diagonal
         while (edges.Count > 0) {
             // Start at first Diagonal Point
-            var currentPoint = edges.First().Value.First().PointOne;
-            var nextEdge = new PolygonEdge(null, null);
+            var currentPoint = edges.First().Value.First().PointOne
+                ?? throw new InvalidOperationException("Polygon edge has no start point.");
+            PolygonEdge? nextEdge = null;
             var subPolygonPoints = new List<PolygonPoint>();
             // March along the edges to form a monotone Polygon
             // Until the current Point equals the StartPoint
@@ -341,14 +351,17 @@ public static class SweepLinePolygonTriangulator {
                 // Add the current Point
                 subPolygonPoints.Add(currentPoint);
                 // Select the next Edge
-                var possibleEdges = edges[currentPoint.Index].ToList();
+                if (!edges.TryGetValue(currentPoint.Index, out var currentEdges))
+                    throw new InvalidOperationException("Polygon edge chain is incomplete.");
+                var possibleEdges = currentEdges.ToList();
                 nextEdge = BestEdge(currentPoint, nextEdge, possibleEdges);
                 // Remove Edge from possible Edges
-                edges[currentPoint.Index].Remove(nextEdge);
-                if (edges[currentPoint.Index].Count == 0) edges.Remove(currentPoint.Index);
+                currentEdges.Remove(nextEdge);
+                if (currentEdges.Count == 0) edges.Remove(currentPoint.Index);
 
                 // Move to the next Point
-                currentPoint = nextEdge.PointTwo;
+                currentPoint = nextEdge.PointTwo
+                    ?? throw new InvalidOperationException("Polygon edge has no endpoint.");
             } while (subPolygonPoints[0].Index != currentPoint.Index);
 
             // Add the new SubPolygon
@@ -365,24 +378,29 @@ public static class SweepLinePolygonTriangulator {
     /// <param name="lastEdge">The last used Edge</param>
     /// <param name="possibleEdges">The possible next Edges</param>
     /// <returns>Best next Edge</returns>
-    internal static PolygonEdge BestEdge(PolygonPoint point, PolygonEdge lastEdge, List<PolygonEdge> possibleEdges) {
+    internal static PolygonEdge BestEdge(PolygonPoint point, PolygonEdge? lastEdge, List<PolygonEdge> possibleEdges) {
         // If just Starting, return the first possible Edge of the Point
         // If only one possibility, return that
-        if ((lastEdge.PointOne == null && lastEdge.PointTwo == null) || possibleEdges.Count == 1)
+        if (lastEdge is null || possibleEdges.Count == 1)
             return possibleEdges[0];
 
         // Variables needed to determine the next Edge
         var bestEdge = possibleEdges[0];
         var bestAngle = (float)Math.PI * 2;
         // Vector from last Point to current Point
-        var lastVector = lastEdge.PointTwo.Point - lastEdge.PointOne.Point;
+        if (lastEdge.PointOne is not { } lastPoint || lastEdge.PointTwo is not { } currentPoint)
+            return possibleEdges[0];
+        var lastVector = currentPoint.Point - lastPoint.Point;
         lastVector.Normalize();
         // Using CCW Point Order, so the left Vector always points towards the Polygon Center
         var insideVector = new Point(-lastVector.Y, lastVector.X);
         // Check all possible Edges
         foreach (var possibleEdge in possibleEdges) {
             // Next Edge Vector
-            var edgeVector = possibleEdge.PointTwo.Point - possibleEdge.PointOne.Point;
+            if (possibleEdge.PointOne is not { } possiblePointOne
+                || possibleEdge.PointTwo is not { } possiblePointTwo)
+                continue;
+            var edgeVector = possiblePointTwo.Point - possiblePointOne.Point;
             edgeVector.Normalize();
             // Dot determines if the Vector also points towards the Polygon Center or not (> 0, yes, < 0, no)
             var dot = insideVector.X * edgeVector.X + insideVector.Y * edgeVector.Y;
@@ -480,7 +498,8 @@ internal class StatusHelper {
 
             // Calculate the x-Coordinate of the Intersection between
             // a horizontal Line from the Point to the Left and the Edge of the StatusHelperElement
-            var xValue = she.Edge.PointOne.X + (py - she.Edge.PointOne.Y) * she.Factor;
+            if (she.Edge.PointOne is not { } pointOne) continue;
+            var xValue = pointOne.X + (py - pointOne.Y) * she.Factor;
 
             // If the xValue is smaller than or equal to the Point's x-Coordinate
             // (i.e. it lies on the left Side of it - allows a small Error)
@@ -513,9 +532,11 @@ internal class StatusHelperElement {
     internal StatusHelperElement(PolygonEdge edge, PolygonPoint point) {
         Edge = edge;
         Helper = point;
-        var vector = edge.PointTwo.Point - edge.PointOne.Point;
+        var pointOne = edge.PointOne ?? throw new InvalidOperationException("Polygon edge has no start point.");
+        var pointTwo = edge.PointTwo ?? throw new InvalidOperationException("Polygon edge has no endpoint.");
+        var vector = pointTwo.Point - pointOne.Point;
         Factor = vector.X / vector.Y;
-        MinX = Math.Min(edge.PointOne.X, edge.PointTwo.X);
+        MinX = Math.Min(pointOne.X, pointTwo.X);
     }
 
     /// <summary>
@@ -546,12 +567,12 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <summary>
     ///     The "incoming" Edge of this PolygonPoint
     /// </summary>
-    private PolygonEdge mEdgeOne;
+    private PolygonEdge? mEdgeOne;
 
     /// <summary>
     ///     The "outgoing" Edge of this PolygonPoint
     /// </summary>
-    private PolygonEdge mEdgeTwo;
+    private PolygonEdge? mEdgeTwo;
 
     /// <summary>
     ///     The actual Point of this PolygonPoint
@@ -595,7 +616,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <summary>
     ///     Accessor for the incoming Edge
     /// </summary>
-    public PolygonEdge EdgeOne {
+    public PolygonEdge? EdgeOne {
         get => mEdgeOne;
         set => mEdgeOne = value;
     }
@@ -603,7 +624,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <summary>
     ///     Accessor for the outgoing Edge
     /// </summary>
-    public PolygonEdge EdgeTwo {
+    public PolygonEdge? EdgeTwo {
         get => mEdgeTwo;
         set => mEdgeTwo = value;
     }
@@ -621,9 +642,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// </summary>
     public PolygonPoint? Last {
         get {
-            if (mEdgeOne != null && mEdgeOne.PointOne != null)
-                return mEdgeOne.PointOne;
-            return null;
+            return mEdgeOne?.PointOne;
         }
     }
 
@@ -632,9 +651,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// </summary>
     public PolygonPoint? Next {
         get {
-            if (mEdgeTwo != null && mEdgeTwo.PointTwo != null)
-                return mEdgeTwo.PointTwo;
-            return null;
+            return mEdgeTwo?.PointTwo;
         }
     }
 
@@ -644,8 +661,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <param name="second">Other Point to compare to</param>
     /// <returns>-1 if this Point is bigger, 0 if the same, 1 if smaller</returns>
     public int CompareTo(PolygonPoint? second) {
-        if (this == null || second == null)
-            return 0;
+        if (second is null) return 0;
         if (Y > second.Y || (Y == second.Y && X < second.X))
             return -1;
         if (Y == second.Y && X == second.X)
@@ -659,7 +675,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <param name="first">The first PolygonPoint</param>
     /// <param name="second">The second PolygonPoint</param>
     /// <returns>Returns true if the first PolygonPoint is smaller, compared to the second PolygonPoint, false otherwise</returns>
-    public static bool operator <(PolygonPoint first, PolygonPoint second) => first.CompareTo(second) == 1;
+    public static bool operator <(PolygonPoint? first, PolygonPoint? second) => first?.CompareTo(second) == 1;
 
     /// <summary>
     ///     Comparison Operator, that is used to determine the Class of the PolygonPoints
@@ -667,7 +683,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <param name="first">The first PolygonPoint</param>
     /// <param name="second">The second PolygonPoint</param>
     /// <returns>Returns true if the first PolygonPoint is bigger, compared to the second PolygonPoint, false otherwise</returns>
-    public static bool operator >(PolygonPoint first, PolygonPoint second) => first.CompareTo(second) == -1;
+    public static bool operator >(PolygonPoint? first, PolygonPoint? second) => first?.CompareTo(second) == -1;
 
     /// <summary>
     ///     Detrmines the Class of the PolygonPoint, depending on the sweeping Direction
@@ -676,38 +692,38 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <returns>The Class of the PolygonPoint</returns>
     internal PolygonPointClass PointClass(bool reverse = false) {
         // If the Point has no Next- and Last-PolygonPoint, there's an Error
-        if (Next == null || Last == null)
+        if (Last is not { } last || Next is not { } next)
             throw new Exception("No closed Polygon");
 
         // If we use the normal Order (top-to-bottom)
         if (!reverse) {
             // Both neighboring PolygonPoints are below this Point and the Point is concave
-            if (Last < this && Next < this && IsConvexPoint())
+            if (last < this && next < this && IsConvexPoint())
                 return PolygonPointClass.Start;
             // Both neighboring PolygonPoints are above this Point and the Point is concave
-            if (Last > this && Next > this && IsConvexPoint())
+            if (last > this && next > this && IsConvexPoint())
                 return PolygonPointClass.Stop;
             // Both neighboring PolygonPoints are below this Point and the Point is convex
-            if (Last < this && Next < this)
+            if (last < this && next < this)
                 return PolygonPointClass.Split;
             // Both neighboring PolygonPoints are above this Point and the Point is convex
-            if (Last > this && Next > this)
+            if (last > this && next > this)
                 return PolygonPointClass.Merge;
             // Regular Point in all other Cases
             return PolygonPointClass.Regular;
         }
 
         // Both neighboring PolygonPoints are below this Point and the Point is concave
-        if (Last < this && Next < this && IsConvexPoint())
+        if (last < this && next < this && IsConvexPoint())
             return PolygonPointClass.Stop;
         // Both neighboring PolygonPoints are above this Point and the Point is concave
-        if (Last > this && Next > this && IsConvexPoint())
+        if (last > this && next > this && IsConvexPoint())
             return PolygonPointClass.Start;
         // Both neighboring PolygonPoints are below this Point and the Point is convex
-        if (Last < this && Next < this)
+        if (last < this && next < this)
             return PolygonPointClass.Merge;
         // Both neighboring PolygonPoints are above this Point and the Point is convex
-        if (Last > this && Next > this)
+        if (last > this && next > this)
             return PolygonPointClass.Split;
         // Regular Point in all other Cases
         return PolygonPointClass.Regular;
@@ -720,16 +736,16 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     /// <returns>Returns true, if convex, false if concave (or "reflex" Vertex)</returns>
     private bool IsConvexPoint() {
         // If the Point has no Next- and Last-PolygonPoint, there's an Error
-        if (Next == null || Last == null)
+        if (Last is not { } last || Next is not { } next)
             throw new Exception("No closed Polygon");
         // Calculate the necessary Vectors
         // From-last-to-this Vector
-        var vecFromLast = Point - Last.Point;
+        var vecFromLast = Point - last.Point;
         vecFromLast.Normalize();
         // "Left" Vector (pointing "inward")
         var vecLeft = new Point(-vecFromLast.Y, vecFromLast.X);
         // From-this-to-next Vector
-        var vecToNext = Next.Point - Point;
+        var vecToNext = next.Point - Point;
         vecToNext.Normalize();
         // If the next Vector is pointing to the left Vector's direction,
         // the current Point is a convex Point (Dot-Product bigger than 0)
@@ -752,19 +768,19 @@ internal class PolygonEdge {
     /// <summary>
     ///     The "starting" Point of this Edge
     /// </summary>
-    private PolygonPoint mPointOne;
+    private PolygonPoint? mPointOne;
 
     /// <summary>
     ///     The "ending" Point of this Edge
     /// </summary>
-    private PolygonPoint mPointTwo;
+    private PolygonPoint? mPointTwo;
 
     /// <summary>
     ///     Constructor that takes both Points of the Edge
     /// </summary>
     /// <param name="one">The Startpoint</param>
     /// <param name="two">The Endpoint</param>
-    internal PolygonEdge(PolygonPoint one, PolygonPoint two) {
+    internal PolygonEdge(PolygonPoint? one, PolygonPoint? two) {
         mPointOne = one;
         mPointTwo = two;
     }
@@ -772,7 +788,7 @@ internal class PolygonEdge {
     /// <summary>
     ///     Accessor to the Startpoint of this Edge
     /// </summary>
-    public PolygonPoint PointOne {
+    public PolygonPoint? PointOne {
         get => mPointOne;
         set => mPointOne = value;
     }
@@ -780,7 +796,7 @@ internal class PolygonEdge {
     /// <summary>
     ///     Accessor to the Endpoint of this Edge
     /// </summary>
-    public PolygonPoint PointTwo {
+    public PolygonPoint? PointTwo {
         get => mPointTwo;
         set => mPointTwo = value;
     }

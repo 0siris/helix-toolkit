@@ -19,7 +19,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 public class ManipulationGestureConverter : TypeConverter {
     public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) => sourceType == typeof(string);
 
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
+    public override object ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
         if (value is string) {
             var tc = TypeDescriptor.GetConverter(typeof(ManipulationAction));
             if (tc.ConvertFrom(context, culture, value) is ManipulationAction manipulationAction)
@@ -37,7 +37,7 @@ public class ManipulationGestureConverter : TypeConverter {
         return false;
     }
 
-    public override object? ConvertTo(
+    public override object ConvertTo(
         ITypeDescriptorContext? context,
         CultureInfo? culture,
         object? value,

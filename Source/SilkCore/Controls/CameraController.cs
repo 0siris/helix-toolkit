@@ -306,7 +306,8 @@ public sealed class CameraController {
     /// <summary>
     ///     Gets ActualCamera.
     /// </summary>
-    public CameraCore ActualCamera => Viewport.CameraCore;
+    public CameraCore ActualCamera => Viewport.CameraCore
+        ?? throw new System.InvalidOperationException("Camera must be initialized.");
 
     /// <summary>
     ///     Gets or sets CameraLookDirection.

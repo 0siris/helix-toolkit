@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public sealed class HullShader : ShaderBase {
     public static readonly HullShader NullHullShader = new("NULL");
     public static readonly HullShaderType Type;
-    private HullShaderHandle shader;
+    private HullShaderHandle? shader;
 
     /// <summary>
     ///     Vertex Shader
@@ -29,8 +29,8 @@ public sealed class HullShader : ShaderBase {
     private HullShader(string name)
         : base(name, ShaderStage.Hull, true) { }
 
-    internal HullShaderHandle Shader => shader;
-    internal override IShaderHandle NativeShader => shader;
+    internal HullShaderHandle? Shader => shader;
+    internal override IShaderHandle? NativeShader => shader;
 
     /// <summary>
     ///     Binds shader to pipeline

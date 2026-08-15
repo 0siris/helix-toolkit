@@ -89,13 +89,13 @@ public struct BufferDescription {
 }
 
 public struct VertexBufferBinding {
-    public VertexBufferBinding(Buffer buffer, int stride, int offset) {
+    public VertexBufferBinding(Buffer? buffer, int stride, int offset) {
         Buffer = buffer;
         Stride = stride;
         Offset = offset;
     }
 
-    public Buffer Buffer;
+    public Buffer? Buffer;
     public int Stride;
     public int Offset;
 }
@@ -389,10 +389,17 @@ public sealed unsafe class Texture2D : Resource {
         IDXGIResource* resource = null;
         var resourceGuid = DxgiResourceGuid;
         SilkMarshal.ThrowHResult(Handle->QueryInterface(&resourceGuid, (void**)&resource));
+        if (resource is null)
+            throw new System.InvalidOperationException("The DXGI resource could not be queried.");
+
         try {
             void* sharedHandle = null;
             SilkMarshal.ThrowHResult(resource->GetSharedHandle(&sharedHandle));
-            return (nint)sharedHandle;
+            if (sharedHandle is null)
+                return nint.Zero;
+
+            var handle = (nint)sharedHandle;
+            return handle;
         } finally {
             resource->Release();
         }

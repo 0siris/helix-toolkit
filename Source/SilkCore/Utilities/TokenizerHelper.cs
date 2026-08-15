@@ -13,7 +13,7 @@ public class TokenizerHelper {
     private int currentTokenIndex;
     private int currentTokenLength;
     private char quoteChar;
-    private string? str;
+    private string str = string.Empty;
     private int strLen;
 
     /// <summary>
@@ -51,7 +51,7 @@ public class TokenizerHelper {
     /// <param name="separator"> The list separator. </param>
     private void Initialize(string str, char quoteChar, char separator) {
         this.str = str;
-        strLen = str?.Length ?? 0;
+        strLen = str.Length;
         currentTokenIndex = -1;
         this.quoteChar = quoteChar;
         argSeparator = separator;
@@ -72,7 +72,7 @@ public class TokenizerHelper {
         if (currentTokenIndex < 0) 
             return null;
 
-        return str?.Substring(currentTokenIndex, currentTokenLength);
+        return str.Substring(currentTokenIndex, currentTokenLength);
     }
 
     /// <summary>

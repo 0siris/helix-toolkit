@@ -214,7 +214,7 @@ public partial class Importer {
                 var hxAni = new Animations.Animation(SharpDX.Core.Animations.AnimationType.MorphTarget) {
                     StartTime = 0,
                     EndTime = (float)(ani.DurationInTicks / ani.TicksPerSecond),
-                    Name = ani.Name,
+                    Name = ani.Name ?? string.Empty,
                     MorphTargetKeyframes = []
                 };
 
@@ -222,7 +222,9 @@ public partial class Importer {
                 var nodeName = aniChannel.Name.Replace("*0", "");
                 if (dict.TryGetValue(nodeName, out var node))
                     hxAni.RootNode = node.Items
-                                         .Where(i => (i as Model.Scene.BoneSkinMeshNode).MorphTargetWeights?.Length > 0)
+                                         .Where(i => i is Model.Scene.BoneSkinMeshNode {
+                                             MorphTargetWeights: { Length: > 0 }
+                                         })
                                          .FirstOrDefault();
                 else
                     continue;
@@ -247,7 +249,7 @@ public partial class Importer {
     }
 
     private void FindBoneSkinMeshes(Animations.Animation animation) {
-        if (animation.NodeAnimationCollection != null && animation.NodeAnimationCollection.Count > 0) {
+        if (animation.NodeAnimationCollection is { Count: > 0 }) {
             // Search all the bone skinned meshes from the common animation node root
             var node = animation.NodeAnimationCollection[0].Node;
             while (node != null && !node.IsAnimationNodeRoot) node = node.Parent;
@@ -261,7 +263,7 @@ public partial class Importer {
             foreach (var n in SceneNodes[0].Items.PreorderDft(m => true))
                 if (n is Animations.IBoneMatricesNode boneNode)
                     animation.BoneSkinMeshes.Add(boneNode);
-        } else if (animation.MorphTargetKeyframes != null && animation.MorphTargetKeyframes.Count > 0) {
+        } else if (animation.MorphTargetKeyframes is { Count: > 0 }) {
             animation.BoneSkinMeshes = [];
             if (animation.RootNode is Animations.IBoneMatricesNode bnode) animation.BoneSkinMeshes.Add(bnode);
         }

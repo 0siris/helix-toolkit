@@ -16,8 +16,8 @@ public class EnvironmentMap3D : Element3D {
         typeof(EnvironmentMap3D),
         new PropertyMetadata(null,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as EnvironmentMapNode).Texture =
-                                     (TextureModel)e.NewValue;
+                                 if (d is Element3DCore { SceneNode: EnvironmentMapNode node })
+                                     node.Texture = e.NewValue as TextureModel;
                              }));
 
     public static readonly DependencyProperty SkipRenderingProperty = DependencyProperty.Register("SkipRendering",
@@ -25,8 +25,8 @@ public class EnvironmentMap3D : Element3D {
         typeof(EnvironmentMap3D),
         new PropertyMetadata(false,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as EnvironmentMapNode).SkipRendering =
-                                     (bool)e.NewValue;
+                                 if (d is Element3DCore { SceneNode: EnvironmentMapNode node })
+                                     node.SkipRendering = (bool)e.NewValue;
                              }));
 
     /// <summary>
@@ -35,7 +35,7 @@ public class EnvironmentMap3D : Element3D {
     /// <value>
     ///     The texture.
     /// </value>
-    public TextureModel Texture {
+    public TextureModel? Texture {
         get => (TextureModel)GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
     }
@@ -60,6 +60,6 @@ public class EnvironmentMap3D : Element3D {
     /// <param name="core">The core.</param>
     protected override void AssignDefaultValuesToSceneNode(SceneNode core) {
         base.AssignDefaultValuesToSceneNode(core);
-        (SceneNode as EnvironmentMapNode).Texture = Texture;
+        if (SceneNode is EnvironmentMapNode node) node.Texture = Texture;
     }
 }

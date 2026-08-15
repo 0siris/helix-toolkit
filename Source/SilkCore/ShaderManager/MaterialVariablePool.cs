@@ -14,7 +14,7 @@ public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
     public int Count { get; private set; }
 
     public MaterialVariable Register(IMaterial material, IRenderTechnique technique) {
-        if (material == null || technique.IsNull) return EmptyMaterialVariable.EmptyVariable;
+        if (technique.IsNull) return EmptyMaterialVariable.EmptyVariable;
         var guid = material.Guid;
         var techGuid = technique.Guid;
         lock (dictionary) {

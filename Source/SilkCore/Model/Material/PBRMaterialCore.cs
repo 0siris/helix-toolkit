@@ -178,7 +178,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The albedo map.
     /// </value>
-    public TextureModel AlbedoMap {
+    public TextureModel? AlbedoMap {
         get;
         set => Set(ref field, value);
     }
@@ -197,7 +197,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The emissive map.
     /// </value>
-    public TextureModel EmissiveMap {
+    public TextureModel? EmissiveMap {
         get;
         set => Set(ref field, value);
     }
@@ -216,7 +216,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     NormalMap
     /// </value>
-    public TextureModel NormalMap {
+    public TextureModel? NormalMap {
         get;
         set => Set(ref field, value);
     }
@@ -235,7 +235,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     DisplacementMap
     /// </value>
-    public TextureModel DisplacementMap {
+    public TextureModel? DisplacementMap {
         get;
         set => Set(ref field, value);
     }
@@ -254,7 +254,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The irradiance map.
     /// </value>
-    public TextureModel IrradianceMap {
+    public TextureModel? IrradianceMap {
         get;
         set => Set(ref field, value);
     }
@@ -276,7 +276,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The rma map.
     /// </value>
-    public TextureModel RoughnessMetallicMap {
+    public TextureModel? RoughnessMetallicMap {
         get;
         set => Set(ref field, value);
     }
@@ -298,7 +298,7 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The ao map.
     /// </value>
-    public TextureModel AmbientOcculsionMap {
+    public TextureModel? AmbientOcculsionMap {
         get;
         set => Set(ref field, value);
     }

@@ -72,25 +72,31 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
         => IsAttached && !string.IsNullOrEmpty(EffectName);
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        var buffer = context.RenderHost.RenderBuffer;
+        if (blurCore is not { } currentBlurCore || sampler is not { } currentSampler)
+            return;
+
+        if (context.RenderHost.RenderBuffer is not { } buffer) return;
+        var nextBuffer = buffer.FullResPpBuffer.NextRtv;
+        if (nextBuffer is not { } nextBufferProxy || nextBufferProxy.RenderTargetView is not { } nextRtv)
+            return;
 
     #region Do Bloom Pass
 
         modelCb.Upload(deviceContext, ref modelStruct);
         //Extract bloom samples
-        deviceContext.SetRenderTarget(buffer.FullResPpBuffer.NextRtv);
+        deviceContext.SetRenderTarget(nextRtv);
 
         screenQuadPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPpBuffer.CurrentSrv);
-        screenQuadPass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
+        screenQuadPass.PixelShader.BindSampler(deviceContext, samplerSlot, currentSampler);
         screenQuadPass.BindShader(deviceContext);
         screenQuadPass.BindStates(deviceContext, StateType.All);
         deviceContext.Draw(4, 0);
         var viewport = context.Viewport;
         // Down sampling
         for (var i = 0; i < numberOfBlurPass; ++i)
-            blurCore.Run(context,
+            currentBlurCore.Run(context,
                          deviceContext,
-                         buffer.FullResPpBuffer.NextRtv,
+                         nextBufferProxy,
                          ref viewport,
                          PostEffectBlurCore.BlurDepth.Two,
                          ref modelStruct);
@@ -99,13 +105,18 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
 
     #region Draw outline onto original target
 
+        var currentBuffer = buffer.FullResPpBuffer.CurrentRtv;
+        if (currentBuffer is not { RenderTargetView: { } currentRtv }
+            || buffer.FullResPpBuffer.NextSrv is not { } nextSrv)
+            return;
+
         BindTarget(null,
-                   buffer.FullResPpBuffer.CurrentRtv,
+                   currentRtv,
                    deviceContext,
                    buffer.TargetWidth,
                    buffer.TargetHeight,
                    false);
-        screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPpBuffer.NextSrv);
+        screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, nextSrv);
         screenOutlinePass.BindShader(deviceContext);
         screenOutlinePass.BindStates(deviceContext, StateType.All);
         deviceContext.Draw(4, 0);
@@ -137,16 +148,16 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
 
 #region Variables
 
-    private SamplerStateProxy sampler;
-    private ShaderPass screenQuadPass;
+    private SamplerStateProxy? sampler;
+    private ShaderPass screenQuadPass = ShaderPass.NullPass;
 
-    private ShaderPass screenQuadCopy;
+    private ShaderPass screenQuadCopy = ShaderPass.NullPass;
 
-    private ShaderPass blurPassVertical;
+    private ShaderPass blurPassVertical = ShaderPass.NullPass;
 
-    private ShaderPass blurPassHorizontal;
+    private ShaderPass blurPassHorizontal = ShaderPass.NullPass;
 
-    private ShaderPass screenOutlinePass;
+    private ShaderPass screenOutlinePass = ShaderPass.NullPass;
 
     private int textureSlot;
 
@@ -156,7 +167,7 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
 
     private BorderEffectStruct modelStruct;
 
-    private PostEffectBlurCore blurCore;
+    private PostEffectBlurCore? blurCore;
 
 #endregion
 

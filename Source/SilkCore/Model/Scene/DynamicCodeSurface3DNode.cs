@@ -41,12 +41,12 @@ public static class DynamicCodeSurfaceTemplate {
 /// <summary>
 /// </summary>
 public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
-    private object codeInstance;
+    private object? codeInstance;
 
     // Type and instance of the dynamic code
-    private Type codeType;
+    private Type? codeType;
 
-    private string sourceCode;
+    private string? sourceCode;
 
     public float ParameterW {
         get;
@@ -61,14 +61,14 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
     /// <value>
     ///     The source.
     /// </value>
-    public string Source {
+    public string? Source {
         get;
         set {
             if (Set(ref field, value)) UpdateSource();
         }
     }
 
-    public CompilerErrorCollection Errors {
+    public CompilerErrorCollection? Errors {
         get;
         private set {
             if (Set(ref field, value)) OnCompileError?.Invoke(this, EventArgs.Empty);
@@ -93,22 +93,25 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
         var compilerResults = provider.CompileAssemblyFromSource(options, src);
         if (!compilerResults.Errors.HasErrors) {
             Errors = null;
-            var assembly = compilerResults.CompiledAssembly;
-            codeInstance = assembly.CreateInstance("MyNamespace.MyEvaluator");
-            codeType = codeInstance.GetType();
+            if (compilerResults.CompiledAssembly?.CreateInstance("MyNamespace.MyEvaluator") is not { } instance)
+                return;
+
+            codeInstance = instance;
+            codeType = instance.GetType();
             TessellateAsync();
         } else {
             // correct line numbers
             Errors = compilerResults.Errors;
-            for (var i = 0; i < Errors.Count; i++)
-                Errors[i].Line -= 17;
+            if (Errors is { } errors)
+                for (var i = 0; i < errors.Count; i++)
+                    errors[i].Line -= 17;
         }
     }
 
     protected virtual string GetTemplate() => DynamicCodeSurfaceTemplate.Template;
 
     protected override Vector3 Evaluate(double u, double v, out Vector2 texCoord) {
-        if (codeType == null) {
+        if (codeType is not { } type || codeInstance is not { } instance) {
             texCoord = new Vector2();
             return Vector3.Zero;
         }
@@ -117,12 +120,15 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
         parameters[0] = u;
         parameters[1] = v;
         parameters[2] = ParameterW;
-        var result = codeType.InvokeMember("Evaluate",
+        var result = type.InvokeMember("Evaluate",
                                             BindingFlags.InvokeMethod,
                                             null,
-                                            codeInstance,
+                                            instance,
                                             parameters);
-        var p = (Tuple<double, double, double, double>)result;
+        if (result is not Tuple<double, double, double, double> p) {
+            texCoord = new Vector2((float)u, (float)v);
+            return Vector3.Zero;
+        }
 
         // todo: why doesn't this work??
         //            texCoord = new Point(p.W, 0); // (double)parameters[2], 0);

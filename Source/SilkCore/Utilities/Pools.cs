@@ -5,6 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define DEBUGRESOURCE
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <summary>
@@ -45,32 +46,38 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
     /// <param name="argument"></param>
     /// <param name="objOut"></param>
     /// <returns>success or failed</returns>
-    public bool TryCreateOrGet(TKey key, TArgument argument, out TValue objOut) {
+    public bool TryCreateOrGet(TKey key, TArgument argument, [NotNullWhen(true)] out TValue? objOut) {
         if (IsDisposed) {
-            objOut = default;
+            objOut = null;
             return false;
         }
 
         if (!CanCreate(ref key, ref argument)) {
-            objOut = default;
+            objOut = null;
             return false;
         }
 
         do {
             lock (pool) {
-                if (!pool.TryGetValue(key, out objOut)) {
-                    objOut = OnCreate(ref key, ref argument);
-                    pool.Add(key, objOut);
-                    if (objOut == null) {
-                        pool.Remove(key);
+                if (!pool.TryGetValue(key, out var existing)) {
+                    var created = OnCreate(ref key, ref argument);
+                    if (created is null) {
+                        objOut = null;
                         return false;
                     }
 
-                    objOut.AddBackToPool = Item_AddBackToPool;
-                    objOut.Disposed += (s, e) => { pool.Remove(key); };
+                    pool.Add(key, created);
+                    objOut = created;
+                    created.AddBackToPool = Item_AddBackToPool;
+                    created.Disposed += (s, e) => { pool.Remove(key); };
+                } else {
+                    objOut = existing;
                 }
 
-                if (objOut.IncRef() <= 1 || objOut.IsDisposed) {
+                if (objOut is not { } current)
+                    return false;
+
+                if (current.IncRef() <= 1 || current.IsDisposed) {
                     Task.Delay(1).Wait();
                     continue;
                 }
@@ -88,8 +95,8 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
     /// <param name="key"></param>
     /// <param name="objOut"></param>
     /// <returns></returns>
-    public bool TryGet(TKey key, out TValue objOut) {
-        objOut = default;
+    public bool TryGet(TKey key, [NotNullWhen(true)] out TValue? objOut) {
+        objOut = null;
         if (IsDisposed) {
 #if DEBUG
             throw new InvalidOperationException("Pool has been disposed.");
@@ -99,8 +106,14 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
         }
 
         lock (pool) {
-            if (!pool.TryGetValue(key, out objOut)) return false;
-            return objOut.IncRef() > 1 && !objOut.IsDisposed;
+            if (!pool.TryGetValue(key, out var existing))
+                return false;
+
+            if (existing.IncRef() <= 1 || existing.IsDisposed)
+                return false;
+
+            objOut = existing;
+            return true;
         }
     }
 
@@ -111,8 +124,8 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
     /// <param name="key"></param>
     /// <param name="objOut"></param>
     /// <returns></returns>
-    public bool TryDetach(TKey key, out TValue objOut) {
-        objOut = default;
+    public bool TryDetach(TKey key, [NotNullWhen(true)] out TValue? objOut) {
+        objOut = null;
         if (IsDisposed) {
 #if DEBUG
             throw new InvalidOperationException("Pool has been disposed.");
@@ -122,8 +135,11 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
         }
 
         lock (pool) {
-            if (!pool.Remove(key)) return false;
-            objOut.AddBackToPool = null;
+            if (!pool.Remove(key, out var detached))
+                return false;
+
+            detached.AddBackToPool = null;
+            objOut = detached;
         }
 
         return !objOut.IsDisposed;
@@ -141,7 +157,7 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
 
     protected abstract bool CanCreate(ref TKey key, ref TArgument argument);
 
-    protected abstract TValue OnCreate(ref TKey key, ref TArgument argument);
+    protected abstract TValue? OnCreate(ref TKey key, ref TArgument argument);
 
     protected void Clear() {
         if (IsDisposed) throw new InvalidOperationException("Pool has been disposed.");

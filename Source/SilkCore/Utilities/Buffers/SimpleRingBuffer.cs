@@ -61,7 +61,7 @@ public sealed class SimpleRingBuffer<T> {
         if (IsEmpty()) return false;
 
         next = DecLast();
-        buffer[next] = default;
+        Array.Clear(buffer, next, 1);
         last = next == 0 ? bufferSize - 1 : next - 1;
         --Count;
         return true;
@@ -74,7 +74,7 @@ public sealed class SimpleRingBuffer<T> {
     public bool RemoveFirst() {
         if (IsEmpty()) return false;
 
-        buffer[first] = default;
+        Array.Clear(buffer, first, 1);
         first = IncFirst();
         --Count;
         return true;

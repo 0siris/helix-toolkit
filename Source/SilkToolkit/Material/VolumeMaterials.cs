@@ -86,7 +86,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
                                                               IVolumeTextureMaterial).TransferMap =
-                                                                 (Color4[])e.NewValue;
+                                                                 (Color4[]?)e.NewValue;
                                                          }));
 
     // Using a DependencyProperty as the backing store for EnablePlaneAlignment.  This enables animation, styling, binding, etc...
@@ -103,7 +103,8 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
 
     public VolumeTextureMaterialBase() { }
 
-    public VolumeTextureMaterialBase(IVolumeTextureMaterial core) : base(core as MaterialCore) {
+    public VolumeTextureMaterialBase(IVolumeTextureMaterial core)
+        : base(core as MaterialCore ?? throw new System.ArgumentException("A material core is required.", nameof(core))) {
         SampleDistance = core.SampleDistance;
         MaxIterations = core.MaxIterations;
         Sampler = core.Sampler;
@@ -186,8 +187,8 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     /// <value>
     ///     The gradient map.
     /// </value>
-    public Color4[] TransferMap {
-        get => (Color4[])GetValue(TransferMapProperty);
+    public Color4[]? TransferMap {
+        get => (Color4[]?)GetValue(TransferMapProperty);
         set => SetValue(TransferMapProperty, value);
     }
 

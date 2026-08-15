@@ -27,7 +27,7 @@ public sealed class TextureDescription {
     }
 
     [DataMember]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     [DataMember]
     public ShaderStage ShaderType { get; set; }

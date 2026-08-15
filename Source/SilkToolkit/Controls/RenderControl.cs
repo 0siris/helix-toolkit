@@ -30,9 +30,9 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 ///     A Renderable UserControl.
 /// </summary>
 public class RenderControl : UserControl {
-    private readonly Visual hostVisual;
+    private readonly Visual? hostVisual;
 
-    private Font fontForDesignMode;
+    private Font? fontForDesignMode;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RenderControl" /> class.
@@ -81,7 +81,7 @@ public class RenderControl : UserControl {
     }
 
     protected override void WndProc(ref Message m) {
-        if (VirtualTouchDevice.WndProc(hostVisual, ref m))
+        if (hostVisual is { } visual && VirtualTouchDevice.WndProc(visual, ref m))
             DefWndProc(ref m);
         else
             base.WndProc(ref m);

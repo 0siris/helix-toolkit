@@ -4,6 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 using Assimp;
 using HelixToolkit.SharpDX.Core.Model;
 
@@ -95,9 +96,9 @@ public partial class Exporter : IDisposable {
     /// <param name="formatId">The format identifier.</param>
     /// <param name="blob">The BLOB.</param>
     /// <returns></returns>
-    public ErrorCode ExportToBlob(Model.Scene.SceneNode root, string formatId, out ExportDataBlob blob) {
+    public ErrorCode ExportToBlob(Model.Scene.SceneNode root, string formatId, out ExportDataBlob? blob) {
         Clear();
-        AssimpContext exporter = null;
+        AssimpContext? exporter = null;
         var useExtern = false;
         if (Configuration.ExternalContext != null) {
             exporter = Configuration.ExternalContext;
@@ -142,13 +143,16 @@ public partial class Exporter : IDisposable {
         foreach (var material in MaterialCollection.OrderBy(x => x.Value))
             scene.Materials.Add(OnCreateAssimpMaterial(material.Key));
         scene.RootNode = ConstructAssimpNode(root, null);
-        scene.Meshes.AddRange(MeshInfos.Select(x => x.Value.AssimpMesh));
+        scene.Meshes.AddRange(MeshInfos.Select(x => x.Value.AssimpMesh
+            ?? throw new InvalidOperationException("Assimp mesh was not created.")));
         AddAnimationsToScene(scene);
         return scene;
     }
 
-    private Node ConstructAssimpNode(Model.Scene.SceneNode current, Node parent) {
-        var node = new Node(string.IsNullOrEmpty(current.Name) ? "Node" : current.Name, parent) {
+    private Node ConstructAssimpNode(Model.Scene.SceneNode current, Node? parent) {
+        var node = new Node(string.IsNullOrEmpty(current.Name)
+            ? "Node"
+            : current.Name, parent) {
             Transform = current.ModelMatrix.ToAssimpMatrix(configuration.ToSourceMatrixColumnMajor)
         };
         if (current is Model.Scene.GroupNodeBase group) {
@@ -159,17 +163,18 @@ public partial class Exporter : IDisposable {
                 } else if (s is Model.Scene.GroupNodeBase) {
                     node.Children.Add(ConstructAssimpNode(s, node));
                 } else {
-                    Logger.Warn("Current node type does not support yet. Type: {Value0}", s.GetType().Name);
+                    Logger.Warn("Current node type does not support yet. Type: {Value0}", s.GetType()
+                        .Name);
                 }
 
-            if (group.Metadata != null)
-                foreach (var metadata in group.Metadata.ToAssimpMetadata())
-                    node.Metadata.Add(metadata.Key, metadata.Value);
+            foreach (var metadata in group.Metadata.ToAssimpMetadata())
+                node.Metadata.Add(metadata.Key, metadata.Value);
         } else if (current is Model.Scene.GeometryNode geo) {
             var key = GetMaterialGeoKey(geo, out var materialIndex, out var geoIndex);
             if (MeshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
         } else {
-            Logger.Warn("Current node type does not support yet. Type: {Value0}", current.GetType().Name);
+            Logger.Warn("Current node type does not support yet. Type: {Value0}", current.GetType()
+                .Name);
         }
 
         return node;
@@ -178,10 +183,12 @@ public partial class Exporter : IDisposable {
     private void CollectAllGeometriesAndMaterials(Model.Scene.SceneNode root) {
         // Collect all geometries and materials
         foreach (var node in root.Traverse()) {
-            if (GetMaterialFromNode(node, out var material) && !MaterialCollection.ContainsKey(material))
-                MaterialCollection.Add(material, MaterialCollection.Count);
-            if (GetGeometryFromNode(node, out var geometry) && !GeometryCollection.ContainsKey(geometry))
-                GeometryCollection.Add(geometry, GeometryCollection.Count);
+            if (GetMaterialFromNode(node, out var material) && material is { } materialValue
+                && !MaterialCollection.ContainsKey(materialValue))
+                MaterialCollection.Add(materialValue, MaterialCollection.Count);
+            if (GetGeometryFromNode(node, out var geometry) && geometry is { } geometryValue
+                && !GeometryCollection.ContainsKey(geometryValue))
+                GeometryCollection.Add(geometryValue, GeometryCollection.Count);
         }
 
         foreach (var node in root.Traverse())
@@ -217,22 +224,22 @@ public partial class Exporter : IDisposable {
         /// <summary>
         ///     The animations
         /// </summary>
-        public List<Animations.Animation> Animations;
+        public List<Animations.Animation> Animations = [];
 
         /// <summary>
         ///     The assimp scene
         /// </summary>
-        public Scene AssimpScene;
+        public Scene AssimpScene = new();
 
         /// <summary>
         ///     The materials
         /// </summary>
-        public Tuple<Material, MaterialCore>[] Materials;
+        public Tuple<Material, MaterialCore>[] Materials = [];
 
         /// <summary>
         ///     The meshes
         /// </summary>
-        public MeshInfo[] Meshes;
+        public MeshInfo[] Meshes = [];
     }
 
     #endregion
@@ -263,12 +270,10 @@ public partial class Exporter : IDisposable {
     /// <value>
     ///     The configuration.
     /// </value>
+    [AllowNull]
     public ExportConfiguration Configuration {
         get => configuration;
-        set {
-            configuration = value;
-            if (value == null) configuration = new ExportConfiguration();
-        }
+        set => configuration = value ?? new ExportConfiguration();
     }
 
     #endregion

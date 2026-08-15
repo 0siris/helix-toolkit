@@ -34,11 +34,11 @@ public class RelativePositionCanvas2D : Panel2D {
         /// <returns></returns>
         protected override RectangleF ArrangeOverride(RectangleF finalSize) {
             foreach (var child in Items)
-                if (child is SceneNode2D c && c.WrapperSource is Element2DCore element2D) {
+                if (child.WrapperSource is Element2DCore element2D) {
                     var xPos = finalSize.Width / 2 * (1 + (float)GetRelativeX(element2D));
                     var yPos = finalSize.Height / 2 * (1 - (float)GetRelativeY(element2D));
-                    var desired = c.DesiredSize;
-                    c.Arrange(new RectangleF(xPos - desired.X / 2, yPos - desired.Y / 2, desired.X, desired.Y));
+                    var desired = child.DesiredSize;
+                    child.Arrange(new RectangleF(xPos - desired.X / 2, yPos - desired.Y / 2, desired.X, desired.Y));
                 }
 
             return finalSize;
@@ -54,7 +54,10 @@ public class RelativePositionCanvas2D : Panel2D {
         "RelativeX",
         typeof(double),
         typeof(RelativePositionCanvas2D),
-        new PropertyMetadata(0.0, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
+        new PropertyMetadata(0.0, (d, e) => {
+            if (d is Element2DCore element)
+                element.InvalidateMeasure();
+        }));
 
     /// <summary>
     ///     Sets the relative x.
@@ -79,7 +82,10 @@ public class RelativePositionCanvas2D : Panel2D {
         "RelativeY",
         typeof(double),
         typeof(RelativePositionCanvas2D),
-        new PropertyMetadata(0.0, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
+        new PropertyMetadata(0.0, (d, e) => {
+            if (d is Element2DCore element)
+                element.InvalidateMeasure();
+        }));
 
     /// <summary>
     ///     Sets the relative y.

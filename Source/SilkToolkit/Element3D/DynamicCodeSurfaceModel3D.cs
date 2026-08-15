@@ -12,9 +12,9 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
                                     typeof(DynamicCodeSurfaceModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as DynamicCodeSurfaceModel3D).SceneNode as
-                                                              DynamicCodeSurface3DNode).Source =
-                                                                 e.NewValue as string;
+                                                             if (d is DynamicCodeSurfaceModel3D model
+                                                                 && model.SceneNode is DynamicCodeSurface3DNode node)
+                                                                 node.Source = e.NewValue as string;
                                                          }));
 
 
@@ -24,9 +24,9 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
                                     typeof(DynamicCodeSurfaceModel3D),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as DynamicCodeSurfaceModel3D).SceneNode as
-                                                              DynamicCodeSurface3DNode).ParameterW =
-                                                                 (float)(double)e.NewValue;
+                                                             if (d is DynamicCodeSurfaceModel3D model
+                                                                 && model.SceneNode is DynamicCodeSurface3DNode node)
+                                                                 node.ParameterW = (float)(double)e.NewValue;
                                                          }));
 
 
@@ -36,9 +36,9 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
                                     typeof(DynamicCodeSurfaceModel3D),
                                     new PropertyMetadata(120,
                                                          (d, e) => {
-                                                             ((d as DynamicCodeSurfaceModel3D).SceneNode as
-                                                              DynamicCodeSurface3DNode).MeshSizeU =
-                                                                 (int)e.NewValue;
+                                                             if (d is DynamicCodeSurfaceModel3D model
+                                                                 && model.SceneNode is DynamicCodeSurface3DNode node)
+                                                                 node.MeshSizeU = (int)e.NewValue;
                                                          }));
 
 
@@ -48,9 +48,9 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
                                     typeof(DynamicCodeSurfaceModel3D),
                                     new PropertyMetadata(120,
                                                          (d, e) => {
-                                                             ((d as DynamicCodeSurfaceModel3D).SceneNode as
-                                                              DynamicCodeSurface3DNode).MeshSizeV =
-                                                                 (int)e.NewValue;
+                                                             if (d is DynamicCodeSurfaceModel3D model
+                                                                 && model.SceneNode is DynamicCodeSurface3DNode node)
+                                                                 node.MeshSizeV = (int)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty ErrorListProperty =
@@ -59,8 +59,8 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
                                     typeof(DynamicCodeSurfaceModel3D),
                                     new PropertyMetadata(null));
 
-    public string SourceCode {
-        get => (string)GetValue(SourceCodeProperty);
+    public string? SourceCode {
+        get => GetValue(SourceCodeProperty) as string;
         set => SetValue(SourceCodeProperty, value);
     }
 
@@ -82,21 +82,22 @@ public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
     }
 
 
-    public CompilerErrorCollection ErrorList {
-        get => (CompilerErrorCollection)GetValue(ErrorListProperty);
+    public CompilerErrorCollection? ErrorList {
+        get => GetValue(ErrorListProperty) as CompilerErrorCollection;
         set => SetValue(ErrorListProperty, value);
     }
 
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
-        var n = SceneNode as DynamicCodeSurface3DNode;
-        n.Source = SourceCode;
-        n.ParameterW = (float)ParameterW;
-        n.OnCompileError += N_OnCompileError;
+        if (SceneNode is DynamicCodeSurface3DNode n) {
+            n.Source = SourceCode;
+            n.ParameterW = (float)ParameterW;
+            n.OnCompileError += N_OnCompileError;
+        }
         base.AssignDefaultValuesToSceneNode(node);
     }
 
-    private void N_OnCompileError(object sender, EventArgs e) {
+    private void N_OnCompileError(object? sender, EventArgs e) {
         if (sender is DynamicCodeSurface3DNode n)
             ErrorList = n.Errors;
     }

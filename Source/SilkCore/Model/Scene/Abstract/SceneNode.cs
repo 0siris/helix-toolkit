@@ -41,9 +41,9 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     public SceneNode() {
         WrapperSource = this;
         renderCore = new Lazy<RenderCore>(() => {
-                                              core = OnCreateRenderCore();
-                                              core.InvalidateRender += RenderCore_OnInvalidateRenderer;
-                                              return core;
+                                              var createdCore = OnCreateRenderCore();
+                                              createdCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
+                                              return createdCore;
                                           },
                                           true);
     }
@@ -182,7 +182,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// </summary>
     /// <param name="context">The time since last update.</param>
     public virtual void Update(RenderContext context) {
-        IsRenderable = CanRender(context) && core.CanRenderFlag;
+        IsRenderable = CanRender(context) && RenderCore.CanRenderFlag;
         IsInFrustum = true; //Reset during update
         if (!IsRenderable)
             return;
@@ -577,8 +577,6 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
 #endregion Handling Transforms
 
 #region RenderCore
-    private RenderCore core; //TODO should be not used directly, RenderCore is the replacement
-
     private readonly Lazy<RenderCore> renderCore;
     public RenderCore RenderCore => renderCore.Value; // used ont Attached -> core is initialized in Lazy
 
@@ -719,8 +717,8 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="deviceContext">The device context.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        core.ModelMatrix = TotalModelMatrixInternal;
-        core.Render(context, deviceContext);
+        RenderCore.ModelMatrix = TotalModelMatrixInternal;
+        RenderCore.Render(context, deviceContext);
     }
 
     /// <summary>
@@ -730,8 +728,8 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="deviceContext">The device context.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RenderShadow(RenderContext context, DeviceContextProxy deviceContext) {
-        core.ModelMatrix = TotalModelMatrixInternal;
-        core.RenderShadow(context, deviceContext);
+        RenderCore.ModelMatrix = TotalModelMatrixInternal;
+        RenderCore.RenderShadow(context, deviceContext);
     }
 
     /// <summary>
@@ -741,8 +739,8 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="deviceContext">The device context.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RenderCustom(RenderContext context, DeviceContextProxy deviceContext) {
-        core.ModelMatrix = TotalModelMatrixInternal;
-        core.RenderCustom(context, deviceContext);
+        RenderCore.ModelMatrix = TotalModelMatrixInternal;
+        RenderCore.RenderCustom(context, deviceContext);
     }
 
     /// <summary>
@@ -753,8 +751,8 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="pass"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RenderDepth(RenderContext context, DeviceContextProxy deviceContext, ShaderPass? pass) {
-        core.ModelMatrix = TotalModelMatrixInternal;
-        core.RenderDepth(context, deviceContext, pass);
+        RenderCore.ModelMatrix = TotalModelMatrixInternal;
+        RenderCore.RenderDepth(context, deviceContext, pass);
     }
 
     /// <summary>

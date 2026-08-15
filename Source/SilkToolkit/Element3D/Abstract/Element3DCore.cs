@@ -33,7 +33,7 @@ public abstract class Element3DCore : FrameworkContentElement, IDisposable {
     ///     Occurs when [on scene node created]. Make sure to hook up this event at the top of constructor of class, otherwise
     ///     may miss the event.
     /// </summary>
-    public event EventHandler<SceneNodeCreatedEventArgs> OnSceneNodeCreated;
+    public event EventHandler<SceneNodeCreatedEventArgs>? OnSceneNodeCreated;
 
     #endregion
 
@@ -66,7 +66,7 @@ public abstract class Element3DCore : FrameworkContentElement, IDisposable {
     #region Scene Node
 
     private readonly object sceneNodeLock = new();
-    private SceneNode sceneNode;
+    private SceneNode? sceneNode;
 
     public SceneNode SceneNode {
         get {
@@ -80,7 +80,7 @@ public abstract class Element3DCore : FrameworkContentElement, IDisposable {
                     }
                 }
 
-            return sceneNode;
+            return sceneNode ?? throw new InvalidOperationException("Scene node was not created.");
         }
     }
 

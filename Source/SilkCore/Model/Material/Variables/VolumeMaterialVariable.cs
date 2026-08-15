@@ -16,9 +16,9 @@ public class VolumeMaterialVariable<T> : MaterialVariable {
 
 
     public Func<VolumeTextureMaterialCoreBase<T>, IEffectsManager, ShaderResourceViewProxy?>? OnCreateTexture;
-    private SamplerStateProxy sampler;
-    private ShaderResourceViewProxy texture;
-    private ShaderResourceViewProxy transferMap;
+    private SamplerStateProxy? sampler;
+    private ShaderResourceViewProxy? texture;
+    private ShaderResourceViewProxy? transferMap;
 
     public VolumeMaterialVariable(
         IEffectsManager manager,
@@ -79,7 +79,7 @@ public class VolumeMaterialVariable<T> : MaterialVariable {
     }
 
     private void UpdateTexture(VolumeTextureMaterialCoreBase<T> material) {
-        var newTexture = OnCreateTexture(material, EffectsManager);
+        var newTexture = OnCreateTexture?.Invoke(material, EffectsManager);
         RemoveAndDispose(ref texture);
         texture = newTexture;
         if (texture != null) UpdateStepSize();
@@ -110,10 +110,11 @@ public class VolumeMaterialVariable<T> : MaterialVariable {
 
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) {
-        DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
+        if (bufferModel?.IndexBuffer is { } indexBuffer)
+            DrawIndexed(deviceContext, indexBuffer.ElementCount, instanceCount);
     }
 
     public override ShaderPass GetPass(RenderType renderType, RenderContext context) => volumePass;

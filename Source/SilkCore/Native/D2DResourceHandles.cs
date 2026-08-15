@@ -55,7 +55,7 @@ public sealed unsafe class SolidColorBrush : Brush {
     }
 
     private void Create(D2DDeviceContext context, Color4 color, float opacity) {
-        if (context?.NativeHandle == null) return;
+        if (context.NativeHandle == null) return;
 
         var value = new D3Dcolorvalue(color.X, color.Y, color.Z, color.W);
         var properties = new Silk.NET.Direct2D.BrushProperties {
@@ -118,10 +118,9 @@ public sealed unsafe class Bitmap : D2DNativeResource {
 
     public int Height => (int) Math.Ceiling(Size.Height);
 
-    internal ID2D1Bitmap* Handle =>
-        target?.Bitmap?.Handle != null
-            ? (ID2D1Bitmap*) target.Bitmap.Handle
-            : nativeBitmap.Handle;
+    internal ID2D1Bitmap* Handle => target?.Bitmap is { } bitmap
+        ? (ID2D1Bitmap*) bitmap.Handle
+        : nativeBitmap.Handle;
 
     internal Texture2D? Texture { get; private set; }
 
@@ -151,7 +150,7 @@ public sealed class GradientStopCollection : D2DNativeResource {
         Gamma gamma,
         ExtendMode extendMode
     ) {
-        Gradients = gradients ?? [];
+        Gradients = gradients;
         Gamma = gamma;
         ExtendMode = extendMode;
     }
@@ -284,9 +283,9 @@ public sealed unsafe class TextFormat : D2DNativeResource {
         FontWeight = fontWeight;
         FontStyle = fontStyle;
         FontSize = fontSize;
-        if (factory?.Handle != null) {
+        if (factory.Handle != null) {
             IDWriteTextFormat* format = null;
-            var family = fontFamily ?? "Arial";
+            var family = fontFamily;
             var locale = string.Empty;
             fixed (char* familyPtr = family)
             fixed (char* localePtr = locale) {
@@ -335,14 +334,14 @@ public sealed unsafe class TextLayout : D2DNativeResource {
         float maxHeight
     ) {
         Factory = factory;
-        Text = text ?? string.Empty;
+        Text = text;
         TextFormat = textFormat;
         MaxWidth = maxWidth;
         MaxHeight = maxHeight;
-        if (factory?.Handle != null && textFormat?.Handle != null) {
+        if (factory is { } actualFactory && actualFactory.Handle != null) {
             IDWriteTextLayout* layout = null;
             fixed (char* textPtr = Text) {
-                SilkMarshal.ThrowHResult(factory.Handle->CreateTextLayout(textPtr,
+                SilkMarshal.ThrowHResult(actualFactory.Handle->CreateTextLayout(textPtr,
                     (uint) Text.Length,
                     textFormat.Handle,
                     NormalizeSize(maxWidth),
@@ -360,7 +359,7 @@ public sealed unsafe class TextLayout : D2DNativeResource {
                 Height = metrics.Height
             };
         } else {
-            var height = Math.Max(1, textFormat?.FontSize ?? 12);
+            var height = Math.Max(1, textFormat.FontSize);
             var width = Math.Min(float.IsInfinity(maxWidth) || maxWidth <= 0
                     ? float.MaxValue
                     : maxWidth,

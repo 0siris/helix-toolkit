@@ -15,13 +15,15 @@ using Color = System.Windows.Media.Color;
 
 namespace HelixToolkit.Wpf.SharpDX.Utilities;
 public abstract class FromToStringTypeConverter : TypeConverter {
-    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type? sourceType) {
+        if (sourceType is null) return false;
         if (sourceType == typeof(string)) return true;
 
         return base.CanConvertFrom(context, sourceType);
     }
 
     public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType) {
+        if (destinationType is null) return false;
         if (destinationType == typeof(string)) return true;
 
         return base.CanConvertTo(context, destinationType);
@@ -29,7 +31,7 @@ public abstract class FromToStringTypeConverter : TypeConverter {
 }
 
 public sealed class Vector2CollectionConverter : FromToStringTypeConverter {
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object? value) {
         if (value == null) throw GetConvertFromException(value);
 
         var source = value as string;
@@ -43,18 +45,18 @@ public sealed class Vector2CollectionConverter : FromToStringTypeConverter {
         ITypeDescriptorContext? context,
         CultureInfo? culture,
         object? value,
-        Type destinationType
+        Type? destinationType
     ) {
-        if (destinationType != null && value is Vector2Collection instance)
-            if (destinationType == typeof(string))
-                return instance.ConvertToString(null, culture);
+        ArgumentNullException.ThrowIfNull(destinationType);
+        if (destinationType == typeof(string) && value is Vector2Collection instance)
+            return instance.ConvertToString(null, culture);
 
         return base.ConvertTo(context, culture, value, destinationType);
     }
 }
 
 public sealed class Vector3CollectionConverter : FromToStringTypeConverter {
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object? value) {
         if (value == null) throw GetConvertFromException(value);
 
         var source = value as string;
@@ -68,18 +70,18 @@ public sealed class Vector3CollectionConverter : FromToStringTypeConverter {
         ITypeDescriptorContext? context,
         CultureInfo? culture,
         object? value,
-        Type destinationType
+        Type? destinationType
     ) {
-        if (destinationType != null && value is Vector3Collection instance)
-            if (destinationType == typeof(string))
-                return instance.ConvertToString(null, culture);
+        ArgumentNullException.ThrowIfNull(destinationType);
+        if (destinationType == typeof(string) && value is Vector3Collection instance)
+            return instance.ConvertToString(null, culture);
 
         return base.ConvertTo(context, culture, value, destinationType);
     }
 }
 
 public sealed class IntCollectionConverter : FromToStringTypeConverter {
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object? value) {
         if (value == null) throw GetConvertFromException(value);
 
         var source = value as string;
@@ -93,18 +95,18 @@ public sealed class IntCollectionConverter : FromToStringTypeConverter {
         ITypeDescriptorContext? context,
         CultureInfo? culture,
         object? value,
-        Type destinationType
+        Type? destinationType
     ) {
-        if (destinationType != null && value is IntCollection instance)
-            if (destinationType == typeof(string))
-                return instance.ConvertToString(null, culture);
+        ArgumentNullException.ThrowIfNull(destinationType);
+        if (destinationType == typeof(string) && value is IntCollection instance)
+            return instance.ConvertToString(null, culture);
 
         return base.ConvertTo(context, culture, value, destinationType);
     }
 }
 
 public sealed class Color4CollectionConverter : FromToStringTypeConverter {
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object? value) {
         if (value == null) throw GetConvertFromException(value);
 
         var source = value as string;
@@ -118,11 +120,11 @@ public sealed class Color4CollectionConverter : FromToStringTypeConverter {
         ITypeDescriptorContext? context,
         CultureInfo? culture,
         object? value,
-        Type destinationType
+        Type? destinationType
     ) {
-        if (destinationType != null && value is Color4Collection instance)
-            if (destinationType == typeof(string))
-                return instance.ConvertToString(null, culture);
+        ArgumentNullException.ThrowIfNull(destinationType);
+        if (destinationType == typeof(string) && value is Color4Collection instance)
+            return instance.ConvertToString(null, culture);
 
         return base.ConvertTo(context, culture, value, destinationType);
     }
@@ -173,7 +175,7 @@ public sealed class ColorConverter : FromToStringTypeConverter {
 }
 
 public sealed class Color4Converter : FromToStringTypeConverter {
-    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type? sourceType) {
         if (sourceType == typeof(Color)) return true;
         return base.CanConvertFrom(context, sourceType);
     }
@@ -229,7 +231,7 @@ public sealed class Color4Converter : FromToStringTypeConverter {
 }
 
 public sealed class Vector2Converter : FromToStringTypeConverter {
-    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type? sourceType) {
         if (sourceType == typeof(Vector) || sourceType == typeof(Point)) return true;
         return base.CanConvertFrom(context, sourceType);
     }
@@ -286,7 +288,7 @@ public sealed class Vector2Converter : FromToStringTypeConverter {
 }
 
 public sealed class Vector3Converter : FromToStringTypeConverter {
-    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type? sourceType) {
         if (sourceType == typeof(Vector3D) || sourceType == typeof(Point3D)) return true;
         return base.CanConvertFrom(context, sourceType);
     }

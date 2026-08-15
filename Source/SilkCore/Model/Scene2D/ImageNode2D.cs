@@ -7,7 +7,10 @@ using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public class ImageNode2D : SceneNode2D {
-    public Stream ImageStream {
+    private ImageRenderCore2D ImageCore => RenderCore as ImageRenderCore2D
+        ?? throw new InvalidOperationException("Image render core is not initialized.");
+
+    public Stream? ImageStream {
         get;
         set {
             if (SetAffectsMeasure(ref field, value)) BitmapChanged = true;
@@ -15,8 +18,8 @@ public class ImageNode2D : SceneNode2D {
     }
 
     public float Opacity {
-        get => (RenderCore as ImageRenderCore2D).Opacity;
-        set => (RenderCore as ImageRenderCore2D).Opacity = value;
+        get => ImageCore.Opacity;
+        set => ImageCore.Opacity = value;
     }
 
     protected bool BitmapChanged { get; private set; } = true;
@@ -32,8 +35,8 @@ public class ImageNode2D : SceneNode2D {
         return false;
     }
 
-    private void LoadBitmap(RenderContext2D context, Stream stream) {
-        (RenderCore as ImageRenderCore2D).Bitmap = stream == null ? null : OnLoadImage(context, stream);
+    private void LoadBitmap(RenderContext2D context, Stream? stream) {
+        ImageCore.Bitmap = stream is null ? null : OnLoadImage(context, stream);
     }
 
     protected virtual Bitmap OnLoadImage(RenderContext2D context, Stream stream) => new(default);
@@ -47,8 +50,8 @@ public class ImageNode2D : SceneNode2D {
     }
 
     protected override Size2F MeasureOverride(Size2F availableSize) {
-        if (ImageStream != null) {
-            var imageSize = (RenderCore as ImageRenderCore2D).ImageSize;
+        if (ImageStream is not null) {
+            var imageSize = ImageCore.ImageSize;
             imageSize.Width *= DpiScale;
             imageSize.Height *= DpiScale;
             if (Width == 0 && Height == 0)

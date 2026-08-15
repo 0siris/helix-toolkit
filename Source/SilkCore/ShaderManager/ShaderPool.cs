@@ -32,9 +32,9 @@ public sealed class ShaderPool : ReferenceCountedDictionaryPool<byte[], ShaderBa
     /// </value>
     public IConstantBufferPool ConstantBufferPool { get; }
 
-    protected override bool CanCreate(ref byte[] key, ref ShaderDescription argument) => key != null && key.Length > 0;
+    protected override bool CanCreate(ref byte[] key, ref ShaderDescription argument) => key.Length > 0;
 
-    protected override ShaderBase OnCreate(ref byte[] key, ref ShaderDescription description) => description.ByteCode == null
+    protected override ShaderBase OnCreate(ref byte[] key, ref ShaderDescription description) => key.Length == 0
         ? Constants.GetNullShader(description.ShaderType)
         : description.CreateShader(device, ConstantBufferPool)
           ?? Constants.GetNullShader(description.ShaderType);
@@ -56,16 +56,16 @@ public sealed class
         this.device = device;
     }
 
-    protected override bool CanCreate(ref byte[] key, ref InputLayoutDescription argument) => key != null && key.Length > 0;
+    protected override bool CanCreate(ref byte[] key, ref InputLayoutDescription argument) => key.Length > 0;
 
-    protected override InputLayoutProxy OnCreate(ref byte[] key, ref InputLayoutDescription description) => new(device, description.ShaderByteCode, description.InputElements);
+    protected override InputLayoutProxy OnCreate(ref byte[] key, ref InputLayoutDescription description) => new(device, key, description.InputElements);
 }
 
 /// <summary>
 /// </summary>
 public class ShaderPoolManager : DisposeObject, IShaderPoolManager {
     private readonly ShaderPool[] shaderPools = new ShaderPool[Constants.NumShaderStages];
-    private LayoutPool layoutPool;
+    private LayoutPool? layoutPool;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ShaderPoolManager" /> class.
@@ -87,19 +87,28 @@ public class ShaderPoolManager : DisposeObject, IShaderPoolManager {
     /// </summary>
     /// <param name="description">The description.</param>
     /// <returns></returns>
-    public ShaderBase? RegisterShader(ShaderDescription description) => shaderPools[description.ShaderType.ToIndex()]
-        .TryCreateOrGet(description.ByteCode, description, out var shader)
-        ? shader
-        : null;
+    public ShaderBase? RegisterShader(ShaderDescription description) {
+        if (description.ByteCode is not { } byteCode)
+            return null;
+
+        return shaderPools[description.ShaderType.ToIndex()].TryCreateOrGet(byteCode, description, out var shader)
+            ? shader
+            : null;
+    }
 
     /// <summary>
     ///     Registers the input layout.
     /// </summary>
     /// <param name="description">The description.</param>
     /// <returns></returns>
-    public InputLayoutProxy? RegisterInputLayout(InputLayoutDescription description) => layoutPool.TryCreateOrGet(description.ShaderByteCode, description, out var inputLayout)
-        ? inputLayout
-        : null;
+    public InputLayoutProxy? RegisterInputLayout(InputLayoutDescription description) {
+        if (description.ShaderByteCode is not { } shaderByteCode || layoutPool is not { } pool)
+            return null;
+
+        return pool.TryCreateOrGet(shaderByteCode, description, out var inputLayout)
+            ? inputLayout
+            : null;
+    }
 
     /// <summary>
     ///     Called when [dispose].

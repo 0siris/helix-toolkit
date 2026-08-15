@@ -136,7 +136,7 @@ public sealed unsafe class RenderTargetView : IDisposable {
 
     public nint NativePointer => (nint)nativeView.Handle;
 
-    public Resource Resource { get; }
+    public Resource? Resource { get; }
 
     internal ID3D11RenderTargetView* Handle => nativeView.Handle;
 

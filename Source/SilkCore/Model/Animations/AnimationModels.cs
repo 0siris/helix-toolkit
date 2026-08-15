@@ -8,7 +8,7 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 namespace HelixToolkit.SharpDX.Core.Animations;
 public struct Bone {
     public string Name;
-    public SceneNode ParentNode; // Used for scene graph based node animation
+    public SceneNode? ParentNode; // Used for scene graph based node animation
     public SceneNode Node;       // Used for scene graph based node animation
     public int ParentIndex;      // Used only for array based bones
     public Matrix InvBindPose;

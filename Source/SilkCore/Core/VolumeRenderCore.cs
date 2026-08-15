@@ -19,13 +19,13 @@ public sealed class VolumeRenderCore : RenderCore {
     private readonly ConstantBufferComponent modelCb;
     private int backTexSlot;
 
-    private VolumeCubeBufferModel buffer;
+    private VolumeCubeBufferModel? buffer;
 
-    private ShaderPass cubeBackPass;
+    private ShaderPass? cubeBackPass;
     private MaterialVariable materialVariables = EmptyMaterialVariable.EmptyVariable;
-    private ShaderPass meshFrontPass;
+    private ShaderPass? meshFrontPass;
     private ModelMatrices modelMatrices;
-    private ShaderPass volumePass;
+    private ShaderPass? volumePass;
 
     static VolumeRenderCore() {
         BoxMesh = new MeshGeometry3D {
@@ -76,12 +76,16 @@ public sealed class VolumeRenderCore : RenderCore {
     }
 
     protected override bool OnAttach(IRenderTechnique technique) {
+        if (technique[DefaultPassNames.Backface] is not { } backPass
+            || technique[DefaultPassNames.Positions] is not { } frontPass)
+            return false;
+
         buffer = new VolumeCubeBufferModel {
             Geometry = BoxMesh,
             Topology = PrimitiveTopology.TriangleList
         };
-        cubeBackPass = technique[DefaultPassNames.Backface];
-        meshFrontPass = technique[DefaultPassNames.Positions];
+        cubeBackPass = backPass;
+        meshFrontPass = frontPass;
         modelCb.Attach(technique);
         return true;
     }
@@ -91,26 +95,33 @@ public sealed class VolumeRenderCore : RenderCore {
     }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
+        if (buffer is not { } volumeBuffer || cubeBackPass is not { } backPass || meshFrontPass is not { } frontPass
+            || EffectTechnique is not { } technique)
+            return;
+
         using var back = context.GetOffScreenRt(OffScreenTextureSize.Full, Format.FormatR16G16B16A16Float);
         var slot = 0;
         using (var depth =
                context.GetOffScreenDs(OffScreenTextureSize.Full, Format.FormatD32FloatS8X24Uint)) {
-            deviceContext.ClearDepthStencilView(depth,
+            if (depth.DepthStencilView is not { } depthView) return;
+
+            deviceContext.ClearDepthStencilView(depthView,
                                                 DepthStencilClearFlags.Depth |
                                                 DepthStencilClearFlags.Stencil,
                                                 1,
                                                 1);
             deviceContext.ClearRenderTargetView(back, new Color4(0, 0, 0, 0));
-            BindTarget(depth, back, deviceContext, (int)context.ActualWidth, (int)context.ActualHeight);
+            BindTarget(depthView, back, deviceContext, (int)context.ActualWidth, (int)context.ActualHeight);
 
         #region Render box back face and set stencil buffer to 0
 
             modelMatrices.Update(ref ModelMatrix);
             if (!materialVariables.UpdateMaterialStruct(deviceContext, ref modelMatrices)) return;
-            buffer.AttachBuffers(deviceContext, ref slot, EffectTechnique.EffectsManager);
-            cubeBackPass.BindShader(deviceContext);
-            cubeBackPass.BindStates(deviceContext, StateType.All);
-            deviceContext.DrawIndexed(buffer.IndexBuffer.ElementCount, 0, 0);
+            volumeBuffer.AttachBuffers(deviceContext, ref slot, technique.EffectsManager);
+            if (volumeBuffer.IndexBuffer is not { } indexBuffer) return;
+            backPass.BindShader(deviceContext);
+            backPass.BindStates(deviceContext, StateType.All);
+            deviceContext.DrawIndexed(indexBuffer.ElementCount, 0, 0);
 
         #endregion
 
@@ -119,12 +130,13 @@ public sealed class VolumeRenderCore : RenderCore {
             if (context.RenderHost.PerFrameOpaqueNodesInFrustum.Count > 0)
                 for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i) {
                     var mesh = context.RenderHost.PerFrameOpaqueNodesInFrustum[i];
-                    var meshPass = mesh.EffectTechnique[DefaultPassNames.Positions];
+                    if (mesh.EffectTechnique is not { } meshTechnique) continue;
+                    var meshPass = meshTechnique[DefaultPassNames.Positions];
                     if (meshPass.IsNull) continue;
                     meshPass.BindShader(deviceContext);
                     meshPass.BindStates(deviceContext, StateType.BlendState);
                     // Set special depth stencil state to only render into region with stencil region is 0
-                    meshFrontPass.BindStates(deviceContext, StateType.DepthStencilState);
+                    frontPass.BindStates(deviceContext, StateType.DepthStencilState);
                     mesh.RenderCustom(context, deviceContext);
                 }
 
@@ -138,27 +150,28 @@ public sealed class VolumeRenderCore : RenderCore {
         if (pass != volumePass) {
             volumePass = pass;
             backTexSlot =
-                volumePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames
+                pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames
                     .VolumeBack);
         }
 
         slot = 0;
-        buffer.AttachBuffers(deviceContext, ref slot, EffectTechnique.EffectsManager);
+        volumeBuffer.AttachBuffers(deviceContext, ref slot, technique.EffectsManager);
+        if (volumeBuffer.IndexBuffer is not { } finalIndexBuffer) return;
         materialVariables.BindMaterialResources(context, deviceContext, pass);
-        volumePass.PixelShader.BindTexture(deviceContext, backTexSlot, back);
-        volumePass.BindShader(deviceContext);
-        volumePass.BindStates(deviceContext, StateType.All);
-        deviceContext.DrawIndexed(buffer.IndexBuffer.ElementCount, 0, 0);
+        pass.PixelShader.BindTexture(deviceContext, backTexSlot, back);
+        pass.BindShader(deviceContext);
+        pass.BindStates(deviceContext, StateType.All);
+        deviceContext.DrawIndexed(finalIndexBuffer.ElementCount, 0, 0);
 
     #endregion
 
-        volumePass.PixelShader.BindTexture(deviceContext, backTexSlot, null);
+        pass.PixelShader.BindTexture(deviceContext, backTexSlot, null);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void BindTarget(
         DepthStencilView dsv,
-        RenderTargetView targetView,
+        RenderTargetView? targetView,
         DeviceContextProxy context,
         int width,
         int height

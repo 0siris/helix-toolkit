@@ -30,7 +30,7 @@ public sealed class IntCollection : FastList<int> {
         return resource;
     }
 
-    public string ConvertToString(string format, IFormatProvider provider) {
+    public string ConvertToString(string? format, IFormatProvider? provider) {
         if (Count == 0) return string.Empty;
 
         var str = new StringBuilder();

@@ -52,7 +52,7 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
 
     /// <summary>
     /// </summary>
-    public IElementsBufferModel? InstanceBuffer {
+    public IElementsBufferModel InstanceBuffer {
         get;
         set {
             var old = field;
@@ -92,11 +92,14 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="force"></param>
     /// <returns></returns>
     protected virtual bool CreateRasterState(RasterizerStateDescription description, bool force) {
-        var newRasterState = EffectTechnique.EffectsManager.StateManager.Register(description);
+        if (EffectTechnique is not { EffectsManager: { } effectsManager })
+            return false;
+
+        var newRasterState = effectsManager.StateManager.Register(description);
         var invCull = description;
         if (description.CullMode != CullMode.None)
             invCull.CullMode = description.CullMode == CullMode.Back ? CullMode.Front : CullMode.Back;
-        var newInvertCullModeState = EffectTechnique.EffectsManager.StateManager.Register(invCull);
+        var newInvertCullModeState = effectsManager.StateManager.Register(invCull);
 
         RasterState = newRasterState;
         InvertCullModeState = newInvertCullModeState;
@@ -129,8 +132,8 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="context"></param>
     /// <param name="isInvertCullMode"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void OnBindRasterState(DeviceContextProxy context, bool isInvertCullMode) 
-        => context.SetRasterState(!isInvertCullMode ? RasterState : InvertCullModeState);
+    protected void OnBindRasterState(DeviceContextProxy context, bool isInvertCullMode)
+        => context.SetRasterState(isInvertCullMode ? InvertCullModeState : RasterState);
 
     /// <summary>
     ///     Attach vertex buffer routine
@@ -138,10 +141,10 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="context"></param>
     /// <param name="vertStartSlot"></param>
     protected virtual bool OnAttachBuffers(DeviceContextProxy context, ref int vertStartSlot) {
-        if(GeometryBuffer is null || EffectTechnique is null || InstanceBuffer is null)
+        if (GeometryBuffer is not { } geometryBuffer || EffectTechnique is not { } technique)
             return false;
 
-        var geoAttached = GeometryBuffer.AttachBuffers(context, ref vertStartSlot, EffectTechnique.EffectsManager);
+        var geoAttached = geometryBuffer.AttachBuffers(context, ref vertStartSlot, technique.EffectsManager);
         if (geoAttached) {
             InstanceBuffer.AttachBuffer(context, ref vertStartSlot);
             return true;
@@ -163,10 +166,10 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         IElementsBufferProxy indexBuffer,
         IElementsBufferModel instanceModel
     ) {
-        if (!instanceModel.HasElements)
+        if (!instanceModel.HasElements || instanceModel.Buffer is not { } buffer)
             context.DrawIndexed(indexBuffer.ElementCount, 0, 0);
         else
-            context.DrawIndexedInstanced(indexBuffer.ElementCount, instanceModel.Buffer.ElementCount, 0, 0, 0);
+            context.DrawIndexedInstanced(indexBuffer.ElementCount, buffer.ElementCount, 0, 0, 0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -175,10 +178,10 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         IElementsBufferProxy vertexBuffer,
         IElementsBufferModel instanceModel
     ) {
-        if (!instanceModel.HasElements)
+        if (!instanceModel.HasElements || instanceModel.Buffer is not { } buffer)
             context.Draw(vertexBuffer.ElementCount, 0);
         else
-            context.DrawInstanced(vertexBuffer.ElementCount, instanceModel.Buffer.ElementCount, 0, 0);
+            context.DrawInstanced(vertexBuffer.ElementCount, buffer.ElementCount, 0, 0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

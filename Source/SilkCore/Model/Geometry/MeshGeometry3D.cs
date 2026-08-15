@@ -33,7 +33,7 @@ public class MeshGeometry3D : Geometry3D {
     /// </summary>
     public static bool EnableSmallTriangleHitTestScaling = true;
 
-    private Vector2Collection textureCoordinates;
+    private Vector2Collection? textureCoordinates;
 
     /// <summary>
     ///     Does not raise property changed event
@@ -67,8 +67,15 @@ public class MeshGeometry3D : Geometry3D {
 
     public IEnumerable<Triangle> Triangles {
         get {
-            for (var i = 0; i < Indices.Count; i += 3)
-                yield return new Triangle { P0 = Positions[Indices[i]], P1 = Positions[Indices[i + 1]], P2 = Positions[Indices[i + 2]] };
+            if (Indices is not { } indices || Positions is not { } positions)
+                yield break;
+
+            for (var i = 0; i < indices.Count; i += 3)
+                yield return new Triangle {
+                    P0 = positions[indices[i]],
+                    P1 = positions[indices[i + 1]],
+                    P2 = positions[indices[i + 2]]
+                };
         }
     }
 
@@ -105,9 +112,12 @@ public class MeshGeometry3D : Geometry3D {
 
         var index = 0;
         foreach (var part in meshes) {
-            positions.AddRange(part.Positions);
-            indices.AddRange(part.Indices.Select(x => x + index));
-            index += part.Positions.Count;
+            if (part.Positions is not { } partPositions || part.Indices is not { } partIndices)
+                throw new InvalidOperationException("Mesh positions and indices are required to merge meshes.");
+
+            positions.AddRange(partPositions);
+            indices.AddRange(partIndices.Select(x => x + index));
+            index += partPositions.Count;
         }
 
         if (normals != null) normals = [.. meshes.SelectMany(x => x.Normals ?? [])];
@@ -133,7 +143,12 @@ public class MeshGeometry3D : Geometry3D {
     }
 
 
-    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) => new StaticMeshGeometryOctree(Positions, Indices, parameter);
+    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) {
+        if (Positions is not { } positions || Indices is not { } indices)
+            throw new InvalidOperationException("Mesh positions and indices are required to create an octree.");
+
+        return new StaticMeshGeometryOctree(positions, indices, parameter);
+    }
 
     protected override void OnAssignTo(Geometry3D target) {
         base.OnAssignTo(target);

@@ -144,14 +144,15 @@ public class UiRotateManipulator3D : UiManipulator3D {
         if (!IsMouseCaptured)
             return;
 
-        var args = e as Mouse3DEventArgs;
+        if (e is not Mouse3DEventArgs args || Viewport is not { } viewport)
+            return;
 
         // --- get the plane for translation (camera normal is a good choice)                     
         var normal = CameraNormal;
         var position = new Vector3(TotalModelMatrix.M41, TotalModelMatrix.M42, TotalModelMatrix.M43);
 
         // --- hit position 
-        if (Viewport.UnProjectOnPlane(args.Position.ToVector2(), LastHitPosWs, normal, out var newHitPos)) {
+        if (viewport.UnProjectOnPlane(args.Position.ToVector2(), LastHitPosWs, normal, out var newHitPos)) {
             var v = LastHitPosWs - position;
             var u = newHitPos - position;
             v.Normalize();
@@ -167,8 +168,8 @@ public class UiRotateManipulator3D : UiManipulator3D {
                 new RotateTransform3D(new AxisAngleRotation3D(Axis.ToVector3D(), theta), Pivot.ToPoint3D());
 
             // rotate target
-            if (TargetTransform != null) {
-                TargetTransform = new MatrixTransform3D(rotateTransform.AppendTransform(TargetTransform).Value);
+            if (TargetTransform is { } targetTransform) {
+                TargetTransform = new MatrixTransform3D(rotateTransform.AppendTransform(targetTransform).Value);
             } else {
                 if (Transform == null)
                     Transform = rotateTransform;

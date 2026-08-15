@@ -8,23 +8,23 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace HelixToolkit.SharpDX.Core.Model.Components;
 public sealed class GeometryBoundManager : IDisposable {
-    public delegate bool OnCheckGeometryDelegate(Geometry3D geometry);
+    public delegate bool OnCheckGeometryDelegate(Geometry3D? geometry);
 
     private readonly WeakReference<GeometryNode> elementCore;
-    public OnCheckGeometryDelegate OnCheckGeometry;
+    public OnCheckGeometryDelegate? OnCheckGeometry;
 
     public GeometryBoundManager(GeometryNode core) {
         elementCore = new WeakReference<GeometryNode>(core);
         core.TransformChanged += OnTransformChanged;
     }
 
-    private void OnGeometryPropertyChangedPrivate(object sender, PropertyChangedEventArgs e) {
-        if (e.PropertyName.Equals(nameof(Geometry3D.Positions)) ||
-            e.PropertyName.Equals(Geometry3D.VertexBuffer))
-            GeometryValid = OnCheckGeometry != null ? OnCheckGeometry.Invoke(geometry) : CheckGeometry();
-        else if (e.PropertyName.Equals(nameof(Geometry3D.Bound)))
+    private void OnGeometryPropertyChangedPrivate(object? sender, PropertyChangedEventArgs e) {
+        if (e.PropertyName == nameof(Geometry3D.Positions) ||
+            e.PropertyName == Geometry3D.VertexBuffer)
+            GeometryValid = OnCheckGeometry?.Invoke(geometry) ?? CheckGeometry();
+        else if (e.PropertyName == nameof(Geometry3D.Bound))
             UpdateBoundingBox();
-        else if (e.PropertyName.Equals(nameof(Geometry3D.BoundingSphere))) UpdateBoundingSphere();
+        else if (e.PropertyName == nameof(Geometry3D.BoundingSphere)) UpdateBoundingSphere();
     }
 
     /// <summary>
@@ -35,9 +35,9 @@ public sealed class GeometryBoundManager : IDisposable {
     /// </summary>
     /// <returns>
     /// </returns>
-    private bool CheckGeometry() => !(Geometry == null || Geometry.Positions == null || Geometry.Positions.Count == 0);
+    private bool CheckGeometry() => Geometry?.Positions is { Count: > 0 };
 
-    private void OnTransformChanged(object sender, TransformArgs e) {
+    private void OnTransformChanged(object? sender, TransformArgs e) {
         var oldBound = BoundsWithTransform;
         BoundsWithTransform = Bounds.Transform(e);
         RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
@@ -47,23 +47,24 @@ public sealed class GeometryBoundManager : IDisposable {
     }
 
     private void UpdateBoundingBox() {
-        if (!GeometryValid) {
+        var geometry = Geometry;
+        if (!GeometryValid || geometry is null) {
             Bounds = DefaultBound;
             BoundsWithTransform = DefaultBound;
         } else {
             if (!elementCore.TryGetTarget(out var target)) return;
             BoundingBox oldBound;
-            if (!HasInstances) {
+            if (Instances is not { Count: > 0 } instances) {
                 oldBound = Bounds;
-                Bounds = Geometry.Bound;
+                Bounds = geometry.Bound;
                 RaiseOnBoundChanged(Bounds, oldBound);
                 oldBound = BoundsWithTransform;
                 BoundsWithTransform = Bounds.Transform(target.TotalModelMatrixInternal);
                 RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
             } else {
-                var bound = Geometry.Bound.Transform(Instances[0]);
-                foreach (var instance in Instances) {
-                    var b = Geometry.Bound.Transform(instance);
+                var bound = geometry.Bound.Transform(instances[0]);
+                foreach (var instance in instances) {
+                    var b = geometry.Bound.Transform(instance);
                     BoundingBox.Merge(ref bound, ref b, out bound);
                 }
 
@@ -78,24 +79,25 @@ public sealed class GeometryBoundManager : IDisposable {
     }
 
     private void UpdateBoundingSphere() {
-        if (!GeometryValid) {
+        var geometry = Geometry;
+        if (!GeometryValid || geometry is null) {
             BoundsSphere = DefaultBoundSphere;
             BoundsSphereWithTransform = DefaultBoundSphere;
         } else {
             if (!elementCore.TryGetTarget(out var target)) return;
             BoundingSphere oldSphere;
-            if (!HasInstances) {
+            if (Instances is not { Count: > 0 } instances) {
                 oldSphere = BoundsSphere;
-                BoundsSphere = Geometry.BoundingSphere;
+                BoundsSphere = geometry.BoundingSphere;
                 RaiseOnBoundSphereChanged(BoundsSphere, oldSphere);
                 oldSphere = BoundsSphereWithTransform;
                 BoundsSphereWithTransform =
                     BoundsSphere.TransformBoundingSphere(target.TotalModelMatrixInternal);
                 RaiseOnTransformBoundSphereChanged(BoundsSphereWithTransform, oldSphere);
             } else {
-                var boundSphere = Geometry.BoundingSphere.TransformBoundingSphere(Instances[0]);
-                foreach (var instance in Instances) {
-                    var bs = Geometry.BoundingSphere.TransformBoundingSphere(instance);
+                var boundSphere = geometry.BoundingSphere.TransformBoundingSphere(instances[0]);
+                foreach (var instance in instances) {
+                    var bs = geometry.BoundingSphere.TransformBoundingSphere(instance);
                     BoundingSphereExtensions.Merge(ref boundSphere, ref bs, out boundSphere);
                 }
 
@@ -111,7 +113,7 @@ public sealed class GeometryBoundManager : IDisposable {
     }
 
     private void UpdateBounds() {
-        GeometryValid = OnCheckGeometry != null ? OnCheckGeometry.Invoke(geometry) : CheckGeometry();
+        GeometryValid = OnCheckGeometry?.Invoke(geometry) ?? CheckGeometry();
         UpdateBoundingBox();
         UpdateBoundingSphere();
     }
@@ -122,11 +124,11 @@ public sealed class GeometryBoundManager : IDisposable {
 
     #region Properties
 
-    private Geometry3D geometry;
+    private Geometry3D? geometry;
 
     /// <summary>
     /// </summary>
-    public Geometry3D Geometry {
+    public Geometry3D? Geometry {
         get => geometry;
         set {
             if (geometry == value) return;
@@ -148,9 +150,9 @@ public sealed class GeometryBoundManager : IDisposable {
         }
     }
 
-    private IList<Matrix> instances;
+    private IList<Matrix>? instances;
 
-    public IList<Matrix> Instances {
+    public IList<Matrix>? Instances {
         get => instances;
         set {
             if (instances == value) return;
@@ -159,7 +161,7 @@ public sealed class GeometryBoundManager : IDisposable {
         }
     }
 
-    public bool HasInstances => instances != null && instances.Count > 0;
+    public bool HasInstances => instances is { Count: > 0 };
 
     public bool GeometryValid { get; private set; }
 

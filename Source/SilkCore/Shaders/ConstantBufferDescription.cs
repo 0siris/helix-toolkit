@@ -38,8 +38,6 @@ public sealed class ConstantBufferDescription {
         int strideSize = 0
     )
         : this(name, structSize, strideSize) {
-        if (variables == null) return;
-
         foreach (var variable in variables) Variables.Add(variable);
     }
 

@@ -91,7 +91,7 @@ public interface IBillboardBufferModel : IDisposable {
     /// <value>
     ///     The texture view.
     /// </value>
-    ShaderResourceViewProxy TextureView { get; }
+    ShaderResourceViewProxy? TextureView { get; }
 
     /// <summary>
     ///     Gets the billboard type.

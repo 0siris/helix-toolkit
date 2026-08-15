@@ -212,15 +212,18 @@ public class AxisPlaneGridCore : RenderCore {
     }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
+        if (defaultShaderPass is not { } shaderPass)
+            return;
+
         OnUpdatePerModelStruct(context);
         modelCb.Upload(deviceContext, ref modelStruct);
-        defaultShaderPass.BindShader(deviceContext);
-        defaultShaderPass.BindStates(deviceContext,
-                                     StateType.BlendState | StateType.DepthStencilState |
-                                     StateType.RasterState);
+        shaderPass.BindShader(deviceContext);
+        shaderPass.BindStates(deviceContext,
+                              StateType.BlendState | StateType.DepthStencilState |
+                              StateType.RasterState);
         if (RenderShadowMap && context.SharedResource.ShadowView != null) {
-            defaultShaderPass.PixelShader.BindTexture(deviceContext, shadowMapSlot, context.SharedResource.ShadowView);
-            defaultShaderPass.PixelShader.BindSampler(deviceContext, samplerSlot, ShadowSampler);
+            shaderPass.PixelShader.BindTexture(deviceContext, shadowMapSlot, context.SharedResource.ShadowView);
+            shaderPass.PixelShader.BindSampler(deviceContext, samplerSlot, ShadowSampler);
         }
 
         deviceContext.Draw(4, 0);
@@ -228,14 +231,14 @@ public class AxisPlaneGridCore : RenderCore {
 
     private void OnUpdatePerModelStruct(RenderContext context) {
         modelStruct.World = ModelMatrix;
-        if (autoSpacing) {
+        if (autoSpacing && context.Camera is { } camera) {
             //Disable auto spacing if view angle larger than 60 degree of plane normal
-            var lookDir = SilkMath.Normalize(context.Camera.LookDirection);
+            var lookDir = SilkMath.Normalize(camera.LookDirection);
             var angle = Math.Acos(Math.Abs(SilkMath.Dot(upDirection, lookDir)));
             if (angle > Math.PI / 3) 
                 return;
             
-            var r = new Ray(context.Camera.Position, SilkMath.Normalize(context.Camera.LookDirection));
+            var r = new Ray(camera.Position, SilkMath.Normalize(camera.LookDirection));
             var plane = new Plane(upDirection, modelStruct.PlaneD);
             if (plane.Intersects(ref r, out var l)) {
                 l /= autoSpacingChangeRate;

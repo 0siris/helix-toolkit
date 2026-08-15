@@ -27,10 +27,10 @@ public class PhongMaterialVariables : MaterialVariable {
     private readonly IStatePoolManager statePoolManager;
 
     private readonly ITextureResourceManager textureManager;
-    private readonly ShaderResourceViewProxy[] textureResources = new ShaderResourceViewProxy[Numtextures];
+    private readonly ShaderResourceViewProxy?[] textureResources = new ShaderResourceViewProxy?[Numtextures];
 
     private int samplerDiffuseSlot, samplerDisplaceSlot, samplerShadowSlot;
-    private SamplerStateProxy surfaceSampler, displacementSampler, shadowSampler;
+    private SamplerStateProxy? surfaceSampler, displacementSampler, shadowSampler;
 
     private int texDiffuseSlot,
                 texAlphaSlot,
@@ -335,7 +335,7 @@ public class PhongMaterialVariables : MaterialVariable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void CreateTextureView(TextureModel textureModel, int index) {
+    private void CreateTextureView(TextureModel? textureModel, int index) {
         var newTexture = textureModel == null ? null : textureManager.Register(textureModel);
         RemoveAndDispose(ref textureResources[index]);
         textureResources[index] = newTexture;
@@ -490,9 +490,10 @@ public class PhongMaterialVariables : MaterialVariable {
 
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) {
-        DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
+        if (bufferModel?.IndexBuffer is { } indexBuffer)
+            DrawIndexed(deviceContext, indexBuffer.ElementCount, instanceCount);
     }
 }

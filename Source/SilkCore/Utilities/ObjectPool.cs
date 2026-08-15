@@ -7,9 +7,6 @@ public sealed class ObjectPool<T> {
     private readonly int maxCapacity;
 
     public ObjectPool(Func<T> objectGenerator, int maxCapacity = int.MaxValue / 2) {
-        if (objectGenerator == null)
-            ArgumentNullException.ThrowIfNull(objectGenerator);
-
         objects = [];
         this.objectGenerator = objectGenerator;
         this.maxCapacity = maxCapacity;
@@ -18,8 +15,7 @@ public sealed class ObjectPool<T> {
     public int Count => objects.Count;
 
     public T GetObject() {
-        T item;
-        if (objects.TryTake(out item))
+        if (objects.TryTake(out var item) && item is not null)
             return item;
         return objectGenerator();
     }

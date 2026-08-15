@@ -33,8 +33,8 @@ public class Canvas2D : Panel2D {
         /// <param name="finalSize">The final size.</param>
         /// <returns></returns>
         protected override RectangleF ArrangeOverride(RectangleF finalSize) {
-            foreach (var child in Items)
-                if (child is SceneNode2D c && c.WrapperSource is Element2DCore element2D) {
+            foreach (var c in Items)
+                if (c.WrapperSource is Element2DCore element2D) {
                     float xPos = 0;
                     float yPos = 0;
                     var left = GetLeft(element2D);
@@ -72,7 +72,9 @@ public class Canvas2D : Panel2D {
     public static readonly DependencyProperty LeftProperty = DependencyProperty.RegisterAttached("Left",
         typeof(double),
         typeof(Canvas2D),
-        new PropertyMetadata(double.PositiveInfinity, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
+        new PropertyMetadata(double.PositiveInfinity, (d, e) => {
+            if (d is Element2DCore element) element.InvalidateMeasure();
+        }));
 
     /// <summary>
     ///     Sets the left.
@@ -96,7 +98,9 @@ public class Canvas2D : Panel2D {
     public static readonly DependencyProperty TopProperty = DependencyProperty.RegisterAttached("Top",
         typeof(double),
         typeof(Canvas2D),
-        new PropertyMetadata(double.PositiveInfinity, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
+        new PropertyMetadata(double.PositiveInfinity, (d, e) => {
+            if (d is Element2DCore element) element.InvalidateMeasure();
+        }));
 
     /// <summary>
     ///     Sets the top.
@@ -120,7 +124,9 @@ public class Canvas2D : Panel2D {
     public static readonly DependencyProperty RightProperty = DependencyProperty.RegisterAttached("Right",
         typeof(double),
         typeof(Canvas2D),
-        new PropertyMetadata(double.PositiveInfinity, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
+        new PropertyMetadata(double.PositiveInfinity, (d, e) => {
+            if (d is Element2DCore element) element.InvalidateMeasure();
+        }));
 
     /// <summary>
     ///     Sets the right.
@@ -144,7 +150,9 @@ public class Canvas2D : Panel2D {
     public static readonly DependencyProperty BottomProperty = DependencyProperty.RegisterAttached("Bottom",
         typeof(double),
         typeof(Canvas2D),
-        new PropertyMetadata(double.PositiveInfinity, (d, e) => { (d as Element2DCore).InvalidateMeasure(); }));
+        new PropertyMetadata(double.PositiveInfinity, (d, e) => {
+            if (d is Element2DCore element) element.InvalidateMeasure();
+        }));
 
     /// <summary>
     ///     Sets the bottom.

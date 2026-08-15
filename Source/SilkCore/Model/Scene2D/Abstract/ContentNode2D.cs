@@ -22,15 +22,19 @@ public abstract class ContentNode2D : PresenterNode2D {
     } = VerticalAlignment.Center;
 
     public Brush Background {
-        get => (RenderCore as BorderRenderCore2D).Background;
-        set => (RenderCore as BorderRenderCore2D).Background = value;
+        get => (RenderCore as BorderRenderCore2D)?.Background
+            ?? throw new InvalidOperationException("The border render core has not been created.");
+        set {
+            if (RenderCore is BorderRenderCore2D core)
+                core.Background = value;
+        }
     }
 
     protected override RenderCore2D CreateRenderCore() => new BorderRenderCore2D();
 
     protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
-        if (Content != null && LayoutBoundWithTransform.Contains(mousePoint))
-            return Content.HitTest(mousePoint, out hitResult);
+        if (Content is { } content && LayoutBoundWithTransform.Contains(mousePoint))
+            return content.HitTest(mousePoint, out hitResult);
 
         hitResult = null;
         return false;
@@ -38,14 +42,13 @@ public abstract class ContentNode2D : PresenterNode2D {
 
     protected override Size2F MeasureOverride(Size2F availableSize) {
         var maxContentSize = new Size2F();
-        foreach (var item in Items)
-            if (item is SceneNode2D e) {
-                e.HorizontalAlignment = HorizontalContentAlignment;
-                e.VerticalAlignment = VerticalContentAlignment;
-                e.Measure(availableSize);
-                maxContentSize.Width = Math.Max(maxContentSize.Width, e.DesiredSize.X);
-                maxContentSize.Height = Math.Max(maxContentSize.Height, e.DesiredSize.Y);
-            }
+        foreach (var e in Items) {
+            e.HorizontalAlignment = HorizontalContentAlignment;
+            e.VerticalAlignment = VerticalContentAlignment;
+            e.Measure(availableSize);
+            maxContentSize.Width = Math.Max(maxContentSize.Width, e.DesiredSize.X);
+            maxContentSize.Height = Math.Max(maxContentSize.Height, e.DesiredSize.Y);
+        }
 
         if (HorizontalAlignment == HorizontalAlignment.Center) {
             availableSize.Width = Math.Min(availableSize.Width, maxContentSize.Width);

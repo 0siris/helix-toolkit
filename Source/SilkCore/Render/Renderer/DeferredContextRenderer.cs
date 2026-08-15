@@ -12,6 +12,7 @@ namespace HelixToolkit.SharpDX.Core.Render;
 public class DeferredContextRenderer : ImmediateContextRenderer {
     private readonly List<KeyValuePair<int, CommandList>> commandList = [];
     private readonly IRenderTaskScheduler scheduler;
+    [System.Diagnostics.CodeAnalysis.AllowNull]
     private IDeviceContextPool deferredContextPool;
 
     /// <summary>

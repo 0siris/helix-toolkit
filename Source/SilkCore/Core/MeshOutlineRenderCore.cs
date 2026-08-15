@@ -21,7 +21,7 @@ public class MeshOutlineRenderCore : MeshRenderCore, IMeshOutlineParams {
 
     /// <summary>
     /// </summary>
-    protected ShaderPass OutlineShaderPass { get; private set; }
+    protected ShaderPass OutlineShaderPass { get; private set; } = ShaderPass.NullPass;
 
 #endregion
 
@@ -53,14 +53,16 @@ public class MeshOutlineRenderCore : MeshRenderCore, IMeshOutlineParams {
         if (DrawOutlineBeforeMesh) {
             OutlineShaderPass.BindShader(deviceContext);
             OutlineShaderPass.BindStates(deviceContext, DefaultStateBinding);
-            DrawIndexed(deviceContext, GeometryBuffer.IndexBuffer, InstanceBuffer);
+            if (GeometryBuffer is { IndexBuffer: { } indexBuffer } && InstanceBuffer is { } instanceBuffer)
+                DrawIndexed(deviceContext, indexBuffer, instanceBuffer);
         }
 
         if (DrawMesh) base.OnRender(context, deviceContext);
         if (!DrawOutlineBeforeMesh) {
             OutlineShaderPass.BindShader(deviceContext);
             OutlineShaderPass.BindStates(deviceContext, DefaultStateBinding);
-            DrawIndexed(deviceContext, GeometryBuffer.IndexBuffer, InstanceBuffer);
+            if (GeometryBuffer is { IndexBuffer: { } indexBuffer } && InstanceBuffer is { } instanceBuffer)
+                DrawIndexed(deviceContext, indexBuffer, instanceBuffer);
         }
     }
 
@@ -115,8 +117,9 @@ public class MeshOutlineRenderCore : MeshRenderCore, IMeshOutlineParams {
     public string OutlinePassName {
         get;
         set {
-            if (SetAffectsRender(ref field, value) && IsAttached)
-                OutlineShaderPass = EffectTechnique[value];
+            if (SetAffectsRender(ref field, value) && IsAttached && EffectTechnique is { } technique
+                && technique[value] is { } pass)
+                OutlineShaderPass = pass;
         }
     } = DefaultPassNames.MeshOutline;
 

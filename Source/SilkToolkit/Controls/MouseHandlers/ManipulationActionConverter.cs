@@ -27,7 +27,7 @@ public class ManipulationActionConverter : TypeConverter {
         return false;
     }
 
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
+    public override object ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
         if (value is string manipulationActionToken) {
             manipulationActionToken = manipulationActionToken.Trim();
             var result = ManipulationAction.None;
@@ -41,7 +41,7 @@ public class ManipulationActionConverter : TypeConverter {
         return GetConvertFromException(value);
     }
 
-    public override object? ConvertTo(
+    public override object ConvertTo(
         ITypeDescriptorContext? context,
         CultureInfo? culture,
         object? value,

@@ -71,9 +71,10 @@ public sealed class PingPongColorBuffers : DisposeObject {
         lock (lockObj) {
             if (Initialized) return;
             for (var i = 0; i < NumPingPongBlurBuffer; ++i) {
-                textures[i] = new ShaderResourceViewProxy(deviceResources, texture2DDesc);
-                textures[i].CreateRenderTargetView();
-                textures[i].CreateTextureView();
+                var texture = new ShaderResourceViewProxy(deviceResources, texture2DDesc);
+                texture.CreateRenderTargetView();
+                texture.CreateTextureView();
+                textures[i] = texture;
             }
 
             Initialized = true;
@@ -101,7 +102,7 @@ public sealed class PingPongColorBuffers : DisposeObject {
 
     private const int NumPingPongBlurBuffer = 2;
 
-    private readonly ShaderResourceViewProxy[] textures = new ShaderResourceViewProxy[NumPingPongBlurBuffer];
+    private readonly ShaderResourceViewProxy?[] textures = new ShaderResourceViewProxy?[NumPingPongBlurBuffer];
 
     private readonly Texture2DDescription texture2DDesc = new() {
         BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
@@ -172,6 +173,7 @@ public sealed class TexturePool : DisposeObject {
         }
 
         if (Logger.IsEnabled(LogLevel.Trace)) Logger.Verbose("Create New Full Screen Texture");
+        if (texture is null) return ShaderResourceViewProxy.Empty;
         texture.IncRef();
         return texture;
     }

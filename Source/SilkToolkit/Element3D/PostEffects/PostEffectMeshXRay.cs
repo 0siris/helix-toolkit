@@ -38,8 +38,8 @@ public class PostEffectMeshXRay : Element3D {
                                     typeof(PostEffectMeshXRay),
                                     new PropertyMetadata(DefaultRenderTechniqueNames.PostEffectMeshXRay,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as NodePostEffectXRay)
-                                                                 .EffectName = (string)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: NodePostEffectXRay node })
+                                                                 node.EffectName = (string)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -62,8 +62,8 @@ public class PostEffectMeshXRay : Element3D {
         typeof(PostEffectMeshXRay),
         new PropertyMetadata(Colors.Blue,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as NodePostEffectXRay).Color =
-                                     ((Color)e.NewValue).ToColor4();
+                                 if (d is Element3DCore { SceneNode: NodePostEffectXRay node })
+                                     node.Color = ((Color)e.NewValue).ToColor4();
                              }));
 
     /// <summary>
@@ -85,8 +85,8 @@ public class PostEffectMeshXRay : Element3D {
         typeof(PostEffectMeshXRay),
         new PropertyMetadata(1.5,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as NodePostEffectXRay).OutlineFadingFactor =
-                                     (float)(double)e.NewValue;
+                                 if (d is Element3DCore { SceneNode: NodePostEffectXRay node })
+                                     node.OutlineFadingFactor = (float)(double)e.NewValue;
                              }));
 
     /// <summary>
@@ -110,8 +110,8 @@ public class PostEffectMeshXRay : Element3D {
                                     typeof(PostEffectMeshXRay),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as NodePostEffectXRay)
-                                                                 .EnableDoublePass = (bool)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: NodePostEffectXRay node })
+                                                                 node.EnableDoublePass = (bool)e.NewValue;
                                                          }));
 
 

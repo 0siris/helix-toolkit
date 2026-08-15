@@ -119,13 +119,15 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     }
 
     private void DynamicReflectionNode_OnRemoveChildNode(object? sender, OnChildNodeChangedArgs e) {
-        ((DynamicCubeMapCore) RenderCore).IgnoredGuid.Remove(e.Node.RenderCore.Guid);
-        if (e.Node is IDynamicReflectable dyn) dyn.DynamicReflector = null;
+        if (e.Node is not { } node) return;
+        ((DynamicCubeMapCore)RenderCore).IgnoredGuid.Remove(node.RenderCore.Guid);
+        if (node is IDynamicReflectable dyn) dyn.DynamicReflector = null;
     }
 
     private void DynamicReflectionNode_OnAddChildNode(object? sender, OnChildNodeChangedArgs e) {
-        ((DynamicCubeMapCore) RenderCore).IgnoredGuid.Add(e.Node.RenderCore.Guid);
-        if (e.Node is IDynamicReflectable dyn) dyn.DynamicReflector = this;
+        if (e.Node is not { } node) return;
+        ((DynamicCubeMapCore)RenderCore).IgnoredGuid.Add(node.RenderCore.Guid);
+        if (node is IDynamicReflectable dyn) dyn.DynamicReflector = this;
     }
 
     protected override RenderCore OnCreateRenderCore() => new DynamicCubeMapCore();

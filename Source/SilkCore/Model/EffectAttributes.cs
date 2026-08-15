@@ -3,6 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace HelixToolkit.SharpDX.Core.Model;
 /// <summary>
 /// </summary>
@@ -18,7 +20,7 @@ public interface IEffectAttributes {
     void AddAttribute(string attName, object parameter);
     void RemoveAttribute(string attName);
     object? GetAttribute(string attName);
-    bool TryGetAttribute(string attName, out object attribute);
+    bool TryGetAttribute(string attName, [MaybeNullWhen(false)] out object attribute);
 }
 
 /// <summary>
@@ -71,7 +73,8 @@ public sealed class EffectAttributes : IEffectAttributes {
     /// <param name="attName">Name of the att.</param>
     /// <param name="attribute">The attribute.</param>
     /// <returns></returns>
-    public bool TryGetAttribute(string attName, out object attribute) => attributes.TryGetValue(attName, out attribute);
+    public bool TryGetAttribute(string attName, [MaybeNullWhen(false)] out object attribute) =>
+        attributes.TryGetValue(attName, out attribute);
 
     /// <summary>
     ///     Parses the specified att string.

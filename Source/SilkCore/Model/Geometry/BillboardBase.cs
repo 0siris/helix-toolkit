@@ -7,8 +7,6 @@ using HelixToolkit.Logger;
 using Microsoft.Extensions.Logging;
 
 
-
-
 namespace HelixToolkit.SharpDX.Core;
 
 public abstract class BillboardBase : Geometry3D, IBillboardText {
@@ -20,7 +18,7 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
 
     public abstract BillboardType Type { get; }
 
-    public TextureModel Texture { get; protected set; }
+    public TextureModel? Texture { get; protected set; }
 
     public float Width { get; protected set; }
 
@@ -101,7 +99,7 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
         object originalSource,
         int count
     ) {
-        if (BillboardVertices == null || BillboardVertices.Count == 0) return false;
+        if (BillboardVertices.Count == 0) return false;
         var h = false;
         var result = new BillboardHitResult {
             Distance = double.MaxValue
@@ -117,12 +115,12 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
             var dir = c - context.RayWs.Position;
             if (SilkMath.Dot(dir, context.RayWs.Direction) < 0) continue;
             var quad = GetScreenQuad(ref c,
-                                     ref vert.OffTL,
-                                     ref vert.OffTR,
-                                     ref vert.OffBL,
-                                     ref vert.OffBR,
-                                     ref visualToScreen,
-                                     context.RenderMatrices.DpiScale);
+                ref vert.OffTL,
+                ref vert.OffTR,
+                ref vert.OffBL,
+                ref vert.OffBR,
+                ref visualToScreen,
+                context.RenderMatrices.DpiScale);
             if (quad.IsPointInQuad2D(ref screenPoint)) {
                 var v = c - context.RayWs.Position;
                 var dist = SilkMath.Dot(context.RayWs.Direction, v);
@@ -138,7 +136,9 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
                 if (Logger.IsEnabled(LogLevel.Trace))
                     Logger.Verbose("Hit; HitPoint:{Value0}; Text={Value1}", [
                         result.PointHit,
-                        result.TextInfo == null ? Type.ToString() : result.TextInfo.Text
+                        result.TextInfo == null
+                            ? Type.ToString()
+                            : result.TextInfo.Text
                     ]);
             }
         }
@@ -154,7 +154,7 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
 
     protected override void OnClearAllGeometryData() {
         base.OnClearAllGeometryData();
-        BillboardVertices?.Clear();
+        BillboardVertices.Clear();
         (BillboardVertices as FastList<BillboardVertex>)?.TrimExcess();
     }
 
@@ -174,7 +174,7 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
         object originalSource,
         int count
     ) {
-        if (BillboardVertices == null || BillboardVertices.Count == 0) return false;
+        if (BillboardVertices.Count == 0) return false;
         var h = false;
         var result = new BillboardHitResult {
             Distance = double.MaxValue
@@ -189,12 +189,12 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
             var dir = c - rayWs.Position;
             if (SilkMath.Dot(dir, rayWs.Direction) < 0) continue;
             var quad = GetHitTestQuad(ref c,
-                                      ref vert.OffTL,
-                                      ref vert.OffTR,
-                                      ref vert.OffBL,
-                                      ref vert.OffBR,
-                                      ref viewMatrix,
-                                      ref viewMatrixInv);
+                ref vert.OffTL,
+                ref vert.OffTR,
+                ref vert.OffBL,
+                ref vert.OffBR,
+                ref viewMatrix,
+                ref viewMatrixInv);
             if (Collision.RayIntersectsTriangle(ref rayWs, ref quad.Tl, ref quad.Tr, ref quad.Br, out Vector3 hitPoint)
                 || Collision.RayIntersectsTriangle(ref rayWs, ref quad.Tl, ref quad.Br, ref quad.Bl, out hitPoint)) {
                 var dist = (rayWs.Position - hitPoint).Length;
@@ -209,7 +209,9 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
                 if (Logger.IsEnabled(LogLevel.Trace))
                     Logger.Verbose("Hit; HitPoint:{Value0}; Text={Value1}", [
                         result.PointHit,
-                        result.TextInfo == null ? Type.ToString() : result.TextInfo.Text
+                        result.TextInfo == null
+                            ? Type.ToString()
+                            : result.TextInfo.Text
                     ]);
             }
         }

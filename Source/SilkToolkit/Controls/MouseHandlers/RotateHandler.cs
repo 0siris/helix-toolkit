@@ -133,9 +133,10 @@ internal class RotateHandler : MouseGestureHandler {
 
         p0 = SilkMath.Multiply(p0, Controller.AllowRotateXy);
         p1 = SilkMath.Multiply(p1, Controller.AllowRotateXy);
-        var newPos = Camera.CameraInternal.Position;
-        var newLook = Camera.CameraInternal.LookDirection;
-        var newUp = SilkMath.Normalize(Camera.CameraInternal.UpDirection);
+        var camera = Camera.CameraInternal;
+        var newPos = camera.Position;
+        var newLook = camera.LookDirection;
+        var newUp = SilkMath.Normalize(camera.UpDirection);
         switch (Controller.CameraRotationMode) {
             case CameraRotationMode.Trackball:
                 CameraMath.RotateTrackball(CameraMode,
@@ -145,7 +146,7 @@ internal class RotateHandler : MouseGestureHandler {
                                            (float)RotationSensitivity,
                                            Controller.Width,
                                            Controller.Height,
-                                           Camera,
+                                           camera,
                                            Inv,
                                            out newPos,
                                            out newLook,
@@ -159,7 +160,7 @@ internal class RotateHandler : MouseGestureHandler {
                                            (float)RotationSensitivity,
                                            Controller.Width,
                                            Controller.Height,
-                                           Camera,
+                                           camera,
                                            Inv,
                                            invertUpDir ? -ModelUpDirection : ModelUpDirection,
                                            out newPos,
@@ -174,7 +175,7 @@ internal class RotateHandler : MouseGestureHandler {
                                           (float)RotationSensitivity,
                                           Controller.Width,
                                           Controller.Height,
-                                          Camera,
+                                           camera,
                                           Inv,
                                           out newPos,
                                           out newLook,
@@ -237,10 +238,11 @@ internal class RotateHandler : MouseGestureHandler {
             case CameraRotationMode.Turntable:
                 break;
             case CameraRotationMode.Turnball:
+                var camera = Camera.CameraInternal;
                 CameraMath.InitTurnballRotationAxes(e.ToVector2(),
                                                     (int)Viewport.ActualWidth,
                                                     (int)Viewport.ActualHeight,
-                                                    Camera,
+                                                    camera,
                                                     out rotationAxisX,
                                                     out rotationAxisY);
                 break;

@@ -21,9 +21,9 @@ public class BoneSkinRenderCore : MeshRenderCore {
     private int mtOffsetsBSlot;
     private int mtWeightsBSlot;
     private IBoneSkinPreComputehBufferModel? preComputeBoneBuffer;
-    private ShaderPass preComputeBoneSkinPass;
+    private ShaderPass preComputeBoneSkinPass = ShaderPass.NullPass;
 
-    private BoneUploaderCore sharedBoneBuffer;
+    private BoneUploaderCore? sharedBoneBuffer;
 
     public BoneSkinRenderCore() {
         NeedUpdate = true;
@@ -43,13 +43,13 @@ public class BoneSkinRenderCore : MeshRenderCore {
         }
     }
 
-    public BoneUploaderCore SharedBoneBuffer {
+    public BoneUploaderCore? SharedBoneBuffer {
         get => sharedBoneBuffer;
         set {
             var old = sharedBoneBuffer;
             if (Set(ref sharedBoneBuffer, value)) {
-                old.BoneChanged -= OnBoneChanged;
-                value.BoneChanged += OnBoneChanged;
+                old?.BoneChanged -= OnBoneChanged;
+                value?.BoneChanged += OnBoneChanged;
                 matricsChanged = true;
             }
         }
@@ -62,16 +62,16 @@ public class BoneSkinRenderCore : MeshRenderCore {
         matricsChanged = true;
         preComputeBoneSkinPass = technique[DefaultPassNames.PreComputeMeshBoneSkinned];
         boneSkinSbSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                                               .GetMapping(DefaultBufferNames.BoneSkinSb).Slot;
+                                               .TryGetBindSlot(DefaultBufferNames.BoneSkinSb);
             
         mtWeightsBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                                               .GetMapping(DefaultBufferNames.MtWeightsB).Slot;
+                                               .TryGetBindSlot(DefaultBufferNames.MtWeightsB);
             
         mtDeltasBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                                              .GetMapping(DefaultBufferNames.MtDeltasB).Slot;
+                                              .TryGetBindSlot(DefaultBufferNames.MtDeltasB);
             
         mtOffsetsBSlot = preComputeBoneSkinPass.VertexShader.ShaderResourceViewMapping
-                                               .GetMapping(DefaultBufferNames.MtOffsetsB).Slot;
+                                               .TryGetBindSlot(DefaultBufferNames.MtOffsetsB);
         
         internalBoneBuffer.Attach(technique);
         internalMtBuffer.Attach(technique);
@@ -91,7 +91,9 @@ public class BoneSkinRenderCore : MeshRenderCore {
 
     protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) {
         //Skip if not ready
-        if (preComputeBoneSkinPass.IsNull || preComputeBoneBuffer is not {CanPreCompute: true})
+        if (preComputeBoneSkinPass.IsNull
+            || preComputeBoneBuffer is not { CanPreCompute: true } preComputeBuffer
+            || EffectTechnique is not { } technique)
             return;
 
         //Skip if not necessary
@@ -101,17 +103,20 @@ public class BoneSkinRenderCore : MeshRenderCore {
         var boneBuffer = sharedBoneBuffer ?? internalBoneBuffer;
 
         if (boneBuffer.BoneMatrices.Length == 0 && !mtChanged) {
-            preComputeBoneBuffer.ResetSkinnedVertexBuffer(deviceContext);
+            preComputeBuffer.ResetSkinnedVertexBuffer(deviceContext);
         } else {
-            GeometryBuffer.UpdateBuffers(deviceContext, EffectTechnique.EffectsManager);
-            preComputeBoneBuffer.BindSkinnedVertexBufferToOutput(deviceContext);
+            if (GeometryBuffer is not { } geometryBuffer)
+                return;
+            geometryBuffer.UpdateBuffers(deviceContext, technique.EffectsManager);
+            preComputeBuffer.BindSkinnedVertexBufferToOutput(deviceContext);
             boneBuffer.Update(context, deviceContext);
             internalMtBuffer.Update(context, deviceContext);
             preComputeBoneSkinPass.BindShader(deviceContext);
             boneBuffer.BindBuffer(deviceContext, boneSkinSbSlot);
             internalMtBuffer.BindBuffers(deviceContext, mtWeightsBSlot, mtDeltasBSlot, mtOffsetsBSlot);
-            deviceContext.Draw(GeometryBuffer.VertexBuffer[0].ElementCount, 0);
-            preComputeBoneBuffer.UnBindSkinnedVertexBufferToOutput(deviceContext);
+            if (GeometryBuffer.VertexBuffer.FirstOrDefault() is { } vertexBuffer)
+                deviceContext.Draw(vertexBuffer.ElementCount, 0);
+            preComputeBuffer.UnBindSkinnedVertexBufferToOutput(deviceContext);
         }
 
         matricsChanged = false;
@@ -125,7 +130,7 @@ public class BoneSkinRenderCore : MeshRenderCore {
     }
 
     public int CopySkinnedToArray(DeviceContextProxy context, Vector3[] array) 
-        => preComputeBoneBuffer.CopySkinnedToArray(context, array);
+        => preComputeBoneBuffer?.CopySkinnedToArray(context, array) ?? 0;
 
     public bool InitializeMorphTargets(MorphTargetVertex[] targets, int pitch) 
         => internalMtBuffer.InitializeMorphTargets(targets, pitch);

@@ -50,8 +50,8 @@ public class PointGeometryModel3D : GeometryModel3D {
                                                          (d, e) =>
 #endif
                                                          {
-                                                             (d as PointGeometryModel3D).Material.PointColor =
-                                                                 ((Color)e.NewValue).ToColor4();
+                                                             if (d is PointGeometryModel3D model)
+                                                                 model.Material.PointColor = ((Color)e.NewValue).ToColor4();
                                                          }));
 
 
@@ -61,11 +61,10 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(new Size(1.0, 1.0),
                                                          (d, e) => {
+                                                             if (d is not PointGeometryModel3D model) return;
                                                              var size = (Size)e.NewValue;
-                                                             (d as PointGeometryModel3D).Material.Width =
-                                                                 (float)size.Width;
-                                                             (d as PointGeometryModel3D).Material.Height =
-                                                                 (float)size.Height;
+                                                             model.Material.Width = (float)size.Width;
+                                                             model.Material.Height = (float)size.Height;
                                                          }));
 
     public static readonly DependencyProperty FigureProperty =
@@ -74,8 +73,8 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(PointFigure.Rect,
                                                          (d, e) => {
-                                                             (d as PointGeometryModel3D).Material.Figure =
-                                                                 (PointFigure)e.NewValue;
+                                                             if (d is PointGeometryModel3D model)
+                                                                 model.Material.Figure = (PointFigure)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty FigureRatioProperty =
@@ -84,8 +83,8 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(0.25,
                                                          (d, e) => {
-                                                             (d as PointGeometryModel3D).Material.FigureRatio =
-                                                                 (float)(double)e.NewValue;
+                                                             if (d is PointGeometryModel3D model)
+                                                                 model.Material.FigureRatio = (float)(double)e.NewValue;
                                                          }));
 
     public static readonly DependencyProperty HitTestThicknessProperty =
@@ -94,8 +93,8 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(4.0,
                                                          (d, e) => {
-                                                             ((d as PointGeometryModel3D).SceneNode as PointNode)
-                                                                 .HitTestThickness = (float)(double)e.NewValue;
+                                                             if (d is PointGeometryModel3D { SceneNode: PointNode node })
+                                                                 node.HitTestThickness = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -109,8 +108,8 @@ public class PointGeometryModel3D : GeometryModel3D {
                                       typeof(PointGeometryModel3D),
                                       new PropertyMetadata(true,
                                                            (d, e) => {
-                                                               (d as PointGeometryModel3D).Material.FixedSize =
-                                                                   (bool)e.NewValue;
+                                                               if (d is PointGeometryModel3D model)
+                                                                   model.Material.FixedSize = (bool)e.NewValue;
                                                            }));
 
     // Using a DependencyProperty as the backing store for EnableColorBlending.  This enables animation, styling, binding, etc...
@@ -120,8 +119,8 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             (d as PointGeometryModel3D).Material.EnableColorBlending =
-                                                                 (bool)e.NewValue;
+                                                             if (d is PointGeometryModel3D model)
+                                                                 model.Material.EnableColorBlending = (bool)e.NewValue;
                                                          }));
 
     // Using a DependencyProperty as the backing store for BlendingFactor.  This enables animation, styling, binding, etc...
@@ -131,8 +130,8 @@ public class PointGeometryModel3D : GeometryModel3D {
                                     typeof(PointGeometryModel3D),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             (d as PointGeometryModel3D).Material.BlendingFactor =
-                                                                 (float)(double)e.NewValue;
+                                                             if (d is PointGeometryModel3D model)
+                                                                 model.Material.BlendingFactor = (float)(double)e.NewValue;
                                                          }));
 
     public Color Color {

@@ -41,7 +41,8 @@ public static class Color4Extensions {
 
         for (var i = 0; i < fields.Length; i++) {
             var field = fields[i];
-            if (field.FieldType == typeof(Color)) hash.Add(field.Name, field.GetValue(field));
+            if (field.FieldType == typeof(Color) && field.GetValue(field) is { } value)
+                hash.Add(field.Name, value);
         }
     }
 
@@ -78,7 +79,9 @@ public static class Color4Extensions {
                            (text.Length == 8 && (text.StartsWith("0x") || text.StartsWith("0X"))) ||
                            (text.Length == 8 && (text.StartsWith("&h") || text.StartsWith("&H")))) {
                     // Note: ConvertFromString will raise exception if value cannot be converted.
-                    obj = unchecked((int)(0xFF000000 | (uint)(int)intConverter.ConvertFromString(text))).FromArgb();
+                    if (intConverter.ConvertFromString(text) is not int intValue)
+                        throw new FormatException($"Cannot convert '{text}' to an integer.");
+                    obj = unchecked((int)(0xFF000000 | (uint)intValue)).FromArgb();
                 }
             }
 
@@ -87,8 +90,11 @@ public static class Color4Extensions {
             if (obj == null) {
                 var tokens = text.Split([sep]);
                 var values = new int[tokens.Length];
-                for (var i = 0; i < values.Length; i++)
-                    values[i] = unchecked((int)intConverter.ConvertFromString(tokens[i]));
+                for (var i = 0; i < values.Length; i++) {
+                    if (intConverter.ConvertFromString(tokens[i]) is not int intValue)
+                        throw new FormatException($"Cannot convert '{tokens[i]}' to an integer.");
+                    values[i] = intValue;
+                }
 
                 // We should now have a number of parsed integer values.
                 // We support 1, 3, or 4 arguments:

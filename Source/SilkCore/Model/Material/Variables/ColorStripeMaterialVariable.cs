@@ -18,8 +18,8 @@ public class ColorStripeMaterialVariables : MaterialVariable {
     private readonly ColorStripeMaterialCore material;
     private readonly IStatePoolManager statePoolManager;
     private readonly ITextureResourceManager textureManager;
-    private readonly ShaderResourceViewProxy[] textures = new ShaderResourceViewProxy[2];
-    private SamplerStateProxy sampler;
+    private readonly ShaderResourceViewProxy?[] textures = new ShaderResourceViewProxy?[2];
+    private SamplerStateProxy? sampler;
     private int samplerDiffuseSlot;
 
     private int texStripeXSlot, texStripeYSlot;
@@ -110,11 +110,14 @@ public class ColorStripeMaterialVariables : MaterialVariable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void CreateTextureView(IList<Color4> colors, int which) {
+    private void CreateTextureView(IList<Color4>? colors, int which) {
         RemoveAndDispose(ref textures[which]);
-        textures[which] = colors == null || colors.Count == 0
-                              ? null
-                              : new ShaderResourceViewProxy(deviceResources.NativeDeviceResources);
+        if (colors is not { Count: > 0 }) {
+            textureIndex &= ~(1u << which);
+            return;
+        }
+
+        textures[which] = new ShaderResourceViewProxy(deviceResources.NativeDeviceResources);
         textures[which]?.CreateViewFromColorArray([.. colors]);
         if (textures[which] != null)
             textureIndex |= 1u << which;
@@ -123,19 +126,14 @@ public class ColorStripeMaterialVariables : MaterialVariable {
     }
 
     private void CreateTextureViews() {
-        if (material != null) {
-            CreateTextureView(material.ColorStripeX, 0);
-            CreateTextureView(material.ColorStripeY, 1);
-        } else {
-            for (var i = 0; i < textures.Length; ++i) RemoveAndDispose(ref textures[i]);
-            textureIndex = 0;
-        }
+        CreateTextureView(material.ColorStripeX, 0);
+        CreateTextureView(material.ColorStripeY, 1);
     }
 
     private void CreateSamplers() {
         var newSampler = statePoolManager.Register(material.ColorStripeSampler);
         RemoveAndDispose(ref sampler);
-        if (material != null) sampler = newSampler;
+        sampler = newSampler;
     }
 
     public override bool BindMaterialResources(
@@ -190,9 +188,10 @@ public class ColorStripeMaterialVariables : MaterialVariable {
 
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) {
-        DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
+        if (bufferModel?.IndexBuffer is { } indexBuffer)
+            DrawIndexed(deviceContext, indexBuffer.ElementCount, instanceCount);
     }
 }

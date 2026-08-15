@@ -93,9 +93,9 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
         MipMapLevels = 0;
         RemoveAndDispose(ref cubeTextureRes);
 
-        if (cubeTexture != null) {
-            cubeTextureRes = new ShaderResourceViewProxy(Device);
-            cubeTextureRes.CreateView(cubeTexture);
+        if (cubeTexture is { } texture && Device is { } device) {
+            cubeTextureRes = new ShaderResourceViewProxy(device);
+            cubeTextureRes.CreateView(texture);
             if (cubeTextureRes.TextureView != null && cubeTextureRes.TextureView.Description.Dimension ==
                 ShaderResourceViewDimension.TextureCube)
                 MipMapLevels = cubeTextureRes.TextureView.Description.TextureCube.MipLevels;
@@ -126,7 +126,7 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     /// <param name="context">The context.</param>
     /// <param name="deviceContext">The device context.</param>
     protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) {
-        if (context.Camera.CreateLeftHandSystem && RasterDescription.IsFrontCounterClockwise) {
+        if (context.Camera is { CreateLeftHandSystem: true } && RasterDescription.IsFrontCounterClockwise) {
             var desc = RasterDescription;
             desc.IsFrontCounterClockwise = false;
             RasterDescription = desc;
@@ -137,11 +137,14 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
         context.SharedResource.EnvironementMap = cubeTextureRes;
         context.SharedResource.EnvironmentMapMipLevels = MipMapLevels;
         if (SkipRendering) return;
+        if (GeometryBuffer is not { } geometryBuffer
+            || geometryBuffer.VertexBuffer.FirstOrDefault() is not { } vertexBuffer)
+            return;
         defaultShaderPass.BindShader(deviceContext);
         defaultShaderPass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
         defaultShaderPass.PixelShader.BindTexture(deviceContext, cubeTextureSlot, cubeTextureRes);
         defaultShaderPass.PixelShader.BindSampler(deviceContext, textureSamplerSlot, textureSampler);
-        deviceContext.Draw(GeometryBuffer.VertexBuffer[0].ElementCount, 0);
+        deviceContext.Draw(vertexBuffer.ElementCount, 0);
     }
 
     /// <summary>
@@ -183,18 +186,18 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
 
 #region Variables
 
-    private ShaderResourceViewProxy cubeTextureRes;
+    private ShaderResourceViewProxy? cubeTextureRes;
     private int cubeTextureSlot;
-    private SamplerStateProxy textureSampler;
+    private SamplerStateProxy? textureSampler;
     private int textureSamplerSlot;
-    private ShaderPass defaultShaderPass;
-    private SkyBoxBufferModel skyBuffer;
+    private ShaderPass defaultShaderPass = ShaderPass.NullPass;
+    private SkyBoxBufferModel? skyBuffer;
 
 #endregion
 
 #region Properties
 
-    private TextureModel cubeTexture;
+    private TextureModel? cubeTexture;
 
     /// <summary>
     ///     Gets or sets the cube texture.
@@ -202,7 +205,7 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     /// <value>
     ///     The cube texture.
     /// </value>
-    public TextureModel CubeTexture {
+    public TextureModel? CubeTexture {
         get => cubeTexture;
         set {
             if (SetAffectsRender(ref cubeTexture, value) && IsAttached) UpdateTexture();
@@ -227,7 +230,8 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
         get;
         set {
             if (SetAffectsRender(ref field, value) && IsAttached) {
-                var newSampler = EffectTechnique.EffectsManager.StateManager.Register(value);
+                if (EffectTechnique is not { } technique) return;
+                var newSampler = technique.EffectsManager.StateManager.Register(value);
                 RemoveAndDispose(ref textureSampler);
                 textureSampler = newSampler;
             }

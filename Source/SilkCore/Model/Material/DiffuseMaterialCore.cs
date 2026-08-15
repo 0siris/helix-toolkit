@@ -26,7 +26,7 @@ public class DiffuseMaterialCore : MaterialCore {
     /// <value>
     ///     The diffuse map.
     /// </value>
-    public TextureModel DiffuseMap {
+    public TextureModel? DiffuseMap {
         get;
         set => Set(ref field, value);
     }
@@ -37,7 +37,7 @@ public class DiffuseMaterialCore : MaterialCore {
     /// <value>
     ///     The diffuse map file path.
     /// </value>
-    public string DiffuseMapFilePath { get; set; }
+    public string? DiffuseMapFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the uv transform.

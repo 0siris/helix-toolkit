@@ -18,8 +18,8 @@ public class PointMaterialGeometryModel3D : GeometryModel3D {
                                     typeof(PointMaterialGeometryModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as PointNode).Material =
-                                                                 e.NewValue as Material;
+                                                             if (d is Element3DCore { SceneNode: PointNode node })
+                                                                 node.Material = e.NewValue as Material;
                                                          }));
 
     /// <summary>
@@ -31,8 +31,8 @@ public class PointMaterialGeometryModel3D : GeometryModel3D {
                                     typeof(PointMaterialGeometryModel3D),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as PointNode)
-                                                                 .HitTestThickness = (double)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: PointNode node })
+                                                                 node.HitTestThickness = (double)e.NewValue;
                                                          }));
 
     /// <summary>

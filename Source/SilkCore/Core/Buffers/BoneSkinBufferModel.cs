@@ -11,7 +11,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
     /// <summary>
     /// </summary>
     public sealed class BoneSkinnedMeshBufferModel : DefaultMeshGeometryBufferModel, IBoneSkinMeshBufferModel {
-        private IElementsBufferProxy boneIdBuffer;
+        private IElementsBufferProxy? boneIdBuffer;
         private bool boneIdChanged = true;
 
         public BoneSkinnedMeshBufferModel() {
@@ -19,18 +19,20 @@ namespace HelixToolkit.SharpDX.Core.Core;
         }
 
         public event EventHandler? BoneIdBufferUpdated;
-        public IElementsBufferProxy BoneIdBuffer => boneIdBuffer;
+        public IElementsBufferProxy BoneIdBuffer => boneIdBuffer
+            ?? throw new ObjectDisposedException(nameof(BoneSkinnedMeshBufferModel));
 
         public override bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources) {
             if (boneIdChanged)
                 lock (BoneIdBuffer) {
                     if (boneIdChanged) {
                         if (Geometry is BoneSkinnedMeshGeometry3D boneMesh
-                            && boneMesh.VertexBoneIds != null &&
-                            boneMesh.VertexBoneIds.Count == boneMesh.Positions.Count)
+                            && boneMesh.VertexBoneIds is { } boneIds
+                            && boneMesh.Positions is { } positions
+                            && boneIds.Count == positions.Count)
                             BoneIdBuffer.UploadDataToBuffer(context,
-                                                            boneMesh.VertexBoneIds,
-                                                            boneMesh.VertexBoneIds.Count);
+                                                            boneIds,
+                                                            boneIds.Count);
                         else
                             BoneIdBuffer.UploadDataToBuffer(context, new BoneIds[0], 0);
                         boneIdChanged = false;
@@ -41,8 +43,8 @@ namespace HelixToolkit.SharpDX.Core.Core;
             return base.UpdateBuffers(context, deviceResources);
         }
 
-        protected override bool IsVertexBufferChanged(string propertyName, int bufferIndex) {
-            if (propertyName.Equals(nameof(BoneSkinnedMeshGeometry3D.VertexBoneIds))) {
+        protected override bool IsVertexBufferChanged(string? propertyName, int bufferIndex) {
+            if (propertyName?.Equals(nameof(BoneSkinnedMeshGeometry3D.VertexBoneIds)) == true) {
                 boneIdChanged = true;
                 return false;
             }
@@ -61,7 +63,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
     public sealed class BoneSkinPreComputeBufferModel : DisposeObject, IAttachableBufferModel,
                                                         IBoneSkinPreComputehBufferModel {
         private IBoneSkinMeshBufferModel meshBuffer;
-        private IElementsBufferProxy originalVertexBuffer;
+        private IElementsBufferProxy? originalVertexBuffer;
 
         private VertexBufferBinding[] skinnedOutputBindings = [];
         private IElementsBufferProxy skinnedVertexBuffer;
@@ -97,9 +99,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
 
         public IElementsBufferProxy[] VertexBuffer { get; private set; } = [];
 
-        public IEnumerable<int> VertexStructSize {
-            get { return VertexBuffer.Select(x => x != null ? x.StructureSize : 0); }
-        }
+        public IEnumerable<int> VertexStructSize => VertexBuffer.Select(x => x.StructureSize);
 
         public IElementsBufferProxy? IndexBuffer => meshBuffer.IndexBuffer;
 
@@ -146,35 +146,41 @@ namespace HelixToolkit.SharpDX.Core.Core;
             if (meshBuffer.UpdateBuffers(context, deviceResources) || vertexBufferUpdate)
                 lock (skinnedVertexBuffer) {
                     if (vertexBufferUpdate) {
-                        if (meshBuffer.VertexBuffer.Length > 0) {
-                            VertexBuffer = [.. meshBuffer.VertexBuffer];
-                            originalVertexBuffer = VertexBuffer[0];
+                        if (meshBuffer.VertexBuffer.FirstOrDefault() is { } originalBufferProxy) {
+                            VertexBuffer = [originalBufferProxy];
+                            this.originalVertexBuffer = originalBufferProxy;
                             if (skinnedVertexBuffer.Buffer == null || skinnedVertexBuffer.ElementCount !=
-                                originalVertexBuffer.ElementCount) {
-                                var array = new float[originalVertexBuffer.ElementCount *
-                                                      originalVertexBuffer.StructureSize];
+                                originalBufferProxy.ElementCount) {
+                                var array = new float[originalBufferProxy.ElementCount *
+                                                      originalBufferProxy.StructureSize];
                                 skinnedVertexBuffer.UploadDataToBuffer(context,
                                                                        array,
-                                                                       originalVertexBuffer.ElementCount);
-                                context.CopyResource(originalVertexBuffer.Buffer, skinnedVertexBuffer.Buffer);
+                                                                       originalBufferProxy.ElementCount);
+                                if (originalBufferProxy.Buffer is { } originalBuffer
+                                    && skinnedVertexBuffer.Buffer is { } skinnedBuffer)
+                                    context.CopyResource(originalBuffer, skinnedBuffer);
                             }
 
-                            VertexBuffer[0] = skinnedVertexBuffer;
-                            vertexBufferBindings = [.. VertexBuffer.Select(x =>
-                                                                           x != null
-                                                                               ? new VertexBufferBinding(
-                                                                                   x.Buffer,
-                                                                                   x.StructureSize,
-                                                                                   x.Offset)
-                                                                               : new VertexBufferBinding())];
-                            skinnedOutputBindings = [
-                                new VertexBufferBinding(originalVertexBuffer.Buffer,
-                                                        originalVertexBuffer.StructureSize,
-                                                        originalVertexBuffer.Offset),
-                                new VertexBufferBinding(meshBuffer.BoneIdBuffer.Buffer,
-                                                        meshBuffer.BoneIdBuffer.StructureSize,
-                                                        meshBuffer.BoneIdBuffer.Offset)
-                            ];
+                            if (originalBufferProxy.Buffer is { } originalVertexBufferResource
+                                && skinnedVertexBuffer.Buffer is not null
+                                && meshBuffer.BoneIdBuffer.Buffer is { } boneIdBufferResource) {
+                                VertexBuffer[0] = skinnedVertexBuffer;
+                                vertexBufferBindings = [.. VertexBuffer.Select(x =>
+                                    x.Buffer is { } buffer
+                                        ? new VertexBufferBinding(buffer, x.StructureSize, x.Offset)
+                                        : new VertexBufferBinding())];
+                                skinnedOutputBindings = [
+                                    new VertexBufferBinding(originalVertexBufferResource,
+                                                            originalBufferProxy.StructureSize,
+                                                            originalBufferProxy.Offset),
+                                    new VertexBufferBinding(boneIdBufferResource,
+                                                            meshBuffer.BoneIdBuffer.StructureSize,
+                                                            meshBuffer.BoneIdBuffer.Offset)
+                                ];
+                            } else {
+                                VertexBuffer = [];
+                                vertexBufferBindings = [];
+                            }
                         } else {
                             VertexBuffer = [];
                             vertexBufferBindings = [];
@@ -197,9 +203,13 @@ namespace HelixToolkit.SharpDX.Core.Core;
         /// <param name="context">The context.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void BindSkinnedVertexBufferToOutput(DeviceContextProxy context) {
+            if (skinnedVertexBuffer.Buffer is not { } skinnedBuffer
+                || meshBuffer.BoneIdBuffer.Buffer is not { } boneIdBuffer)
+                return;
+
             context.SetVertexBuffers(0, skinnedOutputBindings);
             context.SetIndexBuffer(null, Format.FormatUnknown, 0);
-            context.SetStreamOutputTarget(skinnedVertexBuffer.Buffer, skinnedVertexBuffer.Offset);
+            context.SetStreamOutputTarget(skinnedBuffer, skinnedVertexBuffer.Offset);
             stagingBufferValid = false;
         }
 
@@ -209,13 +219,14 @@ namespace HelixToolkit.SharpDX.Core.Core;
         /// <param name="context">The context.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnBindSkinnedVertexBufferToOutput(DeviceContextProxy context) {
-            context.SetStreamOutputTarget(null);
+            context.SetStreamOutputTarget((Buffer?)null);
         }
 
         public void ResetSkinnedVertexBuffer(DeviceContextProxy context) {
-            if (skinnedVertexBuffer.Buffer != null &&
-                skinnedVertexBuffer.ElementCount == originalVertexBuffer.ElementCount)
-                context.CopyResource(originalVertexBuffer.Buffer, skinnedVertexBuffer.Buffer);
+            if (originalVertexBuffer?.Buffer is { } originalBuffer
+                && skinnedVertexBuffer.Buffer is { } skinnedBuffer
+                && skinnedVertexBuffer.ElementCount == originalVertexBuffer.ElementCount)
+                context.CopyResource(originalBuffer, skinnedBuffer);
         }
 
         /// <summary>
@@ -225,21 +236,21 @@ namespace HelixToolkit.SharpDX.Core.Core;
         /// <param name="array">The array.</param>
         /// <returns>Number of vertex has been copied.</returns>
         public int CopySkinnedToArray(DeviceContextProxy context, Vector3[] array) {
-            if (skinnedVertexBuffer.Buffer == null) return 0;
+            if (skinnedVertexBuffer.Buffer is not { } skinnedBuffer) return 0;
             if (skinnedVertexStagingBuffer.Buffer == null ||
                 skinnedVertexStagingBuffer.ElementCount != skinnedVertexBuffer.ElementCount) {
                 skinnedVertexStagingBuffer.CreateBuffer(context, skinnedVertexBuffer.ElementCount);
                 stagingBufferValid = false;
             }
 
-            if (skinnedVertexStagingBuffer.Buffer != null) {
+            if (skinnedVertexStagingBuffer.Buffer is { } stagingBuffer) {
                 var size = Math.Min(array.Length, skinnedVertexStagingBuffer.ElementCount);
                 if (!stagingBufferValid) {
-                    context.CopyResource(skinnedVertexBuffer.Buffer, skinnedVertexStagingBuffer.Buffer);
+                    context.CopyResource(skinnedBuffer, stagingBuffer);
                     stagingBufferValid = true;
                 }
 
-                var box = context.MapSubresource(skinnedVertexStagingBuffer.Buffer,
+                var box = context.MapSubresource(stagingBuffer,
                                                  MapMode.Read,
                                                  MapFlags.None);
                 unsafe {
@@ -250,7 +261,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
                     }
                 }
 
-                context.UnmapSubresource(skinnedVertexStagingBuffer.Buffer, 0);
+                context.UnmapSubresource(stagingBuffer, 0);
                 return size;
             }
 
@@ -258,12 +269,13 @@ namespace HelixToolkit.SharpDX.Core.Core;
         }
 
         private void MeshBuffer_OnBoneIdBufferUpdated(object? sender, EventArgs e) {
-            if (originalVertexBuffer != null)
+            if (originalVertexBuffer?.Buffer is { } originalBuffer
+                && meshBuffer.BoneIdBuffer.Buffer is { } boneIdBuffer)
                 skinnedOutputBindings = [
-                    new VertexBufferBinding(originalVertexBuffer.Buffer,
+                    new VertexBufferBinding(originalBuffer,
                                             originalVertexBuffer.StructureSize,
                                             originalVertexBuffer.Offset),
-                    new VertexBufferBinding(meshBuffer.BoneIdBuffer.Buffer,
+                    new VertexBufferBinding(boneIdBuffer,
                                             meshBuffer.BoneIdBuffer.StructureSize,
                                             meshBuffer.BoneIdBuffer.Offset)
                 ];
@@ -277,9 +289,12 @@ namespace HelixToolkit.SharpDX.Core.Core;
         protected override void OnDispose(bool disposeManagedResources) {
             meshBuffer.BoneIdBufferUpdated -= MeshBuffer_OnBoneIdBufferUpdated;
             meshBuffer.VertexBufferUpdated -= MeshBuffer_OnVertexBufferUpdated;
-            RemoveAndDispose(ref meshBuffer);
-            RemoveAndDispose(ref skinnedVertexBuffer);
-            RemoveAndDispose(ref skinnedVertexStagingBuffer);
+            var meshBufferToDispose = meshBuffer;
+            var skinnedVertexBufferToDispose = skinnedVertexBuffer;
+            var skinnedVertexStagingBufferToDispose = skinnedVertexStagingBuffer;
+            RemoveAndDispose(ref meshBufferToDispose);
+            RemoveAndDispose(ref skinnedVertexBufferToDispose);
+            RemoveAndDispose(ref skinnedVertexStagingBufferToDispose);
             base.OnDispose(disposeManagedResources);
         }
     }

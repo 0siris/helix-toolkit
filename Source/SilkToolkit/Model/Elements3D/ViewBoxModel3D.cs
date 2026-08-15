@@ -27,8 +27,8 @@ public class ViewBoxModel3D : ScreenSpacedElement3D {
         typeof(ViewBoxModel3D),
         new PropertyMetadata(new Media3D.Vector3D(0, 1, 0),
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as ViewBoxNode).UpDirection =
-                                     ((Media3D.Vector3D)e.NewValue).ToVector3();
+                                  if (d is Element3DCore { SceneNode: ViewBoxNode node })
+                                      node.UpDirection = ((Media3D.Vector3D)e.NewValue).ToVector3();
                              }));
 
 
@@ -37,8 +37,8 @@ public class ViewBoxModel3D : ScreenSpacedElement3D {
         typeof(ViewBoxModel3D),
         new PropertyMetadata(null,
                              (d, e) => {
-                                 ((d as Element3DCore).SceneNode as ViewBoxNode).ViewBoxTexture =
-                                     (TextureModel)e.NewValue;
+                                  if (d is Element3DCore { SceneNode: ViewBoxNode node })
+                                      node.ViewBoxTexture = e.NewValue as TextureModel;
                              }));
 
     /// <summary>
@@ -50,8 +50,8 @@ public class ViewBoxModel3D : ScreenSpacedElement3D {
                                     typeof(ViewBoxModel3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as ViewBoxNode)
-                                                                 .EnableEdgeClick = (bool)e.NewValue;
+                                                              if (d is Element3DCore { SceneNode: ViewBoxNode node })
+                                                                  node.EnableEdgeClick = (bool)e.NewValue;
                                                          }));
 
 
@@ -66,8 +66,8 @@ public class ViewBoxModel3D : ScreenSpacedElement3D {
         set => SetValue(UpDirectionProperty, value);
     }
 
-    public TextureModel ViewBoxTexture {
-        get => (TextureModel)GetValue(ViewBoxTextureProperty);
+    public TextureModel? ViewBoxTexture {
+        get => (TextureModel?)GetValue(ViewBoxTextureProperty);
         set => SetValue(ViewBoxTextureProperty, value);
     }
 
@@ -89,7 +89,8 @@ public class ViewBoxModel3D : ScreenSpacedElement3D {
     }
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
-        (node as ViewBoxNode).UpDirection = UpDirection.ToVector3();
+        if (node is ViewBoxNode viewBoxNode)
+            viewBoxNode.UpDirection = UpDirection.ToVector3();
         base.AssignDefaultValuesToSceneNode(node);
     }
 }

@@ -7,18 +7,20 @@ using HelixToolkit.SharpDX.Core.Core2D;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public abstract class ShapeNode2D : SceneNode2D {
-    protected ShapeRenderCore2DBase ShapeRenderable;
-
     private bool strokeStyleChanged = true;
 
+    private ShapeRenderCore2DBase ShapeCore
+        => RenderCore as ShapeRenderCore2DBase
+            ?? throw new InvalidOperationException("The shape render core has not been created.");
+
     public Brush? Fill {
-        get => ((ShapeRenderCore2DBase)RenderCore).FillBrush;
-        set => ((ShapeRenderCore2DBase)RenderCore).FillBrush = value;
+        get => ShapeCore.FillBrush;
+        set => ShapeCore.FillBrush = value;
     }
 
     public Brush? Stroke {
-        get => ((ShapeRenderCore2DBase)RenderCore).StrokeBrush;
-        set => ((ShapeRenderCore2DBase)RenderCore).StrokeBrush = value;
+        get => ShapeCore.StrokeBrush;
+        set => ShapeCore.StrokeBrush = value;
     }
 
     public CapStyle StrokeDashCap {
@@ -71,8 +73,8 @@ public abstract class ShapeNode2D : SceneNode2D {
     } = 1;
 
     public float StrokeThickness {
-        get => (RenderCore as ShapeRenderCore2DBase).StrokeWidth / DpiScale;
-        set => (RenderCore as ShapeRenderCore2DBase).StrokeWidth = value * DpiScale;
+        get => ShapeCore.StrokeWidth / DpiScale;
+        set => ShapeCore.StrokeWidth = value * DpiScale;
     }
 
     public float[] StrokeDashArray {
@@ -80,11 +82,10 @@ public abstract class ShapeNode2D : SceneNode2D {
         set {
             if (SetAffectsRender(ref field, value)) strokeStyleChanged = true;
         }
-    }
+    } = [];
 
     protected override RenderCore2D CreateRenderCore() {
-        ShapeRenderable = CreateShapeRenderCore();
-        return ShapeRenderable;
+        return CreateShapeRenderCore();
     }
 
     protected abstract ShapeRenderCore2DBase CreateShapeRenderCore();
@@ -101,7 +102,7 @@ public abstract class ShapeNode2D : SceneNode2D {
     public override void Update(RenderContext2D context) {
         base.Update(context);
         if (strokeStyleChanged) {
-            ShapeRenderable.StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
+            ShapeCore.StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
                                                           new StrokeStyleProperties {
                                                               DashCap = StrokeDashCap,
                                                               StartCap = StrokeStartLineCap,
@@ -111,9 +112,7 @@ public abstract class ShapeNode2D : SceneNode2D {
                                                               MiterLimit = Math.Max(1, StrokeMiterLimit),
                                                               DashStyle = StrokeDashStyle
                                                           },
-                                                          StrokeDashArray == null
-                                                              ? []
-                                                              : StrokeDashArray);
+                                                           StrokeDashArray);
             strokeStyleChanged = false;
         }
     }

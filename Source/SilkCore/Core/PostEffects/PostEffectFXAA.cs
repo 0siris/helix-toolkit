@@ -13,7 +13,9 @@ namespace HelixToolkit.SharpDX.Core.Core;
 public sealed class PostEffectFxaa : RenderCore, IPostEffect {
     private readonly ConstantBufferComponent modelCb;
 
+    [System.Diagnostics.CodeAnalysis.AllowNull]
     private ShaderPass fxaaPass;
+    [System.Diagnostics.CodeAnalysis.AllowNull]
     private ShaderPass lumaPass;
     private BorderEffectStruct modelStruct;
 
@@ -70,7 +72,8 @@ public sealed class PostEffectFxaa : RenderCore, IPostEffect {
         => IsAttached && !string.IsNullOrEmpty(EffectName) && FxaaLevel != FxaaLevel.None;
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        var buffer = context.RenderHost.RenderBuffer;
+        var buffer = context.RenderHost.RenderBuffer
+            ?? throw new InvalidOperationException("Render buffer is not initialized.");
         deviceContext.SetRenderTarget(buffer.FullResPpBuffer.NextRtv);
         
         var viewport = context.Viewport;

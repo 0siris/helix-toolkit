@@ -10,6 +10,8 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// </summary>
 public class EnvironmentMapNode : SceneNode {
     private readonly bool useSkyDome;
+    private ISkyboxRenderParams SkyboxRenderParams => RenderCore as ISkyboxRenderParams
+        ?? throw new InvalidOperationException("Skybox render core is not initialized.");
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="EnvironmentMapNode" /> class. Default is using SkyBox. To use SkyDome,
@@ -35,17 +37,17 @@ public class EnvironmentMapNode : SceneNode {
     /// <value>
     ///     The texture.
     /// </value>
-    public TextureModel Texture {
-        get => (RenderCore as ISkyboxRenderParams).CubeTexture;
-        set => (RenderCore as ISkyboxRenderParams).CubeTexture = value;
+    public TextureModel? Texture {
+        get => SkyboxRenderParams.CubeTexture;
+        set => SkyboxRenderParams.CubeTexture = value;
     }
 
     /// <summary>
     ///     Skip environment map rendering, but still keep it available for other object to use.
     /// </summary>
     public bool SkipRendering {
-        get => (RenderCore as ISkyboxRenderParams).SkipRendering;
-        set => (RenderCore as ISkyboxRenderParams).SkipRendering = value;
+        get => SkyboxRenderParams.SkipRendering;
+        set => SkyboxRenderParams.SkipRendering = value;
     }
 
     /// <summary>

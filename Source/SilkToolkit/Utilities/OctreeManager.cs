@@ -33,10 +33,10 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       typeof(bool),
                                       typeof(OctreeManagerBaseWrapper),
                                       new PropertyMetadata(false,
-                                                           (d, e) => {
-                                                               (d as OctreeManagerBaseWrapper).enableOctreeOutput =
-                                                                   (bool)e.NewValue;
-                                                           }));
+                                                            (d, e) => {
+                                                                if (d is OctreeManagerBaseWrapper wrapper)
+                                                                    wrapper.enableOctreeOutput = (bool)e.NewValue;
+                                                            }));
 
     /// <summary>
     ///     The minimum size property
@@ -46,10 +46,10 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       typeof(float),
                                       typeof(OctreeManagerBaseWrapper),
                                       new PropertyMetadata(1f,
-                                                           (s, e) => {
-                                                               (s as OctreeManagerBaseWrapper).Manager.Parameter
-                                                                   .MinimumOctantSize = (float)e.NewValue;
-                                                           }));
+                                                            (s, e) => {
+                                                                if (s is OctreeManagerBaseWrapper wrapper)
+                                                                    wrapper.Manager.Parameter.MinimumOctantSize = (float)e.NewValue;
+                                                            }));
 
     /// <summary>
     ///     The automatic delete if empty property
@@ -59,10 +59,10 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       typeof(bool),
                                       typeof(OctreeManagerBaseWrapper),
                                       new PropertyMetadata(true,
-                                                           (s, e) => {
-                                                               (s as OctreeManagerBaseWrapper).Manager.Parameter
-                                                                   .AutoDeleteIfEmpty = (bool)e.NewValue;
-                                                           }));
+                                                            (s, e) => {
+                                                                if (s is OctreeManagerBaseWrapper wrapper)
+                                                                    wrapper.Manager.Parameter.AutoDeleteIfEmpty = (bool)e.NewValue;
+                                                            }));
 
     /// <summary>
     ///     The cubify property property
@@ -72,10 +72,10 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       typeof(bool),
                                       typeof(OctreeManagerBaseWrapper),
                                       new PropertyMetadata(false,
-                                                           (s, e) => {
-                                                               (s as OctreeManagerBaseWrapper).Manager.Parameter
-                                                                   .Cubify = (bool)e.NewValue;
-                                                           }));
+                                                            (s, e) => {
+                                                                if (s is OctreeManagerBaseWrapper wrapper)
+                                                                    wrapper.Manager.Parameter.Cubify = (bool)e.NewValue;
+                                                            }));
 
     /// <summary>
     ///     The record hit path bounding boxes property
@@ -85,10 +85,10 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       typeof(bool),
                                       typeof(OctreeManagerBaseWrapper),
                                       new PropertyMetadata(false,
-                                                           (s, e) => {
-                                                               (s as OctreeManagerBaseWrapper).Manager.Parameter
-                                                                   .RecordHitPathBoundingBoxes = (bool)e.NewValue;
-                                                           }));
+                                                            (s, e) => {
+                                                                if (s is OctreeManagerBaseWrapper wrapper)
+                                                                    wrapper.Manager.Parameter.RecordHitPathBoundingBoxes = (bool)e.NewValue;
+                                                            }));
 
     /// <summary>
     ///     The minimum object size to split property
@@ -98,10 +98,10 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                       typeof(int),
                                       typeof(OctreeManagerBaseWrapper),
                                       new PropertyMetadata(0,
-                                                           (s, e) => {
-                                                               (s as OctreeManagerBaseWrapper).Manager.Parameter
-                                                                   .MinObjectSizeToSplit = (int)e.NewValue;
-                                                           }));
+                                                            (s, e) => {
+                                                                if (s is OctreeManagerBaseWrapper wrapper)
+                                                                    wrapper.Manager.Parameter.MinObjectSizeToSplit = (int)e.NewValue;
+                                                            }));
 
     /// <summary>
     ///     Gets or sets the octree.
@@ -109,8 +109,8 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     /// <value>
     ///     The octree.
     /// </value>
-    public IOctreeBasic Octree {
-        get => (IOctreeBasic)GetValue(OctreeProperty);
+    public IOctreeBasic? Octree {
+        get => GetValue(OctreeProperty) as IOctreeBasic;
         set => SetValue(OctreeProperty, value);
     }
 
@@ -164,9 +164,9 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
         get => (int)GetValue(MinObjectSizeToSplitProperty);
         set => SetValue(MinObjectSizeToSplitProperty, value);
     }
-    private DispatcherOperation octreeOpt;
+    private DispatcherOperation? octreeOpt;
     private bool enableOctreeOutput;
-    private IOctreeManager manager;
+    private IOctreeManager? manager;
 
     /// <summary>
     ///     Gets the manager.
@@ -176,9 +176,11 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     /// </value>
     public IOctreeManager Manager {
         get {
-            if (manager == null) {
-                manager = OnCreateManager();
-                manager.OnOctreeCreated += (s, e) => {
+            if (manager is { } current) return current;
+
+            var created = OnCreateManager();
+            manager = created;
+            created.OnOctreeCreated += (s, e) => {
                     if (octreeOpt != null && octreeOpt.Status == DispatcherOperationStatus.Pending) octreeOpt.Abort();
                     if (enableOctreeOutput)
                         octreeOpt = Dispatcher.BeginInvoke(DispatcherPriority.Background,
@@ -186,10 +188,8 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
                                                                Octree = null;
                                                                Octree = e.Octree;
                                                            }));
-                };
-            }
-
-            return manager;
+            };
+            return created;
         }
     }
 
@@ -200,8 +200,8 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     ///     <c>true</c> if enabled; otherwise, <c>false</c>.
     /// </value>
     public bool Enabled {
-        get => manager.Enabled;
-        set => manager.Enabled = value;
+        get => Manager.Enabled;
+        set => Manager.Enabled = value;
     }
 
     /// <summary>

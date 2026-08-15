@@ -7,55 +7,62 @@ using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public class Sprite2DNode : SceneNode {
-    private Sprite2DBufferModel bufferModel;
+    private Sprite2DBufferModel? bufferModel;
 
     private int indexCount;
 
-    private int[] indices;
+    private int[]? indices;
 
     private int spriteCount;
 
-    private SpriteStruct[] sprites;
-    private TextureModel texture;
+    private SpriteStruct[]? sprites;
+    private TextureModel? texture;
 
-    public TextureModel Texture {
+    private Sprite2DBufferModel BufferModel => bufferModel
+        ?? throw new InvalidOperationException("Sprite buffer model is not initialized.");
+
+    private Sprite2DRenderCore SpriteCore => RenderCore as Sprite2DRenderCore
+        ?? throw new InvalidOperationException("Sprite render core is not initialized.");
+
+    public TextureModel? Texture {
         get => texture;
         set {
             if (SetAffectsRender(ref texture, value) && IsAttached)
-                (RenderCore as Sprite2DRenderCore).UpdateTexture(value, EffectsManager.MaterialTextureManager);
+                if (value is { } texture && EffectsManager is { } effectsManager)
+                    SpriteCore.UpdateTexture(texture, effectsManager.MaterialTextureManager);
         }
     }
 
     public Matrix ProjectionMatrix {
-        get => (RenderCore as Sprite2DRenderCore).ProjectionMatrix;
-        set => (RenderCore as Sprite2DRenderCore).ProjectionMatrix = value;
+        get => SpriteCore.ProjectionMatrix;
+        set => SpriteCore.ProjectionMatrix = value;
     }
 
-    public SpriteStruct[] Sprites {
+    public SpriteStruct[]? Sprites {
         get => sprites;
         set {
-            if (Set(ref sprites, value) && IsAttached) bufferModel.Sprites = value;
+            if (Set(ref sprites, value) && IsAttached) BufferModel.Sprites = value;
         }
     }
 
     public int SpriteCount {
         get => spriteCount;
         set {
-            if (SetAffectsRender(ref spriteCount, value) && IsAttached) bufferModel.SpriteCount = value;
+            if (SetAffectsRender(ref spriteCount, value) && IsAttached) BufferModel.SpriteCount = value;
         }
     }
 
-    public int[] Indices {
+    public int[]? Indices {
         get => indices;
         set {
-            if (SetAffectsRender(ref indices, value) && IsAttached) bufferModel.Indices = value;
+            if (SetAffectsRender(ref indices, value) && IsAttached) BufferModel.Indices = value;
         }
     }
 
     public int IndexCount {
         get => indexCount;
         set {
-            if (SetAffectsRender(ref indexCount, value) && IsAttached) bufferModel.IndexCount = value;
+            if (SetAffectsRender(ref indexCount, value) && IsAttached) BufferModel.IndexCount = value;
         }
     }
 
@@ -66,10 +73,8 @@ public class Sprite2DNode : SceneNode {
             Sprites = Sprites,
             SpriteCount = SpriteCount
         };
-        if (texture != null)
-            (RenderCore as Sprite2DRenderCore).UpdateTexture(texture,
-                                                             EffectTechnique.EffectsManager
-                                                                 .MaterialTextureManager);
+        if (texture is { } currentTexture && EffectTechnique is { } technique)
+            SpriteCore.UpdateTexture(currentTexture, technique.EffectsManager.MaterialTextureManager);
         base.OnAttached();
     }
 

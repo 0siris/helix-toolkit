@@ -1368,16 +1368,15 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The original input event (which mouse button pressed?)
     /// </param>
     private void MouseDownHitTest(Point pt, InputEventArgs? originalInputEventArgs = null) {
-        if (Overlay2D.HitTest(pt.ToVector2(), out currentHit2D)) {
-            if (currentHit2D.ModelHit is Element2D e) {
+        if (Overlay2D.HitTest(pt.ToVector2(), out currentHit2D)
+            && currentHit2D is { ModelHit: Element2D e } hit2D) {
                 e.RaiseEvent(new Mouse2DEventArgs(Element2D.MouseDown2DEvent,
-                                                  currentHit2D.ModelHit,
-                                                  currentHit2D,
+                                                  hit2D.ModelHit,
+                                                  hit2D,
                                                   pt,
                                                   this,
                                                   originalInputEventArgs));
                 if (originalInputEventArgs is { } inputEventArgs) inputEventArgs.Handled = true;
-            }
 
             return;
         }
@@ -1447,17 +1446,16 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The original input event (which mouse button pressed?)
     /// </param>
     private void MouseMoveHitTest(Point pt, InputEventArgs? originalInputEventArgs = null) {
-        if (Overlay2D.HitTest(pt.ToVector2(), out var hit2D)) {
-            if (hit2D.ModelHit is Element2D e) {
+        if (Overlay2D.HitTest(pt.ToVector2(), out var hit2D)
+            && hit2D is { ModelHit: Element2D e } actualHit2D) {
                 MouseOverModel2D = e;
                 e.RaiseEvent(new Mouse2DEventArgs(Element2D.MouseMove2DEvent,
-                                                  hit2D.ModelHit,
-                                                  hit2D,
+                                                  actualHit2D.ModelHit,
+                                                  actualHit2D,
                                                   pt,
                                                   this,
                                                   originalInputEventArgs));
                 //Debug.WriteLine("hit 2D, name="+e.Name);
-            }
 
             return;
         }

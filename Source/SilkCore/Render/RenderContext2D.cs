@@ -27,7 +27,8 @@ public sealed class RenderContext2D : DisposeObject {
     public RenderContext2D(D2DDeviceContext deviceContext, IRenderHost host) {
         DeviceContext = deviceContext;
         renderHost = host;
-        DeviceResources = host.EffectsManager;
+        DeviceResources = host.EffectsManager
+            ?? throw new InvalidOperationException("The render host has no effects manager.");
     }
 
     /// <summary>

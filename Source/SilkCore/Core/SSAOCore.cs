@@ -24,7 +24,7 @@ public sealed class SsaoCore : RenderCore {
 
     private float radius = 0.5f;
     private SsaoParamStruct ssaoParam;
-    private ShaderPass ssaoPass, ssaoBlur;
+    private ShaderPass? ssaoPass, ssaoBlur;
     private int ssaoTexSlot, noiseTexSlot, surfaceSampleSlot, noiseSamplerSlot, depthSlot;
 
     private Texture2DDescription ssaoTextureDesc = new() {
@@ -38,8 +38,8 @@ public sealed class SsaoCore : RenderCore {
         MipLevels = 1
     };
 
-    private ShaderResourceViewProxy ssaoView, ssaoNoiseView;
-    private SamplerStateProxy surfaceSampler, noiseSampler, blurSampler;
+    private ShaderResourceViewProxy? ssaoView, ssaoNoiseView;
+    private SamplerStateProxy? surfaceSampler, noiseSampler, blurSampler;
     private int width, height;
 
     public SsaoCore() : base(RenderType.PreProc) {
@@ -65,6 +65,17 @@ public sealed class SsaoCore : RenderCore {
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         EnsureTextureResources((int)context.ActualWidth, (int)context.ActualHeight, deviceContext);
+        if (ssaoPass is not { } pass
+            || ssaoBlur is not { } blur
+            || ssaoView is not { } view
+            || ssaoNoiseView is not { } noiseView
+            || surfaceSampler is not { } surfaceSamplerValue
+            || noiseSampler is not { } noiseSamplerValue
+            || blurSampler is not { } blurSamplerValue
+            || !ssaoCb.IsAttached
+            || ssaoCb.ModelConstBuffer is not { } modelConstBuffer)
+            return;
+
         var texScale = (int)offScreenTextureSize;
         var viewport = context.Viewport;
         using var ds = context.GetOffScreenDs(offScreenTextureSize, Depthformat);
@@ -86,9 +97,10 @@ public sealed class SsaoCore : RenderCore {
         var frustum = context.BoundingFrustum;
         for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i) {
             var node = context.RenderHost.PerFrameOpaqueNodesInFrustum[i];
-            if (currTechnique != node.EffectTechnique) {
-                currTechnique = node.EffectTechnique;
-                ssaoPass1 = currTechnique[DefaultPassNames.MeshSsaoPass];
+            if (node.EffectTechnique is not { } technique) continue;
+            if (currTechnique != technique) {
+                currTechnique = technique;
+                ssaoPass1 = technique[DefaultPassNames.MeshSsaoPass];
             }
 
             if (ssaoPass1.IsNull) continue;
@@ -100,13 +112,12 @@ public sealed class SsaoCore : RenderCore {
         ssaoParam.NoiseScale = new Vector2(w / 4f, h / 4f);
         ssaoParam.Radius = radius;
         ssaoParam.TextureScale = texScale;
-        ssaoCb.ModelConstBuffer.UploadDataToBuffer(deviceContext,
+         modelConstBuffer.UploadDataToBuffer(deviceContext,
                                                    dataBox => {
                                                        Debug.Assert(UnsafeHelper.SizeOf(kernels)
                                                                     + UnsafeHelper
                                                                         .SizeOf(ref ssaoParam) <=
-                                                                    ssaoCb.ModelConstBuffer.BufferDesc
-                                                                          .SizeInBytes);
+                                                                     modelConstBuffer.BufferDesc.SizeInBytes);
                                                        var nextPtr =
                                                            UnsafeHelper.Write(
                                                                dataBox.DataPointer,
@@ -116,29 +127,29 @@ public sealed class SsaoCore : RenderCore {
                                                        UnsafeHelper.Write(nextPtr, ref ssaoParam);
                                                    });
         deviceContext.SetRenderTarget(rt1);
-        ssaoPass.BindShader(deviceContext);
-        ssaoPass.BindStates(deviceContext, StateType.All);
-        ssaoPass.PixelShader.BindTexture(deviceContext, ssaoTexSlot, rt0);
-        ssaoPass.PixelShader.BindTexture(deviceContext, noiseTexSlot, ssaoNoiseView);
-        ssaoPass.PixelShader.BindTexture(deviceContext, depthSlot, ds);
-        ssaoPass.PixelShader.BindSampler(deviceContext, surfaceSampleSlot, surfaceSampler);
-        ssaoPass.PixelShader.BindSampler(deviceContext, noiseSamplerSlot, noiseSampler);
+         pass.BindShader(deviceContext);
+         pass.BindStates(deviceContext, StateType.All);
+         pass.PixelShader.BindTexture(deviceContext, ssaoTexSlot, rt0);
+         pass.PixelShader.BindTexture(deviceContext, noiseTexSlot, noiseView);
+         pass.PixelShader.BindTexture(deviceContext, depthSlot, ds);
+         pass.PixelShader.BindSampler(deviceContext, surfaceSampleSlot, surfaceSamplerValue);
+         pass.PixelShader.BindSampler(deviceContext, noiseSamplerSlot, noiseSamplerValue);
         deviceContext.Draw(4, 0);
 
-        ssaoPass.PixelShader.BindTexture(deviceContext, depthSlot, null);
+         pass.PixelShader.BindTexture(deviceContext, depthSlot, null);
 
-        deviceContext.SetRenderTarget(ssaoView);
+         deviceContext.SetRenderTarget(view);
         deviceContext.SetViewport(ref viewport);
         deviceContext.SetScissorRectangle(ref viewport);
-        ssaoBlur.BindShader(deviceContext);
-        ssaoBlur.BindStates(deviceContext, StateType.All);
-        ssaoBlur.PixelShader.BindTexture(deviceContext, ssaoTexSlot, rt1);
-        ssaoBlur.PixelShader.BindSampler(deviceContext, surfaceSampleSlot, blurSampler);
+         blur.BindShader(deviceContext);
+         blur.BindStates(deviceContext, StateType.All);
+         blur.PixelShader.BindTexture(deviceContext, ssaoTexSlot, rt1);
+         blur.PixelShader.BindSampler(deviceContext, surfaceSampleSlot, blurSamplerValue);
         deviceContext.Draw(4, 0);
-        context.SharedResource.SsaoMap = ssaoView;
+         context.SharedResource.SsaoMap = view;
 
         context.RenderHost.SetDefaultRenderTargets(false);
-        deviceContext.SetShaderResource(PixelShader.Type, ssaoTexSlot, ssaoView);
+         deviceContext.SetShaderResource(PixelShader.Type, ssaoTexSlot, view);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -176,8 +187,7 @@ public sealed class SsaoCore : RenderCore {
         surfaceSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.SsaoSamplerClamp);
         noiseSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.SsaoNoise);
         blurSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
-        InitialParameters();
-        return true;
+        return InitialParameters();
     }
 
     protected override void OnDetach() {
@@ -188,7 +198,7 @@ public sealed class SsaoCore : RenderCore {
         RemoveAndDispose(ref ssaoNoiseView);
     }
 
-    private void InitialParameters() {
+    private bool InitialParameters() {
         ssaoParam.Radius = radius;
         var rnd = new Random((int)Stopwatch.GetTimestamp());
         var thres = Math.Cos(Math.PI / 2 - Math.PI / 12);
@@ -214,7 +224,9 @@ public sealed class SsaoCore : RenderCore {
             noise[i] = SilkMath.Normalize(new Vector3(x, y, 0));
         }
 
+        if (Device is not { } device) return false;
         ssaoNoiseView = ShaderResourceViewProxy
-            .CreateView(Device, noise, 4, 4, Format.FormatR32G32B32Float, true, false);
+            .CreateView(device, noise, 4, 4, Format.FormatR32G32B32Float, true, false);
+        return ssaoNoiseView is not null;
     }
 }

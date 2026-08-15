@@ -4,6 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 using Assimp;
 using Assimp.Configs;
 using HelixToolkit.SharpDX.Core.Model;
@@ -42,7 +43,7 @@ public partial class Importer : IDisposable {
         SupportedTextureFormatDict = [.. SupportedTextureFormats];
     }
 
-    public event EventHandler<Exception> AssimpExceptionOccurred;
+    public event EventHandler<Exception>? AssimpExceptionOccurred;
 
     #region Inner Classes
 
@@ -52,22 +53,22 @@ public partial class Importer : IDisposable {
         /// <summary>
         ///     The animations
         /// </summary>
-        public List<Animations.Animation> Animations;
+        public List<Animations.Animation> Animations = [];
 
         /// <summary>
         ///     The assimp scene
         /// </summary>
-        public Scene AssimpScene;
+        public Scene AssimpScene = new();
 
         /// <summary>
         ///     The materials
         /// </summary>
-        public KeyValuePair<Material, MaterialCore>[] Materials;
+        public KeyValuePair<Material, MaterialCore>[] Materials = [];
 
         /// <summary>
         ///     The meshes
         /// </summary>
-        public MeshInfo[] Meshes;
+        public MeshInfo[] Meshes = [];
     }
 
     #endregion
@@ -98,12 +99,10 @@ public partial class Importer : IDisposable {
     /// <value>
     ///     The configuration.
     /// </value>
+    [AllowNull]
     public ImporterConfiguration Configuration {
         get => configuration;
-        set {
-            configuration = value;
-            if (value == null) configuration = new ImporterConfiguration();
-        }
+        set => configuration = value ?? new ImporterConfiguration();
     }
 
     /// <summary>
@@ -170,7 +169,8 @@ public partial class Importer : IDisposable {
     /// <param name="filePath">The file path.</param>
     /// <returns></returns>
     public HelixToolkitScene? Load(string filePath) {
-        if (Load(filePath, out var root).HasFlag(ErrorCode.Succeed))
+        if (Load(filePath, out var root)
+            .HasFlag(ErrorCode.Succeed))
             return root;
         return null;
     }
@@ -182,10 +182,10 @@ public partial class Importer : IDisposable {
     /// <param name="scene">The loaded scene.</param>
     /// <returns></returns>
     /// <exception cref="System.Exception"></exception>
-    public ErrorCode Load(string filePath, out HelixToolkitScene scene) {
+    public ErrorCode Load(string filePath, out HelixToolkitScene? scene) {
         path = filePath;
         ErrorCode = ErrorCode.None;
-        AssimpContext importer = null;
+        AssimpContext importer;
         var useExtern = false;
         if (Configuration.ExternalContext != null) {
             importer = Configuration.ExternalContext;
@@ -231,7 +231,8 @@ public partial class Importer : IDisposable {
     /// <param name="assimpScene">The assimp scene.</param>
     /// <param name="helixScene">The helix scene.</param>
     /// <returns></returns>
-    public ErrorCode ToHelixToolkitScene(Scene assimpScene, out HelixToolkitScene helixScene) => BuildScene(assimpScene, out helixScene);
+    public ErrorCode ToHelixToolkitScene(Scene? assimpScene, out HelixToolkitScene? helixScene)
+        => BuildScene(assimpScene, out helixScene);
 
     /// <summary>
     ///     Loads the specified file stream. User must provider custom texture loader to load texture files.
@@ -246,12 +247,12 @@ public partial class Importer : IDisposable {
         Stream fileStream,
         string filePath,
         string formatHint,
-        out HelixToolkitScene scene,
+        out HelixToolkitScene? scene,
         ITexturePathResolver? texturePathResolver = null
     ) {
         path = filePath;
         ErrorCode = ErrorCode.None;
-        AssimpContext importer = null;
+        AssimpContext importer;
         var useExtern = false;
         if (Configuration.ExternalContext != null) {
             importer = Configuration.ExternalContext;
@@ -260,7 +261,7 @@ public partial class Importer : IDisposable {
             importer = new AssimpContext();
         }
 
-        configuration.TexturePathResolver = texturePathResolver;
+        configuration.TexturePathResolver = texturePathResolver ?? new DefaultTexturePathResolver();
         Clear();
         scene = null;
         try {
@@ -294,13 +295,13 @@ public partial class Importer : IDisposable {
     /// <param name="scene">The scene.</param>
     /// <returns></returns>
     public ErrorCode Load(
-        Scene assimpScene,
+        Scene? assimpScene,
         string filePath,
-        out HelixToolkitScene scene,
+        out HelixToolkitScene? scene,
         ITexturePathResolver? texturePathResolver = null
     ) {
         path = filePath;
-        Configuration.TexturePathResolver = texturePathResolver;
+        Configuration.TexturePathResolver = texturePathResolver ?? new DefaultTexturePathResolver();
         return BuildScene(assimpScene, out scene);
     }
 
@@ -325,7 +326,6 @@ public partial class Importer : IDisposable {
     /// <param name="root">The root.</param>
     /// <returns></returns>
     protected virtual ErrorCode ProcessSceneNodes(Model.Scene.SceneNode root) {
-        if (root == null) return ErrorCode.Failed;
         SceneNodes.Add(root);
         SceneNodes.AddRange(root.Items.PreorderDft(n => true));
         return ErrorCode.Succeed;
@@ -335,7 +335,7 @@ public partial class Importer : IDisposable {
 
     #region Private Methods
 
-    private ErrorCode BuildScene(Scene assimpScene, out HelixToolkitScene scene) {
+    private ErrorCode BuildScene(Scene? assimpScene, out HelixToolkitScene? scene) {
         Clear();
         ErrorCode = ErrorCode.None;
         scene = null;
@@ -360,7 +360,10 @@ public partial class Importer : IDisposable {
             scene.Animations = [.. Animations];
             if (Configuration.CreateSkeletonForBoneSkinningMesh
                 && Configuration.AddsPostEffectForSkeleton)
-                (scene.Root as Model.Scene.GroupNode).AddChildNode(new Model.Scene.NodePostEffectXRayGrid { EffectName = Configuration.SkeletonEffects });
+                if (scene.Root is Model.Scene.GroupNode root)
+                    root.AddChildNode(new Model.Scene.NodePostEffectXRayGrid {
+                        EffectName = Configuration.SkeletonEffects
+                    });
         }
 
         if (!ErrorCode.HasFlag(ErrorCode.Failed))
@@ -375,43 +378,43 @@ public partial class Importer : IDisposable {
             Materials = new KeyValuePair<Material, MaterialCore>[scene.MaterialCount]
         };
         Parallel.Invoke(() => {
-            if (scene.HasMeshes) {
-                if (parallel)
-                    Parallel.ForEach(scene.Meshes,
-                                     (mesh, state, index) => {
-                                         s.Meshes[index] = OnCreateHelixGeometry(mesh);
-                                     });
-                else
-                    for (var i = 0; i < scene.MeshCount; ++i)
-                        s.Meshes[i] = OnCreateHelixGeometry(scene.Meshes[i]);
-            }
-        },
-                        () => {
-                            if (scene.HasMaterials) {
-                                embeddedTextures.Clear();
-                                embeddedTextureDict.Clear();
-                                if (scene.HasTextures) {
-                                    embeddedTextures.AddRange(scene.Textures);
-                                    for (var i = 0; i < embeddedTextures.Count; ++i) {
-                                        var key = embeddedTextures[i].Filename;
-                                        if (string.IsNullOrEmpty(key)) key = "*" + i;
-                                        if (!embeddedTextureDict.ContainsKey(key))
-                                            embeddedTextureDict.Add(key, embeddedTextures[i]);
-                                    }
-                                }
+                if (scene.HasMeshes) {
+                    if (parallel)
+                        Parallel.ForEach(scene.Meshes,
+                            (mesh, state, index) => { s.Meshes[index] = OnCreateHelixGeometry(mesh); });
+                    else
+                        for (var i = 0; i < scene.MeshCount; ++i)
+                            s.Meshes[i] = OnCreateHelixGeometry(scene.Meshes[i]);
+                }
+            },
+            () => {
+                if (scene.HasMaterials) {
+                    embeddedTextures.Clear();
+                    embeddedTextureDict.Clear();
+                    if (scene.HasTextures) {
+                        embeddedTextures.AddRange(scene.Textures);
+                        for (var i = 0; i < embeddedTextures.Count; ++i) {
+                            var key = embeddedTextures[i].Filename;
+                            if (string.IsNullOrEmpty(key)) key = "*" + i;
+                            if (!embeddedTextureDict.ContainsKey(key))
+                                embeddedTextureDict.Add(key, embeddedTextures[i]);
+                        }
+                    }
 
-                                for (var i = 0; i < scene.MaterialCount; ++i)
-                                    s.Materials[i] = OnCreateHelixMaterial(scene.Materials[i]);
-                                embeddedTextures.Clear();
-                                embeddedTextureDict.Clear();
-                            }
-                        });
+                    for (var i = 0; i < scene.MaterialCount; ++i)
+                        s.Materials[i] = OnCreateHelixMaterial(scene.Materials[i]);
+                    embeddedTextures.Clear();
+                    embeddedTextureDict.Clear();
+                }
+            });
         return s;
     }
 
     private Model.Scene.SceneNode ConstructHelixScene(Node node, HelixInternalScene scene) {
         var group = new Model.Scene.GroupNode {
-            Name = string.IsNullOrEmpty(node.Name) ? nameof(Model.Scene.GroupNode) : node.Name,
+            Name = string.IsNullOrEmpty(node.Name)
+                ? nameof(Model.Scene.GroupNode)
+                : node.Name,
             ModelMatrix = node.Transform.ToSharpDXMatrix(configuration.IsSourceMatrixColumnMajor)
         };
         if (node.HasChildren)

@@ -11,6 +11,9 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class ScreenDuplicationNode : SceneNode {
+    private IScreenClone ScreenCloneCore => RenderCore as IScreenClone
+        ?? throw new InvalidOperationException("Screen-duplication render core is not initialized.");
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="ScreenDuplicationNode" /> class.
     /// </summary>
@@ -42,8 +45,8 @@ public class ScreenDuplicationNode : SceneNode {
     ///     The capture rectangle.
     /// </value>
     public Rectangle CaptureRectangle {
-        get => (RenderCore as IScreenClone).CloneRectangle;
-        set => (RenderCore as IScreenClone).CloneRectangle = value;
+        get => ScreenCloneCore.CloneRectangle;
+        set => ScreenCloneCore.CloneRectangle = value;
     }
 
     /// <summary>
@@ -53,8 +56,8 @@ public class ScreenDuplicationNode : SceneNode {
     ///     The display index.
     /// </value>
     public int DisplayIndex {
-        get => (RenderCore as IScreenClone).Output;
-        set => (RenderCore as IScreenClone).Output = value;
+        get => ScreenCloneCore.Output;
+        set => ScreenCloneCore.Output = value;
     }
 
     /// <summary>
@@ -64,8 +67,8 @@ public class ScreenDuplicationNode : SceneNode {
     ///     <c>true</c> if [stretch to fill]; otherwise, <c>false</c>.
     /// </value>
     public bool StretchToFill {
-        get => (RenderCore as IScreenClone).StretchToFill;
-        set => (RenderCore as IScreenClone).StretchToFill = value;
+        get => ScreenCloneCore.StretchToFill;
+        set => ScreenCloneCore.StretchToFill = value;
     }
 
     /// <summary>
@@ -75,8 +78,8 @@ public class ScreenDuplicationNode : SceneNode {
     ///     <c>true</c> if [show mouse cursor]; otherwise, <c>false</c>.
     /// </value>
     public bool ShowMouseCursor {
-        get => (RenderCore as IScreenClone).ShowMouseCursor;
-        set => (RenderCore as IScreenClone).ShowMouseCursor = value;
+        get => ScreenCloneCore.ShowMouseCursor;
+        set => ScreenCloneCore.ShowMouseCursor = value;
     }
 
     #endregion

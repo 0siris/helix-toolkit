@@ -14,7 +14,7 @@ public class NodeAnimationUpdater : IAnimationUpdater {
 
     public NodeAnimationUpdater(Animation animation) {
         Animation = animation;
-        Name = animation.Name;
+        Name = animation.Name ?? string.Empty;
         CreateAnimationRoots();
     }
 
@@ -96,8 +96,11 @@ public class NodeAnimationUpdater : IAnimationUpdater {
                     !m.HasBoneGroup) // Do not update if has a bone group. Update the group only
                 {
                     var inv = m.TotalModelMatrix.Inverted();
-                    var matrices = OnGetNewBoneMatrices(m.Bones.Length);
-                    BoneSkinnedMeshGeometry3D.CreateNodeBasedBoneMatrices(m.Bones, ref inv, ref matrices);
+                    if (m.Bones is not { } bones)
+                        continue;
+
+                    var matrices = OnGetNewBoneMatrices(bones.Length);
+                    BoneSkinnedMeshGeometry3D.CreateNodeBasedBoneMatrices(bones, ref inv, ref matrices);
                     var old = m.BoneMatrices;
                     m.BoneMatrices = matrices;
                     OnReturnOldBoneMatrices(old);

@@ -30,7 +30,7 @@ internal sealed class LoggerLibLoggerAdapter(string categoryName) : ILogger {
         Exception? exception,
         Func<TState, Exception?, string> formatter
     ) {
-        if (!IsEnabled(logLevel) || formatter is null)
+        if (!IsEnabled(logLevel))
             return;
 
         var logData = ExtractLogData(state, exception, formatter);

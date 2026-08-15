@@ -24,10 +24,10 @@ public abstract class GenericMaterialVariable : MaterialVariable {
 
     private readonly Dictionary<string, int> resourceIdxDict = [];
     private readonly Dictionary<string, int> samplerIdxDict = [];
-    private readonly KeyValuePair<int, SamplerStateProxy>[] samplerResources;
+    private readonly KeyValuePair<int, SamplerStateProxy?>[] samplerResources;
 
 
-    private readonly KeyValuePair<int, ShaderResourceViewProxy>[] shaderResources;
+    private readonly KeyValuePair<int, ShaderResourceViewProxy?>[] shaderResources;
 
     public GenericMaterialVariable(
         IEffectsManager manager,
@@ -46,22 +46,22 @@ public abstract class GenericMaterialVariable : MaterialVariable {
         wireframePass = technique[wireframePassName];
         depthPass = technique[depthPassName];
         shaderResources =
-            new KeyValuePair<int, ShaderResourceViewProxy>[materialPass.PixelShader.ShaderResourceViewMapping
+            new KeyValuePair<int, ShaderResourceViewProxy?>[materialPass.PixelShader.ShaderResourceViewMapping
                                                                        .Count];
 
         for (var i = 0; i < materialPass.PixelShader.ShaderResourceViewMapping.Count; ++i) {
             var mapping = materialPass.PixelShader.ShaderResourceViewMapping.Mappings[i];
             resourceIdxDict.Add(mapping.Value.Description.Name, i);
-            shaderResources[i] = new KeyValuePair<int, ShaderResourceViewProxy>(mapping.Key, null);
+            shaderResources[i] = new KeyValuePair<int, ShaderResourceViewProxy?>(mapping.Key, null);
         }
 
         samplerResources =
-            new KeyValuePair<int, SamplerStateProxy>[materialPass.PixelShader.SamplerMapping.Count];
+            new KeyValuePair<int, SamplerStateProxy?>[materialPass.PixelShader.SamplerMapping.Count];
 
         for (var i = 0; i < materialPass.PixelShader.SamplerMapping.Count; ++i) {
             var mapping = materialPass.PixelShader.SamplerMapping.Mappings[i];
             samplerIdxDict.Add(mapping.Value.Name, i);
-            samplerResources[i] = new KeyValuePair<int, SamplerStateProxy>(mapping.Key, null);
+            samplerResources[i] = new KeyValuePair<int, SamplerStateProxy?>(mapping.Key, null);
         }
 
 
@@ -80,7 +80,7 @@ public abstract class GenericMaterialVariable : MaterialVariable {
         foreach (var prop in materialCore.MatrixDict) WriteValue(prop.Key, prop.Value);
     }
 
-    private void MaterialCore_UpdatingResource(object sender, GenericMaterialCore.UpdateEvent e) {
+    private void MaterialCore_UpdatingResource(object? sender, GenericMaterialCore.UpdateEvent e) {
         switch (e.Type) {
             case ResourceType.Sampler:
                 SetSampler(e.Name, materialCore.GetSampler(e.Name));
@@ -106,17 +106,17 @@ public abstract class GenericMaterialVariable : MaterialVariable {
         }
     }
 
-    public bool SetTexture(string name, TextureModel texture) {
+    public bool SetTexture(string name, TextureModel? texture) {
         if (resourceIdxDict.TryGetValue(name, out var idx)) {
             var exist = shaderResources[idx].Value;
             RemoveAndDispose(ref exist);
             if (texture == null) {
                 shaderResources[idx] =
-                    new KeyValuePair<int, ShaderResourceViewProxy>(shaderResources[idx].Key, null);
+                    new KeyValuePair<int, ShaderResourceViewProxy?>(shaderResources[idx].Key, null);
             } else {
                 var res = EffectsManager.MaterialTextureManager.Register(texture);
                 shaderResources[idx] =
-                    new KeyValuePair<int, ShaderResourceViewProxy>(shaderResources[idx].Key, res);
+                    new KeyValuePair<int, ShaderResourceViewProxy?>(shaderResources[idx].Key, res);
             }
 
             return true;
@@ -131,7 +131,7 @@ public abstract class GenericMaterialVariable : MaterialVariable {
             var exist = samplerResources[idx].Value;
             RemoveAndDispose(ref exist);
             var res = newSampler;
-            samplerResources[idx] = new KeyValuePair<int, SamplerStateProxy>(samplerResources[idx].Key, res);
+            samplerResources[idx] = new KeyValuePair<int, SamplerStateProxy?>(samplerResources[idx].Key, res);
             return true;
         }
 
@@ -161,13 +161,13 @@ public abstract class GenericMaterialVariable : MaterialVariable {
         for (var i = 0; i < samplerResources.Length; ++i) {
             var res = samplerResources[i].Value;
             RemoveAndDispose(ref res);
-            samplerResources[i] = new KeyValuePair<int, SamplerStateProxy>(samplerResources[i].Key, null);
+            samplerResources[i] = new KeyValuePair<int, SamplerStateProxy?>(samplerResources[i].Key, null);
         }
 
         for (var i = 0; i < shaderResources.Length; ++i) {
             var res = shaderResources[i].Value;
             RemoveAndDispose(ref res);
-            shaderResources[i] = new KeyValuePair<int, ShaderResourceViewProxy>(shaderResources[i].Key, null);
+            shaderResources[i] = new KeyValuePair<int, ShaderResourceViewProxy?>(shaderResources[i].Key, null);
         }
 
         base.OnDispose(disposeManagedResources);
@@ -194,10 +194,11 @@ public sealed class GenericMeshMaterialVariable : GenericMaterialVariable {
 
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) {
-        DrawIndexed(deviceContext, bufferModel.IndexBuffer.ElementCount, instanceCount);
+        if (bufferModel?.IndexBuffer is { } indexBuffer)
+            DrawIndexed(deviceContext, indexBuffer.ElementCount, instanceCount);
     }
 }
 
@@ -220,9 +221,10 @@ public sealed class GenericPointMaterialVariable : GenericMaterialVariable {
 
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) {
-        DrawPoints(deviceContext, bufferModel.VertexBuffer[0].ElementCount, instanceCount);
+        if (bufferModel?.VertexBuffer.FirstOrDefault() is { } vertexBuffer)
+            DrawPoints(deviceContext, vertexBuffer.ElementCount, instanceCount);
     }
 }

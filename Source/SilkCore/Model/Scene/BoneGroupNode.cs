@@ -26,9 +26,9 @@ public sealed class BoneGroupNode : GroupNodeBase, IBoneMatricesNode {
     /// <value>
     ///     The bones.
     /// </value>
-    public Bone[] Bones { get; set; }
+    public Bone[]? Bones { get; set; }
 
-    public float[] MorphTargetWeights { get; set; }
+    public float[] MorphTargetWeights { get; set; } = [];
 
     /// <summary>
     ///     Always return false for bone groups
@@ -40,17 +40,17 @@ public sealed class BoneGroupNode : GroupNodeBase, IBoneMatricesNode {
 
     protected override RenderCore OnCreateRenderCore() => core;
 
-    private void NodeGroup_OnRemoveChildNode(object sender, OnChildNodeChangedArgs e) {
+    private void NodeGroup_OnRemoveChildNode(object? sender, OnChildNodeChangedArgs e) {
         if (e.Node is BoneSkinMeshNode b) {
             b.HasBoneGroup = false;
-            (b.RenderCore as BoneSkinRenderCore).SharedBoneBuffer = null;
+            if (b.RenderCore is BoneSkinRenderCore core) core.SharedBoneBuffer = null;
         }
     }
 
-    private void NodeGroup_OnAddChildNode(object sender, OnChildNodeChangedArgs e) {
+    private void NodeGroup_OnAddChildNode(object? sender, OnChildNodeChangedArgs e) {
         if (e.Node is BoneSkinMeshNode b) {
             b.HasBoneGroup = true;
-            (b.RenderCore as BoneSkinRenderCore).SharedBoneBuffer = core;
+            if (b.RenderCore is BoneSkinRenderCore boneCore) boneCore.SharedBoneBuffer = core;
         }
     }
 }

@@ -18,7 +18,7 @@ public interface IGeometryRenderCore {
     /// <value>
     ///     The instance buffer.
     /// </value>
-    IElementsBufferModel? InstanceBuffer { get; set; }
+    IElementsBufferModel InstanceBuffer { get; set; }
 
     /// <summary>
     ///     Gets or sets the geometry buffer.
@@ -334,7 +334,7 @@ public interface ISkyboxRenderParams {
     /// <value>
     ///     The cube texture.
     /// </value>
-    TextureModel CubeTexture { get; set; }
+    TextureModel? CubeTexture { get; set; }
 
     /// <summary>
     ///     Skip environment map rendering, but still keep it available for other object to use.

@@ -34,6 +34,8 @@ public class SwapChainRenderHost : DefaultRenderHost {
     /// <returns></returns>
     protected override DX11RenderBufferProxyBase CreateRenderBuffer() {
         Logger.Info("Creating DX11SwapChainRenderBufferProxy");
-        return new DX11SwapChainRenderBufferProxy(Surface, EffectsManager);
+        return new DX11SwapChainRenderBufferProxy(
+            Surface,
+            EffectsManager ?? throw new System.InvalidOperationException("Effects manager is not initialized."));
     }
 }

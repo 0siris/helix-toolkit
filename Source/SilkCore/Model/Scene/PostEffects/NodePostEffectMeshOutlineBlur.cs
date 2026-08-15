@@ -10,6 +10,9 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class NodePostEffectMeshOutlineBlur : SceneNode {
+    private IPostEffectOutlineBlur Effect => RenderCore as IPostEffectOutlineBlur
+        ?? throw new InvalidOperationException("The outline blur render core is not initialized.");
+
     /// <summary>
     ///     Called when [create render core].
     /// </summary>
@@ -36,8 +39,8 @@ public class NodePostEffectMeshOutlineBlur : SceneNode {
     ///     The name of the effect.
     /// </value>
     public string EffectName {
-        get => (RenderCore as IPostEffectOutlineBlur).EffectName;
-        set => (RenderCore as IPostEffectOutlineBlur).EffectName = value;
+        get => Effect.EffectName;
+        set => Effect.EffectName = value;
     }
 
     /// <summary>
@@ -47,8 +50,8 @@ public class NodePostEffectMeshOutlineBlur : SceneNode {
     ///     The color.
     /// </value>
     public Color4 Color {
-        get => (RenderCore as IPostEffectOutlineBlur).Color;
-        set => (RenderCore as IPostEffectOutlineBlur).Color = value;
+        get => Effect.Color;
+        set => Effect.Color = value;
     }
 
     /// <summary>
@@ -58,8 +61,8 @@ public class NodePostEffectMeshOutlineBlur : SceneNode {
     ///     The scale x.
     /// </value>
     public float ScaleX {
-        get => (RenderCore as IPostEffectOutlineBlur).ScaleX;
-        set => (RenderCore as IPostEffectOutlineBlur).ScaleX = value;
+        get => Effect.ScaleX;
+        set => Effect.ScaleX = value;
     }
 
     /// <summary>
@@ -69,8 +72,8 @@ public class NodePostEffectMeshOutlineBlur : SceneNode {
     ///     The scale y.
     /// </value>
     public float ScaleY {
-        get => (RenderCore as IPostEffectOutlineBlur).ScaleY;
-        set => (RenderCore as IPostEffectOutlineBlur).ScaleY = value;
+        get => Effect.ScaleY;
+        set => Effect.ScaleY = value;
     }
 
     /// <summary>
@@ -80,8 +83,8 @@ public class NodePostEffectMeshOutlineBlur : SceneNode {
     ///     The number of blur pass.
     /// </value>
     public int NumberOfBlurPass {
-        get => (RenderCore as IPostEffectOutlineBlur).NumberOfBlurPass;
-        set => (RenderCore as IPostEffectOutlineBlur).NumberOfBlurPass = value;
+        get => Effect.NumberOfBlurPass;
+        set => Effect.NumberOfBlurPass = value;
     }
 
     #endregion

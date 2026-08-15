@@ -34,8 +34,7 @@ public static class CollectionExtensions {
     /// <param name="key">The respective key.</param>
     /// <returns>The value if exists, else <c>null</c>.</returns>
     public static V? Get<K, V>(this IDictionary<K, V> dict, K key) {
-        V val;
-        if (dict.TryGetValue(key, out val)) return val;
+        if (dict.TryGetValue(key, out var value)) return value;
 
         return default;
     }

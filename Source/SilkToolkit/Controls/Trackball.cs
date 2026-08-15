@@ -77,6 +77,7 @@ public class Trackball {
     private readonly Transform3DGroup transform;
     private readonly TranslateTransform3D translate = new();
     private readonly double zoomFactor;
+    private FrameworkElement? eventSource;
     private Point previousPosition2D;
     private Vector3D previousPosition3D = new(0, 0, 1);
 
@@ -105,24 +106,24 @@ public class Trackball {
     ///     The FrameworkElement we listen to for mouse events.
     /// </summary>
     public FrameworkElement EventSource {
-        get;
+        get => eventSource ?? throw new InvalidOperationException("Event source is not initialized.");
 
         set {
-            if (field != null) {
+            if (eventSource is not null) {
                 //_eventSource.MouseDown -= this.OnMouseDown;
                 //_eventSource.MouseUp -= this.OnMouseUp;
                 //_eventSource.MouseMove -= this.OnMouseMove;
 
-                field.PreviewMouseDown -= OnMouseDown;
-                field.PreviewMouseUp -= OnMouseUp;
-                field.PreviewMouseMove -= OnMouseMove;
+                eventSource.PreviewMouseDown -= OnMouseDown;
+                eventSource.PreviewMouseUp -= OnMouseUp;
+                eventSource.PreviewMouseMove -= OnMouseMove;
             }
 
-            field = value;
+            eventSource = value;
 
-            field.PreviewMouseDown += OnMouseDown;
-            field.PreviewMouseUp += OnMouseUp;
-            field.PreviewMouseMove += OnMouseMove;
+            eventSource.PreviewMouseDown += OnMouseDown;
+            eventSource.PreviewMouseUp += OnMouseUp;
+            eventSource.PreviewMouseMove += OnMouseMove;
         }
     }
 

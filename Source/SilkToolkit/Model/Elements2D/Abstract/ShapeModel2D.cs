@@ -50,10 +50,10 @@ public abstract class ShapeModel2D : Element2D {
 
     protected override void AssignDefaultValuesToSceneNode(SceneNode2D node) {
         base.AssignDefaultValuesToSceneNode(node);
-        var c = node as ShapeNode2D;
-        c.StrokeDashArray = StrokeDashArray == null
-                                ? []
-                                : [.. StrokeDashArray.Select(x => (float)x)];
+        if (node is not ShapeNode2D c)
+            return;
+
+        c.StrokeDashArray = [.. StrokeDashArray.Select(x => (float)x)];
         c.StrokeDashCap = StrokeDashCap.ToD2DCapStyle();
         c.StrokeDashOffset = (float)StrokeDashOffset;
         c.StrokeEndLineCap = StrokeEndLineCap.ToD2DCapStyle();

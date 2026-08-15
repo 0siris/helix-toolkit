@@ -9,6 +9,7 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <summary>
 /// </summary>
 public class BitmapProxy : DisposeObject, IGuid {
+    [System.Diagnostics.CodeAnalysis.AllowNull]
     private D2DBitmap bitmap;
 
     /// <summary>
@@ -123,7 +124,7 @@ public class BitmapProxy : DisposeObject, IGuid {
         float dpiY,
         D2DPixelFormat format,
         D2DBitmapOptions bitmapOptions,
-        D2DColorContext colorContext
+        D2DColorContext? colorContext
     )
         => new(format, dpiX, dpiY, bitmapOptions, colorContext);
 

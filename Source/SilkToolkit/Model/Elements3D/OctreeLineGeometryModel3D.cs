@@ -12,14 +12,13 @@ public class OctreeLineGeometryModel3D : CompositeModel3D {
                                       typeof(OctreeLineGeometryModel3D),
                                       new PropertyMetadata(null,
                                                            (s, e) => {
-                                                               var d = s as OctreeLineGeometryModel3D;
-                                                               if (e.OldValue != null)
-                                                                   (e.OldValue as IOctreeBasic).Hit -=
-                                                                       d.OctreeLineGeometryModel3D_OnHit;
-                                                               if (e.NewValue != null)
-                                                                   (e.NewValue as IOctreeBasic).Hit +=
-                                                                       d.OctreeLineGeometryModel3D_OnHit;
-                                                               d.CreateOctreeLines();
+                                                                if (s is not OctreeLineGeometryModel3D model)
+                                                                    return;
+                                                                if (e.OldValue is IOctreeBasic oldOctree)
+                                                                    oldOctree.Hit -= model.OctreeLineGeometryModel3D_OnHit;
+                                                                if (e.NewValue is IOctreeBasic newOctree)
+                                                                    newOctree.Hit += model.OctreeLineGeometryModel3D_OnHit;
+                                                                model.CreateOctreeLines();
                                                            }));
 
     public static readonly DependencyProperty LineColorProperty
@@ -50,8 +49,8 @@ public class OctreeLineGeometryModel3D : CompositeModel3D {
         SceneNode.VisibleChanged += OctreeLineGeometryModel3D_OnVisibleChanged;
     }
 
-    public IOctreeBasic Octree {
-        get => (IOctreeBasic)GetValue(OctreeProperty);
+    public IOctreeBasic? Octree {
+        get => GetValue(OctreeProperty) as IOctreeBasic;
         set => SetValue(OctreeProperty, value);
     }
 
@@ -65,21 +64,22 @@ public class OctreeLineGeometryModel3D : CompositeModel3D {
         set => SetValue(HitLineColorProperty, value);
     }
 
-    private void OctreeLineGeometryModel3D_OnVisibleChanged(object sender, BoolArgs e) {
+    private void OctreeLineGeometryModel3D_OnVisibleChanged(object? sender, BoolArgs e) {
         CreateOctreeLines();
     }
 
     private void CreateOctreeLines() {
-        if (Octree != null && Visibility == Visibility.Visible && IsRendering) {
-            octreeVisual.Geometry = Octree.CreateOctreeLineModel();
+        if (Octree is { } octree && Visibility == Visibility.Visible && IsRendering) {
+            octreeVisual.Geometry = octree.CreateOctreeLineModel();
             octreeVisual.Color = LineColor;
         } else {
             octreeVisual.Geometry = null;
         }
     }
 
-    private void OctreeLineGeometryModel3D_OnHit(object sender, EventArgs args) {
-        var node = sender as IOctreeBasic;
+    private void OctreeLineGeometryModel3D_OnHit(object? sender, EventArgs args) {
+        if (sender is not IOctreeBasic node)
+            return;
         if (node.HitPathBoundingBoxes.Count > 0 && Visibility == Visibility.Visible && IsRendering) {
             hitVisual.Geometry = node.HitPathBoundingBoxes.CreatePathLines();
             hitVisual.Color = HitLineColor;

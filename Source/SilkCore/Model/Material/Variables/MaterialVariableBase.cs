@@ -32,9 +32,12 @@ public abstract class MaterialVariable : DisposeObject {
         = new(DefaultBufferNames.SimpleMeshCb,
               SimpleMeshStruct.SizeInBytes);
 
-    private readonly MaterialCore material;
+    private readonly MaterialCore? material;
 
-    private readonly ConstantBufferDescription materialCbDescription;
+    private readonly IRenderTechnique? technique;
+    private readonly IEffectsManager? effectsManager;
+
+    private readonly ConstantBufferDescription? materialCbDescription;
     private readonly ConstantBufferDescription nonMaterialCbDescription = DefaultNonMaterialBufferDesc;
 
     private readonly int storageId = -1;
@@ -47,7 +50,7 @@ public abstract class MaterialVariable : DisposeObject {
     /// <value>
     ///     The material cb.
     /// </value>
-    protected ConstantBufferProxy MaterialCb;
+    protected ConstantBufferProxy? MaterialCb;
 
     /// <summary>
     ///     Gets the non material cb. Used for non material related rendering such as Shadow map
@@ -55,9 +58,9 @@ public abstract class MaterialVariable : DisposeObject {
     /// <value>
     ///     The non material cb.
     /// </value>
-    protected ConstantBufferProxy NonMaterialCb;
+    protected ConstantBufferProxy? NonMaterialCb;
 
-    private ArrayStorage storage;
+    private ArrayStorage? storage;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MaterialVariable" /> class.
@@ -67,21 +70,19 @@ public abstract class MaterialVariable : DisposeObject {
     /// <param name="meshMaterialConstantBufferDesc">The Constant Buffer description</param>
     /// <param name="materialCore"></param>
     public MaterialVariable(
-        IEffectsManager manager,
-        IRenderTechnique technique,
-        ConstantBufferDescription meshMaterialConstantBufferDesc,
-        MaterialCore materialCore
+        IEffectsManager? manager,
+        IRenderTechnique? technique,
+        ConstantBufferDescription? meshMaterialConstantBufferDesc,
+        MaterialCore? materialCore
     ) {
-        Technique = technique;
-        EffectsManager = manager;
-        if (materialCore != null) {
-            material = materialCore;
-            material.PropertyChanged += MaterialCore_PropertyChanged;
-        }
+        this.technique = technique;
+        effectsManager = manager;
+        material = materialCore;
+        if (material is { } core) core.PropertyChanged += MaterialCore_PropertyChanged;
 
         materialCbDescription = meshMaterialConstantBufferDesc;
-        if (manager != null) {
-            storage = manager.StructArrayPool.Register(materialCbDescription.StructSize);
+        if (manager is { } effects && meshMaterialConstantBufferDesc is { } description) {
+            storage = effects.StructArrayPool.Register(description.StructSize);
             storageId = storage.GetId();
         }
     }
@@ -94,18 +95,20 @@ public abstract class MaterialVariable : DisposeObject {
     /// </value>
     public ushort Id { get; set; } = 0;
 
-    protected IRenderTechnique Technique { get; }
+    protected IRenderTechnique Technique => technique
+        ?? throw new InvalidOperationException("A render technique is required.");
 
-    protected IEffectsManager EffectsManager { get; }
+    protected IEffectsManager EffectsManager => effectsManager
+        ?? throw new InvalidOperationException("An effects manager is required.");
 
     protected bool NeedUpdate { get; private set; } = true;
 
     public event EventHandler? UpdateNeeded;
 
     internal void Initialize() {
-        if (EffectsManager == null) return;
-        MaterialCb = EffectsManager.ConstantBufferPool.Register(materialCbDescription);
-        NonMaterialCb = EffectsManager.ConstantBufferPool.Register(nonMaterialCbDescription);
+        if (materialCbDescription is not { } description || effectsManager is not { } manager) return;
+        MaterialCb = manager.ConstantBufferPool.Register(description);
+        NonMaterialCb = manager.ConstantBufferPool.Register(nonMaterialCbDescription);
         OnInitialPropertyBindings();
         foreach (var v in propertyBindings.Values) v.Invoke();
         initialized = true;
@@ -183,14 +186,16 @@ public abstract class MaterialVariable : DisposeObject {
                 }
             }
 
+        if (MaterialCb is not { } materialCb || storage is not { } materialStorage) return false;
+
         var structSize = UnsafeHelper.SizeOf<T>();
-        var box = MaterialCb.Map(context);
+        var box = materialCb.Map(context);
         UnsafeHelper.Write(box.DataPointer, ref model);
-        var succ = storage.Read(storageId,
-                                structSize,
-                                box.DataPointer + structSize,
-                                storage.StructSize - structSize);
-        MaterialCb.Unmap(context);
+        var succ = materialStorage.Read(storageId,
+                                       structSize,
+                                       box.DataPointer + structSize,
+                                       materialStorage.StructSize - structSize);
+        materialCb.Unmap(context);
         return succ;
     }
 
@@ -203,14 +208,15 @@ public abstract class MaterialVariable : DisposeObject {
     /// <returns></returns>
     public bool UpdateNonMaterialStruct<T>(DeviceContextProxy context, ref T model) where T : unmanaged {
         if (!initialized) return false;
-        if (UnsafeHelper.SizeOf<T>() != NonMaterialCb.StructureSize) {
+        if (NonMaterialCb is not { } nonMaterialCb
+            || UnsafeHelper.SizeOf<T>() != nonMaterialCb.StructureSize) {
             Debug.Assert(false);
             return false;
         }
 
-        var box = NonMaterialCb.Map(context);
+        var box = nonMaterialCb.Map(context);
         UnsafeHelper.Write(box.DataPointer, ref model);
-        NonMaterialCb.Unmap(context);
+        nonMaterialCb.Unmap(context);
         return true;
     }
 
@@ -222,13 +228,13 @@ public abstract class MaterialVariable : DisposeObject {
     /// <param name="instanceCount">The instance count.</param>
     public abstract void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void InvalidateRenderer() {
-        Technique?.EffectsManager?.RaiseInvalidateRender();
+        Technique.EffectsManager.RaiseInvalidateRender();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -262,21 +268,24 @@ public abstract class MaterialVariable : DisposeObject {
     /// <param name="value">The value.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteValue<T>(string name, ref T value) where T : unmanaged {
-        if (MaterialCb != null && MaterialCb.TryGetVariableByName(name, out var variable)) {
+        if (MaterialCb is { } materialCb && storage is { } materialStorage
+            && materialCb.TryGetVariableByName(name, out var variable)) {
             if (UnsafeHelper.SizeOf<T>() > variable.Size) {
                 var structSize = UnsafeHelper.SizeOf<T>();
                 throw new ArgumentException(
                     $"Input struct size {structSize} is larger than shader variable {variable.Name} size {variable.Size}");
             }
 
-            if (!storage.Write(storageId, variable.StartOffset, ref value))
+            if (!materialStorage.Write(storageId, variable.StartOffset, ref value))
                 throw new ArgumentException($"Failed to write value on {name}");
         } else {
 #if DEBUG
             throw new ArgumentException(
-                $"Variable not found in constant buffer {MaterialCb.Name}. Variable = {name}");
+                $"Variable not found in constant buffer {MaterialCb?.Name}. Variable = {name}");
 #else
-            Logger.Warn("Variable not found in constant buffer {Value0}. Variable = {Value1}", materialCB.Name, name);
+            Logger.Warn("Variable not found in constant buffer {Value0}. Variable = {Value1}",
+                        materialCb?.Name,
+                        name);
 #endif
         }
     }
@@ -298,7 +307,7 @@ public abstract class MaterialVariable : DisposeObject {
     protected override void OnDispose(bool disposeManagedResources) {
         RemoveAndDispose(ref MaterialCb);
         RemoveAndDispose(ref NonMaterialCb);
-        storage.ReleaseId(storageId);
+        storage?.ReleaseId(storageId);
         RemoveAndDispose(ref storage);
         if (disposeManagedResources) {
             UpdateNeeded = null;
@@ -321,8 +330,8 @@ public abstract class MaterialVariable : DisposeObject {
         if (propertyBindings.TryGetValue(propertyName, out var act)) act.Invoke();
     }
 
-    private void MaterialCore_PropertyChanged(object sender, PropertyChangedEventArgs e) {
-        TriggerPropertyAction(e.PropertyName);
+    private void MaterialCore_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
+        if (e.PropertyName is { } propertyName) TriggerPropertyAction(propertyName);
         InvalidateRenderer();
     }
 

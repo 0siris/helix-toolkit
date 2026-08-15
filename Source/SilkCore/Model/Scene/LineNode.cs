@@ -23,12 +23,13 @@ public class LineNode : MaterialGeometryNode {
     /// <param name="modelGuid"></param>
     /// <param name="geometry"></param>
     /// <returns></returns>
-    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D geometry) => geometry != null && geometry.IsDynamic
-        ? EffectsManager.GeometryBufferManager.Register<DynamicLineGeometryBufferModel>(
-            modelGuid,
-            geometry)
-        : EffectsManager.GeometryBufferManager
-            .Register<DefaultLineGeometryBufferModel>(modelGuid, geometry);
+    protected override IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D? geometry) {
+        var effectsManager = EffectsManager
+            ?? throw new InvalidOperationException("An effects manager is required to create a line buffer.");
+        return geometry is { IsDynamic: true }
+            ? effectsManager.GeometryBufferManager.Register<DynamicLineGeometryBufferModel>(modelGuid, geometry)
+            : effectsManager.GeometryBufferManager.Register<DefaultLineGeometryBufferModel>(modelGuid, geometry);
+    }
 
     /// <summary>
     ///     Called when [create render core].
@@ -62,18 +63,19 @@ public class LineNode : MaterialGeometryNode {
         return false;
     }
 
-    protected override bool OnCheckGeometry(Geometry3D geometry) => base.OnCheckGeometry(geometry) && geometry is LineGeometry3D;
+    protected override bool OnCheckGeometry(Geometry3D? geometry) => base.OnCheckGeometry(geometry) && geometry is LineGeometry3D;
 
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
     )
-        => (Geometry as LineGeometry3D).HitTest(context,
-            totalModelMatrix,
-            ref hits,
-            WrapperSource,
-            (float)HitTestThickness);
+    {
+        if (Geometry is not LineGeometry3D geometry)
+            return false;
+
+        return geometry.HitTest(context, totalModelMatrix, ref hits, WrapperSource ?? this, (float)HitTestThickness);
+    }
 
     protected override bool PreHitTestOnBounds(HitTestContext context) {
         var rayWs = context.RayWs;

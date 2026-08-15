@@ -8,13 +8,13 @@ using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public class VolumeTextureNode : SceneNode {
-    private MaterialCore material;
+    private MaterialCore? material;
 
-    private MaterialVariable materialVariable;
+    private MaterialVariable? materialVariable;
 
     /// <summary>
     /// </summary>
-    public MaterialCore Material {
+    public MaterialCore? Material {
         get => material;
         set {
             if (Set(ref material, value))
@@ -46,17 +46,21 @@ public class VolumeTextureNode : SceneNode {
     }
 
     protected virtual void AttachMaterial() {
-        var newVar = material != null && RenderCore is VolumeRenderCore
-                         ? EffectsManager.MaterialVariableManager.Register(material, EffectTechnique)
+        if (EffectsManager is not { } effectsManager || RenderCore is not VolumeRenderCore core) {
+            RemoveAndDispose(ref materialVariable);
+            return;
+        }
+
+        var newVar = material is { } currentMaterial && EffectTechnique is { } technique
+                         ? effectsManager.MaterialVariableManager.Register(currentMaterial, technique)
                          : EmptyMaterialVariable.EmptyVariable;
         
         RemoveAndDispose(ref materialVariable);
-        if (RenderCore is VolumeRenderCore core) 
-            materialVariable = core.MaterialVariables = newVar;
+        materialVariable = core.MaterialVariables = newVar;
     }
 
 
-    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable == null ? (ushort)0 : materialVariable.Id);
+    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? (ushort)0);
 
     protected override bool CanRender(RenderContext context) => base.CanRender(context) && materialVariable != null;
 

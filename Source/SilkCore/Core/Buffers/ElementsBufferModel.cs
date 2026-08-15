@@ -56,7 +56,7 @@ public class ElementsBufferModel<T> : DisposeObject, IElementsBufferModel<T> whe
     public IList<T>? Elements {
         get => elements;
         set {
-            if (elements == value)  //TODO check what this should be , Reference Equals?
+            if (ReferenceEquals(elements, value))
                 return;
             
             elements = value;
@@ -77,14 +77,20 @@ public class ElementsBufferModel<T> : DisposeObject, IElementsBufferModel<T> whe
 
     public virtual void AttachBuffer(DeviceContextProxy context, ref int vertexBufferStartSlot) {
         if (HasElements) {
-            if (instanceChanged)
-                lock (elementBuffer.AssertNotNull("Models musst be initialized")) {
+            if (instanceChanged) {
+                if (elementBuffer is not { } currentBuffer || elements is not { } currentElements)
+                    return;
+
+                lock (currentBuffer) {
                     if (instanceChanged) {
-                        elementBuffer.UploadDataToBuffer(context, elements, elements.Count);
+                        currentBuffer.UploadDataToBuffer(context, currentElements, currentElements.Count);
                         instanceChanged = false;
-                        bufferBinding = new VertexBufferBinding(Buffer.Buffer, Buffer.StructureSize, Buffer.Offset);
+                        bufferBinding = new VertexBufferBinding(currentBuffer.Buffer,
+                                                               currentBuffer.StructureSize,
+                                                               currentBuffer.Offset);
                     }
                 }
+            }
 
             context.SetVertexBuffers(vertexBufferStartSlot, bufferBinding);
         }

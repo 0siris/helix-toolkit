@@ -53,12 +53,12 @@ public abstract class SpritePackerBase<T, E> : IDisposable {
     protected int OutputHeight { get; private set; }
 
     // the input list of image files
-    protected KeyValuePair<int, E>[] ItemArray { get; private set; }
+    protected KeyValuePair<int, E>[] ItemArray { get; private set; } = [];
 
     // some dictionaries to hold the image sizes and destination rectangles
-    protected Size2F[] ImageSizes { get; private set; }
+    protected Size2F[] ImageSizes { get; private set; } = [];
 
-    protected RectangleF[] ImagePlacement { get; private set; }
+    protected RectangleF[] ImagePlacement { get; private set; } = [];
 
         /// <summary>
         ///     Packs a collection of items into a single image.
@@ -81,23 +81,22 @@ public abstract class SpritePackerBase<T, E> : IDisposable {
         int maximumWidth,
         int maximumHeight,
         int imagePadding,
-        out Bitmap outputImage,
+        out Bitmap? outputImage,
         out int imageWidth,
         out int imageHeight,
-        out RectangleF[] outputMap
+        out RectangleF[]? outputMap
     ) {
         imageWidth = 0;
         imageHeight = 0;
-        if (DeviceRes2D.Device2D == null || DeviceRes2D.Device2D.IsDisposed) {
+        if (DeviceRes2D.Device2D.IsDisposed) {
             outputImage = null;
             outputMap = null;
             return ImagePackReturnCode.DeviceFailed;
         }
 
-        if (ItemArray != null)
-            foreach (var item in ItemArray)
-                if (item.Value is IDisposable disposable)
-                    disposable.Dispose();
+        foreach (var item in ItemArray)
+            if (item.Value is IDisposable disposable)
+                disposable.Dispose();
 
         ItemArray = GetArray(items);
         requirePow2 = requirePowerOfTwo;
@@ -244,10 +243,9 @@ public abstract class SpritePackerBase<T, E> : IDisposable {
     private void Dispose(bool disposing) {
         if (!disposedValue) {
             if (disposing)
-                if (ItemArray != null)
-                    foreach (var item in ItemArray)
-                        if (item.Value is IDisposable disposable)
-                            disposable.Dispose();
+                foreach (var item in ItemArray)
+                    if (item.Value is IDisposable disposable)
+                        disposable.Dispose();
 
             // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
             // TODO: set large fields to null.

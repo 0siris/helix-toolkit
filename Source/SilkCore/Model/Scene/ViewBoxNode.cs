@@ -77,7 +77,9 @@ public class ViewBoxNode : ScreenSpacedNode {
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
-            var material = viewBoxMeshModel.Material as ViewCubeMaterialCore;
+            if (viewBoxMeshModel.Material is not ViewCubeMaterialCore material)
+                return false;
+
             material.DiffuseMap ??= ViewBoxTexture ?? BitmapExtensions.CreateViewBoxTextureModel(
                                               effectsManager,
                                               "F",
@@ -111,7 +113,7 @@ public class ViewBoxNode : ScreenSpacedNode {
         }
     }
 
-    private void UpdateTexture(TextureModel texture) {
+    private void UpdateTexture(TextureModel? texture) {
         if (viewBoxMeshModel.Material is ViewCubeMaterialCore material)
             material.DiffuseMap = texture;
     }
@@ -150,31 +152,35 @@ public class ViewBoxNode : ScreenSpacedNode {
         builder = new MeshBuilder(false, false);
         builder.AddTriangleStrip(pts);
         var pie = builder.ToMesh();
-        var count = pie.Indices.Count;
+        var newMesh = MeshGeometry3D.Merge(pie, mesh);
+        if (pie.Indices is not { } pieIndices || pie.Positions is not { } piePositions ||
+            newMesh.Positions is not { } newPositions || mesh.TextureCoordinates is not { } meshTextureCoordinates ||
+            mesh.Positions is not { } meshPositions)
+            return;
+
+        var count = pieIndices.Count;
         for (var i = 0; i < count;) {
-            var v1 = pie.Indices[i++];
-            var v2 = pie.Indices[i++];
-            var v3 = pie.Indices[i++];
-            pie.Indices.Add(v1);
-            pie.Indices.Add(v3);
-            pie.Indices.Add(v2);
+            var v1 = pieIndices[i++];
+            var v2 = pieIndices[i++];
+            var v3 = pieIndices[i++];
+            pieIndices.Add(v1);
+            pieIndices.Add(v3);
+            pieIndices.Add(v2);
         }
 
-        var newMesh = MeshGeometry3D.Merge(pie, mesh);
-
         if (!isRightHanded)
-            for (var i = 0; i < newMesh.Positions.Count; ++i) {
-                var p = newMesh.Positions[i];
+            for (var i = 0; i < newPositions.Count; ++i) {
+                var p = newPositions[i];
                 p.Z *= -1;
-                newMesh.Positions[i] = p;
+                newPositions[i] = p;
             }
 
-        newMesh.TextureCoordinates =
-            [.. Enumerable.Repeat(new Vector2(-1, -1), pie.Positions.Count)];
-        newMesh.Colors =
-            [.. Enumerable.Repeat(new Color4(1f, 1f, 1f, 1f), pie.Positions.Count)];
-        newMesh.TextureCoordinates.AddRange(mesh.TextureCoordinates);
-        newMesh.Colors.AddRange(Enumerable.Repeat(new Color4(1, 1, 1, 1), mesh.Positions.Count));
+        var textureCoordinates = new Vector2Collection(
+            [.. Enumerable.Repeat(new Vector2(-1, -1), piePositions.Count)]);
+        textureCoordinates.AddRange(meshTextureCoordinates);
+        newMesh.TextureCoordinates = textureCoordinates;
+        newMesh.Colors = [.. Enumerable.Repeat(new Color4(1f, 1f, 1f, 1f), piePositions.Count)];
+        newMesh.Colors?.AddRange(Enumerable.Repeat(new Color4(1, 1, 1, 1), meshPositions.Count));
         newMesh.Normals = newMesh.CalculateNormals();
         viewBoxMeshModel.Geometry = newMesh;
     }
@@ -183,10 +189,12 @@ public class ViewBoxNode : ScreenSpacedNode {
         var faces = 6;
         var segment = 4;
         var inc = 1f / faces;
+        if (mesh.TextureCoordinates is not { } textureCoordinates)
+            return;
 
-        for (var i = 0; i < mesh.TextureCoordinates.Count; ++i)
-            mesh.TextureCoordinates[i] = new Vector2(mesh.TextureCoordinates[i].X * inc + inc * (i / segment),
-                                                     mesh.TextureCoordinates[i].Y);
+        for (var i = 0; i < textureCoordinates.Count; ++i)
+            textureCoordinates[i] = new Vector2(textureCoordinates[i].X * inc + inc * (i / segment),
+                                                textureCoordinates[i].Y);
     }
 
     protected override bool CanHitTest(HitTestContext? context) => context != null;
@@ -240,7 +248,7 @@ public class ViewBoxNode : ScreenSpacedNode {
     /// <value>
     ///     The view box texture.
     /// </value>
-    public TextureModel ViewBoxTexture {
+    public TextureModel? ViewBoxTexture {
         get;
         set {
             if (Set(ref field, value)) UpdateTexture(value);

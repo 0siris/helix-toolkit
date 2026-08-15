@@ -20,7 +20,10 @@ public class ShadowMapNode : SceneNode {
     private float orthoWidth = 100;
     private bool sceneChanged;
 
-    private ShadowMapCore shadowCore;
+    private ShadowMapCore? shadowCore;
+
+    private ShadowMapCore ShadowCore
+        => shadowCore ?? throw new InvalidOperationException("Shadow map render core is not attached.");
 
     /// <summary>
     ///     Gets or sets the resolution.
@@ -29,25 +32,25 @@ public class ShadowMapNode : SceneNode {
     ///     The resolution.
     /// </value>
     public Size2 Resolution {
-        get => new((RenderCore as ShadowMapCore).Width, (RenderCore as ShadowMapCore).Height);
+        get => new(ShadowCore.Width, ShadowCore.Height);
         set {
-            (RenderCore as ShadowMapCore).Width = value.Width;
-            (RenderCore as ShadowMapCore).Height = value.Height;
+            ShadowCore.Width = value.Width;
+            ShadowCore.Height = value.Height;
         }
     }
 
     /// <summary>
     /// </summary>
     public float Bias {
-        get => (RenderCore as ShadowMapCore).Bias;
-        set => (RenderCore as ShadowMapCore).Bias = value;
+        get => ShadowCore.Bias;
+        set => ShadowCore.Bias = value;
     }
 
     /// <summary>
     /// </summary>
     public float Intensity {
-        get => (RenderCore as ShadowMapCore).Intensity;
-        set => (RenderCore as ShadowMapCore).Intensity = value;
+        get => ShadowCore.Intensity;
+        set => ShadowCore.Intensity = value;
     }
 
     public float Distance {
@@ -95,7 +98,7 @@ public class ShadowMapNode : SceneNode {
     /// <summary>
     ///     Distance of the directional light from origin
     /// </summary>
-    public ProjectionCameraCore LightCamera {
+    public ProjectionCameraCore? LightCamera {
         get;
         set {
             field?.PropertyChanged -= LightCamera_PropertyChanged;
@@ -153,7 +156,8 @@ public class ShadowMapNode : SceneNode {
     /// <param name="core">The core.</param>
     protected override void AssignDefaultValuesToCore(RenderCore core) {
         base.AssignDefaultValuesToCore(core);
-        var c = core as ShadowMapCore;
+        if (core is not ShadowMapCore c)
+            throw new InvalidOperationException("Shadow map render core is required.");
         //c.FactorPCF = (float)FactorPCF;
         c.Intensity = Intensity;
         c.Bias = Bias;
@@ -161,7 +165,7 @@ public class ShadowMapNode : SceneNode {
         c.Height = Resolution.Height;
     }
 
-    private void LightCamera_PropertyChanged(object sender, PropertyChangedEventArgs e) {
+    private void LightCamera_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
         InvalidateRender();
     }
 
@@ -174,7 +178,8 @@ public class ShadowMapNode : SceneNode {
     /// </returns>
     protected override bool OnAttach(IEffectsManager effectsManager) {
         base.OnAttach(effectsManager);
-        shadowCore = RenderCore as ShadowMapCore;
+        shadowCore = RenderCore as ShadowMapCore
+            ?? throw new InvalidOperationException("Shadow map render core is required.");
         Invalidated += Host_SceneGraphUpdated;
         sceneChanged = true;
         return true;
@@ -185,7 +190,7 @@ public class ShadowMapNode : SceneNode {
         base.OnDetach();
     }
 
-    private void Host_SceneGraphUpdated(object sender, InvalidateTypes type) {
+    private void Host_SceneGraphUpdated(object? sender, InvalidateTypes type) {
         if (type == InvalidateTypes.SceneGraph) sceneChanged = true;
     }
 
@@ -195,7 +200,7 @@ public class ShadowMapNode : SceneNode {
     /// <param name="context"></param>
     /// <returns></returns>
     protected override bool CanRender(RenderContext context) {
-        (RenderCore as ShadowMapCore).NeedRender =
+        ShadowCore.NeedRender =
             base.CanRender(context) && context.RenderHost.IsShadowMapEnabled;
         return true;
     }
@@ -262,13 +267,13 @@ public class ShadowMapNode : SceneNode {
         orthoCamera.Width = orthoWidth;
     }
 
-    private void Core_OnUpdateLightSource(object sender, ShadowMapCore.UpdateLightSourceEventArgs e) {
-        CameraCore camera = LightCamera ?? null;
+    private void Core_OnUpdateLightSource(object? sender, ShadowMapCore.UpdateLightSourceEventArgs e) {
+        CameraCore? camera = LightCamera;
         if (LightCamera == null) {
             var lights = e.Context.RenderHost.PerFrameLights.Take(Constants.MaxLights);
             foreach (var light in lights) {
                 if (light.LightType == LightType.Directional) {
-                    var dlight = light.RenderCore as DirectionalLightCore;
+                    if (light.RenderCore is not DirectionalLightCore dlight) continue;
                     var dir = SilkMath.TransformNormal(dlight.Direction, dlight.ModelMatrix).Normalized();
                     if (AutoCoverCompleteScene) {
                         if (sceneChanged || e.Context.UpdateSceneGraphRequested || IsSceneDynamic) {
@@ -286,7 +291,7 @@ public class ShadowMapNode : SceneNode {
                 }
 
                 if (light.LightType == LightType.Spot) {
-                    var splight = light.RenderCore as SpotLightCore;
+                    if (light.RenderCore is not SpotLightCore splight) continue;
                     persCamera.Position = splight.Position + splight.ModelMatrix.Row4.ToVector3();
                     var look = SilkMath.TransformNormal(splight.Direction, splight.ModelMatrix);
                     persCamera.LookDirection = look;
@@ -300,11 +305,11 @@ public class ShadowMapNode : SceneNode {
         }
 
         if (camera == null) {
-            shadowCore.FoundLightSource = false;
+            ShadowCore.FoundLightSource = false;
         } else {
-            shadowCore.FoundLightSource = true;
-            shadowCore.LightView = camera.CreateViewMatrix();
-            shadowCore.LightProjection = camera.CreateProjectionMatrix(shadowCore.Width / shadowCore.Height);
+            ShadowCore.FoundLightSource = true;
+            ShadowCore.LightView = camera.CreateViewMatrix();
+            ShadowCore.LightProjection = camera.CreateProjectionMatrix(ShadowCore.Width / ShadowCore.Height);
         }
     }
 

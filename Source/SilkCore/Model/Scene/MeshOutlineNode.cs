@@ -8,6 +8,9 @@ using HelixToolkit.SharpDX.Core.Core;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public class MeshOutlineNode : MeshNode {
+    private IMeshOutlineParams OutlineCore => RenderCore as IMeshOutlineParams
+        ?? throw new InvalidOperationException("Mesh-outline render core is not initialized.");
+
     /// <summary>
     ///     Called when [create render core].
     /// </summary>
@@ -23,8 +26,8 @@ public class MeshOutlineNode : MeshNode {
     ///     <c>true</c> if [enable outline]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableOutline {
-        get => (RenderCore as IMeshOutlineParams).OutlineEnabled;
-        set => (RenderCore as IMeshOutlineParams).OutlineEnabled = value;
+        get => OutlineCore.OutlineEnabled;
+        set => OutlineCore.OutlineEnabled = value;
     }
 
     /// <summary>
@@ -34,8 +37,8 @@ public class MeshOutlineNode : MeshNode {
     ///     The color of the outline.
     /// </value>
     public Color4 OutlineColor {
-        get => (RenderCore as IMeshOutlineParams).Color;
-        set => (RenderCore as IMeshOutlineParams).Color = value;
+        get => OutlineCore.Color;
+        set => OutlineCore.Color = value;
     }
 
     /// <summary>
@@ -45,8 +48,8 @@ public class MeshOutlineNode : MeshNode {
     ///     <c>true</c> if this instance is draw geometry; otherwise, <c>false</c>.
     /// </value>
     public bool IsDrawGeometry {
-        get => (RenderCore as IMeshOutlineParams).DrawMesh;
-        set => (RenderCore as IMeshOutlineParams).DrawMesh = value;
+        get => OutlineCore.DrawMesh;
+        set => OutlineCore.DrawMesh = value;
     }
 
     /// <summary>
@@ -56,8 +59,8 @@ public class MeshOutlineNode : MeshNode {
     ///     The outline fading factor.
     /// </value>
     public float OutlineFadingFactor {
-        get => (RenderCore as IMeshOutlineParams).OutlineFadingFactor;
-        set => (RenderCore as IMeshOutlineParams).OutlineFadingFactor = value;
+        get => OutlineCore.OutlineFadingFactor;
+        set => OutlineCore.OutlineFadingFactor = value;
     }
 
     #endregion

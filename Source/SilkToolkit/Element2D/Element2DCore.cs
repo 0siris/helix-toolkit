@@ -61,11 +61,11 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
         }
     }
 
-    private void SceneNode_OnUpdate(object sender, SceneNode2D.UpdateEventArgs e) {
+    private void SceneNode_OnUpdate(object? sender, SceneNode2D.UpdateEventArgs e) {
         OnUpdate(e.Context);
     }
 
-    private void SceneNode_OnDetached(object sender, EventArgs e) {
+    private void SceneNode_OnDetached(object? sender, EventArgs e) {
         if (Dispatcher != null && Dispatcher.Thread.IsAlive) {
             if (Dispatcher.CheckAccess())
                 OnDetached();
@@ -74,7 +74,7 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
         }
     }
 
-    private void SceneNode_OnAttached(object sender, EventArgs e) {
+    private void SceneNode_OnAttached(object? sender, EventArgs e) {
         OnAttached();
     }
 
@@ -100,11 +100,12 @@ public abstract class Element2DCore : FrameworkContentElement, IDisposable {
     ///     Occurs when [on scene node created]. Make sure to hook up this event at the top of constructor of class, otherwise
     ///     may miss the event.
     /// </summary>
-    public event EventHandler<SceneNode2DCreatedEventArgs> OnSceneNodeCreated;
+    public event EventHandler<SceneNode2DCreatedEventArgs>? OnSceneNodeCreated;
 
     #endregion
 
-    public virtual bool HitTest(Vector2 mousePoint, out HitTest2DResult hitResult) => SceneNode.HitTest(mousePoint, out hitResult);
+    public virtual bool HitTest(Vector2 mousePoint, out HitTest2DResult? hitResult) =>
+        SceneNode.HitTest(mousePoint, out hitResult);
 
     public void InvalidateRender() {
         SceneNode.InvalidateRender();

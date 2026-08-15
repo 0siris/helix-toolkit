@@ -10,11 +10,15 @@ namespace HelixToolkit.SharpDX.Core;
 public class PointGeometry3D : Geometry3D {
     public IEnumerable<Point> Points {
         get {
-            for (var i = 0; i < Positions.Count; ++i) yield return new Point { P0 = Positions[i] };
+            if (Positions is not { } positions)
+                yield break;
+
+            for (var i = 0; i < positions.Count; ++i) yield return new Point { P0 = positions[i] };
         }
     }
 
-    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) => new StaticPointGeometryOctree(Positions, parameter);
+    protected override IOctreeBasic CreateOctree(OctreeBuildParameter parameter) => new StaticPointGeometryOctree(
+        Positions ?? throw new System.InvalidOperationException("Point positions are required."), parameter);
 
     protected override bool CanCreateOctree() => Positions != null && Positions.Count > 0;
 

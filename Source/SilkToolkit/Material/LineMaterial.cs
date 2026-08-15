@@ -250,8 +250,8 @@ public class LineMaterial : Material {
     /// <value>
     ///     The texture.
     /// </value>
-    public TextureModel Texture {
-        get => (TextureModel)GetValue(TextureProperty);
+    public TextureModel? Texture {
+        get => GetValue(TextureProperty) as TextureModel;
         set => SetValue(TextureProperty, value);
     }
 

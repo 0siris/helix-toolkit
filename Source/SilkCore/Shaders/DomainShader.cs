@@ -14,7 +14,7 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public sealed class DomainShader : ShaderBase {
     public static readonly DomainShader NullDomainShader = new("NULL");
     public static readonly DomainShaderType Type;
-    private DomainShaderHandle shader;
+    private DomainShaderHandle? shader;
 
     /// <summary>
     ///     Vertex Shader
@@ -30,8 +30,8 @@ public sealed class DomainShader : ShaderBase {
     private DomainShader(string name)
         : base(name, ShaderStage.Domain, true) { }
 
-    internal DomainShaderHandle Shader => shader;
-    internal override IShaderHandle NativeShader => shader;
+    internal DomainShaderHandle? Shader => shader;
+    internal override IShaderHandle? NativeShader => shader;
 
     /// <summary>
     ///     Binds shader to pipeline
@@ -50,7 +50,7 @@ public sealed class DomainShader : ShaderBase {
     /// <param name="name">The name.</param>
     /// <param name="texture">The texture.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindTexture(DeviceContextProxy context, string name, ShaderResourceViewProxy texture) {
+    public void BindTexture(DeviceContextProxy context, string name, ShaderResourceViewProxy? texture) {
         var slot = ShaderResourceViewMapping.TryGetBindSlot(name);
         context.SetShaderResource(Type, slot, texture);
     }
@@ -62,7 +62,7 @@ public sealed class DomainShader : ShaderBase {
     /// <param name="slot">The slot.</param>
     /// <param name="texture">The texture.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindTexture(DeviceContextProxy context, int slot, ShaderResourceViewProxy texture) {
+    public void BindTexture(DeviceContextProxy context, int slot, ShaderResourceViewProxy? texture) {
         context.SetShaderResource(Type, slot, texture);
     }
 
@@ -86,7 +86,7 @@ public sealed class DomainShader : ShaderBase {
     /// <param name="slot">The slot.</param>
     /// <param name="sampler">The sampler.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindSampler(DeviceContextProxy context, int slot, SamplerStateProxy sampler) {
+    public void BindSampler(DeviceContextProxy context, int slot, SamplerStateProxy? sampler) {
         context.SetSampler(Type, slot, sampler);
     }
 
@@ -97,7 +97,7 @@ public sealed class DomainShader : ShaderBase {
     /// <param name="name">The name.</param>
     /// <param name="sampler">The sampler.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindSampler(DeviceContextProxy context, string name, SamplerStateProxy sampler) {
+    public void BindSampler(DeviceContextProxy context, string name, SamplerStateProxy? sampler) {
         var slot = SamplerMapping.TryGetBindSlot(name);
         context.SetSampler(Type, slot, sampler);
     }

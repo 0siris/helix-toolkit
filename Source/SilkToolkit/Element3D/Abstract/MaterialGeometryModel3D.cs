@@ -32,8 +32,8 @@ public abstract class MaterialGeometryModel3D : GeometryModel3D {
                                     typeof(MaterialGeometryModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as MaterialGeometryNode)
-                                                                 .Material = e.NewValue as Material;
+                                                             if (d is Element3DCore { SceneNode: MaterialGeometryNode node })
+                                                                 node.Material = e.NewValue as Material;
                                                          }));
 
     /// <summary>
@@ -47,8 +47,8 @@ public abstract class MaterialGeometryModel3D : GeometryModel3D {
                                     typeof(MaterialGeometryModel3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as MaterialGeometryNode)
-                                                                 .IsTransparent = (bool) e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: MaterialGeometryNode node })
+                                                                 node.IsTransparent = (bool)e.NewValue;
                                                          }));
 
     /// <summary>

@@ -102,10 +102,11 @@ public class PointMaterialVariable : MaterialVariable {
 
     public override void Draw(
         DeviceContextProxy deviceContext,
-        IAttachableBufferModel bufferModel,
+        IAttachableBufferModel? bufferModel,
         int instanceCount
     ) {
-        DrawPoints(deviceContext, bufferModel.VertexBuffer[0].ElementCount, instanceCount);
+        if (bufferModel?.VertexBuffer.FirstOrDefault() is { } vertexBuffer)
+            DrawPoints(deviceContext, vertexBuffer.ElementCount, instanceCount);
     }
 
     public override ShaderPass GetPass(RenderType renderType, RenderContext context) => PointPass;

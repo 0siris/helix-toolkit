@@ -254,17 +254,22 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     /// <param name="context">The context.</param>
     /// <param name="parameter">The parameter.</param>
     public virtual void RenderToPingPongBuffer(RenderContext context, ref RenderParameter parameter) {
-        var buffer = context.RenderHost.RenderBuffer;
+        if (context.RenderHost.RenderBuffer is not { } buffer)
+            return;
+
         buffer.FullResPpBuffer.Initialize();
+        if (buffer.FullResPpBuffer.CurrentTexture is not { } destination)
+            return;
+
         if (parameter.IsMsaaTexture)
             ImmediateContext.ResolveSubresource(parameter.CurrentTargetTexture,
                                                 0,
-                                                buffer.FullResPpBuffer.CurrentTexture,
+                                                destination,
                                                 0,
                                                 buffer.Format);
         else
             ImmediateContext.CopyResource(parameter.CurrentTargetTexture,
-                                          buffer.FullResPpBuffer.CurrentTexture);
+                                          destination);
     }
 
     /// <summary>
@@ -283,7 +288,9 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
         ref RenderParameter parameter
     ) {
         if (count > 0) {
-            var buffer = context.RenderHost.RenderBuffer;
+            if (context.RenderHost.RenderBuffer is not { } buffer)
+                return;
+
             var depthStencilBuffer = parameter.IsMsaaTexture
                                          ? buffer.DepthStencilBuffer
                                          : buffer.DepthStencilBufferNoMsaa;
@@ -306,24 +313,30 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
         }
 
         ImmediateContext.Flush();
-        var buffer = context.RenderHost.RenderBuffer;
+        if (context.RenderHost.RenderBuffer is not { } buffer)
+            return;
+
+        if (buffer.BackBuffer.Resource is not { } destination)
+            return;
+
         if (parameter.IsMsaaTexture)
             ImmediateContext.ResolveSubresource(parameter.CurrentTargetTexture,
                                                 0,
-                                                buffer.BackBuffer.Resource,
+                                                destination,
                                                 0,
                                                 buffer.Format);
         else
-            ImmediateContext.CopyResource(parameter.CurrentTargetTexture, buffer.BackBuffer.Resource);
+            ImmediateContext.CopyResource(parameter.CurrentTargetTexture, destination);
     }
 
     public void Attach(IRenderHost host) {
-        if (host.FeatureLevel >= FeatureLevel.Level110) {
-            oitWeightedCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOitQuad));
+        if (host.FeatureLevel >= FeatureLevel.Level110
+            && host.EffectsManager is { } effectsManager) {
+            oitWeightedCore.Attach(effectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOitQuad));
             oitDepthPeelingCore.Attach(
-                host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOitDepthPeeling));
-            postFxaaCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.PostEffectFxaa));
-            preSsaoCore.Attach(host.EffectsManager.GetTechnique(DefaultRenderTechniqueNames.Ssao));
+                effectsManager.GetTechnique(DefaultRenderTechniqueNames.MeshOitDepthPeeling));
+            postFxaaCore.Attach(effectsManager.GetTechnique(DefaultRenderTechniqueNames.PostEffectFxaa));
+            preSsaoCore.Attach(effectsManager.GetTechnique(DefaultRenderTechniqueNames.Ssao));
         }
     }
 
@@ -370,11 +383,11 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
 
     protected override void OnDispose(bool disposeManagedResources) {
         Detach();
-        RemoveAndDispose(ref immediateContext);
-        RemoveAndDispose(ref oitWeightedCore);
-        RemoveAndDispose(ref oitDepthPeelingCore);
-        RemoveAndDispose(ref postFxaaCore);
-        RemoveAndDispose(ref preSsaoCore);
+        immediateContext.Dispose();
+        oitWeightedCore.Dispose();
+        oitDepthPeelingCore.Dispose();
+        postFxaaCore.Dispose();
+        preSsaoCore.Dispose();
         base.OnDispose(disposeManagedResources);
     }
 }

@@ -26,7 +26,10 @@ public class BillboardTextModel3D : GeometryModel3D {
         typeof(bool),
         typeof(BillboardTextModel3D),
         new PropertyMetadata(true,
-                             (d, e) => { (d as BillboardTextModel3D).Material.FixedSize = (bool)e.NewValue; }));
+                             (d, e) => {
+                                 if (d is BillboardTextModel3D model)
+                                     model.Material.FixedSize = (bool)e.NewValue;
+                             }));
 
     /// <summary>
     ///     Fixed sized billboard. Default = true.
@@ -49,8 +52,8 @@ public class BillboardTextModel3D : GeometryModel3D {
                                     typeof(BillboardTextModel3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Element3DCore).SceneNode as BillboardNode)
-                                                                 .IsTransparent = (bool)e.NewValue;
+                                                             if (d is Element3DCore { SceneNode: BillboardNode node })
+                                                                 node.IsTransparent = (bool)e.NewValue;
                                                          }));
 
     /// <summary>
@@ -83,8 +86,8 @@ public class BillboardTextModel3D : GeometryModel3D {
                                     typeof(BillboardTextModel3D),
                                     new PropertyMetadata(DefaultSamplers.LinearSamplerClampAni1,
                                                          (d, e) => {
-                                                             (d as BillboardTextModel3D).Material.SamplerDescription =
-                                                                 (SamplerStateDescription)e.NewValue;
+                                                             if (d is BillboardTextModel3D model)
+                                                                 model.Material.SamplerDescription = (SamplerStateDescription)e.NewValue;
                                                          }));
 
     #endregion

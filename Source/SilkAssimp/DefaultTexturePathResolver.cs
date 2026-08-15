@@ -48,7 +48,7 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
         }
 
         //If still not found, try to go one upper level and find
-        var upper = Directory.GetParent(dir).FullName;
+        var upper = Directory.GetParent(dir)?.FullName ?? dir;
         try {
             upper = Path.GetFullPath(upper + texturePath);
         } catch (NotSupportedException ex) {

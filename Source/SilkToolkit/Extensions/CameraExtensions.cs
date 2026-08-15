@@ -197,7 +197,8 @@ public static class CameraExtensions {
     /// <returns>
     ///     The inverse transform.
     /// </returns>
-    public static Matrix3D GetInverseViewProjectionMatrix3D(this Camera camera, double aspectRatio) => GetInverseViewProjectionMatrix(camera, aspectRatio).ToMatrix3D();
+    public static Matrix3D GetInverseViewProjectionMatrix3D(this Camera camera, double aspectRatio) =>
+        GetInverseViewProjectionMatrix(camera.CameraInternal, aspectRatio).ToMatrix3D();
 
     /// <summary>
     ///     Gets the inverse camera transform.
@@ -223,7 +224,8 @@ public static class CameraExtensions {
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The projection matrix.</returns>
-    public static Matrix3D GetProjectionMatrix3D(this Camera camera, double aspectRatio) => GetProjectionMatrix(camera, aspectRatio).ToMatrix3D();
+    public static Matrix3D GetProjectionMatrix3D(this Camera camera, double aspectRatio) =>
+        GetProjectionMatrix(camera.CameraInternal, aspectRatio).ToMatrix3D();
 
     /// <summary>
     ///     Gets the projection matrix for the specified camera.
@@ -239,7 +241,8 @@ public static class CameraExtensions {
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The total view and projection transform.</returns>
-    public static Matrix3D GetViewProjectionMatrix3D(this Camera camera, double aspectRatio) => GetViewProjectionMatrix(camera, aspectRatio).ToMatrix3D();
+    public static Matrix3D GetViewProjectionMatrix3D(this Camera camera, double aspectRatio) =>
+        GetViewProjectionMatrix(camera.CameraInternal, aspectRatio).ToMatrix3D();
 
     /// <summary>
     ///     Get the combined view and projection transform
@@ -261,7 +264,7 @@ public static class CameraExtensions {
     /// <returns>
     ///     A Matrix object with the camera view transform matrix, or a Matrix with all zeros if the "camera" is null.
     /// </returns>
-    public static Matrix3D GetViewMatrix3D(this Camera camera) => GetViewMatrix(camera).ToMatrix3D();
+    public static Matrix3D GetViewMatrix3D(this Camera camera) => GetViewMatrix(camera.CameraInternal).ToMatrix3D();
 
     /// <summary>
     ///     Obtains the view transform matrix for a camera. (see page 327)
@@ -275,7 +278,7 @@ public static class CameraExtensions {
     public static Matrix GetViewMatrix(this CameraCore camera) => camera.CreateViewMatrix();
 
     public static Matrix3D GetInversedViewMatrix(this Camera camera) {
-        var viewMatrix = GetViewMatrix(camera);
+        var viewMatrix = GetViewMatrix(camera.CameraInternal);
         return MatrixExtensions.PsudoInvert(ref viewMatrix).ToMatrix3D();
     }
 
@@ -397,8 +400,6 @@ public static class CameraExtensions {
     ///     The camera.
     /// </param>
     public static void Reset(this PerspectiveCamera camera) {
-        if (camera == null) return;
-
         camera.Position = new Point3D(20, 10, 40);
         camera.LookDirection = new Vector3D(-20, -10, -40);
         camera.UpDirection = new Vector3D(0, 1, 0);
@@ -414,8 +415,6 @@ public static class CameraExtensions {
     ///     The camera.
     /// </param>
     public static void Reset(this OrthographicCamera camera) {
-        if (camera == null) return;
-
         camera.Position = new Point3D(20, 10, 40);
         camera.LookDirection = new Vector3D(-20, -10, -40);
         camera.UpDirection = new Vector3D(0, 1, 0);

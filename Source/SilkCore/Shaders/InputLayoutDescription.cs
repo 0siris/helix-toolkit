@@ -16,7 +16,7 @@ public sealed class InputLayoutDescription {
     /// </summary>
     public static readonly InputLayoutDescription EmptyInputLayout = new();
 
-    private readonly IShaderByteCodeReader byteCodeReader;
+    private readonly IShaderByteCodeReader byteCodeReader = UwpShaderBytePool.InternalByteCodeReader;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="InputLayoutDescription" /> class.
@@ -59,15 +59,15 @@ public sealed class InputLayoutDescription {
     [DataMember]
     public byte[]? ShaderByteCode {
         get {
-            if (field == null && !string.IsNullOrEmpty(ShaderByteCodeName))
-                field = UwpShaderBytePool.Read(ShaderByteCodeName, byteCodeReader);
+            if (field == null && ShaderByteCodeName is { } name)
+                field = UwpShaderBytePool.Read(name, byteCodeReader);
             return field;
         }
         set;
     }
 
     [IgnoreDataMember]
-    public string ShaderByteCodeName { get; }
+    public string? ShaderByteCodeName { get; }
 
     /// <summary>
     ///     Gets or sets the input elements.
@@ -78,5 +78,5 @@ public sealed class InputLayoutDescription {
     [DataMember]
     public InputElement[] InputElements { get; set; } = [];
 
-    public KeyValuePair<byte[], InputElement[]> Description => new(ShaderByteCode, InputElements);
+    public KeyValuePair<byte[], InputElement[]> Description => new(ShaderByteCode ?? [], InputElements);
 }

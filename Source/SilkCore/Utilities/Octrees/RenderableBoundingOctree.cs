@@ -6,7 +6,11 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     /// <summary>
     ///     Only root contains dictionary
     /// </summary>
-    private Dictionary<Guid, IDynamicOctree> octantDictionary;
+    private Dictionary<Guid, IDynamicOctree> octantDictionary = [];
+
+    private static BoundableNodeOctree GetRoot(IDynamicOctree node) =>
+        FindRoot(node) as BoundableNodeOctree
+        ?? throw new InvalidOperationException("The octree root is not a boundable node octree.");
 
     public BoundableNodeOctree(
         List<SceneNode> objList,
@@ -57,12 +61,13 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
         //var bound = Bound.Transform(modelMatrix);// BoundingBox.FromPoints(Bound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
         var bound = Bound;
         var tempHits = new List<HitTestResult>();
-        var rayWs = context.RayWs;
+        if (context is not { } hitContext) return false;
+        var rayWs = hitContext.RayWs;
         
         if (rayWs.Intersects(ref bound)) {
             isIntersect = true;
             foreach (var r in Objects) {
-                isHit |= r.HitTest(context, ref tempHits);
+                isHit |= r.HitTest(hitContext, ref tempHits);
                 hits.AddRange(tempHits);
                 tempHits.Clear();
             }
@@ -89,44 +94,42 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
                           Stack,
                           null,
                           node => {
-                              foreach (var item in (node as DynamicOctreeBase<SceneNode>).Objects)
-                                  octantDictionary.Add(item.Guid, node);
+                              if (node is DynamicOctreeBase<SceneNode> octree)
+                                  foreach (var item in octree.Objects)
+                                      octantDictionary.Add(item.Guid, node);
                           });
     }
 
     public IDynamicOctree? FindItemByGuid(Guid guid, SceneNode item, out int index) {
-        var root = FindRoot(this) as BoundableNodeOctree;
+        var root = GetRoot(this);
         index = -1;
-        if (root.octantDictionary.ContainsKey(guid)) {
-            var node = root.octantDictionary[guid];
-            index = (node as DynamicOctreeBase<SceneNode>).Objects.IndexOf(item);
-            return root.octantDictionary[guid];
+        if (root.octantDictionary.TryGetValue(guid, out var node)) {
+            if (node is DynamicOctreeBase<SceneNode> octree) index = octree.Objects.IndexOf(item);
+            return node;
         }
 
         return null;
     }
 
     public bool RemoveByGuid(Guid guid, SceneNode item) {
-        var root = FindRoot(this);
-        return RemoveByGuid(guid, item, root as BoundableNodeOctree);
+        return RemoveByGuid(guid, item, GetRoot(this));
     }
 
     public bool RemoveByGuid(Guid guid, SceneNode item, BoundableNodeOctree root) {
-        if (root.octantDictionary.ContainsKey(guid)) {
-            (octantDictionary[guid] as BoundableNodeOctree).RemoveSafe(item, root);
+        if (root.octantDictionary.TryGetValue(guid, out var octant)
+            && octant is BoundableNodeOctree boundableOctant) {
+            boundableOctant.RemoveSafe(item, root);
             return true;
         }
 
         return false;
     }
 
-    public override bool Add(SceneNode item, out IDynamicOctree octant) {
-        if (base.Add(item, out octant)) {
-            if (octant == null) throw new Exception("Output octant is null");
-            
-            var root = FindRoot(this) as BoundableNodeOctree;
+    public override bool Add(SceneNode item, out IDynamicOctree? octant) {
+        if (base.Add(item, out octant) && octant is { } octantNode) {
+            var root = GetRoot(this);
             if (!root.octantDictionary.ContainsKey(item.Guid)) 
-                root.octantDictionary.Add(item.Guid, octant);
+                root.octantDictionary.Add(item.Guid, octantNode);
             
             return true;
         }
@@ -137,7 +140,7 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     public override bool PushExistingToChild(int index, out IDynamicOctree octant) {
         var item = Objects[index];
         if (base.PushExistingToChild(index, out octant)) {
-            var root = FindRoot(this) as BoundableNodeOctree;
+            var root = GetRoot(this);
             root.octantDictionary[item.Guid] = octant;
             return true;
         }
@@ -146,7 +149,7 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     }
 
     public override bool RemoveSafe(SceneNode item) {
-        var root = FindRoot(this);
+        var root = GetRoot(this);
         return RemoveSafe(item, root);
     }
 
@@ -160,7 +163,7 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     }
 
     public override bool RemoveAt(int index) {
-        var root = FindRoot(this);
+        var root = GetRoot(this);
         return RemoveAt(index, root);
     }
 
@@ -175,7 +178,7 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     }
 
     public override bool RemoveByBound(SceneNode item, ref BoundingBox bound) {
-        var root = FindRoot(this);
+        var root = GetRoot(this);
         return RemoveByBound(item, ref bound, root);
     }
 
@@ -189,42 +192,33 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     }
 
     public override IDynamicOctree Expand(ref Vector3 direction) {
-        var root = this;
-        if (!IsRoot) root = FindRoot(this) as BoundableNodeOctree;
+        var root = GetRoot(this);
         var newRoot = Expand(root, ref direction, CreateNodeWithParent);
-        (newRoot as BoundableNodeOctree).TransferOctantDictionary(root,
-                                                                  ref root
-                                                                      .octantDictionary); //Transfer the dictionary to new root
+        if (newRoot is BoundableNodeOctree boundableRoot)
+            boundableRoot.TransferOctantDictionary(root, ref root.octantDictionary);
         return newRoot;
     }
 
     public override IDynamicOctree? Shrink() {
-        var root = this;
-        if (!IsRoot) root = FindRoot(this) as BoundableNodeOctree;
+        var root = GetRoot(this);
         var newRoot = Shrink(root);
-        (newRoot as BoundableNodeOctree).TransferOctantDictionary(root,
-                                                                  ref root
-                                                                      .octantDictionary); //Transfer the dictionary to new root
+        if (newRoot is BoundableNodeOctree boundableRoot)
+            boundableRoot.TransferOctantDictionary(root, ref root.octantDictionary);
         return newRoot;
     }
 
-    private void TransferOctantDictionary(
-        IDynamicOctree source,
-        ref Dictionary<Guid, IDynamicOctree>? dictionary
-    ) {
+    private void TransferOctantDictionary(IDynamicOctree source, ref Dictionary<Guid, IDynamicOctree> dictionary) {
         if (source == this) 
             return;
         
         octantDictionary = dictionary;
-        dictionary = null;
+        dictionary = [];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void RemoveFromRootDictionary(IDynamicOctree node, Guid guid) {
-        node = FindRoot(node);
-        var root = node as BoundableNodeOctree;
-        if (root.octantDictionary.ContainsKey(guid)) 
-            root.octantDictionary.Remove(guid);
+        var root = GetRoot(node);
+        root.octantDictionary.Remove(guid);
     }
 
     public override bool FindNearestPointBySphereExcludeChild(

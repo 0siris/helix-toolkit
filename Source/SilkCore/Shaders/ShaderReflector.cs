@@ -25,7 +25,7 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
         UavMappings.Clear();
         SamplerMappings.Clear();
 
-        if (byteCode == null || byteCode.Length == 0) {
+        if (byteCode.Length == 0) {
             FeatureLevel = FeatureLevel.LevelDefault;
             throw new ArgumentException("Shader bytecode cannot be empty.", nameof(byteCode));
         }

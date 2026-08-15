@@ -14,7 +14,7 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public sealed class ComputeShader : ShaderBase {
     public static readonly ComputeShader NullComputeShader = new("NULL");
     public static readonly ComputeShaderType Type;
-    private ComputeShaderHandle shader;
+    private ComputeShaderHandle? shader;
 
     /// <summary>
     ///     Vertex Shader
@@ -30,8 +30,8 @@ public sealed class ComputeShader : ShaderBase {
     private ComputeShader(string name)
         : base(name, ShaderStage.Compute, true) { }
 
-    internal ComputeShaderHandle Shader => shader;
-    internal override IShaderHandle NativeShader => shader;
+    internal ComputeShaderHandle? Shader => shader;
+    internal override IShaderHandle? NativeShader => shader;
 
     /// <summary>
     ///     Binds shader to pipeline
@@ -50,7 +50,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="name">The name.</param>
     /// <param name="texture">The texture.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindTexture(DeviceContextProxy context, string name, ShaderResourceViewProxy texture) {
+    public void BindTexture(DeviceContextProxy context, string name, ShaderResourceViewProxy? texture) {
         var slot = ShaderResourceViewMapping.TryGetBindSlot(name);
         context.SetShaderResource(Type, slot, texture);
     }
@@ -62,7 +62,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="slot">The slot.</param>
     /// <param name="texture">The texture.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindTexture(DeviceContextProxy context, int slot, ShaderResourceViewProxy texture) {
+    public void BindTexture(DeviceContextProxy context, int slot, ShaderResourceViewProxy? texture) {
         context.SetShaderResource(Type, slot, texture);
     }
 
@@ -86,7 +86,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="slot">The slot.</param>
     /// <param name="sampler">The sampler.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindSampler(DeviceContextProxy context, int slot, SamplerStateProxy sampler) {
+    public void BindSampler(DeviceContextProxy context, int slot, SamplerStateProxy? sampler) {
         context.SetSampler(Type, slot, sampler);
     }
 
@@ -97,7 +97,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="name">The name.</param>
     /// <param name="sampler">The sampler.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindSampler(DeviceContextProxy context, string name, SamplerStateProxy sampler) {
+    public void BindSampler(DeviceContextProxy context, string name, SamplerStateProxy? sampler) {
         var slot = SamplerMapping.TryGetBindSlot(name);
         context.SetSampler(Type, slot, sampler);
     }
@@ -119,7 +119,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="slot">The slot.</param>
     /// <param name="uav">The uav.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindUav(DeviceContextProxy context, int slot, UavBufferViewProxy uav) {
+    public void BindUav(DeviceContextProxy context, int slot, UavBufferViewProxy? uav) {
         context.SetUnorderedAccessView(Type, slot, uav);
     }
 
@@ -130,7 +130,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="name">The name.</param>
     /// <param name="uav">The uav.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BindUav(DeviceContextProxy context, string name, UavBufferViewProxy uav) {
+    public void BindUav(DeviceContextProxy context, string name, UavBufferViewProxy? uav) {
         var slot = UnorderedAccessViewMapping.TryGetBindSlot(name);
         context.SetUnorderedAccessView(Type, slot, uav);
     }

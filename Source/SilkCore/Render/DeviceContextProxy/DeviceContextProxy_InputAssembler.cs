@@ -4,20 +4,20 @@ using Silk.NET.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Render;
 public partial class DeviceContextProxy {
-    private InputLayoutProxy currInputLayout;
+    private InputLayoutProxy? currInputLayout;
 
     public PrimitiveTopology PrimitiveTopology {
-        get => (PrimitiveTopology)nativeDeviceContext.PrimitiveTopology;
-        set => nativeDeviceContext.PrimitiveTopology = (D3DPrimitiveTopology)value;
+        get => (PrimitiveTopology)NativeContext.PrimitiveTopology;
+        set => NativeContext.PrimitiveTopology = (D3DPrimitiveTopology)value;
     }
 
-    public InputLayoutProxy InputLayout {
+    public InputLayoutProxy? InputLayout {
         get => currInputLayout;
         set {
             if (currInputLayout == value) return;
 
             currInputLayout = value;
-            nativeDeviceContext.SetInputLayout(value?.Layout);
+            NativeContext.SetInputLayout(value?.Layout);
         }
     }
 

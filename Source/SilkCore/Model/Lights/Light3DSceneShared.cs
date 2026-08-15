@@ -16,6 +16,7 @@ namespace HelixToolkit.SharpDX.Core.Model;
 public sealed class Light3DSceneShared : DisposeObject {
     public readonly LightsBufferModel LightModels = new();
 
+    [System.Diagnostics.CodeAnalysis.AllowNull]
     private IBufferProxy buffer;
 
     /// <summary>

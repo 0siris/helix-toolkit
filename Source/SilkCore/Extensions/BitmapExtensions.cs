@@ -72,7 +72,9 @@ public static class BitmapExtensions {
                                                            layout,
                                                            brush);
                                                });
-        return bitmap.ToMemoryStream(deviceResources);
+        return bitmap is { } validBitmap
+            ? validBitmap.ToMemoryStream(deviceResources)
+            : new MemoryStream();
     }
 
     public static TextLayout GetTextLayoutMetrices(
@@ -121,8 +123,7 @@ public static class BitmapExtensions {
         if (width <= 0 || height <= 0) return null;
 
         if (deviceResources is not IDevice3DResources device3D
-            || device3D.NativeDeviceResources?.Device == null
-            || deviceResources.DeviceContext2D?.HasNativeContext != true)
+            || !deviceResources.DeviceContext2D.HasNativeContext)
             return new Bitmap(new Size2F(width, height));
 
         var texture = device3D.NativeDeviceResources.Device.CreateTexture2D(new Texture2DDescription {
@@ -156,7 +157,7 @@ public static class BitmapExtensions {
                 context.Target = target;
                 context.Transform = Matrix3X2.Identity;
                 context.BeginDraw();
-                drawingAction?.Invoke(context);
+                drawingAction(context);
                 context.EndDraw();
             } finally {
                 context.Target = previousTarget;
@@ -233,7 +234,9 @@ public static class BitmapExtensions {
                                                            new BrushProperties { Opacity = color.GetAlpha() });
                                                 target.FillRectangle(new RectangleF(0, 0, width, height), brush);
                                             });
-        return bmp.ToMemoryStream(deviceResources, imageType);
+        return bmp is { } validBitmap
+            ? validBitmap.ToMemoryStream(deviceResources, imageType)
+            : new MemoryStream();
     }
 
     public static MemoryStream CreateLinearGradientBitmapStream(
@@ -268,7 +271,9 @@ public static class BitmapExtensions {
                                                     new RectangleF(0, 0, width, height),
                                                     brush);
                                             });
-        return bmp.ToMemoryStream(deviceResources, imageType);
+        return bmp is { } validBitmap
+            ? validBitmap.ToMemoryStream(deviceResources, imageType)
+            : new MemoryStream();
     }
 
     public static MemoryStream CreateRadiusGradientBitmapStream(
@@ -307,7 +312,9 @@ public static class BitmapExtensions {
                                                     new RectangleF(0, 0, width, height),
                                                     brush);
                                             });
-        return bmp.ToMemoryStream(deviceResources, imageType);
+        return bmp is { } validBitmap
+            ? validBitmap.ToMemoryStream(deviceResources, imageType)
+            : new MemoryStream();
     }
 
 
@@ -379,10 +386,12 @@ public static class BitmapExtensions {
                                                     faceRect.Width = faceSize;
                                                 }
                                             });
-        return bmp.ToMemoryStream(deviceResources);
+        return bmp is { } validBitmap
+            ? validBitmap.ToMemoryStream(deviceResources)
+            : new MemoryStream();
     }
 
-    public static TextureModel CreateViewBoxTextureModel(
+    public static TextureModel? CreateViewBoxTextureModel(
         IDevice2DResources deviceResources,
         string front,
         string back,
@@ -450,7 +459,7 @@ public static class BitmapExtensions {
                                                     faceRect.Width = faceSize;
                                                 }
                                             });
-        return bmp.ToTextureModel(deviceResources);
+        return bmp?.ToTextureModel(deviceResources);
     }
 
     private static TextureModel ToTextureModel(this Bitmap bitmap, IDevice2DResources deviceResources) {
@@ -458,17 +467,16 @@ public static class BitmapExtensions {
         var height = Math.Max(1, bitmap.Height);
         var pixels = new byte[width * height * 4];
 
-        if (bitmap.Texture != null
+        if (bitmap.Texture is { } texture
             && deviceResources is IDeviceResources resources
-            && resources.NativeDeviceResources?.ImmediateContext != null
             && ScreenCapture.CaptureTexture(new DeviceContextProxy(resources.NativeDeviceResources.ImmediateContext,
                                                                    resources.NativeDeviceResources.Device),
-                                            bitmap.Texture,
-                                            out var stagingTexture)) {
-            var disposeStaging = !ReferenceEquals(stagingTexture, bitmap.Texture);
+                                             texture,
+                                             out var stagingTexture)) {
+            var disposeStaging = !ReferenceEquals(stagingTexture, texture);
             try {
                 var context = resources.NativeDeviceResources.ImmediateContext;
-                var data = context.MapSubresource(stagingTexture, 0, MapMode.Read, MapFlags.None);
+                    var data = context.MapSubresource(stagingTexture, 0, MapMode.Read, MapFlags.None);
                 try {
                     for (var row = 0; row < height; ++row)
                         Marshal.Copy(nint.Add(data.DataPointer, row * data.RowPitch),
@@ -522,12 +530,12 @@ public static class BitmapExtensions {
                                     out var imageWidth,
                                     out var imageHeight,
                                     out var map);
-        if (code == ImagePackReturnCode.Succeed)
-            using (bitmap) {
-                var stream = bitmap.ToMemoryStream(effectsManager, Direct2DImageFormat.Png);
+        if (code == ImagePackReturnCode.Succeed && bitmap is { } packedBitmap && map is { } imageMap)
+            using (packedBitmap) {
+                var stream = packedBitmap.ToMemoryStream(effectsManager, Direct2DImageFormat.Png);
                 var model = new BillboardImage3D(stream);
                 foreach (var imageInfo in items.Select((x, i) => {
-                    var rect = map[i];
+                    var rect = imageMap[i];
                     return new ImageInfo {
                         Width = rect.Width,
                         Height = rect.Height,

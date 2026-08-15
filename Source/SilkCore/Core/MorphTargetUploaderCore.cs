@@ -55,7 +55,7 @@ internal class MorphTargetUploaderCore : RenderCore {
     public float[] MorphTargetWeights {
         get => morphTargetWeights;
         set {
-            if (SetAffectsRender(ref morphTargetWeights, value ?? [])) {
+            if (SetAffectsRender(ref morphTargetWeights, value)) {
                 weightUpdated = true;
                 WeightsChanged?.Invoke(this, EventArgs.Empty);
             }
@@ -96,29 +96,30 @@ internal class MorphTargetUploaderCore : RenderCore {
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
 
     protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) {
-        if (weightUpdated) {
-            MtWeightsB.UploadDataToBuffer(deviceContext, morphTargetWeights, morphTargetWeights.Length, 0);
+        if (weightUpdated && MtWeightsB is { } weightsBuffer) {
+            weightsBuffer.UploadDataToBuffer(deviceContext, morphTargetWeights, morphTargetWeights.Length, 0);
             weightUpdated = false;
         }
 
-        if (setDeltas) {
+        if (setDeltas && MtDeltasB is { Buffer: { } deltasBuffer } deltas &&
+            MtOffsetsB is { Buffer: { } offsetsBuffer } offsets) {
             //Setup deltas buffer
             var c = morphTargetsDeltas.Length;
-            MtDeltasB.UploadDataToBuffer(deviceContext, morphTargetsDeltas, c);
+            deltas.UploadDataToBuffer(deviceContext, morphTargetsDeltas, c);
             //Handle deltas srv
-            MtDeltasSrv = new ShaderResourceViewProxy(MtDeltasB.Buffer,
-                                                      MtDeltasB.Buffer.Device.CreateShaderResourceView(
-                                                          MtDeltasB.Buffer));
-            MtDeltasSrv.CreateTextureView();
+            if (deltasBuffer.Device.CreateShaderResourceView(deltasBuffer) is { } deltasView) {
+                MtDeltasSrv = new ShaderResourceViewProxy(deltasBuffer, deltasView);
+                MtDeltasSrv.CreateTextureView();
+            }
 
             //Setup offsets buffer
             c = morphTargetOffsets.Length;
-            MtOffsetsB.UploadDataToBuffer(deviceContext, morphTargetOffsets, c);
+            offsets.UploadDataToBuffer(deviceContext, morphTargetOffsets, c);
             //Handle offsets srv
-            MtOffsetsSrv = new ShaderResourceViewProxy(MtOffsetsB.Buffer,
-                                                       MtOffsetsB.Buffer.Device.CreateShaderResourceView(
-                                                           MtOffsetsB.Buffer));
-            MtOffsetsSrv.CreateTextureView();
+            if (offsetsBuffer.Device.CreateShaderResourceView(offsetsBuffer) is { } offsetsView) {
+                MtOffsetsSrv = new ShaderResourceViewProxy(offsetsBuffer, offsetsView);
+                MtOffsetsSrv.CreateTextureView();
+            }
 
 
             setDeltas = false;
@@ -155,8 +156,8 @@ internal class MorphTargetUploaderCore : RenderCore {
     }
 
     public void BindBuffers(DeviceContextProxy devCtx, int weightsSlot, int deltasSlot, int offsetsSlot) {
-        if (HasMorphTarget) {
-            devCtx.SetShaderResource(VertexShader.Type, weightsSlot, MtWeightsB);
+        if (HasMorphTarget && MtWeightsB is { } weightsBuffer) {
+            devCtx.SetShaderResource(VertexShader.Type, weightsSlot, weightsBuffer);
             devCtx.SetShaderResource(VertexShader.Type, deltasSlot, MtDeltasSrv);
             devCtx.SetShaderResource(VertexShader.Type, offsetsSlot, MtOffsetsSrv);
         }

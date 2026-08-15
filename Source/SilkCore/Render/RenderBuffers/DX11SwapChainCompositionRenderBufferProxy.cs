@@ -11,8 +11,8 @@ namespace HelixToolkit.SharpDX.Core.Render;
 /// </summary>
 public class DX11SwapChainCompositionRenderBufferProxy : DX11RenderBufferProxyBase {
     private readonly PresentParameters presentParams = new();
-    private ShaderResourceViewProxy backBuffer;
-    private SwapChain2 swapChain;
+    private ShaderResourceViewProxy? backBuffer;
+    private SwapChain2? swapChain;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DX11SwapChainRenderBufferProxy" /> class.
@@ -37,7 +37,7 @@ public class DX11SwapChainCompositionRenderBufferProxy : DX11RenderBufferProxyBa
     /// <value>
     ///     The swap chain.
     /// </value>
-    public SwapChain2 SwapChain => swapChain;
+    public SwapChain2? SwapChain => swapChain;
 
     /// <summary>
     ///     Called when [create render target and depth buffers].
@@ -46,7 +46,7 @@ public class DX11SwapChainCompositionRenderBufferProxy : DX11RenderBufferProxyBa
     /// <param name="height">The height.</param>
     /// <returns></returns>
     protected override ShaderResourceViewProxy OnCreateBackBuffer(int width, int height) {
-        if (swapChain == null || swapChain.IsDisposed)
+        if (swapChain is null || swapChain.IsDisposed)
             swapChain = CreateSwapChain();
         else
             swapChain.ResizeBuffers(swapChain.Description1.BufferCount,
@@ -56,8 +56,11 @@ public class DX11SwapChainCompositionRenderBufferProxy : DX11RenderBufferProxyBa
                                     swapChain.Description.Flags);
 
         var backBuffer = CreateBackBufferTexture(width, height);
+        if (backBuffer.Resource is not Texture2D texture)
+            throw new InvalidOperationException("The swap chain back buffer is not a 2D texture.");
+        this.backBuffer = backBuffer;
         d2dTarget = new D2DTargetProxy();
-        d2dTarget.Initialize(backBuffer.Resource as Texture2D, DeviceContext2D);
+        d2dTarget.Initialize(texture, DeviceContext2D);
         return backBuffer;
     }
 
@@ -115,10 +118,11 @@ public class DX11SwapChainCompositionRenderBufferProxy : DX11RenderBufferProxyBa
     /// </summary>
     /// <returns></returns>
     public override bool Present() {
-        var res = swapChain.Present(VSyncInterval, PresentFlags.None, presentParams);
+        if (swapChain is not { } currentSwapChain) return false;
+        var res = currentSwapChain.Present(VSyncInterval, PresentFlags.None, presentParams);
         if (res.Success) return true;
 
-        swapChain.Present(VSyncInterval, PresentFlags.Restart, presentParams);
+        currentSwapChain.Present(VSyncInterval, PresentFlags.Restart, presentParams);
         return false;
     }
 

@@ -17,8 +17,8 @@ public class ImageModel2D : Element2D {
                                     typeof(ImageModel2D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as Element2DCore).SceneNode as ImageNode2D)
-                                                                 .ImageStream = e.NewValue as Stream;
+                                                             if (d is Element2DCore { SceneNode: ImageNode2D node })
+                                                                 node.ImageStream = e.NewValue as Stream;
                                                          }));
 
     /// <summary>
@@ -30,8 +30,8 @@ public class ImageModel2D : Element2D {
                                     typeof(ImageModel2D),
                                     new PropertyMetadata(1.0,
                                                          (d, e) => {
-                                                             ((d as Element2DCore).SceneNode as ImageNode2D)
-                                                                 .Opacity = (float)(double)e.NewValue;
+                                                             if (d is Element2DCore { SceneNode: ImageNode2D node })
+                                                                 node.Opacity = (float)(double)e.NewValue;
                                                          }));
 
     /// <summary>

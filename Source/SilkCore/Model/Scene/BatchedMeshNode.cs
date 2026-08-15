@@ -455,13 +455,13 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     /// <value>
     ///     The post effects.
     /// </value>
-    public string PostEffects {
+    public string? PostEffects {
         get;
         set {
             if (Set(ref field, value)) {
                 ClearPostEffect();
-                if (value.Length > 0)
-                    foreach (var effect in EffectAttributes.Parse(value))
+                if (value is { Length: > 0 } effects)
+                    foreach (var effect in EffectAttributes.Parse(effects))
                         AddPostEffect(effect);
             }
         }

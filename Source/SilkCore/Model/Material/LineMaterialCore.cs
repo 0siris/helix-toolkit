@@ -72,7 +72,7 @@ public class LineMaterialCore : MaterialCore, ILineRenderParams {
     /// <value>
     ///     The texture.
     /// </value>
-    public TextureModel Texture {
+    public TextureModel? Texture {
         get;
         set => Set(ref field, value);
     }

@@ -9,6 +9,9 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class PointLightNode : LightNode {
+    private PointLightCore LightCore => RenderCore as PointLightCore
+        ?? throw new InvalidOperationException("Render core is not a point light core.");
+
     /// <summary>
     ///     Gets or sets the position.
     /// </summary>
@@ -16,8 +19,8 @@ public class PointLightNode : LightNode {
     ///     The position.
     /// </value>
     public Vector3 Position {
-        get => (RenderCore as PointLightCore).Position;
-        set => (RenderCore as PointLightCore).Position = value;
+        get => LightCore.Position;
+        set => LightCore.Position = value;
     }
 
     /// <summary>
@@ -27,8 +30,8 @@ public class PointLightNode : LightNode {
     ///     The attenuation.
     /// </value>
     public Vector3 Attenuation {
-        get => (RenderCore as PointLightCore).Attenuation;
-        set => (RenderCore as PointLightCore).Attenuation = value;
+        get => LightCore.Attenuation;
+        set => LightCore.Attenuation = value;
     }
 
     /// <summary>
@@ -38,8 +41,8 @@ public class PointLightNode : LightNode {
     ///     The range.
     /// </value>
     public float Range {
-        get => (RenderCore as PointLightCore).Range;
-        set => (RenderCore as PointLightCore).Range = value;
+        get => LightCore.Range;
+        set => LightCore.Range = value;
     }
 
     /// <summary>

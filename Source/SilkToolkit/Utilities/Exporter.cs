@@ -102,9 +102,9 @@ public abstract class Exporter : IExporter, IDisposable {
     ///     The action.
     /// </param>
     private static void Traverse<T>(SceneNode model, Action<T, Transform3D> action) where T : SceneNode {
-        if (model is T)
-            if (model.WrapperSource is Element3D m)
-                action((T)model, m.Transform);
+        if (model is T node
+            && model.WrapperSource is Element3D { Transform: { } transform })
+            action(node, transform);
 
         foreach (var element in model.Items) Traverse(element, action);
     }

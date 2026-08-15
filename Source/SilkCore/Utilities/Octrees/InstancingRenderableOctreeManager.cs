@@ -30,11 +30,12 @@ public sealed class InstancingRenderableOctreeManager : OctreeManagerBase {
     /// <param name="items">The items.</param>
     public override void RebuildTree(IEnumerable<SceneNode>? items) {
         Clear();
-        if (items?.FirstOrDefault() is not IInstancing inst)
+        if (items?.FirstOrDefault() is not { } sceneNode
+            || sceneNode is not IInstancing inst
+            || inst.InstanceBuffer.Elements is not { Count: > 0 } instanceMatrix)
             return;
-        
-        var instMatrix = inst.InstanceBuffer.Elements;
-        var octree = new StaticInstancingModelOctree(instMatrix, (inst as SceneNode).OriginalBounds, Parameter);
+
+        var octree = new StaticInstancingModelOctree(instanceMatrix, sceneNode.OriginalBounds, Parameter);
         //new InstancingModel3DOctree(instMatrix, (inst as SceneNode).OriginalBounds, this.Parameter, new Stack<KeyValuePair<int, IOctree[]>>(10));
         octree.BuildTree();
         Octree = octree;

@@ -16,9 +16,7 @@ protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? h
     }
 
     protected override Size2F MeasureOverride(Size2F availableSize) {
-        foreach (var item in Items)
-            if (item is SceneNode2D e)
-                e.Measure(availableSize);
+        foreach (var item in Items) item.Measure(availableSize);
 
         return availableSize;
     }

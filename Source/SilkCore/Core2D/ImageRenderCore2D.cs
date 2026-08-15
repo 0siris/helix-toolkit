@@ -6,7 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 namespace HelixToolkit.SharpDX.Core.Core2D;
 public class ImageRenderCore2D : RenderCore2DBase {
-    private Bitmap bitmap;
+    private Bitmap? bitmap;
 
     /// <summary>
     ///     Gets or sets the bitmap.
@@ -14,16 +14,13 @@ public class ImageRenderCore2D : RenderCore2DBase {
     /// <value>
     ///     The bitmap.
     /// </value>
-    public Bitmap Bitmap {
+    public Bitmap? Bitmap {
         get => bitmap;
         set {
             var old = bitmap;
             if (SetAffectsRender(ref bitmap, value)) {
                 RemoveAndDispose(ref old);
-                if (value != null)
-                    ImageSize = bitmap.Size;
-                else
-                    ImageSize = new Size2F();
+                ImageSize = value is { } newBitmap ? newBitmap.Size : new Size2F();
             }
         }
     }
@@ -61,7 +58,8 @@ public class ImageRenderCore2D : RenderCore2DBase {
     protected override bool CanRender(RenderContext2D context) => base.CanRender(context) && Bitmap != null;
 
     protected override void OnRender(RenderContext2D context) {
-        context.DeviceContext.DrawBitmap(Bitmap, LayoutBound, Opacity, InterpolationMode);
+        if (Bitmap is { } bitmap)
+            context.DeviceContext.DrawBitmap(bitmap, LayoutBound, Opacity, InterpolationMode);
     }
 
     protected override void OnDetach() {

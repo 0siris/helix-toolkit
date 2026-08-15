@@ -100,16 +100,20 @@ public class ContourHelper {
     /// <param name="planeNormal">The plane normal.</param>
     /// <param name="originalMesh">The original mesh.</param>
     public ContourHelper(Point3D planeOrigin, Vector3D planeNormal, MeshGeometry3D originalMesh) {
-        var hasNormals = originalMesh.Normals != null && originalMesh.Normals.Count > 0;
-        var hasTextureCoordinates =
-            originalMesh.TextureCoordinates != null && originalMesh.TextureCoordinates.Count > 0;
-        normals = hasNormals ? new Vector3D[3] : null;
-        textures = hasTextureCoordinates ? new Point[3] : null;
-        positionCount = originalMesh.Positions.Count;
+        if (originalMesh.Positions is not { } positions)
+            throw new ArgumentException("The mesh must contain positions.", nameof(originalMesh));
 
-        meshPositions = [.. originalMesh.Positions];
-        meshNormals = hasNormals ? [.. originalMesh.Normals] : null;
-        meshTextureCoordinates = hasTextureCoordinates ? [.. originalMesh.TextureCoordinates] : null;
+        var sourceNormals = originalMesh.Normals;
+        var sourceTextureCoordinates = originalMesh.TextureCoordinates;
+        var hasNormals = sourceNormals is { Count: > 0 };
+        var hasTextureCoordinates = sourceTextureCoordinates is { Count: > 0 };
+        normals = hasNormals ? new Vector3D[3] : [];
+        textures = hasTextureCoordinates ? new Point[3] : [];
+        positionCount = positions.Count;
+
+        meshPositions = [.. positions];
+        meshNormals = sourceNormals is { } normalValues ? [.. normalValues] : [];
+        meshTextureCoordinates = sourceTextureCoordinates is { } textureValues ? [.. textureValues] : [];
 
         // Determine the equation of the plane as
         // ax + by + cz + d = 0
@@ -186,7 +190,7 @@ public class ContourHelper {
             CreateNewPosition(facetIndices[1, 0], facetIndices[1, 1])
         ];
 
-        if (normals != null)
+        if (normals.Length != 0)
             newNormals = [
                 CreateNewNormal(facetIndices[0, 0], facetIndices[0, 1]),
                 CreateNewNormal(facetIndices[1, 0], facetIndices[1, 1])
@@ -194,7 +198,7 @@ public class ContourHelper {
         else
             newNormals = [];
 
-        if (textures != null)
+        if (textures.Length != 0)
             newTextureCoordinates = [
                 CreateNewTexture(facetIndices[0, 0], facetIndices[0, 1]),
                 CreateNewTexture(facetIndices[1, 0], facetIndices[1, 1])
@@ -259,13 +263,13 @@ public class ContourHelper {
         points[1] = meshPositions[index1];
         points[2] = meshPositions[index2];
 
-        if (normals != null) {
+        if (normals.Length != 0) {
             normals[0] = meshNormals[index0];
             normals[1] = meshNormals[index1];
             normals[2] = meshNormals[index2];
         }
 
-        if (textures != null) {
+        if (textures.Length != 0) {
             textures[0] = meshTextureCoordinates[index0];
             textures[1] = meshTextureCoordinates[index1];
             textures[2] = meshTextureCoordinates[index2];

@@ -29,7 +29,7 @@ public class ColorStripeMaterialCore : MaterialCore {
     public IList<Color4> ColorStripeX {
         get;
         set => Set(ref field, value);
-    }
+    } = [];
 
     /// <summary>
     ///     Gets or sets the color stripe y. Use texture coordinate Y for sampling
@@ -40,7 +40,7 @@ public class ColorStripeMaterialCore : MaterialCore {
     public IList<Color4> ColorStripeY {
         get;
         set => Set(ref field, value);
-    }
+    } = [];
 
     /// <summary>
     ///     Gets or sets a value indicating whether [color stripe x enabled].

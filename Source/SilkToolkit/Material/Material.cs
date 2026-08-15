@@ -17,7 +17,8 @@ public abstract class Material : Freezable {
                                     typeof(Material),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             (d as Material).Core.Name = (string)e.NewValue;
+                                                             if (d is Material material && e.NewValue is string name)
+                                                                 material.Core.Name = name;
                                                          }));
 
     /// <summary>

@@ -65,7 +65,7 @@ public class InstancingMeshNode : MeshNode {
     ///     Builds the octree.
     /// </summary>
     private void BuildOctree() {
-        if (IsRenderable && InstanceBuffer.HasElements)
+        if (IsRenderable && InstanceBuffer.HasElements && InstanceBuffer.Elements is not null)
             octreeManager?.RebuildTree(Enumerable.Repeat<SceneNode>(this, 1));
         else
             octreeManager?.Clear();
@@ -74,27 +74,30 @@ public class InstancingMeshNode : MeshNode {
     public override bool HitTest(HitTestContext context, ref List<HitTestResult> hits) {
         var isHit = false;
         if (CanHitTest(context) && PreHitTestOnBounds(context)) {
-            if (octreeManager is {Octree: not null}) {
+            if (octreeManager?.Octree is { } octree
+                && Geometry is { } geometry
+                && InstanceBuffer.Elements is { } instanceElements) {
                 var boundHits = new List<HitTestResult>();
-                isHit = octreeManager.Octree.HitTest(context,
-                                                     WrapperSource,
-                                                     Geometry,
+                isHit = octree.HitTest(context,
+                                      WrapperSource ?? this,
+                                      geometry,
                                                      TotalModelMatrixInternal,
                                                      ref boundHits);
                 if (isHit) {
                     isHit = false;
                     Matrix instanceMatrix;
                     foreach (var hit in boundHits) {
-                        var instanceIdx = (int)hit.Tag;
-                        instanceMatrix = InstanceBuffer.Elements[instanceIdx];
+                        if (hit.Tag is not int instanceIdx || (uint)instanceIdx >= (uint)instanceElements.Count)
+                            continue;
+                        instanceMatrix = instanceElements[instanceIdx];
                         var h = base.OnHitTest(context, TotalModelMatrixInternal * instanceMatrix, ref hits);
                         isHit |= h;
                         if (h && hits.Count > 0) {
                             var result = hits.Last();
                             object? tag = null;
-                            if (InstanceIdentifiers != null &&
-                                InstanceIdentifiers.Count == InstanceBuffer.Elements.Count)
-                                tag = InstanceIdentifiers[instanceIdx];
+                            if (InstanceIdentifiers is { } instanceIdentifiers &&
+                                instanceIdentifiers.Count == instanceElements.Count)
+                                tag = instanceIdentifiers[instanceIdx];
                             else
                                 tag = instanceIdx;
                             result.Tag = tag;
@@ -118,7 +121,7 @@ public class InstancingMeshNode : MeshNode {
     /// <value>
     ///     The instance identifiers.
     /// </value>
-    public IList<Guid> InstanceIdentifiers {
+    public IList<Guid>? InstanceIdentifiers {
         get;
         set => Set(ref field, value);
     }
@@ -134,7 +137,7 @@ public class InstancingMeshNode : MeshNode {
         set => InstanceParamBuffer.Elements = value;
     }
 
-    private IOctreeManager octreeManager;
+    private IOctreeManager? octreeManager;
 
     /// <summary>
     ///     Gets or sets the octree manager.
@@ -142,7 +145,7 @@ public class InstancingMeshNode : MeshNode {
     /// <value>
     ///     The octree manager.
     /// </value>
-    public IOctreeManager OctreeManager {
+    public IOctreeManager? OctreeManager {
         get => octreeManager;
         set {
             if (Set(ref octreeManager, value))

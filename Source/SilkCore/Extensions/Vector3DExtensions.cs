@@ -3,6 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Native;
 
@@ -50,10 +51,13 @@ public static class VectorExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Color4 ToColor4(this Vector2 vector, float z = 1f, float w = 1f) => new(vector.X, vector.Y, z, w);
 
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 Normalized(this Vector3 vector) {
         var length = vector.Length;
-        return length > 0 ? vector / length : vector;
+        return length > 0 
+            ? vector / length 
+            : vector;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -188,9 +188,9 @@ public sealed class DirtyGate {
         lock (executionLock) {
             // Another thread may have processed the current version while
             // this thread was waiting for the lock.
-            var requestedVersion = Volatile.Read(ref this.requestedVersion);
+            var reqVersion = Volatile.Read(ref requestedVersion);
 
-            if (requestedVersion == Volatile.Read(ref processedVersion))
+            if (reqVersion == Volatile.Read(ref processedVersion))
                 return false;
 
 
@@ -213,7 +213,7 @@ public sealed class DirtyGate {
                 // Only the version captured before the action is marked as
                 // processed. An invalidation occurring during the action
                 // therefore remains pending.
-                Volatile.Write(ref processedVersion, requestedVersion);
+                Volatile.Write(ref processedVersion, reqVersion);
 
                 return true;
             } finally {

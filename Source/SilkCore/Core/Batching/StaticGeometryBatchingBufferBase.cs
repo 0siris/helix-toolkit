@@ -20,8 +20,6 @@ public interface IBatchedGeometry {
 public abstract class StaticGeometryBatchingBufferBase<BatchedGeometry, VertStruct> : DisposeObject,
     IAttachableBufferModel
     where BatchedGeometry : struct, IBatchedGeometry where VertStruct : unmanaged {
-    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
-
     private static readonly VertStruct[] EmptyArray = [];
     private static readonly int[] EmptyIntArray = [];
 

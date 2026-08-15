@@ -150,10 +150,10 @@ public sealed class VolumeRenderCore : RenderCore {
                     mesh.RenderCustom(context, deviceContext);
                 }
 
-        #endregion
+            #endregion
         }
 
-    #region Render box back face again and do actual volume sampling
+        #region Render box back face again and do actual volume sampling
 
         context.RenderHost.SetDefaultRenderTargets(false);
         var pass = materialVariables.GetPass(RenderType.Opaque, context);
@@ -173,7 +173,7 @@ public sealed class VolumeRenderCore : RenderCore {
         pass.BindStates(deviceContext, StateType.All);
         deviceContext.DrawIndexed(finalIndexBuffer.ElementCount, 0, 0);
 
-    #endregion
+        #endregion
 
         pass.PixelShader.BindTexture(deviceContext, backTexSlot, null);
     }

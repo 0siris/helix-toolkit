@@ -517,7 +517,7 @@ public static class BitmapExtensions {
     /// <param name="squareImage">if set to <c>true</c> [square image].</param>
     /// <returns></returns>
     public static BillboardImage3D? ToBillboardImage3D(
-        this IEnumerable<TextInfoExt> items,
+        this ICollection<TextInfoExt> items,
         IEffectsManager effectsManager,
         int maxWidth = 2048,
         int maxHeight = 2048,
@@ -534,6 +534,7 @@ public static class BitmapExtensions {
                                     out var imageWidth,
                                     out var imageHeight,
                                     out var map);
+        
         if (code == ImagePackReturnCode.Succeed && bitmap is { } packedBitmap && map is { } imageMap)
             using (packedBitmap) {
                 var stream = packedBitmap.ToMemoryStream(effectsManager, Direct2DImageFormat.Png);

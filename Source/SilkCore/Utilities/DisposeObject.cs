@@ -79,7 +79,7 @@ public abstract class DisposeObject : IDisposable, IDisposeObject {
     ///     Dispose a disposable object and set the reference to null. Removes this object from this instance..
     /// </summary>
     /// <param name="objectToDispose">Object to dispose.</param>
-    public static void RemoveAndDispose<T>(ref T? objectToDispose) where T : class, IDisposable {
+    protected static void RemoveAndDispose<T>(ref T? objectToDispose) where T : class, IDisposable {
         objectToDispose?.Dispose();
         objectToDispose = null;
     }

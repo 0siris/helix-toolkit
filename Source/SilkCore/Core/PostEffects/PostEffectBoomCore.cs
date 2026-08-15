@@ -87,7 +87,7 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
         if (nextBuffer is not { } nextBufferProxy || nextBufferProxy.RenderTargetView is not { } nextRtv)
             return;
 
-    #region Do Bloom Pass
+        #region Do Bloom Pass
 
         modelCb.Upload(deviceContext, ref modelStruct);
         //Extract bloom samples
@@ -108,9 +108,9 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
                          PostEffectBlurCore.BlurDepth.Two,
                          ref modelStruct);
 
-    #endregion
+        #endregion
 
-    #region Draw outline onto original target
+        #region Draw outline onto original target
 
         var currentBuffer = buffer.FullResPpBuffer.CurrentRtv;
         if (currentBuffer is not { RenderTargetView: { } currentRtv }

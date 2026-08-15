@@ -310,7 +310,8 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     protected void UpdateParameters(RenderContext context, float width, float height) {
         var ratio = width / height;
         if (ScreenRatio != ratio || Width != width || Height != height ||
-            isMainCameraPerspective != context.IsPerspective) {
+            isMainCameraPerspective != context.IsPerspective) 
+        {
             ScreenRatio = ratio;
             Width = width;
             Height = height;
@@ -383,8 +384,8 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
         globalTrans.ViewProjection = globalTrans.View * globalTrans.Projection;
         globalTrans.Viewport = new Vector4(viewportSize, viewportSize, 1 / viewportSize, 1 / viewportSize);
         GlobalTransform = globalTrans;
-        var offX = 0;
-        var offY = 0;
+        int offX;
+        int offY;
         offX = (int)(Width / 2 * (1 + RelativeScreenLocationX) - viewportSize / 2);
         offY = (int)(Height / 2 * (1 - RelativeScreenLocationY) - viewportSize / 2);
         offX = Math.Max(0, Math.Min(offX, (int)(Width - viewportSize)));

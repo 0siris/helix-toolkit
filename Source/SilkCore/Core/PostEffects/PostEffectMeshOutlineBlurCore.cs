@@ -344,7 +344,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     public Color4 Color {
         get;
         set => SetAffectsRender(ref field, value);
-    } = new(1, 0, 0, 1);
+    }
 
     private float scaleX = 1;
 

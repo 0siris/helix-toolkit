@@ -276,8 +276,8 @@ public static class IViewportExtensions {
     /// <param name="action">
     ///     The action.
     /// </param>
-    public static void Traverse(this IViewport3DX viewport, Action<SceneNode> action) {
-        viewport.Renderables.PreorderDft(node => {
+    public static IEnumerable<SceneNode> Traverse(this IViewport3DX viewport, Action<SceneNode> action) {
+        return viewport.Renderables.PreorderDft(node => {
                 action(node);
                 return true;
             },
@@ -289,9 +289,8 @@ public static class IViewportExtensions {
     /// </summary>
     /// <param name="viewport">The viewport.</param>
     /// <param name="function">The function. Return true to continue traverse, otherwise stop at current node</param>
-    public static void Traverse(this IViewport3DX viewport, Func<SceneNode, bool> function) {
-        viewport.Renderables.PreorderDft(node => { return function(node); }, StackCache);
-    }
+    public static IEnumerable<SceneNode> Traverse(this IViewport3DX viewport, Func<SceneNode, bool> function) 
+        => viewport.Renderables.PreorderDft(function, StackCache);
 
     /// <summary>
     ///     Finds the bounding box of the viewport.

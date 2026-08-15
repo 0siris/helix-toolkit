@@ -26,7 +26,6 @@ namespace HelixToolkit.SharpDX.Core.Core;
 /// <summary>
 /// </summary>
 public class ParticleRenderCore : RenderCore {
-    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     public static readonly int DefaultParticleCount = 512;
     public static readonly float DefaultInitialVelocity = 1f;
     public static readonly Vector3 DefaultAcceleration = new(0, 0.1f, 0);
@@ -490,8 +489,6 @@ public class ParticleRenderCore : RenderCore {
     private int samplerSlot;
 
     #endregion
-
-    private readonly object lockObject = new();
 
     public ParticleRenderCore() : base(RenderType.Particle) {
         modelCb = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(

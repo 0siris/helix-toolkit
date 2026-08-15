@@ -145,24 +145,24 @@ public class ObjExporter : Exporter {
         if (!model.GeometryValid || model.Geometry is not MeshGeometry3D mesh || model.Material is not { } material)
             return;
 
-            writer.WriteLine("o object{0}", objectNo++);
-            writer.WriteLine("g group{0}", groupNo++);
+        writer.WriteLine("o object{0}", objectNo++);
+        writer.WriteLine("g group{0}", groupNo++);
 
-            if (exportedMaterials.TryGetValue(model.Material, out var matName)) {
-                writer.WriteLine("usemtl {0}", matName);
-            } else {
-                matName = string.Format(CultureInfo.InvariantCulture, "mat{0}", matNo++);
-                writer.WriteLine("usemtl {0}", matName);
-                ExportMaterial(matName, material);
-                exportedMaterials.Add(material, matName);
-            }
+        if (exportedMaterials.TryGetValue(model.Material, out var matName)) {
+            writer.WriteLine("usemtl {0}", matName);
+        } else {
+            matName = string.Format(CultureInfo.InvariantCulture, "mat{0}", matNo++);
+            writer.WriteLine("usemtl {0}", matName);
+            ExportMaterial(matName, material);
+            exportedMaterials.Add(material, matName);
+        }
 
-            if (model.HasInstances && model.Instances is { } instances) {
-                var m = transform.ToMatrix();
-                for (var i = 0; i < instances.Count; ++i) ExportMesh(mesh, instances[i] * m);
-            } else {
-                ExportMesh(mesh, transform.ToMatrix());
-            }
+        if (model.HasInstances && model.Instances is { } instances) {
+            var m = transform.ToMatrix();
+            for (var i = 0; i < instances.Count; ++i) ExportMesh(mesh, instances[i] * m);
+        } else {
+            ExportMesh(mesh, transform.ToMatrix());
+        }
     }
 
     /// <summary>

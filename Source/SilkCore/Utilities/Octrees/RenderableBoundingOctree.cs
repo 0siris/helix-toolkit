@@ -59,7 +59,7 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
         float hitThickness
     ) {
         isIntersect = false;
-        if (!treeBuilt) return false;
+        if (!TreeBuiltInternal) return false;
         var isHit = false;
         //var bound = Bound.Transform(modelMatrix);// BoundingBox.FromPoints(Bound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
         var bound = Bound;

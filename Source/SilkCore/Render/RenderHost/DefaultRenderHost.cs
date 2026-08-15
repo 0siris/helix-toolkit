@@ -64,17 +64,17 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
         Clear(invalidateSceneGraph, invalidatePerFrameRenderables);
         if (invalidateSceneGraph) {
             ViewportRenderables.AddRange(viewport.Renderables);
-            renderer.UpdateSceneGraph(context, ViewportRenderables, perFrameFlattenedScene);
+            renderer.UpdateSceneGraph(context, ViewportRenderables, PerFrameFlattenedSceneInternal);
             if (Logger.IsEnabled(LogLevel.Trace)) Logger.Verbose("Flatten Scene Graph");
         }
 
-        var sceneCount = perFrameFlattenedScene.Count;
+        var sceneCount = PerFrameFlattenedSceneInternal.Count;
         if (invalidatePerFrameRenderables) {
             if (Logger.IsEnabled(LogLevel.Trace)) Logger.Verbose("Get PerFrameRenderables");
             var isInScreenSpacedGroup = false;
             var screenSpacedGroupDepth = int.MaxValue;
             for (var i = 0; i < sceneCount;) {
-                var renderable = perFrameFlattenedScene[i];
+                var renderable = PerFrameFlattenedSceneInternal[i];
                 renderable.Value.Update(context);
                 var type = renderable.Value.RenderType;
                 var depth = renderable.Key;
@@ -82,8 +82,8 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
                     //Skip scene graph depth larger than current node
                     ++i;
                     for (; i < sceneCount; ++i) {
-                        if (perFrameFlattenedScene[i].Key <= depth) break;
-                        i += perFrameFlattenedScene[i].Value.ItemsInternal.Count;
+                        if (PerFrameFlattenedSceneInternal[i].Key <= depth) break;
+                        i += PerFrameFlattenedSceneInternal[i].Value.ItemsInternal.Count;
                     }
 
                     continue;
@@ -145,15 +145,15 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
             SetupFrustumTestFunctions();
         } else {
             for (var i = 0; i < sceneCount;) {
-                var renderable = perFrameFlattenedScene[i];
+                var renderable = PerFrameFlattenedSceneInternal[i];
                 renderable.Value.Update(context);
                 if (!renderable.Value.IsRenderable) {
                     //Skip scene graph depth larger than current node
                     var depth = renderable.Key;
                     ++i;
                     for (; i < sceneCount; ++i) {
-                        if (perFrameFlattenedScene[i].Key <= depth) break;
-                        i += perFrameFlattenedScene[i].Value.ItemsInternal.Count;
+                        if (PerFrameFlattenedSceneInternal[i].Key <= depth) break;
+                        i += PerFrameFlattenedSceneInternal[i].Value.ItemsInternal.Count;
                     }
 
                     continue;
@@ -179,12 +179,12 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
         SeparateRenderables(context, invalidateSceneGraph, invalidatePerFrameRenderables);
         if (invalidateSceneGraph) TriggerSceneGraphUpdated();
         asyncTask = parallelThread.EnqueueAction(() => {
-            renderer.UpdateNotRenderParallel(context, perFrameFlattenedScene);
+            renderer.UpdateNotRenderParallel(context, PerFrameFlattenedSceneInternal);
         });
         var ft = Stopwatch.GetTimestamp();
         frustumTestAction();
         ft = Stopwatch.GetTimestamp() - ft;
-        renderStatistics.FrustumTestTime = (float)ft / Stopwatch.Frequency;
+        RenderStatisticsInternal.FrustumTestTime = (float)ft / Stopwatch.Frequency;
         CollectPostEffectNodes();
         if ((ShowRenderDetail & RenderDetail.TriangleInfo) == RenderDetail.TriangleInfo)
             getTriangleCountTask = parallelThread.EnqueueAction(() => {
@@ -201,7 +201,7 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
                             geo.Geometry.Indices != null)
                             count += geo.Geometry.Indices.Count / 3;
 
-                renderStatistics.NumTriangles = count;
+                RenderStatisticsInternal.NumTriangles = count;
             });
     }
 
@@ -321,8 +321,8 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
         numRendered += PreProcNodes.Count + PostEffectNodes.Count + ScreenSpacedNodes.Count;
         if (ShowRenderDetail != RenderDetail.None) {
             getTriangleCountTask?.Wait();
-            renderStatistics.NumModel3D = perFrameFlattenedScene.Count;
-            renderStatistics.NumCore3D = numRendered;
+            RenderStatisticsInternal.NumModel3D = PerFrameFlattenedSceneInternal.Count;
+            RenderStatisticsInternal.NumCore3D = numRendered;
         }
     }
 
@@ -396,7 +396,7 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
         NodesWithPostEffect.Clear(fastClear);
         OpaqueNodesInFrustum.Clear(fastClear);
         TransparentNodesInFrustum.Clear(fastClear);
-        if (clearFrameRenderables) perFrameFlattenedScene.Clear();
+        if (clearFrameRenderables) PerFrameFlattenedSceneInternal.Clear();
         if (clearPerFrameRenderables) {
             OpaqueNodes.Clear(fastClear);
             TransparentNodes.Clear(fastClear);

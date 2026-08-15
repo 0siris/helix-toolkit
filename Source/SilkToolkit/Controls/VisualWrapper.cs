@@ -12,24 +12,24 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 /// </summary>
 [ContentProperty("Child")]
 public class VisualWrapper<T> : FrameworkElement where T : Visual {
-    private T? _child;
+    private T? child;
 
     public T? Child {
-        get => _child;
+        get => child;
 
         set {
-            if (_child is { } oldChild) RemoveVisualChild(oldChild);
+            if (child is { } oldChild) RemoveVisualChild(oldChild);
 
-            _child = value;
+            child = value;
 
-            if (_child is { } newChild) AddVisualChild(newChild);
+            if (child is { } newChild) AddVisualChild(newChild);
         }
     }
 
-    protected override int VisualChildrenCount => _child is null ? 0 : 1;
+    protected override int VisualChildrenCount => child is null ? 0 : 1;
 
     protected override Visual GetVisualChild(int index) {
-        if (_child is { } child && index == 0) return child;
+        if (child is { } visualChild && index == 0) return visualChild;
 
         throw new ArgumentOutOfRangeException(nameof(index));
     }

@@ -98,7 +98,7 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
         float hitThickness
     ) {
         isIntersect = false;
-        if (!treeBuilt || context is null) return false;
+        if (!TreeBuiltInternal || context is null) return false;
         var isHit = false;
         var
             bound = Bound.Transform(modelMatrix); // BoundingBox.FromPoints(Bound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());

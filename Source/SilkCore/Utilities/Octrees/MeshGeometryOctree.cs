@@ -148,7 +148,7 @@ public class MeshGeometryOctree
         float hitThickness
     ) {
         isIntersect = false;
-        if (!treeBuilt) return false;
+        if (!TreeBuiltInternal) return false;
         var isHit = false;
         var bound = Bound;
         //Hit test in local space.

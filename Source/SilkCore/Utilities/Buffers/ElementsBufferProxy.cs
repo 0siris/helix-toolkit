@@ -147,7 +147,7 @@ public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy
         int offset,
         int minBufferCount = default
     ) where T : unmanaged {
-        RemoveAndDispose(ref buffer);
+        RemoveAndDispose(ref BufferInternal);
         ElementCount = count;
         if (count == 0) return;
         var buffdesc = new BufferDescription {
@@ -158,7 +158,7 @@ public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy
             StructureByteStride = StructureSize,
             Usage = Usage
         };
-        buffer = Buffer.Create(context, data.GetArrayByType(), buffdesc);
+        BufferInternal = Buffer.Create(context, data.GetArrayByType(), buffdesc);
     }
 
     /// <summary>
@@ -176,7 +176,7 @@ public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy
         int offsetByBytes,
         int minBufferCountByBytes = default
     ) {
-        RemoveAndDispose(ref buffer);
+        RemoveAndDispose(ref BufferInternal);
         ElementCount = countByBytes / StructureSize;
         if (countByBytes == 0) return;
         var buffdesc = new BufferDescription {
@@ -187,7 +187,7 @@ public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy
             StructureByteStride = StructureSize,
             Usage = Usage
         };
-        buffer = new Buffer(context, data, buffdesc);
+        BufferInternal = new Buffer(context, data, buffdesc);
     }
 
     /// <summary>
@@ -196,7 +196,7 @@ public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy
     /// <param name="context">The context.</param>
     /// <param name="count">The element count.</param>
     public void CreateBuffer(DeviceContextProxy context, int count) {
-        RemoveAndDispose(ref buffer);
+        RemoveAndDispose(ref BufferInternal);
         ElementCount = count;
         if (count == 0) return;
         var buffdesc = new BufferDescription {
@@ -207,11 +207,11 @@ public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy
             StructureByteStride = StructureSize,
             Usage = Usage
         };
-        buffer = new Buffer(context, buffdesc);
+        BufferInternal = new Buffer(context, buffdesc);
     }
 
     protected override void OnDispose(bool disposeManagedResources) {
-        RemoveAndDispose(ref buffer);
+        RemoveAndDispose(ref BufferInternal);
         base.OnDispose(disposeManagedResources);
     }
 }
@@ -351,7 +351,7 @@ public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
             Offset = CapacityUsed = 0;
         }
 
-        if (buffer is not { } currentBuffer)
+        if (BufferInternal is not { } currentBuffer)
             return;
 
         var dataArray = data.GetArrayByType();
@@ -388,7 +388,7 @@ public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
             Offset = CapacityUsed = 0;
         }
 
-        if (buffer is not { } currentBuffer)
+        if (BufferInternal is not { } currentBuffer)
             return;
 
         var dataBox = context.MapSubresource(currentBuffer, 0, mapMode, MapFlags.None);
@@ -414,7 +414,7 @@ public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void EnsureBufferCapacity(DeviceContextProxy context, int count, int minSizeCount) {
         var bytes = count * StructureSize;
-        if (buffer == null || Capacity < bytes || (!LazyResize && Capacity != bytes))
+        if (BufferInternal == null || Capacity < bytes || (!LazyResize && Capacity != bytes))
             Initialize(context, count, minSizeCount);
     }
 
@@ -425,7 +425,7 @@ public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
     /// <param name="context">The context.</param>
     /// <param name="action">The action.</param>
     public void MapBuffer(DeviceContextProxy context, Action<DataBox> action) {
-        if (buffer is not { } currentBuffer)
+        if (BufferInternal is not { } currentBuffer)
             return;
 
         var dataBox = context.MapSubresource(currentBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
@@ -442,7 +442,7 @@ public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
     /// <param name="minBufferCount">The minimum buffer count.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Initialize(DeviceContextProxy context, int count, int minBufferCount = default) {
-        RemoveAndDispose(ref buffer);
+        RemoveAndDispose(ref BufferInternal);
         var buffdesc = new BufferDescription {
             BindFlags = BindFlags,
             CpuAccessFlags = CpuAccess,
@@ -453,14 +453,14 @@ public class DynamicBufferProxy : BufferProxyBase, IElementsBufferProxy {
         };
         Capacity = buffdesc.SizeInBytes;
         CapacityUsed = 0;
-        buffer = new Buffer(context, buffdesc);
-        OnBufferChanged(buffer);
+        BufferInternal = new Buffer(context, buffdesc);
+        OnBufferChanged(BufferInternal);
     }
 
     protected virtual void OnBufferChanged(Buffer newBuffer) { }
 
     protected override void OnDispose(bool disposeManagedResources) {
-        RemoveAndDispose(ref buffer);
+        RemoveAndDispose(ref BufferInternal);
         base.OnDispose(disposeManagedResources);
     }
 }

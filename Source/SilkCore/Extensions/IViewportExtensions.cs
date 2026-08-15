@@ -14,12 +14,12 @@ public static class IViewportExtensions {
     /// <summary>
     ///     Stores the traversal stack for the current thread.
     /// </summary>
-    [ThreadStatic] private static Stack<IEnumerator<SceneNode>>? _stackCache;
+    [ThreadStatic] private static Stack<IEnumerator<SceneNode>>? stackCache;
 
     /// <summary>
     ///     Gets the traversal stack for the current thread.
     /// </summary>
-    private static Stack<IEnumerator<SceneNode>> StackCache => _stackCache ??= new();
+    private static Stack<IEnumerator<SceneNode>> StackCache => stackCache ??= new();
 
     /// <summary>
     ///     Forces to update transform and bounds.

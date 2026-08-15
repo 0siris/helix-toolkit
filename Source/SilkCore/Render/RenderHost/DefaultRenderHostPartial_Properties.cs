@@ -19,7 +19,7 @@ public partial class DefaultRenderHost {
     /// <summary>
     ///     The pending renderables
     /// </summary>
-    protected readonly FastList<(int Key, SceneNode Value)> perFrameFlattenedScene = [];
+    protected readonly FastList<(int Key, SceneNode Value)> PerFrameFlattenedSceneInternal = [];
 
     /// <summary>
     ///     The light renderables
@@ -93,7 +93,7 @@ public partial class DefaultRenderHost {
     ///     Gets the current frame flattened scene graph
     /// </value>
     public sealed override FastList<(int Key, SceneNode Value)> PerFrameFlattenedScene =>
-        perFrameFlattenedScene;
+        PerFrameFlattenedSceneInternal;
 
     /// <summary>
     ///     Gets the per frame lights.

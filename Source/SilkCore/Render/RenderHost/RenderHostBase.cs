@@ -107,8 +107,8 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
         IsBusy = true;
         
         var t0 = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
-        renderStatistics.FpsStatistics.Push((t0 - lastRenderTime).TotalMilliseconds);
-        renderStatistics.Camera = camera;
+        RenderStatisticsInternal.FpsStatistics.Push((t0 - lastRenderTime).TotalMilliseconds);
+        RenderStatisticsInternal.Camera = camera;
         
         lastRenderTime = t0;
         
@@ -147,7 +147,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
             if (renderBuffer.BeginDraw()) {
                 OnRender(t0);
                 renderBuffer.EndDraw();
-                renderStatistics.NumDrawCalls = renderer.ImmediateContext.ResetDrawCalls() +
+                RenderStatisticsInternal.NumDrawCalls = renderer.ImmediateContext.ResetDrawCalls() +
                                                 effectsManager.DeviceContextPool.ResetDrawCalls();
             }
 
@@ -233,7 +233,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     public virtual void StartRendering() {
         lock (lockObj) {
             Logger.Info("Start rendering");
-            renderStatistics.Reset();
+            RenderStatisticsInternal.Reset();
             lastRenderingDuration = TimeSpan.Zero;
             lastRenderTime = TimeSpan.Zero;
             InvalidateSceneGraph();
@@ -866,9 +866,9 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The render statistics.
     /// </value>
-    public IRenderStatistics RenderStatistics => renderStatistics;
+    public IRenderStatistics RenderStatistics => RenderStatisticsInternal;
 
-    protected readonly RenderStatistics renderStatistics = new();
+    protected readonly RenderStatistics RenderStatisticsInternal = new();
 
 #region Perframe renderables
 

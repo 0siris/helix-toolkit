@@ -53,29 +53,29 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
     //private Material selectionMaterial;
 
 
-    private static Geometry3D _nodeGeometry;
+    private static Geometry3D nodeGeometry;
 
-    private static Geometry3D _edgeHGeometry,
-        _edgeVGeometry;
+    private static Geometry3D edgeHGeometry,
+        edgeVGeometry;
 
-    private static Geometry3D _boxGeometry;
+    private static Geometry3D boxGeometry;
 
     static InteractionHandle3D() {
         var b1 = new MeshBuilder();
         b1.AddSphere(new Vector3(0.0f, 0.0f, 0), 0.135);
-        _nodeGeometry = b1.ToMeshGeometry3D();
+        nodeGeometry = b1.ToMeshGeometry3D();
 
         var b2 = new MeshBuilder();
         b2.AddCylinder(new Vector3(0, 0, 0), new Vector3(1, 0, 0), 0.05);
-        _edgeHGeometry = b2.ToMeshGeometry3D();
+        edgeHGeometry = b2.ToMeshGeometry3D();
 
         var b3 = new MeshBuilder();
         b3.AddCylinder(new Vector3(0, 0, 0), new Vector3(0, 1, 0), 0.05);
-        _edgeVGeometry = b3.ToMeshGeometry3D();
+        edgeVGeometry = b3.ToMeshGeometry3D();
 
         var b4 = new MeshBuilder();
         b4.AddBox(new Vector3(0, 0, 0), 0.175, 0.175, 0.175);
-        _boxGeometry = b4.ToMeshGeometry3D();
+        boxGeometry = b4.ToMeshGeometry3D();
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
                 DragZ = false,
                 Visibility = Visibility.Visible,
                 Material = Material,
-                Geometry = _nodeGeometry,
+                Geometry = nodeGeometry,
                 Transform = new MatrixTransform3D(translate),
             };
             cornerHandles[i].MouseMove3D += OnNodeMouse3DMove;
@@ -103,8 +103,8 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
 
             edgeHandles[i] = new MeshGeometryModel3D() {
                 Geometry = (i % 2 == 0)
-                    ? _edgeHGeometry
-                    : _edgeVGeometry,
+                    ? edgeHGeometry
+                    : edgeVGeometry,
                 Material = Material,
                 Visibility = Visibility.Visible,
                 Transform = new MatrixTransform3D(translate),
@@ -120,7 +120,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
                 DragX = (i % 2 == 1),
                 DragY = (i % 2 == 0),
                 Material = Material,
-                Geometry = _boxGeometry,
+                Geometry = boxGeometry,
                 Transform = new MatrixTransform3D(translate),
             };
             midpointHandles[i].MouseMove3D += OnNodeMouse3DMove;

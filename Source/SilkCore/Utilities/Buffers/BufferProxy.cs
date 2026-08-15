@@ -41,7 +41,7 @@ public interface IBufferProxy : IDisposable {
 public abstract class BufferProxyBase : DisposeObject, IBufferProxy {
     /// <summary>
     /// </summary>
-    protected Buffer? buffer;
+    protected Buffer? BufferInternal;
 
     /// <summary>
     /// </summary>
@@ -71,7 +71,7 @@ public abstract class BufferProxyBase : DisposeObject, IBufferProxy {
     /// <summary>
     ///     <see cref="IBufferProxy.Buffer" />
     /// </summary>
-    public Buffer? Buffer => buffer;
+    public Buffer? Buffer => BufferInternal;
 
     /// <summary>
     ///     <see cref="IBufferProxy.BindFlags" />
@@ -79,7 +79,7 @@ public abstract class BufferProxyBase : DisposeObject, IBufferProxy {
     public BindFlags BindFlags { get; }
 
     public void DisposeAndClear() {
-        RemoveAndDispose(ref buffer);
+        RemoveAndDispose(ref BufferInternal);
         ElementCount = 0;
     }
 

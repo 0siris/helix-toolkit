@@ -24,7 +24,7 @@ public class CameraModel3D : CompositeModel3D {
             typeof(CameraModel3D),
             new PropertyMetadata(null,
                 (d, e) => {
-                    ((CameraModel3D) d).camera =
+                    ((CameraModel3D) d).CameraInternal =
                         e.NewValue as ProjectionCamera;
                 }));
 
@@ -87,7 +87,7 @@ public class CameraModel3D : CompositeModel3D {
         set => SetValue(CameraProperty, value);
     }
 
-    protected ProjectionCamera? camera {
+    protected ProjectionCamera? CameraInternal {
         get;
         private set {
             if (field == value) return;
@@ -145,11 +145,11 @@ public class CameraModel3D : CompositeModel3D {
     }
 
     private void SceneNode_OnTransformChanged(object? sender, TransformArgs e) {
-        if (camera != null) {
+        if (CameraInternal != null) {
             var m = e.Transform;
-            camera.Position = new Point3D(m.M41, m.M42, m.M43);
-            camera.LookDirection = new Vector3D(-m.M31, -m.M32, -m.M33);
-            camera.UpDirection = new Vector3D(m.M21, m.M22, m.M23);
+            CameraInternal.Position = new Point3D(m.M41, m.M42, m.M43);
+            CameraInternal.LookDirection = new Vector3D(-m.M31, -m.M32, -m.M33);
+            CameraInternal.UpDirection = new Vector3D(m.M21, m.M22, m.M23);
         }
     }
 }

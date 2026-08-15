@@ -26,7 +26,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     The D2D controls
     /// </summary>
-    protected D2DTargetProxy? d2dTarget;
+    protected D2DTargetProxy? D2DTargetInternal;
 
     /// <summary>
     ///     The depth stencil buffer
@@ -78,7 +78,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <value>
     ///     The d2 d controls.
     /// </value>
-    public D2DTargetProxy? D2DTarget => d2dTarget;
+    public D2DTargetProxy? D2DTarget => D2DTargetInternal;
 
     /// <summary>
     ///     Gets or sets the width of the target.
@@ -340,7 +340,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     protected virtual void DisposeBuffers() {
         DeviceContext2D.Target = null;
         DisposeTexturePools();
-        RemoveAndDispose(ref d2dTarget);
+        RemoveAndDispose(ref D2DTargetInternal);
         RemoveAndDispose(ref colorBuffer);
         RemoveAndDispose(ref depthStencilBuffer);
         RemoveAndDispose(ref depthStencilBufferNoMsaa);

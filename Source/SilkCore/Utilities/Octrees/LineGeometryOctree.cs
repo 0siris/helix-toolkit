@@ -147,7 +147,7 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
         float hitThickness
     ) {
         isIntersect = false;
-        if (!treeBuilt) 
+        if (!TreeBuiltInternal)
             return false;
         
         var isHit = false;

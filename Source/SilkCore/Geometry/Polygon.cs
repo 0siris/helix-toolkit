@@ -21,16 +21,16 @@ public class Polygon {
     /// <summary>
     ///     The points.
     /// </summary>
-    internal PointCollection? points;
+    internal PointCollection? PointsInternal;
 
     /// <summary>
     ///     Gets or sets the points.
     /// </summary>
     /// <value>The points.</value>
     public PointCollection Points {
-        get => points ??= [];
+        get => PointsInternal ??= [];
 
-        set => points = value;
+        set => PointsInternal = value;
     }
 
     /// <summary>

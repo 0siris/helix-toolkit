@@ -106,7 +106,7 @@ public class PointGeometryOctree : DynamicOctreeBase<int> {
         float hitThickness
     ) {
         isIntersect = false;
-        if (!treeBuilt || context == null) return false;
+        if (!TreeBuiltInternal || context == null) return false;
         var isHit = false;
 
         var bound = Bound;

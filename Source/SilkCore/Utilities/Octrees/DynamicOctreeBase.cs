@@ -36,7 +36,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
 
     protected List<HitTestResult> ModelHits = [];
 
-    protected bool treeBuilt; //there is no pre-existing tree yet.
+    protected bool TreeBuiltInternal; //there is no pre-existing tree yet.
     
     
     /// <summary>
@@ -125,7 +125,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// <summary>
     ///     <see cref="IOctreeBasic.TreeBuilt" />
     /// </summary>
-    public bool TreeBuilt => treeBuilt;
+    public bool TreeBuilt => TreeBuiltInternal;
 
     /// <summary>
     ///     <see cref="IOctreeBasic.Parameter" />
@@ -194,7 +194,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// </summary>
     public virtual void BuildTree() {
         if (Bound.Maximum == Bound.Minimum || !CheckDimension()) {
-            treeBuilt = false;
+            TreeBuiltInternal = false;
             return;
         }
 
@@ -208,18 +208,18 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// </summary>
     public void BuildCurrentNodeOnly() {
         /*I think I can just directly insert items into the tree instead of using a stack.*/
-        if (treeBuilt)
+        if (TreeBuiltInternal)
             return;
         
         //terminate the recursion if we're a leaf node
         if (Objects.Count <= 1) //doubt: is this really right? needs testing.
         {
-            treeBuilt = true;
+            TreeBuiltInternal = true;
             return;
         }
 
         BuildSubTree();
-        treeBuilt = true;
+        TreeBuiltInternal = true;
     }
 
     /// <summary>
@@ -706,7 +706,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// </summary>
     protected virtual void BuildSubTree() {
         if (!CheckDimension() || Objects.Count < Parameter.MinObjectSizeToSplit) {
-            treeBuilt = true;
+            TreeBuiltInternal = true;
             return;
         }
 

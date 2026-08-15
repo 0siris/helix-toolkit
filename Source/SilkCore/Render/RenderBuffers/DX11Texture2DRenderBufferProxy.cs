@@ -37,11 +37,11 @@ public class DX11Texture2DRenderBufferProxy : DX11RenderBufferProxyBase {
         };
 
         var backBuffer = new ShaderResourceViewProxy(DeviceResources, colordescNms);
-        d2dTarget = new D2DTargetProxy();
+        D2DTargetInternal = new D2DTargetProxy();
         if (backBuffer.Resource is not NativeD3DTexture2D texture)
             throw new InvalidOperationException("The back buffer is not a texture resource.");
 
-        d2dTarget.Initialize(texture, DeviceContext2D);
+        D2DTargetInternal.Initialize(texture, DeviceContext2D);
         return backBuffer;
     }
 

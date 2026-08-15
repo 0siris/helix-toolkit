@@ -51,25 +51,25 @@ public class DataModel : DemoCore.ObservableObject {
 }
 
 public class SphereModel : DataModel {
-    private static MeshGeometry3D _sphere;
-    private static MeshGeometry3D _box;
-    private static MeshGeometry3D _pyramid;
-    private static MeshGeometry3D _pipe;
+    private static MeshGeometry3D sphere;
+    private static MeshGeometry3D box;
+    private static MeshGeometry3D pyramid;
+    private static MeshGeometry3D pipe;
 
     static SphereModel() {
         var builder = new MeshBuilder(true, false);
         var center = new Vector3();
         builder.AddSphere(center, 1, 12, 12);
-        _sphere = builder.ToMeshGeometry3D();
+        sphere = builder.ToMeshGeometry3D();
         builder = new MeshBuilder(true, false);
         builder.AddBox(center, 1, 1, 1);
-        _box = builder.ToMeshGeometry3D();
+        box = builder.ToMeshGeometry3D();
         builder = new MeshBuilder(true, false);
         builder.AddPyramid(center, 1, 1, true);
-        _pyramid = builder.ToMeshGeometry3D();
+        pyramid = builder.ToMeshGeometry3D();
         builder = new MeshBuilder(true, false);
         builder.AddPipe(center, center + new Vector3(0, 1, 0), 0, 2, 12);
-        _pipe = builder.ToMeshGeometry3D();
+        pipe = builder.ToMeshGeometry3D();
     }
 
     private static readonly Random rnd = new();
@@ -114,16 +114,16 @@ public class SphereModel : DataModel {
         var type = rnd.Next(0, 3);
         switch (type) {
             case 0:
-                Model = _sphere;
+                Model = sphere;
                 break;
             case 1:
-                Model = _box;
+                Model = box;
                 break;
             case 2:
-                Model = _pyramid;
+                Model = pyramid;
                 break;
             case 3:
-                Model = _pipe;
+                Model = pipe;
                 break;
         }
     }

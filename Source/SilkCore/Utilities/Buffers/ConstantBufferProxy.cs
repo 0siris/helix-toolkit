@@ -71,7 +71,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
 
     /// <summary>
     /// </summary>
-    public bool Initialized => buffer != null;
+    public bool Initialized => BufferInternal != null;
 
     public string Name { get; private set; }
 
@@ -103,12 +103,12 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
         var nativeDevice = device as NativeD3DDevice
             ?? throw new ArgumentException("A native D3D device is required.", nameof(device));
         lock (lockObj) {
-            RemoveAndDispose(ref buffer);
-            buffer = new Buffer(nativeDevice.CreateBuffer(BufferDesc), nativeDevice, BufferDesc);
+            RemoveAndDispose(ref BufferInternal);
+            BufferInternal = new Buffer(nativeDevice.CreateBuffer(BufferDesc), nativeDevice, BufferDesc);
         }
     }
 
-    private Buffer EnsureBuffer(DeviceContextProxy context) => buffer ??= new Buffer(context, BufferDesc);
+    private Buffer EnsureBuffer(DeviceContextProxy context) => BufferInternal ??= new Buffer(context, BufferDesc);
 
     /// <summary>
     ///     <see cref="ConstantBufferProxy.UploadDataToBuffer{T}(DeviceContextProxy, ref T)" />
@@ -205,7 +205,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Unmap(DeviceContextProxy context) {
-        if (buffer is not { } currentBuffer)
+        if (BufferInternal is not { } currentBuffer)
             throw new InvalidOperationException("The constant buffer has not been mapped.");
         context.UnmapSubresource(currentBuffer, 0);
         Monitor.Exit(lockObj);
@@ -220,13 +220,13 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
         if (structSize % 16 != 0)
             throw new ArgumentException("Constant buffer struct size must be multiple of 16 bytes");
         lock (lockObj) {
-            RemoveAndDispose(ref buffer);
+            RemoveAndDispose(ref BufferInternal);
             BufferDesc.SizeInBytes = structSize;
         }
     }
 
     protected override void OnDispose(bool disposeManagedResources) {
-        RemoveAndDispose(ref buffer);
+        RemoveAndDispose(ref BufferInternal);
         base.OnDispose(disposeManagedResources);
     }
 
@@ -237,7 +237,7 @@ public sealed class ConstantBufferProxy : BufferProxyBase {
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator Buffer?(ConstantBufferProxy? proxy) => proxy?.buffer;
+    public static implicit operator Buffer?(ConstantBufferProxy? proxy) => proxy?.BufferInternal;
 
     /// <summary>
     ///     Tries the name of the get variable by.

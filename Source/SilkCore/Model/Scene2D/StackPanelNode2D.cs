@@ -15,8 +15,6 @@ public class StackPanelNode2D : PanelNode2D {
     } = Orientation.Horizontal;
 
     protected override Size2F MeasureOverride(Size2F availableSize) {
-        var constraint = availableSize;
-
         var size = new Size2F();
         switch (Orientation) {
             case Orientation.Horizontal:

@@ -137,9 +137,9 @@ public partial class Exporter {
                     }
                 }
             }
-        } else if (info.Mesh is PointGeometry3D pgeo) {
+        } else if (info.Mesh is PointGeometry3D) {
             assimpMesh.PrimitiveType = PrimitiveType.Point;
-        } else if (info.Mesh is LineGeometry3D lgeo) {
+        } else if (info.Mesh is LineGeometry3D) {
             assimpMesh.PrimitiveType = PrimitiveType.Line;
         } else {
             Logger.Warn("Geometry type does not support yet. Type: {Value0}", info.Mesh.GetType().Name);

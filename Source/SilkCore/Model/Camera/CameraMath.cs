@@ -195,7 +195,6 @@ public static class CameraMath {
         out Vector3 rotationAxisY
     ) {
         double fx = p1.X / viewportWidth;
-        double fy = p1.Y / viewportHeight;
 
         var up = SilkMath.Normalize(camera.UpDirection);
         var dir = SilkMath.Normalize(camera.LookDirection);

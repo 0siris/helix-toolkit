@@ -170,7 +170,6 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
                     ref parameter,
                     context.EnableBoundingFrustum);
         } else {
-            var frustum = context.BoundingFrustum;
             var count = context.RenderHost.PerFrameTransparentNodes.Count;
             for (var i = 0; i < count; ++i) {
                 var renderable = context.RenderHost.PerFrameTransparentNodes[i];

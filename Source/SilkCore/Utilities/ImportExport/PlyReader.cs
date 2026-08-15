@@ -666,12 +666,6 @@ public class PlyReader : ModelReader {
                         var nxIndx = elementsRange["vertex"].PropertyWithIndex["nx"];
                         var nyIndx = elementsRange["vertex"].PropertyWithIndex["ny"];
                         var nzIndx = elementsRange["vertex"].PropertyWithIndex["nz"];
-
-                        var vect3 = new Vector3 {
-                            X = float.Parse(strarr[nxIndx]),
-                            Y = float.Parse(strarr[nyIndx]),
-                            Z = float.Parse(strarr[nzIndx])
-                        };
                     }
 
                     if (elementsRange["vertex"].ContainsTextureCoordinates) { }

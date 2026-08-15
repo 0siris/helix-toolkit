@@ -126,7 +126,6 @@ public class LineBuilder {
         if (segments < 3) throw new ArgumentNullException("too few segments, at least 3");
         normal.Normalize();
         var sectionAngle = (float)(2.0 * Math.PI / segments);
-        var start = new Vector3(radius, 0.0f, 0.0f);
         var current = new Vector3(radius, 0.0f, 0.0f);
         var next = new Vector3(0.0f, 0.0f, 0.0f);
         var posStart = positions.Count;

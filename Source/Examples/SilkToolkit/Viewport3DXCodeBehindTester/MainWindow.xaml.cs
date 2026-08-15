@@ -73,9 +73,7 @@ public partial class MainWindow : Window {
     }
 
     private void Viewport_MouseDown3D(object sender, RoutedEventArgs e) {
-        if (e is MouseDown3DEventArgs {HitTestResult: { } hitTestResult}) {
-            var model = hitTestResult.ModelHit;
-        }
+        if (e is MouseDown3DEventArgs {HitTestResult: { } hitTestResult}) { }
     }
 
     private void buttonEnvironment_Click(object sender, RoutedEventArgs e) {

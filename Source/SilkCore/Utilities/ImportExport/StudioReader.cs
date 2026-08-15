@@ -152,10 +152,9 @@ public class StudioReader : IModelReader {
 
     public Object3DGroup Read(Stream s, ModelInfo info = default) {
         using (var reader = new BinaryReader(s)) {
-            var length = reader.BaseStream.Length;
             var headerId = ReadChunkId(reader);
             if (headerId != ChunkId.Main3Ds) throw new FileFormatException("Unknown file");
-            var headerSize = ReadChunkSize(reader);
+            ReadChunkSize(reader);
             //if (headerSize != length)
             //{
             //    throw new FileFormatException("Incomplete file (file length does not match header)");
@@ -224,7 +223,6 @@ public class StudioReader : IModelReader {
         var luminance = Color.Transparent; //SharpDX.Color not System.Windows.Media.Color
         var diffuse = Color.Transparent;
         var specular = Color.Transparent;
-        var shininess = Color.Transparent;
         double opacity = 0;
         string? texture = null;
         float specularPower = 100; //check if we can find this somewhere instead of just setting it to 100
@@ -322,7 +320,6 @@ public class StudioReader : IModelReader {
         ///     The chunk size.
         /// </param>
     private void ReadTriangularMesh(BinaryReader reader, int chunkSize) {
-        var builder = new MeshBuilder();
         var bytesRead = 6;
         Vector3Collection? positions = null;
         IntCollection? faces = null;
@@ -679,16 +676,16 @@ public class StudioReader : IModelReader {
         ///     The mat map.
         /// </returns>
     private string ReadMatMap(BinaryReader reader, int size) {
-        var id = ReadChunkId(reader);
-        var siz = ReadChunkSize(reader);
-        var f1 = reader.ReadUInt16();
-        var f2 = reader.ReadUInt16();
-        var f3 = reader.ReadUInt16();
-        var f4 = reader.ReadUInt16();
+        ReadChunkId(reader);
+        ReadChunkSize(reader);
+        reader.ReadUInt16();
+        reader.ReadUInt16();
+        reader.ReadUInt16();
+        reader.ReadUInt16();
         size -= 14;
         var cname = ReadString(reader);
         size -= cname.Length + 1;
-        var morebytes = ReadData(reader, size);
+        ReadData(reader, size);
         return cname;
     }
 
@@ -730,7 +727,7 @@ public class StudioReader : IModelReader {
 
     private float ReadPercent(BinaryReader reader, int size) {
         var type = ReadChunkId(reader);
-        var cSize = ReadChunkSize(reader);
+        ReadChunkSize(reader);
         size -= 6;
         float percent = 1;
         switch (type) {

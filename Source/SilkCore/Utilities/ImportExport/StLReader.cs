@@ -266,7 +266,7 @@ public class StLReader : ModelReader {
     /// </param>
     private void ReadFacet(StreamReader reader, string normal) {
 #pragma warning disable 168
-        var n = ParseNormal(normal);
+        ParseNormal(normal);
 #pragma warning restore 168
         var points = new List<Point3D>();
         ReadLine(reader, "outer");
@@ -311,7 +311,6 @@ public class StLReader : ModelReader {
         var nk = ReadFloat(reader);
 
 #pragma warning disable 168
-        var n = new Color3(ni, nj, nk);
 #pragma warning restore 168
 
         var x1 = ReadFloat(reader);

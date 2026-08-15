@@ -200,7 +200,7 @@ public partial class Exporter {
             AddProperties(pbr, assimpMaterial);
         else if (material is DiffuseMaterialCore diffuse)
             AddProperties(diffuse, assimpMaterial);
-        else if (material is ColorMaterialCore vColor)
+        else if (material is ColorMaterialCore)
             assimpMaterial.ShadingMode = ShadingMode.Flat;
         else if (material is LineMaterialCore line)
             assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.COLOR_DIFFUSE_BASE,

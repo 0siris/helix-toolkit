@@ -77,7 +77,7 @@ public class MainViewModel : BaseViewModel {
         Dictionary<MaterialCore, int> materialDict = [];
         //materialDict.Add(new PhongMaterialCore() { DiffuseColor = new Color4(1, 0, 0, 1) }, count);
         foreach (var model in models) {
-            if (model.Geometry is not { } geometry || model.Material is not { } material)
+            if (model.Geometry is not { } || model.Material is not { } material)
                 continue;
             if (materialDict.ContainsKey(material)) {
                 continue;

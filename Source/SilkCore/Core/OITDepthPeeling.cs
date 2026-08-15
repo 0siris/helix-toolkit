@@ -89,8 +89,7 @@ public sealed class OitDepthPeeling : RenderCore {
         var minMaxTarget = MinMaxTarget(0);
         deviceContext.ClearRenderTargetView(frontTarget, color);
         if (ExternRenderParameter.RenderTargetView is { Length: > 0 } renderTargets
-            && renderTargets[0] is { Resource: { } externalResource } externalTarget
-            && backTarget.Resource is { } backResource) {
+            && renderTargets[0] is { Resource: { } externalResource } && backTarget.Resource is { } backResource) {
             if (ExternRenderParameter.IsMsaaTexture)
                 deviceContext.ResolveSubresource(externalResource,
                                                  0,

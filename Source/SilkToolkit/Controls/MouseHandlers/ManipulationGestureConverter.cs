@@ -47,7 +47,7 @@ public class ManipulationGestureConverter : TypeConverter {
         if (destinationType == typeof(string)) {
             if (value == null)
                 return string.Empty;
-            if (value is ManipulationGesture manipulationGesture) return "ManipulationGesture";
+            if (value is ManipulationGesture) return "ManipulationGesture";
         }
 
         throw GetConvertToException(value, destinationType);

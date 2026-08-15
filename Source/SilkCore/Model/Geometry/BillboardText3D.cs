@@ -221,8 +221,6 @@ public class BillboardText3D : BillboardBase {
             });
 
             textInfo.UpdateTextInfo(rect.Width, rect.Height);
-            var halfW = rect.Width / 2;
-            var halfH = rect.Height / 2;
             for (var k = tempPrevCount; k < tempList.Count; ++k) {
                 var v = tempList[k];
                 v.OffTL = Matrix3X2.TransformPoint(transform, v.OffTL + tl) + textInfo.Offset;

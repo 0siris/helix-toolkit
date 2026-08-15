@@ -1224,7 +1224,7 @@ public class CameraController {
         if (!IsZoomEnabled) return;
         if (ZoomAroundMouseDownPoint) {
             var point = e.GetPosition(Viewport);
-            if (Viewport.FindNearest(point.ToVector2(), out var nearestPoint, out var normal, out var model)) {
+            if (Viewport.FindNearest(point.ToVector2(), out var nearestPoint, out _, out _)) {
                 AddZoomForce(-e.Delta * 0.001f, nearestPoint);
                 e.Handled = true;
                 return;

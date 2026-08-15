@@ -577,10 +577,10 @@ public static class CameraExtensions {
             && viewport.UnProject(new Vector2((float)(zoomRectangle.Left + zoomRectangle.Right) * 0.5f,
                                               (float)(zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f),
                                   out var centerRay)) {
-            var u = SilkMath.Normalize(topLeftRay.Direction);
-            var v = SilkMath.Normalize(topRightRay.Direction);
+            SilkMath.Normalize(topLeftRay.Direction);
+            SilkMath.Normalize(topRightRay.Direction);
             var w = SilkMath.Normalize(centerRay.Direction);
-            if (camera is IPerspectiveCameraModel perspectiveCamera) {
+            if (camera is IPerspectiveCameraModel) {
                 var distance = camera.LookDirection.Length;
 
                 // option 1: change distance
@@ -598,7 +598,6 @@ public static class CameraExtensions {
             } else if (camera is IOrthographicCameraModel orthographicCamera) {
                 orthographicCamera.Width *= zoomRectangle.Width / viewport.ActualWidth;
                 var oldTarget = camera.CameraInternal.Position + camera.CameraInternal.LookDirection;
-                var distance = camera.CameraInternal.LookDirection.Length;
                 if (centerRay.PlaneIntersection(oldTarget, w, out var newTarget))
                     orthographicCamera.LookAt(newTarget.ToPoint3D(), 200);
             }

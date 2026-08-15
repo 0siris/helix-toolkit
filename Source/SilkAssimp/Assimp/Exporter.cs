@@ -158,7 +158,7 @@ public partial class Exporter : IDisposable {
         if (current is Model.Scene.GroupNodeBase group) {
             foreach (var s in group.Items)
                 if (s is Model.Scene.GeometryNode geo) {
-                    var key = GetMaterialGeoKey(geo, out var materialIndex, out var geoIndex);
+                    var key = GetMaterialGeoKey(geo, out _, out _);
                     if (MeshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
                 } else if (s is Model.Scene.GroupNodeBase) {
                     node.Children.Add(ConstructAssimpNode(s, node));
@@ -170,7 +170,7 @@ public partial class Exporter : IDisposable {
             foreach (var metadata in group.Metadata.ToAssimpMetadata())
                 node.Metadata.Add(metadata.Key, metadata.Value);
         } else if (current is Model.Scene.GeometryNode geo) {
-            var key = GetMaterialGeoKey(geo, out var materialIndex, out var geoIndex);
+            var key = GetMaterialGeoKey(geo, out _, out _);
             if (MeshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
         } else {
             Logger.Warn("Current node type does not support yet. Type: {Value0}", current.GetType()

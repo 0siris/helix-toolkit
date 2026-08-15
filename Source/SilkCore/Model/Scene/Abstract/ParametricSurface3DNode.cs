@@ -69,7 +69,7 @@ public abstract class ParametricSurface3DNode : MeshNode {
             Indices = []
         };
         if (mesh.Positions is not { } positions || mesh.TextureCoordinates is not { } textureCoordinates
-            || mesh.TriangleIndices is not { } triangleIndices)
+            || mesh.TriangleIndices is not { })
             throw new InvalidOperationException("The parametric mesh buffers were not initialized.");
 
         var n = MeshSizeU;

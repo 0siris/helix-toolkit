@@ -79,7 +79,6 @@ public partial class MainWindow : Window {
         var offset2 = new Vector2(-holeDistance * cos, -holeDistance * sin);
         for (int i = 0; i < cnt; i++) {
             // Flatten a bit
-            var radiusUse = radii[i];
             mPolygonPoints.Add(new Vector2(radii[i] * (Single) Math.Cos(angle), radii[i] * (Single) Math.Sin(angle)));
             hole1.Add(offset1 + new Vector2(innerRadii[i] * (Single) Math.Cos(-angle),
                 innerRadii[i] * (Single) Math.Sin(-angle)));

@@ -403,7 +403,6 @@ public static class SweepLinePolygonTriangulator {
             var edgeVector = possiblePointTwo.Point - possiblePointOne.Point;
             edgeVector.Normalize();
             // Dot determines if the Vector also points towards the Polygon Center or not (> 0, yes, < 0, no)
-            var dot = insideVector.X * edgeVector.X + insideVector.Y * edgeVector.Y;
             // Cos represents the Angle between the last Edge and the next Edge
             var cos = lastVector.X * edgeVector.X + lastVector.Y * edgeVector.Y;
             var angle = 0f;
@@ -928,7 +927,6 @@ internal class PolygonData {
         for (var i = cntBefore; i < mPoints.Count; i++) polyPoints[i - cntBefore].Index = i;
 
         // Add Edges between the Points (to be able to navigate along the Polygon easily later)
-        var cnt = mPoints.Count;
         for (var i = 0; i < pointCount; i++) {
             var lastIdx = (i + pointCount - 1) % pointCount;
             var edge = new PolygonEdge(polyPoints[lastIdx], polyPoints[i]);

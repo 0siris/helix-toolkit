@@ -97,8 +97,8 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         using var depthStencilBuffer = context.GetOffScreenDs(TextureSize,
                                                               Format.FormatD32FloatS8X24Uint,
-                                                              out var width,
-                                                              out var height);
+                                                              out _,
+                                                              out _);
         
         using var renderTargetBuffer = context.GetOffScreenRt(TextureSize, Format.FormatR8G8B8A8Unorm);
         OnUpdatePerModelStruct(context);

@@ -376,7 +376,6 @@ public class PhongMaterialVariables : MaterialVariable {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void OnBindMaterialTextures(DeviceContextProxy context, VertexShader shader) {
         if (shader.IsNull) return;
-        var idx = shader.ShaderStageIndex;
         shader.BindTexture(context, texDisplaceSlot, textureResources[DisplaceIdx]);
         shader.BindSampler(context, samplerDisplaceSlot, displacementSampler);
     }
@@ -384,7 +383,6 @@ public class PhongMaterialVariables : MaterialVariable {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void OnBindMaterialTextures(DeviceContextProxy context, DomainShader shader) {
         if (shader.IsNull) return;
-        var idx = shader.ShaderStageIndex;
         shader.BindTexture(context, texDisplaceSlot, textureResources[DisplaceIdx]);
         shader.BindSampler(context, samplerDisplaceSlot, displacementSampler);
     }
@@ -402,7 +400,6 @@ public class PhongMaterialVariables : MaterialVariable {
         PixelShader shader
     ) {
         if (shader.IsNull) return;
-        var idx = shader.ShaderStageIndex;
         shader.BindTexture(deviceContext, texDiffuseSlot, textureResources[DiffuseIdx]);
         shader.BindTexture(deviceContext, texNormalSlot, textureResources[NormalIdx]);
         shader.BindTexture(deviceContext, texAlphaSlot, textureResources[AlphaIdx]);

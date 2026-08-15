@@ -571,7 +571,7 @@ public sealed class CameraController {
     public bool MouseWheel(float delta, Vector2 position) {
         if (!IsZoomEnabled) return false;
         if (ZoomAroundMouseDownPoint)
-            if (Viewport.FindNearest(position, out var nearestPoint, out var normal, out var model)) {
+            if (Viewport.FindNearest(position, out var nearestPoint, out _, out _)) {
                 AddZoomForce(-delta * 0.001f, nearestPoint);
                 return true;
             }

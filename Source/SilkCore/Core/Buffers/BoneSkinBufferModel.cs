@@ -204,7 +204,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void BindSkinnedVertexBufferToOutput(DeviceContextProxy context) {
             if (skinnedVertexBuffer.Buffer is not { } skinnedBuffer
-                || meshBuffer.BoneIdBuffer.Buffer is not { } boneIdBuffer)
+                || meshBuffer.BoneIdBuffer.Buffer is not { })
                 return;
 
             context.SetVertexBuffers(0, skinnedOutputBindings);

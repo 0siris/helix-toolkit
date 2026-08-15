@@ -184,7 +184,6 @@ public class DiffuseMaterialVariables : MaterialVariable {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void OnBindMaterialTextures(DeviceContextProxy context, PixelShader shader) {
         if (shader.IsNull) return;
-        var idx = shader.ShaderStageIndex;
         shader.BindTexture(context, texDiffuseSlot, textureResource);
         shader.BindSampler(context, samplerDiffuseSlot, samplerResource);
     }

@@ -282,7 +282,6 @@ public class MainViewModel : BaseViewModel {
         var rndx = new Random();
         var rndy = new Random(rndx.Next());
         var rndz = new Random(rndy.Next());
-        var spread = SpotLightSpread;
 
         // re-generate the lights
         SpotLightCollection.Clear();
@@ -371,7 +370,7 @@ public class MainViewModel : BaseViewModel {
     private void LoadModel(string filename, MeshFaces faces) {
         // load model
         var reader = new ObjReader();
-        var objModel = reader.Read(filename, new ModelInfo() {
+        reader.Read(filename, new ModelInfo() {
             Faces = MeshFaces.Default
         });
         //this.Model = objModel[0].Geometry as MeshGeometry3D;

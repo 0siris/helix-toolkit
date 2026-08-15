@@ -85,7 +85,6 @@ protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? h
     protected override RectangleF ArrangeOverride(RectangleF finalSize) {
         TextCore.MaxWidth = finalSize.Width;
         TextCore.MaxHeight = finalSize.Height;
-        var metrices = TextCore.Metrices;
         return finalSize;
     }
 }

@@ -375,7 +375,6 @@ public class PbrMaterialVariable : MaterialVariable {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void OnBindMaterialTextures(DeviceContextProxy context, VertexShader shader) {
         if (shader.IsNull) return;
-        var idx = shader.ShaderStageIndex;
         shader.BindTexture(context, texDisplaceSlot, textureResources[DisplaceMapIdx]);
         shader.BindSampler(context, samplerDisplaceSlot, samplerResources[DisplaceSamplerIdx]);
     }
@@ -383,7 +382,6 @@ public class PbrMaterialVariable : MaterialVariable {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void OnBindMaterialTextures(DeviceContextProxy context, DomainShader shader) {
         if (shader.IsNull) return;
-        var idx = shader.ShaderStageIndex;
         shader.BindTexture(context, texDisplaceSlot, textureResources[DisplaceMapIdx]);
         shader.BindSampler(context, samplerDisplaceSlot, samplerResources[DisplaceSamplerIdx]);
     }
@@ -401,7 +399,6 @@ public class PbrMaterialVariable : MaterialVariable {
         PixelShader shader
     ) {
         if (shader.IsNull) return;
-        var idx = shader.ShaderStageIndex;
         shader.BindTexture(deviceContext, texDiffuseSlot, textureResources[AlbedoMapIdx]);
         shader.BindTexture(deviceContext, texNormalSlot, textureResources[NormalMapIdx]);
         shader.BindTexture(deviceContext, texRmSlot, textureResources[RmMapIdx]);

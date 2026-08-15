@@ -36,7 +36,7 @@ public static class ViewportExtensions {
     /// <returns>The total number of triangles</returns>
     public static int GetTotalNumberOfTriangles(this Viewport3DX viewport) {
         var count = 0;
-        var totalModel = viewport.Renderables.PreorderDft(x => {
+        viewport.Renderables.PreorderDft(x => {
             if (x is GeometryNode g)
                 if (g.Visible && g.Geometry != null && g.Geometry.Indices != null)
                     count += g.Geometry.Indices.Count / 3;
@@ -143,7 +143,6 @@ public static class ViewportExtensions {
     ///     The action.
     /// </param>
     public static void Traverse<T>(this Element3D element, Action<T, Transform3D> action) where T : Element3D {
-        var sceneNode = new[] { element.SceneNode };
         element.Traverse(action);
     }
 
@@ -215,7 +214,7 @@ public static class ViewportExtensions {
     /// <param name="position">The position.</param>
     /// <returns>The nearest point, or null if no point was found.</returns>
     public static Point3D? FindNearestPoint(this Viewport3DX viewport, Point position) {
-        if (viewport.FindNearest(position.ToVector2(), out var p, out var n, out var model)) return p.ToPoint3D();
+        if (viewport.FindNearest(position.ToVector2(), out var p, out _, out _)) return p.ToPoint3D();
         return null;
     }
 

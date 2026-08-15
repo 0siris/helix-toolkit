@@ -19,7 +19,7 @@ public static class BoundingFrustumExtensions {
     public static bool Intersects(ref BoundingFrustum frustum, ref BoundingBox box) {
         for (var i = 0; i < 6; i++) {
             var plane = frustum.GetPlane(i);
-            GetBoxToPlanePVertexNVertex(ref box, ref plane.Normal, out var p, out var n);
+            GetBoxToPlanePVertexNVertex(ref box, ref plane.Normal, out var p, out _);
             if (Collision.PlaneIntersectsPoint(ref plane, ref p) == PlaneIntersectionType.Back)
                 return false;
         }
@@ -60,7 +60,7 @@ public static class BoundingFrustumExtensions {
             if (sphereRet == PlaneIntersectionType.Back) return false;
 
             if (sphereRet == PlaneIntersectionType.Intersecting) return true;
-            GetBoxToPlanePVertexNVertex(ref box, ref plane.Normal, out var p, out var n);
+            GetBoxToPlanePVertexNVertex(ref box, ref plane.Normal, out var p, out _);
             var boxRet = Collision.PlaneIntersectsPoint(ref plane, ref p);
             if (boxRet == PlaneIntersectionType.Back) return false;
 

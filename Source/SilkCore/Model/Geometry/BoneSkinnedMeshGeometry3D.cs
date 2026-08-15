@@ -71,7 +71,6 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
 
         for (var i = 0; i < bones.Count; ++i)
             if (bones[i].ParentIndex >= 0) {
-                var currPos = positions.Count;
                 tris.AddRange(singleBoneIndices.Select(x => x + offset));
                 var j = 0;
                 for (; j < singleBonePositions.Count - 6; j += 3) {

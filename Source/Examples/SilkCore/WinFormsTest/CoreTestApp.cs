@@ -93,7 +93,7 @@ public class CoreTestApp {
         this.context = context;
         dpiScale = DpiHelper.GetWindowsScreenScalingFactor(false);
 
-        var logger = HelixToolkit.Logger.LogManager.Create<CoreTestApp>();
+        HelixToolkit.Logger.LogManager.Create<CoreTestApp>();
 
         viewport = new ViewportCore(window.Handle, true) {
             DpiScale = dpiScale
@@ -468,9 +468,7 @@ public class CoreTestApp {
                 return;
             }
 
-            var pos = camera.Position;
             var t = Stopwatch.GetTimestamp();
-            var elapse = t - previousTime;
             previousTime = t;
             cameraController.OnTimeStep();
             if (options.DirectionalLightFollowCamera) {

@@ -172,7 +172,6 @@ public class Trackball {
         var delta = new System.Windows.Media.Media3D.Quaternion(axis, -angle);
 
         // Get the current orientation from the RotateTransform3D
-        var r = rotation;
         var q = new System.Windows.Media.Media3D.Quaternion(rotation.Axis, rotation.Angle);
 
         // Compose the delta with the previous orientation

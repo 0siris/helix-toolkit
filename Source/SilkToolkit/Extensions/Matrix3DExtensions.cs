@@ -367,7 +367,6 @@ public static class Matrix3DExtensions {
         var t1 = m22 * b1 - m12 * b2;
         var t2 = -m12 * b1 + m11 * b2;
         var t3 = m22 * b3 - m12 * b4;
-        var t4 = -m12 * b3 + m11 * b4;
 
         return new Matrix3D(t1,
                             t2,

@@ -24,7 +24,6 @@ public class PointLineRenderCore : GeometryRenderCore, IMaterialRenderParams {
     public MaterialVariable MaterialVariables {
         get => materialVariables;
         set {
-            var old = materialVariables;
             value ??= EmptyMaterialVariable.EmptyVariable;
             SetAffectsCanRenderFlag(ref materialVariables, value);
         }

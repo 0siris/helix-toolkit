@@ -562,11 +562,9 @@ public class MeshBuilder {
             var i4 = indices[t + 3];
             var v1 = positions[i1];
             var v2 = positions[i2];
-            var v3 = positions[i3];
             var v4 = positions[i4];
             var w1 = textureCoordinates[i1];
             var w2 = textureCoordinates[i2];
-            var w3 = textureCoordinates[i3];
             var w4 = textureCoordinates[i4];
             var x1 = v2.X - v1.X;
             var x2 = v4.X - v1.X;

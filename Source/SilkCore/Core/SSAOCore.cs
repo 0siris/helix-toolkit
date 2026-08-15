@@ -94,7 +94,6 @@ public sealed class SsaoCore : RenderCore {
         deviceContext.SetScissorRectangle(0, 0, w, h);
         IRenderTechnique? currTechnique = null;
         var ssaoPass1 = ShaderPass.NullPass;
-        var frustum = context.BoundingFrustum;
         for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i) {
             var node = context.RenderHost.PerFrameOpaqueNodesInFrustum[i];
             if (node.EffectTechnique is not { } technique) continue;
@@ -208,7 +207,7 @@ public sealed class SsaoCore : RenderCore {
                 var y = rnd.NextFloat(-1, 1);
                 var z = rnd.NextFloat(1e-3f, 1);
                 var v = SilkMath.Normalize(new Vector3(x, y, z));
-                var angle = SilkMath.Dot(v, Vector3.UnitZ);
+                SilkMath.Dot(v, Vector3.UnitZ);
                 if (SilkMath.Dot(v, Vector3.UnitZ) < thres) continue;
                 var scale = i / 32f;
                 scale = 0.1f + 0.9f * scale;

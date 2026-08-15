@@ -137,7 +137,7 @@ public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
     /// <param name="array">Vertex positions will be copied into this array</param>
     /// <returns></returns>
     public int TryGetSkinnedVertices(IEffectsManager manager, Vector3[] array) {
-        if (Geometry is BoneSkinnedMeshGeometry3D skGeometry)
+        if (Geometry is BoneSkinnedMeshGeometry3D)
             if (RenderCore is BoneSkinRenderCore skCore) {
                 var nativeResources = manager.NativeDeviceResources;
                 var proxy = new DeviceContextProxy(nativeResources.ImmediateContext, nativeResources.Device);

@@ -3,8 +3,12 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using SharpDX.Toolkit.Graphics;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
 
@@ -20,8 +24,8 @@ public static class ScreenCapture {
     /// <returns></returns>
     public static bool CaptureTexture(
         DeviceContextProxy context,
-        Texture2D source,
-        out Texture2D stagingTexture
+        NativeD3DTexture2D source,
+        out NativeD3DTexture2D stagingTexture
     ) {
         var desc = source.Description;
         if (source.Description.SampleDescription.Count > 1) {
@@ -64,7 +68,7 @@ public static class ScreenCapture {
     /// <returns></returns>
     public static bool SaveWicTextureToFile(
         IDeviceResources deviceResource,
-        Texture2D source,
+        NativeD3DTexture2D source,
         string file,
         Direct2DImageFormat format
     )
@@ -82,7 +86,7 @@ public static class ScreenCapture {
     /// <exception cref="System.NotSupportedException"></exception>
     public static bool SaveWicTextureToFile(
         IDeviceResources deviceResource,
-        Texture2D source,
+        NativeD3DTexture2D source,
         string fileName,
         Guid containerFormat
     ) {
@@ -101,14 +105,14 @@ public static class ScreenCapture {
     /// <exception cref="System.NotSupportedException"></exception>
     public static bool SaveWicTextureToBitmapStream(
         IDeviceResources deviceResource,
-        Texture2D source,
+        NativeD3DTexture2D source,
         MemoryStream bitmapStream
     )
         => SaveWicTexture(deviceResource, source, bitmapStream, ImageFileType.Bmp);
 
     internal static bool SaveWicTextureToStream(
         IDeviceResources deviceResource,
-        Texture2D source,
+        NativeD3DTexture2D source,
         Stream stream,
         Direct2DImageFormat format
     )
@@ -116,7 +120,7 @@ public static class ScreenCapture {
 
     private static bool SaveWicTexture(
         IDeviceResources deviceResource,
-        Texture2D source,
+        NativeD3DTexture2D source,
         Stream stream,
         ImageFileType fileType
     ) {

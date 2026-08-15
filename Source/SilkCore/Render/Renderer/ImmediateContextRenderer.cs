@@ -6,10 +6,16 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define OLD
 
 using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene2D;
+using HelixToolkit.SharpDX.Core.Core.PostEffects;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.Renderer;
 /// <summary>
 /// </summary>
 public class ImmediateContextRenderer : DisposeObject, IRenderer {
@@ -17,7 +23,7 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
 
     private readonly Stack<(int Key, IList<SceneNode2D> Value)> stack2DCache1 = new(20);
     private readonly Stack<(int Key, IList<SceneNode> Value)> stackCache1 = new(20);
-    private DeviceContextProxy immediateContext;
+    private DeviceContextProxy.DeviceContextProxy immediateContext;
     private OitDepthPeeling oitDepthPeelingCore;
     private OrderIndependentTransparentRenderCore oitWeightedCore;
     private PostEffectFxaa postFxaaCore;
@@ -28,7 +34,7 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     /// </summary>
     /// <param name="deviceResource">The deviceResource.</param>
     public ImmediateContextRenderer(IDevice3DResources deviceResource) {
-        immediateContext = new DeviceContextProxy(deviceResource.NativeDeviceResources.ImmediateContext,
+        immediateContext = new DeviceContextProxy.DeviceContextProxy(deviceResource.NativeDeviceResources.ImmediateContext,
                                                   deviceResource.NativeDeviceResources.Device);
         oitWeightedCore = new OrderIndependentTransparentRenderCore();
         oitDepthPeelingCore = new OitDepthPeeling();
@@ -42,7 +48,7 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
     /// <value>
     ///     The immediate context.
     /// </value>
-    public DeviceContextProxy ImmediateContext => immediateContext;
+    public DeviceContextProxy.DeviceContextProxy ImmediateContext => immediateContext;
 
     /// <summary>
     ///     Updates the scene graph.

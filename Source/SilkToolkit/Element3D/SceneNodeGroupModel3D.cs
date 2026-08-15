@@ -4,14 +4,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 /// <summary>
 ///     Used to hold scene nodes without WPF/UWP dependencies.
 ///     Used for code behind only. Avoid performance penalty from Dependency Properties.
 /// </summary>
-public sealed class SceneNodeGroupModel3D : Element3D {
+public sealed class SceneNodeGroupModel3D : Model.Elements3D.AbstractElements3D.Element3D {
     public GroupNode GroupNode { get; } = new();
 
     /// <summary>

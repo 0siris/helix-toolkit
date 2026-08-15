@@ -9,7 +9,7 @@ using SilkD3D11DepthStencilStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direc
 using SilkD3D11RasterizerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RasterizerState>;
 using SilkD3D11SamplerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11SamplerState>;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Native;
 
 public enum BlendOperation {
     Add = 1,

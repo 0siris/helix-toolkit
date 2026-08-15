@@ -1,4 +1,5 @@
 ﻿using DemoCore;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 
 namespace ScreenDuplicationDemo;
 

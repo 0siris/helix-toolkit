@@ -5,10 +5,19 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Core.Components;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
@@ -27,7 +36,7 @@ public sealed class SsaoCore : RenderCore {
     private ShaderPass? ssaoPass, ssaoBlur;
     private int ssaoTexSlot, noiseTexSlot, surfaceSampleSlot, noiseSamplerSlot, depthSlot;
 
-    private Texture2DDescription ssaoTextureDesc = new() {
+    private NativeTexture2DDescription ssaoTextureDesc = new() {
         CpuAccessFlags = CpuAccessFlags.None,
         BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
         Format = Format.FormatR16Float,

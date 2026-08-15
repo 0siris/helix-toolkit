@@ -4,9 +4,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Interface;
 
 /// <summary>
 /// </summary>

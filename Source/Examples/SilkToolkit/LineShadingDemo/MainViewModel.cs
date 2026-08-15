@@ -4,6 +4,14 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model.Materials;
+
 namespace LineShadingDemo;
 
 using System;

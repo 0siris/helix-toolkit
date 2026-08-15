@@ -4,8 +4,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 public static class VectorExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -293,7 +294,7 @@ public static class VectorComparisonExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static PlaneIntersectionType PointToPlanePosition(this Vector3 point, ref Plane plane) {
         var normal = plane.Normal * (plane.D >= 0 ? 1 : -1);
-        var v1 = new Vector4(normal, Math.Abs(plane.D));
+        var v1 = new Vector4(normal, Math.Abs((float) plane.D));
         var v2 = new Vector4(point, 1);
         var ret = SilkMath.Dot(v1, v2);
         return ret > 0 ? PlaneIntersectionType.Front :
@@ -308,7 +309,7 @@ public static class VectorComparisonExtensions {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static PlaneIntersectionType PointToPlanePosition(this Vector3 point, Plane plane) {
-        var v1 = new Vector4(plane.Normal * (plane.D > 0 ? 1 : -1), Math.Abs(plane.D));
+        var v1 = new Vector4(plane.Normal * (plane.D > 0 ? 1 : -1), Math.Abs((float) plane.D));
         var v2 = new Vector4(point, 1);
         var ret = SilkMath.Dot(v1, v2);
         return ret > 0 ? PlaneIntersectionType.Front :

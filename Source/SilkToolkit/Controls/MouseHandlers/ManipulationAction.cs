@@ -9,7 +9,7 @@
 
 using System.ComponentModel;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
 
 /// <summary>
 ///     Specifies constants that define actions performed by manipulation.

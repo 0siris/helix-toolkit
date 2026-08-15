@@ -5,9 +5,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Model.Geometry;
 
 
 [DataContract]
@@ -321,9 +324,9 @@ public abstract class Geometry3D : ObservableObject, IGuid {
             BoundingSphere = BoundingSphereExtensions.FromPoints(positions);
         }
 
-        if (Bound.Maximum.IsUndefined() || Bound.Minimum.IsUndefined() || BoundingSphere.Center.IsUndefined()
-            || float.IsInfinity(Bound.Center().X) || float.IsInfinity(Bound.Center().Y) ||
-            float.IsInfinity(Bound.Center().Z))
+        if (VectorExtensions.IsUndefined(Bound.Maximum) || VectorExtensions.IsUndefined(Bound.Minimum) || BoundingSphere.Center.IsUndefined()
+            || float.IsInfinity(BoundingBoxExtensions.Center(Bound).X) || float.IsInfinity(BoundingBoxExtensions.Center(Bound).Y) ||
+            float.IsInfinity(BoundingBoxExtensions.Center(Bound).Z))
             throw new Exception("Position vertex contains invalid value(Example: Float.NaN, Float.Infinity).");
     }
 

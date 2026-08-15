@@ -7,11 +7,17 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Core2D;
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
 using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
+using HelixToolkit.SharpDX.Core.Render.Renderer;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.RenderHost;
 /// <summary>
 /// </summary>
 public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
@@ -182,7 +188,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <param name="clearBackBuffer">if set to <c>true</c> [clear back buffer].</param>
     /// <param name="clearDepthStencilBuffer">if set to <c>true</c> [clear depth stencil buffer].</param>
     public void ClearRenderTarget(
-        DeviceContextProxy context,
+        DeviceContextProxy.DeviceContextProxy context,
         bool clearBackBuffer,
         bool clearDepthStencilBuffer
     ) =>
@@ -208,7 +214,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
                 return;
             }
 
-            ImmediateDeviceContext = new DeviceContextProxy(effectsManager.NativeDeviceResources.ImmediateContext,
+            ImmediateDeviceContext = new DeviceContextProxy.DeviceContextProxy(effectsManager.NativeDeviceResources.ImmediateContext,
                                                             device);
             
             RenderTechnique = effectsManager[DefaultRenderTechniqueNames.Mesh];
@@ -321,7 +327,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <param name="context"></param>
     /// <param name="clear"></param>
     /// <returns>Set successful?</returns>
-    public bool SetDefaultRenderTargets(DeviceContextProxy? context, bool clear = true) {
+    public bool SetDefaultRenderTargets(DeviceContextProxy.DeviceContextProxy? context, bool clear = true) {
         if (!IsInitialized || context is null || RenderBuffer is not { } renderBuffer)
             return false;
         
@@ -586,7 +592,7 @@ public abstract class DX11RenderHostBase : DisposeObject, IRenderHost {
     /// <value>
     ///     The immediate device context.
     /// </value>
-    public DeviceContextProxy? ImmediateDeviceContext {
+    public DeviceContextProxy.DeviceContextProxy? ImmediateDeviceContext {
         get;
         private set {
             if(field != value)

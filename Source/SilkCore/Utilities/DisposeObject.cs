@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Utilities;
 
 public interface IDisposeObject: IDisposable
 {

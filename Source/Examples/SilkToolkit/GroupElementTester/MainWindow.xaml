@@ -6,6 +6,10 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:GroupElementTester"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="MainWindow"
     Width="1200"
     Height="800"
@@ -18,7 +22,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             BackgroundColor="Black"
@@ -38,42 +42,42 @@
             ShowFrameRate="True"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
-            <hx:GroupModel3D
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
+            <elements3D:GroupModel3D
                 x:Name="group1"
                 ItemsSource="{Binding GroupModelSource}"
                 Transform="{Binding GroupModel3DTransform}" />
-            <hx:ItemsModel3D
+            <elements3D:ItemsModel3D
                 x:Name="itemsModel1"
                 ItemsSource="{Binding ItemsSource}"
                 Transform="{Binding ItemsModel3DTransform}">
-                <hx:ItemsModel3D.ItemTemplate>
+                <elements3D:ItemsModel3D.ItemTemplate>
                     <DataTemplate>
-                        <hx:MeshGeometryModel3D
+                        <element3D:MeshGeometryModel3D
                             Geometry="{Binding Geometry}"
                             Material="{Binding Material}"
                             Transform="{Binding Transform}" />
                     </DataTemplate>
-                </hx:ItemsModel3D.ItemTemplate>
-            </hx:ItemsModel3D>
-            <hx:CompositeModel3D>
-                <hx:LineGeometryModel3D Geometry="{Binding AxisModel}" Color="White" />
-                <hx:BillboardTextModel3D x:Name="text" Geometry="{Binding AxisLabel}" />
-            </hx:CompositeModel3D>
-            <hx:GroupModel3D x:Name="sortingGroup1" ItemsSource="{Binding TransparentGroupModelSource}" />
-        </hx:Viewport3DX>
+                </elements3D:ItemsModel3D.ItemTemplate>
+            </elements3D:ItemsModel3D>
+            <elements3D:CompositeModel3D>
+                <element3D:LineGeometryModel3D Geometry="{Binding AxisModel}" Color="White" />
+                <element3D:BillboardTextModel3D x:Name="text" Geometry="{Binding AxisLabel}" />
+            </elements3D:CompositeModel3D>
+            <elements3D:GroupModel3D x:Name="sortingGroup1" ItemsSource="{Binding TransparentGroupModelSource}" />
+        </controls:Viewport3DX>
         <StackPanel
             Grid.Column="1"
             Margin="4"

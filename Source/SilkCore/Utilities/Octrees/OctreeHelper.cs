@@ -5,7 +5,9 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
 public static class OctreeHelper {
     public static LineGeometry3D CreateOctreeLineModel(this IDynamicOctree tree) {

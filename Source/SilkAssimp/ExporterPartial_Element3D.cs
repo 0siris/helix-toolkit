@@ -7,7 +7,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 namespace HelixToolkit.Wpf.SharpDX.Assimp;
 #else
 #if CORE
-namespace HelixToolkit.SharpDX.Core.Assimp;
+namespace HelixToolkit.SharpDX.Core;
 #else
 namespace HelixToolkit.UWP.Assimp;
 #endif

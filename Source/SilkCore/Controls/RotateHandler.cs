@@ -3,7 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Camera;
 
 namespace HelixToolkit.SharpDX.Core.Controls;
 

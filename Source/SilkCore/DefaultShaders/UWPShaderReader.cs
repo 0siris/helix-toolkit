@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace HelixToolkit.SharpDX.Core.Helper;
+namespace HelixToolkit.SharpDX.Core.DefaultShaders;
 /// <summary>
 /// </summary>
 public interface IShaderByteCodeReader {

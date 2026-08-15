@@ -6,6 +6,9 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:VolumeRendering"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="MainWindow"
     Width="1000"
     Height="800"
@@ -19,17 +22,17 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             BackgroundColor="Black"
             Camera="{Binding Camera}"
             CameraRotationMode="Trackball"
             EffectsManager="{Binding EffectsManager}"
             ShowCameraTarget="False">
-            <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" />
-            <hx:MeshGeometryModel3D Geometry="{Binding MeshModel}" Material="{Binding MeshMaterial}" />
-            <hx:LineMaterialGeometryModel3D Geometry="{Binding AxisModel}" Material="{Binding AxisModelMaterial}" />
-            <hx:VolumeTextureModel3D Transform="{Binding Transform}" VolumeMaterial="{Binding VolumeMaterial}" />
-        </hx:Viewport3DX>
+            <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" />
+            <element3D:MeshGeometryModel3D Geometry="{Binding MeshModel}" Material="{Binding MeshMaterial}" />
+            <element3D:LineMaterialGeometryModel3D Geometry="{Binding AxisModel}" Material="{Binding AxisModelMaterial}" />
+            <element3D:VolumeTextureModel3D Transform="{Binding Transform}" VolumeMaterial="{Binding VolumeMaterial}" />
+        </controls:Viewport3DX>
         <StackPanel
             Grid.Column="1"
             Width="120"

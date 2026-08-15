@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Utilities.AsyncTasks;
 
 internal sealed class AsyncActionWaitable : DisposeObject {
     private static readonly ConcurrentBag<AsyncActionWaitable> Pool = [];

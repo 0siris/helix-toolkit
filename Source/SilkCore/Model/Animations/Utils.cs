@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core.Animations;
+namespace HelixToolkit.SharpDX.Core.Model.Animations;
 public static class AnimationUtils {
     public static int FindKeyFrame<T>(float timeElapsed, IList<T> frames) where T : struct, IKeyFrame {
         if (frames.Count == 0) return -1;

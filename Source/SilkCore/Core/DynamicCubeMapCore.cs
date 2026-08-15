@@ -5,11 +5,18 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 //#define TEST
 
+using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Core.Components;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
@@ -21,18 +28,18 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     /// </summary>
     public DynamicCubeMapCore() : base(RenderType.PreProc) {
         modelCb = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-                                                               DefaultBufferNames.GlobalTransformCb,
-                                                               GlobalTransformStruct.SizeInBytes)));
+            DefaultBufferNames.GlobalTransformCb,
+            GlobalTransformStruct.SizeInBytes)));
         UpdateTargets();
     }
 
     private bool CreateCubeMapResources() {
-        if (textureDesc.Width == faceSize && CubeMap is {IsDisposed: false}) 
+        if (textureDesc.Width == faceSize && CubeMap is {IsDisposed: false})
             return false;
 
         if (Device is not { } device)
             return false;
-        
+
         textureDesc.Width = textureDesc.Height = dsvTextureDesc.Width = dsvTextureDesc.Height = FaceSize;
 
         var cubeMap = new ShaderResourceViewProxy(device, textureDesc);
@@ -44,14 +51,21 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
         var srvDesc = new ShaderResourceViewDescription {
             Format = textureDesc.Format,
             Dimension = ShaderResourceViewDimension.TextureCube,
-            TextureCube = new ShaderResourceViewDescription.TextureCubeResource { MostDetailedMip = 0, MipLevels = -1 }
+            TextureCube = new ShaderResourceViewDescription.TextureCubeResource {
+                MostDetailedMip = 0,
+                MipLevels = -1
+            }
         };
         cubeMap.CreateView(srvDesc);
 
         var rtsDesc = new RenderTargetViewDescription {
             Format = textureDesc.Format,
             Dimension = RenderTargetViewDimension.Texture2DArray,
-            Texture2DArray = new RenderTargetViewDescription.Texture2DArrayResource { MipSlice = 0, FirstArraySlice = 0, ArraySize = 1 }
+            Texture2DArray = new RenderTargetViewDescription.Texture2DArrayResource {
+                MipSlice = 0,
+                FirstArraySlice = 0,
+                ArraySize = 1
+            }
         };
 
         for (var i = 0; i < 6; ++i) {
@@ -67,14 +81,18 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             cubeDsv.Dispose();
             return false;
         }
+
         var dsvDesc = new DepthStencilViewDescription {
             Format = dsvTextureDesc.Format,
             Dimension = DepthStencilViewDimension.Texture2DArray,
             Flags = DepthStencilViewFlags.None,
-            Texture2DArray = new DepthStencilViewDescription.Texture2DArrayResource
-                {MipSlice = 0, FirstArraySlice = 0, ArraySize = 1}
+            Texture2DArray = new DepthStencilViewDescription.Texture2DArrayResource {
+                MipSlice = 0,
+                FirstArraySlice = 0,
+                ArraySize = 1
+            }
         };
-        
+
         for (var i = 0; i < 6; ++i) {
             ref var dsv = ref cubeDsVs[i];
             dsv.Dispose();
@@ -115,34 +133,34 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         if (!enableReflector)
             return;
-        
+
         if (CreateCubeMapResources()) {
             RaiseInvalidateRender();
             return; // Skip this frame if texture resized to reduce latency.
         }
 
-        if (!(IsDynamicScene || context.UpdateSceneGraphRequested || context.UpdatePerFrameRenderableRequested)) 
+        if (!(IsDynamicScene || context.UpdateSceneGraphRequested || context.UpdatePerFrameRenderableRequested))
             return;
-        
+
         context.IsInvertCullMode = true;
-        
+
         List<Exception>? exception = null;
 
         Parallel.For(0, 6,
-                     index=> {
-                         try {
-                             RenderCubeFace(context, index);
-                         } catch (Exception e) {
-                             exception ??= [];
-                             exception.Add(e);
-                             LoggerLib.Logger.Error(e,"Cabe face calculation failed");
-                         }
-                     });
+            index => {
+                try {
+                    RenderCubeFace(context, index);
+                } catch (Exception e) {
+                    exception ??= [];
+                    exception.Add(e);
+                    LoggerLib.Logger.Error(e, "Cabe face calculation failed");
+                }
+            });
 
         context.IsInvertCullMode = false;
-        if (exception != null) 
+        if (exception != null)
             throw new AggregateException(exception);
-        
+
         for (var i = 0; i < commands.Length; ++i)
             if (commands[i] is { } command) {
                 deviceContext.ExecuteCommandList(command, true);
@@ -155,39 +173,39 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     }
 
     private void RenderCubeFace(RenderContext context, int index) {
-            if (contextPool is not { } pool)
-                return;
+        if (contextPool is not { } pool)
+            return;
 
-            var ctx = pool.Get();
-            ctx.ClearRenderTargetView(cubeRtVs[index], context.RenderHost.ClearColor);
-            ctx.ClearDepthStencilView(cubeDsVs[index], DepthStencilClearFlags.Depth);
-            ctx.SetRenderTarget(cubeDsVs[index], cubeRtVs[index]);
-            ctx.SetViewport(0, 0, FaceSize, FaceSize);
-            ctx.SetScissorRectangle(0, 0, FaceSize, FaceSize);
-            var transforms = new GlobalTransformStruct {
-                Projection = cubeFaceCameras.Cameras[index].Projection,
-                View = cubeFaceCameras.Cameras[index].View,
-                Viewport = new Vector4(FaceSize, FaceSize, 1 / FaceSize, 1 / FaceSize)
-            };
-            transforms.ViewProjection = transforms.View * transforms.Projection;
+        var ctx = pool.Get();
+        ctx.ClearRenderTargetView(cubeRtVs[index], context.RenderHost.ClearColor);
+        ctx.ClearDepthStencilView(cubeDsVs[index], DepthStencilClearFlags.Depth);
+        ctx.SetRenderTarget(cubeDsVs[index], cubeRtVs[index]);
+        ctx.SetViewport(0, 0, FaceSize, FaceSize);
+        ctx.SetScissorRectangle(0, 0, FaceSize, FaceSize);
+        var transforms = new GlobalTransformStruct {
+            Projection = cubeFaceCameras.Cameras[index].Projection,
+            View = cubeFaceCameras.Cameras[index].View,
+            Viewport = new Vector4(FaceSize, FaceSize, 1 / FaceSize, 1 / FaceSize)
+        };
+        transforms.ViewProjection = transforms.View * transforms.Projection;
 
-            modelCb.Upload(ctx, ref transforms);
+        modelCb.Upload(ctx, ref transforms);
 
-            var frustum = new BoundingFrustum(transforms.ViewProjection);
-            //Render opaque
-            foreach (var node in context.RenderHost.PerFrameOpaqueNodes) {
-                if (node.Guid != Guid && !IgnoredGuid.Contains(node.Guid) && node.TestViewFrustum(ref frustum)) 
-                    node.Render(context, ctx);
-            }
+        var frustum = new BoundingFrustum(transforms.ViewProjection);
+        //Render opaque
+        foreach (var node in context.RenderHost.PerFrameOpaqueNodes) {
+            if (node.Guid != Guid && !IgnoredGuid.Contains(node.Guid) && node.TestViewFrustum(ref frustum))
+                node.Render(context, ctx);
+        }
 
-            //Render particle
-            foreach (var node in context.RenderHost.PerFrameParticleNodes) {
-                if (node.Guid != Guid && !IgnoredGuid.Contains(node.Guid) && node.TestViewFrustum(ref frustum))
-                    node.Render(context, ctx);
-            }
+        //Render particle
+        foreach (var node in context.RenderHost.PerFrameParticleNodes) {
+            if (node.Guid != Guid && !IgnoredGuid.Contains(node.Guid) && node.TestViewFrustum(ref frustum))
+                node.Render(context, ctx);
+        }
 
-            commands[index] = ctx.FinishCommandList(true);
-            contextPool.Put(ctx);
+        commands[index] = ctx.FinishCommandList(true);
+        contextPool.Put(ctx);
     }
 
     private void UpdateTargets() {
@@ -195,31 +213,35 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             targets[i] = center + lookVector[i];
             cubeFaceCameras.Cameras[i].View =
                 (IsLeftHanded
-                     ? SilkMath.LookAtLh(center, targets[i], upVectors[i])
-                     : SilkMath.LookAtRh(center, targets[i], upVectors[i])) * SilkMath.Scaling(-1, 1, 1);
+                    ? SilkMath.LookAtLh(center, targets[i], upVectors[i])
+                    : SilkMath.LookAtRh(center, targets[i], upVectors[i])) * SilkMath.Scaling(-1, 1, 1);
             cubeFaceCameras.Cameras[i].Projection = IsLeftHanded
-                                                        ? SilkMath.PerspectiveFovLh(
-                                                            (float)Math.PI * 0.5f,
-                                                            1,
-                                                            NearField,
-                                                            FarField)
-                                                        : SilkMath.PerspectiveFovRh(
-                                                            (float)Math.PI * 0.5f,
-                                                            1,
-                                                            NearField,
-                                                            FarField);
+                ? SilkMath.PerspectiveFovLh(
+                    (float) Math.PI * 0.5f,
+                    1,
+                    NearField,
+                    FarField)
+                : SilkMath.PerspectiveFovRh(
+                    (float) Math.PI * 0.5f,
+                    1,
+                    NearField,
+                    FarField);
         }
     }
 
-#region
+    #region
 
     private readonly Vector3[] targets = new Vector3[6];
 
-    private readonly Vector3[] lookVector = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
+    private readonly Vector3[] lookVector =
+        [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
 
-    private readonly Vector3[] upVectors = [Vector3.UnitY, Vector3.UnitY, -Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitY, Vector3.UnitY];
+    private readonly Vector3[] upVectors =
+        [Vector3.UnitY, Vector3.UnitY, -Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitY, Vector3.UnitY];
 
-    private readonly CubeFaceCamerasStruct cubeFaceCameras = new() { Cameras = new CubeFaceCamera[6] };
+    private readonly CubeFaceCamerasStruct cubeFaceCameras = new() {
+        Cameras = new CubeFaceCamera[6]
+    };
 
     // Create the cube map TextureCube (array of 6 textures)
     private Texture2DDescription textureDesc = new() {
@@ -250,7 +272,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     private ShaderResourceViewProxy? CubeDsv {
         get;
         set {
-            if(field != value)
+            if (field != value)
                 field?.Dispose();
             field = value;
         }
@@ -265,25 +287,26 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     private SamplerStateProxy? TextureSampler {
         get;
         set {
-            if(field != value)
+            if (field != value)
                 field?.Dispose();
             field = value;
         }
     }
+
     private IDeviceContextPool? contextPool;
     private readonly CommandList?[] commands = new CommandList[6];
     private readonly ConstantBufferComponent modelCb;
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     public HashSet<Guid> IgnoredGuid { get; } = [];
 
     private ShaderResourceViewProxy? CubeMap {
         get;
         set {
-            if(field != value)
+            if (field != value)
                 field?.Dispose();
             field = value;
         }
@@ -361,7 +384,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public bool IsLeftHanded {
         get;
         set {
-            if (SetAffectsRender(ref field, value)) 
+            if (SetAffectsRender(ref field, value))
                 UpdateTargets();
         }
     }
@@ -375,7 +398,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public float NearField {
         get;
         set {
-            if (SetAffectsRender(ref field, value)) 
+            if (SetAffectsRender(ref field, value))
                 UpdateTargets();
         }
     } = 0.1f;
@@ -405,7 +428,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public Vector3 Center {
         get => center;
         set {
-            if (SetAffectsRender(ref center, value)) 
+            if (SetAffectsRender(ref center, value))
                 UpdateTargets();
         }
     }
@@ -439,9 +462,9 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
         set => SetAffectsRender(ref field, value);
     }
 
-#endregion Properties
+    #endregion Properties
 
-#region IReflector
+    #region IReflector
 
     private SamplerStateProxy[]? currSampler;
     private ShaderResourceView[]? currRes;
@@ -469,13 +492,13 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
 
         deviceContext.SetShaderResources(PixelShader.Type, cubeTextureSlot, resources);
         deviceContext.SetSamplers(PixelShader.Type, textureSamplerSlot, samplers);
-        
+
         currSampler.DisposeAll();
         currRes.DisposeAll();
-        
+
         currSampler = [];
         currRes = [];
     }
 
-#endregion IReflector
+    #endregion IReflector
 }

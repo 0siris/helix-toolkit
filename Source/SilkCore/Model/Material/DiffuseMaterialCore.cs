@@ -4,9 +4,13 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.Serialization;
-using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 
-namespace HelixToolkit.SharpDX.Core.Model;
+namespace HelixToolkit.SharpDX.Core.Model.Material;
 [DataContract]
 public class DiffuseMaterialCore : MaterialCore {
     /// <summary>

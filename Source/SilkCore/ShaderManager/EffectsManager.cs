@@ -7,13 +7,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define DEBUGMEMORY
 #endif
 using System.Diagnostics.CodeAnalysis;
-using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core.Buffers;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.ShaderManager;
 
 public sealed class EffectsManagerConfiguration {
     public int AdapterIndex { get; set; } = -1;

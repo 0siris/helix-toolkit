@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Utilities;
 
 public static class AtomicHelper {
     /// <summary>

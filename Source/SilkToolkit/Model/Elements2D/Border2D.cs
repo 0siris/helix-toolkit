@@ -1,9 +1,11 @@
 using System.Windows;
 using System.Windows.Media;
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.Wpf.SharpDX.Core2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.Wpf.SharpDX.Element2D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements2D.Abstract;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfDashStyle = System.Windows.Media.DashStyle;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
@@ -12,7 +14,7 @@ using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 using Thickness = System.Windows.Thickness;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 public class Border2D : ContentElement2D {
     public static readonly DependencyProperty CornerRadiusProperty =
         DependencyProperty.Register("CornerRadius",

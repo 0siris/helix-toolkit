@@ -8,6 +8,9 @@
     xmlns:ie="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:local="clr-namespace:BillboardDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="MainWindow"
     Width="1200"
     Height="800"
@@ -20,7 +23,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Grid.Row="1"
@@ -37,18 +40,18 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseUp3D">
                     <ie:CallMethodAction MethodName="OnMouseUpHandler" TargetObject="{Binding}" />
@@ -57,32 +60,32 @@
                     <ie:CallMethodAction MethodName="OnFlag_Drop" TargetObject="{Binding}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
-            <hx:ScreenQuadModel3D Texture="{Binding BackgroundTexture}" />
+            <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
+            <element3D:ScreenQuadModel3D Texture="{Binding BackgroundTexture}" />
 
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 x:Name="model1"
                 CullMode="Back"
                 Geometry="{Binding SphereModel}"
                 Material="{Binding EarthMaterial}" />
-            <hx:TopMostGroup3D x:Name="topMostGroup" EnableTopMost="False">
-                <hx:BillboardTextModel3D FixedSize="False" Geometry="{Binding FlagsBillboard}" />
-                <hx:BillboardTextModel3D
+            <element3D:TopMostGroup3D x:Name="topMostGroup" EnableTopMost="False">
+                <element3D:BillboardTextModel3D FixedSize="False" Geometry="{Binding FlagsBillboard}" />
+                <element3D:BillboardTextModel3D
                     FixedSize="False"
                     Geometry="{Binding SelectedFlagBillboard}"
                     IsHitTestVisible="False" />
-                <hx:BillboardTextModel3D FixedSize="True" Geometry="{Binding LandmarkBillboards}" />
-                <hx:BillboardTextModel3D FixedSize="True" Geometry="{Binding LandmarkBillboards2}" />
-                <hx:BillboardTextModel3D
+                <element3D:BillboardTextModel3D FixedSize="True" Geometry="{Binding LandmarkBillboards}" />
+                <element3D:BillboardTextModel3D FixedSize="True" Geometry="{Binding LandmarkBillboards2}" />
+                <element3D:BillboardTextModel3D
                     FixedSize="True"
                     Geometry="{Binding BatchedText}"
                     IsHitTestVisible="False" />
-            </hx:TopMostGroup3D>
-            <hx:ScreenSpacedGroup3D SizeScale="2">
-                <hx:BillboardTextModel3D Geometry="{Binding AxisLabels}" />
-                <hx:LineGeometryModel3D Geometry="{Binding AxisLines}" Color="White" />
-            </hx:ScreenSpacedGroup3D>
-        </hx:Viewport3DX>
+            </element3D:TopMostGroup3D>
+            <element3D:ScreenSpacedGroup3D SizeScale="2">
+                <element3D:BillboardTextModel3D Geometry="{Binding AxisLabels}" />
+                <element3D:LineGeometryModel3D Geometry="{Binding AxisLines}" Color="White" />
+            </element3D:ScreenSpacedGroup3D>
+        </controls:Viewport3DX>
         <StackPanel Grid.Column="1" Orientation="Vertical">
             <CheckBox IsChecked="{Binding ElementName=topMostGroup, Path=EnableTopMost}">Billboard Top most</CheckBox>
             <TextBlock Margin="2" Foreground="Blue">Drag Flag onto Earth</TextBlock>

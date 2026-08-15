@@ -7,10 +7,13 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Reflection;
 using Cyotek.Drawing.BitmapFont;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Model.Geometry;
 
 public class TextInfoExt : TextInfo {
     public Vector4 Padding = Vector4.Zero;

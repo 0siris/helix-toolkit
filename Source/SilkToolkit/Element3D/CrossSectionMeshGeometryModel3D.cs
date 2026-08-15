@@ -3,14 +3,16 @@
 // </copyright>
 
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using Media = System.Windows.Media;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 /// <summary>
 ///     Defines the <see cref="CrossSectionMeshGeometryModel3D" />
@@ -246,7 +248,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane1 {
         get => (Plane)GetValue(Plane1Property);
-        set => SetValue(Plane1Property, value);
+        set => SetValue(Plane1Property, (object) value);
     }
 
     /// <summary>
@@ -265,7 +267,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane2 {
         get => (Plane)GetValue(Plane2Property);
-        set => SetValue(Plane2Property, value);
+        set => SetValue(Plane2Property, (object) value);
     }
 
     /// <summary>
@@ -284,7 +286,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane3 {
         get => (Plane)GetValue(Plane3Property);
-        set => SetValue(Plane3Property, value);
+        set => SetValue(Plane3Property, (object) value);
     }
 
     /// <summary>
@@ -303,7 +305,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane4 {
         get => (Plane)GetValue(Plane4Property);
-        set => SetValue(Plane4Property, value);
+        set => SetValue(Plane4Property, (object) value);
     }
 
     /// <summary>
@@ -322,7 +324,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane5 {
         get => (Plane)GetValue(Plane5Property);
-        set => SetValue(Plane5Property, value);
+        set => SetValue(Plane5Property, (object) value);
     }
 
     /// <summary>
@@ -341,7 +343,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane6 {
         get => (Plane)GetValue(Plane6Property);
-        set => SetValue(Plane6Property, value);
+        set => SetValue(Plane6Property, (object) value);
     }
 
     /// <summary>
@@ -360,7 +362,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane7 {
         get => (Plane)GetValue(Plane7Property);
-        set => SetValue(Plane7Property, value);
+        set => SetValue(Plane7Property, (object) value);
     }
 
     /// <summary>
@@ -379,7 +381,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane8 {
         get => (Plane)GetValue(Plane8Property);
-        set => SetValue(Plane8Property, value);
+        set => SetValue(Plane8Property, (object) value);
     }
 
     #endregion

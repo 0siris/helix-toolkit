@@ -4,8 +4,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
+namespace HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 /// <summary>
 /// </summary>
 public partial class SceneNode2D {

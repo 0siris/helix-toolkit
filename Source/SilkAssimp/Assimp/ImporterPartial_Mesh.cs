@@ -4,7 +4,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using Assimp;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Native;
+using Bone = HelixToolkit.SharpDX.Core.Model.Animations.Bone;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
@@ -17,7 +25,7 @@ public partial class Importer {
     /// <param name="transform"></param>
     /// <returns></returns>
     /// <exception cref="System.NotSupportedException">Mesh Type {mesh.Type}</exception>
-    protected virtual Model.Scene.SceneNode OnCreateHxMeshNode(
+    protected virtual SceneNode OnCreateHxMeshNode(
         MeshInfo mesh,
         HelixInternalScene scene,
         Matrix transform
@@ -41,7 +49,7 @@ public partial class Importer {
 
                     //Bones
                     if (mesh.AssimpMesh.HasBones) {
-                        mn.Bones = [.. mesh.AssimpMesh.Bones.Select(x => new Animations.Bone {
+                        mn.Bones = [.. mesh.AssimpMesh.Bones.Select(x => new Bone {
                             Name = x.Name,
                             BindPose = x.OffsetMatrix.ToSharpDXMatrix(configuration.IsSourceMatrixColumnMajor)
                                         .Inverted(),

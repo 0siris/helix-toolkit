@@ -10,9 +10,11 @@
 
 using System.Collections.ObjectModel;
 using System.Linq;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Material;
 using Color = HelixToolkit.SharpDX.Core.Color;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Materials;
 
 public class PhongMaterialCollection : ObservableCollection<PhongMaterial> {
     public PhongMaterialCollection() {
@@ -425,10 +427,13 @@ public static class PhongMaterials {
 
     public static PhongMaterial GetMaterial(string materialName) {
         var mat = Materials.FirstOrDefault(x => x.Name == materialName);
-        return mat != null ? mat : DefaultVrml;
+        return mat != null
+            ? mat
+            : DefaultVrml;
     }
 
     public static Color4 ToColor(double r, double g, double b, double a = 1.0) =>
         //return new Color4((float)r, (float)g, (float)b, (float)a);
-        System.Windows.Media.Color.FromScRgb((float)a, (float)r, (float)g, (float)b).ToColor4();
+        System.Windows.Media.Color.FromScRgb((float) a, (float) r, (float) g, (float) b)
+            .ToColor4();
 }

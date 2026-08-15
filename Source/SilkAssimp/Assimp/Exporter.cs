@@ -7,6 +7,11 @@ using System.Text;
 using System.Diagnostics.CodeAnalysis;
 using Assimp;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Utilities;
+using Animation = HelixToolkit.SharpDX.Core.Model.Animations.Animation;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
@@ -16,7 +21,7 @@ public partial class Exporter : IDisposable {
     protected readonly Dictionary<Geometry3D, int> GeometryCollection = [];
     protected readonly Dictionary<MaterialCore, int> MaterialCollection = [];
     protected readonly Dictionary<ulong, MeshInfo> MeshInfos = [];
-    private IList<Animations.Animation>? animations;
+    private IList<Animation>? animations;
 
     private int materialIndexForNoName;
     private int meshIndexForNoName;
@@ -56,7 +61,7 @@ public partial class Exporter : IDisposable {
     /// <param name="root">The root.</param>
     /// <param name="formatId">The format identifier. <see cref="SupportedFormats" /></param>
     /// <returns></returns>
-    public ErrorCode ExportToFile(string filePath, Model.Scene.SceneNode root, string formatId) {
+    public ErrorCode ExportToFile(string filePath, SceneNode root, string formatId) {
         Clear();
         AssimpContext? exporter;
         var useExtern = false;
@@ -96,7 +101,7 @@ public partial class Exporter : IDisposable {
     /// <param name="formatId">The format identifier.</param>
     /// <param name="blob">The BLOB.</param>
     /// <returns></returns>
-    public ErrorCode ExportToBlob(Model.Scene.SceneNode root, string formatId, out ExportDataBlob? blob) {
+    public ErrorCode ExportToBlob(SceneNode root, string formatId, out ExportDataBlob? blob) {
         Clear();
         AssimpContext? exporter = null;
         var useExtern = false;
@@ -130,13 +135,13 @@ public partial class Exporter : IDisposable {
     /// <param name="root">The HelixToolkit scene graph root node.</param>
     /// <param name="assimpScene">The assimp scene.</param>
     /// <returns></returns>
-    public ErrorCode ToAssimpScene(Model.Scene.SceneNode root, out Scene assimpScene) {
+    public ErrorCode ToAssimpScene(SceneNode root, out Scene assimpScene) {
         Clear();
         assimpScene = CreateScene(root);
         return ErrorCode.Succeed;
     }
 
-    private Scene CreateScene(Model.Scene.SceneNode root) {
+    private Scene CreateScene(SceneNode root) {
         CollectAllGeometriesAndMaterials(root);
         var scene = new Scene();
         //Adds material and meshes into the assimp scene
@@ -149,18 +154,18 @@ public partial class Exporter : IDisposable {
         return scene;
     }
 
-    private Node ConstructAssimpNode(Model.Scene.SceneNode current, Node? parent) {
+    private Node ConstructAssimpNode(SceneNode current, Node? parent) {
         var node = new Node(string.IsNullOrEmpty(current.Name)
             ? "Node"
             : current.Name, parent) {
             Transform = current.ModelMatrix.ToAssimpMatrix(configuration.ToSourceMatrixColumnMajor)
         };
-        if (current is Model.Scene.GroupNodeBase group) {
+        if (current is GroupNodeBase group) {
             foreach (var s in group.Items)
-                if (s is Model.Scene.GeometryNode geo) {
+                if (s is GeometryNode geo) {
                     var key = GetMaterialGeoKey(geo, out _, out _);
                     if (MeshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
-                } else if (s is Model.Scene.GroupNodeBase) {
+                } else if (s is GroupNodeBase) {
                     node.Children.Add(ConstructAssimpNode(s, node));
                 } else {
                     Logger.Warn("Current node type does not support yet. Type: {Value0}", s.GetType()
@@ -169,7 +174,7 @@ public partial class Exporter : IDisposable {
 
             foreach (var metadata in group.Metadata.ToAssimpMetadata())
                 node.Metadata.Add(metadata.Key, metadata.Value);
-        } else if (current is Model.Scene.GeometryNode geo) {
+        } else if (current is GeometryNode geo) {
             var key = GetMaterialGeoKey(geo, out _, out _);
             if (MeshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
         } else {
@@ -180,7 +185,7 @@ public partial class Exporter : IDisposable {
         return node;
     }
 
-    private void CollectAllGeometriesAndMaterials(Model.Scene.SceneNode root) {
+    private void CollectAllGeometriesAndMaterials(SceneNode root) {
         // Collect all geometries and materials
         foreach (var node in root.Traverse()) {
             if (GetMaterialFromNode(node, out var material) && material is { } materialValue
@@ -192,7 +197,7 @@ public partial class Exporter : IDisposable {
         }
 
         foreach (var node in root.Traverse())
-            if (node is Model.Scene.GeometryNode geo) {
+            if (node is GeometryNode geo) {
                 var info = OnCreateMeshInfo(geo);
                 if (info == null) {
                     Logger.Warn("Create Mesh info failed. Node Name: {Value0}", geo.Name);
@@ -224,7 +229,7 @@ public partial class Exporter : IDisposable {
         /// <summary>
         ///     The animations
         /// </summary>
-        public List<Animations.Animation> Animations = [];
+        public List<Animation> Animations = [];
 
         /// <summary>
         ///     The assimp scene

@@ -4,7 +4,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.ComponentModel;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
 namespace HelixToolkit.SharpDX.Core.Model.Components;
 public sealed class GeometryBoundManager : IDisposable {
@@ -39,7 +43,7 @@ public sealed class GeometryBoundManager : IDisposable {
 
     private void OnTransformChanged(object? sender, TransformArgs e) {
         var oldBound = BoundsWithTransform;
-        BoundsWithTransform = Bounds.Transform(e);
+        BoundsWithTransform = BoundingBoxExtensions.Transform(Bounds, e);
         RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
         var oldSphere = BoundsSphereWithTransform;
         BoundsSphereWithTransform = BoundsSphere.TransformBoundingSphere(e);
@@ -59,12 +63,12 @@ public sealed class GeometryBoundManager : IDisposable {
                 Bounds = geometry.Bound;
                 RaiseOnBoundChanged(Bounds, oldBound);
                 oldBound = BoundsWithTransform;
-                BoundsWithTransform = Bounds.Transform(target.TotalModelMatrixInternal);
+                BoundsWithTransform = BoundingBoxExtensions.Transform(Bounds, target.TotalModelMatrixInternal);
                 RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
             } else {
-                var bound = geometry.Bound.Transform(instances[0]);
+                var bound = BoundingBoxExtensions.Transform(geometry.Bound, instances[0]);
                 foreach (var instance in instances) {
-                    var b = geometry.Bound.Transform(instance);
+                    var b = BoundingBoxExtensions.Transform(geometry.Bound, instance);
                     BoundingBox.Merge(ref bound, ref b, out bound);
                 }
 
@@ -72,7 +76,7 @@ public sealed class GeometryBoundManager : IDisposable {
                 Bounds = bound;
                 RaiseOnBoundChanged(Bounds, oldBound);
                 oldBound = BoundsWithTransform;
-                BoundsWithTransform = Bounds.Transform(target.TotalModelMatrixInternal);
+                BoundsWithTransform = BoundingBoxExtensions.Transform(Bounds, target.TotalModelMatrixInternal);
                 RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
             }
         }

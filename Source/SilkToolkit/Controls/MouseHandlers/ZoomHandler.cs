@@ -10,9 +10,11 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
 
 /// <summary>
 ///     Handles zooming.

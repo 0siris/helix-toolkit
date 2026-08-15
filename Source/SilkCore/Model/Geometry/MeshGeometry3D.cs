@@ -5,10 +5,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core.Batching;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Octrees;
+using HelixToolkit.SharpDX.Core.Utilities.Octrees.StaticOctrees;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Model.Geometry;
 
 [DataContract]
 public class MeshGeometry3D : Geometry3D {

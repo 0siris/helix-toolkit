@@ -9,7 +9,7 @@
 
 using System.Windows;
 
-namespace TemplateDemo;
+namespace MorphTargetAnimationDemo;
 
 /// <summary>
 /// Interaction logic for App.xaml

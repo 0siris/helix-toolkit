@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Serilog.Events;
 
-namespace HelixToolkit.Logger;
+namespace HelixToolkit.SharpDX.Core.Logger;
 
 /// <summary>
 /// Creates Microsoft logging adapters backed by the configured LoggerLib instance.

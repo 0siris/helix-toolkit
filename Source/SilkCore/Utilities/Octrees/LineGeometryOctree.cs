@@ -1,4 +1,7 @@
-namespace HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
 /// <summary>
 /// </summary>
@@ -122,7 +125,7 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
 
     /// <summary>
     ///     <see
-    ///         cref="DynamicOctreeBase{T}.HitTestCurrentNodeExcludeChild(HitTestContext, object, Geometry3D, Matrix, ref Ray, ref List{HitTestResult}, ref bool, float)" />
+    ///         cref="DynamicOctreeBase{T}.HitTestCurrentNodeExcludeChild" />
     /// </summary>
     /// <param name="context"></param>
     /// <param name="model"></param>

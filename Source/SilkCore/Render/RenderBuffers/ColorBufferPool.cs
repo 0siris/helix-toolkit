@@ -1,9 +1,12 @@
 using System.Collections.Concurrent;
-using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Logger;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.RenderBuffers;
 /// <summary>
 /// </summary>
 public sealed class PingPongColorBuffers : DisposeObject {
@@ -61,7 +64,7 @@ public sealed class PingPongColorBuffers : DisposeObject {
     /// </value>
     public ShaderResourceViewProxy? NextRtv => textures[1];
 
-    public Resource? CurrentTexture => textures[0]?.Resource;
+    public NativeD3DResource? CurrentTexture => textures[0]?.Resource;
     public bool Initialized { get; private set; }
 
     /// <summary>
@@ -104,7 +107,7 @@ public sealed class PingPongColorBuffers : DisposeObject {
 
     private readonly ShaderResourceViewProxy?[] textures = new ShaderResourceViewProxy?[NumPingPongBlurBuffer];
 
-    private readonly Texture2DDescription texture2DDesc = new() {
+    private readonly NativeTexture2DDescription texture2DDesc = new() {
         BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
         CpuAccessFlags = CpuAccessFlags.None,
         Usage = ResourceUsage.Default,
@@ -120,12 +123,12 @@ public sealed class PingPongColorBuffers : DisposeObject {
 
 public sealed class TexturePool : DisposeObject {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
-    private readonly Texture2DDescription description;
+    private readonly NativeTexture2DDescription description;
     private readonly IDevice3DResources deviceResourse;
 
     private readonly ConcurrentDictionary<Format, ConcurrentBag<ShaderResourceViewProxy>> pool = new();
 
-    public TexturePool(IDevice3DResources deviceResourse, Texture2DDescription desc) {
+    public TexturePool(IDevice3DResources deviceResourse, NativeTexture2DDescription desc) {
         this.deviceResourse = deviceResourse;
         description = desc;
     }

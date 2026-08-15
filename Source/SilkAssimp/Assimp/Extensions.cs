@@ -1,4 +1,5 @@
 ﻿using Assimp;
+using HelixToolkit.SharpDX.Core.Model;
 using Metadata = HelixToolkit.SharpDX.Core.Model.Metadata;
 using MetaDataType = HelixToolkit.SharpDX.Core.Model.MetaDataType;
 

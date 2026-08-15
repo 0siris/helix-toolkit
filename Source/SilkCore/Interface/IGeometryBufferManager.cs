@@ -1,4 +1,7 @@
-﻿namespace HelixToolkit.SharpDX.Core;
+﻿using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Utilities;
+
+namespace HelixToolkit.SharpDX.Core.Interface;
 
 /// <summary>
 /// </summary>

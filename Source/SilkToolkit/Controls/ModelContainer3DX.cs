@@ -3,16 +3,21 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Core2D;
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
+using HelixToolkit.SharpDX.Core.Render.RenderHost;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.Wpf.SharpDX.Controls;
 using HelixToolkit.Wpf.SharpDX.Utilities;
+using Color = HelixToolkit.SharpDX.Core.Color;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 /// <summary>
 ///     Use to contain shared models for multiple viewports.
@@ -27,7 +32,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         typeof(IEffectsManager),
         typeof(ModelContainer3DX),
         new PropertyMetadata(null,
-                             (s, _) => ((ModelContainer3DX)s).EffectsManagerPropertyChanged()));
+            (s, _) => ((ModelContainer3DX) s).EffectsManagerPropertyChanged()));
 
     private readonly HashSet<IRenderHost> attachedRenderHosts = [];
 
@@ -58,7 +63,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     ///     </para>
     /// </summary>
     public IEffectsManager? EffectsManager {
-        get => (IEffectsManager?)GetValue(EffectsManagerProperty);
+        get => (IEffectsManager?) GetValue(EffectsManagerProperty);
         set => SetValue(EffectsManagerProperty, value);
     }
 
@@ -120,7 +125,9 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     ///     The per frame renderable.
     /// </value>
     public IEnumerable<LightNode> PerFrameLights =>
-        CurrentRenderHost != null ? CurrentRenderHost.PerFrameLights : [];
+        CurrentRenderHost != null
+            ? CurrentRenderHost.PerFrameLights
+            : [];
 
     /// <summary>
     ///     Gets the per frame post effect cores.
@@ -239,7 +246,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// </summary>
     public IEnumerable<SceneNode> Renderables {
         get {
-            foreach (Element3D item in Items) yield return item.SceneNode;
+            foreach (Model.Elements3D.AbstractElements3D.Element3D item in Items) yield return item.SceneNode;
         }
     }
 
@@ -268,7 +275,9 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <exception cref="NotImplementedException"></exception>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 ClearColor {
-        get => currentRenderHost != null ? currentRenderHost.ClearColor : Color.White;
+        get => currentRenderHost != null
+            ? currentRenderHost.ClearColor
+            : Color.White;
         set => throw new NotImplementedException();
     }
 
@@ -293,7 +302,9 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     public MsaaLevel Msaa { get; set; }
 
     public FeatureLevel FeatureLevel =>
-        currentRenderHost != null ? currentRenderHost.FeatureLevel : FeatureLevel.Level110;
+        currentRenderHost != null
+            ? currentRenderHost.FeatureLevel
+            : FeatureLevel.Level110;
 
     /// <summary>
     ///     Gets or sets the viewport.
@@ -475,7 +486,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <param name="context">The context.</param>
     /// <param name="clearBackBuffer">if set to <c>true</c> [clear back buffer].</param>
     /// <param name="clearDepthStencilBuffer">if set to <c>true</c> [clear depth stencil buffer].</param>
-    public void ClearRenderTarget(DeviceContextProxy context, bool clearBackBuffer, bool clearDepthStencilBuffer) 
+    public void ClearRenderTarget(DeviceContextProxy context, bool clearBackBuffer, bool clearDepthStencilBuffer)
         => CurrentRenderHost?.ClearRenderTarget(context, clearBackBuffer, clearDepthStencilBuffer);
 
     /// <summary>
@@ -486,7 +497,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         EffectsManagerChanged?.Invoke(this, EffectsManager);
     }
 
-    private void RenderableInvalidated(object? sender, InvalidateTypes e) 
+    private void RenderableInvalidated(object? sender, InvalidateTypes e)
         => Invalidate(e);
 
     private void Detach() {

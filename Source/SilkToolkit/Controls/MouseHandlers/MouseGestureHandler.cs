@@ -11,10 +11,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
 
 /// <summary>
 ///     An abstract base class for the mouse gesture handlers.
@@ -51,7 +54,7 @@ internal abstract class MouseGestureHandler {
     ///     Gets the camera.
     /// </summary>
     /// <value>The camera.</value>
-    protected Camera Camera => Controller.ActualCamera;
+    protected Camera.Camera Camera => Controller.ActualCamera;
 
     /// <summary>
     ///     Gets the camera mode.
@@ -345,10 +348,10 @@ internal abstract class MouseGestureHandler {
         if (!Viewport.FixedRotationPointEnabled && Viewport.FindHitsInFrustum(MouseDownPoint.ToVector2(), ref Hits)) {
             if (Hits.Count > 0) {
                 MouseDownNearestPoint3D = Hits[0].PointHit;
-                if (Hits[0].ModelHit is Element3D ele)
-                    MouseDownNearestModelBoundCenter = ele.BoundsWithTransform.Center();
+                if (Hits[0].ModelHit is Model.Elements3D.AbstractElements3D.Element3D ele)
+                    MouseDownNearestModelBoundCenter = BoundingBoxExtensions.Center(ele.BoundsWithTransform);
                 else if (Hits[0].ModelHit is SceneNode node)
-                    MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center();
+                    MouseDownNearestModelBoundCenter = BoundingBoxExtensions.Center(node.BoundsWithTransform);
             }
         } else {
             MouseDownNearestModelBoundCenter = null;

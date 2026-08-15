@@ -1,8 +1,9 @@
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.Wpf.SharpDX.Core2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element2D;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 /// <summary>
 ///     Position content using relative position.
 ///     <para>
@@ -10,7 +11,7 @@ namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 ///         (-1,-1); RightBottom = (1, -1)
 ///     </para>
 /// </summary>
-/// <seealso cref="HelixToolkit.Wpf.SharpDX.Elements2D.Panel2D" />
+/// <seealso cref="Panel2D" />
 public class RelativePositionCanvas2D : Panel2D {
     protected override SceneNode2D OnCreateSceneNode() => new Node2DRelativePositionCanvas();
 

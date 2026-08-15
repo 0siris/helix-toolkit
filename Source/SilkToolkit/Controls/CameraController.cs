@@ -14,11 +14,16 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Cameras;
-using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
+using HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using OrthographicCamera = HelixToolkit.Wpf.SharpDX.Camera.OrthographicCamera;
+using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.Camera.PerspectiveCamera;
+using ProjectionCamera = HelixToolkit.Wpf.SharpDX.Camera.ProjectionCamera;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 /// <summary>
 ///     Provides a control that manipulates the camera by mouse and keyboard gestures.
@@ -36,7 +41,7 @@ public class CameraController {
     /// </remarks>
     private readonly SimpleRingBuffer<CameraSetting> cameraHistory = new(100);
 
-    private Camera actualCamera;
+    private Camera.Camera actualCamera;
 
     /// <summary>
     ///     Decides if combined manipulation is allowed.
@@ -414,7 +419,7 @@ public class CameraController {
     /// <summary>
     ///     Gets ActualCamera.
     /// </summary>
-    public Camera ActualCamera {
+    public Camera.Camera ActualCamera {
         get => actualCamera;
         set {
             if (actualCamera != value) {

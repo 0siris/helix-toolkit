@@ -5,7 +5,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 
 using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 
@@ -144,7 +149,7 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     public override void UpdateNotRender(RenderContext context) {
         base.UpdateNotRender(context);
         if (Octree != null) {
-            Center = Octree.Bound.Center();
+            Center = BoundingBoxExtensions.Center(Octree.Bound);
         } else {
             var box = new BoundingBox();
             var i = 0;
@@ -158,7 +163,7 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
                 if (ItemsInternal[i] is IDynamicReflectable)
                     box = BoundingBox.Merge(box, ItemsInternal[i].BoundsWithTransform);
 
-            Center = box.Center();
+            Center = BoundingBoxExtensions.Center(box);
         }
     }
 

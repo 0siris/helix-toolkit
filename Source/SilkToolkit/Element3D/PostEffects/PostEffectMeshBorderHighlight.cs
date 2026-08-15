@@ -1,8 +1,9 @@
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D.PostEffects;
 
 /// <summary>
 ///     Highlight the border of meshes
@@ -17,7 +18,7 @@ public class PostEffectMeshBorderHighlight : PostEffectMeshOutlineBlur {
                                     typeof(PostEffectMeshBorderHighlight),
                                     new PropertyMetadata(OutlineMode.Merged,
                                                          (d, e) => {
-                                                             if (d is Element3D { SceneNode: NodePostEffectBorderHighlight node })
+                                                             if (d is Model.Elements3D.AbstractElements3D.Element3D { SceneNode: NodePostEffectBorderHighlight node })
                                                                  node.DrawMode = (OutlineMode)e.NewValue;
                                                          }));
 

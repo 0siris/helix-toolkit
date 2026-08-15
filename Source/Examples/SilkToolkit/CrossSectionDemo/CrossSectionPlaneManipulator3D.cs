@@ -1,5 +1,18 @@
 using System.Windows;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
@@ -28,7 +41,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
                         var plane = (Plane) e.NewValue;
                         model.currentTranslation =
                             Translation(plane.Normal * plane.D);
-                        var v1 = plane.Normal.FindAnyPerpendicular();
+                        var v1 = VectorExtensions.FindAnyPerpendicular(plane.Normal);
                         var v2 = Cross(plane.Normal, v1);
                         model.currentRotation =
                             new Matrix(v2.X,

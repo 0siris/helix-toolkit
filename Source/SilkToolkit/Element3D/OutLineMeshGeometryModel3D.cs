@@ -5,11 +5,13 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 public class OutLineMeshGeometryModel3D : MeshGeometryModel3D {
     public static readonly DependencyProperty EnableOutlineProperty = DependencyProperty.Register("EnableOutline",

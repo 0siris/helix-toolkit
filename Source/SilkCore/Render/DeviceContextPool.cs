@@ -5,6 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Render;
 /// <summary>
@@ -14,13 +15,13 @@ public interface IDeviceContextPool : IDisposable {
     ///     Gets this instance.
     /// </summary>
     /// <returns></returns>
-    DeviceContextProxy Get();
+    DeviceContextProxy.DeviceContextProxy Get();
 
     /// <summary>
     ///     Puts the specified context.
     /// </summary>
     /// <param name="context">The context.</param>
-    void Put(DeviceContextProxy context);
+    void Put(DeviceContextProxy.DeviceContextProxy context);
 
     /// <summary>
     ///     Resets the draw calls.
@@ -31,7 +32,7 @@ public interface IDeviceContextPool : IDisposable {
 /// <summary>
 /// </summary>
 public sealed class DeviceContextPool : DisposeObject, IDeviceContextPool {
-    private readonly ConcurrentBag<DeviceContextProxy> contextPool = [];
+    private readonly ConcurrentBag<DeviceContextProxy.DeviceContextProxy> contextPool = [];
 
     private readonly NativeD3DDevice device;
 
@@ -48,11 +49,11 @@ public sealed class DeviceContextPool : DisposeObject, IDeviceContextPool {
     /// </summary>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public DeviceContextProxy Get() {
+    public DeviceContextProxy.DeviceContextProxy Get() {
         if (contextPool.TryTake(out var context)) return context;
 
         lock (this) {
-            return new DeviceContextProxy(device.CreateDeferredContext(), device);
+            return new DeviceContextProxy.DeviceContextProxy(device.CreateDeferredContext(), device);
         }
     }
 
@@ -61,7 +62,7 @@ public sealed class DeviceContextPool : DisposeObject, IDeviceContextPool {
     /// </summary>
     /// <param name="context">The context.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Put(DeviceContextProxy context) {
+    public void Put(DeviceContextProxy.DeviceContextProxy context) {
         context.ClearRenderTagetBindings();
         context.Reset();
         contextPool.Add(context);

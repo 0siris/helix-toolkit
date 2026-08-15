@@ -1,8 +1,10 @@
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 
 public partial class DeviceContextProxy {
     public const int ConstantBufferCount = 15;

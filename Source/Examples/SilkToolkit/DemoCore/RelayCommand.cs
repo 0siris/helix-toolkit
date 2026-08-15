@@ -14,7 +14,7 @@
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace DemoCore;
 
 /// <summary>
 /// A command whose sole purpose is to 

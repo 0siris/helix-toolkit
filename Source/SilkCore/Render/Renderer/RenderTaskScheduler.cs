@@ -5,10 +5,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.Renderer;
 /// <summary>
 /// </summary>
 public interface IRenderTaskScheduler {
@@ -175,7 +177,7 @@ public class AutoRenderTaskScheduler : IRenderTaskScheduler {
     /// <param name="context">The context.</param>
     /// <param name="parameter">The parameter.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetRenderTargets(DeviceContextProxy context, ref RenderParameter parameter) {
+    private void SetRenderTargets(DeviceContextProxy.DeviceContextProxy context, ref RenderParameter parameter) {
         context.SetRenderTargets(parameter.DepthStencilView, parameter.RenderTargetView);
         context.SetViewport(ref parameter.ViewportRegion);
         context.SetScissorRectangle(parameter.ScissorRegion.Left,

@@ -4,9 +4,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Lights;
 
-namespace HelixToolkit.SharpDX.Core.Core;
+namespace HelixToolkit.SharpDX.Core.Core.Lights;
 
 /// <summary>
 /// </summary>

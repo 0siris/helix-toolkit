@@ -1,4 +1,6 @@
-namespace HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Interface;
+
+namespace HelixToolkit.SharpDX.Core.Render.RenderHost;
 /// <summary>
 /// </summary>
 public sealed class DX11RenderHostConfiguration {

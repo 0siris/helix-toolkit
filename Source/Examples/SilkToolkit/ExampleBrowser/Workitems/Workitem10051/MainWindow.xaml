@@ -1,19 +1,24 @@
 ﻿<Window
-    x:Class="Workitem10051.MainWindow"
+    x:Class="ExampleBrowser.Workitems.Workitem10051.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-    xmlns:local="clr-namespace:Workitem10051"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:workitem10051="clr-namespace:ExampleBrowser.Workitems.Workitem10051"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:mouseHandlers="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+    xmlns:materials="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Materials;assembly=SilkToolkit"
     Title="SharpDX in WPF (Workitem 10051)"
     Width="800"
     Height="500"
     mc:Ignorable="d">
     <Window.DataContext>
-        <local:MainViewModel />
+        <workitem10051:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary Source="Resources.xaml" />
@@ -34,7 +39,7 @@
             </MenuItem>
         </Menu>
 
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="Viewport"
             Title="{Binding Title}"
             Grid.Row="1"
@@ -52,7 +57,7 @@
                     <ei:CallMethodAction MethodName="HandleRenderException" TargetObject="{Binding}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <hx:Viewport3DX.InputBindings>
+            <controls:Viewport3DX.InputBindings>
                 <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
                 <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
                 <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
@@ -63,30 +68,30 @@
                 <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
                 <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
                 <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="Shift+RightClick" />
-                <hx:ManipulationBinding Command="hx:ViewportCommands.Rotate" Gesture="TwoFingerPan" />
-                <hx:ManipulationBinding Command="hx:ViewportCommands.Pan" Gesture="Pan" />
-                <hx:ManipulationBinding Command="hx:ViewportCommands.Zoom" Gesture="Pinch" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="Black" />
-            <hx:DirectionalLight3D Direction="-2,-5,-2" Color="White" />
-            <hx:MeshGeometryModel3D
+                <mouseHandlers:ManipulationBinding Command="hx:ViewportCommands.Rotate" Gesture="TwoFingerPan" />
+                <mouseHandlers:ManipulationBinding Command="hx:ViewportCommands.Pan" Gesture="Pan" />
+                <mouseHandlers:ManipulationBinding Command="hx:ViewportCommands.Zoom" Gesture="Pinch" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:AmbientLight3D Color="Black" />
+            <lights3D:DirectionalLight3D Direction="-2,-5,-2" Color="White" />
+            <element3D:MeshGeometryModel3D
                 Geometry="{StaticResource Model}"
-                Material="{x:Static hx:PhongMaterials.Red}"
+                Material="{x:Static materials:PhongMaterials.Red}"
                 Transform="{StaticResource Model1Transform}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 Geometry="{StaticResource Model}"
-                Material="{x:Static hx:PhongMaterials.Green}"
+                Material="{x:Static materials:PhongMaterials.Green}"
                 Transform="{StaticResource Model2Transform}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 Geometry="{StaticResource Model}"
-                Material="{x:Static hx:PhongMaterials.Blue}"
+                Material="{x:Static materials:PhongMaterials.Blue}"
                 Transform="{StaticResource Model3Transform}" />
-            <hx:LineGeometryModel3D
+            <element3D:LineGeometryModel3D
                 Geometry="{StaticResource Lines}"
                 Thickness="1.5"
                 Transform="{StaticResource Model1Transform}"
                 Color="Black" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
 
 
         <StatusBar Grid.Row="1" VerticalAlignment="Bottom">

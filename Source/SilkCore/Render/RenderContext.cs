@@ -11,13 +11,18 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Model.Lights;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Render;
 
 public enum OitRenderType {
     None,
@@ -454,7 +459,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     ///     Call to update constant buffer for per frame
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void UpdatePerFrameData(DeviceContextProxy deviceContext) {
+    public void UpdatePerFrameData(DeviceContextProxy.DeviceContextProxy deviceContext) {
         UpdatePerFrameData(true, true, deviceContext);
     }
 
@@ -462,7 +467,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     ///     Call to update constant buffer for per frame
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void UpdatePerFrameData(bool updateGlobalTransform, bool updateLights, DeviceContextProxy deviceContext) {
+    public void UpdatePerFrameData(bool updateGlobalTransform, bool updateLights, DeviceContextProxy.DeviceContextProxy deviceContext) {
         if (updateGlobalTransform)
             cbuffer.AssertNotNull("Global transform buffer has been disposed.")
                 .UploadDataToBuffer(deviceContext, ref globalTransform);

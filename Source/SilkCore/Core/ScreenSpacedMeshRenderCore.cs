@@ -3,7 +3,13 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 

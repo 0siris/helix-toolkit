@@ -4,6 +4,15 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
+using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model.Materials;
+
 namespace MeshSimplification;
 
 using System;
@@ -62,7 +71,7 @@ public class MainViewModel : BaseViewModel {
     public ICommand SimplifyCommand { private set; get; }
     public ICommand ResetCommand { private set; get; }
 
-    private HelixToolkit.SharpDX.Core.MeshSimplification simHelper;
+    private HelixToolkit.SharpDX.Core.Geometry.MeshSimplification simHelper;
 
     public bool Busy { set; get; } = false;
 
@@ -139,10 +148,10 @@ public class MainViewModel : BaseViewModel {
         SimplifyCommand = new RelayCommand(Simplify, CanSimplify);
         ResetCommand = new RelayCommand((_) => {
                 Model = orgMesh;
-                simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
+                simHelper = new HelixToolkit.SharpDX.Core.Geometry.MeshSimplification(Model);
             },
             CanSimplify);
-        simHelper = new HelixToolkit.SharpDX.Core.MeshSimplification(Model);
+        simHelper = new HelixToolkit.SharpDX.Core.Geometry.MeshSimplification(Model);
     }
 
     [Obsolete]

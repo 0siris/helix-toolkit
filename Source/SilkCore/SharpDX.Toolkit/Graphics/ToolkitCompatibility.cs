@@ -2,9 +2,10 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
+
 using System.Runtime.InteropServices;
 
-namespace SharpDX.Toolkit.Graphics;
+namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 
 /// <summary>
 ///     SharpDX-compatible DXGI format value used by the legacy Toolkit image path.

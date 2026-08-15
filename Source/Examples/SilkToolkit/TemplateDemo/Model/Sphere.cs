@@ -4,6 +4,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+
 namespace TemplateDemo;
 
 using Vector3 = Silk.NET.Maths.Vector3D<float>;

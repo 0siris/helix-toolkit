@@ -6,9 +6,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Camera;
 
 /// <summary>
 /// </summary>

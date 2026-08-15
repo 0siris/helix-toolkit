@@ -4,9 +4,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.ComponentModel;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Model.Material;
 
 /// <summary>
 ///     Texture model contains <see cref="TextureInfoLoader" /> and a Guid to identify specific texture.

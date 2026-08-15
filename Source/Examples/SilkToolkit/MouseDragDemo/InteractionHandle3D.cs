@@ -7,13 +7,27 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+using HelixToolkit.Wpf.SharpDX.Model.Materials;
+
 namespace MouseDragDemo;
 
 using System.Linq;
 using System;
 using System.Windows;
 using System.Windows.Input;
-using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.Wpf.SharpDX;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;

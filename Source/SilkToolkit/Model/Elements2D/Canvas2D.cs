@@ -6,9 +6,10 @@
 
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.Wpf.SharpDX.Core2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element2D;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 /// <summary>
 ///     Supports both ItemsSource binding and Xaml children. Binds with ObservableElement2DCollection
 /// </summary>

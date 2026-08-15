@@ -9,7 +9,9 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Native;
+
+namespace HelixToolkit.SharpDX.Core.Interface;
 
 public interface IRenderMatrices {
     /// <summary>

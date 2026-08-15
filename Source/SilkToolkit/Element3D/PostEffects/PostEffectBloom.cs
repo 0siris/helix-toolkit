@@ -1,17 +1,20 @@
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Color = System.Windows.Media.Color;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D.PostEffects;
 
 /// <summary>
 /// </summary>
 /// <seealso cref="Element3D" />
-public class PostEffectBloom : Element3D {
+public class PostEffectBloom : Model.Elements3D.AbstractElements3D.Element3D {
     protected override SceneNode OnCreateSceneNode() => new NodePostEffectBloom();
 
     /// <summary>

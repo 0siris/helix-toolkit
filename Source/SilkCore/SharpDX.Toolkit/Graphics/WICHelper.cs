@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace SharpDX.Toolkit.Graphics;
+namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 
 internal static class WicHelper {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;

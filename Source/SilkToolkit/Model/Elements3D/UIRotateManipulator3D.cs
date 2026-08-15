@@ -12,10 +12,13 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
 using MatrixTransform3D = MatrixTransform3D;
 

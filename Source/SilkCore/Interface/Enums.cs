@@ -6,7 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Interface;
 
 /// <summary>
 ///     Used for render ordering. Order is the same as render type defined.

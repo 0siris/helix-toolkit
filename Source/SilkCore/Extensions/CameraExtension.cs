@@ -1,6 +1,8 @@
-using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Viewport;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 public static class CameraExtension {
     /// <summary>
@@ -131,9 +133,9 @@ public static class CameraExtension {
                 var u = topLeftRay.Direction;
                 var v = topRightRay.Direction;
                 var w = centerRay.Direction;
-                u = u.Normalized();
-                v = v.Normalized();
-                w = w.Normalized();
+                u = VectorExtensions.Normalized((Vector3) u);
+                v = VectorExtensions.Normalized((Vector3) v);
+                w = VectorExtensions.Normalized((Vector3) w);
                 if (camera is PerspectiveCameraCore perspectiveCamera) {
                     var distance = pcam.LookDirection.Length;
 
@@ -148,7 +150,7 @@ public static class CameraExtension {
                     var oldTarget = pcam.Position + pcam.LookDirection;
                     var distance = pcam.LookDirection.Length;
 
-                    if (centerRay.PlaneIntersection(oldTarget, w, out var newTarget)) {
+                    if (RayExtensions.PlaneIntersection(centerRay, oldTarget, w, out var newTarget)) {
                         orthographicCamera.LookDirection = w * distance;
                         orthographicCamera.Position = newTarget - orthographicCamera.LookDirection;
                     }

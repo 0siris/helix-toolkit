@@ -1,8 +1,10 @@
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 /// <summary>
 /// </summary>
@@ -163,7 +165,7 @@ public static class IViewportExtensions {
         Vector3 normal,
         out Vector3 intersection
     ) {
-        if (viewport.UnProject(p, out var ray)) return ray.PlaneIntersection(position, normal, out intersection);
+        if (viewport.UnProject(p, out var ray)) return RayExtensions.PlaneIntersection(ray, position, normal, out intersection);
 
         intersection = Vector3.Zero;
         return false;
@@ -339,7 +341,7 @@ public static class IViewportExtensions {
         if (view.RenderHost is {IsRendering: true} renderHost) {
             renderHost.UpdateAndRender();
             if (renderHost is {IsRendering: true, EffectsManager: { } effectsManager, RenderBuffer: { } renderBuffer}
-                && renderBuffer.BackBuffer.Resource is Texture2D backBuffer) {
+                && renderBuffer.BackBuffer.Resource is NativeD3DTexture2D backBuffer) {
                 var memoryStream = new MemoryStream();
                 ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
                     backBuffer,

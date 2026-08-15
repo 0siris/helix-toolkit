@@ -4,10 +4,17 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define TEST
 
+using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Core.Components;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
@@ -100,7 +107,7 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 
     /// <summary>
     /// </summary>
-    protected virtual Texture2DDescription ShadowMapTextureDesc =>
+    protected virtual NativeTexture2DDescription ShadowMapTextureDesc =>
         new() {
             Format = Format.FormatR32Typeless, //!!!! because of depth and shader resource
             ArraySize = 1,

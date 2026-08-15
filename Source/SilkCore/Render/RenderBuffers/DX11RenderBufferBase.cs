@@ -4,10 +4,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Core2D;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.RenderBuffers;
 /// <summary>
 /// </summary>
 public abstract class DX11RenderBufferProxyBase : DisposeObject {
@@ -436,7 +438,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <summary>
     ///     Sets the default render-targets
     /// </summary>
-    public void SetDefaultRenderTargets(DeviceContextProxy context, bool isColorBuffer = true) {
+    public void SetDefaultRenderTargets(DeviceContextProxy.DeviceContextProxy context, bool isColorBuffer = true) {
         context.SetRenderTargets(isColorBuffer ? depthStencilBuffer : null,
                                  [isColorBuffer ? colorBuffer : backBuffer]);
         //context.OutputMerger.SetTargets(depthStencilBuffer, new RenderTargetView[] { isColorBuffer ? colorBuffer : backBuffer });
@@ -448,7 +450,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     ///     Clears the render target binding.
     /// </summary>
     /// <param name="context">The context.</param>
-    public void ClearRenderTargetBinding(DeviceContextProxy context) {
+    public void ClearRenderTargetBinding(DeviceContextProxy.DeviceContextProxy context) {
         context.ClearRenderTagetBindings();
     }
 
@@ -457,7 +459,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="color">The color.</param>
-    public void ClearRenderTarget(DeviceContextProxy context, Color4 color) {
+    public void ClearRenderTarget(DeviceContextProxy.DeviceContextProxy context, Color4 color) {
         ClearRenderTarget(context, color, true, true);
     }
 
@@ -469,7 +471,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <param name="clearBackBuffer"></param>
     /// <param name="clearDepthStencilBuffer"></param>
     public void ClearRenderTarget(
-        DeviceContextProxy context,
+        DeviceContextProxy.DeviceContextProxy context,
         Color4 color,
         bool clearBackBuffer,
         bool clearDepthStencilBuffer

@@ -3,6 +3,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="MainWindow"
     Width="1024"
     Height="768">
@@ -11,30 +14,30 @@
             <RowDefinition Height="1*" />
             <RowDefinition Height="30" />
         </Grid.RowDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="viewport3D"
             Grid.Row="0"
             Grid.Column="0"
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}">
-            <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
-            <hx:MeshGeometryModel3D
+            <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
+            <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
+            <element3D:MeshGeometryModel3D
                 x:Name="triangulatedPolygon"
                 Material="{Binding Material}"
                 Transform="{Binding ModelTransform}" />
-            <hx:LineGeometryModel3D
+            <element3D:LineGeometryModel3D
                 x:Name="lineTriangulatedPolygon"
                 Thickness="{Binding TriangulationThickness}"
                 Transform="{Binding ModelLineTransform}"
                 Color="{Binding TriangulationColor}" />
-            <hx:LineGeometryModel3D
+            <element3D:LineGeometryModel3D
                 x:Name="grid"
                 Geometry="{Binding Grid}"
                 Thickness="{Binding LineThickness}"
                 Transform="{Binding GridTransform}"
                 Color="{Binding GridColor}" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
         <StackPanel
             Width="200"
             Margin="5"

@@ -4,12 +4,13 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 /// <summary>
 /// </summary>

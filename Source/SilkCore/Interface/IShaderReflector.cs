@@ -1,4 +1,7 @@
-namespace HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Shaders;
+
+namespace HelixToolkit.SharpDX.Core.Interface;
 public interface IShaderReflector {
     FeatureLevel FeatureLevel { get; }
 

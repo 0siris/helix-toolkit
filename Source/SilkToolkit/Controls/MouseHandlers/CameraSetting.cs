@@ -9,8 +9,9 @@
 
 
 using System.Windows.Media.Media3D;
+using HelixToolkit.Wpf.SharpDX.Camera;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
 
 using Point3D = Point3D;
 using Vector3D = Vector3D;
@@ -25,7 +26,7 @@ public struct CameraSetting {
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public CameraSetting(Camera camera) {
+    public CameraSetting(Camera.Camera camera) {
         Position = camera.Position;
         LookDirection = camera.LookDirection;
         UpDirection = camera.UpDirection;
@@ -86,7 +87,7 @@ public struct CameraSetting {
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    public void UpdateCamera(Camera camera) {
+    public void UpdateCamera(Camera.Camera camera) {
         camera.Position = Position;
         camera.LookDirection = LookDirection;
         camera.UpDirection = UpDirection;

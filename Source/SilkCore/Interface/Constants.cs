@@ -4,14 +4,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Core2D;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene2D;
+using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.Core2D.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Interface;
 
 /// <summary>
 ///     Used for static function overloading

@@ -1,14 +1,15 @@
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.Wpf.SharpDX.Utilities;
+using Color = HelixToolkit.SharpDX.Core.Color;
 
 #pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Material;
 
 [DataContract]
 public class PbrMaterial : Material {
@@ -18,122 +19,122 @@ public class PbrMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty AlbedoColorProperty =
         DependencyProperty.Register("AlbedoColor",
-                                    typeof(Color4),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata((Color4)Color.White,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).AlbedoColor =
-                                                                 (Color4)e.NewValue;
-                                                         }));
+            typeof(Color4),
+            typeof(PbrMaterial),
+            new PropertyMetadata((Color4) Color.White,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).AlbedoColor =
+                        (Color4) e.NewValue;
+                }));
 
     /// <summary>
     ///     The albedo color property
     /// </summary>
     public static readonly DependencyProperty EmissiveColorProperty =
         DependencyProperty.Register("EmissiveColor",
-                                    typeof(Color4),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata((Color4)Color.Black,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).EmissiveColor =
-                                                                 (Color4)e.NewValue;
-                                                         }));
+            typeof(Color4),
+            typeof(PbrMaterial),
+            new PropertyMetadata((Color4) Color.Black,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).EmissiveColor =
+                        (Color4) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty MetallicFactorProperty =
         DependencyProperty.Register("MetallicFactor",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(0.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).MetallicFactor =
-                                                                 (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(0.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).MetallicFactor =
+                        (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RoughnessFactorProperty =
         DependencyProperty.Register("RoughnessFactor",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(0.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).RoughnessFactor =
-                                                                 (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(0.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).RoughnessFactor =
+                        (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty AmbientOcclusionFactorProperty =
         DependencyProperty.Register("AmbientOcclusionFactor",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(1.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .AmbientOcclusionFactor = (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(1.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .AmbientOcclusionFactor = (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty ReflectanceFactorProperty =
         DependencyProperty.Register("ReflectanceFactor",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(0.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .ReflectanceFactor = (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(0.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .ReflectanceFactor = (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty ClearCoatStrengthProperty =
         DependencyProperty.Register("ClearCoatStrength",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(0.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .ClearCoatStrength = (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(0.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .ClearCoatStrength = (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty ClearCoatRoughnessProperty =
         DependencyProperty.Register("ClearCoatRoughness",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(0.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .ClearCoatRoughness = (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(0.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .ClearCoatRoughness = (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty AlbedoMapProperty =
         DependencyProperty.Register("AlbedoMap",
-                                    typeof(TextureModel),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).AlbedoMap =
-                                                                 e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PbrMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).AlbedoMap =
+                        e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty EmissiveMapProperty =
         DependencyProperty.Register("EmissiveMap",
-                                    typeof(TextureModel),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).EmissiveMap =
-                                                                 e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PbrMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).EmissiveMap =
+                        e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     ///     glTF2 defines metalness as B channel, roughness as G channel, and occlusion as R channel
@@ -142,13 +143,13 @@ public class PbrMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty RoughnessMetallicMapProperty =
         DependencyProperty.Register("RoughnessMetallicMap",
-                                    typeof(TextureModel),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .RoughnessMetallicMap = e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PbrMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .RoughnessMetallicMap = e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     ///     glTF2 defines metalness as B channel, roughness as G channel, and occlusion as R channel.
@@ -157,222 +158,222 @@ public class PbrMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty AmbientOcculsionMapProperty =
         DependencyProperty.Register("AmbientOcculsionMap",
-                                    typeof(TextureModel),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .AmbientOcculsionMap = e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PbrMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .AmbientOcculsionMap = e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty NormalMapProperty =
         DependencyProperty.Register("NormalMap",
-                                    typeof(TextureModel),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).NormalMap =
-                                                                 e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PbrMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).NormalMap =
+                        e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty DisplacementMapProperty =
         DependencyProperty.Register("DisplacementMap",
-                                    typeof(TextureModel),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).DisplacementMap =
-                                                                 e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PbrMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).DisplacementMap =
+                        e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty IrradianceMapProperty =
         DependencyProperty.Register("IrrandianceMap",
-                                    typeof(TextureModel),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).IrradianceMap =
-                                                                 e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PbrMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).IrradianceMap =
+                        e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty DisplacementMapScaleMaskProperty =
         DependencyProperty.Register("DisplacementMapScaleMask",
-                                    typeof(Vector4),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(new Vector4(0, 0, 0, 1),
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .DisplacementMapScaleMask = (Vector4)e.NewValue;
-                                                         }));
+            typeof(Vector4),
+            typeof(PbrMaterial),
+            new PropertyMetadata(new Vector4(0, 0, 0, 1),
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .DisplacementMapScaleMask = (Vector4) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty SurfaceMapSamplerProperty =
         DependencyProperty.Register("SurfaceMapSampler",
-                                    typeof(SamplerStateDescription),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .SurfaceMapSampler =
-                                                                 (SamplerStateDescription)e.NewValue;
-                                                         }));
+            typeof(SamplerStateDescription),
+            typeof(PbrMaterial),
+            new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .SurfaceMapSampler =
+                        (SamplerStateDescription) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty IblSamplerProperty =
         DependencyProperty.Register("IblSampler",
-                                    typeof(SamplerStateDescription),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).IblSampler =
-                                                                 (SamplerStateDescription)e.NewValue;
-                                                         }));
+            typeof(SamplerStateDescription),
+            typeof(PbrMaterial),
+            new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).IblSampler =
+                        (SamplerStateDescription) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty DisplacementMapSamplerProperty =
         DependencyProperty.Register("DisplacementMapSampler",
-                                    typeof(SamplerStateDescription),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni1,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .DisplacementMapSampler =
-                                                                 (SamplerStateDescription)e.NewValue;
-                                                         }));
+            typeof(SamplerStateDescription),
+            typeof(PbrMaterial),
+            new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni1,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .DisplacementMapSampler =
+                        (SamplerStateDescription) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderAlbedoMapProperty =
         DependencyProperty.Register("RenderAlbedoMap",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).RenderAlbedoMap =
-                                                                 (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).RenderAlbedoMap =
+                        (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderEmissiveMapProperty =
         DependencyProperty.Register("RenderEmissiveMap",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .RenderEmissiveMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .RenderEmissiveMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderRoughnessMetallicMapProperty =
         DependencyProperty.Register("RenderRoughnessMetallicMap",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .RenderRoughnessMetallicMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .RenderRoughnessMetallicMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderAmbientOcclusionMapProperty =
         DependencyProperty.Register("RenderAmbientOcclusionMap",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .RenderAmbientOcclusionMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .RenderAmbientOcclusionMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderIrradianceMapProperty =
         DependencyProperty.Register("RenderIrradianceMap",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .RenderIrradianceMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .RenderIrradianceMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderNormalMapProperty =
         DependencyProperty.Register("RenderNormalMap",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).RenderNormalMap =
-                                                                 (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).RenderNormalMap =
+                        (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderDisplacementMapProperty =
         DependencyProperty.Register("RenderDisplacementMap",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .RenderDisplacementMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .RenderDisplacementMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     ///     The render environment map property
     /// </summary>
     public static readonly DependencyProperty RenderEnvironmentMapProperty =
         DependencyProperty.Register("RenderEnvironmentMap",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .RenderEnvironmentMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(false,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .RenderEnvironmentMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     ///     The render shadow map property
     /// </summary>
     public static readonly DependencyProperty RenderShadowMapProperty =
         DependencyProperty.Register("RenderShadowMap",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).RenderShadowMap =
-                                                                 (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(false,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).RenderShadowMap =
+                        (bool) e.NewValue;
+                }));
 
     /// <summary>
     ///     The enable automatic tangent
     /// </summary>
     public static readonly DependencyProperty EnableAutoTangentProperty =
         DependencyProperty.Register("EnableAutoTangent",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .EnableAutoTangent = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(false,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .EnableAutoTangent = (bool) e.NewValue;
+                }));
 
     /// <summary>
     ///     The enable tessellation property
@@ -382,63 +383,61 @@ public class PbrMaterial : Material {
         typeof(bool),
         typeof(PbrMaterial),
         new PropertyMetadata(false,
-                             (d, e) => {
-                                 ((d as Material).Core as PbrMaterialCore).EnableTessellation = (bool)e.NewValue;
-                             }));
+            (d, e) => { ((d as Material).Core as PbrMaterialCore).EnableTessellation = (bool) e.NewValue; }));
 
     /// <summary>
     ///     The tessellation factor at <see cref="MaxTessellationDistance" /> property
     /// </summary>
     public static readonly DependencyProperty MaxDistanceTessellationFactorProperty =
         DependencyProperty.Register("MaxDistanceTessellationFactor",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(1.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .MaxDistanceTessellationFactor =
-                                                                 (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(1.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .MaxDistanceTessellationFactor =
+                        (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     ///     The tessellation factor at <see cref="MinTessellationDistance" /> property
     /// </summary>
     public static readonly DependencyProperty MinDistanceTessellationFactorProperty =
         DependencyProperty.Register("MinDistanceTessellationFactor",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(2.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .MinDistanceTessellationFactor =
-                                                                 (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(2.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .MinDistanceTessellationFactor =
+                        (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     ///     The maximum tessellation distance property
     /// </summary>
     public static readonly DependencyProperty MaxTessellationDistanceProperty =
         DependencyProperty.Register("MaxTessellationDistance",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(50.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .MaxTessellationDistance = (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(50.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .MaxTessellationDistance = (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     ///     The minimum tessellation distance property
     /// </summary>
     public static readonly DependencyProperty MinTessellationDistanceProperty =
         DependencyProperty.Register("MinTessellationDistance",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(1.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .MinTessellationDistance = (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(1.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .MinTessellationDistance = (float) (double) e.NewValue;
+                }));
 
 
     /// <summary>
@@ -446,37 +445,37 @@ public class PbrMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty UvTransformProperty =
         DependencyProperty.Register("UvTransform",
-                                    typeof(UvTransform),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(UvTransform.Identity,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore).UvTransform =
-                                                                 (UvTransform)e.NewValue;
-                                                         }));
+            typeof(UvTransform),
+            typeof(PbrMaterial),
+            new PropertyMetadata(UvTransform.Identity,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore).UvTransform =
+                        (UvTransform) e.NewValue;
+                }));
 
     /// <summary>
     ///     The enable flat shading property
     /// </summary>
     public static readonly DependencyProperty EnableFlatShadingProperty =
         DependencyProperty.Register("EnableFlatShading",
-                                    typeof(bool),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .EnableFlatShading = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PbrMaterial),
+            new PropertyMetadata(false,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .EnableFlatShading = (bool) e.NewValue;
+                }));
 
     public static readonly DependencyProperty VertexColorBlendingFactorProperty =
         DependencyProperty.Register("VertexColorBlendingFactor",
-                                    typeof(double),
-                                    typeof(PbrMaterial),
-                                    new PropertyMetadata(0.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PbrMaterialCore)
-                                                                 .VertexColorBlendingFactor =
-                                                                 (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PbrMaterial),
+            new PropertyMetadata(0.0,
+                (d, e) => {
+                    ((d as Material).Core as PbrMaterialCore)
+                        .VertexColorBlendingFactor =
+                        (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="PbrMaterial" /> class.
@@ -535,12 +534,12 @@ public class PbrMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 AlbedoColor {
-        get => (Color4)GetValue(AlbedoColorProperty);
+        get => (Color4) GetValue(AlbedoColorProperty);
         set => SetValue(AlbedoColorProperty, value);
     }
 
     public Color4 EmissiveColor {
-        get => (Color4)GetValue(EmissiveColorProperty);
+        get => (Color4) GetValue(EmissiveColorProperty);
         set => SetValue(EmissiveColorProperty, value);
     }
 
@@ -552,7 +551,7 @@ public class PbrMaterial : Material {
     ///     The metallic factor.
     /// </value>
     public double MetallicFactor {
-        get => (double)GetValue(MetallicFactorProperty);
+        get => (double) GetValue(MetallicFactorProperty);
         set => SetValue(MetallicFactorProperty, value);
     }
 
@@ -564,7 +563,7 @@ public class PbrMaterial : Material {
     ///     The roughness factor.
     /// </value>
     public double RoughnessFactor {
-        get => (double)GetValue(RoughnessFactorProperty);
+        get => (double) GetValue(RoughnessFactorProperty);
         set => SetValue(RoughnessFactorProperty, value);
     }
 
@@ -576,24 +575,24 @@ public class PbrMaterial : Material {
     ///     The ambient occlusion factor.
     /// </value>
     public double AmbientOcclusionFactor {
-        get => (double)GetValue(AmbientOcclusionFactorProperty);
+        get => (double) GetValue(AmbientOcclusionFactorProperty);
         set => SetValue(AmbientOcclusionFactorProperty, value);
     }
 
     public double ReflectanceFactor {
-        get => (double)GetValue(ReflectanceFactorProperty);
+        get => (double) GetValue(ReflectanceFactorProperty);
         set => SetValue(ReflectanceFactorProperty, value);
     }
 
 
     public double ClearCoatStrength {
-        get => (double)GetValue(ClearCoatStrengthProperty);
+        get => (double) GetValue(ClearCoatStrengthProperty);
         set => SetValue(ClearCoatStrengthProperty, value);
     }
 
 
     public double ClearCoatRoughness {
-        get => (double)GetValue(ClearCoatRoughnessProperty);
+        get => (double) GetValue(ClearCoatRoughnessProperty);
         set => SetValue(ClearCoatRoughnessProperty, value);
     }
 
@@ -657,76 +656,76 @@ public class PbrMaterial : Material {
     /// <summary>
     /// </summary>
     public SamplerStateDescription SurfaceMapSampler {
-        get => (SamplerStateDescription)GetValue(SurfaceMapSamplerProperty);
+        get => (SamplerStateDescription) GetValue(SurfaceMapSamplerProperty);
         set => SetValue(SurfaceMapSamplerProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public SamplerStateDescription IblSampler {
-        get => (SamplerStateDescription)GetValue(IblSamplerProperty);
+        get => (SamplerStateDescription) GetValue(IblSamplerProperty);
         set => SetValue(IblSamplerProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public SamplerStateDescription DisplacementMapSampler {
-        get => (SamplerStateDescription)GetValue(DisplacementMapSamplerProperty);
+        get => (SamplerStateDescription) GetValue(DisplacementMapSamplerProperty);
         set => SetValue(DisplacementMapSamplerProperty, value);
     }
 
     [TypeConverter(typeof(Vector4Converter))]
     public Vector4 DisplacementMapScaleMask {
-        get => (Vector4)GetValue(DisplacementMapScaleMaskProperty);
+        get => (Vector4) GetValue(DisplacementMapScaleMaskProperty);
         set => SetValue(DisplacementMapScaleMaskProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderAlbedoMap {
-        get => (bool)GetValue(RenderAlbedoMapProperty);
+        get => (bool) GetValue(RenderAlbedoMapProperty);
         set => SetValue(RenderAlbedoMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderNormalMap {
-        get => (bool)GetValue(RenderNormalMapProperty);
+        get => (bool) GetValue(RenderNormalMapProperty);
         set => SetValue(RenderNormalMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderEmissiveMap {
-        get => (bool)GetValue(RenderEmissiveMapProperty);
+        get => (bool) GetValue(RenderEmissiveMapProperty);
         set => SetValue(RenderEmissiveMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderRoughnessMetallicMap {
-        get => (bool)GetValue(RenderRoughnessMetallicMapProperty);
+        get => (bool) GetValue(RenderRoughnessMetallicMapProperty);
         set => SetValue(RenderRoughnessMetallicMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderAmbientOcclusionMap {
-        get => (bool)GetValue(RenderAmbientOcclusionMapProperty);
+        get => (bool) GetValue(RenderAmbientOcclusionMapProperty);
         set => SetValue(RenderAmbientOcclusionMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderIrradianceMap {
-        get => (bool)GetValue(RenderIrradianceMapProperty);
+        get => (bool) GetValue(RenderIrradianceMapProperty);
         set => SetValue(RenderIrradianceMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderDisplacementMap {
-        get => (bool)GetValue(RenderDisplacementMapProperty);
+        get => (bool) GetValue(RenderDisplacementMapProperty);
         set => SetValue(RenderDisplacementMapProperty, value);
     }
 
@@ -737,7 +736,7 @@ public class PbrMaterial : Material {
     ///     <c>true</c> if [render environment map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderEnvironmentMap {
-        get => (bool)GetValue(RenderEnvironmentMapProperty);
+        get => (bool) GetValue(RenderEnvironmentMapProperty);
         set => SetValue(RenderEnvironmentMapProperty, value);
     }
 
@@ -748,7 +747,7 @@ public class PbrMaterial : Material {
     ///     <c>true</c> if [render shadow map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderShadowMap {
-        get => (bool)GetValue(RenderShadowMapProperty);
+        get => (bool) GetValue(RenderShadowMapProperty);
         set => SetValue(RenderShadowMapProperty, value);
     }
 
@@ -759,7 +758,7 @@ public class PbrMaterial : Material {
     ///     <c>true</c> if [enable automatic tangent]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableAutoTangent {
-        get => (bool)GetValue(EnableAutoTangentProperty);
+        get => (bool) GetValue(EnableAutoTangentProperty);
         set => SetValue(EnableAutoTangentProperty, value);
     }
 
@@ -770,7 +769,7 @@ public class PbrMaterial : Material {
     ///     <c>true</c> if [enable tessellation]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableTessellation {
-        get => (bool)GetValue(EnableTessellationProperty);
+        get => (bool) GetValue(EnableTessellationProperty);
         set => SetValue(EnableTessellationProperty, value);
     }
 
@@ -781,7 +780,7 @@ public class PbrMaterial : Material {
     ///     The maximum tessellation factor.
     /// </value>
     public double MaxDistanceTessellationFactor {
-        get => (double)GetValue(MaxDistanceTessellationFactorProperty);
+        get => (double) GetValue(MaxDistanceTessellationFactorProperty);
         set => SetValue(MaxDistanceTessellationFactorProperty, value);
     }
 
@@ -792,7 +791,7 @@ public class PbrMaterial : Material {
     ///     The minimum tessellation factor.
     /// </value>
     public double MinDistanceTessellationFactor {
-        get => (double)GetValue(MinDistanceTessellationFactorProperty);
+        get => (double) GetValue(MinDistanceTessellationFactorProperty);
         set => SetValue(MinDistanceTessellationFactorProperty, value);
     }
 
@@ -803,7 +802,7 @@ public class PbrMaterial : Material {
     ///     The maximum tessellation distance.
     /// </value>
     public double MaxTessellationDistance {
-        get => (double)GetValue(MaxTessellationDistanceProperty);
+        get => (double) GetValue(MaxTessellationDistanceProperty);
         set => SetValue(MaxTessellationDistanceProperty, value);
     }
 
@@ -814,7 +813,7 @@ public class PbrMaterial : Material {
     ///     The minimum tessellation distance.
     /// </value>
     public double MinTessellationDistance {
-        get => (double)GetValue(MinTessellationDistanceProperty);
+        get => (double) GetValue(MinTessellationDistanceProperty);
         set => SetValue(MinTessellationDistanceProperty, value);
     }
 
@@ -825,7 +824,7 @@ public class PbrMaterial : Material {
     ///     The uv transform.
     /// </value>
     public UvTransform UvTransform {
-        get => (UvTransform)GetValue(UvTransformProperty);
+        get => (UvTransform) GetValue(UvTransformProperty);
         set => SetValue(UvTransformProperty, value);
     }
 
@@ -836,7 +835,7 @@ public class PbrMaterial : Material {
     ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableFlatShading {
-        get => (bool)GetValue(EnableFlatShadingProperty);
+        get => (bool) GetValue(EnableFlatShadingProperty);
         set => SetValue(EnableFlatShadingProperty, value);
     }
 
@@ -848,18 +847,18 @@ public class PbrMaterial : Material {
     ///     The vertex color blending factor.
     /// </value>
     public double VertexColorBlendingFactor {
-        get => (double)GetValue(VertexColorBlendingFactorProperty);
+        get => (double) GetValue(VertexColorBlendingFactorProperty);
         set => SetValue(VertexColorBlendingFactorProperty, value);
     }
 
     protected override MaterialCore OnCreateCore() => new PbrMaterialCore {
         AlbedoColor = AlbedoColor,
-        MetallicFactor = (float)MetallicFactor,
-        RoughnessFactor = (float)RoughnessFactor,
-        AmbientOcclusionFactor = (float)AmbientOcclusionFactor,
-        ReflectanceFactor = (float)ReflectanceFactor,
-        ClearCoatStrength = (float)ClearCoatStrength,
-        ClearCoatRoughness = (float)ClearCoatRoughness,
+        MetallicFactor = (float) MetallicFactor,
+        RoughnessFactor = (float) RoughnessFactor,
+        AmbientOcclusionFactor = (float) AmbientOcclusionFactor,
+        ReflectanceFactor = (float) ReflectanceFactor,
+        ClearCoatStrength = (float) ClearCoatStrength,
+        ClearCoatRoughness = (float) ClearCoatRoughness,
 
         AlbedoMap = AlbedoMap,
         NormalMap = NormalMap,
@@ -886,12 +885,12 @@ public class PbrMaterial : Material {
         UvTransform = UvTransform,
 
         EnableTessellation = EnableTessellation,
-        MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
-        MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
-        MaxTessellationDistance = (float)MaxTessellationDistance,
-        MinTessellationDistance = (float)MinTessellationDistance,
+        MaxDistanceTessellationFactor = (float) MaxDistanceTessellationFactor,
+        MinDistanceTessellationFactor = (float) MinDistanceTessellationFactor,
+        MaxTessellationDistance = (float) MaxTessellationDistance,
+        MinTessellationDistance = (float) MinTessellationDistance,
         EnableFlatShading = EnableFlatShading,
-        VertexColorBlendingFactor = (float)VertexColorBlendingFactor
+        VertexColorBlendingFactor = (float) VertexColorBlendingFactor
     };
 
     protected override Freezable CreateInstanceCore() => CloneMaterial();

@@ -4,17 +4,19 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Cameras;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
+using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Light3D;
 
 /// <summary>
 /// </summary>
-public class ShadowMap3D : Element3D {
+public class ShadowMap3D : Model.Elements3D.AbstractElements3D.Element3D {
     /// <summary>
     ///     The resolution property
     /// </summary>
@@ -69,7 +71,7 @@ public class ShadowMap3D : Element3D {
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as ShadowMapNode)
                                                                  .LightCamera =
-                                                                 (e.NewValue as Camera)?.CameraInternal as
+                                                                 (e.NewValue as Camera.Camera)?.CameraInternal as
                                                                  ProjectionCameraCore;
                                                          }));
 

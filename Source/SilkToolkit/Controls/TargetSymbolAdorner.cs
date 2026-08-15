@@ -13,7 +13,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 /// <summary>
 ///     A Target symbol adorner. This is shown in the HelixViewport3D when manipulating the camera with the mouse.

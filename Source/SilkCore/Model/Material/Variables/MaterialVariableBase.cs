@@ -6,11 +6,16 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Model;
+namespace HelixToolkit.SharpDX.Core.Model.Material.Variables;
 /// <summary>
 /// </summary>
 public abstract class MaterialVariable : DisposeObject {

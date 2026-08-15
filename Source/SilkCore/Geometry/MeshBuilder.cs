@@ -8,9 +8,11 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Diagnostics;
-using HelixToolkit.Wpf;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Geometry;
 
 using DoubleOrSingle = float;
 using Int32Collection = IntCollection;
@@ -3475,8 +3477,8 @@ public class MeshBuilder {
 
             // origin is the corner vertex (at index i0)
             // find the intersections between the chamfer plane and the two edges connected to the corner
-            var p01 = plane.LineIntersection(p0, p1);
-            var p02 = plane.LineIntersection(p0, p2);
+            var p01 = SharedFunctions.LineIntersection(plane, p0, p1);
+            var p02 = SharedFunctions.LineIntersection(plane, p0, p2);
 
             if (p01 == null) continue;
 

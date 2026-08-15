@@ -16,12 +16,15 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HitTestResult = HelixToolkit.SharpDX.Core.HitTestResult;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HitTestResult = HelixToolkit.SharpDX.Core.Utilities.HitTestResult;
+using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.Camera.PerspectiveCamera;
+using ProjectionCamera = HelixToolkit.Wpf.SharpDX.Camera.ProjectionCamera;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Extensions;
 
 /// <summary>
 ///     Provides extension methods for <see cref="Viewport3DX" />.
@@ -94,7 +97,7 @@ public static class ViewportExtensions {
     /// <returns>The bounding box.</returns>
     public static Rect3D FindBounds3D(this Viewport3DX viewport) {
         var bounds = viewport.FindBounds();
-        return new Rect3D(bounds.Minimum.ToPoint3D(), (bounds.Maximum - bounds.Minimum).ToSize3D());
+        return new Rect3D(Media3DExtension.ToPoint3D(bounds.Minimum), Media3DExtension.ToSize3D((bounds.Maximum - bounds.Minimum)));
     }
 
     /// <summary>
@@ -109,7 +112,7 @@ public static class ViewportExtensions {
     /// <param name="action">
     ///     The action.
     /// </param>
-    public static void Traverse<T>(this Viewport3DX viewport, Action<T, Transform3D> action) where T : Element3D {
+    public static void Traverse<T>(this Viewport3DX viewport, Action<T, Transform3D> action) where T : Model.Elements3D.AbstractElements3D.Element3D {
         viewport.Renderables.PreorderDft(node => {
             if (node.WrapperSource is T element && element.Transform is { } transform)
                 action(element, transform);
@@ -123,7 +126,7 @@ public static class ViewportExtensions {
     /// <typeparam name="T"></typeparam>
     /// <param name="viewport">The viewport.</param>
     /// <param name="function">The function. Return true to continue traverse, otherwise stop at current node</param>
-    public static void Traverse<T>(this Viewport3DX viewport, Func<T, bool> function) where T : Element3D {
+    public static void Traverse<T>(this Viewport3DX viewport, Func<T, bool> function) where T : Model.Elements3D.AbstractElements3D.Element3D {
         viewport.Renderables.PreorderDft(node => {
             if (node.WrapperSource is T element) return function(element);
             return true;
@@ -142,7 +145,7 @@ public static class ViewportExtensions {
     /// <param name="action">
     ///     The action.
     /// </param>
-    public static void Traverse<T>(this Element3D element, Action<T, Transform3D> action) where T : Element3D {
+    public static void Traverse<T>(this Model.Elements3D.AbstractElements3D.Element3D element, Action<T, Transform3D> action) where T : Model.Elements3D.AbstractElements3D.Element3D {
         element.Traverse(action);
     }
 
@@ -187,13 +190,13 @@ public static class ViewportExtensions {
         Point position,
         out Point3D point,
         out Vector3D normal,
-        out Element3D? model,
+        out Model.Elements3D.AbstractElements3D.Element3D? model,
         out SceneNode? node
     ) {
         var succ = viewport.FindNearest(position.ToVector2(), out var p, out var n, out var m);
         point = p.ToPoint3D();
         normal = n.ToVector3D();
-        if (m is Element3D ele) {
+        if (m is Model.Elements3D.AbstractElements3D.Element3D ele) {
             model = ele;
             node = ele.SceneNode;
         } else if (m is SceneNode nd) {
@@ -330,7 +333,7 @@ public static class ViewportExtensions {
             if (host.IsRendering
                 && host.RenderBuffer is { } buffer
                 && host.EffectsManager is { } effectsManager
-                && buffer.BackBuffer.Resource is Texture2D backBuffer) {
+                && buffer.BackBuffer.Resource is NativeD3DTexture2D backBuffer) {
                 if (view.EnableSwapChainRendering) host.UpdateAndRender();
                 // be sure to render the Scene before capture, otherwise the image is just black
                 ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
@@ -434,7 +437,7 @@ public static class ViewportExtensions {
             host.UpdateAndRender();
             if (host.RenderBuffer is not { } buffer
                 || host.EffectsManager is not { } effectsManager
-                || buffer.BackBuffer.Resource is not Texture2D backBuffer)
+                || buffer.BackBuffer.Resource is not NativeD3DTexture2D backBuffer)
                 return;
             ScreenCapture.SaveWicTextureToFile(effectsManager,
                                                backBuffer,
@@ -452,7 +455,7 @@ public static class ViewportExtensions {
         var bounds = viewport.FindBounds();
         var diagonal = bounds.Maximum - bounds.Minimum;
 
-        if (diagonal.LengthSquared() == 0) return;
+        if (SilkNetMathExtensions.LengthSquared((Vector3) diagonal) == 0) return;
         viewport.Camera.ZoomExtents(viewport, bounds, animationTime);
     }
 

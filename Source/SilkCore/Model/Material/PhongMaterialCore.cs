@@ -3,9 +3,12 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
+using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Model;
+namespace HelixToolkit.SharpDX.Core.Model.Material;
 /// <summary>
 /// </summary>
 public class PhongMaterialCore : MaterialCore {

@@ -1,6 +1,9 @@
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
+using Buffer = HelixToolkit.SharpDX.Core.Native.Buffer;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 
 public partial class DeviceContextProxy {
     private static readonly RenderTargetView?[] ZeroRenderTargetArray = [];

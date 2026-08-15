@@ -7,10 +7,9 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Workitem10043;
-
 using System.Windows;
-using ExampleBrowser;
+
+namespace ExampleBrowser.Workitems.Workitem10043;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml

@@ -11,14 +11,13 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using HelixToolkit.Wpf.SharpDX.Elements2D;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 /// <summary>
 ///     Provides an observable collection of Element3D.
 /// </summary>
-public class ObservableElement3DCollection : ObservableCollection<Element3D> {
+public class ObservableElement3DCollection : ObservableCollection<Model.Elements3D.AbstractElements3D.Element3D> {
     protected override void ClearItems() {
         CheckReentrancy();
         var items = Items.ToArray();
@@ -29,7 +28,7 @@ public class ObservableElement3DCollection : ObservableCollection<Element3D> {
     }
 }
 
-public class ObservableElement2DCollection : ObservableCollection<Element2D> {
+public class ObservableElement2DCollection : ObservableCollection<Model.Elements2D.Abstract.Element2D> {
     protected override void ClearItems() {
         CheckReentrancy();
         var items = Items.ToArray();

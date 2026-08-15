@@ -4,9 +4,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.ComponentModel;
-using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Interface;
 
 /// <summary>
 /// </summary>

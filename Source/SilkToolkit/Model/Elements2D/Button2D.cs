@@ -1,6 +1,7 @@
 using System.Windows;
+using HelixToolkit.Wpf.SharpDX.Model.Elements2D.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 public class Button2D : Clickable2D {
     static Button2D() {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(Button2D),

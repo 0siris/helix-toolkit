@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Native;
 
 public enum FeatureLevel {
     LevelDefault = 0,

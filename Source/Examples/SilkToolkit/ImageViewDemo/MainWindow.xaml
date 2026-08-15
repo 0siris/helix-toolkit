@@ -6,6 +6,9 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:ImageViewDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="ImageViewDemo"
     Width="1200"
     Height="600"
@@ -31,7 +34,7 @@
             </MenuItem>
         </Menu>
 
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Grid.Row="1"
@@ -42,21 +45,21 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="Shift+RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="RightClick" />
-            </hx:Viewport3DX.InputBindings>
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="Shift+RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="RightClick" />
+            </controls:Viewport3DX.InputBindings>
             <!--<hx:AmbientLight3D Color="{Binding AmbientLightColor}"/>-->
-            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
+            <lights3D:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
                                    Color="{Binding DirectionalLightColor}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 x:Name="plane"
                 Geometry="{Binding Plane}"
                 Material="{Binding PlaneMaterial}"
                 Transform="{Binding PlaneTransform}" />
-            <hx:LineGeometryModel3D
+            <element3D:LineGeometryModel3D
                 x:Name="grid"
                 DepthBias="-10"
                 Geometry="{Binding Grid}"
@@ -64,7 +67,7 @@
                 Thickness="1.0"
                 Transform="{Binding GridTransform}"
                 Color="{Binding GridColor}" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
 
         <StackPanel Grid.Row="1">
             <Expander

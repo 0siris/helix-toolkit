@@ -10,12 +10,15 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Markup;
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Utilities.Octrees;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Utilities;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning element and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 
 /// <summary>
 ///     Supports both ItemsSource binding and Xaml children. Binds with ObservableElement3DCollection

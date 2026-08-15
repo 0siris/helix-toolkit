@@ -15,7 +15,7 @@ using SilkD3D9Ptr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D9.IDirect3D9Ex>
 using SilkD3D9SurfacePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D9.IDirect3DSurface9>;
 using SilkD3D9TexturePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D9.IDirect3DTexture9>;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 public sealed class DX11ImageSource : D3DImage, IDisposable {
     private readonly D3D9ImageSourceInterop interop;

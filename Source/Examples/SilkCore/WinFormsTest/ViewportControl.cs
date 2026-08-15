@@ -1,4 +1,6 @@
-﻿namespace WinFormsTest;
+﻿using HelixToolkit.SharpDX.Core.Interface;
+
+namespace WinFormsTest;
 
 public struct ViewportOptions {
     public bool DirectionalLightFollowCamera;

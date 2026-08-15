@@ -1,9 +1,9 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.Wpf.SharpDX.Core2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.Wpf.SharpDX.Element2D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfDashStyle = System.Windows.Media.DashStyle;
@@ -11,7 +11,7 @@ using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning element and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D.Abstract;
 public abstract class ShapeModel2D : Element2D {
     public static DependencyProperty FillProperty
         = DependencyProperty.Register("Fill",

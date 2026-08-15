@@ -4,10 +4,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Diagnostics.CodeAnalysis;
-using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 
-namespace HelixToolkit.SharpDX.Core.Core;
+namespace HelixToolkit.SharpDX.Core.Interface;
 
 /// <summary>
 /// </summary>

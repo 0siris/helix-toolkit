@@ -7,6 +7,9 @@
     xmlns:local="clr-namespace:MouseDragDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
     Title="SharpDX in WPF"
     Width="800"
     Height="500"
@@ -15,9 +18,9 @@
         <local:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
+        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
         <DataTemplate x:Key="Shape3DTemplate">
-            <hx:DraggableGeometryModel3D
+            <elements3D:DraggableGeometryModel3D
                 DragZ="{Binding DragZ}"
                 Geometry="{Binding Geometry}"
                 Instances="{Binding Instances}"
@@ -31,7 +34,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Grid.Row="1"
@@ -42,14 +45,14 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="Shift+RightClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="Shift+RightClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
+            <lights3D:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
                                    Color="{Binding DirectionalLightColor}" />
 
 
@@ -79,7 +82,7 @@
 
             <!--<hx:LineGeometryModel3D x:Name="lines"  Geometry="{Binding Lines}" Transform = "{Binding Model1Transform}" Color="Black" Thickness="2.33"/>-->
             <!--<hx:LineGeometryModel3D x:Name="grid"   Geometry="{Binding Grid}"  Transform = "{Binding GridTransform}"   Color="{Binding GridColor}"/>-->
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
 
         <StatusBar Grid.Row="1" VerticalAlignment="Bottom">
             <StatusBar.Background>

@@ -3,10 +3,14 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Model;
+namespace HelixToolkit.SharpDX.Core.Model.Material;
 public struct VolumeTextureParams {
     public byte[] VolumeTextures { get; }
     public int Width { get; }

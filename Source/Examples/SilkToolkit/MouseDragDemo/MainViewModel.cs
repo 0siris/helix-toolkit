@@ -4,6 +4,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+using HelixToolkit.Wpf.SharpDX.Model.Materials;
+
 namespace MouseDragDemo;
 
 using System.Collections.Generic;

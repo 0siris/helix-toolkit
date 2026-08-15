@@ -3,7 +3,10 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
+
+namespace HelixToolkit.SharpDX.Core.Render.RenderHost;
 /// <summary>
 /// </summary>
 public class SwapChainRenderHost : DefaultRenderHost {

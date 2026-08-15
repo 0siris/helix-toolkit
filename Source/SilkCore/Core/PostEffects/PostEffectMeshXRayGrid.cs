@@ -3,13 +3,18 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Core.Components;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core.Core;
+namespace HelixToolkit.SharpDX.Core.Core.PostEffects;
 
 public interface IPostEffectMeshXRayGrid : IPostEffect {
     Color4 Color { get; set; }
@@ -102,7 +107,7 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
 
         currentCores.Clear();
 
-        void RenderPass(SceneNode mesh, string passName, Action<ShaderPass>? bindResources = null) {
+        void RenderPass(Model.Scene.Abstract.SceneNode mesh, string passName, Action<ShaderPass>? bindResources = null) {
             context.CustomPassName = passName;
             var pass = mesh.EffectTechnique?[passName];
             if (pass is null || pass.IsNull) 
@@ -123,7 +128,7 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
 
 #region Variables
 
-    private readonly List<(SceneNode SceneNode, IEffectAttributes Effect)> currentCores = [];
+    private readonly List<(Model.Scene.Abstract.SceneNode SceneNode, IEffectAttributes Effect)> currentCores = [];
     private readonly ConstantBufferComponent modelCb;
     private BorderEffectStruct modelStruct;
 

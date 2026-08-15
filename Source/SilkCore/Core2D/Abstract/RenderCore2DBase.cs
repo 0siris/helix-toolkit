@@ -5,7 +5,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define DEBUGBOUNDS
 
 
-namespace HelixToolkit.SharpDX.Core.Core2D;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
+
+namespace HelixToolkit.SharpDX.Core.Core2D.Abstract;
 /// <summary>
 /// </summary>
 public abstract class RenderCore2DBase : RenderCore2D {

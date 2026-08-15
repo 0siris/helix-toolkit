@@ -12,7 +12,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Converters;
 
 /// <summary>
 ///     A not-null reference to Visibility value converter.

@@ -1,5 +1,8 @@
 using System;
 using System.IO;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 
 namespace CustomShaderDemo;
 

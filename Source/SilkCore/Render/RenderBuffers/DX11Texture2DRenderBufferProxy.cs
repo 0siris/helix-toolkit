@@ -4,9 +4,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Core2D;
-using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.RenderBuffers;
 /// <summary>
 /// </summary>
 public class DX11Texture2DRenderBufferProxy : DX11RenderBufferProxyBase {
@@ -22,7 +23,7 @@ public class DX11Texture2DRenderBufferProxy : DX11RenderBufferProxyBase {
     /// <param name="height"></param>
     /// <returns></returns>
     protected override ShaderResourceViewProxy OnCreateBackBuffer(int width, int height) {
-        var colordescNms = new Texture2DDescription {
+        var colordescNms = new NativeTexture2DDescription {
             BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
             Format = Format,
             Width = width,
@@ -37,7 +38,7 @@ public class DX11Texture2DRenderBufferProxy : DX11RenderBufferProxyBase {
 
         var backBuffer = new ShaderResourceViewProxy(DeviceResources, colordescNms);
         d2dTarget = new D2DTargetProxy();
-        if (backBuffer.Resource is not Texture2D texture)
+        if (backBuffer.Resource is not NativeD3DTexture2D texture)
             throw new System.InvalidOperationException("The back buffer is not a texture resource.");
 
         d2dTarget.Initialize(texture, DeviceContext2D);

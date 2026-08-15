@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Utilities;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 public class InstancingMeshGeometryModel3D : MeshGeometryModel3D {
 #region DependencyProperties

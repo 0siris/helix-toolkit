@@ -1,6 +1,8 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+namespace HelixToolkit.SharpDX.Core;
+
 internal static class SilkMath {
     public const int Vector2SizeInBytes = sizeof(float) * 2;
     public const int Vector3SizeInBytes = sizeof(float) * 3;
@@ -102,8 +104,8 @@ internal static class SilkMath {
         var w = value.X * matrix.M14 + value.Y * matrix.M24 + value.Z * matrix.M34 + matrix.M44;
 
         return w != 0f && w != 1f
-                   ? new Vector3(x / w, y / w, z / w)
-                   : new Vector3(x, y, z);
+            ? new Vector3(x / w, y / w, z / w)
+            : new Vector3(x, y, z);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -147,7 +149,7 @@ internal static class SilkMath {
 
     public static Matrix RotationQuaternion(Quaternion value) =>
         FromNumerics(Matrix4x4.CreateFromQuaternion(
-                         new System.Numerics.Quaternion(value.X, value.Y, value.Z, value.W)));
+            new System.Numerics.Quaternion(value.X, value.Y, value.Z, value.W)));
 
     public static Quaternion QuaternionRotationAxis(Vector3 axis, float angle) {
         axis = Normalize(axis);
@@ -164,7 +166,7 @@ internal static class SilkMath {
     public static Matrix RotationAxis(Vector3 axis, float angle) {
         axis = Normalize(axis);
         return FromNumerics(Matrix4x4.CreateFromAxisAngle(new System.Numerics.Vector3(axis.X, axis.Y, axis.Z),
-                                                          angle));
+            angle));
     }
 
     public static Matrix RotationX(float angle) 
@@ -194,42 +196,42 @@ internal static class SilkMath {
         var yScale = 1f / (float)Math.Tan(fieldOfView * 0.5f);
         var xScale = yScale / aspectRatio;
         return new Matrix(xScale,
-                          0,
-                          0,
-                          0,
-                          0,
-                          yScale,
-                          0,
-                          0,
-                          0,
-                          0,
-                          farPlane / (farPlane - nearPlane),
-                          1,
-                          0,
-                          0,
-                          -nearPlane * farPlane / (farPlane - nearPlane),
-                          0);
+            0,
+            0,
+            0,
+            0,
+            yScale,
+            0,
+            0,
+            0,
+            0,
+            farPlane / (farPlane - nearPlane),
+            1,
+            0,
+            0,
+            -nearPlane * farPlane / (farPlane - nearPlane),
+            0);
     }
 
     public static Matrix PerspectiveFovRh(float fieldOfView, float aspectRatio, float nearPlane, float farPlane) {
         var yScale = 1f / (float)Math.Tan(fieldOfView * 0.5f);
         var xScale = yScale / aspectRatio;
         return new Matrix(xScale,
-                          0,
-                          0,
-                          0,
-                          0,
-                          yScale,
-                          0,
-                          0,
-                          0,
-                          0,
-                          farPlane / (nearPlane - farPlane),
-                          -1,
-                          0,
-                          0,
-                          nearPlane * farPlane / (nearPlane - farPlane),
-                          0);
+            0,
+            0,
+            0,
+            0,
+            yScale,
+            0,
+            0,
+            0,
+            0,
+            farPlane / (nearPlane - farPlane),
+            -1,
+            0,
+            0,
+            nearPlane * farPlane / (nearPlane - farPlane),
+            0);
     }
 
     public static Matrix OrthoLh(float width, float height, float nearPlane, float farPlane) =>
@@ -270,21 +272,21 @@ internal static class SilkMath {
 
     public static bool Invert(Matrix value, out Matrix result) {
         var source = new Matrix4x4(value.M11,
-                                   value.M12,
-                                   value.M13,
-                                   value.M14,
-                                   value.M21,
-                                   value.M22,
-                                   value.M23,
-                                   value.M24,
-                                   value.M31,
-                                   value.M32,
-                                   value.M33,
-                                   value.M34,
-                                   value.M41,
-                                   value.M42,
-                                   value.M43,
-                                   value.M44);
+            value.M12,
+            value.M13,
+            value.M14,
+            value.M21,
+            value.M22,
+            value.M23,
+            value.M24,
+            value.M31,
+            value.M32,
+            value.M33,
+            value.M34,
+            value.M41,
+            value.M42,
+            value.M43,
+            value.M44);
 
         if (!Matrix4x4.Invert(source, out var inverted)) {
             result = Matrix.Identity;
@@ -292,21 +294,21 @@ internal static class SilkMath {
         }
 
         result = new Matrix(inverted.M11,
-                            inverted.M12,
-                            inverted.M13,
-                            inverted.M14,
-                            inverted.M21,
-                            inverted.M22,
-                            inverted.M23,
-                            inverted.M24,
-                            inverted.M31,
-                            inverted.M32,
-                            inverted.M33,
-                            inverted.M34,
-                            inverted.M41,
-                            inverted.M42,
-                            inverted.M43,
-                            inverted.M44);
+            inverted.M12,
+            inverted.M13,
+            inverted.M14,
+            inverted.M21,
+            inverted.M22,
+            inverted.M23,
+            inverted.M24,
+            inverted.M31,
+            inverted.M32,
+            inverted.M33,
+            inverted.M34,
+            inverted.M41,
+            inverted.M42,
+            inverted.M43,
+            inverted.M44);
         return true;
     }
 
@@ -392,26 +394,26 @@ internal static class SilkNetMathExtensions {
         out Vector3 translation
     ) {
         var source = new Matrix4x4(value.M11,
-                                   value.M12,
-                                   value.M13,
-                                   value.M14,
-                                   value.M21,
-                                   value.M22,
-                                   value.M23,
-                                   value.M24,
-                                   value.M31,
-                                   value.M32,
-                                   value.M33,
-                                   value.M34,
-                                   value.M41,
-                                   value.M42,
-                                   value.M43,
-                                   value.M44);
+            value.M12,
+            value.M13,
+            value.M14,
+            value.M21,
+            value.M22,
+            value.M23,
+            value.M24,
+            value.M31,
+            value.M32,
+            value.M33,
+            value.M34,
+            value.M41,
+            value.M42,
+            value.M43,
+            value.M44);
 
         var success = Matrix4x4.Decompose(source,
-                                          out var numericsScale,
-                                          out var numericsRotation,
-                                          out var numericsTranslation);
+            out var numericsScale,
+            out var numericsRotation,
+            out var numericsTranslation);
         scale = new Vector3(numericsScale.X, numericsScale.Y, numericsScale.Z);
         rotation = new Quaternion(numericsRotation.X, numericsRotation.Y, numericsRotation.Z, numericsRotation.W);
         translation = new Vector3(numericsTranslation.X, numericsTranslation.Y, numericsTranslation.Z);

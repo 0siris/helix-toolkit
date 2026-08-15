@@ -11,7 +11,7 @@
 using Direct3D11 = global::SharpDX.Direct3D11;
 #endif
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 public static class RenderUtil {
 #if SYSTEM_DRAWING

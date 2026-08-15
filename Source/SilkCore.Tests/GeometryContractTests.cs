@@ -1,4 +1,7 @@
 using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 using Silk.NET.Maths;
 
 namespace SilkCore.Tests;
@@ -60,7 +63,7 @@ public class GeometryContractTests {
 
         Assert.Equal(new Vector3D<float>(-2.1f, 0.9f, 3.9f), box.Minimum);
         Assert.Equal(new Vector3D<float>(2.1f, 1.1f, 8.1f), box.Maximum);
-        Assert.Equal(new Vector3D<float>(0, 1, 6), box.Center());
+        Assert.Equal(new Vector3D<float>(0, 1, 6), BoundingBoxExtensions.Center(box));
     }
 
     [Fact]

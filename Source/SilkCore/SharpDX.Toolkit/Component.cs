@@ -5,7 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace SharpDX.Toolkit;
+namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit;
 
 /// <summary>
 ///     A disposable component base class.

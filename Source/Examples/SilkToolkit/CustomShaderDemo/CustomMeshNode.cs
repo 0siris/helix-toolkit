@@ -1,3 +1,6 @@
+using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.Interface;
+
 namespace CustomShaderDemo;
 
 public class CustomMeshNode : MeshNode {

@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core.Shaders;
+namespace HelixToolkit.SharpDX.Core.DefaultShaders;
 /// <summary>
 ///     Default buffer names from shader code. Name must match shader code to bind proper buffer
 ///     <para>Note: Constant buffer must match both name and struct size</para>

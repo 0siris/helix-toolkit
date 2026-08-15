@@ -6,6 +6,10 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:ParticleSystemDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
     Title="ParticleSystemDemo"
     Width="1200"
     Height="800"
@@ -59,7 +63,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Grid.Row="0"
@@ -77,35 +81,35 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
                 <!--<MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />-->
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="MiddleClick" />
-            </hx:Viewport3DX.InputBindings>
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="MiddleClick" />
+            </controls:Viewport3DX.InputBindings>
 
-            <hx:DirectionalLight3D Direction="0,0,-1" Color="{Binding Light1Color}" />
+            <lights3D:DirectionalLight3D Direction="0,0,-1" Color="{Binding Light1Color}" />
 
-            <hx:LineGeometryModel3D
+            <element3D:LineGeometryModel3D
                 Geometry="{Binding BoundingLines}"
                 Thickness="0.5"
                 Transform="{Binding BoundingLineTransform}"
                 Color="Red" />
-            <hx:DraggableGeometryModel3D
+            <elements3D:DraggableGeometryModel3D
                 Geometry="{Binding Model}"
                 Material="{Binding EmitterMaterial}"
                 Transform="{Binding EmitterTransform, Mode=TwoWay}" />
-            <hx:DraggableGeometryModel3D
+            <elements3D:DraggableGeometryModel3D
                 Geometry="{Binding Model}"
                 Material="{Binding ConsumerMaterial}"
                 Transform="{Binding ConsumerTransform, Mode=TwoWay}" />
-            <hx:ParticleStormModel3D
+            <element3D:ParticleStormModel3D
                 x:Name="particleModel"
                 Acceleration="{Binding Acceleration}"
                 BlendColor="{Binding BlendColor}"
@@ -127,7 +131,7 @@
                 ParticleTexture="{Binding ParticleTexture}"
                 SourceAlphaBlend="{Binding SourceAlphaBlendOption}"
                 SourceBlend="{Binding SourceBlendOption}" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
         <ScrollViewer Grid.Column="1">
             <StackPanel
                 MinWidth="320"

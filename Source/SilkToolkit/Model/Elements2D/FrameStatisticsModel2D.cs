@@ -1,14 +1,15 @@
 using System.Windows;
 using System.Windows.Media;
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfColor = System.Windows.Media.Color;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
-public class FrameStatisticsModel2D : Element2D {
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
+public class FrameStatisticsModel2D : Abstract.Element2D {
     public static readonly DependencyProperty ForegroundProperty
         = DependencyProperty.Register("Foreground",
                                       typeof(WpfBrush),

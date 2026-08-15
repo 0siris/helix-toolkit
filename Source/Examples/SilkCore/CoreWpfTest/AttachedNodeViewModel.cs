@@ -1,6 +1,7 @@
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using ObservableObject = GalaSoft.MvvmLight.ObservableObject;
 
-namespace FileLoadDemo;
+namespace CoreWpfTest;
 
 /// <summary>
 /// Provide your own view model to manipulate the scene nodes

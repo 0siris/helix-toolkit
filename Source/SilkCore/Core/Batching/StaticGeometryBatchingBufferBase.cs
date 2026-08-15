@@ -2,10 +2,14 @@
 
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Core;
+namespace HelixToolkit.SharpDX.Core.Core.Batching;
 
 public interface IBatchedGeometry {
     Geometry3D Geometry { get; }

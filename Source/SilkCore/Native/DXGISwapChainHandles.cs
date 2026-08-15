@@ -11,7 +11,7 @@ using SilkD3D11Texture2DPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID
 using SilkDXGIFactory2Ptr = Silk.NET.Core.Native.ComPtr<Silk.NET.DXGI.IDXGIFactory2>;
 using SilkDXGISwapChain1Ptr = Silk.NET.Core.Native.ComPtr<Silk.NET.DXGI.IDXGISwapChain1>;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Native;
 
 public enum Usage {
     RenderTargetOutput = 0x20

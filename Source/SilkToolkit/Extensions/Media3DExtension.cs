@@ -1,16 +1,15 @@
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core;
 using Media = System.Windows.Media;
 using Point = System.Windows.Point;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Extensions;
 
 public static class Media3DExtension {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3D ToVector3D(this Vector3 vector) => new(vector.X, vector.Y, vector.Z);
 
-    public static Matrix3X3 ToMatrix3X3(this Media.Matrix m) => new((float)m.M11,
+    public static Matrix3x3 ToMatrix3X3(this Media.Matrix m) => new((float)m.M11,
         (float)m.M12,
         0,
         (float)m.M21,
@@ -20,7 +19,7 @@ public static class Media3DExtension {
         (float)m.OffsetY,
         1f);
 
-    public static Matrix3X2 ToMatrix3X2(this Media.Matrix m) => new((float)m.M11,
+    public static Matrix3x2 ToMatrix3X2(this Media.Matrix m) => new((float)m.M11,
         (float)m.M12,
         (float)m.M21,
         (float)m.M22,

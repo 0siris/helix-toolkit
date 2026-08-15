@@ -4,12 +4,15 @@
 // </copyright>
 
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Media3D = System.Windows.Media.Media3D;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
 /// <summary>
 ///     <para>Viewbox replacement for Viewport using swapchain rendering.</para>

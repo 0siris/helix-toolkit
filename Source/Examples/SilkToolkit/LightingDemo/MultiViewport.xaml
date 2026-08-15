@@ -6,12 +6,16 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:LightingDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:light3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Light3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
     Title="MultiViewport"
     Width="600"
     Height="600"
     mc:Ignorable="d">
     <Window.Resources>
-        <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
+        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -22,43 +26,43 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <hx:ModelContainer3DX x:Name="sharedContainer" EffectsManager="{Binding EffectsManager}">
-            <hx:ShadowMap3D />
+        <controls:ModelContainer3DX x:Name="sharedContainer" EffectsManager="{Binding EffectsManager}">
+            <light3D:ShadowMap3D />
 
 
             <!--<hx:EnvironmentMap x:Name="envMap" Filename="Cubemap_Grandcanyon.dds"/>-->
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 Geometry="{Binding Sphere}"
                 IsRendering="{Binding RenderLight1}"
                 Material="{Binding LightModelMaterial}"
                 Transform="{Binding Light1Transform}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 Geometry="{Binding Sphere}"
                 IsRendering="{Binding RenderLight2}"
                 Material="{Binding LightModelMaterial}"
                 Transform="{Binding Light2Transform}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 Geometry="{Binding Sphere}"
                 IsRendering="{Binding RenderLight3}"
                 Material="{Binding LightModelMaterial}"
                 Transform="{Binding Light3Transform}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 Geometry="{Binding Sphere}"
                 IsRendering="{Binding RenderLight4}"
                 Material="{Binding LightModelMaterial}"
                 Transform="{Binding Light4Transform}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 x:Name="model"
                 Geometry="{Binding Model}"
                 Material="{Binding ModelMaterial}"
                 Transform="{Binding ModelTransform}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 x:Name="floor"
                 Geometry="{Binding Floor}"
                 Material="{Binding FloorMaterial}"
                 Transform="{Binding FloorTransform}" />
-        </hx:ModelContainer3DX>
-        <hx:Viewport3DX
+        </controls:ModelContainer3DX>
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Grid.Row="0"
@@ -73,30 +77,30 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:DirectionalLight3D
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:DirectionalLight3D
                 Direction="{Binding Light1Direction}"
                 IsRendering="{Binding RenderLight1}"
                 Color="{Binding Light1Color}" />
-            <hx:SpotLight3D
+            <lights3D:SpotLight3D
                 Attenuation="{Binding Light4Attenuation}"
                 Direction="{Binding Light4Direction}"
                 IsRendering="{Binding RenderLight4}"
                 Transform="{Binding Light4Transform}"
                 Color="{Binding Light4Color}" />
-        </hx:Viewport3DX>
-        <hx:Viewport3DX
+        </controls:Viewport3DX>
+        <controls:Viewport3DX
             x:Name="view2"
             Title="{Binding Title}"
             Grid.Row="0"
@@ -111,24 +115,24 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:DirectionalLight3D
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:DirectionalLight3D
                 Direction="{Binding Light1Direction}"
                 IsRendering="{Binding RenderLight1}"
                 Color="{Binding Light1Color}" />
-        </hx:Viewport3DX>
-        <hx:Viewport3DX
+        </controls:Viewport3DX>
+        <controls:Viewport3DX
             x:Name="view3"
             Title="{Binding Title}"
             Grid.Row="1"
@@ -143,30 +147,30 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:PointLight3D
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:PointLight3D
                 Attenuation="{Binding Light2Attenuation}"
                 IsRendering="{Binding RenderLight2}"
                 Transform="{Binding Light2Transform}"
                 Color="{Binding Light2Color}" />
-            <hx:PointLight3D
+            <lights3D:PointLight3D
                 Attenuation="{Binding Light3Attenuation}"
                 IsRendering="{Binding RenderLight3}"
                 Transform="{Binding Light3Transform}"
                 Color="{Binding Light3Color}" />
-        </hx:Viewport3DX>
-        <hx:Viewport3DX
+        </controls:Viewport3DX>
+        <controls:Viewport3DX
             x:Name="view4"
             Title="{Binding Title}"
             Grid.Row="1"
@@ -181,24 +185,24 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:SpotLight3D
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:SpotLight3D
                 Attenuation="{Binding Light4Attenuation}"
                 Direction="{Binding Light4Direction}"
                 IsRendering="{Binding RenderLight4}"
                 Transform="{Binding Light4Transform}"
                 Color="{Binding Light4Color}" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
     </Grid>
 </Window>

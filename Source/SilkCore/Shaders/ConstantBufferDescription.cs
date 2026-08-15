@@ -4,9 +4,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.Serialization;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;
+
 public struct ConstantBufferVariable {
     //
     // Summary:
@@ -86,7 +89,8 @@ public sealed class ConstantBufferMapping {
     [DataMember]
     public ConstantBufferDescription Description { get; set; }
 
-    public static ConstantBufferMapping Create(int slot, ConstantBufferDescription description) => new(slot, description);
+    public static ConstantBufferMapping Create(int slot, ConstantBufferDescription description)
+        => new(slot, description);
 
     public ConstantBufferMapping Clone() => new(Slot, Description.Clone());
 }

@@ -1,4 +1,7 @@
-namespace HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
 /// <summary>
 ///     Octree for instancing
@@ -23,10 +26,10 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
         this.instanceMatrix = instanceMatrix;
         var counter = 0;
         var totalBound =
-            geometryBound.Transform(instanceMatrix
+            BoundingBoxExtensions.Transform(geometryBound, instanceMatrix
                                         [0]); // BoundingBox.FromPoints(geometryBound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, instanceMatrix[0])).ToArray());
         for (var i = 0; i < instanceMatrix.Count; ++i) {
-            var b = geometryBound.Transform(instanceMatrix
+            var b = BoundingBoxExtensions.Transform(geometryBound, instanceMatrix
                                                 [i]); // BoundingBox.FromPoints(geometryBound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, m)).ToArray());
             Objects.Add(new KeyValuePair<int, BoundingBox>(counter, b));
             BoundingBox.Merge(ref totalBound, ref b, out totalBound);
@@ -73,7 +76,7 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
 
     /// <summary>
     ///     <see
-    ///         cref="DynamicOctreeBase{T}.HitTestCurrentNodeExcludeChild(HitTestContext, object, Geometry3D, Matrix, ref Ray, ref List{HitTestResult}, ref bool, float)" />
+    ///         cref="DynamicOctreeBase{T}.HitTestCurrentNodeExcludeChild" />
     /// </summary>
     /// <param name="context"></param>
     /// <param name="model"></param>
@@ -98,17 +101,14 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
         if (!treeBuilt || context is null) return false;
         var isHit = false;
         var
-            bound = Bound.Transform(
-                modelMatrix); // BoundingBox.FromPoints(Bound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
+            bound = BoundingBoxExtensions.Transform(Bound, modelMatrix); // BoundingBox.FromPoints(Bound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
         var rayWs = context.RayWs;
         if (!rayWs.Intersects(ref bound))
             return isHit;
         
         isIntersect = true;
         foreach (var keyValuePair in Objects) {
-            var b = keyValuePair.Value
-                     .Transform(
-                         modelMatrix); // BoundingBox.FromPoints(t.Item2.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
+            var b = BoundingBoxExtensions.Transform(keyValuePair.Value, modelMatrix); // BoundingBox.FromPoints(t.Item2.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
             if (b.Intersects(ref rayWs)) {
                 var result = new HitTestResult {
                     Tag = keyValuePair.Key

@@ -4,8 +4,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using Assimp;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using Bone = HelixToolkit.SharpDX.Core.Animations.Bone;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using Bone = HelixToolkit.SharpDX.Core.Model.Animations.Bone;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 

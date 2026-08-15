@@ -1,14 +1,15 @@
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.Wpf.SharpDX.Utilities;
+using Color = HelixToolkit.SharpDX.Core.Color;
 
 #pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Material;
 
 /// <summary>
 ///     Implements a phong-material with its all properties
@@ -22,13 +23,13 @@ public class PhongMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty AmbientColorProperty =
         DependencyProperty.Register("AmbientColor",
-                                    typeof(Color4),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata((Color4)Color.Black,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore).AmbientColor =
-                                                                 (Color4)e.NewValue;
-                                                         }));
+            typeof(Color4),
+            typeof(PhongMaterial),
+            new PropertyMetadata((Color4) Color.Black,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore).AmbientColor =
+                        (Color4) e.NewValue;
+                }));
 
     /// <summary>
     ///     Identifies the System.Windows.Media.Media3D.DiffuseMaterial.Color�dependency
@@ -36,73 +37,73 @@ public class PhongMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty DiffuseColorProperty =
         DependencyProperty.Register("DiffuseColor",
-                                    typeof(Color4),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata((Color4)Color.White,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore).DiffuseColor =
-                                                                 (Color4)e.NewValue;
-                                                         }));
+            typeof(Color4),
+            typeof(PhongMaterial),
+            new PropertyMetadata((Color4) Color.White,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore).DiffuseColor =
+                        (Color4) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty EmissiveColorProperty =
         DependencyProperty.Register("EmissiveColor",
-                                    typeof(Color4),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata((Color4)Color.Black,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore).EmissiveColor =
-                                                                 (Color4)e.NewValue;
-                                                         }));
+            typeof(Color4),
+            typeof(PhongMaterial),
+            new PropertyMetadata((Color4) Color.Black,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore).EmissiveColor =
+                        (Color4) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty SpecularColorProperty =
         DependencyProperty.Register("SpecularColor",
-                                    typeof(Color4),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata((Color4)Color.Gray,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore).SpecularColor =
-                                                                 (Color4)e.NewValue;
-                                                         }));
+            typeof(Color4),
+            typeof(PhongMaterial),
+            new PropertyMetadata((Color4) Color.Gray,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore).SpecularColor =
+                        (Color4) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty SpecularShininessProperty =
         DependencyProperty.Register("SpecularShininess",
-                                    typeof(float),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(30f,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .SpecularShininess = (float)e.NewValue;
-                                                         }));
+            typeof(float),
+            typeof(PhongMaterial),
+            new PropertyMetadata(30f,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .SpecularShininess = (float) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty ReflectiveColorProperty =
         DependencyProperty.Register("ReflectiveColor",
-                                    typeof(Color4),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(new Color4(0.1f, 0.1f, 0.1f, 1.0f),
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .ReflectiveColor = (Color4)e.NewValue;
-                                                         }));
+            typeof(Color4),
+            typeof(PhongMaterial),
+            new PropertyMetadata(new Color4(0.1f, 0.1f, 0.1f, 1.0f),
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .ReflectiveColor = (Color4) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty DiffuseMapProperty =
         DependencyProperty.Register("DiffuseMap",
-                                    typeof(TextureModel),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore).DiffuseMap =
-                                                                 e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PhongMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore).DiffuseMap =
+                        e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     ///     Supports alpha channel image, such as PNG.
@@ -112,222 +113,222 @@ public class PhongMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty DiffuseAlphaMapProperty =
         DependencyProperty.Register("DiffuseAlphaMap",
-                                    typeof(TextureModel),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .DiffuseAlphaMap = e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PhongMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .DiffuseAlphaMap = e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty NormalMapProperty =
         DependencyProperty.Register("NormalMap",
-                                    typeof(TextureModel),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore).NormalMap =
-                                                                 e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PhongMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore).NormalMap =
+                        e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty SpecularColorMapProperty =
         DependencyProperty.Register("SpecularColorMap",
-                                    typeof(TextureModel),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .SpecularColorMap = e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PhongMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .SpecularColorMap = e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty DisplacementMapProperty =
         DependencyProperty.Register("DisplacementMap",
-                                    typeof(TextureModel),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .DisplacementMap = e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PhongMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .DisplacementMap = e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty EmissiveMapProperty =
         DependencyProperty.Register("EmissiveMap",
-                                    typeof(TextureModel),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore).EmissiveMap =
-                                                                 e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(PhongMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore).EmissiveMap =
+                        e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty DisplacementMapScaleMaskProperty =
         DependencyProperty.Register("DisplacementMapScaleMask",
-                                    typeof(Vector4),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(new Vector4(0, 0, 0, 1),
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .DisplacementMapScaleMask = (Vector4)e.NewValue;
-                                                         }));
+            typeof(Vector4),
+            typeof(PhongMaterial),
+            new PropertyMetadata(new Vector4(0, 0, 0, 1),
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .DisplacementMapScaleMask = (Vector4) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty DiffuseMapSamplerProperty =
         DependencyProperty.Register("DiffuseMapSampler",
-                                    typeof(SamplerStateDescription),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .DiffuseMapSampler =
-                                                                 (SamplerStateDescription)e.NewValue;
-                                                         }));
+            typeof(SamplerStateDescription),
+            typeof(PhongMaterial),
+            new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .DiffuseMapSampler =
+                        (SamplerStateDescription) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty DisplacementMapSamplerProperty =
         DependencyProperty.Register("DisplacementMapSampler",
-                                    typeof(SamplerStateDescription),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni1,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .DisplacementMapSampler =
-                                                                 (SamplerStateDescription)e.NewValue;
-                                                         }));
+            typeof(SamplerStateDescription),
+            typeof(PhongMaterial),
+            new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni1,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .DisplacementMapSampler =
+                        (SamplerStateDescription) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderDiffuseMapProperty =
         DependencyProperty.Register("RenderDiffuseMap",
-                                    typeof(bool),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderDiffuseMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PhongMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .RenderDiffuseMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderDiffuseAlphaMapProperty =
         DependencyProperty.Register("RenderDiffuseAlphaMap",
-                                    typeof(bool),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderDiffuseAlphaMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PhongMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .RenderDiffuseAlphaMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderNormalMapProperty =
         DependencyProperty.Register("RenderNormalMap",
-                                    typeof(bool),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderNormalMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PhongMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .RenderNormalMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderSpecularColorMapProperty =
         DependencyProperty.Register("RenderSpecularColorMap",
-                                    typeof(bool),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderSpecularColorMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PhongMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .RenderSpecularColorMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderDisplacementMapProperty =
         DependencyProperty.Register("RenderDisplacementMap",
-                                    typeof(bool),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderDisplacementMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PhongMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .RenderDisplacementMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     ///     The render environment map property
     /// </summary>
     public static readonly DependencyProperty RenderEnvironmentMapProperty =
         DependencyProperty.Register("RenderEnvironmentMap",
-                                    typeof(bool),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderEnvironmentMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PhongMaterial),
+            new PropertyMetadata(false,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .RenderEnvironmentMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     ///     The render shadow map property
     /// </summary>
     public static readonly DependencyProperty RenderShadowMapProperty =
         DependencyProperty.Register("RenderShadowMap",
-                                    typeof(bool),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderShadowMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PhongMaterial),
+            new PropertyMetadata(false,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .RenderShadowMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty RenderEmissiveMapProperty =
         DependencyProperty.Register("RenderEmissiveMap",
-                                    typeof(bool),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .RenderEmissiveMap = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PhongMaterial),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .RenderEmissiveMap = (bool) e.NewValue;
+                }));
 
     /// <summary>
     ///     The enable automatic tangent
     /// </summary>
     public static readonly DependencyProperty EnableAutoTangentProperty =
         DependencyProperty.Register("EnableAutoTangent",
-                                    typeof(bool),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .EnableAutoTangent = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PhongMaterial),
+            new PropertyMetadata(false,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .EnableAutoTangent = (bool) e.NewValue;
+                }));
 
     // Using a DependencyProperty as the backing store for VertexColorBlendingFactor.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty VertexColorBlendingFactorProperty =
         DependencyProperty.Register("VertexColorBlendingFactor",
-                                    typeof(double),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(0.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .VertexColorBlendingFactor =
-                                                                 (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PhongMaterial),
+            new PropertyMetadata(0.0,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .VertexColorBlendingFactor =
+                        (float) (double) e.NewValue;
+                }));
 
 
     /// <summary>
@@ -338,63 +339,61 @@ public class PhongMaterial : Material {
         typeof(bool),
         typeof(PhongMaterial),
         new PropertyMetadata(false,
-                             (d, e) => {
-                                 ((d as Material).Core as PhongMaterialCore).EnableTessellation = (bool)e.NewValue;
-                             }));
+            (d, e) => { ((d as Material).Core as PhongMaterialCore).EnableTessellation = (bool) e.NewValue; }));
 
     /// <summary>
     ///     The tessellation factor at <see cref="MaxTessellationDistance" /> property
     /// </summary>
     public static readonly DependencyProperty MaxDistanceTessellationFactorProperty =
         DependencyProperty.Register("MaxDistanceTessellationFactor",
-                                    typeof(double),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(1.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .MaxDistanceTessellationFactor =
-                                                                 (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PhongMaterial),
+            new PropertyMetadata(1.0,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .MaxDistanceTessellationFactor =
+                        (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     ///     The tessellation factor at <see cref="MinTessellationDistance" /> property
     /// </summary>
     public static readonly DependencyProperty MinDistanceTessellationFactorProperty =
         DependencyProperty.Register("MinDistanceTessellationFactor",
-                                    typeof(double),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(2.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .MinDistanceTessellationFactor =
-                                                                 (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PhongMaterial),
+            new PropertyMetadata(2.0,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .MinDistanceTessellationFactor =
+                        (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     ///     The maximum tessellation distance property
     /// </summary>
     public static readonly DependencyProperty MaxTessellationDistanceProperty =
         DependencyProperty.Register("MaxTessellationDistance",
-                                    typeof(double),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(50.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .MaxTessellationDistance = (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PhongMaterial),
+            new PropertyMetadata(50.0,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .MaxTessellationDistance = (float) (double) e.NewValue;
+                }));
 
     /// <summary>
     ///     The minimum tessellation distance property
     /// </summary>
     public static readonly DependencyProperty MinTessellationDistanceProperty =
         DependencyProperty.Register("MinTessellationDistance",
-                                    typeof(double),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(1.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .MinTessellationDistance = (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(PhongMaterial),
+            new PropertyMetadata(1.0,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .MinTessellationDistance = (float) (double) e.NewValue;
+                }));
 
 
     /// <summary>
@@ -402,23 +401,23 @@ public class PhongMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty UvTransformProperty =
         DependencyProperty.Register("UvTransform",
-                                    typeof(UvTransform),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(UvTransform.Identity,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore).UvTransform =
-                                                                 (UvTransform)e.NewValue;
-                                                         }));
+            typeof(UvTransform),
+            typeof(PhongMaterial),
+            new PropertyMetadata(UvTransform.Identity,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore).UvTransform =
+                        (UvTransform) e.NewValue;
+                }));
 
     public static readonly DependencyProperty EnableFlatShadingProperty =
         DependencyProperty.Register("EnableFlatShading",
-                                    typeof(bool),
-                                    typeof(PhongMaterial),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as PhongMaterialCore)
-                                                                 .EnableFlatShading = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(PhongMaterial),
+            new PropertyMetadata(false,
+                (d, e) => {
+                    ((d as Material).Core as PhongMaterialCore)
+                        .EnableFlatShading = (bool) e.NewValue;
+                }));
 
     /// <summary>
     ///     Constructs a Shading Material which correspnds with
@@ -474,7 +473,7 @@ public class PhongMaterial : Material {
     ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableFlatShading {
-        get => (bool)GetValue(EnableFlatShadingProperty);
+        get => (bool) GetValue(EnableFlatShadingProperty);
         set => SetValue(EnableFlatShadingProperty, value);
     }
 
@@ -484,7 +483,7 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 AmbientColor {
-        get => (Color4)GetValue(AmbientColorProperty);
+        get => (Color4) GetValue(AmbientColorProperty);
         set => SetValue(AmbientColorProperty, value);
     }
 
@@ -494,7 +493,7 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 DiffuseColor {
-        get => (Color4)GetValue(DiffuseColorProperty);
+        get => (Color4) GetValue(DiffuseColorProperty);
         set => SetValue(DiffuseColorProperty, value);
     }
 
@@ -504,7 +503,7 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 EmissiveColor {
-        get => (Color4)GetValue(EmissiveColorProperty);
+        get => (Color4) GetValue(EmissiveColorProperty);
         set => SetValue(EmissiveColorProperty, value);
     }
 
@@ -513,7 +512,7 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 ReflectiveColor {
-        get => (Color4)GetValue(ReflectiveColorProperty);
+        get => (Color4) GetValue(ReflectiveColorProperty);
         set => SetValue(ReflectiveColorProperty, value);
     }
 
@@ -523,7 +522,7 @@ public class PhongMaterial : Material {
     /// </summary>
     [TypeConverter(typeof(Color4Converter))]
     public Color4 SpecularColor {
-        get => (Color4)GetValue(SpecularColorProperty);
+        get => (Color4) GetValue(SpecularColorProperty);
         set => SetValue(SpecularColorProperty, value);
     }
 
@@ -532,7 +531,7 @@ public class PhongMaterial : Material {
     ///     For details see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb147175(v=vs.85).aspx
     /// </summary>
     public float SpecularShininess {
-        get => (float)GetValue(SpecularShininessProperty);
+        get => (float) GetValue(SpecularShininessProperty);
         set => SetValue(SpecularShininessProperty, value);
     }
 
@@ -580,48 +579,48 @@ public class PhongMaterial : Material {
     /// <summary>
     /// </summary>
     public SamplerStateDescription DiffuseMapSampler {
-        get => (SamplerStateDescription)GetValue(DiffuseMapSamplerProperty);
+        get => (SamplerStateDescription) GetValue(DiffuseMapSamplerProperty);
         set => SetValue(DiffuseMapSamplerProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public SamplerStateDescription DisplacementMapSampler {
-        get => (SamplerStateDescription)GetValue(DisplacementMapSamplerProperty);
+        get => (SamplerStateDescription) GetValue(DisplacementMapSamplerProperty);
         set => SetValue(DisplacementMapSamplerProperty, value);
     }
 
     [TypeConverter(typeof(Vector4Converter))]
     public Vector4 DisplacementMapScaleMask {
-        get => (Vector4)GetValue(DisplacementMapScaleMaskProperty);
+        get => (Vector4) GetValue(DisplacementMapScaleMaskProperty);
         set => SetValue(DisplacementMapScaleMaskProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderDiffuseMap {
-        get => (bool)GetValue(RenderDiffuseMapProperty);
+        get => (bool) GetValue(RenderDiffuseMapProperty);
         set => SetValue(RenderDiffuseMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderNormalMap {
-        get => (bool)GetValue(RenderNormalMapProperty);
+        get => (bool) GetValue(RenderNormalMapProperty);
         set => SetValue(RenderNormalMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderSpecularColorMap {
-        get => (bool)GetValue(RenderSpecularColorMapProperty);
+        get => (bool) GetValue(RenderSpecularColorMapProperty);
         set => SetValue(RenderSpecularColorMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderDiffuseAlphaMap {
-        get => (bool)GetValue(RenderDiffuseAlphaMapProperty);
+        get => (bool) GetValue(RenderDiffuseAlphaMapProperty);
         set => SetValue(RenderDiffuseAlphaMapProperty, value);
     }
 
@@ -629,7 +628,7 @@ public class PhongMaterial : Material {
     /// <summary>
     /// </summary>
     public bool RenderDisplacementMap {
-        get => (bool)GetValue(RenderDisplacementMapProperty);
+        get => (bool) GetValue(RenderDisplacementMapProperty);
         set => SetValue(RenderDisplacementMapProperty, value);
     }
 
@@ -640,7 +639,7 @@ public class PhongMaterial : Material {
     ///     <c>true</c> if [render environment map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderEnvironmentMap {
-        get => (bool)GetValue(RenderEnvironmentMapProperty);
+        get => (bool) GetValue(RenderEnvironmentMapProperty);
         set => SetValue(RenderEnvironmentMapProperty, value);
     }
 
@@ -651,14 +650,14 @@ public class PhongMaterial : Material {
     ///     <c>true</c> if [render shadow map]; otherwise, <c>false</c>.
     /// </value>
     public bool RenderShadowMap {
-        get => (bool)GetValue(RenderShadowMapProperty);
+        get => (bool) GetValue(RenderShadowMapProperty);
         set => SetValue(RenderShadowMapProperty, value);
     }
 
     /// <summary>
     /// </summary>
     public bool RenderEmissiveMap {
-        get => (bool)GetValue(RenderEmissiveMapProperty);
+        get => (bool) GetValue(RenderEmissiveMapProperty);
         set => SetValue(RenderEmissiveMapProperty, value);
     }
 
@@ -669,7 +668,7 @@ public class PhongMaterial : Material {
     ///     <c>true</c> if [enable automatic tangent]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableAutoTangent {
-        get => (bool)GetValue(EnableAutoTangentProperty);
+        get => (bool) GetValue(EnableAutoTangentProperty);
         set => SetValue(EnableAutoTangentProperty, value);
     }
 
@@ -680,7 +679,7 @@ public class PhongMaterial : Material {
     ///     <c>true</c> if [enable tessellation]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableTessellation {
-        get => (bool)GetValue(EnableTessellationProperty);
+        get => (bool) GetValue(EnableTessellationProperty);
         set => SetValue(EnableTessellationProperty, value);
     }
 
@@ -691,7 +690,7 @@ public class PhongMaterial : Material {
     ///     The maximum tessellation factor.
     /// </value>
     public double MaxDistanceTessellationFactor {
-        get => (double)GetValue(MaxDistanceTessellationFactorProperty);
+        get => (double) GetValue(MaxDistanceTessellationFactorProperty);
         set => SetValue(MaxDistanceTessellationFactorProperty, value);
     }
 
@@ -702,7 +701,7 @@ public class PhongMaterial : Material {
     ///     The minimum tessellation factor.
     /// </value>
     public double MinDistanceTessellationFactor {
-        get => (double)GetValue(MinDistanceTessellationFactorProperty);
+        get => (double) GetValue(MinDistanceTessellationFactorProperty);
         set => SetValue(MinDistanceTessellationFactorProperty, value);
     }
 
@@ -713,7 +712,7 @@ public class PhongMaterial : Material {
     ///     The maximum tessellation distance.
     /// </value>
     public double MaxTessellationDistance {
-        get => (double)GetValue(MaxTessellationDistanceProperty);
+        get => (double) GetValue(MaxTessellationDistanceProperty);
         set => SetValue(MaxTessellationDistanceProperty, value);
     }
 
@@ -724,7 +723,7 @@ public class PhongMaterial : Material {
     ///     The minimum tessellation distance.
     /// </value>
     public double MinTessellationDistance {
-        get => (double)GetValue(MinTessellationDistanceProperty);
+        get => (double) GetValue(MinTessellationDistanceProperty);
         set => SetValue(MinTessellationDistanceProperty, value);
     }
 
@@ -735,7 +734,7 @@ public class PhongMaterial : Material {
     ///     The uv transform.
     /// </value>
     public UvTransform UvTransform {
-        get => (UvTransform)GetValue(UvTransformProperty);
+        get => (UvTransform) GetValue(UvTransformProperty);
         set => SetValue(UvTransformProperty, value);
     }
 
@@ -747,7 +746,7 @@ public class PhongMaterial : Material {
     ///     The vertex color blending factor.
     /// </value>
     public double VertexColorBlendingFactor {
-        get => (double)GetValue(VertexColorBlendingFactorProperty);
+        get => (double) GetValue(VertexColorBlendingFactorProperty);
         set => SetValue(VertexColorBlendingFactorProperty, value);
     }
 
@@ -768,10 +767,10 @@ public class PhongMaterial : Material {
         DisplacementMapScaleMask = DisplacementMapScaleMask,
         DiffuseMapSampler = DiffuseMapSampler,
         DisplacementMapSampler = DisplacementMapSampler,
-        MaxTessellationDistance = (float)MaxTessellationDistance,
-        MinTessellationDistance = (float)MinTessellationDistance,
-        MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
-        MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
+        MaxTessellationDistance = (float) MaxTessellationDistance,
+        MinTessellationDistance = (float) MinTessellationDistance,
+        MaxDistanceTessellationFactor = (float) MaxDistanceTessellationFactor,
+        MinDistanceTessellationFactor = (float) MinDistanceTessellationFactor,
         EnableTessellation = EnableTessellation,
         RenderDiffuseAlphaMap = RenderDiffuseAlphaMap,
         RenderDiffuseMap = RenderDiffuseMap,
@@ -806,10 +805,10 @@ public class PhongMaterial : Material {
         DisplacementMapScaleMask = DisplacementMapScaleMask,
         DiffuseMapSampler = DiffuseMapSampler,
         DisplacementMapSampler = DisplacementMapSampler,
-        MaxTessellationDistance = (float)MaxTessellationDistance,
-        MinTessellationDistance = (float)MinTessellationDistance,
-        MaxDistanceTessellationFactor = (float)MaxDistanceTessellationFactor,
-        MinDistanceTessellationFactor = (float)MinDistanceTessellationFactor,
+        MaxTessellationDistance = (float) MaxTessellationDistance,
+        MinTessellationDistance = (float) MinTessellationDistance,
+        MaxDistanceTessellationFactor = (float) MaxDistanceTessellationFactor,
+        MinDistanceTessellationFactor = (float) MinDistanceTessellationFactor,
         EnableTessellation = EnableTessellation,
         RenderDiffuseAlphaMap = RenderDiffuseAlphaMap,
         RenderDiffuseMap = RenderDiffuseMap,
@@ -822,7 +821,7 @@ public class PhongMaterial : Material {
         EnableAutoTangent = EnableAutoTangent,
         UvTransform = UvTransform,
         EnableFlatShading = EnableFlatShading,
-        VertexColorBlendingFactor = (float)VertexColorBlendingFactor
+        VertexColorBlendingFactor = (float) VertexColorBlendingFactor
     };
 }
 

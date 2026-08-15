@@ -6,7 +6,7 @@
 
 using System.Windows.Input;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 public static class ViewportCommands {
     public static RoutedCommand Zoom { get; } = new();

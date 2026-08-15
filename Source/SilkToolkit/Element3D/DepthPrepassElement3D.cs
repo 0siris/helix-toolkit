@@ -4,10 +4,11 @@
 
 
 using System.Collections.Generic;
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 /// <summary>
 ///     Do a depth prepass before rendering.
@@ -17,7 +18,7 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///         performance.
 ///     </para>
 /// </summary>
-public sealed class DepthPrepassElement3D : Element3D {
+public sealed class DepthPrepassElement3D : Model.Elements3D.AbstractElements3D.Element3D {
     /// <summary>
     ///     Called when [create scene node].
     /// </summary>

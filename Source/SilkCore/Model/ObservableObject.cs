@@ -5,6 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model;
 public abstract class ObservableObject : INotifyPropertyChanged {

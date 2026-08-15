@@ -1,4 +1,4 @@
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 public static class PlaneExtensions {
     public static bool PlaneIntersectsPlane(ref Plane p1, ref Plane p2, out Ray intersection) {

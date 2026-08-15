@@ -5,7 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.InteropServices;
 
-namespace SharpDX.Toolkit.Graphics;
+namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 
 /// <summary>
 ///     A simple wrapper to specify number of mipmaps.

@@ -6,6 +6,11 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:OrderIndependentTransparentRendering"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+    xmlns:postEffects="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D.PostEffects;assembly=SilkToolkit"
     Title="MainWindow"
     Width="1200"
     Height="800"
@@ -22,7 +27,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view"
             Grid.Row="1"
             BackgroundColor="#303030"
@@ -34,32 +39,32 @@
             OitRenderMode="{Binding OitRenderType}"
             FxaaLevel="Medium" EnableSwapChainRendering="True" EnableD2DRendering="False"
             ShowCoordinateSystem="True">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
-            <hx:LineGeometryModel3D
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
+            <element3D:LineGeometryModel3D
                 Geometry="{Binding GridModel}"
                 IsHitTestVisible="False"
                 Thickness="0.5"
                 Transform="{Binding GridTransform}"
                 Color="#4F4E4E" />
-            <hx:GroupModel3D x:Name="group" ItemsSource="{Binding ModelGeometry}" />
-            <hx:GroupModel3D x:Name="plane" ItemsSource="{Binding PlaneGeometry}" />
-            <hx:PostEffectMeshBorderHighlight
+            <elements3D:GroupModel3D x:Name="group" ItemsSource="{Binding ModelGeometry}" />
+            <elements3D:GroupModel3D x:Name="plane" ItemsSource="{Binding PlaneGeometry}" />
+            <postEffects:PostEffectMeshBorderHighlight
                 DrawMode="{Binding DrawMode}"
                 EffectName="highlight"
                 NumberOfBlurPass="2" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
         <StackPanel
             Grid.Row="1"
             Grid.Column="1"

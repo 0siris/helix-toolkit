@@ -8,6 +8,11 @@ using System.Diagnostics.CodeAnalysis;
 using Assimp;
 using Assimp.Configs;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
+using HelixToolkit.SharpDX.Core.Utilities;
+using Animation = HelixToolkit.SharpDX.Core.Model.Animations.Animation;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
@@ -53,7 +58,7 @@ public partial class Importer : IDisposable {
         /// <summary>
         ///     The animations
         /// </summary>
-        public List<Animations.Animation> Animations = [];
+        public List<Animation> Animations = [];
 
         /// <summary>
         ///     The assimp scene
@@ -111,7 +116,7 @@ public partial class Importer : IDisposable {
     /// <value>
     ///     The scene nodes.
     /// </value>
-    public List<Model.Scene.SceneNode> SceneNodes { get; } = [];
+    public List<SceneNode> SceneNodes { get; } = [];
 
     /// <summary>
     ///     Gets the animations.
@@ -119,7 +124,7 @@ public partial class Importer : IDisposable {
     /// <value>
     ///     The animations.
     /// </value>
-    public List<Animations.Animation> Animations { get; } = [];
+    public List<Animation> Animations { get; } = [];
 
     /// <summary>
     ///     Gets or sets the error code.
@@ -325,7 +330,7 @@ public partial class Importer : IDisposable {
     /// </summary>
     /// <param name="root">The root.</param>
     /// <returns></returns>
-    protected virtual ErrorCode ProcessSceneNodes(Model.Scene.SceneNode root) {
+    protected virtual ErrorCode ProcessSceneNodes(SceneNode root) {
         SceneNodes.Add(root);
         SceneNodes.AddRange(root.Items.PreorderDft(_ => true));
         return ErrorCode.Succeed;
@@ -361,7 +366,7 @@ public partial class Importer : IDisposable {
             if (Configuration.CreateSkeletonForBoneSkinningMesh
                 && Configuration.AddsPostEffectForSkeleton)
                 if (scene.Root is Model.Scene.GroupNode root)
-                    root.AddChildNode(new Model.Scene.NodePostEffectXRayGrid {
+                    root.AddChildNode(new NodePostEffectXRayGrid {
                         EffectName = Configuration.SkeletonEffects
                     });
         }
@@ -410,7 +415,7 @@ public partial class Importer : IDisposable {
         return s;
     }
 
-    private Model.Scene.SceneNode ConstructHelixScene(Node node, HelixInternalScene scene) {
+    private SceneNode ConstructHelixScene(Node node, HelixInternalScene scene) {
         var group = new Model.Scene.GroupNode {
             Name = string.IsNullOrEmpty(node.Name)
                 ? nameof(Model.Scene.GroupNode)

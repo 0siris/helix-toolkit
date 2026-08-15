@@ -1,7 +1,7 @@
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Material;
 
 /// <summary>
 ///     Render color by triangle normal

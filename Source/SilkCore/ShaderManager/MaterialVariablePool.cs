@@ -1,6 +1,7 @@
-﻿using HelixToolkit.SharpDX.Core.Model;
+﻿using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.ShaderManager;
 
 public sealed class MaterialVariablePool : IDisposable, IMaterialVariablePool {
     private readonly Dictionary<(Guid, Guid), MaterialVariable> dictionary = [];

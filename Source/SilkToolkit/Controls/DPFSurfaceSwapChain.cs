@@ -14,12 +14,12 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Render.Renderer;
+using HelixToolkit.SharpDX.Core.Render.RenderHost;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.Wpf.SharpDX.Controls;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 /// <summary>
 /// </summary>

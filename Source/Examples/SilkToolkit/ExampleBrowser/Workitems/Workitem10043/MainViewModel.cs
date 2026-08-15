@@ -4,11 +4,18 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Workitem10043;
-
 using System.Linq;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model.Materials;
+
+namespace ExampleBrowser.Workitems.Workitem10043;
+
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Media3D = System.Windows.Media.Media3D;

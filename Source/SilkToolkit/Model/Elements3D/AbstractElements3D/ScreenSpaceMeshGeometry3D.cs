@@ -6,14 +6,16 @@
 using System;
 using System.Windows;
 using System.Windows.Data;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.Wpf.SharpDX.Converters;
-using HelixToolkit.Wpf.SharpDX.Elements2D;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 /// <summary>
 ///     Base class for screen space rendering, such as Coordinate System or ViewBox
 /// </summary>
@@ -182,7 +184,7 @@ public abstract class ScreenSpacedElement3D : GroupModel3D {
         SetBinding(nameof(RelativeScreenLocationY), createdMover, RelativePositionCanvas2D.RelativeYProperty, this);
         SetBinding(nameof(IsRendering),
                    createdMover,
-                   Element2D.VisibilityProperty,
+                   Elements2D.Abstract.Element2D.VisibilityProperty,
                    this,
                    BindingMode.OneWay,
                    new BoolToVisibilityConverter());

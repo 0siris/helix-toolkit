@@ -5,21 +5,22 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 public class PointMaterialGeometryModel3D : GeometryModel3D {
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty MaterialProperty =
         DependencyProperty.Register("Material",
-                                    typeof(Material),
+                                    typeof(Material.Material),
                                     typeof(PointMaterialGeometryModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
                                                              if (d is Element3DCore { SceneNode: PointNode node })
-                                                                 node.Material = e.NewValue as Material;
+                                                                 node.Material = e.NewValue as Material.Material;
                                                          }));
 
     /// <summary>
@@ -37,8 +38,8 @@ public class PointMaterialGeometryModel3D : GeometryModel3D {
 
     /// <summary>
     /// </summary>
-    public Material Material {
-        get => (Material)GetValue(MaterialProperty);
+    public Material.Material Material {
+        get => (Material.Material)GetValue(MaterialProperty);
         set => SetValue(MaterialProperty, value);
     }
 

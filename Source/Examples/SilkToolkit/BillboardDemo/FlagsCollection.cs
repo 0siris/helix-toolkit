@@ -1,4 +1,5 @@
-﻿using Vector2 = Silk.NET.Maths.Vector2D<float>;
+﻿using HelixToolkit.SharpDX.Core.Model.Geometry;
+using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
 

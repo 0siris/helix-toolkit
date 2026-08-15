@@ -1,4 +1,8 @@
 using System.Runtime.InteropServices;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
 

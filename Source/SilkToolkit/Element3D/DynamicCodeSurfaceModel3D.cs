@@ -2,8 +2,9 @@ using System;
 using System.CodeDom.Compiler;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 #if !WINDOWS_UWP && !WINUI
 public class DynamicCodeSurfaceModel3D : MeshGeometryModel3D {
     public static readonly DependencyProperty SourceCodeProperty =

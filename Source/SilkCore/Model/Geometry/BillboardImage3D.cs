@@ -5,8 +5,13 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Model.Geometry;
 
 public class BillboardImage3D : BillboardBase {
     private ObservableCollection<ImageInfo> imageInfos = [];

@@ -1,31 +1,32 @@
 using System.Windows;
 using System.Windows.Markup;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
 [ContentProperty("Content")]
-public class Element3DPresenter : Element3D {
+public class Element3DPresenter : AbstractElements3D.Element3D {
     /// <summary>
     ///     The content property
     /// </summary>
     public static readonly DependencyProperty ContentProperty =
         DependencyProperty.Register("Content",
-                                    typeof(Element3D),
+                                    typeof(AbstractElements3D.Element3D),
                                     typeof(Element3DPresenter),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
                                                               var model = (Element3DPresenter)d;
                                                              if (e.OldValue != null) {
                                                                  model.RemoveLogicalChild(e.OldValue);
-                                                                 if (e.OldValue is Element3D ele)
+                                                                 if (e.OldValue is AbstractElements3D.Element3D ele)
                                                                       ((GroupNode)model.SceneNode).RemoveChildNode(
                                                                          ele.SceneNode);
                                                              }
 
                                                              if (e.NewValue != null) {
                                                                  model.AddLogicalChild(e.NewValue);
-                                                                 if (e.NewValue is Element3D ele)
+                                                                 if (e.NewValue is AbstractElements3D.Element3D ele)
                                                                       ((GroupNode)model.SceneNode).AddChildNode(
                                                                          ele.SceneNode);
                                                              }
@@ -41,8 +42,8 @@ public class Element3DPresenter : Element3D {
     /// <value>
     ///     The content.
     /// </value>
-    public Element3D? Content {
-        get => (Element3D?)GetValue(ContentProperty);
+    public AbstractElements3D.Element3D? Content {
+        get => (AbstractElements3D.Element3D?)GetValue(ContentProperty);
         set => SetValue(ContentProperty, value);
     }
 

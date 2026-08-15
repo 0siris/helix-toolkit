@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 /// <summary>
 ///     Ref https://referencesource.microsoft.com/#System.Drawing/commonui/System/Drawing/ColorConverter.cs
@@ -125,10 +125,10 @@ public static class Color4Extensions {
                 // If it does, then substitute it.  We can only do this for "Colors"
                 // because system colors morph with user settings.
                 //
-                var targetArgb = ((Color)obj).ToArgb();
+                var targetArgb = ToArgb(((Color)obj));
 
                 foreach (Color c in Colors.Values)
-                    if (c.ToArgb() == targetArgb) {
+                    if (ToArgb(c) == targetArgb) {
                         obj = c;
                         break;
                     }

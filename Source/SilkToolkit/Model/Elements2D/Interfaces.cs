@@ -1,6 +1,6 @@
 using Media = System.Windows.Media;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 public interface ITransformable2D {
     Media.Transform Transform { get; set; }
 }

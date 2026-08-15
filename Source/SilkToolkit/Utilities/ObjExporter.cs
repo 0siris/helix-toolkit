@@ -8,11 +8,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using MeshGeometry3D = HelixToolkit.SharpDX.Core.Model.Geometry.MeshGeometry3D;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Utilities;
 
 /// <summary>
 ///     Export the 3D visual tree to a Wavefront OBJ file

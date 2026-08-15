@@ -8,9 +8,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Windows;
-using ExampleBrowser;
 
-namespace CursorPosition;
+namespace ExampleBrowser.Examples.CursorPosition;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml

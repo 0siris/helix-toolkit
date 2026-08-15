@@ -4,8 +4,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Diagnostics;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
 
-namespace HelixToolkit.SharpDX.Core.Animations;
+namespace HelixToolkit.SharpDX.Core.Model.Animations;
 /// <summary>
 /// </summary>
 public class KeyFrameUpdater : IAnimationUpdater {

@@ -1,9 +1,10 @@
 using System;
 using System.Windows;
 using System.Windows.Markup;
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.Wpf.SharpDX.Core2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.Wpf.SharpDX.Element2D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Media = System.Windows.Media;
 using WpfFlowDirection = System.Windows.FlowDirection;
@@ -13,9 +14,9 @@ using WpfTextAlignment = System.Windows.TextAlignment;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning element and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 [ContentProperty("Text")]
-public class TextModel2D : Element2D, ITextBlock {
+public class TextModel2D : Abstract.Element2D, ITextBlock {
     public static readonly string DefaultFont = "Arial";
 
     public static readonly DependencyProperty TextProperty

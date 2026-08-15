@@ -1,4 +1,6 @@
-namespace HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Extensions;
+
+namespace HelixToolkit.SharpDX.Core.Model.Camera;
 
 public static class CameraMath {
     /// <summary>

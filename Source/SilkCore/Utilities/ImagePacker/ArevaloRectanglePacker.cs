@@ -26,6 +26,7 @@
 
 #endregion
 
+using HelixToolkit.SharpDX.Core.Native;
 using Point = Silk.NET.Maths.Vector2D<int>;
 
 namespace HelixToolkit.SharpDX.Core.Utilities.ImagePacker;

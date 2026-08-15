@@ -1,8 +1,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.Wpf.SharpDX.Material;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Extensions;
 public static class MaterialExtension {
     [return: NotNullIfNotNull(nameof(core))]
     public static PhongMaterial? ConvertToPhongMaterial(this PhongMaterialCore? core) => core == null
@@ -85,7 +86,7 @@ public static class MaterialExtension {
             MinTessellationDistance = core.MinTessellationDistance
         };
 
-    public static Material ConvertToMaterial(this MaterialCore core) {
+    public static Material.Material ConvertToMaterial(this MaterialCore core) {
         if (core is PhongMaterialCore p) return p.ConvertToPhongMaterial();
 
         if (core is PbrMaterialCore pbr) return pbr.ConvertToPbrMaterial();

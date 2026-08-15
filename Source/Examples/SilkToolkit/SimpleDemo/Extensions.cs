@@ -1,4 +1,6 @@
-﻿namespace SimpleDemo;
+﻿using HelixToolkit.SharpDX.Core.Geometry;
+
+namespace SimpleDemo;
 
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,6 @@
-namespace HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
 /// <summary>
 ///     Interface for dynamic octree

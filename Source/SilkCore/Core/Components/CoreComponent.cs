@@ -5,6 +5,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Core.Components;
 

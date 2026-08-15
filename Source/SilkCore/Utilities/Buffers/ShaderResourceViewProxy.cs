@@ -3,11 +3,13 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
-using SharpDX.Toolkit.Graphics;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core.Utilities.Buffers;
 /// <summary>
 ///     A proxy container to handle view resources.
 /// </summary>

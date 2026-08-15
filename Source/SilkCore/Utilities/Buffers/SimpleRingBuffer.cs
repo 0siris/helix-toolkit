@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core.Utilities.Buffers;
 /// <summary>
 ///     A simple curcular ring buffer implementation
 /// </summary>

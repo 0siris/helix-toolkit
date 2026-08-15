@@ -5,6 +5,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 
 using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.Core.Buffers;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
@@ -95,10 +104,10 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
             BoundingBox newBound;
             BoundingSphere newBoundSphere;
             if (HasInstances) {
-                newBound = OriginalBounds.Transform(Instances[0]);
+                newBound = BoundingBoxExtensions.Transform(OriginalBounds, Instances[0]);
                 newBoundSphere = OriginalBoundsSphere.TransformBoundingSphere(Instances[0]);
                 foreach (var instance in Instances) {
-                    var b = OriginalBounds.Transform(instance);
+                    var b = BoundingBoxExtensions.Transform(OriginalBounds, instance);
                     BoundingBox.Merge(ref newBound, ref b, out newBound);
                     var bs = OriginalBoundsSphere.TransformBoundingSphere(instance);
                     BoundingSphereExtensions.Merge(ref newBoundSphere, ref bs, out newBoundSphere);
@@ -117,7 +126,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         }
 
         var oldT = boundsWithTransform;
-        if (Set(ref boundsWithTransform, bounds.Transform(ModelMatrix)))
+        if (Set(ref boundsWithTransform, BoundingBoxExtensions.Transform(bounds, ModelMatrix)))
             RaiseOnTransformBoundChanged(new BoundChangeArgs<BoundingBox>(ref boundsWithTransform, ref oldT));
         var oldTs = boundsSphereWithTransform;
         if (Set(ref boundsSphereWithTransform, boundsSphere.TransformBoundingSphere(ModelMatrix)))

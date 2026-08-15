@@ -6,6 +6,11 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:BoneSkinDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:light3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Light3D;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="MainWindow"
     Width="1000"
     Height="800"
@@ -18,7 +23,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             BackgroundColor="Gray"
@@ -33,29 +38,29 @@
             ShowFrameRate="True"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
                 <!--<MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />-->
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="MiddleClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:ShadowMap3D OrthoWidth="200" />
-            <hx:AmbientLight3D Color="#828282" />
-            <hx:DirectionalLight3D Direction="0, -1, -1" Color="White" />
-            <hx:Element3DPresenter Content="{Binding ModelGroup}" />
-            <hx:LineGeometryModel3D Geometry="{Binding HitLineGeometry}" Color="Red" IsHitTestVisible="False" />
-            <hx:AxisPlaneGridModel3D
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="MiddleClick" />
+            </controls:Viewport3DX.InputBindings>
+            <light3D:ShadowMap3D OrthoWidth="200" />
+            <lights3D:AmbientLight3D Color="#828282" />
+            <lights3D:DirectionalLight3D Direction="0, -1, -1" Color="White" />
+            <elements3D:Element3DPresenter Content="{Binding ModelGroup}" />
+            <element3D:LineGeometryModel3D Geometry="{Binding HitLineGeometry}" Color="Red" IsHitTestVisible="False" />
+            <element3D:AxisPlaneGridModel3D
                 x:Name="plane"
                 AutoSpacing="False"
                 RenderShadowMap="True"
                 Offset="-0.2" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
         <StackPanel
             Grid.Column="1"
             Width="160"

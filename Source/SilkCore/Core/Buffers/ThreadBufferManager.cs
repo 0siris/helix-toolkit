@@ -5,10 +5,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Logger;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core.Core;
+namespace HelixToolkit.SharpDX.Core.Core.Buffers;
 
 public static class ThreadBufferManagerConfig {
     /// <summary>

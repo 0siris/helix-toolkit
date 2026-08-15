@@ -1,6 +1,9 @@
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Media.Media3D;
 using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace CustomViewCubeDemo;
@@ -21,18 +24,18 @@ public partial class MainWindow : Window {
         var normal = Normalize(normalAtHit);
         var upDirection = Vector3.Zero;
         var lookDirection = -normal;
-        if (Cross(normal, view1.ModelUpDirection.ToVector3())
+        if (Cross(normal, Media3DExtension.ToVector3((Vector3D) view1.ModelUpDirection))
                 .LengthSquared < 1e-5) {
             var vecLeft = new Vector3(-normal.Y, -normal.Z, -normal.X);
             upDirection = vecLeft;
         } else {
-            upDirection = view1.ModelUpDirection.ToVector3();
+            upDirection = Media3DExtension.ToVector3((Vector3D) view1.ModelUpDirection);
         }
 
         var target = view1.Camera.Position + view1.Camera.LookDirection;
         var distance = view1.Camera.LookDirection.Length;
         lookDirection *= (float) distance;
-        var newPosition = target.ToVector3() - lookDirection;
+        var newPosition = Media3DExtension.ToVector3((Point3D) target) - lookDirection;
         view1.Camera.AnimateTo(newPosition.ToPoint3D(), lookDirection.ToVector3D(), upDirection.ToVector3D(), 500);
     }
 

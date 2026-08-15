@@ -7,10 +7,12 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+
 namespace CoreWpfTest;
 
 using System.Windows;
-using FileLoadDemo;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
 

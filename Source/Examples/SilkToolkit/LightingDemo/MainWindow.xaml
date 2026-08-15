@@ -6,12 +6,18 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pt="http://propertytools.org/wpf"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:light3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Light3D;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+    xmlns:postEffects="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D.PostEffects;assembly=SilkToolkit"
     Title="LightingDemo SharpDX"
     Width="1200"
     Height="700"
     mc:Ignorable="d">
     <Window.Resources>
-        <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
+        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -22,7 +28,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Grid.Row="0"
@@ -41,149 +47,149 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:ShadowMap3D AutoCoverCompleteScene="True" IsSceneDynamic="True" />
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <light3D:ShadowMap3D AutoCoverCompleteScene="True" IsSceneDynamic="True" />
             <!--<hx:AmbientLight3D Color="{Binding AmbientLightColor}" />-->
-            <hx:DirectionalLight3D
+            <lights3D:DirectionalLight3D
                 Direction="{Binding Light1Direction}"
                 IsRendering="{Binding RenderLight1}"
                 Transform="{Binding Light1Transform}"
                 Color="{Binding Light1Color}" />
-            <hx:PointLight3D
+            <lights3D:PointLight3D
                 Attenuation="{Binding Light2Attenuation}"
                 IsRendering="{Binding RenderLight2}"
                 Transform="{Binding Light2Transform}"
                 Color="{Binding Light2Color}" />
-            <hx:PointLight3D
+            <lights3D:PointLight3D
                 Attenuation="{Binding Light3Attenuation}"
                 IsRendering="{Binding RenderLight3}"
                 Transform="{Binding Light3Transform}"
                 Color="{Binding Light3Color}" />
-            <hx:SpotLight3D
+            <lights3D:SpotLight3D
                 Attenuation="{Binding Light4Attenuation}"
                 Direction="{Binding Light4Direction}"
                 IsRendering="{Binding RenderLight4}"
                 Range="100"
                 Transform="{Binding Light4Transform}"
                 Color="{Binding Light1Color}" />
-            <hx:GroupModel3D>
-                <hx:MeshGeometryModel3D
+            <elements3D:GroupModel3D>
+                <element3D:MeshGeometryModel3D
                     CullMode="Back"
                     Geometry="{Binding Sphere}"
                     IsRendering="{Binding RenderLight1}"
                     IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                     Material="{Binding LightModelMaterial}"
                     Transform="{Binding Light1Transform}" />
-                <hx:MeshGeometryModel3D
+                <element3D:MeshGeometryModel3D
                     CullMode="Back"
                     Geometry="{Binding Sphere}"
                     IsRendering="{Binding RenderLight2}"
                     IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                     Material="{Binding LightModelMaterial}"
                     Transform="{Binding Light2Transform}" />
-                <hx:MeshGeometryModel3D
+                <element3D:MeshGeometryModel3D
                     CullMode="Back"
                     Geometry="{Binding Sphere}"
                     IsRendering="{Binding RenderLight3}"
                     IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                     Material="{Binding LightModelMaterial}"
                     Transform="{Binding Light3Transform}" />
-                <hx:MeshGeometryModel3D
+                <element3D:MeshGeometryModel3D
                     CullMode="Back"
                     Geometry="{Binding Sphere}"
                     IsRendering="{Binding RenderLight4}"
                     IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                     Material="{Binding LightModelMaterial}"
                     Transform="{Binding Light4Transform}" />
-            </hx:GroupModel3D>
-            <hx:GroupModel3D>
-                <hx:MeshGeometryModel3D
+            </elements3D:GroupModel3D>
+            <elements3D:GroupModel3D>
+                <element3D:MeshGeometryModel3D
                     x:Name="model"
                     Geometry="{Binding Model}"
                     IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                     Material="{Binding ModelMaterial}"
                     Transform="{Binding ModelTransform}" />
-                <hx:DynamicReflectionMap3D IsDynamicScene="True">
-                    <hx:MeshGeometryModel3D
+                <element3D:DynamicReflectionMap3D IsDynamicScene="True">
+                    <element3D:MeshGeometryModel3D
                         x:Name="model1"
                         CullMode="Back"
                         Geometry="{Binding Sphere}"
                         IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ReflectMaterial}"
                         Transform="{Binding Model1Transform}" />
-                </hx:DynamicReflectionMap3D>
+                </element3D:DynamicReflectionMap3D>
 
-                <hx:GroupModel3D>
-                    <hx:MeshGeometryModel3D
+                <elements3D:GroupModel3D>
+                    <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
                         IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object1Transform}" />
-                    <hx:MeshGeometryModel3D
+                    <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
                         IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object2Transform}" />
-                    <hx:MeshGeometryModel3D
+                    <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
                         IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object3Transform}" />
-                    <hx:MeshGeometryModel3D
+                    <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
                         IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object4Transform}" />
-                    <hx:MeshGeometryModel3D
+                    <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
                         IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object5Transform}" />
-                    <hx:MeshGeometryModel3D
+                    <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
                         IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object6Transform}" />
-                    <hx:MeshGeometryModel3D
+                    <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
                         IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object7Transform}" />
-                    <hx:MeshGeometryModel3D
+                    <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
                         IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object8Transform}" />
-                </hx:GroupModel3D>
+                </elements3D:GroupModel3D>
 
-                <hx:MeshGeometryModel3D
+                <element3D:MeshGeometryModel3D
                     x:Name="floor"
                     CullMode="Back"
                     Geometry="{Binding Floor}"
                     Material="{Binding FloorMaterial}"
                     Transform="{Binding FloorTransform}" />
-            </hx:GroupModel3D>
-            <hx:PostEffectBloom x:Name="bloom" />
-        </hx:Viewport3DX>
+            </elements3D:GroupModel3D>
+            <postEffects:PostEffectBloom x:Name="bloom" />
+        </controls:Viewport3DX>
         <StackPanel Grid.Column="1">
             <Expander
                 x:Name="shadingPanel"

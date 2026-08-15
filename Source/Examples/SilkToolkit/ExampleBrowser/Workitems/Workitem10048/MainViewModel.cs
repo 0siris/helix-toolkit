@@ -4,12 +4,14 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Workitem10048;
-
 using System.Windows;
 using System.Windows.Media.Media3D;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+
+namespace ExampleBrowser.Workitems.Workitem10048;
 
 public class MainViewModel : BaseViewModel {
     private static readonly Point3D NoHit = new(double.NaN, double.NaN, double.NaN);

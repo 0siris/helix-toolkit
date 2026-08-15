@@ -4,22 +4,24 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FileLoadDemo;
-
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.SharpDX.Core.Model.Animations;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using Microsoft.Win32;
+
+namespace CoreWpfTest;
+
 using ObservableObject = GalaSoft.MvvmLight.ObservableObject;
 
 public class MainViewModel : ObservableObject {

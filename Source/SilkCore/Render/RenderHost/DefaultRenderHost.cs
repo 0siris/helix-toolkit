@@ -5,11 +5,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using HelixToolkit.Logger;
-using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Logger;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Utilities.AsyncTasks;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.RenderHost;
 /// <summary>
 /// </summary>
 public partial class DefaultRenderHost : DX11RenderHostBase {

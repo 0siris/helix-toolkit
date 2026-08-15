@@ -1,4 +1,5 @@
 using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Geometry;
 using Silk.NET.Maths;
 
 namespace SilkCore.Tests;

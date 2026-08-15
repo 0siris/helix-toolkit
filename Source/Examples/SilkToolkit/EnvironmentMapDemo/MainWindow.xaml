@@ -8,6 +8,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:materials="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Materials;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="Environment Mapping Demo"
     Width="1200"
     Height="500"
@@ -19,15 +23,15 @@
     <Window.Resources>
         <Thickness x:Key="MarginLarge">10</Thickness>
         <Thickness x:Key="MarginSmall">2</Thickness>
-        <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
-        <x:StaticExtension x:Key="PhongMaterials" Member="hx:PhongMaterials.Materials" />
+        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
+        <x:StaticExtension x:Key="PhongMaterials" Member="materials:PhongMaterials.Materials" />
     </Window.Resources>
     <Grid d:IsLocked="True">
         <Grid.RowDefinitions>
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Grid.Row="0"
@@ -39,47 +43,47 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="#676767" />
-            <hx:DirectionalLight3D Direction="0,-1, -0.5" Color="{Binding DirectionalLightColor}" />
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:AmbientLight3D Color="#676767" />
+            <lights3D:DirectionalLight3D Direction="0,-1, -0.5" Color="{Binding DirectionalLightColor}" />
             <!--<hx:DirectionalLight3D Direction="1, -1, -1" Color="{Binding DirectionalLightColor}" />
             <hx:DirectionalLight3D Direction="1,1,1" Color="{Binding DirectionalLightColor}" />-->
-            <hx:EnvironmentMap3D x:Name="envMap" Texture="{Binding SkyboxTexture}" />
-            <hx:DynamicReflectionMap3D x:Name="dynReflector">
-                <hx:MeshGeometryModel3D
+            <element3D:EnvironmentMap3D x:Name="envMap" Texture="{Binding SkyboxTexture}" />
+            <element3D:DynamicReflectionMap3D x:Name="dynReflector">
+                <element3D:MeshGeometryModel3D
                     x:Name="model"
                     Geometry="{Binding Model}"
                     Material="{Binding ModelMaterial}"
                     Transform="{Binding ModelTransform}" />
-            </hx:DynamicReflectionMap3D>
+            </element3D:DynamicReflectionMap3D>
 
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 CullMode="Back"
                 Geometry="{Binding Model1}"
                 Instances="{Binding Instances1}"
                 Material="{Binding ModelMaterial1}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 CullMode="Back"
                 Geometry="{Binding Model1}"
                 Instances="{Binding Instances2}"
                 Material="{Binding ModelMaterial2}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 CullMode="Back"
                 Geometry="{Binding Model1}"
                 Instances="{Binding Instances3}"
                 Material="{Binding ModelMaterial3}" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
 
         <StackPanel>
             <StackPanel.CacheMode>

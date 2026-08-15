@@ -5,7 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.InteropServices;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Model;
 #pragma warning disable 1591
 /// <summary>
 /// </summary>

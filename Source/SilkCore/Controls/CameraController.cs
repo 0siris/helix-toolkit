@@ -4,7 +4,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Diagnostics;
-using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Viewport;
 
 namespace HelixToolkit.SharpDX.Core.Controls;
 

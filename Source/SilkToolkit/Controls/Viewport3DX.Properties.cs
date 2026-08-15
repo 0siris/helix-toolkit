@@ -12,16 +12,23 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Elements2D;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+using GeometryModel3D = HelixToolkit.Wpf.SharpDX.Element3D.Abstract.GeometryModel3D;
+using ProjectionCamera = HelixToolkit.Wpf.SharpDX.Camera.ProjectionCamera;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfColor = System.Windows.Media.Color;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning control and scene graph.
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 /// <summary>
 ///     Provides the dependency properties for Viewport3DX.
@@ -85,7 +92,7 @@ public partial class Viewport3DX {
     ///     The camera property
     /// </summary>
     public static readonly DependencyProperty CameraProperty = DependencyProperty.Register("Camera",
-        typeof(Camera),
+        typeof(Camera.Camera),
         typeof(Viewport3DX),
         new PropertyMetadata(null, (s, e) => { (s as Viewport3DX).CameraPropertyChanged(e); }));
 
@@ -1210,14 +1217,14 @@ public partial class Viewport3DX {
     /// </summary>
     public static readonly DependencyProperty Content2DProperty
         = DependencyProperty.Register("Content2D",
-                                      typeof(Element2D),
+                                      typeof(Model.Elements2D.Abstract.Element2D),
                                       typeof(Viewport3DX),
                                       new PropertyMetadata(null,
                                                            (d, e) => {
-                                                               if (e.OldValue is Element2D elementOld)
+                                                               if (e.OldValue is Model.Elements2D.Abstract.Element2D elementOld)
                                                                    (d as Viewport3DX).Overlay2D.Children.Remove(
                                                                        elementOld);
-                                                               if (e.NewValue is Element2D elementNew)
+                                                               if (e.NewValue is Model.Elements2D.Abstract.Element2D elementNew)
                                                                    (d as Viewport3DX).Overlay2D.Children
                                                                        .Add(elementNew);
                                                            }));
@@ -1542,8 +1549,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The camera.
     /// </value>
-    public Camera Camera {
-        get => (Camera?)GetValue(CameraProperty) ?? (Orthographic ? orthographicCamera : perspectiveCamera);
+    public Camera.Camera Camera {
+        get => (Camera.Camera?)GetValue(CameraProperty) ?? (Orthographic ? orthographicCamera : perspectiveCamera);
 
         set => SetValue(CameraProperty, value);
     }
@@ -2626,8 +2633,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The content2 d.
     /// </value>
-    public Element2D? Content2D {
-        get => (Element2D?)GetValue(Content2DProperty);
+    public Model.Elements2D.Abstract.Element2D? Content2D {
+        get => (Model.Elements2D.Abstract.Element2D?)GetValue(Content2DProperty);
         set => SetValue(Content2DProperty, value);
     }
 

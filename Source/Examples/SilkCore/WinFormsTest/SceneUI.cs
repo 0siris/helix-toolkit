@@ -1,5 +1,9 @@
 using System.Diagnostics;
 using HelixToolkit.SharpDX.Core.Assimp;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using ImGuiNET;
 
 namespace WinFormsTest;

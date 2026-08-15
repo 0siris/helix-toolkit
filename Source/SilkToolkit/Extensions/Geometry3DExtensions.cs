@@ -8,9 +8,10 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Extensions;
 
 /// <summary>
 ///     Contains extension methods for geometry.

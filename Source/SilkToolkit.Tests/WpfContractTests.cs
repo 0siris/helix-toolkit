@@ -2,13 +2,18 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
 using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model.Lights3D;
 using Xunit;
 using Binding = System.Windows.Data.Binding;
-using DiffuseMaterial = HelixToolkit.Wpf.SharpDX.DiffuseMaterial;
-using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.PerspectiveCamera;
+using DiffuseMaterial = HelixToolkit.Wpf.SharpDX.Material.DiffuseMaterial;
+using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.Camera.PerspectiveCamera;
 
 namespace SilkToolkit.Tests;
 [Collection(WpfCollection.Name)]

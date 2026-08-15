@@ -7,12 +7,17 @@
     xmlns:local="clr-namespace:XRayDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pt="clr-namespace:PropertyTools.Wpf;assembly=PropertyTools.Wpf"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+    xmlns:postEffects="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D.PostEffects;assembly=SilkToolkit"
     Title="MainWindow"
     Width="800"
     Height="600"
     mc:Ignorable="d">
     <Grid>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Grid.Row="0"
@@ -27,27 +32,27 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Direction="{Binding Light1Direction}" Color="{Binding Light1Color}" />
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
+            <lights3D:DirectionalLight3D Direction="{Binding Light1Direction}" Color="{Binding Light1Color}" />
 
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 x:Name="floor"
                 CullMode="Back"
                 Geometry="{Binding Floor}"
                 Material="{Binding FloorMaterial}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 x:Name="model"
                 CullMode="Back"
                 Geometry="{Binding Model}"
@@ -56,7 +61,7 @@
                 PostEffects="xray"
                 Transform="{Binding ModelTransform}" />
 
-            <hx:OutLineMeshGeometryModel3D
+            <element3D:OutLineMeshGeometryModel3D
                 CullMode="Back"
                 Geometry="{Binding Model}"
                 Instances="{Binding OutlineInstances}"
@@ -65,13 +70,13 @@
                 OutlineFadingFactor="{Binding ElementName=xrayEffect, Path=OutlineFadingFactor}"
                 PostEffects="xrayGrid"
                 Transform="{Binding ModelTransform}" />
-            <hx:ScreenSpacedGroup3D>
-                <hx:GroupModel3D Transform="{Binding ScreenSpacedScale}">
-                    <hx:MeshGeometryModel3D
+            <element3D:ScreenSpacedGroup3D>
+                <elements3D:GroupModel3D Transform="{Binding ScreenSpacedScale}">
+                    <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding Floor}"
                         Material="{Binding FloorMaterial}" />
-                    <hx:MeshGeometryModel3D
+                    <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding Model}"
                         Instances="{Binding Instances}"
@@ -79,7 +84,7 @@
                         PostEffects="xray"
                         Transform="{Binding ModelTransform}" />
 
-                    <hx:OutLineMeshGeometryModel3D
+                    <element3D:OutLineMeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding Model}"
                         Instances="{Binding OutlineInstances}"
@@ -88,16 +93,16 @@
                         OutlineFadingFactor="{Binding ElementName=xrayEffect, Path=OutlineFadingFactor}"
                         PostEffects="xrayGrid"
                         Transform="{Binding ModelTransform}" />
-                </hx:GroupModel3D>
+                </elements3D:GroupModel3D>
 
-            </hx:ScreenSpacedGroup3D>
-            <hx:PostEffectMeshXRay
+            </element3D:ScreenSpacedGroup3D>
+            <postEffects:PostEffectMeshXRay
                 x:Name="xrayEffect"
                 EffectName="xray"
                 EnableDoublePass="True" />
 
-            <hx:PostEffectMeshXRayGrid x:Name="xrayGridEffect" EffectName="xrayGrid" />
-        </hx:Viewport3DX>
+            <postEffects:PostEffectMeshXRayGrid x:Name="xrayGridEffect" EffectName="xrayGrid" />
+        </controls:Viewport3DX>
         <StackPanel
             HorizontalAlignment="Right"
             VerticalAlignment="Top"

@@ -4,9 +4,13 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.Serialization;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core.Model;
+namespace HelixToolkit.SharpDX.Core.Model.Material;
 [DataContract]
 public abstract class GenericMaterialCore : MaterialCore {
     protected readonly ConstantBufferDescription CbDescription = new(string.Empty, 0);

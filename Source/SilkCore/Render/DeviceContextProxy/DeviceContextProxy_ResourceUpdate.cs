@@ -1,6 +1,8 @@
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Native;
+using Buffer = HelixToolkit.SharpDX.Core.Native.Buffer;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 public partial class DeviceContextProxy {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public DataBox MapSubresource(Buffer resource, MapMode mode, MapFlags flags) => NativeContext.MapSubresource(resource, 0, mode, flags);

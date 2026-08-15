@@ -5,14 +5,18 @@
 
 using System;
 using System.Windows;
-
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HorizontalAlignment = HorizontalAlignment;
-using Thickness = Thickness;
-using VerticalAlignment = VerticalAlignment;
-using Visibility = Visibility;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.Wpf.SharpDX.Model.Elements2D;
+
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using Thickness = System.Windows.Thickness;
+using VerticalAlignment = System.Windows.VerticalAlignment;
+using Visibility = System.Windows.Visibility;
 
 /// <summary>
 /// </summary>
@@ -33,7 +37,7 @@ public sealed class ScreenSpaceMoveDirArgs : EventArgs {
 
 /// <summary>
 /// </summary>
-/// <seealso cref="HelixToolkit.Wpf.SharpDX.Elements2D.Panel2D" />
+/// <seealso cref="Panel2D" />
 public abstract class ScreenSpacePositionMoverBase : Panel2D {
     /// <summary>
     ///     The enable mover property
@@ -44,7 +48,7 @@ public abstract class ScreenSpacePositionMoverBase : Panel2D {
                                     typeof(ScreenSpacePositionMover),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                          ((Node2DMoverBase)((Element2D)d).SceneNode)
+                                                          ((Node2DMoverBase)((Elements2D.Abstract.Element2D)d).SceneNode)
                                                                  .EnableMover = (bool)e.NewValue;
                                                          }));
 
@@ -82,7 +86,7 @@ public abstract class ScreenSpacePositionMoverBase : Panel2D {
 /// <summary>
 ///     Use to apply style for mover button from Generic.xaml/>
 /// </summary>
-/// <seealso cref="HelixToolkit.Wpf.SharpDX.Elements2D.Button2D" />
+/// <seealso cref="Button2D" />
 public sealed class MoverButton2D : Button2D {
     static MoverButton2D() {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(MoverButton2D),
@@ -92,7 +96,7 @@ public sealed class MoverButton2D : Button2D {
 
 /// <summary>
 /// </summary>
-/// <seealso cref="HelixToolkit.Wpf.SharpDX.Elements2D.ScreenSpacePositionMoverBase" />
+/// <seealso cref="ScreenSpacePositionMoverBase" />
 public class ScreenSpacePositionMover : ScreenSpacePositionMoverBase {
     private readonly Button2D[] buttons = new Button2D[4];
     private readonly Button2D moveLeftBottom;

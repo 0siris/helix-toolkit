@@ -4,9 +4,10 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Workitem10044;
-
 using DemoCore;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+
+namespace ExampleBrowser.Workitems.Workitem10044;
 
 public class MainViewModel : BaseViewModel {
     public MainViewModel() {

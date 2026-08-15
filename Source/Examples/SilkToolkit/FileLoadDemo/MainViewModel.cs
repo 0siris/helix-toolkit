@@ -4,6 +4,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using AnimationExtensions = HelixToolkit.SharpDX.Core.Extensions.AnimationExtensions;
+using SceneNodeExtensions = HelixToolkit.SharpDX.Core.Extensions.SceneNodeExtensions;
+
 namespace FileLoadDemo;
 
 using System;
@@ -16,7 +26,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Animations;
 using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX;
@@ -243,13 +252,13 @@ public class MainViewModel : BaseViewModel {
                 var loadedScene = loader.Load(path)
                                   ?? throw new InvalidOperationException("The selected file did not contain a scene.");
                 loadedScene.Root.Attach(EffectsManager); // Pre attach scene graph
-                loadedScene.Root.UpdateAllTransformMatrix();
-                if (loadedScene.Root.TryGetBound(out var bound)) {
+                SceneNodeExtensions.UpdateAllTransformMatrix(loadedScene.Root);
+                if (SceneNodeExtensions.TryGetBound(loadedScene.Root, out var bound)) {
                     /// Must use UI thread to set value back.
                     syncContext.Post((_) => { ModelBound = bound; }, null);
                 }
 
-                if (loadedScene.Root.TryGetCentroid(out var centroid)) {
+                if (SceneNodeExtensions.TryGetCentroid(loadedScene.Root, out var centroid)) {
                     /// Must use UI thread to set value back.
                     syncContext.Post((_) => { ModelCentroid = centroid.ToPoint3D(); }, null);
                 }
@@ -281,7 +290,7 @@ public class MainViewModel : BaseViewModel {
 
                         GroupModel.AddNode(loadedScene.Root);
                         if (loadedScene.HasAnimation) {
-                            var dict = loadedScene.Animations.CreateAnimationUpdaters();
+                            var dict = AnimationExtensions.CreateAnimationUpdaters(loadedScene.Animations);
                             foreach (var ani in dict.Values) {
                                 Animations.Add(ani);
                             }

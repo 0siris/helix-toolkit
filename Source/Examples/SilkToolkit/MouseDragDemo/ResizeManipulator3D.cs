@@ -7,6 +7,12 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+using HelixToolkit.Wpf.SharpDX.Model.Materials;
+
 namespace MouseDragDemo;
 
 using System.Diagnostics.CodeAnalysis;

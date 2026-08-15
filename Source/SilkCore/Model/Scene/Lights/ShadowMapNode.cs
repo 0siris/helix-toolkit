@@ -5,10 +5,19 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 
 using System.ComponentModel;
-using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.Core.Lights;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Model.Scene;
+namespace HelixToolkit.SharpDX.Core.Model.Scene.Lights;
 /// <summary>
 /// </summary>
 public class ShadowMapNode : SceneNode {
@@ -221,7 +230,7 @@ public class ShadowMapNode : SceneNode {
 
     private unsafe bool CreateCameraFromBound(ref BoundingBox box, ref Vector3 lookDir) {
         if (box.Maximum == box.Minimum) return false;
-        var center = box.Center();
+        var center = BoundingBoxExtensions.Center(box);
         var dist = 0.0f;
         var points = stackalloc Vector3[8];
         points[0] = box.Minimum;

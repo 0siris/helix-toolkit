@@ -1,6 +1,6 @@
 using System.Globalization;
 using Assertions;
-using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Logger;
 using HelixToolkit.SharpDX.Core.Utilities;
 using LoggerLib;
 using Microsoft.Extensions.Logging;

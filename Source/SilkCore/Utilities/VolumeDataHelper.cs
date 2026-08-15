@@ -5,6 +5,8 @@ Reference: https://graphicsrunner.blogspot.com/search/label/Volume%20Rendering
 */
 
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
 public static class VolumeDataHelper {

@@ -5,7 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.ComponentModel;
 
-namespace SharpDX.Toolkit;
+namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit;
 
 /// <summary>
 ///     A lightweight Component base class.

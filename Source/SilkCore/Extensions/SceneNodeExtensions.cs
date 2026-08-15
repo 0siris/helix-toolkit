@@ -3,9 +3,11 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 /// <summary>
 /// </summary>
@@ -69,7 +71,7 @@ public static class SceneNodeExtensions {
     ///     Try to get total bound of all meshes from current scene root.
     ///     To make sure all transform matrics are updated.
     ///     Call <see cref="UpdateAllTransformMatrix(SceneNode)" /> before calling
-    ///     <see cref="TryGetBound(SceneNode, out BoundingBox)" />.
+    ///     <see cref="TryGetBound" />.
     /// </summary>
     /// <param name="root"></param>
     /// <param name="bound"></param>
@@ -83,7 +85,7 @@ public static class SceneNodeExtensions {
                     && geoNode.Geometry.Positions.Count > 0) {
                     geoNode.Geometry.UpdateBounds();
                     var b = geoNode.Geometry.Bound;
-                    b = b.Transform(geoNode.TotalModelMatrix);
+                    b = BoundingBoxExtensions.Transform(b, geoNode.TotalModelMatrix);
                     if (result.HasValue)
                         result = BoundingBox.Merge(result.Value, b);
                     else

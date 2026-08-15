@@ -12,7 +12,7 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 using WpfBrush = System.Windows.Media.Brush;
 using WpfPathGeometry = PathGeometry;

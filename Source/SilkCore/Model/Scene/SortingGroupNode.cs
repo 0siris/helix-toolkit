@@ -5,6 +5,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 
 using System.Diagnostics;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Render;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 using SortStruct = KeyValuePair<float, SceneNode>;

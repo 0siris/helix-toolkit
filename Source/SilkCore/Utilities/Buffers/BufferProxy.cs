@@ -3,7 +3,9 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+using Buffer = HelixToolkit.SharpDX.Core.Native.Buffer;
+
+namespace HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 /// <summary>
 /// </summary>

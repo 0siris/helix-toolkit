@@ -7,6 +7,9 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+
 namespace FileLoadDemo;
 
 using System.Windows;

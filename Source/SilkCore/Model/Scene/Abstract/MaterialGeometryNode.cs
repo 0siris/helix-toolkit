@@ -3,9 +3,12 @@ The MIT License(MIT)
 Copyright(c) 2020 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
+using HelixToolkit.SharpDX.Core.Render;
 
-namespace HelixToolkit.SharpDX.Core.Model.Scene;
+namespace HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 public abstract class MaterialGeometryNode : GeometryNode {
     private MaterialCore? material;
     private MaterialVariable? materialVariable;

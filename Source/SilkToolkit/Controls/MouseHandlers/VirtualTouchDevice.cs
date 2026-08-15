@@ -15,7 +15,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
 
 /// <summary>
 ///     A virtual <see cref="TouchDevice" /> enabling Windows.Forms controls to generate Touch/Manipulation-Events.

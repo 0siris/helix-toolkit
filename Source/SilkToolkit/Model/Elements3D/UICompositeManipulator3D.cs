@@ -11,9 +11,11 @@ using System;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media.Media3D;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Material;
+using GeometryModel3D = HelixToolkit.Wpf.SharpDX.Element3D.Abstract.GeometryModel3D;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
 using Transform3D = Transform3D;
 

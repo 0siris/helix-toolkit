@@ -7,12 +7,17 @@
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:ie="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+    xmlns:utilities="clr-namespace:HelixToolkit.Wpf.SharpDX.Utilities;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
     Title="{Binding Title}"
     Width="800"
     Height="500"
     mc:Ignorable="d">
     <Window.Resources>
-        <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
+        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -22,7 +27,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Grid.Row="0"
@@ -39,11 +44,11 @@
                     <ie:CallMethodAction MethodName="OnMouseLeftButtonDownHandler" TargetObject="{Binding}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="{Binding DirectionalLightColor}" />
+            <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="{Binding DirectionalLightColor}" />
 
-            <hx:EnvironmentMap3D x:Name="envMap" Texture="{Binding Texture}" />
+            <element3D:EnvironmentMap3D x:Name="envMap" Texture="{Binding Texture}" />
 
-            <hx:InstancingMeshGeometryModel3D
+            <element3D:InstancingMeshGeometryModel3D
                 x:Name="mesh"
                 CullMode="Back"
                 Geometry="{Binding Model}"
@@ -51,35 +56,35 @@
                 Instances="{Binding ModelInstances}"
                 Material="{Binding ModelMaterial}"
                 Transform="{Binding ModelTransform}">
-                <hx:InstancingMeshGeometryModel3D.OctreeManager>
-                    <hx:InstancingModel3DOctreeManager
+                <element3D:InstancingMeshGeometryModel3D.OctreeManager>
+                    <utilities:InstancingModel3DOctreeManager
                         x:Name="manager"
                         EnableOctreeOutput="True"
                         RecordHitPathBoundingBoxes="True" />
-                </hx:InstancingMeshGeometryModel3D.OctreeManager>
-            </hx:InstancingMeshGeometryModel3D>
-            <hx:OctreeLineGeometryModel3D
+                </element3D:InstancingMeshGeometryModel3D.OctreeManager>
+            </element3D:InstancingMeshGeometryModel3D>
+            <elements3D:OctreeLineGeometryModel3D
                 x:Name="octreelines"
                 IsRendering="False"
                 Octree="{Binding Octree, ElementName=manager}" />
-            <hx:LineGeometryModel3D
+            <element3D:LineGeometryModel3D
                 x:Name="lines"
                 Geometry="{Binding Lines}"
                 Instances="{Binding ModelInstances}"
                 Thickness="0.4"
                 Transform="{Binding ModelTransform}"
                 Color="White" />
-            <hx:LineGeometryModel3D
+            <element3D:LineGeometryModel3D
                 Geometry="{Binding Lines}"
                 Instances="{Binding SelectedLineInstances}"
                 Color="Orange" />
-            <hx:InstancingBillboardModel3D
+            <element3D:InstancingBillboardModel3D
                 x:Name="billboardModel3D"
                 Geometry="{Binding BillboardModel}"
                 InstanceParamArray="{Binding BillboardInstanceParams}"
                 Instances="{Binding BillboardInstances}" />
             <!--<hx:BillboardTextModel3D x:Name="billboardModel3D" Geometry="{Binding BillboardModel}" Instances="{Binding BillboardInstances}"/>-->
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
 
         <StackPanel Grid.Row="0" Grid.Column="1">
             <Expander

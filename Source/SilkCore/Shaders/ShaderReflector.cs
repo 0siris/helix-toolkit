@@ -4,6 +4,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.InteropServices;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;
 public sealed unsafe class ShaderReflector : IShaderReflector {

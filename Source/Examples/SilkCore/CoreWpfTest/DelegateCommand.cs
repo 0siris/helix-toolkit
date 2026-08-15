@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace FileLoadDemo;
+namespace CoreWpfTest;
 
 public class DelegateCommand : ICommand {
     private Action? execute;

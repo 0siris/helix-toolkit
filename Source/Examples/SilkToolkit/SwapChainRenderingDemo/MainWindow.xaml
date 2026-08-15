@@ -8,6 +8,11 @@
     xmlns:ie="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:local="clr-namespace:SwapChainRenderingDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+    xmlns:utilities="clr-namespace:HelixToolkit.Wpf.SharpDX.Utilities;assembly=SilkToolkit"
     Title="High Performance SwapChain Rendering"
     Width="800"
     Height="600"
@@ -21,7 +26,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Grid.Row="0"
             Grid.Column="0"
@@ -38,61 +43,61 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="MiddleClick" />
-            </hx:Viewport3DX.InputBindings>
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="MiddleClick" />
+            </controls:Viewport3DX.InputBindings>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseLeftButtonDown">
                     <ie:CallMethodAction MethodName="OnMouseLeftButtonDownHandler" TargetObject="{Binding}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Direction="{Binding Light1Direction}" Color="{Binding Light1Color}" />
-            <hx:PointLight3D
+            <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
+            <lights3D:DirectionalLight3D Direction="{Binding Light1Direction}" Color="{Binding Light1Color}" />
+            <lights3D:PointLight3D
                 Attenuation="{Binding Light2Attenuation}"
                 Transform="{Binding Light2Transform}"
                 Color="{Binding Light2Color}" />
-            <hx:PointLight3D
+            <lights3D:PointLight3D
                 Attenuation="{Binding Light3Attenuation}"
                 Transform="{Binding Light3Transform}"
                 Color="{Binding Light3Color}" />
-            <hx:SpotLight3D
+            <lights3D:SpotLight3D
                 Attenuation="{Binding Light4Attenuation}"
                 Direction="{Binding Light4Direction}"
                 Transform="{Binding Light4Transform}"
                 Color="{Binding Light4Color}" />
 
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 Geometry="{Binding Sphere}"
                 Material="{Binding LightModelMaterial}"
                 Transform="{Binding Light1Transform}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 Geometry="{Binding Sphere}"
                 Material="{Binding LightModelMaterial}"
                 Transform="{Binding Light2Transform}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 Geometry="{Binding Sphere}"
                 Material="{Binding LightModelMaterial}"
                 Transform="{Binding Light3Transform}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 Geometry="{Binding Sphere}"
                 Material="{Binding LightModelMaterial}"
                 Transform="{Binding Light4Transform}" />
-            <hx:GroupModel3D ItemsSource="{Binding LanderModels}" Transform="{Binding ModelTransform}">
-                <hx:GroupModel3D.OctreeManager>
-                    <hx:GeometryModel3DOctreeManager />
-                </hx:GroupModel3D.OctreeManager>
-            </hx:GroupModel3D>
+            <elements3D:GroupModel3D ItemsSource="{Binding LanderModels}" Transform="{Binding ModelTransform}">
+                <elements3D:GroupModel3D.OctreeManager>
+                    <utilities:GeometryModel3DOctreeManager />
+                </elements3D:GroupModel3D.OctreeManager>
+            </elements3D:GroupModel3D>
 
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 x:Name="floor"
                 CullMode="Back"
                 FillMode="{Binding FillMode}"
@@ -101,8 +106,8 @@
                 RenderWireframe="{Binding ElementName=carModel, Path=RenderWireframe}"
                 Transform="{Binding FloorTransform}"
                 WireframeColor="Red" />
-            <hx:LineGeometryModel3D Geometry="{Binding LineGeo}" Color="Blue" />
-        </hx:Viewport3DX>
+            <element3D:LineGeometryModel3D Geometry="{Binding LineGeo}" Color="Blue" />
+        </controls:Viewport3DX>
         <StackPanel
             Grid.Column="1"
             HorizontalAlignment="Right"

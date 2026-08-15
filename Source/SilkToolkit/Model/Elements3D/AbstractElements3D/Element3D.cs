@@ -10,14 +10,16 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using Media = System.Windows.Media;
 using Point = System.Windows.Point;
 using Transform3D = System.Windows.Media.Media3D.Transform3D;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 
 /// <summary>
 ///     Base class for renderable elements.

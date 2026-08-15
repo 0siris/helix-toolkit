@@ -6,6 +6,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 using Assimp;
 using Assimp.Configs;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 

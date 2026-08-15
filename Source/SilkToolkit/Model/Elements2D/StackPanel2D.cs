@@ -1,10 +1,10 @@
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-
 using Orientation = System.Windows.Controls.Orientation;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 public class StackPanel2D : Panel2D {
     /// <summary>
     ///     The orientation property
@@ -15,7 +15,7 @@ public class StackPanel2D : Panel2D {
                                     typeof(StackPanel2D),
                                     new PropertyMetadata(Orientation.Horizontal,
                                                          (d, e) => {
-                                                             if (d is Element2D { SceneNode: StackPanelNode2D node })
+                                                             if (d is Abstract.Element2D { SceneNode: StackPanelNode2D node })
                                                                  node.Orientation = ((Orientation)e.NewValue).ToD2DOrientation();
                                                          }));
 

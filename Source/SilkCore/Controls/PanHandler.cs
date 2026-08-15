@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core.Model.Camera;
+
 namespace HelixToolkit.SharpDX.Core.Controls;
 
 public sealed class PanHandler(CameraController cameraController) : MouseGestureHandler(cameraController) {

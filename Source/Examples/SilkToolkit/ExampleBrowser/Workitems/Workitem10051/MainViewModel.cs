@@ -4,12 +4,13 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Workitem10051;
-
 using System;
 using System.ComponentModel;
 using System.Windows;
 using DemoCore;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+
+namespace ExampleBrowser.Workitems.Workitem10051;
 
 public class MainViewModel : BaseViewModel {
     public MainViewModel() {

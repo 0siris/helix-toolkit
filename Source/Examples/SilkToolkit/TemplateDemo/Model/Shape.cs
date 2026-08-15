@@ -4,6 +4,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.Wpf.SharpDX.Material;
+
 namespace TemplateDemo;
 
 using HelixToolkit.Wpf.SharpDX;

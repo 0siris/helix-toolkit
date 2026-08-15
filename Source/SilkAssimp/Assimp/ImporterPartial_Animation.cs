@@ -5,7 +5,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics;
 using Assimp;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Logger;
+using HelixToolkit.SharpDX.Core.Model.Animations;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
+using Animation = Assimp.Animation;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
@@ -22,13 +30,13 @@ public partial class Importer {
     protected virtual ErrorCode ProcessNodeAnimation(
         NodeAnimationChannel channel,
         double ticksPerSecond,
-        out FastList<Animations.Keyframe> list
+        out FastList<Keyframe> list
     ) {
         var posCount = channel.HasPositionKeys ? channel.PositionKeyCount : 0;
         var rotCount = channel.HasRotationKeys ? channel.RotationKeyCount : 0;
         var scaleCount = channel.HasScalingKeys ? channel.ScalingKeyCount : 0;
         var maxCount = Math.Max(posCount, Math.Max(rotCount, scaleCount));
-        var ret = new FastList<Animations.Keyframe>(maxCount);
+        var ret = new FastList<Keyframe>(maxCount);
         if (posCount != rotCount || rotCount != scaleCount) {
             if (Logger.IsEnabled(LogLevel.Trace))
                 Logger.Verbose("Animation Channel is non-uniform lengths. Position={Value0}; Rotation={Value1}; Scale={Value2};" +
@@ -47,7 +55,7 @@ public partial class Importer {
             var minT = Math.Min(nextT1, Math.Min(nextT2, nextT3));
 
             for (var x = 0; x < maxCount && i < posCount && j < rotCount && k < scaleCount; ++x) {
-                ret.Add(new Animations.Keyframe {
+                ret.Add(new Keyframe {
                     Time = (float)(minT / ticksPerSecond),
                     Translation = channel.PositionKeys[i].Value.ToSharpDXVector3(),
                     Rotation = channel.RotationKeys[j].Value.ToSharpDXQuaternion(),
@@ -66,7 +74,7 @@ public partial class Importer {
             }
         } else {
             for (var i = 0; i < posCount; ++i)
-                ret.Add(new Animations.Keyframe {
+                ret.Add(new Keyframe {
                     Time = (float)(channel.PositionKeys[i].Time / ticksPerSecond),
                     Translation = channel.PositionKeys[i].Value.ToSharpDXVector3(),
                     Rotation = channel.RotationKeys[i].Value.ToSharpDXQuaternion(),
@@ -79,14 +87,14 @@ public partial class Importer {
     }
 
     private ErrorCode LoadAnimations(HelixInternalScene scene) {
-        var dict = new Dictionary<string, Model.Scene.SceneNode>(SceneNodes.Count);
+        var dict = new Dictionary<string, SceneNode>(SceneNodes.Count);
         foreach (var node in SceneNodes)
             if (node is Model.Scene.GroupNode && !dict.ContainsKey(node.Name))
                 dict.Add(node.Name, node);
 
         var nodeIdxDict = new Dictionary<string, int>();
         foreach (var node in SceneNodes
-                     .OfType<Animations.IBoneMatricesNode>())
+                     .OfType<IBoneMatricesNode>())
             if (node.Bones != null) {
                 nodeIdxDict.Clear();
                 for (var i = 0; i < node.Bones.Length; ++i) nodeIdxDict.Add(node.Bones[i].Name, i);
@@ -104,7 +112,7 @@ public partial class Importer {
 
                 if (Configuration.CreateSkeletonForBoneSkinningMesh
                     && node is Model.Scene.BoneSkinMeshNode sk
-                    && sk.Parent is Model.Scene.GroupNodeBase group) {
+                    && sk.Parent is GroupNodeBase group) {
                     var skeleton = sk.CreateSkeletonNode(Configuration.SkeletonMaterial,
                                                          Configuration.SkeletonEffects,
                                                          Configuration.SkeletonSizeScale);
@@ -121,7 +129,7 @@ public partial class Importer {
 
         if (scene.AssimpScene.HasAnimations) {
             var hasBoneSkinnedMesh = scene.Meshes.Where(x => x.Mesh is BoneSkinnedMeshGeometry3D).Count() > 0;
-            var animationList = new List<Animations.Animation>(scene.AssimpScene.AnimationCount);
+            var animationList = new List<Model.Animations.Animation>(scene.AssimpScene.AnimationCount);
             if (Configuration.EnableParallelProcessing)
                 Parallel.ForEach(scene.AssimpScene.Animations,
                                  ani => {
@@ -154,20 +162,20 @@ public partial class Importer {
 
     private ErrorCode LoadAnimation(
         Animation ani,
-        Dictionary<string, Model.Scene.SceneNode> dict,
+        Dictionary<string, SceneNode> dict,
         bool searchBoneSkinMeshNode,
-        out Animations.Animation hxAni
+        out Model.Animations.Animation hxAni
     ) {
         if (ani.TicksPerSecond == 0) {
             Logger.Warn("Animation TicksPerSecond is 0. Set to {Value0}", configuration.TickesPerSecond);
             ani.TicksPerSecond = configuration.TickesPerSecond;
         }
 
-        hxAni = new Animations.Animation(SharpDX.Core.Animations.AnimationType.Node) {
+        hxAni = new Model.Animations.Animation(AnimationType.Node) {
             StartTime = 0,
             EndTime = (float)(ani.DurationInTicks / ani.TicksPerSecond),
             Name = ani.Name,
-            NodeAnimationCollection = new List<Animations.NodeAnimation>(ani.NodeAnimationChannelCount)
+            NodeAnimationCollection = new List<NodeAnimation>(ani.NodeAnimationChannelCount)
         };
 
         if (ani.HasNodeAnimations) {
@@ -175,7 +183,7 @@ public partial class Importer {
             foreach (var key in ani.NodeAnimationChannels) {
                 Debug.WriteLine(key.NodeName);
                 if (dict.TryGetValue(key.NodeName, out var node)) {
-                    var nAni = new Animations.NodeAnimation {
+                    var nAni = new NodeAnimation {
                         Node = node
                     };
 
@@ -199,9 +207,9 @@ public partial class Importer {
 
     private ErrorCode LoadMorphAnimation(
         Animation ani,
-        Dictionary<string, Model.Scene.SceneNode> dict,
+        Dictionary<string, SceneNode> dict,
         bool searchBoneSkinMeshNode,
-        out List<Animations.Animation> hxAnis
+        out List<Model.Animations.Animation> hxAnis
     ) {
         if (ani.TicksPerSecond == 0) {
             Logger.Warn("Animation TicksPerSecond is 0. Set to {Value0}", configuration.TickesPerSecond);
@@ -211,7 +219,7 @@ public partial class Importer {
         hxAnis = [];
         if (ani.MeshMorphAnimationChannelCount > 0) {
             foreach (var aniChannel in ani.MeshMorphAnimationChannels) {
-                var hxAni = new Animations.Animation(SharpDX.Core.Animations.AnimationType.MorphTarget) {
+                var hxAni = new Model.Animations.Animation(AnimationType.MorphTarget) {
                     StartTime = 0,
                     EndTime = (float)(ani.DurationInTicks / ani.TicksPerSecond),
                     Name = ani.Name ?? string.Empty,
@@ -232,7 +240,7 @@ public partial class Importer {
                 //Add keyframes
                 foreach (var key in aniChannel.MeshMorphKeys)
                     for (var i = 0; i < key.Values.Count; i++)
-                        hxAni.MorphTargetKeyframes.Add(new Animations.MorphTargetKeyframe {
+                        hxAni.MorphTargetKeyframes.Add(new MorphTargetKeyframe {
                             Index = key.Values[i],
                             Weight = (float)key.Weights[i],
                             Time = (float)key.Time / (float)ani.TicksPerSecond
@@ -248,7 +256,7 @@ public partial class Importer {
         return ErrorCode.Failed;
     }
 
-    private void FindBoneSkinMeshes(Animations.Animation animation) {
+    private void FindBoneSkinMeshes(Model.Animations.Animation animation) {
         if (animation.NodeAnimationCollection is { Count: > 0 }) {
             // Search all the bone skinned meshes from the common animation node root
             var node = animation.NodeAnimationCollection[0].Node;
@@ -261,11 +269,11 @@ public partial class Importer {
             animation.BoneSkinMeshes = [];
             animation.RootNode = node;
             foreach (var n in SceneNodes[0].Items.PreorderDft(_ => true))
-                if (n is Animations.IBoneMatricesNode boneNode)
+                if (n is IBoneMatricesNode boneNode)
                     animation.BoneSkinMeshes.Add(boneNode);
         } else if (animation.MorphTargetKeyframes is { Count: > 0 }) {
             animation.BoneSkinMeshes = [];
-            if (animation.RootNode is Animations.IBoneMatricesNode bnode) animation.BoneSkinMeshes.Add(bnode);
+            if (animation.RootNode is IBoneMatricesNode bnode) animation.BoneSkinMeshes.Add(bnode);
         }
     }
 }

@@ -4,14 +4,20 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Workitem1349;
-
 using System.Linq;
 using DemoCore;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.Wpf.SharpDX.Camera;
+
+namespace ExampleBrowser.Workitems.Workitem1349;
+
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using MeshGeometry3D = MeshGeometry3D;
-using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.PerspectiveCamera;
+using PerspectiveCamera = PerspectiveCamera;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;

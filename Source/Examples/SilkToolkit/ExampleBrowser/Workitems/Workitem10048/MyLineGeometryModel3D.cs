@@ -4,14 +4,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Workitem10048;
-
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Windows.Media;
-using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+
+namespace ExampleBrowser.Workitems.Workitem10048;
+
 using Color = System.Windows.Media.Color;
-using HitTestResult = HitTestResult;
+using HitTestResult = HelixToolkit.SharpDX.Core.Utilities.HitTestResult;
 
 public class MyLineGeometryModel3D : LineGeometryModel3D {
     private Color? initialColor = null;

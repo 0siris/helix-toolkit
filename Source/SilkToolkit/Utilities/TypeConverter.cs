@@ -10,7 +10,9 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Media.Media3D;
 using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;
 
 namespace HelixToolkit.Wpf.SharpDX.Utilities;

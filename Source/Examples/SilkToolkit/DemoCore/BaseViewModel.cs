@@ -7,6 +7,9 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.Wpf.SharpDX.Camera;
+
 namespace DemoCore;
 
 using System;

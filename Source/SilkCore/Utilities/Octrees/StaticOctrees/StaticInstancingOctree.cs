@@ -4,7 +4,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUG
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees.StaticOctrees;
 /// <summary>
 /// </summary>
 public class StaticInstancingModelOctree : StaticOctree<KeyValuePair<int, BoundingBox>> {
@@ -39,9 +42,9 @@ public class StaticInstancingModelOctree : StaticOctree<KeyValuePair<int, Boundi
     /// </summary>
     /// <returns></returns>
     protected override BoundingBox GetMaxBound() {
-        var totalBound = GeometryBound.Transform(InstanceMatrix[0]);
+        var totalBound = BoundingBoxExtensions.Transform(GeometryBound, InstanceMatrix[0]);
         for (var i = 0; i < InstanceMatrix.Count; ++i) {
-            var b = GeometryBound.Transform(InstanceMatrix[i]);
+            var b = BoundingBoxExtensions.Transform(GeometryBound, InstanceMatrix[i]);
             BoundingBox.Merge(ref totalBound, ref b, out totalBound);
         }
 
@@ -55,7 +58,7 @@ public class StaticInstancingModelOctree : StaticOctree<KeyValuePair<int, Boundi
     protected override KeyValuePair<int, BoundingBox>[] GetObjects() {
         var bounds = new KeyValuePair<int, BoundingBox>[InstanceMatrix.Count];
         for (var i = 0; i < InstanceMatrix.Count; ++i) {
-            var b = GeometryBound.Transform(InstanceMatrix[i]);
+            var b = BoundingBoxExtensions.Transform(GeometryBound, InstanceMatrix[i]);
             bounds[i] = new KeyValuePair<int, BoundingBox>(i, b);
         }
 
@@ -91,12 +94,12 @@ public class StaticInstancingModelOctree : StaticOctree<KeyValuePair<int, Boundi
         isIntersect = false;
         if (!octant.IsBuilt) return false;
         var isHit = false;
-        var bound = octant.Bound.Transform(modelMatrix);
+        var bound = BoundingBoxExtensions.Transform(octant.Bound, modelMatrix);
         var rayWs = context.RayWs;
         if (rayWs.Intersects(ref bound)) {
             isIntersect = true;
             for (var i = octant.Start; i < octant.End; ++i) {
-                var b = Objects[i].Value.Transform(modelMatrix);
+                var b = BoundingBoxExtensions.Transform(Objects[i].Value, modelMatrix);
                 if (b.Intersects(ref rayWs)) {
                     var result = new HitTestResult {
                         Tag = Objects[i].Key
@@ -147,7 +150,7 @@ public class StaticBatchedGeometryBoundsOctree : StaticOctree<KeyValuePair<int, 
     )
         : base(parameter) {
         Geometries = geometries;
-        GeometryBound = [.. geometries.Select(x => x.Geometry.Bound.Transform(x.ModelTransform))];
+        GeometryBound = [.. geometries.Select(x => BoundingBoxExtensions.Transform(x.Geometry.Bound, x.ModelTransform))];
     }
 
     /// <summary>
@@ -208,12 +211,12 @@ public class StaticBatchedGeometryBoundsOctree : StaticOctree<KeyValuePair<int, 
         isIntersect = false;
         if (!octant.IsBuilt) return false;
         var isHit = false;
-        var bound = octant.Bound.Transform(modelMatrix);
+        var bound = BoundingBoxExtensions.Transform(octant.Bound, modelMatrix);
         var rayWs = context.RayWs;
         if (rayWs.Intersects(ref bound)) {
             isIntersect = true;
             for (var i = octant.Start; i < octant.End; ++i) {
-                var b = Objects[i].Value.Transform(modelMatrix);
+                var b = BoundingBoxExtensions.Transform(Objects[i].Value, modelMatrix);
                 if (b.Intersects(ref rayWs)) {
                     ref var geo = ref Geometries[Objects[i].Key];
                     if (geo.Geometry is MeshGeometry3D mesh) {

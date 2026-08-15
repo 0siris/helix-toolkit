@@ -1,8 +1,10 @@
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
 /// <summary>
 ///     Limitation: Under switchable graphics card setup(Laptop with integrated graphics card and external graphics card),
@@ -13,8 +15,8 @@ namespace HelixToolkit.Wpf.SharpDX;
 ///     Ref:
 ///     https://support.microsoft.com/en-us/help/3019314/error-generated-when-desktop-duplication-api-capable-application-is-ru
 /// </summary>
-/// <seealso cref="HelixToolkit.Wpf.SharpDX.Element3D" />
-public class ScreenDuplicationModel : Element3D {
+/// <seealso cref="Element3D" />
+public class ScreenDuplicationModel : AbstractElements3D.Element3D {
     /// <summary>
     ///     The screen rectangle property
     /// </summary>

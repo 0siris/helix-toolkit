@@ -3,9 +3,10 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Logger;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.ShaderManager;

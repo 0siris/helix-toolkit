@@ -4,7 +4,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Native;
+
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 public static class DataStreamExtension {
     public static int ReadInt(this DataStream ds) => ds.Read<int>();

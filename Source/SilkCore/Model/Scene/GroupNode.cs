@@ -4,7 +4,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Diagnostics;
-using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Logger;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Octrees;
 using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;

@@ -6,6 +6,9 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:SSAODemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="MainWindow"
     Width="1000"
     Height="800"
@@ -15,7 +18,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="viewport"
             Grid.Column="0"
             Camera="{Binding Camera}"
@@ -23,23 +26,23 @@
             EnableSsao="True"
             FxaaLevel="Medium"
             ShowFrameDetails="True">
-            <hx:DirectionalLight3D Direction="-1, -1, 0" Color="#9A9A9A" />
-            <hx:AmbientLight3D Color="#B0B0B0" />
-            <hx:MeshGeometryModel3D
+            <lights3D:DirectionalLight3D Direction="-1, -1, 0" Color="#9A9A9A" />
+            <lights3D:AmbientLight3D Color="#B0B0B0" />
+            <element3D:MeshGeometryModel3D
                 CullMode="Back"
                 Geometry="{Binding FloorModel}"
                 Material="{Binding FloorMaterial}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 CullMode="Back"
                 Geometry="{Binding SphereModel}"
                 Instances="{Binding SphereInstances}"
                 Material="{Binding SphereMaterial}" />
-            <hx:MeshGeometryModel3D
+            <element3D:MeshGeometryModel3D
                 CullMode="Back"
                 Geometry="{Binding BunnyModel}"
                 Instances="{Binding BunnyInstances}"
                 Material="{Binding BunnyMaterial}" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
         <StackPanel Grid.Column="1" Orientation="Vertical">
             <CheckBox Margin="4" IsChecked="{Binding ElementName=viewport, Path=EnableSsao}">Enable SSAO</CheckBox>
             <Label>Radius</Label>

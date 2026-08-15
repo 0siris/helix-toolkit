@@ -7,6 +7,9 @@
     xmlns:hxWpf="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
     xmlns:local="clr-namespace:DynamicCodeSurfaceDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="MainWindow"
     Width="1000"
     Height="600"
@@ -30,7 +33,7 @@
                 <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
 
-            <hx:Viewport3DX
+            <controls:Viewport3DX
                 x:Name="view1"
                 Title="Dynamic Code Surface"
                 Grid.Column="2"
@@ -40,16 +43,16 @@
                 CameraRotationMode="Trackball"
                 EffectsManager="{Binding EffectsManager}"
                 FxaaLevel="Low">
-                <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" />
-                <hx:AmbientLight3D Color="#4B4B4B" />
-                <hxWpf:DynamicCodeSurfaceModel3D
+                <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" />
+                <lights3D:AmbientLight3D Color="#4B4B4B" />
+                <element3D:DynamicCodeSurfaceModel3D
                     x:Name="surface1"
                     Material="{Binding Material}"
                     MeshSizeU="{Binding MeshSizeU}"
                     MeshSizeV="{Binding MeshSizeV}"
                     ParameterW="{Binding ParameterW}"
                     SourceCode="{Binding SourceCode}" />
-            </hx:Viewport3DX>
+            </controls:Viewport3DX>
             <GridSplitter
                 Grid.Column="1"
                 Width="5"

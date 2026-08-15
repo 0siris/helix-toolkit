@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using HelixToolkit.Logger;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Logger;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
 /// <summary>
 ///     Base class template implementation for <see cref="IDynamicOctree" />
@@ -767,7 +769,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     public static BoundingBox FindEnclosingCube(ref BoundingBox bound) {
         var v = (bound.Maximum - bound.Minimum) / 2 + bound.Minimum;
         bound = new BoundingBox(bound.Minimum - v, bound.Maximum - v);
-        var max = Math.Max(bound.Maximum.X, Math.Max(bound.Maximum.Y, bound.Maximum.Z));
+        var max = Math.Max((float) bound.Maximum.X, Math.Max((float) bound.Maximum.Y, (float) bound.Maximum.Z));
         return new BoundingBox(new Vector3(-max, -max, -max) + v, new Vector3(max, max, max) + v);
     }
 
@@ -971,7 +973,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
             var idx = -1;
             var diff = float.MaxValue;
             for (var i = 0; i < newRoot.Octants.Length; ++i) {
-                var d = (newRoot.Octants[i].Minimum - rootBound.Minimum).LengthSquared();
+                var d = SilkNetMathExtensions.LengthSquared((Vector3) (newRoot.Octants[i].Minimum - rootBound.Minimum));
                 if (d < diff) {
                     diff = d;
                     idx = i;

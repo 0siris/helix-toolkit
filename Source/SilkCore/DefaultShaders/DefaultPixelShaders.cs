@@ -3,7 +3,10 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Shaders;
+
+namespace HelixToolkit.SharpDX.Core.DefaultShaders;
 /// <summary>
 /// </summary>
 public static class DefaultPsShaderByteCodes {

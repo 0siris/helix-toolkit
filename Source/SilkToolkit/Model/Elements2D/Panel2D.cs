@@ -5,12 +5,13 @@ using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 [ContentProperty("Children")]
-public class Panel2D : Element2D {
+public class Panel2D : Abstract.Element2D {
     public static readonly DependencyProperty BackgroundProperty =
         DependencyProperty.Register("Background",
                                     typeof(WpfBrush),
@@ -27,7 +28,7 @@ public class Panel2D : Element2D {
         set => SetValue(BackgroundProperty, value);
     }
 
-    public ObservableCollection<Element2D> Children { get; } = [];
+    public ObservableCollection<Abstract.Element2D> Children { get; } = [];
 
     private void Items_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
         if (e.OldItems != null) DetachChildren(e.OldItems);
@@ -45,7 +46,7 @@ public class Panel2D : Element2D {
 
     protected void AttachChildren(IEnumerable children) {
         if (SceneNode is not PanelNode2D s) return;
-        foreach (Element2D c in children) {
+        foreach (Abstract.Element2D c in children) {
             if (c.Parent == null) AddLogicalChild(c);
             s.AddChildNode(c);
         }
@@ -53,7 +54,7 @@ public class Panel2D : Element2D {
 
     protected void DetachChildren(IEnumerable children) {
         if (SceneNode is not PanelNode2D s) return;
-        foreach (Element2D c in children) {
+        foreach (Abstract.Element2D c in children) {
             if (c.Parent == this) RemoveLogicalChild(c);
             s.RemoveChildNode(c);
         }

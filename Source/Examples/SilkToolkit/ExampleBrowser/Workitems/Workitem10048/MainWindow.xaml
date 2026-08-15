@@ -1,5 +1,5 @@
 ﻿<Window
-    x:Class="Workitem10048.MainWindow"
+    x:Class="ExampleBrowser.Workitems.Workitem10048.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,18 +7,23 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:hxCore="clr-namespace:HelixToolkit.SharpDX.Core;assembly=SilkCore"
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-    xmlns:local="clr-namespace:Workitem10048"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:workitem10048="clr-namespace:ExampleBrowser.Workitems.Workitem10048"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:geometry="clr-namespace:HelixToolkit.SharpDX.Core.Model.Geometry;assembly=SilkCore"
+    xmlns:camera="clr-namespace:HelixToolkit.Wpf.SharpDX.Camera;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="SharpDX in WPF (Workitem 10048 and 10052)"
     Width="800"
     Height="500"
     mc:Ignorable="d">
     <Window.DataContext>
-        <local:MainViewModel />
+        <workitem10048:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
-        <hxCore:LineGeometry3D
+        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
+        <geometry:LineGeometry3D
             x:Key="Lines"
             Indices="0 1"
             Positions="-6.0,0.0,0.0 3.0,0.0,0.0" />
@@ -27,7 +32,7 @@
             OffsetX="0"
             OffsetY="1"
             OffsetZ="0" />
-        <hx:PerspectiveCamera
+        <camera:PerspectiveCamera
             x:Key="Camera"
             LookDirection="-3, -3, -5"
             Position="3, 3, 5"
@@ -49,7 +54,7 @@
             </MenuItem>
         </Menu>
 
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="Viewport"
             Title="{Binding Title}"
             Grid.Row="1"
@@ -67,7 +72,7 @@
                     <ei:CallMethodAction MethodName="OnMouseDown3D" TargetObject="{Binding}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <hx:Viewport3DX.InputBindings>
+            <controls:Viewport3DX.InputBindings>
                 <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
                 <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
                 <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
@@ -78,45 +83,45 @@
                 <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
                 <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
                 <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="Shift+RightClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="Black" />
-            <hx:DirectionalLight3D Direction="-2,-5,-2" Color="White" />
-            <local:MyLineGeometryModel3D
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:AmbientLight3D Color="Black" />
+            <lights3D:DirectionalLight3D Direction="-2,-5,-2" Color="White" />
+            <workitem10048:MyLineGeometryModel3D
                 Geometry="{StaticResource Lines}"
                 HitTestThickness="2"
                 Color="Black">
-                <local:MyLineGeometryModel3D.Transform>
+                <workitem10048:MyLineGeometryModel3D.Transform>
                     <RotateTransform3D CenterX="1">
                         <RotateTransform3D.Rotation>
                             <AxisAngleRotation3D Angle="45" Axis="0 0 1" />
                         </RotateTransform3D.Rotation>
                     </RotateTransform3D>
-                </local:MyLineGeometryModel3D.Transform>
-            </local:MyLineGeometryModel3D>
-            <local:MyLineGeometryModel3D
+                </workitem10048:MyLineGeometryModel3D.Transform>
+            </workitem10048:MyLineGeometryModel3D>
+            <workitem10048:MyLineGeometryModel3D
                 Geometry="{StaticResource Lines}"
                 HitTestThickness="8"
                 Thickness="8"
                 Transform="{StaticResource Transform1}"
                 Color="Blue" />
-            <hx:PointGeometryModel3D
+            <element3D:PointGeometryModel3D
                 DepthBias="-10000"
                 Figure="Cross"
                 FigureRatio="0.12"
                 Size="16 16"
                 Color="Green">
-                <hx:PointGeometryModel3D.Geometry>
-                    <hxCore:PointGeometry3D Indices="0" Positions="0 0 0" />
-                </hx:PointGeometryModel3D.Geometry>
-                <hx:PointGeometryModel3D.Transform>
+                <element3D:PointGeometryModel3D.Geometry>
+                    <geometry:PointGeometry3D Indices="0" Positions="0 0 0" />
+                </element3D:PointGeometryModel3D.Geometry>
+                <element3D:PointGeometryModel3D.Transform>
                     <TranslateTransform3D
                         OffsetX="{Binding PointHit.X}"
                         OffsetY="{Binding PointHit.Y}"
                         OffsetZ="{Binding PointHit.Z}" />
-                </hx:PointGeometryModel3D.Transform>
-            </hx:PointGeometryModel3D>
+                </element3D:PointGeometryModel3D.Transform>
+            </element3D:PointGeometryModel3D>
 
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
 
         <StatusBar Grid.Row="1" VerticalAlignment="Bottom">
             <StatusBar.Background>

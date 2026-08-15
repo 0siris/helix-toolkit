@@ -148,10 +148,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.InteropServices;
 using System.Text;
-using HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Animations;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Utilities.ImportExport;
 using PhongMaterial = PhongMaterialCore;
 
 public class AnimationHierarchy : IGuid {

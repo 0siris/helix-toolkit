@@ -1,8 +1,10 @@
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Shaders;
 using Silk.NET.Core.Native;
+using Buffer = HelixToolkit.SharpDX.Core.Native.Buffer;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 public partial class DeviceContextProxy {
     private InputLayoutProxy? currInputLayout;
 

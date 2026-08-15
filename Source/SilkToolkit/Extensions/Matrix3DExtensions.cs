@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Media3D;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Extensions;
 
 public static class Matrix3DExtensions {
     //private static MathNet.Numerics.Algorithms.LinearAlgebra.Mkl.MklLinearAlgebraProvider mklSolver = new MathNet.Numerics.Algorithms.LinearAlgebra.Mkl.MklLinearAlgebraProvider();

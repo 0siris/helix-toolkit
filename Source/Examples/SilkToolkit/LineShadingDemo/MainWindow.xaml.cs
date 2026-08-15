@@ -10,6 +10,8 @@
 using System.Linq;
 using System.Windows;
 using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 
 namespace LineShadingDemo;
 
@@ -24,7 +26,7 @@ public partial class MainWindow : Window {
 
         // mouse events            
         view1.MouseDown += (_, e) => {
-            var hits = view1.FindHits(e.GetPosition(view1));
+            var hits = ViewportExtensions.FindHits(view1, e.GetPosition(view1));
             if (hits.Count > 0) {
                 foreach (var hit in hits.Where(h => h.IsValid)) {
                     if (hit.ModelHit is Element3D element3D) {

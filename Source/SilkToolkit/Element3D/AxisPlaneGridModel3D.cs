@@ -1,15 +1,17 @@
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using Media = System.Windows.Media;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 /// <summary>
 /// </summary>
-public class AxisPlaneGridModel3D : Element3D {
+public class AxisPlaneGridModel3D : Model.Elements3D.AbstractElements3D.Element3D {
     /// <summary>
     ///     The automatic spacing property
     /// </summary>
@@ -19,7 +21,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     typeof(AxisPlaneGridModel3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode)
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode)
                                                                  .AutoSpacing = (bool)e.NewValue;
                                                          }));
 
@@ -32,7 +34,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     typeof(AxisPlaneGridModel3D),
                                     new PropertyMetadata(5.0,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode)
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode)
                                                                  .AutoSpacingRate = (float)(double)e.NewValue;
                                                          }));
 
@@ -45,7 +47,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     typeof(AxisPlaneGridModel3D),
                                     new PropertyMetadata(10.0,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode)
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode)
                                                                  .GridSpacing = (float)(double)e.NewValue;
                                                          }));
 
@@ -58,7 +60,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     typeof(AxisPlaneGridModel3D),
                                     new PropertyMetadata(0.05,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode)
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode)
                                                                  .GridThickness = (float)(double)e.NewValue;
                                                          }));
 
@@ -71,7 +73,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     typeof(AxisPlaneGridModel3D),
                                     new PropertyMetadata(0.2,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode)
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode)
                                                                  .FadingFactor = (float)(double)e.NewValue;
                                                          }));
 
@@ -88,7 +90,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     new PropertyMetadata(Media.Colors.Gray,
 #endif
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode)
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode)
                                                                  .PlaneColor =
                                                                  ((Media.Color)e.NewValue).ToColor4();
                                                          }));
@@ -106,7 +108,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     new PropertyMetadata(Media.Colors.DarkGray,
 #endif
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode)
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode)
                                                                  .GridColor = ((Media.Color)e.NewValue).ToColor4();
                                                          }));
 
@@ -119,7 +121,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     typeof(AxisPlaneGridModel3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode)
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode)
                                                                  .RenderShadowMap = (bool)e.NewValue;
                                                          }));
 
@@ -132,7 +134,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     typeof(AxisPlaneGridModel3D),
                                     new PropertyMetadata(Axis.Y,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode).UpAxis =
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode).UpAxis =
                                                                  (Axis)e.NewValue;
                                                          }));
 
@@ -145,7 +147,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     typeof(AxisPlaneGridModel3D),
                                     new PropertyMetadata(0.0,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode).Offset =
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode).Offset =
                                                                  (float)(double)e.NewValue;
                                                          }));
 
@@ -158,7 +160,7 @@ public class AxisPlaneGridModel3D : Element3D {
                                     typeof(AxisPlaneGridModel3D),
                                     new PropertyMetadata(GridPattern.Tile,
                                                          (d, e) => {
-                                                             ((d as Element3D).SceneNode as AxisPlaneGridNode)
+                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as AxisPlaneGridNode)
                                                                  .GridPattern = (GridPattern)e.NewValue;
                                                          }));
 

@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 
 namespace BatchedMeshDemo;
 
@@ -12,7 +13,7 @@ public partial class MainWindow : Window {
 
     private void BatchedMeshGeometryModel3D_Mouse3DDown(
         object? sender,
-        HelixToolkit.Wpf.SharpDX.MouseDown3DEventArgs e
+        MouseDown3DEventArgs e
     ) {
         if (e.HitTestResult is {Geometry: { } geometry}) {
             viewModel.SelectedGeometry = geometry;

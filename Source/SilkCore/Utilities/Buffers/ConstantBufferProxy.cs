@@ -6,10 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Shaders;
+using Buffer = HelixToolkit.SharpDX.Core.Native.Buffer;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core.Utilities.Buffers;
 /// <summary>
 /// </summary>
 public sealed class ConstantBufferProxy : BufferProxyBase {

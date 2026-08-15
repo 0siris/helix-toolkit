@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 /// <summary>
 /// </summary>
@@ -60,7 +60,7 @@ public static class BoundingSphereExtensions {
     }
 
     public static BoundingSphere FromBox(BoundingBox box) {
-        var center = box.Center();
+        var center = BoundingBoxExtensions.Center(box);
         return new BoundingSphere(center, (box.Maximum - center).Length);
     }
 
@@ -84,7 +84,7 @@ public static class BoundingSphereExtensions {
 
     public static bool Intersects(this BoundingSphere sphere, ref Ray ray) {
         var offset = ray.Position - sphere.Center;
-        var a = SilkMath.Dot(ray.Direction, ray.Direction);
+        var a = SilkMath.Dot((Vector3) ray.Direction, ray.Direction);
         if (a <= float.Epsilon) return SilkMath.Dot(offset, offset) <= sphere.Radius * sphere.Radius;
 
         var b = 2f * SilkMath.Dot(offset, ray.Direction);

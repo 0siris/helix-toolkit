@@ -5,14 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ScreenDuplicationDemo"
         xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+        xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+        xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Window.DataContext>
         <local:MainViewModel />
     </Window.DataContext>
     <Grid>
-        <hx:ScreenDuplicationViewport3DX EffectsManager="{Binding EffectsManager}">
-            <hx:ScreenDuplicationModel />
-        </hx:ScreenDuplicationViewport3DX>
+        <controls:ScreenDuplicationViewport3DX EffectsManager="{Binding EffectsManager}">
+            <elements3D:ScreenDuplicationModel />
+        </controls:ScreenDuplicationViewport3DX>
     </Grid>
 </Window>

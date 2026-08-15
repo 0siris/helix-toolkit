@@ -1,7 +1,17 @@
 using System.Windows;
 using System.Windows.Controls;
 using DemoCore;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+using HelixToolkit.Wpf.SharpDX.Model.Lights3D;
+using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;

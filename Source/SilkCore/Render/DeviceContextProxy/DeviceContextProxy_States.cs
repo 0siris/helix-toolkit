@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 public partial class DeviceContextProxy {
     /// <summary>
     ///     Sets the state of the raster.

@@ -2,6 +2,8 @@ using System.Windows;
 using System.Windows.Input;
 using Assertions;
 using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 
 namespace CrossSectionDemo;
 

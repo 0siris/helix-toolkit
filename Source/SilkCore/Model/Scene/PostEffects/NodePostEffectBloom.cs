@@ -4,9 +4,14 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.Core.PostEffects;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Model.Scene;
+namespace HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
 /// <summary>
 /// </summary>
 public class NodePostEffectBloom : SceneNode {

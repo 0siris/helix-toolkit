@@ -1,6 +1,7 @@
-﻿using DoubleOrSingle = float;
+﻿using HelixToolkit.SharpDX.Core.Geometry;
+using DoubleOrSingle = float;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Helper;
 
 /// <summary>
 /// </summary>

@@ -1,7 +1,10 @@
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
+
 public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     /// <summary>
     ///     Only root contains dictionary
@@ -63,7 +66,7 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
         var tempHits = new List<HitTestResult>();
         if (context is not { } hitContext) return false;
         var rayWs = hitContext.RayWs;
-        
+
         if (rayWs.Intersects(ref bound)) {
             isIntersect = true;
             foreach (var r in Objects) {
@@ -76,7 +79,7 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
         return isHit;
     }
 
-    protected override BoundingBox GetBoundingBoxFromItem(SceneNode item) 
+    protected override BoundingBox GetBoundingBoxFromItem(SceneNode item)
         => item.BoundsWithTransform;
 
     protected override IDynamicOctree CreateNodeWithParent(
@@ -91,13 +94,13 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
         base.BuildTree();
         if (IsRoot)
             TreeTraversal(this,
-                          Stack,
-                          null,
-                          node => {
-                              if (node is DynamicOctreeBase<SceneNode> octree)
-                                  foreach (var item in octree.Objects)
-                                      octantDictionary.Add(item.Guid, node);
-                          });
+                Stack,
+                null,
+                node => {
+                    if (node is DynamicOctreeBase<SceneNode> octree)
+                        foreach (var item in octree.Objects)
+                            octantDictionary.Add(item.Guid, node);
+                });
     }
 
     public IDynamicOctree? FindItemByGuid(Guid guid, SceneNode item, out int index) {
@@ -128,9 +131,9 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     public override bool Add(SceneNode item, out IDynamicOctree? octant) {
         if (base.Add(item, out octant) && octant is { } octantNode) {
             var root = GetRoot(this);
-            if (!root.octantDictionary.ContainsKey(item.Guid)) 
+            if (!root.octantDictionary.ContainsKey(item.Guid))
                 root.octantDictionary.Add(item.Guid, octantNode);
-            
+
             return true;
         }
 
@@ -208,9 +211,9 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     }
 
     private void TransferOctantDictionary(IDynamicOctree source, ref Dictionary<Guid, IDynamicOctree> dictionary) {
-        if (source == this) 
+        if (source == this)
             return;
-        
+
         octantDictionary = dictionary;
         dictionary = [];
     }

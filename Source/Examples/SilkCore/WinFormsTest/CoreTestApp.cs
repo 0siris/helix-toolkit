@@ -3,6 +3,19 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Controls;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Logger;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
+using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Viewport;
 using ImGuiNET;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using DrawingColor = System.Drawing.Color;
@@ -93,7 +106,7 @@ public class CoreTestApp {
         this.context = context;
         dpiScale = DpiHelper.GetWindowsScreenScalingFactor(false);
 
-        HelixToolkit.Logger.LogManager.Create<CoreTestApp>();
+        LogManager.Create<CoreTestApp>();
 
         viewport = new ViewportCore(window.Handle, true) {
             DpiScale = dpiScale

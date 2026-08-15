@@ -8,6 +8,11 @@
     xmlns:ie="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:local="clr-namespace:OctreeDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+    xmlns:utilities="clr-namespace:HelixToolkit.Wpf.SharpDX.Utilities;assembly=SilkToolkit"
     Title="MainWindow"
     Width="800"
     Height="600"
@@ -24,7 +29,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Camera="{Binding Camera}"
@@ -42,70 +47,70 @@
             ShowTriangleCountInfo="False"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
                 <!--<MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />-->
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="MiddleClick" />
-            </hx:Viewport3DX.InputBindings>
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="MiddleClick" />
+            </controls:Viewport3DX.InputBindings>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseLeftButtonDown">
                     <ie:CallMethodAction MethodName="OnMouseLeftButtonDownHandler" TargetObject="{Binding}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Direction="{Binding Light1Direction}" Color="{Binding Light1Color}" />
-            <hx:PointGeometryModel3D
+            <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
+            <lights3D:DirectionalLight3D Direction="{Binding Light1Direction}" Color="{Binding Light1Color}" />
+            <element3D:PointGeometryModel3D
                 Figure="Ellipse"
                 Geometry="{Binding PointsModel}"
                 Size="2 2"
                 Color="{Binding PointColor}" />
-            <hx:PointGeometryModel3D
+            <element3D:PointGeometryModel3D
                 Figure="Ellipse"
                 Geometry="{Binding PointsHitModel}"
                 Size="5 5"
                 Color="{Binding PointHitColor}" />
-            <hx:LineGeometryModel3D Geometry="{Binding LinesModel}" Color="#D1BB00" />
-            <hx:ItemsModel3D IsRendering="{Binding Visibility}" ItemsSource="{Binding Items}">
-                <hx:ItemsModel3D.OctreeManager>
-                    <hx:GeometryModel3DOctreeManager
+            <element3D:LineGeometryModel3D Geometry="{Binding LinesModel}" Color="#D1BB00" />
+            <elements3D:ItemsModel3D IsRendering="{Binding Visibility}" ItemsSource="{Binding Items}">
+                <elements3D:ItemsModel3D.OctreeManager>
+                    <utilities:GeometryModel3DOctreeManager
                         x:Name="groupOctreeMgr"
                         AutoDeleteIfEmpty="{Binding AutoDeleteEmptyNode}"
                         Cubify="True"
                         EnableOctreeOutput="{Binding ElementName=dynamicOctree, Path=IsRendering, Mode=OneWay}"
                         MinObjectSizeToSplit="4"
                         RecordHitPathBoundingBoxes="False" />
-                </hx:ItemsModel3D.OctreeManager>
-                <hx:ItemsModel3D.ItemTemplate>
+                </elements3D:ItemsModel3D.OctreeManager>
+                <elements3D:ItemsModel3D.ItemTemplate>
                     <DataTemplate>
-                        <hx:MeshGeometryModel3D
+                        <element3D:MeshGeometryModel3D
                             CullMode="Back"
-                            FillMode="{Binding DataContext.FillMode, RelativeSource={RelativeSource AncestorType=hx:Viewport3DX}}"
+                            FillMode="{Binding DataContext.FillMode, RelativeSource={RelativeSource AncestorType=controls:Viewport3DX}}"
                             Geometry="{Binding Model}"
                             Material="{Binding Material}"
                             Transform="{Binding DynamicTransform}" />
                     </DataTemplate>
-                </hx:ItemsModel3D.ItemTemplate>
-            </hx:ItemsModel3D>
-            <hx:OctreeLineGeometryModel3D
+                </elements3D:ItemsModel3D.ItemTemplate>
+            </elements3D:ItemsModel3D>
+            <elements3D:OctreeLineGeometryModel3D
                 IsRendering="{Binding OctreeFrameVisible}"
                 LineColor="Blue"
                 Octree="{Binding PointsModel.Octree}" />
-            <hx:OctreeLineGeometryModel3D
+            <elements3D:OctreeLineGeometryModel3D
                 IsRendering="{Binding OctreeFrameVisible}"
                 LineColor="Blue"
                 Octree="{Binding LinesModel.Octree}" />
-            <hx:OctreeLineGeometryModel3D
+            <elements3D:OctreeLineGeometryModel3D
                 x:Name="dynamicOctree"
                 IsRendering="False"
                 Octree="{Binding ElementName=groupOctreeMgr, Path=Octree}" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
         <StackPanel
             Grid.Column="1"
             HorizontalAlignment="Right"

@@ -6,9 +6,16 @@ Copyright (c) 2018 Helix Toolkit contributors
 #define MSAASEPARATE
 
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
@@ -201,7 +208,7 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
     private ShaderResourceViewProxy? alphaTargetNoMsaa;
     private SamplerStateProxy? targetSampler;
 
-    private SampleDescription sampleDesc = new(1, 0);
+    private SampleDescription sampleDesc = new((int) 1, (int) 0);
 
     private Texture2DDescription colorDesc = new() {
         Format = Format.FormatR16G16B16A16Float,

@@ -2,7 +2,7 @@ using LoggerLib;
 using Microsoft.Extensions.Logging;
 using Serilog.Events;
 
-namespace HelixToolkit.Logger;
+namespace HelixToolkit.SharpDX.Core.Logger;
 
 /// <summary>
 /// Provides log-level compatibility checks for LoggerLib-backed loggers.

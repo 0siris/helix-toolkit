@@ -2,8 +2,9 @@ using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 /// <summary>
 /// </summary>
 public sealed partial class DeviceContextProxy : DisposeObject {

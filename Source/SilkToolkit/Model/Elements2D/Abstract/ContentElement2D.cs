@@ -3,16 +3,16 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.Wpf.SharpDX.Core2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.Wpf.SharpDX.Element2D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using VerticalAlignment = System.Windows.VerticalAlignment;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D.Abstract;
 [ContentProperty("Content2D")]
 public abstract class ContentElement2D : Element2D {
     public static readonly DependencyProperty Content2DProperty = DependencyProperty.Register("Content2D",

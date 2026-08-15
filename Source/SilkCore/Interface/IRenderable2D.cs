@@ -4,7 +4,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Utilities;
+
+namespace HelixToolkit.SharpDX.Core.Interface;
 
 public interface IHitable2D {
     bool IsHitTestVisible { get; set; }

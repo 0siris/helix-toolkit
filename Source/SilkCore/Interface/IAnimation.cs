@@ -1,4 +1,6 @@
-namespace HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Model.Animations;
+
+namespace HelixToolkit.SharpDX.Core.Interface;
 /// <summary>
 /// </summary>
 public enum AnimationRepeatMode {

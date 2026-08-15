@@ -4,7 +4,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Diagnostics.CodeAnalysis;
-using SharpDX.Toolkit.Graphics;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
 
@@ -18,8 +19,9 @@ public static class TextureLoader {
     /// <param name="device">The device.</param>
     /// <param name="fileName">The file name.</param>
     /// <returns></returns>
-    public static Resource? FromFileAsResource(NativeD3DDevice device, string fileName) 
-        => Texture.Load(device, fileName)?.Resource;
+    public static NativeD3DResource? FromFileAsResource(NativeD3DDevice device, string fileName)
+        => Texture.Load(device, fileName)
+            ?.Resource;
 
     /// <summary>
     ///     Loads a texture from a file as a shader resource view.
@@ -34,9 +36,9 @@ public static class TextureLoader {
         bool disableAutoGenMipMap = false
     ) {
         using var texture = Texture.Load(device, fileName);
-        if (texture == null) 
+        if (texture == null)
             return null;
-        
+
         // Check if it already has mipmaps or not, if loaded DDS file, it may already has precompiled mipmaps, don't need to generate again
         if (!disableAutoGenMipMap && texture.Description.MipLevels == 1) {
             if (GenerateMipMaps(device, texture, out var textureMipmap))
@@ -79,9 +81,9 @@ public static class TextureLoader {
         bool disableAutoGenMipMap = false
     ) {
         using var texture = Texture.Load(device, memory);
-        if (texture == null) 
+        if (texture == null)
             return null;
-        
+
         if (!disableAutoGenMipMap &&
             texture.Description.MipLevels ==
             1) // Check if it already has mipmaps or not, if loaded DDS file, it may already has precompiled mipmaps, don't need to generate again
@@ -108,11 +110,11 @@ public static class TextureLoader {
         bool disableAutoGenMipMap = false
     ) {
         var texture = Texture.Load(device, memory);
-        if (texture == null) 
+        if (texture == null)
             return null;
-        
+
         // Check if it already has mipmaps or not, if loaded DDS file, it may already has precompiled mipmaps, don't need to generate again
-        if (!disableAutoGenMipMap && texture.Description.MipLevels == 1) 
+        if (!disableAutoGenMipMap && texture.Description.MipLevels == 1)
             try {
                 GenerateMipMaps(device, texture, out var textureMipmap);
                 return textureMipmap;
@@ -140,6 +142,6 @@ public static class TextureLoader {
         return false;
     }
 
-    public static int GetSubResourceIndex(int arraySlice, int mipLevels, int mipSlice) 
+    public static int GetSubResourceIndex(int arraySlice, int mipLevels, int mipSlice)
         => arraySlice * mipLevels + mipSlice;
 }

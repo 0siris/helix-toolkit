@@ -4,8 +4,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Diagnostics;
-using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Controls;
 
@@ -270,7 +273,7 @@ public abstract class MouseGestureHandler {
             if (hits.Count > 0) {
                 MouseDownNearestPoint3D = hits[0].PointHit;
                 if (hits[0].ModelHit is SceneNode node)
-                    MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center();
+                    MouseDownNearestModelBoundCenter = BoundingBoxExtensions.Center(node.BoundsWithTransform);
             }
         } else {
             MouseDownNearestModelBoundCenter = null;

@@ -11,9 +11,9 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Interface;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model;
 
 public interface ITraversable {
     IList<ITraversable> Items { get; }

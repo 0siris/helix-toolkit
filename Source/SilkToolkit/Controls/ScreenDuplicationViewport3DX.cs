@@ -5,16 +5,17 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Cameras;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
+using HelixToolkit.SharpDX.Core.Render.RenderHost;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 [DefaultProperty("Children")]
 [ContentProperty("Items")]
@@ -142,7 +143,7 @@ public class ScreenDuplicationViewport3DX : ItemsControl, IViewport3DX {
     public IEnumerable<SceneNode> Renderables {
         get {
             if (RenderHost != null)
-                foreach (Element3D item in Items)
+                foreach (Model.Elements3D.AbstractElements3D.Element3D item in Items)
                     yield return item.SceneNode;
         }
     }

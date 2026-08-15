@@ -6,6 +6,9 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:CrossSectionDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
     Title="CrossSectionDemo"
     Width="800"
@@ -40,18 +43,18 @@
             UseDefaultGestures="False"
             ModelAtCursor="{Binding ModelAtCursor, Mode=TwoWay}">
             <local:CustomViewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="LeftClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="LeftClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
             </local:CustomViewport3DX.InputBindings>
-            <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
-            <hx:CrossSectionMeshGeometryModel3D
+            <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
+            <element3D:CrossSectionMeshGeometryModel3D
                 x:Name="crossModel"
                 CrossSectionColor="GreenYellow"
                 CullMode="Back"
@@ -65,7 +68,7 @@
                 Plane1="{Binding Plane1}"
                 Plane2="{Binding Plane2}"
                 Transform="{Binding ModelTransform}" />
-            <hx:CrossSectionMeshGeometryModel3D
+            <element3D:CrossSectionMeshGeometryModel3D
                 x:Name="crossModel2"
                 CrossSectionColor="GreenYellow"
                 CullMode="Back"
@@ -91,7 +94,7 @@
                 EdgeThicknessScale="4"
                 IsRendering="{Binding EnablePlane2}"
                 SizeScale="10" />
-            <hx:AxisPlaneGridModel3D />
+            <element3D:AxisPlaneGridModel3D />
 
         </local:CustomViewport3DX>
         <StackPanel

@@ -7,6 +7,9 @@
     xmlns:local="clr-namespace:CustomShaderDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pt="http://propertytools.org/wpf"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="SharpDX in WPF"
     Width="800"
     Height="500"
@@ -15,7 +18,7 @@
         <local:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
+        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -33,11 +36,11 @@
                 <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </Menu.Background>
             <MenuItem Header="View">
-                <MenuItem Command="hx:ViewportCommands.ZoomExtents" Header="Zoom extents" />
+                <MenuItem Command="controls:ViewportCommands.ZoomExtents" Header="Zoom extents" />
             </MenuItem>
         </Menu>
 
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Grid.Row="1"
@@ -53,19 +56,19 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
             <local:CustomMeshGeometryModel3D
                 x:Name="dataVisual"
                 FillMode="{Binding FillMode}"
@@ -73,8 +76,8 @@
                 Material="{Binding ModelMaterial}"
                 RenderWireframe="True"
                 WireframeColor="#3F3B3B3B" />
-            <hx:LineGeometryModel3D Geometry="{Binding AxisModel}" Color="White" />
-            <hx:BillboardTextModel3D
+            <element3D:LineGeometryModel3D Geometry="{Binding AxisModel}" Color="White" />
+            <element3D:BillboardTextModel3D
                 x:Name="text"
                 Geometry="{Binding AxisLabel}"
                 IsTransparent="True" />
@@ -83,10 +86,10 @@
                 FillMode="{Binding FillMode}"
                 Geometry="{Binding SphereModel}"
                 Material="{Binding SphereMaterial}" />
-            <hx:PointMaterialGeometryModel3D Geometry="{Binding PointModel}" Material="{Binding CustomPointMaterial}"
+            <element3D:PointMaterialGeometryModel3D Geometry="{Binding PointModel}" Material="{Binding CustomPointMaterial}"
                                              Transform="{Binding PointTransform}" />
-            <hx:ContinuousRender3D />
-        </hx:Viewport3DX>
+            <element3D:ContinuousRender3D />
+        </controls:Viewport3DX>
 
         <StackPanel
             Grid.Row="1"

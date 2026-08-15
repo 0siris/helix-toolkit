@@ -15,7 +15,7 @@ using WpfColor = System.Windows.Media.Color;
 using WpfDashStyle = System.Windows.Media.DashStyle;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 /// <summary>
 ///     An adorner showing a rectangle with a crosshair in the middle. This is shown when zooming a rectangle.

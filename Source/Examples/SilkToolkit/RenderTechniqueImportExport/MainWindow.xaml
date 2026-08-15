@@ -6,6 +6,9 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:RenderTechniqueImportExport"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="MainWindow"
     Width="800"
     Height="450"
@@ -42,7 +45,7 @@
                 </ListBox.ContextMenu>
             </ListBox>
         </DockPanel>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             Grid.Row="1"
             Grid.Column="1"
             BackgroundColor="Black"
@@ -50,11 +53,11 @@
             EffectsManager="{Binding EffectsManager}"
             ShowCoordinateSystem="True"
             ShowViewCube="True">
-            <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
-            <hx:MeshGeometryModel3D Geometry="{Binding MeshModel}" Material="{Binding MeshMaterial}" />
-            <hx:LineGeometryModel3D Geometry="{Binding LineModel}" Color="Blue" />
-            <hx:PointGeometryModel3D Geometry="{Binding PointModel}" Color="Red" />
-        </hx:Viewport3DX>
+            <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
+            <element3D:MeshGeometryModel3D Geometry="{Binding MeshModel}" Material="{Binding MeshMaterial}" />
+            <element3D:LineGeometryModel3D Geometry="{Binding LineModel}" Color="Blue" />
+            <element3D:PointGeometryModel3D Geometry="{Binding PointModel}" Color="Red" />
+        </controls:Viewport3DX>
         <TextBox
             Grid.Row="0"
             Grid.Column="1"

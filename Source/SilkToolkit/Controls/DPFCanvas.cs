@@ -14,14 +14,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using HelixToolkit.Logger;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Logger;
+using HelixToolkit.SharpDX.Core.Render.Renderer;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.Wpf.SharpDX.Controls;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls;
 
 // ---- BASED ON ORIGNAL CODE FROM -----
 // Copyright (c) 2010-2012 SharpDX - Alexandre Mutel

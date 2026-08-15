@@ -4,13 +4,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
 #pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Material;
 
 public class DiffuseMaterial : Material {
     /// <summary>
@@ -18,85 +19,85 @@ public class DiffuseMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty DiffuseColorProperty =
         DependencyProperty.Register("DiffuseColor",
-                                    typeof(Color4),
-                                    typeof(DiffuseMaterial),
-                                    new PropertyMetadata((Color4)Color.White,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as DiffuseMaterialCore)
-                                                                 .DiffuseColor = (Color4)e.NewValue;
-                                                         }));
+            typeof(Color4),
+            typeof(DiffuseMaterial),
+            new PropertyMetadata((Color4) Color.White,
+                (d, e) => {
+                    ((d as Material).Core as DiffuseMaterialCore)
+                        .DiffuseColor = (Color4) e.NewValue;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty DiffuseMapProperty =
         DependencyProperty.Register("DiffuseMap",
-                                    typeof(TextureModel),
-                                    typeof(DiffuseMaterial),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as DiffuseMaterialCore).DiffuseMap =
-                                                                 e.NewValue as TextureModel;
-                                                         }));
+            typeof(TextureModel),
+            typeof(DiffuseMaterial),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((d as Material).Core as DiffuseMaterialCore).DiffuseMap =
+                        e.NewValue as TextureModel;
+                }));
 
     /// <summary>
     /// </summary>
     public static readonly DependencyProperty DiffuseMapSamplerProperty =
         DependencyProperty.Register("DiffuseMapSampler",
-                                    typeof(SamplerStateDescription),
-                                    typeof(DiffuseMaterial),
-                                    new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as DiffuseMaterialCore)
-                                                                 .DiffuseMapSampler =
-                                                                 (SamplerStateDescription)e.NewValue;
-                                                         }));
+            typeof(SamplerStateDescription),
+            typeof(DiffuseMaterial),
+            new PropertyMetadata(DefaultSamplers.LinearSamplerWrapAni4,
+                (d, e) => {
+                    ((d as Material).Core as DiffuseMaterialCore)
+                        .DiffuseMapSampler =
+                        (SamplerStateDescription) e.NewValue;
+                }));
 
     /// <summary>
     ///     The uv transform property
     /// </summary>
     public static readonly DependencyProperty UvTransformProperty =
         DependencyProperty.Register("UvTransform",
-                                    typeof(UvTransform),
-                                    typeof(DiffuseMaterial),
-                                    new PropertyMetadata(UvTransform.Identity,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as DiffuseMaterialCore).UvTransform =
-                                                                 (UvTransform)e.NewValue;
-                                                         }));
+            typeof(UvTransform),
+            typeof(DiffuseMaterial),
+            new PropertyMetadata(UvTransform.Identity,
+                (d, e) => {
+                    ((d as Material).Core as DiffuseMaterialCore).UvTransform =
+                        (UvTransform) e.NewValue;
+                }));
 
     /// <summary>
     ///     The enable un lit property
     /// </summary>
     public static readonly DependencyProperty EnableUnLitProperty =
         DependencyProperty.Register("EnableUnLit",
-                                    typeof(bool),
-                                    typeof(DiffuseMaterial),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as DiffuseMaterialCore).EnableUnLit =
-                                                                 (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(DiffuseMaterial),
+            new PropertyMetadata(false,
+                (d, e) => {
+                    ((d as Material).Core as DiffuseMaterialCore).EnableUnLit =
+                        (bool) e.NewValue;
+                }));
 
     public static readonly DependencyProperty EnableFlatShadingProperty =
         DependencyProperty.Register("EnableFlatShading",
-                                    typeof(bool),
-                                    typeof(DiffuseMaterial),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as DiffuseMaterialCore)
-                                                                 .EnableFlatShading = (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(DiffuseMaterial),
+            new PropertyMetadata(false,
+                (d, e) => {
+                    ((d as Material).Core as DiffuseMaterialCore)
+                        .EnableFlatShading = (bool) e.NewValue;
+                }));
 
     public static readonly DependencyProperty VertexColorBlendingFactorProperty =
         DependencyProperty.Register("VertexColorBlendingFactor",
-                                    typeof(double),
-                                    typeof(DiffuseMaterial),
-                                    new PropertyMetadata(0.0,
-                                                         (d, e) => {
-                                                             ((d as Material).Core as DiffuseMaterialCore)
-                                                                 .VertexColorBlendingFactor =
-                                                                 (float)(double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(DiffuseMaterial),
+            new PropertyMetadata(0.0,
+                (d, e) => {
+                    ((d as Material).Core as DiffuseMaterialCore)
+                        .VertexColorBlendingFactor =
+                        (float) (double) e.NewValue;
+                }));
 
     public DiffuseMaterial() { }
 
@@ -117,7 +118,7 @@ public class DiffuseMaterial : Material {
 
     [TypeConverter(typeof(Color4Converter))]
     public Color4 DiffuseColor {
-        get => (Color4)GetValue(DiffuseColorProperty);
+        get => (Color4) GetValue(DiffuseColorProperty);
         set => SetValue(DiffuseColorProperty, value);
     }
 
@@ -135,7 +136,7 @@ public class DiffuseMaterial : Material {
     /// <summary>
     /// </summary>
     public SamplerStateDescription DiffuseMapSampler {
-        get => (SamplerStateDescription)GetValue(DiffuseMapSamplerProperty);
+        get => (SamplerStateDescription) GetValue(DiffuseMapSamplerProperty);
         set => SetValue(DiffuseMapSamplerProperty, value);
     }
 
@@ -146,7 +147,7 @@ public class DiffuseMaterial : Material {
     ///     The uv transform.
     /// </value>
     public UvTransform UvTransform {
-        get => (UvTransform)GetValue(UvTransformProperty);
+        get => (UvTransform) GetValue(UvTransformProperty);
         set => SetValue(UvTransformProperty, value);
     }
 
@@ -158,7 +159,7 @@ public class DiffuseMaterial : Material {
     ///     <c>true</c> if [enable un lit]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableUnLit {
-        get => (bool)GetValue(EnableUnLitProperty);
+        get => (bool) GetValue(EnableUnLitProperty);
         set => SetValue(EnableUnLitProperty, value);
     }
 
@@ -169,7 +170,7 @@ public class DiffuseMaterial : Material {
     ///     <c>true</c> if [enable flat shading]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableFlatShading {
-        get => (bool)GetValue(EnableFlatShadingProperty);
+        get => (bool) GetValue(EnableFlatShadingProperty);
         set => SetValue(EnableFlatShadingProperty, value);
     }
 
@@ -181,7 +182,7 @@ public class DiffuseMaterial : Material {
     ///     The vertex color blending factor.
     /// </value>
     public double VertexColorBlendingFactor {
-        get => (double)GetValue(VertexColorBlendingFactorProperty);
+        get => (double) GetValue(VertexColorBlendingFactorProperty);
         set => SetValue(VertexColorBlendingFactorProperty, value);
     }
 
@@ -192,7 +193,7 @@ public class DiffuseMaterial : Material {
         DiffuseMapSampler = DiffuseMapSampler,
         EnableUnLit = EnableUnLit,
         EnableFlatShading = EnableFlatShading,
-        VertexColorBlendingFactor = (float)VertexColorBlendingFactor
+        VertexColorBlendingFactor = (float) VertexColorBlendingFactor
     };
 
     public virtual DiffuseMaterial CloneMaterial() => new() {
@@ -501,7 +502,8 @@ public static class DiffuseMaterials {
         return mat ?? DefaultVrml;
     }
 
-    public static Color4 ToColor(double r, double g, double b, double a = 1.0) => FromScRgb((float)a, (float)r, (float)g, (float)b);
+    public static Color4 ToColor(double r, double g, double b, double a = 1.0)
+        => FromScRgb((float) a, (float) r, (float) g, (float) b);
 
     /// <summary>
     ///     FromScRgb
@@ -512,7 +514,7 @@ public static class DiffuseMaterials {
             a = 0.0f;
         else if (a > 1.0f) a = 1.0f;
 
-        c1.A = (byte)(a * 255.0f + 0.5f);
+        c1.A = (byte) (a * 255.0f + 0.5f);
         c1.R = ScRgbTosRgb(r);
         c1.G = ScRgbTosRgb(g);
         c1.B = ScRgbTosRgb(b);
@@ -526,9 +528,9 @@ public static class DiffuseMaterials {
         if (!(val > 0.0)) // Handles NaN case too
             return 0;
 
-        if (val <= 0.0031308) return (byte)(255.0f * val * 12.92f + 0.5f);
+        if (val <= 0.0031308) return (byte) (255.0f * val * 12.92f + 0.5f);
 
-        if (val < 1.0) return (byte)(255.0f * (1.055f * (float)Math.Pow(val, 1.0 / 2.4) - 0.055f) + 0.5f);
+        if (val < 1.0) return (byte) (255.0f * (1.055f * (float) Math.Pow(val, 1.0 / 2.4) - 0.055f) + 0.5f);
 
         return 255;
     }

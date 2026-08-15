@@ -11,15 +11,17 @@
 
 using System;
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Lights3D;
 
 using Media = System.Windows.Media;
 
-public abstract class Light3D : Element3D {
+public abstract class Light3D : Elements3D.AbstractElements3D.Element3D {
     public static readonly DependencyProperty ColorProperty =
         DependencyProperty.Register("Color",
                                     typeof(Media.Color),

@@ -3,7 +3,9 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 public static class CollectionExtensions {
     /// <summary>

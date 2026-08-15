@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Geometry;
 
 using DoubleOrSingle = float;
 using Point3D = Color3;

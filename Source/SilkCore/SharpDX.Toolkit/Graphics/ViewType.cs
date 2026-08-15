@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace SharpDX.Toolkit.Graphics;
+namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 
 /// <summary>
 ///     Defines how a view is selected from a resource.

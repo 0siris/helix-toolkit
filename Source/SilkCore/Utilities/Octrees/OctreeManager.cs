@@ -6,10 +6,11 @@
 
 
 using System.Diagnostics.CodeAnalysis;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
 /// <summary>
 /// </summary>
 public abstract class OctreeManagerBase : ObservableObject, IOctreeManager {

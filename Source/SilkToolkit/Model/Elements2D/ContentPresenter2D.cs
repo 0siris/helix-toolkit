@@ -2,11 +2,12 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Markup;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.Wpf.SharpDX.Core2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element2D;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 [ContentProperty("Content")]
-public class ContentPresenter2D : Element2D {
+public class ContentPresenter2D : Abstract.Element2D {
     public static readonly DependencyProperty Content2DProperty = DependencyProperty.Register("Content",
         typeof(Element2DCore),
         typeof(ContentPresenter2D),
@@ -14,20 +15,20 @@ public class ContentPresenter2D : Element2D {
                              (d, e) => {
                                   var model = (ContentPresenter2D)d;
                                   var node = (PresenterNode2D)model.SceneNode;
-                                 if (e.OldValue is Element2D old) {
+                                 if (e.OldValue is Abstract.Element2D old) {
                                      model.RemoveLogicalChild(old);
                                      node.Content = null;
                                  }
 
-                                 if (e.NewValue is Element2D newElement) {
+                                 if (e.NewValue is Abstract.Element2D newElement) {
                                      model.AddLogicalChild(newElement);
                                      node.Content = newElement;
                                  }
                              }));
 
     [Bindable(true)]
-    public Element2D? Content2D {
-        get => (Element2D?)GetValue(Content2DProperty);
+    public Abstract.Element2D? Content2D {
+        get => (Abstract.Element2D?)GetValue(Content2DProperty);
         set => SetValue(Content2DProperty, value);
     }
 

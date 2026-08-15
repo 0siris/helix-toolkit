@@ -6,6 +6,11 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:MaterialDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:light3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Light3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
     Title="MainWindow"
     Width="800"
     Height="450"
@@ -18,7 +23,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Title="{Binding Title}"
             Background="Black"
@@ -35,69 +40,69 @@
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="#383838" />
-            <hx:DirectionalLight3D Direction="-1, -1, 0" Color="White" />
-            <hx:ShadowMap3D />
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:AmbientLight3D Color="#383838" />
+            <lights3D:DirectionalLight3D Direction="-1, -1, 0" Color="White" />
+            <light3D:ShadowMap3D />
             <!--<hx:MeshGeometryModel3D
                 x:Name="floor"
                 CullMode="Back"
                 Geometry="{Binding Floor}"
                 Material="{Binding FloorMaterial}" />-->
-            <hx:GroupModel3D
+            <elements3D:GroupModel3D
                 x:Name="model1"
                 ItemsSource="{Binding Model1}"
                 Transform="{Binding Transform1}" />
-            <hx:GroupModel3D
+            <elements3D:GroupModel3D
                 x:Name="model1NormalVector"
                 IsRendering="False"
                 ItemsSource="{Binding ModelNormalVector}"
                 Transform="{Binding Transform1}" />
-            <hx:GroupModel3D
+            <elements3D:GroupModel3D
                 x:Name="model2"
                 ItemsSource="{Binding Model2}"
                 Transform="{Binding Transform2}" />
-            <hx:GroupModel3D
+            <elements3D:GroupModel3D
                 x:Name="model3"
                 ItemsSource="{Binding Model3}"
                 Transform="{Binding Transform3}" />
-            <hx:GroupModel3D
+            <elements3D:GroupModel3D
                 x:Name="model4"
                 ItemsSource="{Binding Model4}"
                 Transform="{Binding Transform4}" />
-            <hx:GroupModel3D
+            <elements3D:GroupModel3D
                 x:Name="model5"
                 ItemsSource="{Binding Model5}"
                 Transform="{Binding Transform5}" />
-            <hx:GroupModel3D
+            <elements3D:GroupModel3D
                 x:Name="model6"
                 ItemsSource="{Binding Model6}"
                 Transform="{Binding Transform6}" />
-            <hx:GroupModel3D
+            <elements3D:GroupModel3D
                 x:Name="model7"
                 ItemsSource="{Binding Model7}"
                 Transform="{Binding Transform7}" />
-            <hx:BillboardTextModel3D
+            <element3D:BillboardTextModel3D
                 FixedSize="False"
                 Geometry="{Binding MeshTitles}"
                 Transform="{Binding TitleTransform}" />
-            <hx:EnvironmentMap3D Texture="{Binding EnvironmentMap}" />
-            <hx:AxisPlaneGridModel3D
+            <element3D:EnvironmentMap3D Texture="{Binding EnvironmentMap}" />
+            <element3D:AxisPlaneGridModel3D
                 AutoSpacing="false"
                 RenderShadowMap="True"
                 Offset="-4" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
         <StackPanel Grid.Column="1">
             <CheckBox
                 Margin="10"

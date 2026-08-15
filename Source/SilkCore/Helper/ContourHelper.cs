@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Helper;
 
 using DoubleOrSingle = float;
 using Point = Vector2;

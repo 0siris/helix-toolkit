@@ -6,10 +6,16 @@
 
 using System.Linq;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
-namespace CursorPosition;
+namespace ExampleBrowser.Examples.CursorPosition;
 
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;

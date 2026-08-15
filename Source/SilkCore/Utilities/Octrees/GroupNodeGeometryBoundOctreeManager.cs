@@ -1,9 +1,10 @@
 using System.Runtime.CompilerServices;
-using HelixToolkit.Logger;
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Logger;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
 /// <summary>
 ///     Use to create geometryModel3D octree for groups. Each ItemsModel3D must has its own manager, do not share between
@@ -35,10 +36,11 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
                     return;
                 }
 
-                var nodes = items.Where(x => x.HasBound).ToList();
+                var nodes = items.Where(x => x.HasBound)
+                    .ToList();
                 if (nodes.Count == 0)
                     return;
-                
+
                 UpdateOctree(RebuildOctree(nodes));
                 if (Octree == null)
                     RequestRebuild();
@@ -88,7 +90,7 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
                 if (node is BoundableNodeOctree geoNode) {
                     UpdateOctree(null);
                     var itemBounds = item.BoundsWithTransform;
-                    
+
                     if (geoNode.Bound.Contains(ref itemBounds) == ContainmentType.Contains) {
                         if (geoNode.PushExistingToChild(index)) tree = tree.Shrink() as BoundableNodeOctree;
                         rootAdd = false;
@@ -101,7 +103,7 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
                     tree.RemoveByGuid(item.Guid, item, tree);
                 }
 
-                if (rootAdd) 
+                if (rootAdd)
                     AddItem(item);
             }
 
@@ -119,10 +121,9 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
                 SubscribeBoundChangeEvent(item);
         }
 
-        return tree.TreeBuilt 
-                   ? tree 
-                   : null;
-        
+        return tree.TreeBuilt
+            ? tree
+            : null;
     }
 
     /// <summary>
@@ -134,7 +135,7 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
         lock (lockObj) {
             if (!Enabled || item == null)
                 return false;
-            
+
             if (item.HasBound) {
                 item.TransformBoundChanged -= GeometryModel3DOctreeManager_OnBoundInitialized;
                 item.TransformBoundChanged += GeometryModel3DOctreeManager_OnBoundInitialized;
@@ -148,7 +149,6 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
             //    AddItem(item);
             //}
             return true;
-
         }
     }
 
@@ -162,14 +162,13 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
         } else {
             LoggerLib.Logger.Warn("Invalid sender type");
         }
-
     }
 
     private void AddItem(SceneNode? item) {
         if (!Enabled || item == null)
             return;
-        
-        
+
+
         if (item.HasBound) {
             var tree = MOctree;
             UpdateOctree(null);
@@ -185,6 +184,7 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
                         succeed = false;
                         break;
                     }
+
                     tree = expandedTree;
                     ++counter;
                     if (counter > 10) {
@@ -216,7 +216,7 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
     public override void RemoveItem(SceneNode? item) {
         if (!Enabled || Octree == null || item == null)
             return;
-        
+
         lock (lockObj) {
             if (item.HasBound) {
                 if (MOctree is not { } tree)
@@ -225,7 +225,7 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
                 item.TransformBoundChanged -= GeometryModel3DOctreeManager_OnBoundInitialized;
                 UnsubscribeBoundChangeEvent(item);
                 if (!tree.RemoveByBound(item)) {
-                    if (Logger.IsEnabled(LogLevel.Debug)) 
+                    if (Logger.IsEnabled(LogLevel.Debug))
                         Logger.Debug("Remove failed");
                 } else {
                     tree = tree.Shrink() as BoundableNodeOctree;
@@ -265,14 +265,14 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
         Matrix modelMatrix,
         ref List<HitTestResult> hits
     ) {
-        if (Octree == null) 
+        if (Octree == null)
             return false;
-        
+
         var hit = Octree.HitTest(context, model, null, modelMatrix, ref hits);
-       
-        foreach (var item in nonBoundableItems) 
+
+        foreach (var item in nonBoundableItems)
             hit |= item.HitTest(context, ref hits);
-        
+
         return hit;
     }
 }

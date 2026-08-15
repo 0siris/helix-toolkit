@@ -1,4 +1,6 @@
-namespace HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Interface;
+
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 public static class IRenderMetricesExtensions {
     /// <summary>

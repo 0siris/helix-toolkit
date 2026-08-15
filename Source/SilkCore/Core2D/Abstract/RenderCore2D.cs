@@ -4,8 +4,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Diagnostics.CodeAnalysis;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Core2D;
+namespace HelixToolkit.SharpDX.Core.Core2D.Abstract;
 /// <summary>
 /// </summary>
 public abstract class RenderCore2D : DisposeObject {

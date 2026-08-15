@@ -8,9 +8,11 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Globalization;
-using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Utilities.ImportExport;
 
 using Object3DGroup = List<Object3D>;
 using Point3D = Vector3;

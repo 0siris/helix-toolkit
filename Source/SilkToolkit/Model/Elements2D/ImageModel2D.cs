@@ -1,13 +1,15 @@
 using System.IO;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.Wpf.SharpDX.Core2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Element2D;
+using HelixToolkit.Wpf.SharpDX.Model.Elements2D.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 /// <summary>
 /// </summary>
-/// <seealso cref="HelixToolkit.Wpf.SharpDX.Elements2D.Element2D" />
-public class ImageModel2D : Element2D {
+/// <seealso cref="Element2D" />
+public class ImageModel2D : Abstract.Element2D {
     /// <summary>
     ///     The image stream property
     /// </summary>

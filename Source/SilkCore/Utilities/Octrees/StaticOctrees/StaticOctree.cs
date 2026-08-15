@@ -8,8 +8,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees.StaticOctrees;
 /// <summary>
 ///     Base class for array based static octree.
 /// </summary>

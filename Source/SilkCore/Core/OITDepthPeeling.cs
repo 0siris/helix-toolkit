@@ -5,9 +5,15 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 #define MSAASEPARATE
 
+using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
@@ -15,18 +21,26 @@ public sealed class OitDepthPeeling : RenderCore {
     private readonly ShaderResourceView?[] finalSrVs = new ShaderResourceView?[3];
     private readonly ShaderResourceViewProxy?[] minMaxZTargets = new ShaderResourceViewProxy?[2];
     private readonly RenderTargetView?[] targets = new RenderTargetView?[3];
-    private int currWidth, currHeight;
+
+    private int currWidth,
+        currHeight;
+
     private ShaderPass finalPass = ShaderPass.NullPass;
-    private ShaderResourceViewProxy? frontBlendingTarget, backBlendingTarget;
+
+    private ShaderResourceViewProxy? frontBlendingTarget,
+        backBlendingTarget;
 
     private ShaderResourceViewProxy MinMaxTarget(int index) => minMaxZTargets[index]
-        ?? throw new InvalidOperationException("OIT depth peeling targets are not initialized.");
+                                                               ?? throw new InvalidOperationException(
+                                                                   "OIT depth peeling targets are not initialized.");
 
     private ShaderResourceViewProxy FrontBlendingTarget => frontBlendingTarget
-        ?? throw new InvalidOperationException("OIT front blending target is not initialized.");
+                                                           ?? throw new InvalidOperationException(
+                                                               "OIT front blending target is not initialized.");
 
     private ShaderResourceViewProxy BackBlendingTarget => backBlendingTarget
-        ?? throw new InvalidOperationException("OIT back blending target is not initialized.");
+                                                          ?? throw new InvalidOperationException(
+                                                              "OIT back blending target is not initialized.");
 
 
     public OitDepthPeeling() : base(RenderType.Transparent) { }
@@ -38,9 +52,9 @@ public sealed class OitDepthPeeling : RenderCore {
     public int PeelingIteration { get; set; } = 4;
 
     private bool CreateRenderTargets(int width, int height) {
-        if (currWidth == width && currHeight == height) 
+        if (currWidth == width && currHeight == height)
             return false;
-        
+
         DisposeAllTargets();
         currWidth = width;
         currHeight = height;
@@ -58,11 +72,11 @@ public sealed class OitDepthPeeling : RenderCore {
 
         minMaxZTargets[0] = CreateRtv(tex2DDesc);
         minMaxZTargets[1] = CreateRtv(tex2DDesc);
-        
+
         tex2DDesc.Format = Format.FormatB8G8R8A8Unorm;
         frontBlendingTarget = CreateRtv(tex2DDesc);
         backBlendingTarget = CreateRtv(tex2DDesc);
-        
+
         return true;
     }
 
@@ -75,7 +89,6 @@ public sealed class OitDepthPeeling : RenderCore {
     }
 
     private void DisposeAllTargets() {
-        
         RemoveAndDispose(ref minMaxZTargets[0]);
         RemoveAndDispose(ref minMaxZTargets[1]);
         RemoveAndDispose(ref frontBlendingTarget);
@@ -88,21 +101,21 @@ public sealed class OitDepthPeeling : RenderCore {
         var backTarget = BackBlendingTarget;
         var minMaxTarget = MinMaxTarget(0);
         deviceContext.ClearRenderTargetView(frontTarget, color);
-        if (ExternRenderParameter.RenderTargetView is { Length: > 0 } renderTargets
-            && renderTargets[0] is { Resource: { } externalResource } && backTarget.Resource is { } backResource) {
+        if (ExternRenderParameter.RenderTargetView is {Length: > 0} renderTargets
+            && renderTargets[0] is {Resource: { } externalResource} && backTarget.Resource is { } backResource) {
             if (ExternRenderParameter.IsMsaaTexture)
                 deviceContext.ResolveSubresource(externalResource,
-                                                 0,
-                                                 backResource,
-                                                 0,
-                                                 Format.FormatB8G8R8A8Unorm);
+                    0,
+                    backResource,
+                    0,
+                    Format.FormatB8G8R8A8Unorm);
             else
                 deviceContext.CopyResource(externalResource, backResource);
         } else {
             color = new Color4(0, 0, 0, 0);
             deviceContext.ClearRenderTargetView(backTarget, color);
         }
-        
+
         color = new Color4(-1, -1, 0, 0);
         deviceContext.ClearRenderTargetView(minMaxTarget, color);
     }
@@ -114,9 +127,9 @@ public sealed class OitDepthPeeling : RenderCore {
                 return;
 
             RenderCount = renderer.RenderOpaque(context,
-                                                                   context.RenderHost.PerFrameTransparentNodes,
-                                                                   ref parameter,
-                                                                   context.EnableBoundingFrustum);
+                context.RenderHost.PerFrameTransparentNodes,
+                ref parameter,
+                context.EnableBoundingFrustum);
         } else {
             var count = context.RenderHost.PerFrameTransparentNodes.Count;
             for (var i = 0; i < count; ++i) {
@@ -128,7 +141,7 @@ public sealed class OitDepthPeeling : RenderCore {
     }
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (CreateRenderTargets((int)context.ActualWidth, (int)context.ActualHeight)) {
+        if (CreateRenderTargets((int) context.ActualWidth, (int) context.ActualHeight)) {
             RaiseInvalidateRender();
             return;
         }
@@ -136,13 +149,13 @@ public sealed class OitDepthPeeling : RenderCore {
         if (context.RenderHost.RenderBuffer is not { } buffer)
             return;
         var hasMsaa = buffer.ColorBufferSampleDesc.Count > 1;
-        var nonMsaaDepthBuffer = hasMsaa 
-                                     ? context.RenderHost.RenderBuffer.DepthStencilBufferNoMsaa 
-                                     : null;
-        
-        var depthStencilView = hasMsaa 
-                                   ? nonMsaaDepthBuffer 
-                                   : ExternRenderParameter.DepthStencilView;
+        var nonMsaaDepthBuffer = hasMsaa
+            ? context.RenderHost.RenderBuffer.DepthStencilBufferNoMsaa
+            : null;
+
+        var depthStencilView = hasMsaa
+            ? nonMsaaDepthBuffer
+            : ExternRenderParameter.DepthStencilView;
 
         RenderCount = 0;
         InitializeMinMaxRenderTarget(deviceContext);
@@ -159,11 +172,11 @@ public sealed class OitDepthPeeling : RenderCore {
             var currentTarget = MinMaxTarget(currId);
             var previousTarget = MinMaxTarget(prevId);
             deviceContext.ClearRenderTargetView(currentTarget, color);
-            
+
             targets[0] = currentTarget;
             targets[1] = FrontBlendingTarget;
             targets[2] = BackBlendingTarget;
-            
+
             deviceContext.SetRenderTargets(depthStencilView, targets);
             deviceContext.SetShaderResource(new PixelShaderType(), 100, previousTarget);
             DrawMesh(context, deviceContext);
@@ -171,14 +184,14 @@ public sealed class OitDepthPeeling : RenderCore {
         }
 
         context.OitRenderStage = OitRenderStage.None;
-        
+
         finalSrVs[0] = MinMaxTarget(currId);
         finalSrVs[1] = FrontBlendingTarget;
         finalSrVs[2] = BackBlendingTarget;
-        
+
         finalPass.BindShader(deviceContext);
         finalPass.BindStates(deviceContext, StateType.All);
-        
+
         deviceContext.SetRenderTargets(null, ExternRenderParameter.RenderTargetView);
         deviceContext.SetShaderResources(new PixelShaderType(), 100, finalSrVs);
         deviceContext.Draw(4, 0);

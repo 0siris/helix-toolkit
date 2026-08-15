@@ -1,7 +1,9 @@
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 /// <summary>
 ///     Used to share bone matrices for multiple <see cref="BoneSkinMeshGeometryModel3D" />
@@ -16,7 +18,7 @@ public sealed class BoneGroupModel3D : GroupModel3D {
                                     typeof(BoneGroupModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             if (d is Element3D { SceneNode: BoneGroupNode node })
+                                                             if (d is Model.Elements3D.AbstractElements3D.Element3D { SceneNode: BoneGroupNode node })
                                                                  node.BoneMatrices = (Matrix[])e.NewValue;
                                                          }));
 

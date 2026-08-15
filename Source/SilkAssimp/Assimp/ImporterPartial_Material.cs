@@ -6,7 +6,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Collections.Concurrent;
 using Assimp;
 using Assimp.Unmanaged;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Shaders;
 using TextureType = Assimp.TextureType;
 

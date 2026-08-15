@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
 namespace GroupElementTester;
 

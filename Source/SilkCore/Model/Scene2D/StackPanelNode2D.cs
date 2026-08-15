@@ -3,6 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.Native;
+
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public class StackPanelNode2D : PanelNode2D {
     public StackPanelNode2D() {

@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.Wpf.SharpDX.Model.Materials;
 
 namespace PolygonTriangulationDemo;
 
@@ -99,7 +102,7 @@ public partial class MainWindow : Window {
         var after = DateTime.Now;
 
         // Generate the Output
-        var geometry = new HelixToolkit.SharpDX.Core.MeshGeometry3D {
+        var geometry = new MeshGeometry3D {
             Positions = [],
             Normals = []
         };

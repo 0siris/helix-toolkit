@@ -1,3 +1,7 @@
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
+
 namespace CustomShaderDemo.Materials;
 
 public class CustomPointMaterialCore : PointMaterialCore {

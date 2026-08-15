@@ -3,9 +3,11 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
-namespace HelixToolkit.SharpDX.Core.Animations;
+namespace HelixToolkit.SharpDX.Core.Model.Animations;
 public struct Bone {
     public string Name;
     public SceneNode? ParentNode; // Used for scene graph based node animation

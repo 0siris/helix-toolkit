@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+
 namespace FileLoadDemo;
 
 /// <summary>

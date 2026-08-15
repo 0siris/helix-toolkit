@@ -6,7 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
-namespace SharpDX.Toolkit.Graphics;
+namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 
 public readonly struct DataPointer {
     public DataPointer(nint pointer, int size) {

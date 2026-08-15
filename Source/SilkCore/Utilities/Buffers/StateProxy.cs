@@ -1,4 +1,6 @@
-namespace HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Native;
+
+namespace HelixToolkit.SharpDX.Core.Utilities.Buffers;
 /// <summary>
 /// </summary>
 /// <typeparam name="StateType">The type of the tate type.</typeparam>

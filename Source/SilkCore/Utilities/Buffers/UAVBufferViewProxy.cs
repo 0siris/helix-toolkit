@@ -5,15 +5,16 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using Buffer = HelixToolkit.SharpDX.Core.Native.Buffer;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core.Utilities.Buffers;
 /// <summary>
 ///     Buffer based UAV/SRV view container.
 /// </summary>
 public sealed class UavBufferViewProxy : IDisposable {
     private bool disposedValue;
-    private Resource? resource;
+    private NativeD3DResource? resource;
 
     private ShaderResourceViewProxy? srv;
 

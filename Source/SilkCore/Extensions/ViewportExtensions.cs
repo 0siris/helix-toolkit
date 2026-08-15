@@ -1,7 +1,9 @@
-using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Controls;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Viewport;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Extensions;
 
 public static class ViewportExtensions {
     /// <summary>

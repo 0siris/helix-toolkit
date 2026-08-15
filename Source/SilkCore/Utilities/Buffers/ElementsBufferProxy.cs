@@ -4,9 +4,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using Buffer = HelixToolkit.SharpDX.Core.Native.Buffer;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 /// <summary>
 /// </summary>
@@ -155,7 +158,7 @@ public sealed class ImmutableBufferProxy : BufferProxyBase, IElementsBufferProxy
             StructureByteStride = StructureSize,
             Usage = Usage
         };
-        buffer = SharpDX.Core.Buffer.Create(context, data.GetArrayByType(), buffdesc);
+        buffer = Buffer.Create(context, data.GetArrayByType(), buffdesc);
     }
 
     /// <summary>

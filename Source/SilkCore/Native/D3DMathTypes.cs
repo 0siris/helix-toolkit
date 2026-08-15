@@ -5,7 +5,7 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using System.Runtime.InteropServices;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Native;
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Bool4 {

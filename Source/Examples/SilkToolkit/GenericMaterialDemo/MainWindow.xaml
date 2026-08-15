@@ -6,6 +6,9 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:GenericMaterialDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
     Title="MainWindow"
     Width="800"
     Height="450"
@@ -18,15 +21,15 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Background="Black"
             BackgroundColor="Black"
             Camera="{Binding Camera}"
             CameraMode="Inspect"
             EffectsManager="{Binding EffectsManager}">
-            <hx:DirectionalLight3D Direction="0, 0, 1" Color="White" />
-            <hx:Element3DPresenter Content="{Binding ModelGroup}" />
-        </hx:Viewport3DX>
+            <lights3D:DirectionalLight3D Direction="0, 0, 1" Color="White" />
+            <elements3D:Element3DPresenter Content="{Binding ModelGroup}" />
+        </controls:Viewport3DX>
     </Grid>
 </Window>

@@ -6,6 +6,10 @@
         xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
         xmlns:pt="clr-namespace:PropertyTools.Wpf;assembly=PropertyTools.Wpf"
         xmlns:local="clr-namespace:DeferredShadingDemo"
+        xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+        xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+        xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+        xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
         mc:Ignorable="d"
         Title="{Binding Title}" Height="500" Width="800">
     <Window.Resources>
@@ -21,7 +25,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             Grid.Row="1"
             x:Name="view1"
             Camera="{Binding Camera}"
@@ -33,28 +37,28 @@
             UseDefaultGestures="False"
             RenderTechnique="{Binding RenderTechnique}"
             EffectsManager="{Binding EffectsManager}">
-            <hx:Viewport3DX.InputBindings>
-                <MouseBinding Gesture="RightClick" Command="hx:ViewportCommands.Rotate" />
-                <MouseBinding Gesture="MiddleClick" Command="hx:ViewportCommands.Zoom" />
-                <MouseBinding Gesture="Shift+RightClick" Command="hx:ViewportCommands.Pan" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Color="{Binding DirectionalLightColor}"
+            <controls:Viewport3DX.InputBindings>
+                <MouseBinding Gesture="RightClick" Command="controls:ViewportCommands.Rotate" />
+                <MouseBinding Gesture="MiddleClick" Command="controls:ViewportCommands.Zoom" />
+                <MouseBinding Gesture="Shift+RightClick" Command="controls:ViewportCommands.Pan" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
+            <lights3D:DirectionalLight3D Color="{Binding DirectionalLightColor}"
                                    Direction="{Binding DirectionalLightDirection}" />
             <!--<hx:PointLight3D Color="{Binding PointLightColor}" Attenuation="{Binding PointLightAttenuation}" Transform="{Binding PointLightTransform1}"/>-->
             <!--<hx:PointLight3D Color="{Binding PointLightColor}" Attenuation="{Binding PointLightAttenuation}" Transform="{Binding PointLightTransform2}"/>-->
             <!--<hx:PointLight3D Color="{Binding PointLightColor}" Attenuation="{Binding PointLightAttenuation}" Transform="{Binding PointLightTransform3}"/>-->
-            <hx:Light3DCollection ItemsSource="{Binding PointLightCollection}" />
-            <hx:Light3DCollection ItemsSource="{Binding SpotLightCollection}" />
-            <hx:MeshGeometryModel3D x:Name="model1" Geometry="{Binding Model}" Transform="{Binding Model1Transform}"
+            <elements3D:Light3DCollection ItemsSource="{Binding PointLightCollection}" />
+            <elements3D:Light3DCollection ItemsSource="{Binding SpotLightCollection}" />
+            <element3D:MeshGeometryModel3D x:Name="model1" Geometry="{Binding Model}" Transform="{Binding Model1Transform}"
                                     Material="{Binding RedMaterial}" />
-            <hx:MeshGeometryModel3D x:Name="model2" Geometry="{Binding Model}" Transform="{Binding Model2Transform}"
+            <element3D:MeshGeometryModel3D x:Name="model2" Geometry="{Binding Model}" Transform="{Binding Model2Transform}"
                                     Material="{Binding GreenMaterial}" />
-            <hx:MeshGeometryModel3D x:Name="model3" Geometry="{Binding Model}" Transform="{Binding Model3Transform}"
+            <element3D:MeshGeometryModel3D x:Name="model3" Geometry="{Binding Model}" Transform="{Binding Model3Transform}"
                                     Material="{Binding BlueMaterial}" />
-            <hx:MeshGeometryModel3D x:Name="model4" Geometry="{Binding Plane}" Transform="{Binding PlaneTransform}"
+            <element3D:MeshGeometryModel3D x:Name="model4" Geometry="{Binding Plane}" Transform="{Binding PlaneTransform}"
                                     Material="{Binding PlaneMaterial}" />
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
 
         <StackPanel Grid.Row="1" Grid.Column="1">
             <Expander Header="Directional Light" HorizontalAlignment="Right" VerticalAlignment="Top" Width="150"

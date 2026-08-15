@@ -2,22 +2,31 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Model.Collection;
+using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Color = HelixToolkit.SharpDX.Core.Color;
+using DiffuseMaterial = HelixToolkit.Wpf.SharpDX.Material.DiffuseMaterial;
+using ProjectionCamera = HelixToolkit.Wpf.SharpDX.Camera.ProjectionCamera;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
 public class CameraModel3D : CompositeModel3D {
     public static readonly DependencyProperty CameraProperty =
         DependencyProperty.Register("Camera",
-                                    typeof(ProjectionCamera),
-                                    typeof(CameraModel3D),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                              ((CameraModel3D)d).camera =
-                                                                  e.NewValue as ProjectionCamera;
-                                                          }));
+            typeof(ProjectionCamera),
+            typeof(CameraModel3D),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((CameraModel3D) d).camera =
+                        e.NewValue as ProjectionCamera;
+                }));
 
     protected bool IsCaptured;
     protected Vector3 LastHitPos;
@@ -28,15 +37,21 @@ public class CameraModel3D : CompositeModel3D {
         var b1 = new MeshBuilder();
         b1.AddBox(new Vector3(), 1f, 1f, 1.2f, BoxFaces.All);
         var body = new MeshGeometryModel3D {
-            CullMode = CullMode.Back, Geometry = b1.ToMeshGeometry3D(),
-            Material = new DiffuseMaterial { DiffuseColor = Color.Gray }
+            CullMode = CullMode.Back,
+            Geometry = b1.ToMeshGeometry3D(),
+            Material = new DiffuseMaterial {
+                DiffuseColor = Color.Gray
+            }
         };
         Children.Add(body);
         b1 = new MeshBuilder();
         b1.AddCone(new Vector3(0, 0, -1.2f), new Vector3(0, 0f, 0), 0.4f, true, 12);
         var lens = new MeshGeometryModel3D {
-            CullMode = CullMode.Back, Geometry = b1.ToMeshGeometry3D(),
-            Material = new DiffuseMaterial { DiffuseColor = Color.Yellow }
+            CullMode = CullMode.Back,
+            Geometry = b1.ToMeshGeometry3D(),
+            Material = new DiffuseMaterial {
+                DiffuseColor = Color.Yellow
+            }
         };
         Children.Add(lens);
 
@@ -51,7 +66,8 @@ public class CameraModel3D : CompositeModel3D {
             Color = Colors.White,
             IsHitTestVisible = false
         };
-        var positions = mesh.Positions ?? throw new System.InvalidOperationException("Line geometry positions are required.");
+        var positions = mesh.Positions ??
+                        throw new System.InvalidOperationException("Line geometry positions are required.");
         var segment = positions.Count / 3;
         var colors = new Color4Collection(Enumerable.Repeat<Color4>(Color.Black, positions.Count));
         var i = 0;
@@ -67,7 +83,7 @@ public class CameraModel3D : CompositeModel3D {
     ///     Distance of the directional light from origin
     /// </summary>
     public ProjectionCamera? Camera {
-        get => (ProjectionCamera?)GetValue(CameraProperty);
+        get => (ProjectionCamera?) GetValue(CameraProperty);
         set => SetValue(CameraProperty, value);
     }
 
@@ -76,7 +92,9 @@ public class CameraModel3D : CompositeModel3D {
         private set {
             if (field == value) return;
             field = value;
-            Transform = field is null ? null : new MatrixTransform3D(field.GetInversedViewMatrix());
+            Transform = field is null
+                ? null
+                : new MatrixTransform3D(field.GetInversedViewMatrix());
         }
     }
 
@@ -107,7 +125,7 @@ public class CameraModel3D : CompositeModel3D {
     protected override void OnMouse3DMove(object sender, RoutedEventArgs e) {
         base.OnMouse3DMove(sender, e);
         if (IsCaptured) {
-            var args = (Mouse3DEventArgs)e;
+            var args = (Mouse3DEventArgs) e;
 
             // move dragmodel
             var normal = ViewportCamera!.LookDirection;
@@ -121,7 +139,7 @@ public class CameraModel3D : CompositeModel3D {
                     Transform = new TranslateTransform3D(offset);
                 else
                     Transform = new MatrixTransform3D(Transform.AppendTransform(new TranslateTransform3D(offset))
-                                                               .Value);
+                        .Value);
             }
         }
     }

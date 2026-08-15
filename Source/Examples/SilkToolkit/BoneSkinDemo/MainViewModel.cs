@@ -6,8 +6,15 @@ Model: Character. Source : https://github.com/spazzarama/Direct3D-Rendering-Cook
 using System.Diagnostics;
 using DemoCore;
 using HelixToolkit.SharpDX.Core.Assimp;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Animations;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Element3D;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;

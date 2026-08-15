@@ -12,11 +12,15 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.Wpf.SharpDX.Model;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Element3D;
+using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
 using Transform3D = Transform3D;
 
@@ -145,7 +149,7 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     /// <param name="source">
     ///     Source Visual3D which receives the manipulator transforms.
     /// </param>
-    public void Bind(Element3D source) {
+    public void Bind(AbstractElements3D.Element3D source) {
         BindingOperations.SetBinding(this, TargetTransformProperty, new Binding("Transform") { Source = source });
         BindingOperations.SetBinding(this, TransformProperty, new Binding("Transform") { Source = source });
     }

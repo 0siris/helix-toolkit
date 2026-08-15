@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace SharpDX;
+namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit;
 
 /// <summary>
 ///     Base interface for a component base.

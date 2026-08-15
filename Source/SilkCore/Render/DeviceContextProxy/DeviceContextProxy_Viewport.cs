@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
+using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+namespace HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 public partial class DeviceContextProxy {
     #region Viewport and Scissors
 

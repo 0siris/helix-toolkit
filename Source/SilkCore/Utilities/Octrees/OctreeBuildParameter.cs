@@ -1,6 +1,6 @@
 using HelixToolkit.SharpDX.Core.Model;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
 /// <summary>
 /// </summary>

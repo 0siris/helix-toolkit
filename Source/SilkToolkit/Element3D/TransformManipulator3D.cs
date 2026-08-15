@@ -9,13 +9,27 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Element3D.PostEffects;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using HelixToolkit.Wpf.SharpDX.Utilities;
+using Color = HelixToolkit.SharpDX.Core.Color;
 using Media = System.Windows.Media;
 using Media3D = System.Windows.Media.Media3D;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Element3D;
 
 public class TransformManipulator3D : GroupElement3D {
     private static readonly Geometry3D TranslationXGeometry;
@@ -33,7 +47,8 @@ public class TransformManipulator3D : GroupElement3D {
 
         bd = new MeshBuilder();
         var circle = MeshBuilder.GetCircle(32);
-        var path = circle.Select(x => new Vector3(0, x.X, x.Y)).ToArray();
+        var path = circle.Select(x => new Vector3(0, x.X, x.Y))
+            .ToArray();
         bd.AddTube(path, 0.06, 8, true);
         RotationXGeometry = bd.ToMesh();
 
@@ -53,22 +68,28 @@ public class TransformManipulator3D : GroupElement3D {
     }
 
     public TransformManipulator3D() {
-        var rotationYMatrix = SilkMath.RotationZ((float)Math.PI / 2);
-        var rotationZMatrix = SilkMath.RotationY(-(float)Math.PI / 2);
+        var rotationYMatrix = SilkMath.RotationZ((float) Math.PI / 2);
+        var rotationZMatrix = SilkMath.RotationY(-(float) Math.PI / 2);
         ctrlGroup = new GroupModel3D();
 
         #region Translation Models
 
         translationX = new MeshGeometryModel3D {
-            Geometry = TranslationXGeometry, Material = DiffuseMaterials.Red, CullMode = CullMode.Back,
+            Geometry = TranslationXGeometry,
+            Material = DiffuseMaterials.Red,
+            CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
         translationY = new MeshGeometryModel3D {
-            Geometry = TranslationXGeometry, Material = DiffuseMaterials.Green, CullMode = CullMode.Back,
+            Geometry = TranslationXGeometry,
+            Material = DiffuseMaterials.Green,
+            CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
         translationZ = new MeshGeometryModel3D {
-            Geometry = TranslationXGeometry, Material = DiffuseMaterials.Blue, CullMode = CullMode.Back,
+            Geometry = TranslationXGeometry,
+            Material = DiffuseMaterials.Blue,
+            CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
         translationY.Transform = new Media3D.MatrixTransform3D(rotationYMatrix.ToMatrix3D());
@@ -94,15 +115,21 @@ public class TransformManipulator3D : GroupElement3D {
         #region Rotation Models
 
         rotationX = new MeshGeometryModel3D {
-            Geometry = RotationXGeometry, Material = DiffuseMaterials.Red, CullMode = CullMode.Back,
+            Geometry = RotationXGeometry,
+            Material = DiffuseMaterials.Red,
+            CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
         rotationY = new MeshGeometryModel3D {
-            Geometry = RotationXGeometry, Material = DiffuseMaterials.Green, CullMode = CullMode.Back,
+            Geometry = RotationXGeometry,
+            Material = DiffuseMaterials.Green,
+            CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
         rotationZ = new MeshGeometryModel3D {
-            Geometry = RotationXGeometry, Material = DiffuseMaterials.Blue, CullMode = CullMode.Back,
+            Geometry = RotationXGeometry,
+            Material = DiffuseMaterials.Blue,
+            CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
         rotationY.Transform = new Media3D.MatrixTransform3D(rotationYMatrix.ToMatrix3D());
@@ -128,15 +155,21 @@ public class TransformManipulator3D : GroupElement3D {
         #region Scaling Models
 
         scaleX = new MeshGeometryModel3D {
-            Geometry = ScalingGeometry, Material = DiffuseMaterials.Red, CullMode = CullMode.Back,
+            Geometry = ScalingGeometry,
+            Material = DiffuseMaterials.Red,
+            CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
         scaleY = new MeshGeometryModel3D {
-            Geometry = ScalingGeometry, Material = DiffuseMaterials.Green, CullMode = CullMode.Back,
+            Geometry = ScalingGeometry,
+            Material = DiffuseMaterials.Green,
+            CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
         scaleZ = new MeshGeometryModel3D {
-            Geometry = ScalingGeometry, Material = DiffuseMaterials.Blue, CullMode = CullMode.Back,
+            Geometry = ScalingGeometry,
+            Material = DiffuseMaterials.Blue,
+            CullMode = CullMode.Back,
             PostEffects = "ManipulatorXRayGrid"
         };
         scaleY.Transform = new Media3D.MatrixTransform3D(rotationYMatrix.ToMatrix3D());
@@ -171,7 +204,7 @@ public class TransformManipulator3D : GroupElement3D {
             GridColor = Media.Colors.Gray
 #endif
         };
-        ((NodePostEffectXRayGrid)xrayEffect.SceneNode).XRayDrawingPassName =
+        ((NodePostEffectXRayGrid) xrayEffect.SceneNode).XRayDrawingPassName =
             DefaultPassNames.EffectMeshDiffuseXRayGridP3;
         Children.Add(xrayEffect);
         SceneNode.Attached += SceneNode_OnAttached;
@@ -192,7 +225,7 @@ public class TransformManipulator3D : GroupElement3D {
     protected virtual bool CanBeginTransform(MouseDown3DEventArgs e) => true;
 
     private void Manipulation_Mouse3DUp(object? sender, MouseUp3DEventArgs e) {
-        if (isCaptured && e.HitTestResult?.ModelHit is MeshGeometryModel3D { Material: DiffuseMaterial material })
+        if (isCaptured && e.HitTestResult?.ModelHit is MeshGeometryModel3D {Material: DiffuseMaterial material})
             material.DiffuseColor = currentColor;
 
         manipulationType = ManipulationType.None;
@@ -209,7 +242,7 @@ public class TransformManipulator3D : GroupElement3D {
     ///     Called when [target changed]. Use target boundingbox center as Manipulator center
     /// </summary>
     /// <param name="target">The target.</param>
-    private void OnTargetChanged(Element3D? target) {
+    private void OnTargetChanged(Model.Elements3D.AbstractElements3D.Element3D? target) {
         Debug.WriteLine("OnTargetChanged");
         //if(target != null)
         //{
@@ -249,7 +282,7 @@ public class TransformManipulator3D : GroupElement3D {
 
     private void OnUpdateSelfTransform() {
         var m = SilkMath.Translation(centerOffset + translationVector);
-        m.M11 = m.M22 = m.M33 = (float)sizeScale;
+        m.M11 = m.M22 = m.M33 = (float) sizeScale;
         ctrlGroup.Transform = new Media3D.MatrixTransform3D(m.ToMatrix3D());
     }
 
@@ -297,7 +330,9 @@ public class TransformManipulator3D : GroupElement3D {
             //Set hit distance to 0 so event manipulator is inside the model, hit test still works
             if (base.OnHitTest(context, totalModelMatrix, ref hits)) {
                 if (hits.Count > 0) {
-                    var res = new HitTestResult { Distance = float.MaxValue };
+                    var res = new HitTestResult {
+                        Distance = float.MaxValue
+                    };
                     foreach (var hit in hits)
                         if (hit.ModelHit is { } modelHit && models.Contains(modelHit))
                             if (hit.Distance < res.Distance)
@@ -315,294 +350,307 @@ public class TransformManipulator3D : GroupElement3D {
 
     #region Dependency Properties
 
-    public Element3D? Target {
-        get => (Element3D?)GetValue(TargetProperty);
+    public Model.Elements3D.AbstractElements3D.Element3D? Target {
+        get => (Model.Elements3D.AbstractElements3D.Element3D?) GetValue(TargetProperty);
         set => SetValue(TargetProperty, value);
     }
 
 
     public static readonly DependencyProperty TargetProperty =
         DependencyProperty.Register("Target",
-                                    typeof(Element3D),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(null,
-                                                         (d, e) => {
-                                                             ((TransformManipulator3D)d).OnTargetChanged(
-                                                                 (Element3D?)e.NewValue);
-                                                         }));
+            typeof(Model.Elements3D.AbstractElements3D.Element3D),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(null,
+                (d, e) => {
+                    ((TransformManipulator3D) d).OnTargetChanged(
+                        (Model.Elements3D.AbstractElements3D.Element3D?) e.NewValue);
+                }));
 
 
     public bool EnableScaling {
-        get => (bool)GetValue(EnableScalingProperty);
+        get => (bool) GetValue(EnableScalingProperty);
         set => SetValue(EnableScalingProperty, value);
     }
 
     public static readonly DependencyProperty EnableScalingProperty =
         DependencyProperty.Register("EnableScaling",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.scaleX.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableScalingX;
-                                                             manipulator.scaleY.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableScalingY;
-                                                             manipulator.scaleZ.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableScalingZ;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.scaleX.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableScalingX;
+                    manipulator.scaleY.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableScalingY;
+                    manipulator.scaleZ.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableScalingZ;
+                }));
 
     public bool EnableScalingX {
-        get => (bool)GetValue(EnableScalingXProperty);
+        get => (bool) GetValue(EnableScalingXProperty);
         set => SetValue(EnableScalingXProperty, value);
     }
 
     public static readonly DependencyProperty EnableScalingXProperty =
         DependencyProperty.Register("EnableScalingX",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.scaleX.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableScalingX;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.scaleX.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableScalingX;
+                }));
 
     public bool EnableScalingY {
-        get => (bool)GetValue(EnableScalingYProperty);
+        get => (bool) GetValue(EnableScalingYProperty);
         set => SetValue(EnableScalingYProperty, value);
     }
 
     public static readonly DependencyProperty EnableScalingYProperty =
         DependencyProperty.Register("EnableScalingY",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.scaleY.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableScaling;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.scaleY.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableScaling;
+                }));
 
     public bool EnableScalingZ {
-        get => (bool)GetValue(EnableScalingZProperty);
+        get => (bool) GetValue(EnableScalingZProperty);
         set => SetValue(EnableScalingZProperty, value);
     }
 
     public static readonly DependencyProperty EnableScalingZProperty =
         DependencyProperty.Register("EnableScalingZ",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.scaleZ.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableScaling;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.scaleZ.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableScaling;
+                }));
 
 
     public bool EnableTranslation {
-        get => (bool)GetValue(EnableTranslationProperty);
+        get => (bool) GetValue(EnableTranslationProperty);
         set => SetValue(EnableTranslationProperty, value);
     }
 
     public static readonly DependencyProperty EnableTranslationProperty =
         DependencyProperty.Register("EnableTranslation",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.translationX.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableTranslationX;
-                                                             manipulator.translationY.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableTranslationY;
-                                                             manipulator.translationZ.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableTranslationZ;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.translationX.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableTranslationX;
+                    manipulator.translationY.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableTranslationY;
+                    manipulator.translationZ.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableTranslationZ;
+                }));
 
     public bool EnableTranslationX {
-        get => (bool)GetValue(EnableTranslationXProperty);
+        get => (bool) GetValue(EnableTranslationXProperty);
         set => SetValue(EnableTranslationXProperty, value);
     }
 
     public static readonly DependencyProperty EnableTranslationXProperty =
         DependencyProperty.Register("EnableTranslationX",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.translationX.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableTranslation;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.translationX.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableTranslation;
+                }));
 
     public bool EnableTranslationY {
-        get => (bool)GetValue(EnableTranslationYProperty);
+        get => (bool) GetValue(EnableTranslationYProperty);
         set => SetValue(EnableTranslationYProperty, value);
     }
 
     public static readonly DependencyProperty EnableTranslationYProperty =
         DependencyProperty.Register("EnableTranslationY",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.translationY.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableTranslation;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.translationY.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableTranslation;
+                }));
 
     public bool EnableTranslationZ {
-        get => (bool)GetValue(EnableTranslationZProperty);
+        get => (bool) GetValue(EnableTranslationZProperty);
         set => SetValue(EnableTranslationZProperty, value);
     }
 
     public static readonly DependencyProperty EnableTranslationZProperty =
         DependencyProperty.Register("EnableTranslationZ",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.translationZ.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableTranslation;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.translationZ.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableTranslation;
+                }));
 
 
     public bool EnableRotation {
-        get => (bool)GetValue(EnableRotationProperty);
+        get => (bool) GetValue(EnableRotationProperty);
         set => SetValue(EnableRotationProperty, value);
     }
 
     public static readonly DependencyProperty EnableRotationProperty =
         DependencyProperty.Register("EnableRotation",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.rotationX.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableRotationX;
-                                                             manipulator.rotationY.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableRotationY;
-                                                             manipulator.rotationZ.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableRotationZ;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.rotationX.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableRotationX;
+                    manipulator.rotationY.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableRotationY;
+                    manipulator.rotationZ.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableRotationZ;
+                }));
 
     public bool EnableRotationX {
-        get => (bool)GetValue(EnableRotationXProperty);
+        get => (bool) GetValue(EnableRotationXProperty);
         set => SetValue(EnableRotationXProperty, value);
     }
 
     public static readonly DependencyProperty EnableRotationXProperty =
         DependencyProperty.Register("EnableRotationX",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.rotationX.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableRotation;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.rotationX.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableRotation;
+                }));
 
     public bool EnableRotationY {
-        get => (bool)GetValue(EnableRotationYProperty);
+        get => (bool) GetValue(EnableRotationYProperty);
         set => SetValue(EnableRotationYProperty, value);
     }
 
     public static readonly DependencyProperty EnableRotationYProperty =
         DependencyProperty.Register("EnableRotationY",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.rotationY.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableRotation;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.rotationY.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableRotation;
+                }));
 
     public bool EnableRotationZ {
-        get => (bool)GetValue(EnableRotationZProperty);
+        get => (bool) GetValue(EnableRotationZProperty);
         set => SetValue(EnableRotationZProperty, value);
     }
 
     public static readonly DependencyProperty EnableRotationZProperty =
         DependencyProperty.Register("EnableRotationZ",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.rotationZ.IsRendering =
-                                                                 (bool)e.NewValue && manipulator.EnableRotation;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.rotationZ.IsRendering =
+                        (bool) e.NewValue && manipulator.EnableRotation;
+                }));
 
 
     public bool EnableXRayGrid {
-        get => (bool)GetValue(EnableXRayGridProperty);
+        get => (bool) GetValue(EnableXRayGridProperty);
         set => SetValue(EnableXRayGridProperty, value);
     }
 
     public static readonly DependencyProperty EnableXRayGridProperty =
         DependencyProperty.Register("EnableXRayGrid",
-                                    typeof(bool),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                              ((TransformManipulator3D)d).xrayEffect.IsRendering =
-                                                                 (bool)e.NewValue;
-                                                         }));
+            typeof(bool),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(true,
+                (d, e) => {
+                    ((TransformManipulator3D) d).xrayEffect.IsRendering =
+                        (bool) e.NewValue;
+                }));
 
 
     [TypeConverter(typeof(Vector3Converter))]
     public Vector3 CenterOffset {
-        get => (Vector3)GetValue(CenterOffsetProperty);
+        get => (Vector3) GetValue(CenterOffsetProperty);
         set => SetValue(CenterOffsetProperty, value);
     }
 
     public static readonly DependencyProperty CenterOffsetProperty =
         DependencyProperty.Register("CenterOffset",
-                                    typeof(Vector3),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(Vector3.Zero,
-                                                         (d, e) => {
-                                                             var manipulator = (TransformManipulator3D)d;
-                                                             manipulator.centerOffset = (Vector3)e.NewValue;
-                                                             manipulator.OnUpdateSelfTransform();
-                                                         }));
+            typeof(Vector3),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(Vector3.Zero,
+                (d, e) => {
+                    var manipulator = (TransformManipulator3D) d;
+                    manipulator.centerOffset = (Vector3) e.NewValue;
+                    manipulator.OnUpdateSelfTransform();
+                }));
 
     public double SizeScale {
-        get => (double)GetValue(SizeScaleProperty);
+        get => (double) GetValue(SizeScaleProperty);
         set => SetValue(SizeScaleProperty, value);
     }
 
     public static readonly DependencyProperty SizeScaleProperty =
         DependencyProperty.Register("SizeScale",
-                                    typeof(double),
-                                    typeof(TransformManipulator3D),
-                                    new PropertyMetadata(1.0,
-                                                         (d, e) => {
-                                                             ((TransformManipulator3D)d).sizeScale =
-                                                                 (double)e.NewValue;
-                                                         }));
+            typeof(double),
+            typeof(TransformManipulator3D),
+            new PropertyMetadata(1.0,
+                (d, e) => {
+                    ((TransformManipulator3D) d).sizeScale =
+                        (double) e.NewValue;
+                }));
 
     #endregion
 
     #region Variables
 
-    private readonly MeshGeometryModel3D translationX, translationY, translationZ;
-    private readonly MeshGeometryModel3D rotationX, rotationY, rotationZ;
-    private readonly MeshGeometryModel3D scaleX, scaleY, scaleZ;
-    private readonly GroupModel3D translationGroup, rotationGroup, scaleGroup, ctrlGroup;
-    private readonly Element3D xrayEffect;
+    private readonly MeshGeometryModel3D translationX,
+        translationY,
+        translationZ;
+
+    private readonly MeshGeometryModel3D rotationX,
+        rotationY,
+        rotationZ;
+
+    private readonly MeshGeometryModel3D scaleX,
+        scaleY,
+        scaleZ;
+
+    private readonly GroupModel3D translationGroup,
+        rotationGroup,
+        scaleGroup,
+        ctrlGroup;
+
+    private readonly Model.Elements3D.AbstractElements3D.Element3D xrayEffect;
     private Vector3 centerOffset = Vector3.Zero;
     private Vector3 translationVector = Vector3.Zero;
     private Matrix rotationMatrix = Matrix.Identity;
     private Matrix scaleMatrix = Matrix.Identity;
     private Matrix targetMatrix = Matrix.Identity;
 
-    private Element3D? target;
+    private Model.Elements3D.AbstractElements3D.Element3D? target;
     private Viewport3DX? currentViewport;
     private Vector3 lastHitPosWs;
     private Vector3 normal;
@@ -620,7 +668,7 @@ public class TransformManipulator3D : GroupElement3D {
     private void Translation_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
         var hitResult = e.HitTestResult;
-        if (hitResult?.ModelHit is not Element3D elem) {
+        if (hitResult?.ModelHit is not Model.Elements3D.AbstractElements3D.Element3D elem) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;
@@ -641,7 +689,7 @@ public class TransformManipulator3D : GroupElement3D {
             return;
         }
 
-        if (elem is not MeshGeometryModel3D { Material: DiffuseMaterial material } || e.Viewport is not { } viewport) {
+        if (elem is not MeshGeometryModel3D {Material: DiffuseMaterial material} || e.Viewport is not { } viewport) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;
@@ -689,7 +737,7 @@ public class TransformManipulator3D : GroupElement3D {
     private void Rotation_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
         var hitResult = e.HitTestResult;
-        if (hitResult?.ModelHit is not Element3D elem) {
+        if (hitResult?.ModelHit is not Model.Elements3D.AbstractElements3D.Element3D elem) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;
@@ -710,7 +758,7 @@ public class TransformManipulator3D : GroupElement3D {
             return;
         }
 
-        if (elem is not MeshGeometryModel3D { Material: DiffuseMaterial material } || e.Viewport is not { } viewport) {
+        if (elem is not MeshGeometryModel3D {Material: DiffuseMaterial material} || e.Viewport is not { } viewport) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;
@@ -751,7 +799,7 @@ public class TransformManipulator3D : GroupElement3D {
             }
 
             var sign = -SilkMath.Dot(axis, currentAxis);
-            var theta = (float)(Math.Sign(sign) * Math.Asin(currentAxis.Length));
+            var theta = (float) (Math.Sign(sign) * Math.Asin(currentAxis.Length));
             switch (manipulationType) {
                 case ManipulationType.RotationX:
                     rotationMatrix *= SilkMath.RotationX(theta);
@@ -775,7 +823,7 @@ public class TransformManipulator3D : GroupElement3D {
     private void Scaling_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
         var hitResult = e.HitTestResult;
-        if (hitResult?.ModelHit is not Element3D elem) {
+        if (hitResult?.ModelHit is not Model.Elements3D.AbstractElements3D.Element3D elem) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;
@@ -796,7 +844,7 @@ public class TransformManipulator3D : GroupElement3D {
             return;
         }
 
-        if (elem is not MeshGeometryModel3D { Material: DiffuseMaterial material } || e.Viewport is not { } viewport) {
+        if (elem is not MeshGeometryModel3D {Material: DiffuseMaterial material} || e.Viewport is not { } viewport) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;

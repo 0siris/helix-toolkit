@@ -10,7 +10,7 @@
 using System;
 using System.Windows;
 
-namespace HelixToolkit.Wpf.SharpDX;
+namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
 
 /// <summary>
 ///     Provides data for the manipulation events.

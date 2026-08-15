@@ -10,10 +10,10 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Material;
 
-
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Utilities.ImportExport;
 
 using FileFormatException = Exception;
 using Mesh3DGroup = List<Object3D>;

@@ -4,7 +4,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUG
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+
+namespace HelixToolkit.SharpDX.Core.Utilities.Octrees.StaticOctrees;
 /// <summary>
 ///     Static octree for points
 /// </summary>

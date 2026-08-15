@@ -4,6 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:hx="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+        xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+        xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+        xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
         mc:Ignorable="d"
         Title="{Binding Title}" Height="500" Width="800">
     <Grid>
@@ -11,7 +14,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             Grid.Row="0"
             x:Name="view1"
             Camera="{Binding Camera}"
@@ -24,19 +27,19 @@
             BackgroundColor="{Binding BackgroundColor}"
             RenderTechnique="{Binding RenderTechnique}"
             EffectsManager="{Binding EffectsManager}">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Gesture="Control+E" Command="hx:ViewportCommands.ZoomExtents" />
-                <MouseBinding Gesture="RightClick" Command="hx:ViewportCommands.Rotate" />
-                <MouseBinding Gesture="MiddleClick" Command="hx:ViewportCommands.Zoom" />
-                <MouseBinding Gesture="Shift+RightClick" Command="hx:ViewportCommands.Pan" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Color="{Binding DirectionalLightColor}"
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Gesture="Control+E" Command="controls:ViewportCommands.ZoomExtents" />
+                <MouseBinding Gesture="RightClick" Command="controls:ViewportCommands.Rotate" />
+                <MouseBinding Gesture="MiddleClick" Command="controls:ViewportCommands.Zoom" />
+                <MouseBinding Gesture="Shift+RightClick" Command="controls:ViewportCommands.Pan" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
+            <lights3D:DirectionalLight3D Color="{Binding DirectionalLightColor}"
                                    Direction="{Binding DirectionalLightDirection1}" />
-            <hx:DirectionalLight3D Color="{Binding DirectionalLightColor}"
+            <lights3D:DirectionalLight3D Color="{Binding DirectionalLightColor}"
                                    Direction="{Binding DirectionalLightDirection2}" />
-            <hx:GroupModel3D x:Name="group" ItemsSource="{Binding ModelGeometry}" Transform="{Binding ModelTransform}" />
-        </hx:Viewport3DX>
+            <elements3D:GroupModel3D x:Name="group" ItemsSource="{Binding ModelGeometry}" Transform="{Binding ModelTransform}" />
+        </controls:Viewport3DX>
 
         <StatusBar Grid.Row="1" VerticalAlignment="Bottom">
             <StatusBar.Background>

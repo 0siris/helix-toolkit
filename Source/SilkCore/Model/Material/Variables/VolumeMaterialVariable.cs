@@ -3,11 +3,15 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Model;
+namespace HelixToolkit.SharpDX.Core.Model.Material.Variables;
 public class VolumeMaterialVariable<T> : MaterialVariable {
     private readonly VolumeTextureMaterialCoreBase<T> material;
     private readonly int samplerSlot;
@@ -65,7 +69,7 @@ public class VolumeMaterialVariable<T> : MaterialVariable {
     }
 
     private void UpdateStepSize() {
-        if (texture?.Resource is Texture3D texture3D) {
+        if (texture?.Resource is NativeD3DTexture3D texture3D) {
             var desc = texture3D.Description;
             var maxSize = Math.Max(desc.Width, Math.Max(desc.Height, desc.Depth));
             var steps = 1f / maxSize * (float)material.SampleDistance;

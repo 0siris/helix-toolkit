@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HelixToolkit.Wpf.SharpDX.Extensions;
+
 namespace EnvironmentMapDemo;
 
 using System;

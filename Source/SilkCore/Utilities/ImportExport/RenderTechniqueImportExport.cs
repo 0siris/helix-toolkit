@@ -5,9 +5,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.Serialization;
 using System.Xml;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core;
+namespace HelixToolkit.SharpDX.Core.Utilities.ImportExport;
 
 public static class ShaderExporter {
     /// <summary>

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.Logger;
+namespace HelixToolkit.SharpDX.Core.Logger;
 
 /// <summary>
 /// </summary>

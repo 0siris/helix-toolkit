@@ -3,6 +3,12 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using HelixToolkit.SharpDX.Core.Core2D.Abstract;
+using HelixToolkit.SharpDX.Core.Core2D.Models;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
+
 namespace HelixToolkit.SharpDX.Core.Core2D;
 /// <summary>
 /// </summary>

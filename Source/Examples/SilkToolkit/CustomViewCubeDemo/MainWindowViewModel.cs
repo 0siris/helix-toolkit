@@ -1,6 +1,14 @@
 ﻿using HelixToolkit.Wpf.SharpDX;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
+using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;

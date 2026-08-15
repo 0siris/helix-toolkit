@@ -5,7 +5,20 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 
 using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.Core.Batching;
+using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Octrees;
+using HelixToolkit.SharpDX.Core.Utilities.Octrees.StaticOctrees;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 
@@ -127,7 +140,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
             var b = currentGeometries[0].Geometry.Bound;
             var bs = currentGeometries[0].Geometry.BoundingSphere;
             foreach (var geo in currentGeometries) {
-                b = BoundingBox.Merge(b, geo.Geometry.Bound.Transform(geo.ModelTransform));
+                b = BoundingBox.Merge(b, BoundingBoxExtensions.Transform(geo.Geometry.Bound, geo.ModelTransform));
                 bs = BoundingSphereExtensions.Merge(bs,
                     geo.Geometry.BoundingSphere.TransformBoundingSphere(
                         geo.ModelTransform));
@@ -153,7 +166,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         var old = boundsWithTransform;
         boundsWithTransform = originalBounds == MaxBound
             ? MaxBound
-            : originalBounds.Transform(TotalModelMatrixInternal);
+            : BoundingBoxExtensions.Transform(originalBounds, TotalModelMatrixInternal);
         
         var oldBs = boundsSphereWithTransform;
         boundsSphereWithTransform = originalBoundsSphere == MaxBoundSphere
@@ -206,7 +219,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         ref List<HitTestResult> hits
     ) {
         var rayWs = context.RayWs;
-        if (rayWs.Intersects(boundsWithTransform) && rayWs.Intersects(boundsSphereWithTransform)) {
+        if (RayExtensions.Intersects(rayWs, boundsWithTransform) && RayExtensions.Intersects(rayWs, boundsSphereWithTransform)) {
             var source = WrapperSource.AssertNotNull("Hit-test source must be initialized.");
             if (BatchedGeometryOctree is {TreeBuilt: true})
                 return BatchedGeometryOctree.HitTest(context, source, null, totalModelMatrix, ref hits);

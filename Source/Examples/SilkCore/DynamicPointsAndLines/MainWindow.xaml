@@ -5,6 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DynamicPointsAndLines"
         xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+        xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
+        xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
+        xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
         Title="DynamicPointsAndLines"
         Width="640"
         Height="480"
@@ -50,7 +53,7 @@
                     SmallChange="1"
                     Value="{Binding NumberOfPoints}" />
         </DockPanel>
-        <hx:Viewport3DX
+        <controls:Viewport3DX
             x:Name="view1"
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}"
@@ -60,23 +63,23 @@
             CoordinateSystemLabelForeground="OrangeRed"
             TextBrush="Black"
             UseDefaultGestures="False">
-            <hx:Viewport3DX.InputBindings>
-                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-            </hx:Viewport3DX.InputBindings>
-            <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-            <hx:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
+            <controls:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="controls:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="controls:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="controls:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="controls:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="controls:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="controls:ViewportCommands.RightView" />
+                <KeyBinding Command="controls:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="controls:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
+            </controls:Viewport3DX.InputBindings>
+            <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
+            <lights3D:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
                                    Color="{Binding DirectionalLightColor}" />
 
-            <hx:LineGeometryModel3D
+            <element3D:LineGeometryModel3D
                 Geometry="{Binding Lines}"
                 Transform="{Binding Lines1Transform}"
                 FixedSize="True"
@@ -85,7 +88,7 @@
                 Thickness="1.0"
                 Color="Green" />
 
-            <hx:LineGeometryModel3D
+            <element3D:LineGeometryModel3D
                 Geometry="{Binding Lines}"
                 Transform="{Binding Lines2Transform}"
                 FixedSize="False"
@@ -94,7 +97,7 @@
                 Thickness="0.2"
                 Color="Blue" />
 
-            <hx:PointGeometryModel3D
+            <element3D:PointGeometryModel3D
                 Geometry="{Binding Points}"
                 Transform="{Binding Points1Transform}"
                 IsRendering="True"
@@ -102,6 +105,6 @@
                 Size="5.5, 1.5"
                 Color="Red" />
 
-        </hx:Viewport3DX>
+        </controls:Viewport3DX>
     </DockPanel>
 </Window>

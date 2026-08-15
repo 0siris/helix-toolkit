@@ -6,6 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core2D;
 /// <summary>

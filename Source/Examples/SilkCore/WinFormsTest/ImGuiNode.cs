@@ -1,15 +1,16 @@
-﻿using ImGuiNET;
+﻿using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
+using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Utilities.Buffers;
+using ImGuiNET;
 using Format = Silk.NET.DXGI.Format;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 
-namespace HelixToolkit.SharpDX.Core.Model;
-
-using Core;
-using Core.Components;
-using Scene;
-using Render;
-using Shaders;
-using Utilities;
+namespace WinFormsTest;
 
 public class ImGuiNode : SceneNode {
     #region Custom Render Technique

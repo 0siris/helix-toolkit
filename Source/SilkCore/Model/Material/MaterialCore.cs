@@ -3,7 +3,10 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Material.Variables;
+
+namespace HelixToolkit.SharpDX.Core.Model.Material;
 /// <summary>
 /// </summary>
 public abstract class MaterialCore : ObservableObject, IMaterial {

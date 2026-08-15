@@ -5,7 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.InteropServices;
 
-namespace SharpDX.Toolkit.Graphics;
+namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 
 internal static class DdsHelper {
     public static unsafe Image? LoadFromDdsMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {

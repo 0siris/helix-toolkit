@@ -11,8 +11,6 @@ using HelixToolkit.SharpDX.Core.Viewport;
 namespace HelixToolkit.SharpDX.Core.Controls;
 
 public sealed class CameraController {
-    private static readonly Vector2 PointZero = Vector2.Zero;
-
     private static readonly Vector3 Vector3DZero = new();
 
     private static readonly Vector2 VectorZero = new();

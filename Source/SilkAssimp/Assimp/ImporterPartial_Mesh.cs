@@ -228,7 +228,7 @@ public partial class Importer {
                             break;
                         default:
                             Logger.Warn(
-                                "Bone index count {Value0} is out of range. Maximum 4 bone indices per vertex are supported.",
+                                "Bone index count {Value0} is out of range. Maximum 4 bone indices per vertex are supported",
                                 currIdx);
                             break;
                     }

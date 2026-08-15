@@ -48,7 +48,7 @@ public sealed class RotateHandler(CameraController controller, bool changeLookAt
     /// <summary>
     ///     Occurs when the position is changed during a manipulation.
     /// </summary>
-    /// <param name="e">The <see cref="T:SharpDX.Vector2" /> instance containing the event data.</param>
+    /// <param name="e">The <see cref="Vector2" /> instance containing the event data.</param>
     public override void Delta(Vector2 e) {
         base.Delta(e);
         Rotate(LastPoint, e, rotationPoint3D);
@@ -149,7 +149,7 @@ public sealed class RotateHandler(CameraController controller, bool changeLookAt
     /// <summary>
     ///     Occurs when the manipulation is started.
     /// </summary>
-    /// <param name="e">The <see cref="T:SharpDX.Vector2" /> instance containing the event data.</param>
+    /// <param name="e">The <see cref="Vector2" /> instance containing the event data.</param>
     protected override void Started(Vector2 e) {
         base.Started(e);
         rotationPoint = new Vector2(Controller.Width / 2f, Controller.Height / 2f);

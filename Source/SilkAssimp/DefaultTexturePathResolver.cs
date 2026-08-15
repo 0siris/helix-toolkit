@@ -20,7 +20,7 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
             if (!FileExists(p))
                 p = HandleTexturePathNotFound(dict, texturePath);
             if (!FileExists(p)) {
-                Logger.Warn("Load Texture Failed. Texture Path = {Value0}.", texturePath);
+                Logger.Warn("Load Texture Failed. Texture Path = {Value0}", texturePath);
                 return null;
             }
 

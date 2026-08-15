@@ -33,7 +33,8 @@ public class BorderRenderCore2D : RenderCore2DBase {
         get => background;
         set {
             var old = background;
-            if (SetAffectsRender(ref background, value)) RemoveAndDispose(ref old);
+            if (SetAffectsRender(ref background, value)) 
+                RemoveAndDispose(ref old);
         }
     }
 

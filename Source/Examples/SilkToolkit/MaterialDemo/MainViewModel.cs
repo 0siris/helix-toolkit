@@ -66,8 +66,6 @@ public class MainViewModel : BaseViewModel {
 
     public ICommand OpenPbrSampleCommand { get; }
 
-    private Random rnd = new();
-
     private readonly SynchronizationContext context = SynchronizationContext.Current
                                                       ?? throw new InvalidOperationException(
                                                           "The material demo requires a synchronization context.");

@@ -16,12 +16,9 @@ using System.Windows;
 /// Interaction logic for MainWindow.xaml
 /// </summary>
 public partial class MainWindow : Window {
-    private MainViewModel mvm;
-
     public MainWindow() {
         InitializeComponent();
-        mvm = new MainViewModel();
-        DataContext = mvm;
+        DataContext = new MainViewModel();
         Closed += (_, _) => {
             if (DataContext is IDisposable disposable) {
                 disposable.Dispose();

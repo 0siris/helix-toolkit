@@ -15,6 +15,7 @@
     Title="{Binding Title}"
     Width="900"
     Height="800"
+    d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
     mc:Ignorable="d">
     <Window.Resources>
     </Window.Resources>

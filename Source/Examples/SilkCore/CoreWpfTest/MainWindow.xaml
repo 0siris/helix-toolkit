@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CoreWpfTest"
+         xmlns:local="clr-namespace:CoreWpfTest"
+         xmlns:scene="clr-namespace:HelixToolkit.SharpDX.Core.Model.Scene.Abstract;assembly=SilkCore"
         xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
         xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
         xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
@@ -11,6 +12,7 @@
         xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
         xmlns:postEffects="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D.PostEffects;assembly=SilkToolkit"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Grid.Resources>
@@ -110,13 +112,17 @@
             <ScrollViewer Grid.Row="1">
                 <TreeView ItemsSource="{Binding GroupModel.GroupNode.Items}">
                     <TreeView.ItemContainerStyle>
+                        <!-- ReSharper disable Xaml.BindingWithContextNotResolved -->
                         <Style TargetType="TreeViewItem">
                             <Setter Property="IsSelected" Value="{Binding Tag.Selected, Mode=TwoWay}" />
                             <Setter Property="IsExpanded" Value="{Binding Tag.Expanded, Mode=TwoWay}" />
                         </Style>
+                        <!-- ReSharper restore Xaml.BindingWithContextNotResolved -->
                     </TreeView.ItemContainerStyle>
                     <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Items}" >
+                        <HierarchicalDataTemplate DataType="{x:Type scene:SceneNode}"
+                                                  d:DataContext="{d:DesignInstance Type=scene:SceneNode}"
+                                                  ItemsSource="{Binding Items}">
                             <TextBlock Text="{Binding Name}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">

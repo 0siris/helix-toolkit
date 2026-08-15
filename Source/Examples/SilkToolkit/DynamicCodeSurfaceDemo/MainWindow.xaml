@@ -98,12 +98,10 @@
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
-                        <RowDefinition />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Text="Elements in 'u' direction" />
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Elements in 'v' direction" />
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Parameter 'w'" />
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Stereobase" />
                     <Slider
                         Name="Slider1"
                         Grid.Row="0"
@@ -128,15 +126,6 @@
                         Maximum="2"
                         Minimum="0"
                         Value="{Binding ParameterW}" />
-                    <Slider
-                        Name="Slider4"
-                        Grid.Row="3"
-                        Grid.Column="1"
-                        Margin="10,0,10,0"
-                        IsEnabled="{Binding ViewStereo}"
-                        Maximum="1.2"
-                        Minimum="0.003"
-                        Value="{Binding StereoBase}" />
                     <TextBlock
                         Grid.Row="0"
                         Grid.Column="2"
@@ -149,11 +138,6 @@
                         Grid.Row="2"
                         Grid.Column="2"
                         Text="{Binding ParameterW, StringFormat={}{0:N2}}" />
-                    <TextBlock
-                        Grid.Row="3"
-                        Grid.Column="2"
-                        IsEnabled="{Binding ViewStereo}"
-                        Text="{Binding StereoBase, StringFormat={}{0:N3}}" />
                 </Grid>
                 <ListView
                     x:Name="ErrorList"

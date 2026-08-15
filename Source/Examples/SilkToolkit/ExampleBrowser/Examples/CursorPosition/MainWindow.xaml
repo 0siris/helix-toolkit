@@ -57,7 +57,6 @@
             <controls:Viewport3DX
                 x:Name="View1"
                 EnableCursorPosition="True"
-                EnableCurrentPosition="True"
                 Title="{Binding Title}"
                 Camera="{Binding Camera}"
                 CoordinateSystemLabelForeground="White"
@@ -131,15 +130,15 @@
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="x" Margin="5,0,4,0" />
                     <TextBox Grid.Row="0" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
-                             Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                             Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=Grid}}"
                              Text="{Binding Path=CursorPosition.X, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=0.0}" />
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="y" Margin="5,0,4,0" />
                     <TextBox Grid.Row="1" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
-                             Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                             Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=Grid}}"
                              Text="{Binding Path=CursorPosition.Y, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=0.0}" />
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="z" Margin="5,0,4,0" />
                     <TextBox Grid.Row="2" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
-                             Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                             Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=Grid}}"
                              Text="{Binding Path=CursorPosition.Z, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=0.0}" />
                     <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"
                                Text="Cursor" Background="Beige" />
@@ -163,15 +162,15 @@
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="x" Margin="5,0,4,0" />
                     <TextBox Grid.Row="0" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
-                             Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                              Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=Grid}}"
                              Text="{Binding Path=CursorOnElementPosition.X, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="y" Margin="5,0,4,0" />
                     <TextBox Grid.Row="1" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
-                             Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                              Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=Grid}}"
                              Text="{Binding Path=CursorOnElementPosition.Y, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="z" Margin="5,0,4,0" />
                     <TextBox Grid.Row="2" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
-                             Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                              Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=Grid}}"
                              Text="{Binding Path=CursorOnElementPosition.Z, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"
                                Text="OnElement" Background="BlanchedAlmond" />
@@ -195,15 +194,15 @@
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="x" Margin="5,0,4,0" />
                     <TextBox Grid.Row="0" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
-                             Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                              Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=Grid}}"
                              Text="{Binding Path=CurrentPosition.X, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="y" Margin="5,0,4,0" />
                     <TextBox Grid.Row="1" Grid.Column="1" BorderThickness="0" TextAlignment="Right" 
-                             Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                              Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=Grid}}"
                              Text="{Binding Path=CurrentPosition.Y, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="z" Margin="5,0,4,0" />
                     <TextBox Grid.Row="2" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
-                             Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                              Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=Grid}}"
                              Text="{Binding Path=CurrentPosition.Z, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"
                                Text="CurrentPosition" Background="BlanchedAlmond" />

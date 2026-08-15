@@ -64,7 +64,7 @@ public class MainViewModel : BaseViewModel {
         set => SetXValue(value);
     }
 
-    public ProjectionCamera Camera1 { private set; get; }
+    public PerspectiveCamera Camera1 { private set; get; }
     //public Camera Camera2 { private set; get; }
 
     public MainViewModel() {

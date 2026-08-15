@@ -64,7 +64,8 @@
                 ItemsSource="{Binding ItemsSource}"
                 Transform="{Binding ItemsModel3DTransform}">
                 <elements3D:ItemsModel3D.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate DataType="{x:Type local:MeshDataModel}"
+                                  d:DataContext="{d:DesignInstance local:MeshDataModel}">
                         <element3D:MeshGeometryModel3D
                             Geometry="{Binding Geometry}"
                             Material="{Binding Material}"

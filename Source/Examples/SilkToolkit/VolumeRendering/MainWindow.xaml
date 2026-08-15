@@ -6,6 +6,7 @@
     xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
     xmlns:local="clr-namespace:VolumeRendering"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:volumeMaterial="clr-namespace:HelixToolkit.Wpf.SharpDX.Material;assembly=SilkToolkit"
     xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
     xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
     xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
@@ -17,7 +18,9 @@
         <local:MainViewModel x:Key="ViewModel" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Window.Resources>
-    <Grid DataContext="{StaticResource ViewModel}">
+    <Grid
+        DataContext="{StaticResource ViewModel}"
+        d:DataContext="{d:DesignInstance Type=local:MainViewModel}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
@@ -42,7 +45,10 @@
             <Button Margin="4" Command="{Binding LoadCloudCommand}">Load Noise</Button>
             <Button Margin="4" Command="{Binding LoadBeetleCommand}">Load Beetle</Button>
 
-            <StackPanel Orientation="Vertical" DataContext="{Binding VolumeMaterial}">
+            <StackPanel
+                DataContext="{Binding VolumeMaterial}"
+                d:DataContext="{d:DesignInstance Type=volumeMaterial:VolumeTextureDiffuseMaterial}"
+                Orientation="Vertical">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Margin="4">IterationOffset:</TextBlock>
                     <TextBlock Text="{Binding IterationOffset}" />

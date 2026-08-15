@@ -18,7 +18,7 @@
                 Stop
             </Button>
         </StackPanel>
-        <ComboBox x:Name="ProjectCombo" HorizontalAlignment="Right" VerticalAlignment="Center" Width="200"
+        <ComboBox Grid.Row="0" x:Name="ProjectCombo" HorizontalAlignment="Right" VerticalAlignment="Center" Width="200"
                   DisplayMemberPath="Item1" />
         <RichTextBox x:Name="LogTextbox" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible">
             <FlowDocument x:Name="FlowDocument">

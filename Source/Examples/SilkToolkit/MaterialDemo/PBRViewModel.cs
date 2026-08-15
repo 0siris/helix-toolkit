@@ -24,7 +24,6 @@ public class PbrViewModel : BaseViewModel {
     public Geometry3D SphereModel { get; }
     private const int Row = 5;
     private const int Col = 5;
-    private const int Size = 5 * 5;
     public required TextureModel EnvironmentMap { set; get; }
     public ObservableElement3DCollection Models { get; } = [];
     private List<PbrMaterial> materials = [];

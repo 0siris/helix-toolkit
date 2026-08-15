@@ -90,8 +90,6 @@ public class MainViewModel : BaseViewModel {
     public int NumberOfTriangles { set; get; }
     public int NumberOfVertices { set; get; }
 
-    private readonly MeshGeometry3D orgMesh;
-
     public bool Lossless { set; get; } = false;
 
     public long CalculationTime { set; get; }
@@ -140,13 +138,12 @@ public class MainViewModel : BaseViewModel {
 
         //}
         Model = model;
-        orgMesh = Model;
+        var orgMesh1 = Model;
 
         //ModelTransform = new Media3D.RotateTransform3D() { Rotation = new Media3D.AxisAngleRotation3D(new Vector3D(1, 0, 0), -90) };
-
         SimplifyCommand = new RelayCommand(Simplify, CanSimplify);
         ResetCommand = new RelayCommand((_) => {
-                Model = orgMesh;
+                Model = orgMesh1;
                 simHelper = new HelixToolkit.SharpDX.Core.Geometry.MeshSimplification(Model);
             },
             CanSimplify);

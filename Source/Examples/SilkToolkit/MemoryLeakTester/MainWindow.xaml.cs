@@ -12,8 +12,8 @@ namespace MemoryLeakTester;
 public partial class MainWindow : Window {
     private Window? testWin;
     private DispatcherTimer? timer;
-    private SystemStateParams systemparams = new();
-    private IList<Tuple<string, Type>> projectWinPairs = [];
+    private readonly SystemStateParams systemparams = new();
+    private readonly IList<Tuple<string, Type>> projectWinPairs = [];
 
     public MainWindow() {
         InitializeComponent();
@@ -91,7 +91,7 @@ public partial class MainWindow : Window {
         public long HandleCount { private set; get; }
         public long ThreadCount { private set; get; }
         public bool NeedsUpdate { private set; get; }
-        public double ChangePercent = 1; //10%
+        public readonly double ChangePercent = 1; //10%
 
         public Run Update() {
             if (Count == 0) {

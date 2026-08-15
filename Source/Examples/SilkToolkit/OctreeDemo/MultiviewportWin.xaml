@@ -16,6 +16,7 @@
     Title="MultiViewportWindow"
     Width="800"
     Height="600"
+    d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
     mc:Ignorable="d">
     <Grid>
         <Grid.Resources>
@@ -52,7 +53,8 @@
                         RecordHitPathBoundingBoxes="False" />
                 </elements3D:ItemsModel3D.OctreeManager>
                 <elements3D:ItemsModel3D.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate DataType="{x:Type local:DataModel}"
+                                  d:DataContext="{d:DesignInstance Type=local:DataModel}">
                         <element3D:MeshGeometryModel3D
                             CullMode="Back"
                             Geometry="{Binding Model}"

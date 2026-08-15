@@ -47,7 +47,7 @@
             </StatusBar.Background>
             <StatusBarItem>
                 <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left"
-                           Text="{Binding FpsCounter.Value, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                           Text="{Binding FrameRate, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>

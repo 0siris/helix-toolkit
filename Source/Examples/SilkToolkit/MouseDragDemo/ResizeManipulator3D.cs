@@ -144,8 +144,6 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
         // this.OnContentChanged();                       
     }
 
-    ~ResizeManipulator3D() { }
-
 
     /// <summary>
     /// The children changed.

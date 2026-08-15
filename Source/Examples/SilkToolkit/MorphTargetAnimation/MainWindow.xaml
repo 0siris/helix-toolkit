@@ -18,14 +18,14 @@
                 Transform="{Binding Transform}" />
         </DataTemplate>
     </Window.Resources>
-    <Grid x:Name="grid">
+    <Grid x:Name="Grid">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <controls:Viewport3DX
             x:Name="Viewport"
-            EffectsManager="{Binding ElementName=grid, Path=DataContext.EffectsManager}"
+            EffectsManager="{Binding ElementName=Grid, Path=DataContext.EffectsManager}"
             EnableD2DRendering="False"
             EnableSwapChainRendering="True">
             <lights3D:AmbientLight3D Color="White" />

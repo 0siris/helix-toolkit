@@ -30,7 +30,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Camera="{Binding Camera}"
             CameraMode="WalkAround"
@@ -80,10 +80,10 @@
             <elements3D:ItemsModel3D IsRendering="{Binding Visibility}" ItemsSource="{Binding Items}">
                 <elements3D:ItemsModel3D.OctreeManager>
                     <utilities:GeometryModel3DOctreeManager
-                        x:Name="groupOctreeMgr"
+                        x:Name="GroupOctreeMgr"
                         AutoDeleteIfEmpty="{Binding AutoDeleteEmptyNode}"
                         Cubify="True"
-                        EnableOctreeOutput="{Binding ElementName=dynamicOctree, Path=IsRendering, Mode=OneWay}"
+                        EnableOctreeOutput="{Binding ElementName=DynamicOctree, Path=IsRendering, Mode=OneWay}"
                         MinObjectSizeToSplit="4"
                         RecordHitPathBoundingBoxes="False" />
                 </elements3D:ItemsModel3D.OctreeManager>
@@ -107,9 +107,9 @@
                 LineColor="Blue"
                 Octree="{Binding LinesModel.Octree}" />
             <elements3D:OctreeLineGeometryModel3D
-                x:Name="dynamicOctree"
+                x:Name="DynamicOctree"
                 IsRendering="False"
-                Octree="{Binding ElementName=groupOctreeMgr, Path=Octree}" />
+                Octree="{Binding ElementName=GroupOctreeMgr, Path=Octree}" />
         </controls:Viewport3DX>
         <StackPanel
             Grid.Column="1"
@@ -130,7 +130,7 @@
             <!--<CheckBox IsChecked="{Binding UseOctreeHitTest}">Enable Octree</CheckBox>-->
             <CheckBox IsChecked="{Binding AutoDeleteEmptyNode}">Auto Delete Empty Node</CheckBox>
             <CheckBox IsChecked="{Binding OctreeFrameVisible}">Static Octree</CheckBox>
-            <CheckBox IsChecked="{Binding ElementName=dynamicOctree, Path=IsRendering}">Dynamic Octree</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=DynamicOctree, Path=IsRendering}">Dynamic Octree</CheckBox>
             <Button Command="{Binding AddModelCommand}" IsEnabled="{Binding Enabled}">Add Model</Button>
             <Button Command="{Binding RemoveModelCommand}" IsEnabled="{Binding Enabled}">Remove Model</Button>
             <Button Command="{Binding ClearModelCommand}">Clear Models</Button>

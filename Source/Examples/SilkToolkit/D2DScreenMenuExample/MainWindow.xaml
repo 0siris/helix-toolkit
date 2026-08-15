@@ -21,14 +21,14 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Grid.Row="0" Background="AntiqueWhite">
-            <CheckBox IsChecked="{Binding ElementName=view1, Path=EnableDpiScale}" HorizontalAlignment="Left"
+            <CheckBox IsChecked="{Binding ElementName=View1, Path=EnableDpiScale}" HorizontalAlignment="Left"
                       VerticalAlignment="Center">
                 High Dpi
             </CheckBox>
             <Label Margin="25,0,0,0">Test Binding:</Label>
-            <TextBox x:Name="tb" Width="200" VerticalContentAlignment="Center">Btn 3</TextBox>
+            <TextBox x:Name="Tb" Width="200" VerticalContentAlignment="Center">Btn 3</TextBox>
         </StackPanel>
-        <controls:Viewport3DX Name="view1"
+        <controls:Viewport3DX Name="View1"
                         Grid.Row="1"
                         Camera="{Binding Camera}"
                         EffectsManager="{Binding EffectsManager}"
@@ -74,7 +74,7 @@
                             Orientation="Vertical">
                             <elements2D:StackPanel2D VerticalAlignment="Center" Orientation="Horizontal">
                                 <elements2D:Button2D Margin="10" VerticalAlignment="Center" Width="60" Height="30"
-                                               Content2D="{Binding ElementName=tb, Path=Text}">
+                                               Content2D="{Binding ElementName=Tb, Path=Text}">
                                 </elements2D:Button2D>
                                 <elements2D:Button2D Margin="10" VerticalAlignment="Center" Width="60" Height="30">Button 4</elements2D:Button2D>
                             </elements2D:StackPanel2D>

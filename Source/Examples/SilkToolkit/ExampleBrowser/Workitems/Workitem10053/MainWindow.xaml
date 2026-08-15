@@ -32,7 +32,7 @@
                 <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </Menu.Background>
             <MenuItem Header="View">
-                <MenuItem Header="Zoom extents" Command="hx:ViewportCommands.ZoomExtents" />
+                <MenuItem Header="Zoom extents" Command="controls:ViewportCommands.ZoomExtents" />
             </MenuItem>
         </Menu>
 
@@ -87,7 +87,7 @@
             </StatusBar.Background>
             <StatusBarItem>
                 <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left"
-                           Text="{Binding FpsCounter.Value, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                           Text="{Binding FpsCounter.Value, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>

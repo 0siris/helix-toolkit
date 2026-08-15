@@ -15,7 +15,7 @@
     Height="450"
     mc:Ignorable="d">
     <Window.DataContext>
-        <local:MainViewModel x:Name="viewModel" />
+        <local:MainViewModel x:Name="ViewModel" />
     </Window.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -41,7 +41,7 @@
             <lights3D:AmbientLight3D Color="#414141" />
             <lights3D:DirectionalLight3D Direction="50, -200, -100" />
             <element3D:BatchedMeshGeometryModel3D
-                x:Name="batchedMesh"
+                x:Name="BatchedMesh"
                 BatchedGeometries="{Binding BatchedMeshes}"
                 BatchedMaterials="{Binding BatchedMaterials}"
                 CullMode="Back"
@@ -63,7 +63,7 @@
                 Offset="-65" />
         </controls:Viewport3DX>
         <StackPanel Grid.Column="1" Orientation="Vertical">
-            <CheckBox IsChecked="{Binding ElementName=batchedMesh, Path=RenderWireframe}">Wireframe</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=BatchedMesh, Path=RenderWireframe}">Wireframe</CheckBox>
         </StackPanel>
     </Grid>
 </Window>

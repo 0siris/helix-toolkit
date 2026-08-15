@@ -27,7 +27,7 @@
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
             Grid.Row="1"
-            x:Name="view1"
+            x:Name="View1"
             Camera="{Binding Camera}"
             Title="{Binding Title}"
             SubTitle="{Binding SubTitle}"
@@ -50,13 +50,13 @@
             <!--<hx:PointLight3D Color="{Binding PointLightColor}" Attenuation="{Binding PointLightAttenuation}" Transform="{Binding PointLightTransform3}"/>-->
             <elements3D:Light3DCollection ItemsSource="{Binding PointLightCollection}" />
             <elements3D:Light3DCollection ItemsSource="{Binding SpotLightCollection}" />
-            <element3D:MeshGeometryModel3D x:Name="model1" Geometry="{Binding Model}" Transform="{Binding Model1Transform}"
+            <element3D:MeshGeometryModel3D x:Name="Model1" Geometry="{Binding Model}" Transform="{Binding Model1Transform}"
                                     Material="{Binding RedMaterial}" />
-            <element3D:MeshGeometryModel3D x:Name="model2" Geometry="{Binding Model}" Transform="{Binding Model2Transform}"
+            <element3D:MeshGeometryModel3D x:Name="Model2" Geometry="{Binding Model}" Transform="{Binding Model2Transform}"
                                     Material="{Binding GreenMaterial}" />
-            <element3D:MeshGeometryModel3D x:Name="model3" Geometry="{Binding Model}" Transform="{Binding Model3Transform}"
+            <element3D:MeshGeometryModel3D x:Name="Model3" Geometry="{Binding Model}" Transform="{Binding Model3Transform}"
                                     Material="{Binding BlueMaterial}" />
-            <element3D:MeshGeometryModel3D x:Name="model4" Geometry="{Binding Plane}" Transform="{Binding PlaneTransform}"
+            <element3D:MeshGeometryModel3D x:Name="Model4" Geometry="{Binding Plane}" Transform="{Binding PlaneTransform}"
                                     Material="{Binding PlaneMaterial}" />
         </controls:Viewport3DX>
 
@@ -168,7 +168,7 @@
             </StatusBar.Background>
             <StatusBarItem>
                 <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left"
-                           Text="{Binding FpsCounter.Value, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                           Text="{Binding FpsCounter.Value, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
@@ -184,7 +184,7 @@
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}" />
+                <TextBlock Text="{Binding Items.Count, ElementName=View1, StringFormat=Children: \{0\}}" />
             </StatusBarItem>
         </StatusBar>
 

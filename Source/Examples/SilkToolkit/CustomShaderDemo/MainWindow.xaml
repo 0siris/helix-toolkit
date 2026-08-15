@@ -41,7 +41,7 @@
         </Menu>
 
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Row="1"
             Grid.Column="0"
@@ -70,7 +70,7 @@
             </controls:Viewport3DX.InputBindings>
             <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
             <local:CustomMeshGeometryModel3D
-                x:Name="dataVisual"
+                x:Name="DataVisual"
                 FillMode="{Binding FillMode}"
                 Geometry="{Binding Model}"
                 Material="{Binding ModelMaterial}"
@@ -78,7 +78,7 @@
                 WireframeColor="#3F3B3B3B" />
             <element3D:LineGeometryModel3D Geometry="{Binding AxisModel}" Color="White" />
             <element3D:BillboardTextModel3D
-                x:Name="text"
+                x:Name="Text"
                 Geometry="{Binding AxisLabel}"
                 IsTransparent="True" />
             <local:CustomNoiseMeshModel3D
@@ -98,17 +98,17 @@
             HorizontalAlignment="Right"
             Orientation="Vertical">
             <Button Margin="5" Command="{Binding GenerateNoiseCommand}">Update Data</Button>
-            <CheckBox Margin="5" IsChecked="{Binding ElementName=dataVisual, Path=RenderWireframe}">Show Wireframe</CheckBox>
+            <CheckBox Margin="5" IsChecked="{Binding ElementName=DataVisual, Path=RenderWireframe}">Show Wireframe</CheckBox>
             <StackPanel Orientation="Horizontal">
                 <Label>Height Scale:</Label>
                 <TextBlock VerticalAlignment="Center"
-                           Text="{Binding ElementName=dataVisual, Path=HeightScale, StringFormat=N2}" />
+                           Text="{Binding ElementName=DataVisual, Path=HeightScale, StringFormat=N2}" />
             </StackPanel>
             <Slider
                 Margin="0,0,0,5"
                 Maximum="10"
                 Minimum="-10"
-                Value="{Binding ElementName=dataVisual, Path=HeightScale}" />
+                Value="{Binding ElementName=DataVisual, Path=HeightScale}" />
             <Label>Color Min:</Label>
             <pt:ColorPicker SelectedColor="{Binding StartColor}" />
             <Label>Color Middle:</Label>

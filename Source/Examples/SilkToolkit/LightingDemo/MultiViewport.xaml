@@ -26,7 +26,7 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <controls:ModelContainer3DX x:Name="sharedContainer" EffectsManager="{Binding EffectsManager}">
+        <controls:ModelContainer3DX x:Name="SharedContainer" EffectsManager="{Binding EffectsManager}">
             <light3D:ShadowMap3D />
 
 
@@ -52,18 +52,18 @@
                 Material="{Binding LightModelMaterial}"
                 Transform="{Binding Light4Transform}" />
             <element3D:MeshGeometryModel3D
-                x:Name="model"
+                x:Name="Model"
                 Geometry="{Binding Model}"
                 Material="{Binding ModelMaterial}"
                 Transform="{Binding ModelTransform}" />
             <element3D:MeshGeometryModel3D
-                x:Name="floor"
+                x:Name="Floor"
                 Geometry="{Binding Floor}"
                 Material="{Binding FloorMaterial}"
                 Transform="{Binding FloorTransform}" />
         </controls:ModelContainer3DX>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Row="0"
             Grid.Column="0"
@@ -72,7 +72,7 @@
             EnableSharedModelMode="True"
             IsShadowMappingEnabled="True"
             Msaa="Four"
-            SharedModelContainer="{Binding ElementName=sharedContainer}"
+            SharedModelContainer="{Binding ElementName=SharedContainer}"
             ShowCoordinateSystem="False"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
@@ -101,7 +101,7 @@
                 Color="{Binding Light4Color}" />
         </controls:Viewport3DX>
         <controls:Viewport3DX
-            x:Name="view2"
+            x:Name="View2"
             Title="{Binding Title}"
             Grid.Row="0"
             Grid.Column="1"
@@ -110,7 +110,7 @@
             EnableSharedModelMode="True"
             IsShadowMappingEnabled="True"
             Msaa="Four"
-            SharedModelContainer="{Binding ElementName=sharedContainer}"
+            SharedModelContainer="{Binding ElementName=SharedContainer}"
             ShowCoordinateSystem="False"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
@@ -133,7 +133,7 @@
                 Color="{Binding Light1Color}" />
         </controls:Viewport3DX>
         <controls:Viewport3DX
-            x:Name="view3"
+            x:Name="View3"
             Title="{Binding Title}"
             Grid.Row="1"
             Grid.Column="0"
@@ -142,7 +142,7 @@
             EnableSharedModelMode="True"
             IsShadowMappingEnabled="True"
             Msaa="Four"
-            SharedModelContainer="{Binding ElementName=sharedContainer}"
+            SharedModelContainer="{Binding ElementName=SharedContainer}"
             ShowCoordinateSystem="False"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
@@ -171,7 +171,7 @@
                 Color="{Binding Light3Color}" />
         </controls:Viewport3DX>
         <controls:Viewport3DX
-            x:Name="view4"
+            x:Name="View4"
             Title="{Binding Title}"
             Grid.Row="1"
             Grid.Column="1"
@@ -180,7 +180,7 @@
             EnableSharedModelMode="True"
             IsShadowMappingEnabled="True"
             Msaa="Four"
-            SharedModelContainer="{Binding ElementName=sharedContainer}"
+            SharedModelContainer="{Binding ElementName=SharedContainer}"
             ShowCoordinateSystem="False"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"

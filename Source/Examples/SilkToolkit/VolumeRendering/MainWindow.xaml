@@ -14,10 +14,10 @@
     Height="800"
     mc:Ignorable="d">
     <Window.Resources>
-        <local:MainViewModel x:Key="viewModel" />
-        <BooleanToVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <local:MainViewModel x:Key="ViewModel" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Window.Resources>
-    <Grid DataContext="{StaticResource viewModel}">
+    <Grid DataContext="{StaticResource ViewModel}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
@@ -75,7 +75,7 @@
 
         </StackPanel>
         <Grid Grid.ColumnSpan="2"
-              Visibility="{Binding IsLoading, Converter={StaticResource boolToVisibilityConverter}}">
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
             <Rectangle
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"

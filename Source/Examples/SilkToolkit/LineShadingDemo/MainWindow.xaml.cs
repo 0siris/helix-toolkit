@@ -24,13 +24,13 @@ public partial class MainWindow : Window {
         DataContext = viewModel;
 
         // mouse events            
-        view1.MouseDown += (_, e) => {
-            var hits = ViewportExtensions.FindHits(view1, e.GetPosition(view1));
+        View1.MouseDown += (_, e) => {
+            var hits = ViewportExtensions.FindHits(View1, e.GetPosition(View1));
             if (hits.Count > 0) {
                 foreach (var hit in hits.Where(h => h.IsValid)) {
                     if (hit.ModelHit is Element3D element3D) {
                         element3D.RaiseEvent(
-                            new MouseDown3DEventArgs(hit.ModelHit, hit, e.GetPosition(view1), null, e));
+                            new MouseDown3DEventArgs(hit.ModelHit, hit, e.GetPosition(View1), null, e));
                         if (e.Handled) {
                             break;
                         }

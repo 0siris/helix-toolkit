@@ -35,7 +35,7 @@
         </Menu>
 
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Row="1"
             Grid.Column="2"
@@ -55,12 +55,12 @@
             <lights3D:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
                                    Color="{Binding DirectionalLightColor}" />
             <element3D:MeshGeometryModel3D
-                x:Name="plane"
+                x:Name="Plane"
                 Geometry="{Binding Plane}"
                 Material="{Binding PlaneMaterial}"
                 Transform="{Binding PlaneTransform}" />
             <element3D:LineGeometryModel3D
-                x:Name="grid"
+                x:Name="Grid"
                 DepthBias="-10"
                 Geometry="{Binding Grid}"
                 Smoothness="0"
@@ -71,7 +71,7 @@
 
         <StackPanel Grid.Row="1">
             <Expander
-                x:Name="lightPanel"
+                x:Name="LightPanel"
                 Width="150"
                 Margin="10"
                 HorizontalAlignment="Right"
@@ -89,7 +89,7 @@
                     <CheckBox
                         Grid.Row="0"
                         Margin="3"
-                        IsChecked="{Binding IsRendering, ElementName=grid}">
+                        IsChecked="{Binding IsRendering, ElementName=Grid}">
                         Render Grid
                     </CheckBox>
                 </Grid>
@@ -103,7 +103,7 @@
                 <TextBlock
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    Text="{Binding FrameRate, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                    Text="{Binding FrameRate, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
@@ -119,7 +119,7 @@
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}" />
+                <TextBlock Text="{Binding Items.Count, ElementName=View1, StringFormat=Children: \{0\}}" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

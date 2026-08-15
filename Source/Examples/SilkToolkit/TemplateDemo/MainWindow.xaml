@@ -13,13 +13,13 @@
                                     Material="{Binding Material}" />
         </DataTemplate>
     </Window.Resources>
-    <Grid x:Name="grid">
+    <Grid x:Name="Grid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX DataContext="{Binding SelectedViewModel}"
-                        EffectsManager="{Binding ElementName=grid, Path = DataContext.EffectsManager}">
+                        EffectsManager="{Binding ElementName=Grid, Path = DataContext.EffectsManager}">
             <lights3D:AmbientLight3D />
             <lights3D:DirectionalLight3D Direction="-2,-5,-2" />
             <elements3D:ItemsModel3D ItemTemplate="{StaticResource Template1}" ItemsSource="{Binding Items}" />

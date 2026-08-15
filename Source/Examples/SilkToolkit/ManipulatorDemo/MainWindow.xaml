@@ -24,7 +24,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Row="1"
             Camera="{Binding Camera}"
@@ -57,32 +57,32 @@
                                    Color="{Binding DirectionalLightColor}" />
 
             <element3D:MeshGeometryModel3D
-                x:Name="model1"
+                x:Name="Model1"
                 Geometry="{Binding Model2}"
                 Material="{Binding Material1}"
                 Transform="{Binding Model1Transform, Mode=TwoWay}" />
 
             <element3D:MeshGeometryModel3D
-                x:Name="model2"
+                x:Name="Model2"
                 Geometry="{Binding Model}"
                 Material="{Binding Material2}"
                 Transform="{Binding Model2Transform, Mode=TwoWay}" />
 
             <elements3D:DraggableGeometryModel3D
-                x:Name="model3"
+                x:Name="Model3"
                 Geometry="{Binding Model}"
                 Material="{Binding Material3}"
                 Transform="{Binding Model3Transform, Mode=TwoWay}" />
 
             <element3D:LineGeometryModel3D
-                x:Name="lines"
+                x:Name="Lines"
                 Geometry="{Binding Lines}"
                 Smoothness="2"
                 Thickness="2"
-                Transform="{Binding Transform, ElementName=model3}"
+                Transform="{Binding Transform, ElementName=Model3}"
                 Color="Black" />
             <element3D:TransformManipulator3D
-                x:Name="manipulator"
+                x:Name="Manipulator"
                 CenterOffset="{Binding CenterOffset}"
                 SizeScale="1"
                 Target="{Binding Target}" />
@@ -149,7 +149,7 @@
 
 
             <element3D:LineGeometryModel3D
-                x:Name="grid"
+                x:Name="Grid"
                 Geometry="{Binding Grid}"
                 Transform="{Binding GridTransform}"
                 Color="{Binding GridColor}" />
@@ -160,10 +160,10 @@
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Orientation="Vertical">
-            <CheckBox IsChecked="{Binding ElementName=manipulator, Path=EnableScaling}">Enable Scaling</CheckBox>
-            <CheckBox IsChecked="{Binding ElementName=manipulator, Path=EnableRotation}">Enable Rotation</CheckBox>
-            <CheckBox IsChecked="{Binding ElementName=manipulator, Path=EnableTranslation}">Enable Translation</CheckBox>
-            <CheckBox IsChecked="{Binding ElementName=manipulator, Path=EnableXRayGrid}">Enable XRayGrid</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=Manipulator, Path=EnableScaling}">Enable Scaling</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=Manipulator, Path=EnableRotation}">Enable Rotation</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=Manipulator, Path=EnableTranslation}">Enable Translation</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=Manipulator, Path=EnableXRayGrid}">Enable XRayGrid</CheckBox>
             <Button Command="{Binding ResetTransformsCommand}">Reset</Button>
         </StackPanel>
         <StatusBar Grid.Row="1" VerticalAlignment="Bottom">
@@ -174,7 +174,7 @@
                 <TextBlock
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    Text="{Binding FrameRate, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                    Text="{Binding FrameRate, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
@@ -190,7 +190,7 @@
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}" />
+                <TextBlock Text="{Binding Items.Count, ElementName=View1, StringFormat=Children: \{0\}}" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

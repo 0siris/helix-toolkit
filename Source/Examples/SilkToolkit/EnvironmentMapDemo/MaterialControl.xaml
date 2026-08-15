@@ -7,27 +7,27 @@
     xmlns:local="clr-namespace:EnvironmentMapDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pt="clr-namespace:PropertyTools.Wpf;assembly=PropertyTools.Wpf"
-    x:Name="matControl"
+    x:Name="MatControl"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <local:ColorConverter x:Key="htxColorConverter" />
+        <local:ColorConverter x:Key="HtxColorConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.Resources>
             <Style TargetType="{x:Type Slider}">
-                <Setter Property="Margin" Value="{Binding Margin, ElementName=matControl}" />
+                <Setter Property="Margin" Value="{Binding Margin, ElementName=MatControl}" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
             </Style>
             <Style TargetType="{x:Type TextBlock}">
-                <Setter Property="Margin" Value="{Binding Margin, ElementName=matControl}" />
+                <Setter Property="Margin" Value="{Binding Margin, ElementName=MatControl}" />
                 <Setter Property="VerticalAlignment" Value="Center" />
             </Style>
             <Style TargetType="{x:Type RowDefinition}">
                 <Setter Property="Height" Value="Auto" />
             </Style>
             <Style TargetType="{x:Type pt:ColorPicker}">
-                <Setter Property="Margin" Value="{Binding Margin, ElementName=matControl}" />
+                <Setter Property="Margin" Value="{Binding Margin, ElementName=MatControl}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
             </Style>
         </Grid.Resources>
@@ -37,12 +37,12 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="0" />
-            <RowDefinition x:Name="row" />
+            <RowDefinition x:Name="Row" />
             <RowDefinition />
             <RowDefinition />
             <RowDefinition />
             <RowDefinition />
-            <RowDefinition MinHeight="{Binding ActualHeight, ElementName=row}" />
+            <RowDefinition MinHeight="{Binding ActualHeight, ElementName=Row}" />
         </Grid.RowDefinitions>
         <TextBlock
             Grid.Row="1"
@@ -72,23 +72,23 @@
         <pt:ColorPicker
             Grid.Row="1"
             Grid.Column="1"
-            SelectedColor="{Binding AmbientColor, Converter={StaticResource htxColorConverter}}" />
+            SelectedColor="{Binding AmbientColor, Converter={StaticResource HtxColorConverter}}" />
         <pt:ColorPicker
             Grid.Row="2"
             Grid.Column="1"
-            SelectedColor="{Binding DiffuseColor, Converter={StaticResource htxColorConverter}}" />
+            SelectedColor="{Binding DiffuseColor, Converter={StaticResource HtxColorConverter}}" />
         <pt:ColorPicker
             Grid.Row="3"
             Grid.Column="1"
-            SelectedColor="{Binding EmissiveColor, Converter={StaticResource htxColorConverter}}" />
+            SelectedColor="{Binding EmissiveColor, Converter={StaticResource HtxColorConverter}}" />
         <pt:ColorPicker
             Grid.Row="4"
             Grid.Column="1"
-            SelectedColor="{Binding ReflectiveColor, Converter={StaticResource htxColorConverter}}" />
+            SelectedColor="{Binding ReflectiveColor, Converter={StaticResource HtxColorConverter}}" />
         <pt:ColorPicker
             Grid.Row="5"
             Grid.Column="1"
-            SelectedColor="{Binding SpecularColor, Converter={StaticResource htxColorConverter}}" />
+            SelectedColor="{Binding SpecularColor, Converter={StaticResource HtxColorConverter}}" />
         <Slider
             Grid.Row="6"
             Grid.Column="1"

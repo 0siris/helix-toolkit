@@ -17,7 +17,7 @@
     </Window.Resources>
     <Grid>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Camera="{Binding Camera}"
             CoordinateSystemLabelForeground="White"
@@ -43,23 +43,23 @@
                                    Color="{Binding DirectionalLightColor}" />
 
             <element3D:MeshGeometryModel3D
-                x:Name="model1"
+                x:Name="Model1"
                 Geometry="{Binding Model}"
                 Material="{Binding Material1}"
                 Transform="{Binding Model1Transform}" />
             <element3D:MeshGeometryModel3D
-                x:Name="model2"
+                x:Name="Model2"
                 Geometry="{Binding Model}"
                 Material="{Binding Material2}"
                 Transform="{Binding Model2Transform}" />
             <element3D:MeshGeometryModel3D
-                x:Name="model3"
+                x:Name="Model3"
                 Geometry="{Binding Model}"
                 Material="{Binding Material3}"
                 Transform="{Binding Model3Transform}" />
 
             <element3D:LineGeometryModel3D
-                x:Name="lines1"
+                x:Name="Lines1"
                 FixedSize="{Binding FixedSize}"
                 Geometry="{Binding Lines}"
                 IsRendering="{Binding LinesEnabled}"
@@ -68,7 +68,7 @@
                 Transform="{Binding Model1Transform}"
                 Color="Blue" />
             <element3D:LineGeometryModel3D
-                x:Name="lines2"
+                x:Name="Lines2"
                 FixedSize="{Binding FixedSize}"
                 Geometry="{Binding Lines}"
                 IsRendering="{Binding LinesEnabled}"
@@ -77,7 +77,7 @@
                 Transform="{Binding Model2Transform}"
                 Color="Yellow" />
             <element3D:LineGeometryModel3D
-                x:Name="lines3"
+                x:Name="Lines3"
                 FixedSize="{Binding FixedSize}"
                 Geometry="{Binding Lines}"
                 IsRendering="{Binding LinesEnabled}"
@@ -87,7 +87,7 @@
                 Color="White" />
 
             <element3D:LineMaterialGeometryModel3D
-                x:Name="grid"
+                x:Name="Grid"
                 Geometry="{Binding Grid}"
                 IsRendering="{Binding GridEnabled}"
                 Material="{Binding GridMaterial}"
@@ -99,7 +99,7 @@
         </controls:Viewport3DX>
         <StackPanel>
             <Expander
-                x:Name="linesPanel"
+                x:Name="LinesPanel"
                 Width="200"
                 Margin="10"
                 HorizontalAlignment="Right"
@@ -121,8 +121,8 @@
                     <TextBlock Margin="3">Line Thickness</TextBlock>
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Right" Margin="5,0,5,0" VerticalAlignment="Center"
-                                   Text="{Binding ElementName=lineThicknessSlider, Path=Value}" />
-                        <Slider x:Name="lineThicknessSlider"
+                                   Text="{Binding ElementName=LineThicknessSlider, Path=Value}" />
+                        <Slider x:Name="LineThicknessSlider"
                                 Margin="3" IsSnapToTickEnabled="True"
                                 TickFrequency="{Binding LineThicknessTickFrequency}"
                                 Maximum="{Binding LineThicknessMaximum}"
@@ -132,8 +132,8 @@
                     <TextBlock Margin="3">Line Smoothness</TextBlock>
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Right" Margin="5,0,5,0" VerticalAlignment="Center"
-                                   Text="{Binding ElementName=lineSmoothnessSlider, Path=Value}" />
-                        <Slider x:Name="lineSmoothnessSlider"
+                                   Text="{Binding ElementName=LineSmoothnessSlider, Path=Value}" />
+                        <Slider x:Name="LineSmoothnessSlider"
                                 Margin="3" IsSnapToTickEnabled="True"
                                 Maximum="20"
                                 Minimum="0"
@@ -151,7 +151,7 @@
                 <TextBlock
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    Text="{Binding FrameRate, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                    Text="{Binding FrameRate, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
@@ -167,7 +167,7 @@
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}" />
+                <TextBlock Text="{Binding Items.Count, ElementName=View1, StringFormat=Children: \{0\}}" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

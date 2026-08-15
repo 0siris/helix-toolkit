@@ -25,7 +25,7 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <controls:ModelContainer3DX x:Name="sharedModels" EffectsManager="{Binding EffectsManager}">
+        <controls:ModelContainer3DX x:Name="SharedModels" EffectsManager="{Binding EffectsManager}">
             <!--<hx:AmbientLight3D Color="{Binding AmbientLightColor}" />-->
             <lights3D:DirectionalLight3D Direction="{Binding Light1Direction}" Color="{Binding Light1Color}" />
             <!--<hx:MeshGeometryModel3D
@@ -46,7 +46,7 @@
             <elements3D:ItemsModel3D IsRendering="{Binding Visibility}" ItemsSource="{Binding Items}">
                 <elements3D:ItemsModel3D.OctreeManager>
                     <utilities:GeometryModel3DOctreeManager
-                        x:Name="groupOctreeMgr"
+                        x:Name="GroupOctreeMgr"
                         AutoDeleteIfEmpty="{Binding AutoDeleteEmptyNode}"
                         Cubify="True"
                         MinObjectSizeToSplit="4"
@@ -81,7 +81,7 @@
             <elements3D:OctreeLineGeometryModel3D IsRendering="{Binding OctreeFrameVisible}"
                                           Octree="{Binding PointsModel.Octree}" />
             <elements3D:OctreeLineGeometryModel3D IsRendering="{Binding OctreeFrameVisible}"
-                                          Octree="{Binding ElementName=groupOctreeMgr, Path=Octree}" />
+                                          Octree="{Binding ElementName=GroupOctreeMgr, Path=Octree}" />
             <!--<hx:OctreeLineGeometryModel3D IsRendering="{Binding OctreeFrameVisible}" Octree="{Binding ElementName=landerOctreeMgr, Path=Octree}" />-->
             <elements3D:OctreeLineGeometryModel3D
                 IsRendering="{Binding OctreeFrameVisible}"
@@ -89,7 +89,7 @@
                 Octree="{Binding DefaultModel.Octree}" />
         </controls:ModelContainer3DX>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Column="0"
             CameraMode="WalkAround"
@@ -97,7 +97,7 @@
             CoordinateSystemLabelForeground="White"
             EnableRenderFrustum="True"
             EnableSharedModelMode="True"
-            SharedModelContainer="{Binding ElementName=sharedModels}"
+            SharedModelContainer="{Binding ElementName=SharedModels}"
             ShowCoordinateSystem="False"
             ShowFrameRate="True"
             TextBrush="Black"
@@ -122,7 +122,7 @@
 
         </controls:Viewport3DX>
         <controls:Viewport3DX
-            x:Name="view2"
+            x:Name="View2"
             Title="{Binding Title}"
             Grid.Column="1"
             CameraMode="WalkAround"
@@ -130,7 +130,7 @@
             CoordinateSystemLabelForeground="White"
             EnableRenderFrustum="True"
             EnableSharedModelMode="True"
-            SharedModelContainer="{Binding ElementName=sharedModels}"
+            SharedModelContainer="{Binding ElementName=SharedModels}"
             ShowCoordinateSystem="False"
             ShowFrameRate="True"
             TextBrush="Black"

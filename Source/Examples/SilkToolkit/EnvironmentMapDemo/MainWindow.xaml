@@ -32,7 +32,7 @@
         </Grid.RowDefinitions>
 
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Row="0"
             BackgroundColor="Black"
@@ -59,10 +59,10 @@
             <lights3D:DirectionalLight3D Direction="0,-1, -0.5" Color="{Binding DirectionalLightColor}" />
             <!--<hx:DirectionalLight3D Direction="1, -1, -1" Color="{Binding DirectionalLightColor}" />
             <hx:DirectionalLight3D Direction="1,1,1" Color="{Binding DirectionalLightColor}" />-->
-            <element3D:EnvironmentMap3D x:Name="envMap" Texture="{Binding SkyboxTexture}" />
-            <element3D:DynamicReflectionMap3D x:Name="dynReflector">
+            <element3D:EnvironmentMap3D x:Name="EnvMap" Texture="{Binding SkyboxTexture}" />
+            <element3D:DynamicReflectionMap3D x:Name="DynReflector">
                 <element3D:MeshGeometryModel3D
-                    x:Name="model"
+                    x:Name="Model"
                     Geometry="{Binding Model}"
                     Material="{Binding ModelMaterial}"
                     Transform="{Binding ModelTransform}" />
@@ -91,7 +91,7 @@
             </StackPanel.CacheMode>
 
             <Expander
-                x:Name="propertiesPanel"
+                x:Name="PropertiesPanel"
                 Width="200"
                 Height="Auto"
                 Margin="{StaticResource MarginLarge}"
@@ -109,10 +109,10 @@
                         Reflect Environment Map
                     </CheckBox>
                     <CheckBox Margin="{StaticResource MarginSmall}"
-                              IsChecked="{Binding IsRendering, ElementName=envMap}">
+                              IsChecked="{Binding IsRendering, ElementName=EnvMap}">
                         Render Environment Map
                     </CheckBox>
-                    <CheckBox IsChecked="{Binding ElementName=dynReflector, Path=EnableReflector}">Render Dynamic CubeMap</CheckBox>
+                    <CheckBox IsChecked="{Binding ElementName=DynReflector, Path=EnableReflector}">Render Dynamic CubeMap</CheckBox>
                     <TextBlock Margin="{StaticResource MarginSmall}">Material:</TextBlock>
                     <ComboBox
                         Margin="{StaticResource MarginSmall}"
@@ -136,7 +136,7 @@
                 <TextBlock
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    Text="{Binding FrameRate, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                    Text="{Binding FrameRate, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
@@ -152,7 +152,7 @@
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}" />
+                <TextBlock Text="{Binding Items.Count, ElementName=View1, StringFormat=Children: \{0\}}" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

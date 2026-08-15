@@ -15,7 +15,7 @@
             <RowDefinition Height="30" />
         </Grid.RowDefinitions>
         <controls:Viewport3DX
-            x:Name="viewport3D"
+            x:Name="Viewport3D"
             Grid.Row="0"
             Grid.Column="0"
             Camera="{Binding Camera}"
@@ -23,16 +23,16 @@
             <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
             <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
             <element3D:MeshGeometryModel3D
-                x:Name="triangulatedPolygon"
+                x:Name="TriangulatedPolygon"
                 Material="{Binding Material}"
                 Transform="{Binding ModelTransform}" />
             <element3D:LineGeometryModel3D
-                x:Name="lineTriangulatedPolygon"
+                x:Name="LineTriangulatedPolygon"
                 Thickness="{Binding TriangulationThickness}"
                 Transform="{Binding ModelLineTransform}"
                 Color="{Binding TriangulationColor}" />
             <element3D:LineGeometryModel3D
-                x:Name="grid"
+                x:Name="Grid"
                 Geometry="{Binding Grid}"
                 Thickness="{Binding LineThickness}"
                 Transform="{Binding GridTransform}"
@@ -62,7 +62,7 @@
                 Value="{Binding PointCount}" />
         </StackPanel>
         <Label
-            x:Name="statusLabel"
+            x:Name="StatusLabel"
             Grid.Row="1"
             Grid.ColumnSpan="2"
             Height="30"
@@ -74,9 +74,9 @@
             Height="30"
             HorizontalAlignment="Right"
             Orientation="Horizontal">
-            <Label x:Name="infoLabel" Margin="0,0,20,0" />
+            <Label x:Name="InfoLabel" Margin="0,0,20,0" />
             <Button
-                x:Name="generatePolygonButton"
+                x:Name="GeneratePolygonButton"
                 Click="generatePolygonButton_Click"
                 Content="Generate and Triangulate new Polygon" />
         </StackPanel>

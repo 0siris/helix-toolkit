@@ -28,7 +28,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
-            x:Name="view"
+            x:Name="View"
             Grid.Row="1"
             BackgroundColor="#303030"
             Camera="{Binding Camera}"
@@ -58,8 +58,8 @@
                 Thickness="0.5"
                 Transform="{Binding GridTransform}"
                 Color="#4F4E4E" />
-            <elements3D:GroupModel3D x:Name="group" ItemsSource="{Binding ModelGeometry}" />
-            <elements3D:GroupModel3D x:Name="plane" ItemsSource="{Binding PlaneGeometry}" />
+            <elements3D:GroupModel3D x:Name="Group" ItemsSource="{Binding ModelGeometry}" />
+            <elements3D:GroupModel3D x:Name="Plane" ItemsSource="{Binding PlaneGeometry}" />
             <postEffects:PostEffectMeshBorderHighlight
                 DrawMode="{Binding DrawMode}"
                 EffectName="highlight"
@@ -84,30 +84,30 @@
                 <Label Foreground="White">Depth Peeling Iteration:</Label>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="White" Width="14"
-                               Text="{Binding ElementName=view, Path=OitDepthPeelingIteration}">
+                               Text="{Binding ElementName=View, Path=OitDepthPeelingIteration}">
                     </TextBlock>
-                    <Slider Minimum="1" Maximum="16" Value="{Binding ElementName=view, Path=OitDepthPeelingIteration}"
+                    <Slider Minimum="1" Maximum="16" Value="{Binding ElementName=View, Path=OitDepthPeelingIteration}"
                             Width="100" />
                 </StackPanel>
             </StackPanel>
             <StackPanel Orientation="Vertical" IsEnabled="{Binding OitWeightedModeEnabled}">
                 <ComboBox ItemsSource="{Binding OitWeights}"
-                          SelectedItem="{Binding ElementName=view, Path=OitWeightMode}" />
+                          SelectedItem="{Binding ElementName=View, Path=OitWeightMode}" />
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="White">OIT Weight Power:</TextBlock>
                     <TextBlock Foreground="#FFF400"
-                               Text="{Binding ElementName=view, Path=OitWeightPower, StringFormat={}{0:#,0.0}}" />
+                               Text="{Binding ElementName=View, Path=OitWeightPower, StringFormat={}{0:#,0.0}}" />
                 </StackPanel>
                 <Slider
                     LargeChange="1"
                     Maximum="5"
                     Minimum="0.5"
                     SmallChange="0.1"
-                    Value="{Binding ElementName=view, Path=OitWeightPower}" />
+                    Value="{Binding ElementName=View, Path=OitWeightPower}" />
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="White">OIT Weight Slope:</TextBlock>
                     <TextBlock Foreground="#FFF400"
-                               Text="{Binding ElementName=view, Path=OitWeightDepthSlope, StringFormat={}{0:#,0.0}}" />
+                               Text="{Binding ElementName=View, Path=OitWeightDepthSlope, StringFormat={}{0:#,0.0}}" />
                 </StackPanel>
             </StackPanel>
 
@@ -116,7 +116,7 @@
                 Maximum="5"
                 Minimum="1"
                 SmallChange="0.5"
-                Value="{Binding ElementName=view, Path=OitWeightDepthSlope}" />
+                Value="{Binding ElementName=View, Path=OitWeightDepthSlope}" />
             <CheckBox Foreground="White" IsChecked="{Binding HighlightSeparated}">HighlightSeparated</CheckBox>
             <Separator />
             <TextBlock>

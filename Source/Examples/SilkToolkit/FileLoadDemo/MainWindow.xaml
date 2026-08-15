@@ -13,7 +13,7 @@
     Height="800">
     <Grid>
         <Grid.Resources>
-            <BooleanToVisibilityConverter x:Key="boolToVisibilityConverter" />
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -24,7 +24,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
-            x:Name="view"
+            x:Name="View"
             Grid.Row="1"
             BackgroundColor="#595959"
             Camera="{Binding Camera}"
@@ -54,7 +54,7 @@
         <Grid
             Grid.Row="1"
             Background="#7B363636"
-            Visibility="{Binding IsLoading, Converter={StaticResource boolToVisibilityConverter}}">
+            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
@@ -99,7 +99,7 @@
                 </Button>
                 <Separator />
                 <CheckBox Margin="4" IsChecked="{Binding ShowWireframe}">Show Wireframe</CheckBox>
-                <CheckBox Margin="4" IsChecked="{Binding ElementName=view, Path=EnableSsao}">Enable SSAO</CheckBox>
+                <CheckBox Margin="4" IsChecked="{Binding ElementName=View, Path=EnableSsao}">Enable SSAO</CheckBox>
                 <CheckBox Margin="4" IsChecked="{Binding RenderEnvironmentMap}">Render EnvironmentMap</CheckBox>
                 <CheckBox Margin="4" IsChecked="{Binding RenderFlat}">Flat Shading</CheckBox>
                 <Separator />

@@ -41,9 +41,9 @@ public partial class MainWindow : Window {
             // Switch the Line Geometry
             if (e.PropertyName == "ShowTriangleLines") {
                 if (mViewModel.ShowTriangleLines) {
-                    lineTriangulatedPolygon.Geometry = mViewModel.LineGeometry;
+                    LineTriangulatedPolygon.Geometry = mViewModel.LineGeometry;
                 } else {
-                    lineTriangulatedPolygon.Geometry = null;
+                    LineTriangulatedPolygon.Geometry = null;
                 }
             }
         });
@@ -115,7 +115,7 @@ public partial class MainWindow : Window {
         }
 
         geometry.Indices = [.. sLti];
-        triangulatedPolygon.Geometry = geometry;
+        TriangulatedPolygon.Geometry = geometry;
 
         var lb = new LineBuilder();
         for (int i = 0; i < sLti.Count; i += 3) {
@@ -128,14 +128,14 @@ public partial class MainWindow : Window {
 
         // Set the Lines if activated
         if (mViewModel.ShowTriangleLines) {
-            lineTriangulatedPolygon.Geometry = mViewModel.LineGeometry;
+            LineTriangulatedPolygon.Geometry = mViewModel.LineGeometry;
         } else {
-            lineTriangulatedPolygon.Geometry = null;
+            LineTriangulatedPolygon.Geometry = null;
         }
 
         // Set the InfoLabel Text
         var timeNeeded = (after - before).TotalMilliseconds;
-        infoLabel.Content = String.Format("Last triangulation of {0} Points took {1:0.##} Milliseconds!",
+        InfoLabel.Content = String.Format("Last triangulation of {0} Points took {1:0.##} Milliseconds!",
             positions.Count,
             timeNeeded);
     }

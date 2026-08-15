@@ -191,8 +191,8 @@ public class MainViewModel : BaseViewModel {
         });
         ExportCommand = new DelegateCommand(ExportFile);
 
-        CopyAsBitmapCommand = new DelegateCommand(() => { CopyAsBitmapToClipBoard(mainWindow.view); });
-        CopyAsHiresBitmapCommand = new DelegateCommand(() => { CopyAsHiResBitmapToClipBoard(mainWindow.view); });
+        CopyAsBitmapCommand = new DelegateCommand(() => { CopyAsBitmapToClipBoard(mainWindow.View); });
+        CopyAsHiresBitmapCommand = new DelegateCommand(() => { CopyAsHiResBitmapToClipBoard(mainWindow.View); });
 
         EnvironmentMap = TextureModel.Create("Cubemap_Grandcanyon.dds");
 

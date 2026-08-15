@@ -9,25 +9,25 @@
     Width="800"
     Height="450"
     mc:Ignorable="d">
-    <Grid x:Name="mainGrid">
+    <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="1" Orientation="Vertical">
             <Button
-                x:Name="buttonInit"
+                x:Name="ButtonInit"
                 Margin="4"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Click="Button_Click_Initialize">
                 Initialize Viewport
             </Button>
-            <Button x:Name="buttonRemoveViewport" Click="ButtonRemove_Click">
+            <Button x:Name="ButtonRemoveViewport" Click="ButtonRemove_Click">
                 Remove Viewport
             </Button>
             <Button
-                x:Name="buttonAdd"
+                x:Name="ButtonAdd"
                 Margin="4"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
@@ -36,7 +36,7 @@
                 Add Model
             </Button>
             <Button
-                x:Name="buttonRemove"
+                x:Name="ButtonRemove"
                 Margin="4"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
@@ -45,13 +45,13 @@
                 Remove Model
             </Button>
             <Button
-                x:Name="buttonEnvironment"
+                x:Name="ButtonEnvironment"
                 Margin="4"
                 Click="buttonEnvironment_Click"
                 IsEnabled="{Binding EnableEnvironmentButtons}">
                 Add Environment
             </Button>
-            <Button x:Name="buttonSceneNode" IsEnabled="{Binding EnableButtons}" Margin="4"
+            <Button x:Name="ButtonSceneNode" IsEnabled="{Binding EnableButtons}" Margin="4"
                     Click="buttonSceneNode_Click">
                 Add SceneNode
             </Button>

@@ -34,7 +34,7 @@
             </Grid.ColumnDefinitions>
 
             <controls:Viewport3DX
-                x:Name="view1"
+                x:Name="View1"
                 Title="Dynamic Code Surface"
                 Grid.Column="2"
                 Background="Black"
@@ -46,7 +46,7 @@
                 <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" />
                 <lights3D:AmbientLight3D Color="#4B4B4B" />
                 <element3D:DynamicCodeSurfaceModel3D
-                    x:Name="surface1"
+                    x:Name="Surface1"
                     Material="{Binding Material}"
                     MeshSizeU="{Binding MeshSizeU}"
                     MeshSizeV="{Binding MeshSizeV}"
@@ -69,7 +69,7 @@
 
 
                 <StackPanel Margin="0,4" Orientation="Vertical">
-                    <CheckBox Foreground="White" IsChecked="{Binding ElementName=surface1, Path=RenderWireframe}">Show Wireframe</CheckBox>
+                    <CheckBox Foreground="White" IsChecked="{Binding ElementName=Surface1, Path=RenderWireframe}">Show Wireframe</CheckBox>
                     <StackPanel Orientation="Horizontal">
                         <Label Foreground="White">Existing Surface</Label>
                         <ComboBox
@@ -105,7 +105,7 @@
                     <TextBlock Grid.Row="2" Text="Parameter 'w'" />
                     <TextBlock Grid.Row="3" Text="Stereobase" />
                     <Slider
-                        Name="slider1"
+                        Name="Slider1"
                         Grid.Row="0"
                         Grid.Column="1"
                         Margin="10,0,10,0"
@@ -113,7 +113,7 @@
                         Minimum="10"
                         Value="{Binding MeshSizeU}" />
                     <Slider
-                        Name="slider2"
+                        Name="Slider2"
                         Grid.Row="1"
                         Grid.Column="1"
                         Margin="10,0,10,0"
@@ -121,7 +121,7 @@
                         Minimum="10"
                         Value="{Binding MeshSizeV}" />
                     <Slider
-                        Name="slider3"
+                        Name="Slider3"
                         Grid.Row="2"
                         Grid.Column="1"
                         Margin="10,0,10,0"
@@ -129,7 +129,7 @@
                         Minimum="0"
                         Value="{Binding ParameterW}" />
                     <Slider
-                        Name="slider4"
+                        Name="Slider4"
                         Grid.Row="3"
                         Grid.Column="1"
                         Margin="10,0,10,0"
@@ -156,11 +156,11 @@
                         Text="{Binding StereoBase, StringFormat={}{0:N3}}" />
                 </Grid>
                 <ListView
-                    x:Name="errorList"
+                    x:Name="ErrorList"
                     Grid.Row="2"
                     Height="100"
                     Background="Black"
-                    ItemsSource="{Binding ElementName=surface1, Path=ErrorList}"
+                    ItemsSource="{Binding ElementName=Surface1, Path=ErrorList}"
                     TextBlock.Foreground="Red">
                     <ListView.View>
                         <GridView>
@@ -176,7 +176,7 @@
                     </ListView.View>
                 </ListView>
                 <TextBox
-                    x:Name="source1"
+                    x:Name="Source1"
                     Grid.Row="3"
                     AcceptsReturn="True"
                     Background="#464646"

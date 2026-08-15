@@ -24,7 +24,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Row="1"
             AllowDrop="True"
@@ -64,11 +64,11 @@
             <element3D:ScreenQuadModel3D Texture="{Binding BackgroundTexture}" />
 
             <element3D:MeshGeometryModel3D
-                x:Name="model1"
+                x:Name="Model1"
                 CullMode="Back"
                 Geometry="{Binding SphereModel}"
                 Material="{Binding EarthMaterial}" />
-            <element3D:TopMostGroup3D x:Name="topMostGroup" EnableTopMost="False">
+            <element3D:TopMostGroup3D x:Name="TopMostGroup" EnableTopMost="False">
                 <element3D:BillboardTextModel3D FixedSize="False" Geometry="{Binding FlagsBillboard}" />
                 <element3D:BillboardTextModel3D
                     FixedSize="False"
@@ -87,7 +87,7 @@
             </element3D:ScreenSpacedGroup3D>
         </controls:Viewport3DX>
         <StackPanel Grid.Column="1" Orientation="Vertical">
-            <CheckBox IsChecked="{Binding ElementName=topMostGroup, Path=EnableTopMost}">Billboard Top most</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=TopMostGroup, Path=EnableTopMost}">Billboard Top most</CheckBox>
             <TextBlock Margin="2" Foreground="Blue">Drag Flag onto Earth</TextBlock>
             <Separator />
             <ListBox

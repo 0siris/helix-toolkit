@@ -19,7 +19,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
-            x:Name="viewport"
+            x:Name="Viewport"
             Grid.Column="0"
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}"
@@ -44,21 +44,21 @@
                 Material="{Binding BunnyMaterial}" />
         </controls:Viewport3DX>
         <StackPanel Grid.Column="1" Orientation="Vertical">
-            <CheckBox Margin="4" IsChecked="{Binding ElementName=viewport, Path=EnableSsao}">Enable SSAO</CheckBox>
+            <CheckBox Margin="4" IsChecked="{Binding ElementName=Viewport, Path=EnableSsao}">Enable SSAO</CheckBox>
             <Label>Radius</Label>
             <Slider
                 Margin="4"
                 Maximum="4"
                 Minimum="0.1"
-                Value="{Binding ElementName=viewport, Path=SsaoSamplingRadius}" />
+                Value="{Binding ElementName=Viewport, Path=SsaoSamplingRadius}" />
             <Label>Strength</Label>
             <Slider
                 Margin="4"
                 Maximum="4"
                 Minimum="1"
-                Value="{Binding ElementName=viewport, Path=SsaoIntensity}" />
+                Value="{Binding ElementName=Viewport, Path=SsaoIntensity}" />
             <ComboBox ItemsSource="{Binding SsaoQualities}"
-                      SelectedItem="{Binding ElementName=viewport, Path=SsaoQuality}" />
+                      SelectedItem="{Binding ElementName=Viewport, Path=SsaoQuality}" />
         </StackPanel>
     </Grid>
 </Window>

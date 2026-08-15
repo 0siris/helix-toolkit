@@ -32,14 +32,14 @@
                 <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </Menu.Background>
             <MenuItem Header="View">
-                <MenuItem Command="hx:ViewportCommands.ZoomExtents" Header="Zoom extents" />
+                <MenuItem Command="controls:ViewportCommands.ZoomExtents" Header="Zoom extents" />
             </MenuItem>
         </Menu>
 
         <TabControl Grid.Row="1">
             <TabItem Header="Viewport 1">
                 <controls:Viewport3DX
-                    x:Name="view1"
+                    x:Name="View1"
                     Title="{Binding Title}"
                     Camera="{Binding Camera}"
                     CoordinateSystemLabelForeground="White"
@@ -64,22 +64,22 @@
                     <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}"
                                            Color="{Binding DirectionalLightColor}" />
                     <element3D:MeshGeometryModel3D
-                        x:Name="model1"
+                        x:Name="Model1"
                         Geometry="{Binding Model}"
                         Material="{Binding RedMaterial}"
                         Transform="{Binding Model1Transform}" />
                     <element3D:MeshGeometryModel3D
-                        x:Name="model2"
+                        x:Name="Model2"
                         Geometry="{Binding Model}"
                         Material="{Binding GreenMaterial}"
                         Transform="{Binding Model2Transform}" />
                     <element3D:MeshGeometryModel3D
-                        x:Name="model3"
+                        x:Name="Model3"
                         Geometry="{Binding Model}"
                         Material="{Binding BlueMaterial}"
                         Transform="{Binding Model3Transform}" />
                     <element3D:LineGeometryModel3D
-                        x:Name="lines"
+                        x:Name="Lines"
                         Geometry="{Binding Lines}"
                         Thickness="1.5"
                         Transform="{Binding Model1Transform}"
@@ -89,7 +89,7 @@
             </TabItem>
             <TabItem Header="Viewport 2">
                 <controls:Viewport3DX
-                    x:Name="view2"
+                    x:Name="View2"
                     Title="{Binding Title}"
                     Camera="{Binding Camera}"
                     CoordinateSystemLabelForeground="White"
@@ -114,22 +114,22 @@
                     <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}"
                                            Color="{Binding DirectionalLightColor}" />
                     <element3D:MeshGeometryModel3D
-                        x:Name="model1b"
+                        x:Name="Model1B"
                         Geometry="{Binding Model}"
                         Material="{x:Static materials:PhongMaterials.Chrome}"
                         Transform="{Binding Model1Transform}" />
                     <element3D:MeshGeometryModel3D
-                        x:Name="model2b"
+                        x:Name="Model2B"
                         Geometry="{Binding Model}"
                         Material="{x:Static materials:PhongMaterials.Gold}"
                         Transform="{Binding Model2Transform}" />
                     <element3D:MeshGeometryModel3D
-                        x:Name="model3b"
+                        x:Name="Model3B"
                         Geometry="{Binding Model}"
                         Material="{x:Static materials:PhongMaterials.Jade}"
                         Transform="{Binding Model3Transform}" />
                     <element3D:LineGeometryModel3D
-                        x:Name="linesb"
+                        x:Name="Linesb"
                         Geometry="{Binding Lines}"
                         Thickness="1.5"
                         Transform="{Binding Model1Transform}"
@@ -147,7 +147,7 @@
                 <TextBlock
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    Text="{Binding FrameRate, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                    Text="{Binding FrameRate, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
@@ -163,7 +163,7 @@
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}" />
+                <TextBlock Text="{Binding Items.Count, ElementName=View1, StringFormat=Children: \{0\}}" />
             </StatusBarItem>
         </StatusBar>
 

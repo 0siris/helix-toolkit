@@ -16,7 +16,7 @@ public partial class MainWindow : Window {
         MouseDown3DEventArgs e
     ) {
         if (e.HitTestResult is {Geometry: { } geometry}) {
-            viewModel.SelectedGeometry = geometry;
+            ViewModel.SelectedGeometry = geometry;
         }
     }
 }

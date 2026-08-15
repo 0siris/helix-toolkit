@@ -2,7 +2,7 @@
     x:Class="ExampleBrowser.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:ExampleBrowser="clr-namespace:ExampleBrowser"
+    xmlns:exampleBrowser="clr-namespace:ExampleBrowser"
     Title="The Helix 3D Toolkit SharpDX example browser"
     Width="480"
     Height="800">
@@ -13,7 +13,7 @@
         ScrollViewer.CanContentScroll="False"
         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
         <ListBox.ItemTemplate>
-            <DataTemplate DataType="{x:Type ExampleBrowser:Example}">
+            <DataTemplate DataType="{x:Type exampleBrowser:Example}">
                 <Grid Margin="6">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="128" />

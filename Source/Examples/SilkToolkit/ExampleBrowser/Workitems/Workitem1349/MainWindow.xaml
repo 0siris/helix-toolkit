@@ -32,7 +32,7 @@
                 <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </Menu.Background>
             <MenuItem Header="View">
-                <MenuItem Command="hx:ViewportCommands.ZoomExtents" Header="Zoom extents" />
+                <MenuItem Command="controls:ViewportCommands.ZoomExtents" Header="Zoom extents" />
             </MenuItem>
         </Menu>
 
@@ -61,10 +61,10 @@
             <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
             <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="{Binding DirectionalLightColor}" />
             <element3D:MeshGeometryModel3D
-                x:Name="model1b"
+                x:Name="Model1B"
                 Geometry="{Binding Model}"
                 Material="{x:Static materials:PhongMaterials.Chrome}" />
-            <element3D:LineGeometryModel3D x:Name="grid" Geometry="{Binding Grid}" Color="{Binding GridColor}" />
+            <element3D:LineGeometryModel3D x:Name="Grid" Geometry="{Binding Grid}" Color="{Binding GridColor}" />
             <element3D:BillboardTextModel3D Geometry="{Binding Text3D}" />
         </controls:Viewport3DX>
 

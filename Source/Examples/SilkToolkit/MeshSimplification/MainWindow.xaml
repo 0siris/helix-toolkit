@@ -22,7 +22,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Row="0"
             Grid.Column="0"
@@ -51,7 +51,7 @@
             <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
             <lights3D:DirectionalLight3D Direction="{Binding Light1Direction}" Color="{Binding Light1Color}" />
             <element3D:MeshGeometryModel3D
-                x:Name="model"
+                x:Name="Model"
                 CullMode="Back"
                 Geometry="{Binding Model}"
                 IsMultisampleEnabled="False"
@@ -84,7 +84,7 @@
             <CheckBox
                 Margin="4"
                 Foreground="White"
-                IsChecked="{Binding ElementName=model, Path=RenderWireframe}">
+                IsChecked="{Binding ElementName=Model, Path=RenderWireframe}">
                 Show Wireframe
             </CheckBox>
             <Button Margin="4" Command="{Binding ResetCommand}">Reset</Button>

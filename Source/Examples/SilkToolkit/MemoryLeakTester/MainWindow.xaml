@@ -12,17 +12,17 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
-            <Button x:Name="startButton" Width="100" Height="30" Margin="4" Click="StartButton_Click">Start</Button>
-            <Button x:Name="stopButton" Width="100" Height="30" Margin="4" Click="StopButton_Click"
+            <Button x:Name="StartButton" Width="100" Height="30" Margin="4" Click="StartButton_Click">Start</Button>
+            <Button x:Name="StopButton" Width="100" Height="30" Margin="4" Click="StopButton_Click"
                     Visibility="Collapsed">
                 Stop
             </Button>
         </StackPanel>
-        <ComboBox x:Name="projectCombo" HorizontalAlignment="Right" VerticalAlignment="Center" Width="200"
+        <ComboBox x:Name="ProjectCombo" HorizontalAlignment="Right" VerticalAlignment="Center" Width="200"
                   DisplayMemberPath="Item1" />
-        <RichTextBox x:Name="logTextbox" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible">
-            <FlowDocument x:Name="flowDocument">
-                <Paragraph x:Name="paragraph">
+        <RichTextBox x:Name="LogTextbox" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible">
+            <FlowDocument x:Name="FlowDocument">
+                <Paragraph x:Name="Paragraph">
 
                 </Paragraph>
             </FlowDocument>

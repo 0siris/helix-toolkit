@@ -28,7 +28,7 @@
         </Grid.RowDefinitions>
 
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Row="1"
             Camera="{Binding Camera}"
@@ -49,7 +49,7 @@
             <lights3D:DirectionalLight3D Direction="{Binding DirectionalLightDirection1}"
                                    Color="{Binding DirectionalLightColor}" />
             <element3D:MeshGeometryModel3D
-                x:Name="model1"
+                x:Name="Model1"
                 FillMode="{Binding FillMode}"
                 Geometry="{Binding DefaultModel}"
                 Instances="{Binding Instances}"
@@ -67,7 +67,7 @@
 
         <StackPanel Grid.Row="1">
             <Expander
-                x:Name="shadingPanel"
+                x:Name="ShadingPanel"
                 Width="150"
                 Margin="10"
                 HorizontalAlignment="Right"
@@ -171,7 +171,7 @@
                 <TextBlock
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    Text="{Binding FrameRate, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                    Text="{Binding FrameRate, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
@@ -187,7 +187,7 @@
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
-                <TextBlock Text="{Binding Items.Count, ElementName=view1, StringFormat=Children: \{0\}}" />
+                <TextBlock Text="{Binding Items.Count, ElementName=View1, StringFormat=Children: \{0\}}" />
             </StatusBarItem>
         </StatusBar>
 

@@ -24,7 +24,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             BackgroundColor="Gray"
             Camera="{Binding Camera}"
@@ -56,7 +56,7 @@
             <elements3D:Element3DPresenter Content="{Binding ModelGroup}" />
             <element3D:LineGeometryModel3D Geometry="{Binding HitLineGeometry}" Color="Red" IsHitTestVisible="False" />
             <element3D:AxisPlaneGridModel3D
-                x:Name="plane"
+                x:Name="Plane"
                 AutoSpacing="False"
                 RenderShadowMap="True"
                 Offset="-0.2" />
@@ -74,7 +74,7 @@
             <TextBlock Margin="0,4,0,0">Repeat Mode:</TextBlock>
             <ComboBox ItemsSource="{Binding RepeatModes}" SelectedItem="{Binding SelectedRepeatMode}" />
             <TextBlock Margin="0,4,0,0">Grid Pattern:</TextBlock>
-            <ComboBox ItemsSource="{Binding GridTypes}" SelectedItem="{Binding ElementName=plane, Path=GridPattern}" />
+            <ComboBox ItemsSource="{Binding GridTypes}" SelectedItem="{Binding ElementName=Plane, Path=GridPattern}" />
         </StackPanel>
     </Grid>
 </Window>

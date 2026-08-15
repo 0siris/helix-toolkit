@@ -23,54 +23,54 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <controls:ModelContainer3DX x:Name="sharedModels" EffectsManager="{Binding EffectsManager}">
-            <light3D:ShadowMap3D x:Name="shadowMap" Resolution="{Binding ShadowMapResolution}" />
+        <controls:ModelContainer3DX x:Name="SharedModels" EffectsManager="{Binding EffectsManager}">
+            <light3D:ShadowMap3D x:Name="ShadowMap" Resolution="{Binding ShadowMapResolution}" />
             <lights3D:AmbientLight3D Color="{Binding AmbientLightColor}" />
             <lights3D:DirectionalLight3D Direction="{Binding DirectionalLightDirection}"
                                    Color="{Binding DirectionalLightColor}" />
 
             <element3D:MeshGeometryModel3D
-                x:Name="model1"
+                x:Name="Model1"
                 Geometry="{Binding Model}"
                 Material="{Binding RedMaterial}"
                 Transform="{Binding Model1Transform}" />
             <element3D:MeshGeometryModel3D
-                x:Name="model2"
+                x:Name="Model2"
                 Geometry="{Binding Model}"
                 Instances="{Binding Instances}"
                 Material="{Binding GreenMaterial}"
                 Transform="{Binding Model2Transform}" />
             <element3D:MeshGeometryModel3D
-                x:Name="model3"
+                x:Name="Model3"
                 Geometry="{Binding Model}"
                 Material="{Binding BlueMaterial}"
                 Transform="{Binding Model3Transform}" />
             <element3D:MeshGeometryModel3D
-                x:Name="plane"
+                x:Name="Plane"
                 Geometry="{Binding Plane}"
                 Material="{Binding GrayMaterial}"
                 Transform="{Binding PlaneTransform}" />
             <element3D:LineGeometryModel3D
-                x:Name="lines"
+                x:Name="Lines"
                 Geometry="{Binding Lines}"
                 Transform="{Binding Model1Transform}"
                 Color="{x:Static Colors.Black}" />
             <element3D:LineGeometryModel3D
-                x:Name="grid"
+                x:Name="Grid"
                 Geometry="{Binding Grid}"
                 Transform="{Binding GridTransform}"
                 Color="{Binding GridColor}" />
 
         </controls:ModelContainer3DX>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Column="0"
             Camera="{Binding Camera1}"
             CoordinateSystemLabelForeground="White"
             EnableSharedModelMode="True"
             IsShadowMappingEnabled="True"
-            SharedModelContainer="{Binding ElementName=sharedModels}"
+            SharedModelContainer="{Binding ElementName=SharedModels}"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
@@ -89,14 +89,14 @@
 
         </controls:Viewport3DX>
         <controls:Viewport3DX
-            x:Name="view2"
+            x:Name="View2"
             Title="{Binding Title}"
             Grid.Column="1"
             Camera="{Binding Camera2}"
             CoordinateSystemLabelForeground="White"
             EnableSharedModelMode="True"
             IsShadowMappingEnabled="True"
-            SharedModelContainer="{Binding ElementName=sharedModels}"
+            SharedModelContainer="{Binding ElementName=SharedModels}"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">

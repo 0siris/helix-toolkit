@@ -19,12 +19,12 @@
             <TextBlock Margin="5" TextWrapping="Wrap"
                        Text="Move mouse over the elements and check the position fields to see the differences between the position calculations." />
             <Separator />
-            <CheckBox x:Name="cbGrid" Content="Show Grid" Margin="5" IsChecked="True" />
+            <CheckBox x:Name="CbGrid" Content="Show Grid" Margin="5" IsChecked="True" />
             <TextBlock Margin="5" TextWrapping="Wrap"
                        Text="The blue grid is an element like the sphere or a box. ZoomIn to see the behaviour of 'OnElement Position' when you cross the lines of the Grid." />
             <Separator />
-            <CheckBox x:Name="cbZoomPoint" Content="Zoom to Mouse Point" Margin="5"
-                      IsChecked="{Binding Path=ZoomAroundMouseDownPoint, ElementName=view1}" />
+            <CheckBox x:Name="CbZoomPoint" Content="Zoom to Mouse Point" Margin="5"
+                      IsChecked="{Binding Path=ZoomAroundMouseDownPoint, ElementName=View1}" />
 
         </StackPanel>
 
@@ -36,7 +36,7 @@
                 <TextBlock
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    Text="{Binding FrameRate, ElementName=view1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
+                    Text="{Binding FrameRate, ElementName=View1, StringFormat=D3D11 - \{0:0.00\} FPS}" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
@@ -55,7 +55,7 @@
 
         <Grid>
             <controls:Viewport3DX
-                x:Name="view1"
+                x:Name="View1"
                 EnableCursorPosition="True"
                 EnableCurrentPosition="True"
                 Title="{Binding Title}"
@@ -82,34 +82,34 @@
                 <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}"
                                        Color="{Binding DirectionalLightColor}" />
                 <element3D:MeshGeometryModel3D
-                    x:Name="model1red"
+                    x:Name="Model1Red"
                     Geometry="{Binding Model}"
                     Material="{Binding RedMaterial}"
                     Transform="{Binding Model1Transform}" />
                 <element3D:MeshGeometryModel3D
-                    x:Name="model2green"
+                    x:Name="Model2Green"
                     Geometry="{Binding Model}"
                     Material="{Binding GreenMaterial}"
                     Transform="{Binding Model2Transform}" />
                 <element3D:MeshGeometryModel3D
-                    x:Name="model3blue"
+                    x:Name="Model3Blue"
                     Geometry="{Binding Model}"
                     Material="{Binding BlueMaterial}"
                     Transform="{Binding Model3Transform}" />
                 <element3D:LineGeometryModel3D
-                    x:Name="lines"
+                    x:Name="Lines"
                     Geometry="{Binding Lines}"
                     Thickness="0.5"
                     Transform="{Binding Model1Transform}"
                     Color="Gray" />
-                <element3D:LineGeometryModel3D x:Name="grid"
+                <element3D:LineGeometryModel3D x:Name="Grid"
                                         Geometry="{Binding Grid}"
                                         Transform="{Binding GridTransform}"
                                         Smoothness="2"
                                         Thickness="1.0"
                                         Color="Blue"
                                         Visibility="{Binding IsChecked,
-                                                     ElementName=cbGrid,
+                                                     ElementName=CbGrid,
                                                      Converter={StaticResource BoolToVisibility}}" />
             </controls:Viewport3DX>
 
@@ -132,15 +132,15 @@
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="x" Margin="5,0,4,0" />
                     <TextBox Grid.Row="0" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
-                             Text="{Binding Path=CursorPosition.X, ElementName=view1, StringFormat={}{0:f1}, FallbackValue=0.0}" />
+                             Text="{Binding Path=CursorPosition.X, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=0.0}" />
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="y" Margin="5,0,4,0" />
                     <TextBox Grid.Row="1" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
-                             Text="{Binding Path=CursorPosition.Y, ElementName=view1, StringFormat={}{0:f1}, FallbackValue=0.0}" />
+                             Text="{Binding Path=CursorPosition.Y, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=0.0}" />
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="z" Margin="5,0,4,0" />
                     <TextBox Grid.Row="2" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
-                             Text="{Binding Path=CursorPosition.Z, ElementName=view1, StringFormat={}{0:f1}, FallbackValue=0.0}" />
+                             Text="{Binding Path=CursorPosition.Z, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=0.0}" />
                     <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"
                                Text="Cursor" Background="Beige" />
                     <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"
@@ -164,22 +164,22 @@
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="x" Margin="5,0,4,0" />
                     <TextBox Grid.Row="0" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
-                             Text="{Binding Path=CursorOnElementPosition.X, ElementName=view1, StringFormat={}{0:f1}, FallbackValue=---}" />
+                             Text="{Binding Path=CursorOnElementPosition.X, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="y" Margin="5,0,4,0" />
                     <TextBox Grid.Row="1" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
-                             Text="{Binding Path=CursorOnElementPosition.Y, ElementName=view1, StringFormat={}{0:f1}, FallbackValue=---}" />
+                             Text="{Binding Path=CursorOnElementPosition.Y, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="z" Margin="5,0,4,0" />
                     <TextBox Grid.Row="2" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
-                             Text="{Binding Path=CursorOnElementPosition.Z, ElementName=view1, StringFormat={}{0:f1}, FallbackValue=---}" />
+                             Text="{Binding Path=CursorOnElementPosition.Z, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"
                                Text="OnElement" Background="BlanchedAlmond" />
                     <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"
                                Text="Position" Background="BlanchedAlmond" />
                 </Grid>
 
-                <Grid x:Name="Old_CurrentPositionBlock" HorizontalAlignment="Left" VerticalAlignment="Top"
+                <Grid x:Name="OldCurrentPositionBlock" HorizontalAlignment="Left" VerticalAlignment="Top"
                       Margin="40,0,0,0" Background="LightGray" Opacity="1" IsHitTestVisible="True">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition></ColumnDefinition>
@@ -196,15 +196,15 @@
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="x" Margin="5,0,4,0" />
                     <TextBox Grid.Row="0" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
-                             Text="{Binding Path=CurrentPosition.X, ElementName=view1, StringFormat={}{0:f1}, FallbackValue=---}" />
+                             Text="{Binding Path=CurrentPosition.X, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="y" Margin="5,0,4,0" />
                     <TextBox Grid.Row="1" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
-                             Text="{Binding Path=CurrentPosition.Y, ElementName=view1, StringFormat={}{0:f1}, FallbackValue=---}" />
+                             Text="{Binding Path=CurrentPosition.Y, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="z" Margin="5,0,4,0" />
                     <TextBox Grid.Row="2" Grid.Column="1" BorderThickness="0" TextAlignment="Right"
                              Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
-                             Text="{Binding Path=CurrentPosition.Z, ElementName=view1, StringFormat={}{0:f1}, FallbackValue=---}" />
+                             Text="{Binding Path=CurrentPosition.Z, ElementName=View1, StringFormat={}{0:f1}, FallbackValue=---}" />
                     <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"
                                Text="CurrentPosition" Background="BlanchedAlmond" />
                     <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"

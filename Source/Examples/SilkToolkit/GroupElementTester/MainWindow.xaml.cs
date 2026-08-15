@@ -20,15 +20,15 @@ public partial class MainWindow : Window {
 
     private void AttachGroupButton_Click(object sender, RoutedEventArgs e) {
         if (tempGroup is { } group) {
-            view1.Items.Add(group);
+            View1.Items.Add(group);
             tempGroup = null;
         }
     }
 
     private void DetachGroupButton_Click(object sender, RoutedEventArgs e) {
         if (tempGroup == null) {
-            tempGroup = group1;
-            view1.Items.Remove(group1);
+            tempGroup = Group1;
+            View1.Items.Remove(Group1);
         }
     }
 }

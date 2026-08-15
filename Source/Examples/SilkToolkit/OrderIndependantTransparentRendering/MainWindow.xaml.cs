@@ -12,7 +12,7 @@ public partial class MainWindow : Window {
 
     public MainWindow() {
         InitializeComponent();
-        view.AddHandler(Element3D.MouseDown3DEvent,
+        View.AddHandler(Element3D.MouseDown3DEvent,
             new RoutedEventHandler((_, e) => {
                 if (e is not MouseDown3DEventArgs {HitTestResult: { } hitTestResult}) {
                     return;

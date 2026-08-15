@@ -22,7 +22,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Background="Black"
             BackgroundColor="Black"
             Camera="{Binding Camera}"

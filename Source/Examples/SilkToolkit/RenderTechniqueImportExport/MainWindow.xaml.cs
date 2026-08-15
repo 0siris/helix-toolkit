@@ -8,11 +8,11 @@ namespace RenderTechniqueImportExport;
 public partial class MainWindow : Window {
     public MainWindow() {
         InitializeComponent();
-        listMenu.DataContext = DataContext;
+        ListMenu.DataContext = DataContext;
         DataContextChanged += MainWindow_DataContextChanged;
     }
 
     private void MainWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
-        listMenu.DataContext = e.NewValue;
+        ListMenu.DataContext = e.NewValue;
     }
 }

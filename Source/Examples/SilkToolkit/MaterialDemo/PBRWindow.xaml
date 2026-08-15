@@ -19,14 +19,14 @@
     mc:Ignorable="d">
     <Grid>
         <Grid.Resources>
-            <demo:InverseBoolConverter x:Key="reverseBoolConverter" />
+            <demo:InverseBoolConverter x:Key="ReverseBoolConverter" />
         </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Background="Black"
             BackgroundColor="Black"
@@ -54,25 +54,25 @@
                 <MouseBinding Command="controls:ViewportCommands.Zoom" Gesture="MiddleClick" />
                 <MouseBinding Command="controls:ViewportCommands.Pan" Gesture="LeftClick" />
             </controls:Viewport3DX.InputBindings>
-            <lights3D:AmbientLight3D x:Name="ambientLight" Color="#282828" />
+            <lights3D:AmbientLight3D x:Name="AmbientLight" Color="#282828" />
             <lights3D:DirectionalLight3D
-                x:Name="directional1"
+                x:Name="Directional1"
                 Direction="1, -1, -1"
                 Color="#DEDEDE" />
             <lights3D:PointLight3D
-                x:Name="pointLight1"
+                x:Name="PointLight1"
                 Attenuation="0.8, 0.01, 0"
                 Position="35, 10, 35"
                 Range="80"
                 Color="Red" />
             <lights3D:PointLight3D
-                x:Name="pointLight2"
+                x:Name="PointLight2"
                 Attenuation="0.8, 0.01, 0"
                 Position="-35, 10, 35"
                 Range="80"
                 Color="Blue" />
             <lights3D:PointLight3D
-                x:Name="pointLight3"
+                x:Name="PointLight3"
                 Attenuation="0.8, 0.01, 0"
                 Position="35, 10, -35"
                 Range="80"
@@ -81,7 +81,7 @@
             <elements3D:GroupModel3D ItemsSource="{Binding Models}" />
             <element3D:DynamicReflectionMap3D>
                 <element3D:MeshGeometryModel3D
-                    x:Name="sphereControl"
+                    x:Name="SphereControl"
                     CullMode="Back"
                     Geometry="{Binding Model}"
                     Material="{Binding Material}"
@@ -103,10 +103,10 @@
             <CheckBox IsChecked="{Binding RenderNormalMap}">Render Normal Map</CheckBox>
             <CheckBox IsChecked="{Binding RenderEnvironment}">Render Environment Map</CheckBox>
             <Label>Ambient Color</Label>
-            <pt:ColorPicker SelectedColor="{Binding ElementName=ambientLight, Path=Color}" />
+            <pt:ColorPicker SelectedColor="{Binding ElementName=AmbientLight, Path=Color}" />
             <Separator />
             <Label>Property Controls</Label>
-            <CheckBox x:Name="renderRMAMap" IsChecked="{Binding Material.RenderRoughnessMetallicMap}">Render RM Map</CheckBox>
+            <CheckBox x:Name="RenderRmaMap" IsChecked="{Binding Material.RenderRoughnessMetallicMap}">Render RM Map</CheckBox>
             <StackPanel>
                 <Label>Metallic</Label>
                 <Slider
@@ -144,11 +144,11 @@
             <CheckBox IsChecked="{Binding Material.RenderAlbedoMap}">Render Albedo Map</CheckBox>
             <CheckBox IsChecked="{Binding Material.RenderDisplacementMap}">Render Displace Map</CheckBox>
             <Separator />
-            <CheckBox IsChecked="{Binding ElementName=ambientLight, Path=IsRendering}">Ambient Light</CheckBox>
-            <CheckBox IsChecked="{Binding ElementName=directional1, Path=IsRendering}">Directional Light</CheckBox>
-            <CheckBox IsChecked="{Binding ElementName=pointLight1, Path=IsRendering}">PointLight 1</CheckBox>
-            <CheckBox IsChecked="{Binding ElementName=pointLight2, Path=IsRendering}">PointLight 2</CheckBox>
-            <CheckBox IsChecked="{Binding ElementName=pointLight3, Path=IsRendering}">PointLight 3</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=AmbientLight, Path=IsRendering}">Ambient Light</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=Directional1, Path=IsRendering}">Directional Light</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=PointLight1, Path=IsRendering}">PointLight 1</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=PointLight2, Path=IsRendering}">PointLight 2</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=PointLight3, Path=IsRendering}">PointLight 3</CheckBox>
         </StackPanel>
     </Grid>
 </Window>

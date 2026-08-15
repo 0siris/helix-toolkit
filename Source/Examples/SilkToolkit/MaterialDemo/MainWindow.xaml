@@ -24,7 +24,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Background="Black"
             BackgroundColor="Black"
@@ -61,36 +61,36 @@
                 Geometry="{Binding Floor}"
                 Material="{Binding FloorMaterial}" />-->
             <elements3D:GroupModel3D
-                x:Name="model1"
+                x:Name="Model1"
                 ItemsSource="{Binding Model1}"
                 Transform="{Binding Transform1}" />
             <elements3D:GroupModel3D
-                x:Name="model1NormalVector"
+                x:Name="Model1NormalVector"
                 IsRendering="False"
                 ItemsSource="{Binding ModelNormalVector}"
                 Transform="{Binding Transform1}" />
             <elements3D:GroupModel3D
-                x:Name="model2"
+                x:Name="Model2"
                 ItemsSource="{Binding Model2}"
                 Transform="{Binding Transform2}" />
             <elements3D:GroupModel3D
-                x:Name="model3"
+                x:Name="Model3"
                 ItemsSource="{Binding Model3}"
                 Transform="{Binding Transform3}" />
             <elements3D:GroupModel3D
-                x:Name="model4"
+                x:Name="Model4"
                 ItemsSource="{Binding Model4}"
                 Transform="{Binding Transform4}" />
             <elements3D:GroupModel3D
-                x:Name="model5"
+                x:Name="Model5"
                 ItemsSource="{Binding Model5}"
                 Transform="{Binding Transform5}" />
             <elements3D:GroupModel3D
-                x:Name="model6"
+                x:Name="Model6"
                 ItemsSource="{Binding Model6}"
                 Transform="{Binding Transform6}" />
             <elements3D:GroupModel3D
-                x:Name="model7"
+                x:Name="Model7"
                 ItemsSource="{Binding Model7}"
                 Transform="{Binding Transform7}" />
             <element3D:BillboardTextModel3D
@@ -108,7 +108,7 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
-                IsChecked="{Binding ElementName=model1NormalVector, Path=IsRendering}">
+                IsChecked="{Binding ElementName=Model1NormalVector, Path=IsRendering}">
                 Show Normal Vector
             </CheckBox>
             <CheckBox IsChecked="{Binding ColorStripeMaterial.ColorStripeXEnabled}">Enable StripeX</CheckBox>

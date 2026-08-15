@@ -31,7 +31,7 @@ public partial class MainWindow : Window {
         projectWinPairs.Add(new Tuple<string, Type>("SimpleDemo", typeof(SimpleDemo.MainWindow)));
         projectWinPairs.Add(new Tuple<string, Type>("MaterialDemo", typeof(MaterialDemo.MainWindow)));
         projectWinPairs.Add(new Tuple<string, Type>("EnvironmentMapDemo", typeof(EnvironmentMapDemo.MainWindow)));
-        projectCombo.ItemsSource = projectWinPairs;
+        ProjectCombo.ItemsSource = projectWinPairs;
     }
 
     private void StartButton_Click(object sender, RoutedEventArgs e) {
@@ -42,16 +42,16 @@ public partial class MainWindow : Window {
             timer.Tick += Timer_Tick;
             systemparams.Count = 0;
             timer.Start();
-            startButton.Visibility = Visibility.Collapsed;
-            stopButton.Visibility = Visibility.Visible;
+            StartButton.Visibility = Visibility.Collapsed;
+            StopButton.Visibility = Visibility.Visible;
         }
     }
 
     private void StopButton_Click(object sender, RoutedEventArgs e) {
         timer?.Stop();
         timer = null;
-        startButton.Visibility = Visibility.Visible;
-        stopButton.Visibility = Visibility.Collapsed;
+        StartButton.Visibility = Visibility.Visible;
+        StopButton.Visibility = Visibility.Collapsed;
     }
 
     private void Timer_Tick(object? sender, EventArgs e) {
@@ -67,16 +67,16 @@ public partial class MainWindow : Window {
             GC.Collect();
             Debug.WriteLine("SharpDX object tracking is not available after the Silk.NET migration.");
             var log = systemparams.Update();
-            paragraph.Inlines.Add(log);
-            logTextbox.ScrollToEnd();
+            Paragraph.Inlines.Add(log);
+            LogTextbox.ScrollToEnd();
         }
     }
 
     private void CreateWindow() {
-        if (projectCombo.SelectedIndex == -1) {
+        if (ProjectCombo.SelectedIndex == -1) {
             testWin = new TestWindow();
         } else {
-            var pair = projectWinPairs[projectCombo.SelectedIndex];
+            var pair = projectWinPairs[ProjectCombo.SelectedIndex];
             testWin = Activator.CreateInstance(pair.Item2) as Window;
         }
 

@@ -32,7 +32,7 @@ public partial class MainWindow : Window {
         InitializeComponent();
         manager = new DefaultEffectsManager();
         DataContext = viewmodel;
-        buttonRemoveViewport.IsEnabled = false;
+        ButtonRemoveViewport.IsEnabled = false;
     }
 
     private void Button_Click_Add(object sender, RoutedEventArgs e) {
@@ -73,11 +73,11 @@ public partial class MainWindow : Window {
         activeViewport.Items.Add(group);
         activeViewport.MouseDown3D += Viewport_MouseDown3D;
         Grid.SetColumn(activeViewport, 0);
-        mainGrid.Children.Add(activeViewport);
+        MainGrid.Children.Add(activeViewport);
         viewport = activeViewport;
         sceneNodeGroup = group;
-        buttonInit.IsEnabled = false;
-        buttonRemoveViewport.IsEnabled = true;
+        ButtonInit.IsEnabled = false;
+        ButtonRemoveViewport.IsEnabled = true;
         viewmodel.EnableButtons = true;
     }
 
@@ -105,13 +105,13 @@ public partial class MainWindow : Window {
 
     private void ButtonRemove_Click(object sender, RoutedEventArgs e) {
         if (viewport is { } activeViewport) {
-            mainGrid.Children.Remove(activeViewport);
+            MainGrid.Children.Remove(activeViewport);
         }
 
         viewport = null;
         sceneNodeGroup = null;
-        buttonInit.IsEnabled = true;
-        buttonRemoveViewport.IsEnabled = false;
+        ButtonInit.IsEnabled = true;
+        ButtonRemoveViewport.IsEnabled = false;
     }
 }
 

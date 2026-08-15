@@ -23,19 +23,19 @@ public partial class MainWindow : Window {
         var normal = Normalize(normalAtHit);
         var upDirection = Vector3.Zero;
         var lookDirection = -normal;
-        if (Cross(normal, Media3DExtension.ToVector3((Vector3D) view1.ModelUpDirection))
+        if (Cross(normal, Media3DExtension.ToVector3((Vector3D) View1.ModelUpDirection))
                 .LengthSquared < 1e-5) {
             var vecLeft = new Vector3(-normal.Y, -normal.Z, -normal.X);
             upDirection = vecLeft;
         } else {
-            upDirection = Media3DExtension.ToVector3((Vector3D) view1.ModelUpDirection);
+            upDirection = Media3DExtension.ToVector3((Vector3D) View1.ModelUpDirection);
         }
 
-        var target = view1.Camera.Position + view1.Camera.LookDirection;
-        var distance = view1.Camera.LookDirection.Length;
+        var target = View1.Camera.Position + View1.Camera.LookDirection;
+        var distance = View1.Camera.LookDirection.Length;
         lookDirection *= (float) distance;
         var newPosition = Media3DExtension.ToVector3((Point3D) target) - lookDirection;
-        view1.Camera.AnimateTo(newPosition.ToPoint3D(), lookDirection.ToVector3D(), upDirection.ToVector3D(), 500);
+        View1.Camera.AnimateTo(newPosition.ToPoint3D(), lookDirection.ToVector3D(), upDirection.ToVector3D(), 500);
     }
 
     private void LineGeometryModel3D_Mouse3DDown(object sender, MouseDown3DEventArgs e) {

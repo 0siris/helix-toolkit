@@ -14,9 +14,9 @@
     Height="450"
     mc:Ignorable="d">
     <Window.DataContext>
-        <local:MainViewModel x:Name="viewmodel" />
+        <local:MainViewModel x:Name="Viewmodel" />
     </Window.DataContext>
-    <Grid x:Name="mainGrid">
+    <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
@@ -37,9 +37,9 @@
                 DockPanel.Dock="Bottom"
                 ItemsSource="{Binding TechniqueList}"
                 SelectedItem="{Binding SelectedTechnique}"
-                Tag="{Binding ElementName=viewmodel}">
+                Tag="{Binding ElementName=Viewmodel}">
                 <ListBox.ContextMenu>
-                    <ContextMenu x:Name="listMenu" DataContext="{Binding ElementName=mainGrid, Path=DataContext}">
+                    <ContextMenu x:Name="ListMenu" DataContext="{Binding ElementName=MainGrid, Path=DataContext}">
                         <MenuItem Command="{Binding ExportSingleTechnique}" Header="Export" />
                     </ContextMenu>
                 </ListBox.ContextMenu>

@@ -25,7 +25,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <local:CustomViewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Grid.Row="0"
             Grid.Column="0"
             Background="Black"
@@ -55,7 +55,7 @@
             </local:CustomViewport3DX.InputBindings>
             <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
             <element3D:CrossSectionMeshGeometryModel3D
-                x:Name="crossModel"
+                x:Name="CrossModel"
                 CrossSectionColor="GreenYellow"
                 CullMode="Back"
                 CuttingOperation="{Binding CuttingOperation}"
@@ -69,7 +69,7 @@
                 Plane2="{Binding Plane2}"
                 Transform="{Binding ModelTransform}" />
             <element3D:CrossSectionMeshGeometryModel3D
-                x:Name="crossModel2"
+                x:Name="CrossModel2"
                 CrossSectionColor="GreenYellow"
                 CullMode="Back"
                 CuttingOperation="{Binding CuttingOperation}"

@@ -29,7 +29,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Row="0"
             Grid.Column="0"
@@ -88,44 +88,44 @@
                     CullMode="Back"
                     Geometry="{Binding Sphere}"
                     IsRendering="{Binding RenderLight1}"
-                    IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                    IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                     Material="{Binding LightModelMaterial}"
                     Transform="{Binding Light1Transform}" />
                 <element3D:MeshGeometryModel3D
                     CullMode="Back"
                     Geometry="{Binding Sphere}"
                     IsRendering="{Binding RenderLight2}"
-                    IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                    IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                     Material="{Binding LightModelMaterial}"
                     Transform="{Binding Light2Transform}" />
                 <element3D:MeshGeometryModel3D
                     CullMode="Back"
                     Geometry="{Binding Sphere}"
                     IsRendering="{Binding RenderLight3}"
-                    IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                    IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                     Material="{Binding LightModelMaterial}"
                     Transform="{Binding Light3Transform}" />
                 <element3D:MeshGeometryModel3D
                     CullMode="Back"
                     Geometry="{Binding Sphere}"
                     IsRendering="{Binding RenderLight4}"
-                    IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                    IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                     Material="{Binding LightModelMaterial}"
                     Transform="{Binding Light4Transform}" />
             </elements3D:GroupModel3D>
             <elements3D:GroupModel3D>
                 <element3D:MeshGeometryModel3D
-                    x:Name="model"
+                    x:Name="Model"
                     Geometry="{Binding Model}"
-                    IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                    IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                     Material="{Binding ModelMaterial}"
                     Transform="{Binding ModelTransform}" />
                 <element3D:DynamicReflectionMap3D IsDynamicScene="True">
                     <element3D:MeshGeometryModel3D
-                        x:Name="model1"
+                        x:Name="Model1"
                         CullMode="Back"
                         Geometry="{Binding Sphere}"
-                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ReflectMaterial}"
                         Transform="{Binding Model1Transform}" />
                 </element3D:DynamicReflectionMap3D>
@@ -134,65 +134,65 @@
                     <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
-                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object1Transform}" />
                     <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
-                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object2Transform}" />
                     <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
-                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object3Transform}" />
                     <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
-                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object4Transform}" />
                     <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
-                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object5Transform}" />
                     <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
-                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object6Transform}" />
                     <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
-                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object7Transform}" />
                     <element3D:MeshGeometryModel3D
                         CullMode="Back"
                         Geometry="{Binding FlyingObject}"
-                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        IsThrowingShadow="{Binding ElementName=View1, Path=IsShadowMappingEnabled}"
                         Material="{Binding ObjectMaterial}"
                         Transform="{Binding Object8Transform}" />
                 </elements3D:GroupModel3D>
 
                 <element3D:MeshGeometryModel3D
-                    x:Name="floor"
+                    x:Name="Floor"
                     CullMode="Back"
                     Geometry="{Binding Floor}"
                     Material="{Binding FloorMaterial}"
                     Transform="{Binding FloorTransform}" />
             </elements3D:GroupModel3D>
-            <postEffects:PostEffectBloom x:Name="bloom" />
+            <postEffects:PostEffectBloom x:Name="Bloom" />
         </controls:Viewport3DX>
         <StackPanel Grid.Column="1">
             <Expander
-                x:Name="shadingPanel"
+                x:Name="ShadingPanel"
                 Width="200"
                 Margin="10"
                 HorizontalAlignment="Right"
@@ -214,12 +214,12 @@
                         Margin="3"
                         ItemsSource="{Binding FxaAs}"
                         SelectedItem="{Binding Fxaa}" />
-                    <CheckBox x:Name="tessCheckBox" IsChecked="{Binding ModelMaterial.EnableTessellation}">Enable Tessellation</CheckBox>
+                    <CheckBox x:Name="TessCheckBox" IsChecked="{Binding ModelMaterial.EnableTessellation}">Enable Tessellation</CheckBox>
                     <Slider
                         Grid.Row="9"
                         Grid.ColumnSpan="2"
                         Margin="3"
-                        IsEnabled="{Binding ElementName=tessCheckBox, Path=IsChecked}"
+                        IsEnabled="{Binding ElementName=TessCheckBox, Path=IsChecked}"
                         IsSnapToTickEnabled="True"
                         Maximum="5"
                         Minimum="1"
@@ -275,14 +275,14 @@
                 Click="Button_Click">
                 MultiViewport Demo
             </Button>
-            <CheckBox IsChecked="{Binding ElementName=bloom, Path=IsRendering}">Enable Bloom</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=Bloom, Path=IsRendering}">Enable Bloom</CheckBox>
             <StackPanel Orientation="Horizontal">
                 <TextBlock>Num BlurPass:</TextBlock>
                 <Slider
                     Width="80"
                     Maximum="4"
                     Minimum="1"
-                    Value="{Binding ElementName=bloom, Path=NumberOfBlurPass}" />
+                    Value="{Binding ElementName=Bloom, Path=NumberOfBlurPass}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock>BloomCombineIntensity:</TextBlock>
@@ -290,7 +290,7 @@
                     Width="80"
                     Maximum="1"
                     Minimum="0.1"
-                    Value="{Binding ElementName=bloom, Path=BloomCombineIntensity}" />
+                    Value="{Binding ElementName=Bloom, Path=BloomCombineIntensity}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock>BloomCombineSaturation:</TextBlock>
@@ -298,7 +298,7 @@
                     Width="80"
                     Maximum="1"
                     Minimum="0.1"
-                    Value="{Binding ElementName=bloom, Path=BloomCombineSaturation}" />
+                    Value="{Binding ElementName=Bloom, Path=BloomCombineSaturation}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock>BloomExtractIntensity:</TextBlock>
@@ -306,7 +306,7 @@
                     Width="80"
                     Maximum="1"
                     Minimum="0.1"
-                    Value="{Binding ElementName=bloom, Path=BloomExtractIntensity}" />
+                    Value="{Binding ElementName=Bloom, Path=BloomExtractIntensity}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock>BloomPassIntensity:</TextBlock>
@@ -314,7 +314,7 @@
                     Width="80"
                     Maximum="1"
                     Minimum="0.1"
-                    Value="{Binding ElementName=bloom, Path=BloomPassIntensity}" />
+                    Value="{Binding ElementName=Bloom, Path=BloomPassIntensity}" />
             </StackPanel>
         </StackPanel>
     </Grid>

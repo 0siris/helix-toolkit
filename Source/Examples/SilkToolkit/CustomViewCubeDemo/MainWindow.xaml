@@ -19,7 +19,7 @@
     </Window.DataContext>
     <Grid>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}"
             ShowViewCube="False">

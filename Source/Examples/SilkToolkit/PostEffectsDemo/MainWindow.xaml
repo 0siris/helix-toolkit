@@ -20,7 +20,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
-            x:Name="view1"
+            x:Name="View1"
             Title="{Binding Title}"
             Grid.Row="0"
             Grid.Column="0"
@@ -52,7 +52,7 @@
             <lights3D:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="White" />
 
             <element3D:MeshGeometryModel3D
-                x:Name="mesh1"
+                x:Name="Mesh1"
                 CullMode="Back"
                 Geometry="{Binding MeshModel1}"
                 Material="{Binding Material1}"
@@ -66,7 +66,7 @@
                 PostEffects="glow[color:#FA8000]; border[color:#004CFF]" />
 
             <element3D:MeshGeometryModel3D
-                x:Name="mesh2"
+                x:Name="Mesh2"
                 CullMode="Back"
                 Geometry="{Binding MeshModel2}"
                 Material="{Binding Material2}"
@@ -122,25 +122,25 @@
                     Color="White" />
             </element3D:ScreenSpacedGroup3D>
             <postEffects:PostEffectMeshXRayGrid
-                x:Name="xrayGrid"
+                x:Name="XrayGrid"
                 EffectName="xrayGrid"
                 GridDensity="4" />
             <postEffects:PostEffectMeshOutlineBlur
-                x:Name="outlineGlow"
+                x:Name="OutlineGlow"
                 EffectName="glow"
                 NumberOfBlurPass="6"
                 Color="Yellow" />
             <postEffects:PostEffectMeshBorderHighlight
-                x:Name="border"
+                x:Name="Border"
                 EffectName="border"
                 Color="Red" />
-            <postEffects:PostEffectMeshXRay x:Name="xrayLine" EffectName="xrayLine" />
+            <postEffects:PostEffectMeshXRay x:Name="XrayLine" EffectName="xrayLine" />
         </controls:Viewport3DX>
         <StackPanel Grid.Column="1" Orientation="Vertical">
-            <CheckBox Margin="2" IsChecked="{Binding ElementName=xrayGrid, Path=IsRendering}">Mesh XRayGrid</CheckBox>
-            <CheckBox Margin="2" IsChecked="{Binding ElementName=outlineGlow, Path=IsRendering}">Glow</CheckBox>
-            <CheckBox Margin="2" IsChecked="{Binding ElementName=border, Path=IsRendering}">Mesh Outline</CheckBox>
-            <CheckBox Margin="2" IsChecked="{Binding ElementName=xrayLine, Path=IsRendering}">Line XRay</CheckBox>
+            <CheckBox Margin="2" IsChecked="{Binding ElementName=XrayGrid, Path=IsRendering}">Mesh XRayGrid</CheckBox>
+            <CheckBox Margin="2" IsChecked="{Binding ElementName=OutlineGlow, Path=IsRendering}">Glow</CheckBox>
+            <CheckBox Margin="2" IsChecked="{Binding ElementName=Border, Path=IsRendering}">Mesh Outline</CheckBox>
+            <CheckBox Margin="2" IsChecked="{Binding ElementName=XrayLine, Path=IsRendering}">Line XRay</CheckBox>
         </StackPanel>
     </Grid>
 </Window>

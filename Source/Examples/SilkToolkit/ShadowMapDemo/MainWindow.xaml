@@ -17,7 +17,6 @@
     Height="800"
     mc:Ignorable="d">
     <Window.Resources>
-        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
     </Window.Resources>
     <Window.DataContext>
         <local:MainViewModel />

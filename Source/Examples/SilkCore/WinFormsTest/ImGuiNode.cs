@@ -48,7 +48,7 @@ public class ImGuiNode : SceneNode {
 
     private ImGui2DBufferModel? bufferModel;
 
-    private IntPtr fontAtlasId = (IntPtr) 1;
+    private IntPtr fontAtlasId = 1;
 
     private bool newFrame;
 
@@ -262,7 +262,7 @@ public sealed class ImGuiRenderCore : RenderCore {
                         int vCount = cmdList.VtxBuffer.Size * sizeof(ImDrawVert);
                         ptr = UnsafeHelper.Write(
                             ptr,
-                            (IntPtr) cmdList.VtxBuffer.Data,
+                            cmdList.VtxBuffer.Data,
                             0,
                             vCount);
                     }
@@ -275,7 +275,7 @@ public sealed class ImGuiRenderCore : RenderCore {
                         int iCount = cmdList.IdxBuffer.Size * sizeof(ushort);
                         ptr = UnsafeHelper.Write(
                             ptr,
-                            (IntPtr) cmdList.IdxBuffer.Data,
+                            cmdList.IdxBuffer.Data,
                             0,
                             iCount);
                     }

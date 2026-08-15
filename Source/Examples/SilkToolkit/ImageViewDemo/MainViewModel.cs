@@ -31,47 +31,47 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 public class MainViewModel : BaseViewModel {
     public MeshGeometry3D Plane {
         get;
-        set => SetValue(ref field, value, nameof(Plane));
+        set => SetValue(ref field, value);
     }
 
     public LineGeometry3D Grid {
         get;
-        set => SetValue(ref field, value, nameof(Grid));
+        set => SetValue(ref field, value);
     }
 
     public PhongMaterial PlaneMaterial {
         get;
-        set => SetValue(ref field, value, nameof(PlaneMaterial));
+        set => SetValue(ref field, value);
     }
 
     public Color GridColor {
         get;
-        set => SetValue(ref field, value, nameof(GridColor));
+        set => SetValue(ref field, value);
     }
 
     public Media3D.Transform3D PlaneTransform {
         get;
-        set => SetValue(ref field, value, nameof(PlaneTransform));
+        set => SetValue(ref field, value);
     }
 
     public Media3D.Transform3D GridTransform {
         get;
-        set => SetValue(ref field, value, nameof(GridTransform));
+        set => SetValue(ref field, value);
     }
 
     public Vector3D DirectionalLightDirection {
         get;
-        set => SetValue(ref field, value, nameof(DirectionalLightDirection));
+        set => SetValue(ref field, value);
     }
 
     public Color4 DirectionalLightColor {
         get;
-        set => SetValue(ref field, value, nameof(DirectionalLightColor));
+        set => SetValue(ref field, value);
     }
 
     public Color4 AmbientLightColor {
         get;
-        set => SetValue(ref field, value, nameof(AmbientLightColor));
+        set => SetValue(ref field, value);
     }
 
     public ICommand OpenCommand { get; private set; }

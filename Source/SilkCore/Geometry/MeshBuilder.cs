@@ -3477,8 +3477,8 @@ public class MeshBuilder {
 
             // origin is the corner vertex (at index i0)
             // find the intersections between the chamfer plane and the two edges connected to the corner
-            var p01 = SharedFunctions.LineIntersection(plane, p0, p1);
-            var p02 = SharedFunctions.LineIntersection(plane, p0, p2);
+            var p01 = plane.LineIntersection(p0, p1);
+            var p02 = plane.LineIntersection(p0, p2);
 
             if (p01 == null) continue;
 

@@ -19,7 +19,6 @@
     mc:Ignorable="d">
     <Grid>
         <Grid.Resources>
-            <local:BindingProxy x:Key="MainContext" Data="{Binding}" />
         </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />

@@ -25,7 +25,7 @@ public partial class MainWindow : Window {
 
         // mouse events            
         View1.MouseDown += (_, e) => {
-            var hits = ViewportExtensions.FindHits(View1, e.GetPosition(View1));
+            var hits = View1.FindHits(e.GetPosition(View1));
             if (hits.Count > 0) {
                 foreach (var hit in hits.Where(h => h.IsValid)) {
                     if (hit.ModelHit is Element3D element3D) {

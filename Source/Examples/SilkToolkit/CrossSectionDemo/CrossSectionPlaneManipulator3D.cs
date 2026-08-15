@@ -40,7 +40,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
                         var plane = (Plane) e.NewValue;
                         model.currentTranslation =
                             Translation(plane.Normal * plane.D);
-                        var v1 = VectorExtensions.FindAnyPerpendicular(plane.Normal);
+                        var v1 = plane.Normal.FindAnyPerpendicular();
                         var v2 = Cross(plane.Normal, v1);
                         model.currentRotation =
                             new Matrix(v2.X,
@@ -208,7 +208,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
         NodeGeometry.OctreeParameter.MinimumOctantSize = 0.01f;
         NodeGeometry.UpdateOctree();
         var b2 = new MeshBuilder();
-        b2.AddCylinder(new Vector3(0, 0, 0), new Vector3(1, 0, 0), 0.05, 12, true, true);
+        b2.AddCylinder(new Vector3(0, 0, 0), new Vector3(1, 0, 0), 0.05, 12, true);
         EdgeHGeometry = b2.ToMeshGeometry3D();
         EdgeHGeometry.OctreeParameter.MinimumOctantSize = 0.01f;
         EdgeHGeometry.UpdateOctree();
@@ -433,7 +433,7 @@ public class CrossSectionPlaneManipulator3D : GroupModel3D {
 
             var angle = u1.AngleBetween(u2);
             // Create the transform
-            currentRotation *= RotationAxis(axis.Normalized(), (float) (angle * RotationSensitivity * 5));
+            currentRotation *= RotationAxis(axis.Normalized(), angle * RotationSensitivity * 5);
             UpdateTransform();
         }
     }

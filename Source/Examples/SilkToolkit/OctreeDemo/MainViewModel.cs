@@ -94,7 +94,7 @@ public class MainViewModel : BaseViewModel {
     public Color LineColor { set; get; }
 
     public PhongMaterial Material {
-        private set => SetValue<PhongMaterial>(ref field, value, nameof(Material));
+        private set => SetValue<PhongMaterial>(ref field, value);
         get;
     }
 
@@ -102,7 +102,7 @@ public class MainViewModel : BaseViewModel {
     public PointGeometry3D PointsModel { private set; get; }
 
     public PointGeometry3D PointsHitModel {
-        set => SetValue(ref field, value, nameof(PointsHitModel));
+        set => SetValue(ref field, value);
         get;
     }
 
@@ -127,7 +127,7 @@ public class MainViewModel : BaseViewModel {
 
     public int SphereSize {
         set {
-            if (SetValue<int>(ref field, value, nameof(SphereSize))) {
+            if (SetValue<int>(ref field, value)) {
                 if (highlightItems.Count > 0) {
                     foreach (SphereModel item in highlightItems) {
                         item.Radius = value;
@@ -203,7 +203,7 @@ public class MainViewModel : BaseViewModel {
         Material = PhongMaterials.White;
         var b2 = new MeshBuilder(true, true, true);
         b2.AddSphere(new Vector3(15f, 0f, 0f), 4, 64, 64);
-        b2.AddSphere(new Vector3(25f, 0f, 0f), 2, 32, 32);
+        b2.AddSphere(new Vector3(25f, 0f, 0f), 2);
         b2.AddTube([new Vector3(10f, 5f, 0f), new Vector3(10f, 7f, 0f)], 2, 12, false, true, true);
         DefaultModel = b2.ToMeshGeometry3D();
         DefaultModel.OctreeParameter.RecordHitPathBoundingBoxes = true;
@@ -377,7 +377,7 @@ public class MainViewModel : BaseViewModel {
 
     public bool AutoTesting {
         set {
-            if (SetValue<bool>(ref field, value, nameof(AutoTesting))) {
+            if (SetValue<bool>(ref field, value)) {
                 Enabled = !value;
             }
         }
@@ -385,7 +385,7 @@ public class MainViewModel : BaseViewModel {
     } = false;
 
     public bool Enabled {
-        set => SetValue<bool>(ref field, value, nameof(Enabled));
+        set => SetValue<bool>(ref field, value);
         get;
     } = true;
 

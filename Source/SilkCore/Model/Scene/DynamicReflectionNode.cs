@@ -149,7 +149,7 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     public override void UpdateNotRender(RenderContext context) {
         base.UpdateNotRender(context);
         if (Octree != null) {
-            Center = BoundingBoxExtensions.Center(Octree.Bound);
+            Center = Octree.Bound.Center();
         } else {
             var box = new BoundingBox();
             var i = 0;
@@ -163,7 +163,7 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
                 if (ItemsInternal[i] is IDynamicReflectable)
                     box = BoundingBox.Merge(box, ItemsInternal[i].BoundsWithTransform);
 
-            Center = BoundingBoxExtensions.Center(box);
+            Center = box.Center();
         }
     }
 

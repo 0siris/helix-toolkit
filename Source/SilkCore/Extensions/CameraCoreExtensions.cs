@@ -26,15 +26,15 @@ public static class CameraCoreExtensions {
         var line1Direction = line1.Direction;
         var line2Direction = line2.Direction;
 
-        var a = SilkMath.Dot((Vector3) line1Direction, line1Direction);
-        var b = SilkMath.Dot((Vector3) line1Direction, line2Direction);
-        var e = SilkMath.Dot((Vector3) line2Direction, line2Direction);
+        var a = SilkMath.Dot(line1Direction, line1Direction);
+        var b = SilkMath.Dot(line1Direction, line2Direction);
+        var e = SilkMath.Dot(line2Direction, line2Direction);
 
         var d = a * e - b * b;
 
         var r = line1.Position - line2.Position;
-        var c = SilkMath.Dot((Vector3) line1Direction, r);
-        var f = SilkMath.Dot((Vector3) line2Direction, r);
+        var c = SilkMath.Dot(line1Direction, r);
+        var f = SilkMath.Dot(line2Direction, r);
 
         var s = (b * f - c * e) / d;
         var t = (a * f - c * b) / d;
@@ -97,10 +97,10 @@ public static class CameraCoreExtensions {
                        ? closestPointLine1
                        : closestPointLine2;
         upDir = cameraUp;
-        var boundPlane = new Plane(BoundingBoxExtensions.Center(boundingBox), cameraDir);
+        var boundPlane = new Plane(boundingBox.Center(), cameraDir);
         var lookRay = new Ray(position, cameraDir);
         boundPlane.Intersects(ref lookRay, out var dist);
-        lookDir = dist < 1e-6 ? BoundingBoxExtensions.Center(boundingBox) - position : cameraDir * dist;
+        lookDir = dist < 1e-6 ? boundingBox.Center() - position : cameraDir * dist;
     }
 
     /// <summary>
@@ -140,7 +140,7 @@ public static class CameraCoreExtensions {
         width = aspectRatio > 1
                     ? Math.Max(maxX - minX, (maxY - minY) * aspectRatio)
                     : Math.Max((maxX - minX) / aspectRatio, maxY - minY);
-        position = BoundingBoxExtensions.Center(boundingBox) - camera.LookDirection.Normalized() * width;
+        position = boundingBox.Center() - camera.LookDirection.Normalized() * width;
         lookDir = camera.LookDirection.Normalized() * width;
         upDir = camera.UpDirection;
     }

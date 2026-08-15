@@ -108,11 +108,11 @@ public class MainViewModel : BaseViewModel {
         Light1Color = Colors.White;
 
 
-        var builder = new MeshBuilder(true, false, false);
+        var builder = new MeshBuilder(true, false);
         builder.AddBox(new Vector3(), 40, 0.1, 40);
         Plane1Model = FloorModel = builder.ToMeshGeometry3D();
 
-        builder = new MeshBuilder(true, false, false);
+        builder = new MeshBuilder(true, false);
         builder.AddBox(new Vector3(), 0.1, 40, 40);
         Plane2Model = builder.ToMeshGeometry3D();
 

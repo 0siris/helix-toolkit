@@ -165,7 +165,7 @@ public static class IViewportExtensions {
         Vector3 normal,
         out Vector3 intersection
     ) {
-        if (viewport.UnProject(p, out var ray)) return RayExtensions.PlaneIntersection(ray, position, normal, out intersection);
+        if (viewport.UnProject(p, out var ray)) return ray.PlaneIntersection(position, normal, out intersection);
 
         intersection = Vector3.Zero;
         return false;

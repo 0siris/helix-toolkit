@@ -59,7 +59,7 @@
                 Background="Gray"
                 ResizeBehavior="PreviousAndNext"
                 ResizeDirection="Columns" />
-            <Grid Name="SourcePanel">
+            <Grid Grid.Column="0" Name="SourcePanel">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -101,9 +101,9 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Text="Elements in 'u' direction" />
-                    <TextBlock Grid.Row="1" Text="Elements in 'v' direction" />
-                    <TextBlock Grid.Row="2" Text="Parameter 'w'" />
-                    <TextBlock Grid.Row="3" Text="Stereobase" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Elements in 'v' direction" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Parameter 'w'" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Stereobase" />
                     <Slider
                         Name="Slider1"
                         Grid.Row="0"

@@ -349,9 +349,9 @@ internal abstract class MouseGestureHandler {
             if (Hits.Count > 0) {
                 MouseDownNearestPoint3D = Hits[0].PointHit;
                 if (Hits[0].ModelHit is Model.Elements3D.AbstractElements3D.Element3D ele)
-                    MouseDownNearestModelBoundCenter = BoundingBoxExtensions.Center(ele.BoundsWithTransform);
+                    MouseDownNearestModelBoundCenter = ele.BoundsWithTransform.Center();
                 else if (Hits[0].ModelHit is SceneNode node)
-                    MouseDownNearestModelBoundCenter = BoundingBoxExtensions.Center(node.BoundsWithTransform);
+                    MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center();
             }
         } else {
             MouseDownNearestModelBoundCenter = null;

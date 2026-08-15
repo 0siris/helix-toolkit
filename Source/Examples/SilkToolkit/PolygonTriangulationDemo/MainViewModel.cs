@@ -75,7 +75,7 @@ public class MainViewModel : BaseViewModel {
         get;
         set {
             field = value;
-            OnPropertyChanged("Material");
+            OnPropertyChanged();
         }
     }
 
@@ -101,7 +101,7 @@ public class MainViewModel : BaseViewModel {
         get;
         set {
             field = value;
-            OnPropertyChanged("ShowTriangleLines");
+            OnPropertyChanged();
         }
     }
 
@@ -176,7 +176,7 @@ public class MainViewModel : BaseViewModel {
         TriangulationColor = Media.Colors.Black;
 
         // Grid Setup
-        Grid = LineBuilder.GenerateGrid(Vector3.UnitY, -5, 5, 0, 10);
+        Grid = LineBuilder.GenerateGrid(Vector3.UnitY, -5, 5, 0);
         GridColor = Media.Colors.DarkGray;
         GridTransform = new TranslateTransform3D(0, -0.01, 0);
     }

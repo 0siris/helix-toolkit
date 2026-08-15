@@ -162,7 +162,7 @@
             </Expander>
         </StackPanel>
 
-        <StatusBar Grid.Row="1" VerticalAlignment="Bottom">
+        <StatusBar Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom">
             <StatusBar.Background>
                 <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </StatusBar.Background>

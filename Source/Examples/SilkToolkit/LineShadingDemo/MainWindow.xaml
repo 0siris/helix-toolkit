@@ -13,7 +13,6 @@
     Height="600"
     mc:Ignorable="d">
     <Window.Resources>
-        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
     </Window.Resources>
     <Grid>
         <controls:Viewport3DX

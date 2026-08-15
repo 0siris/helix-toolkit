@@ -140,7 +140,7 @@ public class Models {
 
     public Models() {
         var builder = new MeshBuilder();
-        builder.AddSphere(Vector3.Zero, 1);
+        builder.AddSphere(Vector3.Zero);
         models.Add(builder.ToMesh());
 
         builder = new MeshBuilder();

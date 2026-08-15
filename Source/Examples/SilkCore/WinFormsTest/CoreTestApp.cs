@@ -39,7 +39,7 @@ public static class DpiHelper {
         int logicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int) DeviceCap.Vertres);
         int physicalScreenHeight = GetDeviceCaps(deviceContextHandle, (int) DeviceCap.Desktopvertres);
         //Divide the Screen Heights to get the scaling factor and round it to two decimals
-        double screenScalingFactor = Math.Round((double) physicalScreenHeight / (double) logicalScreenHeight, 2);
+        double screenScalingFactor = Math.Round(physicalScreenHeight / (double) logicalScreenHeight, 2);
         //If requested as percentage - convert it
         if (percentage) {
             screenScalingFactor *= 100.0;
@@ -230,7 +230,7 @@ public class CoreTestApp {
         var materialCount = materials.Count;
         Task.Run(() => {
             var builder = new MeshBuilder(true, true, true);
-            builder.AddSphere(Vector3.Zero, 1);
+            builder.AddSphere(Vector3.Zero);
             for (int i = 0; i < NumItems; ++i) {
                 var sphere1 = builder.ToMesh();
                 var transform =

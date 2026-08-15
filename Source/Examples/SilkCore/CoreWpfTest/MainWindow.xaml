@@ -52,7 +52,7 @@
             <postEffects:PostEffectMeshBorderHighlight EffectName="highlight" />
         </controls:Viewport3DX>
         <Grid
-            Grid.Row="1"
+            Grid.Row="1" Grid.Column="0"
             Background="#7B363636"
             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel
@@ -61,14 +61,13 @@
                 Orientation="Vertical">
                 <TextBlock Foreground="White">Loading Model</TextBlock>
                 <ProgressBar
-                    Grid.Row="1"
                     Width="200"
                     Height="30"
                     IsIndeterminate="True" />
             </StackPanel>
         </Grid>
         <Menu
-            Grid.Row="0"
+            Grid.Row="0" Grid.Column="0"
             Height="20"
             VerticalAlignment="Top">
             <MenuItem Header="File">
@@ -117,7 +116,7 @@
                         </Style>
                     </TreeView.ItemContainerStyle>
                     <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Items}">
+                        <HierarchicalDataTemplate ItemsSource="{Binding Items}" >
                             <TextBlock Text="{Binding Name}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">

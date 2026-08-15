@@ -85,7 +85,7 @@ public static class SceneNodeExtensions {
                     && geoNode.Geometry.Positions.Count > 0) {
                     geoNode.Geometry.UpdateBounds();
                     var b = geoNode.Geometry.Bound;
-                    b = BoundingBoxExtensions.Transform(b, geoNode.TotalModelMatrix);
+                    b = b.Transform(geoNode.TotalModelMatrix);
                     if (result.HasValue)
                         result = BoundingBox.Merge(result.Value, b);
                     else

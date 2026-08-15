@@ -19,6 +19,10 @@
         <local:MainViewModel />
     </Window.DataContext>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
@@ -86,7 +90,7 @@
                 <element3D:LineGeometryModel3D Geometry="{Binding AxisLines}" Color="White" />
             </element3D:ScreenSpacedGroup3D>
         </controls:Viewport3DX>
-        <StackPanel Grid.Column="1" Orientation="Vertical">
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
             <CheckBox IsChecked="{Binding ElementName=TopMostGroup, Path=EnableTopMost}">Billboard Top most</CheckBox>
             <TextBlock Margin="2" Foreground="Blue">Drag Flag onto Earth</TextBlock>
             <Separator />

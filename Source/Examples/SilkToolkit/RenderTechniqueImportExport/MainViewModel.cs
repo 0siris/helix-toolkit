@@ -72,7 +72,7 @@ public class MainViewModel : BaseViewModel {
 
         var manager = EffectsManager ?? throw new InvalidOperationException("An effects manager is required.");
         EffectsManager = null;
-        manager.ImportTechniques(path, true);
+        manager.ImportTechniques(path);
         EffectsManager = manager;
         TechniqueList.Clear();
         foreach (var tech in manager.RenderTechniques) {

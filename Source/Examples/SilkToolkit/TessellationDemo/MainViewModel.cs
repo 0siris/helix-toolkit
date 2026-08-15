@@ -137,7 +137,7 @@ public class MainViewModel : BaseViewModel {
                 : MeshFaces.QuadPatches);
         // ---------------------------------------------
         // floor plane grid
-        Grid = LineBuilder.GenerateGrid(10);
+        Grid = LineBuilder.GenerateGrid();
         GridColor = Colors.Black;
         GridTransform = new Media3D.TranslateTransform3D(-5, -4, -5);
 

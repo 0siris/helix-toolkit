@@ -11,12 +11,6 @@
     Width="960"
     Height="540">
     <Window.Resources>
-        <DataTemplate x:Key="Template1">
-            <element3D:MeshGeometryModel3D
-                Geometry="{Binding Geometry}"
-                Material="{Binding Material}"
-                Transform="{Binding Transform}" />
-        </DataTemplate>
     </Window.Resources>
     <Grid x:Name="Grid">
         <Grid.RowDefinitions>

@@ -18,7 +18,7 @@ public static unsafe class SilkD3D12DeviceFactory {
         ID3D12Device* nativeDevice = null;
         var deviceGuid = ID3D12Device.Guid;
 
-        SilkMarshal.ThrowHResult(Api.CreateDevice((IUnknown*)null,
+        SilkMarshal.ThrowHResult(Api.CreateDevice(null,
                                                   ToSilkFeatureLevel(minimumFeatureLevel),
                                                   ref deviceGuid,
                                                   (void**)&nativeDevice));

@@ -17,7 +17,6 @@
     Height="700"
     mc:Ignorable="d">
     <Window.Resources>
-        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -216,8 +215,6 @@
                         SelectedItem="{Binding Fxaa}" />
                     <CheckBox x:Name="TessCheckBox" IsChecked="{Binding ModelMaterial.EnableTessellation}">Enable Tessellation</CheckBox>
                     <Slider
-                        Grid.Row="9"
-                        Grid.ColumnSpan="2"
                         Margin="3"
                         IsEnabled="{Binding ElementName=TessCheckBox, Path=IsChecked}"
                         IsSnapToTickEnabled="True"
@@ -228,7 +225,6 @@
                 </StackPanel>
             </Expander>
             <Expander
-                Grid.Row="0"
                 Width="Auto"
                 MinWidth="200"
                 Margin="10"

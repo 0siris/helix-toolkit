@@ -23,13 +23,9 @@
     <Window.Resources>
         <Thickness x:Key="MarginLarge">10</Thickness>
         <Thickness x:Key="MarginSmall">2</Thickness>
-        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
         <x:StaticExtension x:Key="PhongMaterials" Member="materials:PhongMaterials.Materials" />
     </Window.Resources>
     <Grid d:IsLocked="True">
-        <Grid.RowDefinitions>
-            <RowDefinition />
-        </Grid.RowDefinitions>
 
         <controls:Viewport3DX
             x:Name="View1"

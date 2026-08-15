@@ -26,10 +26,10 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
         this.instanceMatrix = instanceMatrix;
         var counter = 0;
         var totalBound =
-            BoundingBoxExtensions.Transform(geometryBound, instanceMatrix
+            geometryBound.Transform(instanceMatrix
                                         [0]); // BoundingBox.FromPoints(geometryBound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, instanceMatrix[0])).ToArray());
         for (var i = 0; i < instanceMatrix.Count; ++i) {
-            var b = BoundingBoxExtensions.Transform(geometryBound, instanceMatrix
+            var b = geometryBound.Transform(instanceMatrix
                                                 [i]); // BoundingBox.FromPoints(geometryBound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, m)).ToArray());
             Objects.Add(new KeyValuePair<int, BoundingBox>(counter, b));
             BoundingBox.Merge(ref totalBound, ref b, out totalBound);
@@ -101,14 +101,14 @@ public class InstancingModel3DOctree : DynamicOctreeBase<KeyValuePair<int, Bound
         if (!treeBuilt || context is null) return false;
         var isHit = false;
         var
-            bound = BoundingBoxExtensions.Transform(Bound, modelMatrix); // BoundingBox.FromPoints(Bound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
+            bound = Bound.Transform(modelMatrix); // BoundingBox.FromPoints(Bound.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
         var rayWs = context.RayWs;
         if (!rayWs.Intersects(ref bound))
             return isHit;
         
         isIntersect = true;
         foreach (var keyValuePair in Objects) {
-            var b = BoundingBoxExtensions.Transform(keyValuePair.Value, modelMatrix); // BoundingBox.FromPoints(t.Item2.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
+            var b = keyValuePair.Value.Transform(modelMatrix); // BoundingBox.FromPoints(t.Item2.GetCorners().Select(x => SilkMath.TransformCoordinate(x, modelMatrix)).ToArray());
             if (b.Intersects(ref rayWs)) {
                 var result = new HitTestResult {
                     Tag = keyValuePair.Key

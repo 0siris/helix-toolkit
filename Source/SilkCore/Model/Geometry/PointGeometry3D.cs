@@ -71,7 +71,7 @@ public class PointGeometry3D : Geometry3D {
 
     public override void UpdateBounds() {
         base.UpdateBounds();
-        if (SilkNetMathExtensions.LengthSquared((Vector3) Bound.Size) < 1e-1f) {
+        if (Bound.Size.LengthSquared() < 1e-1f) {
             var off = new Vector3(1f);
             Bound = new BoundingBox(Bound.Minimum - off, Bound.Maximum + off);
         }

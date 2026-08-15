@@ -98,7 +98,7 @@
 
         </local:CustomViewport3DX>
         <StackPanel
-            Grid.Column="1"
+            Grid.Row="0" Grid.Column="1"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Orientation="Vertical"

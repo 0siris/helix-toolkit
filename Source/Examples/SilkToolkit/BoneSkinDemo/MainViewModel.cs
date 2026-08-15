@@ -138,7 +138,7 @@ public class MainViewModel : BaseViewModel {
         scene = loadedScene;
         ModelGroup.AddNode(loadedScene.Root);
         Animations = [.. loadedScene.Animations.Select(x => x.Name ?? string.Empty)];
-        foreach (var node in loadedScene.Root.Items.Traverse(false)) {
+        foreach (var node in loadedScene.Root.Items.Traverse()) {
             if (node is BoneSkinMeshNode m) {
                 if (!m.IsSkeletonNode) {
                     m.IsThrowingShadow = true;

@@ -29,13 +29,13 @@ public class MainViewModel : BaseViewModel {
         get;
     }
 
-    public string[] Materials { private set; get; } = [];
+    public string[] Materials { private set; get; }
 
-    public string[] Models { private set; get; } = [];
+    public string[] Models { private set; get; }
 
     private List<Uri> SourceCodeUri { get; } = [];
-    private Dictionary<string, string> fileDict = [];
-    private Dictionary<string, Material> materialDict = [];
+    private readonly Dictionary<string, string> fileDict = [];
+    private readonly Dictionary<string, Material> materialDict = [];
 
     private string? selectedModel;
 

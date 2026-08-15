@@ -60,7 +60,7 @@ public static class BoundingSphereExtensions {
     }
 
     public static BoundingSphere FromBox(BoundingBox box) {
-        var center = BoundingBoxExtensions.Center(box);
+        var center = box.Center();
         return new BoundingSphere(center, (box.Maximum - center).Length);
     }
 
@@ -84,7 +84,7 @@ public static class BoundingSphereExtensions {
 
     public static bool Intersects(this BoundingSphere sphere, ref Ray ray) {
         var offset = ray.Position - sphere.Center;
-        var a = SilkMath.Dot((Vector3) ray.Direction, ray.Direction);
+        var a = SilkMath.Dot(ray.Direction, ray.Direction);
         if (a <= float.Epsilon) return SilkMath.Dot(offset, offset) <= sphere.Radius * sphere.Radius;
 
         var b = 2f * SilkMath.Dot(offset, ray.Direction);

@@ -76,7 +76,7 @@ public class PointGeometryOctree : DynamicOctreeBase<int> {
         var w = p - r.Position;
 
         var c1 = SilkMath.Dot(w, v);
-        var c2 = SilkMath.Dot((Vector3) v, v);
+        var c2 = SilkMath.Dot(v, v);
         var b = c1 / c2;
 
         var pb = r.Position + v * b;

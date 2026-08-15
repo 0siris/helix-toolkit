@@ -248,7 +248,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane1 {
         get => (Plane)GetValue(Plane1Property);
-        set => SetValue(Plane1Property, (object) value);
+        set => SetValue(Plane1Property, value);
     }
 
     /// <summary>
@@ -267,7 +267,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane2 {
         get => (Plane)GetValue(Plane2Property);
-        set => SetValue(Plane2Property, (object) value);
+        set => SetValue(Plane2Property, value);
     }
 
     /// <summary>
@@ -286,7 +286,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane3 {
         get => (Plane)GetValue(Plane3Property);
-        set => SetValue(Plane3Property, (object) value);
+        set => SetValue(Plane3Property, value);
     }
 
     /// <summary>
@@ -305,7 +305,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane4 {
         get => (Plane)GetValue(Plane4Property);
-        set => SetValue(Plane4Property, (object) value);
+        set => SetValue(Plane4Property, value);
     }
 
     /// <summary>
@@ -324,7 +324,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane5 {
         get => (Plane)GetValue(Plane5Property);
-        set => SetValue(Plane5Property, (object) value);
+        set => SetValue(Plane5Property, value);
     }
 
     /// <summary>
@@ -343,7 +343,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane6 {
         get => (Plane)GetValue(Plane6Property);
-        set => SetValue(Plane6Property, (object) value);
+        set => SetValue(Plane6Property, value);
     }
 
     /// <summary>
@@ -362,7 +362,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane7 {
         get => (Plane)GetValue(Plane7Property);
-        set => SetValue(Plane7Property, (object) value);
+        set => SetValue(Plane7Property, value);
     }
 
     /// <summary>
@@ -381,7 +381,7 @@ public class CrossSectionMeshGeometryModel3D : MeshGeometryModel3D {
     /// </summary>
     public Plane Plane8 {
         get => (Plane)GetValue(Plane8Property);
-        set => SetValue(Plane8Property, (object) value);
+        set => SetValue(Plane8Property, value);
     }
 
     #endregion

@@ -66,11 +66,11 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
         _nodeGeometry = b1.ToMeshGeometry3D();
 
         var b2 = new MeshBuilder();
-        b2.AddCylinder(new Vector3(0, 0, 0), new Vector3(1, 0, 0), 0.05, 32, true, true);
+        b2.AddCylinder(new Vector3(0, 0, 0), new Vector3(1, 0, 0), 0.05);
         _edgeHGeometry = b2.ToMeshGeometry3D();
 
         var b3 = new MeshBuilder();
-        b3.AddCylinder(new Vector3(0, 0, 0), new Vector3(0, 1, 0), 0.05, 32, true, true);
+        b3.AddCylinder(new Vector3(0, 0, 0), new Vector3(0, 1, 0), 0.05);
         _edgeVGeometry = b3.ToMeshGeometry3D();
 
         var b4 = new MeshBuilder();

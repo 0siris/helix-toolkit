@@ -243,7 +243,7 @@ public class MainViewModel : BaseViewModel {
         val = rnd.Next(0, materialCollection.Count - 1);
         var material = materialCollection[val];
         var diffuse = material.DiffuseColor;
-        diffuse.W = (float) rnd.Next(20, 60) / 100f;
+        diffuse.W = rnd.Next(20, 60) / 100f;
         material.DiffuseColor = diffuse;
         model.Material = material;
         model.Transform = new TranslateTransform3D((float) rnd.Next(10, 100) / 10,

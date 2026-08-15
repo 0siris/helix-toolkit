@@ -18,7 +18,6 @@
         <workitem10043:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>

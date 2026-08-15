@@ -16,6 +16,7 @@ namespace DeferredShadingDemo;
 /// Interaction logic for MainWindow.xaml
 /// </summary>
 public partial class MainWindow : Window {
+    [Obsolete("DataContext ist obsolete")]
     public MainWindow() {
         InitializeComponent();
         DataContext = new MainViewModel();

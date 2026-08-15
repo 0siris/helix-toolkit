@@ -61,7 +61,6 @@
                 Orientation="Vertical">
                 <TextBlock Foreground="White">Loading Model</TextBlock>
                 <ProgressBar
-                    Grid.Row="1"
                     Width="200"
                     Height="30"
                     IsIndeterminate="True" />

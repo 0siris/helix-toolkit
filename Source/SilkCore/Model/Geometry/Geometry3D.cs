@@ -324,9 +324,9 @@ public abstract class Geometry3D : ObservableObject, IGuid {
             BoundingSphere = BoundingSphereExtensions.FromPoints(positions);
         }
 
-        if (VectorExtensions.IsUndefined(Bound.Maximum) || VectorExtensions.IsUndefined(Bound.Minimum) || BoundingSphere.Center.IsUndefined()
-            || float.IsInfinity(BoundingBoxExtensions.Center(Bound).X) || float.IsInfinity(BoundingBoxExtensions.Center(Bound).Y) ||
-            float.IsInfinity(BoundingBoxExtensions.Center(Bound).Z))
+        if (Bound.Maximum.IsUndefined() || Bound.Minimum.IsUndefined() || BoundingSphere.Center.IsUndefined()
+            || float.IsInfinity(Bound.Center().X) || float.IsInfinity(Bound.Center().Y) ||
+            float.IsInfinity(Bound.Center().Z))
             throw new Exception("Position vertex contains invalid value(Example: Float.NaN, Float.Infinity).");
     }
 

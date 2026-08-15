@@ -272,7 +272,7 @@ public abstract class MouseGestureHandler {
             if (hits.Count > 0) {
                 MouseDownNearestPoint3D = hits[0].PointHit;
                 if (hits[0].ModelHit is SceneNode node)
-                    MouseDownNearestModelBoundCenter = BoundingBoxExtensions.Center(node.BoundsWithTransform);
+                    MouseDownNearestModelBoundCenter = node.BoundsWithTransform.Center();
             }
         } else {
             MouseDownNearestModelBoundCenter = null;

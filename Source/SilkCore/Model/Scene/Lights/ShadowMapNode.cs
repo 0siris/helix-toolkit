@@ -230,7 +230,7 @@ public class ShadowMapNode : SceneNode {
 
     private unsafe bool CreateCameraFromBound(ref BoundingBox box, ref Vector3 lookDir) {
         if (box.Maximum == box.Minimum) return false;
-        var center = BoundingBoxExtensions.Center(box);
+        var center = box.Center();
         var dist = 0.0f;
         var points = stackalloc Vector3[8];
         points[0] = box.Minimum;

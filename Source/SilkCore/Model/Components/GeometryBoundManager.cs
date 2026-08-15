@@ -42,7 +42,7 @@ public sealed class GeometryBoundManager : IDisposable {
 
     private void OnTransformChanged(object? sender, TransformArgs e) {
         var oldBound = BoundsWithTransform;
-        BoundsWithTransform = BoundingBoxExtensions.Transform(Bounds, e);
+        BoundsWithTransform = Bounds.Transform(e);
         RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
         var oldSphere = BoundsSphereWithTransform;
         BoundsSphereWithTransform = BoundsSphere.TransformBoundingSphere(e);
@@ -62,12 +62,12 @@ public sealed class GeometryBoundManager : IDisposable {
                 Bounds = geometry.Bound;
                 RaiseOnBoundChanged(Bounds, oldBound);
                 oldBound = BoundsWithTransform;
-                BoundsWithTransform = BoundingBoxExtensions.Transform(Bounds, target.TotalModelMatrixInternal);
+                BoundsWithTransform = Bounds.Transform(target.TotalModelMatrixInternal);
                 RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
             } else {
-                var bound = BoundingBoxExtensions.Transform(geometry.Bound, instances[0]);
+                var bound = geometry.Bound.Transform(instances[0]);
                 foreach (var instance in instances) {
-                    var b = BoundingBoxExtensions.Transform(geometry.Bound, instance);
+                    var b = geometry.Bound.Transform(instance);
                     BoundingBox.Merge(ref bound, ref b, out bound);
                 }
 
@@ -75,7 +75,7 @@ public sealed class GeometryBoundManager : IDisposable {
                 Bounds = bound;
                 RaiseOnBoundChanged(Bounds, oldBound);
                 oldBound = BoundsWithTransform;
-                BoundsWithTransform = BoundingBoxExtensions.Transform(Bounds, target.TotalModelMatrixInternal);
+                BoundsWithTransform = Bounds.Transform(target.TotalModelMatrixInternal);
                 RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
             }
         }

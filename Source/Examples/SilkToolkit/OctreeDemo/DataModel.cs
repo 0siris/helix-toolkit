@@ -11,7 +11,7 @@ namespace OctreeDemo;
 
 public class DataModel : DemoCore.ObservableObject {
     public MeshGeometry3D? Model {
-        set => SetValue(ref field, value, nameof(Model));
+        set => SetValue(ref field, value);
         get;
     }
 
@@ -21,7 +21,7 @@ public class DataModel : DemoCore.ObservableObject {
 
 
     public PhongMaterial Material {
-        set => SetValue<PhongMaterial>(ref field, value, nameof(Material));
+        set => SetValue<PhongMaterial>(ref field, value);
         get;
     }
 
@@ -57,17 +57,17 @@ public class SphereModel : DataModel {
     private static MeshGeometry3D _pipe;
 
     static SphereModel() {
-        var builder = new MeshBuilder(true, false, false);
+        var builder = new MeshBuilder(true, false);
         var center = new Vector3();
         builder.AddSphere(center, 1, 12, 12);
         _sphere = builder.ToMeshGeometry3D();
-        builder = new MeshBuilder(true, false, false);
+        builder = new MeshBuilder(true, false);
         builder.AddBox(center, 1, 1, 1);
         _box = builder.ToMeshGeometry3D();
-        builder = new MeshBuilder(true, false, false);
+        builder = new MeshBuilder(true, false);
         builder.AddPyramid(center, 1, 1, true);
         _pyramid = builder.ToMeshGeometry3D();
-        builder = new MeshBuilder(true, false, false);
+        builder = new MeshBuilder(true, false);
         builder.AddPipe(center, center + new Vector3(0, 1, 0), 0, 2, 12);
         _pipe = builder.ToMeshGeometry3D();
     }
@@ -94,7 +94,7 @@ public class SphereModel : DataModel {
 
     public Vector3 Center {
         set {
-            if (SetValue<Vector3>(ref field, value, nameof(Center))) {
+            if (SetValue<Vector3>(ref field, value)) {
                 TranslateTransform.OffsetX = TranslateTransform.OffsetY = TranslateTransform.OffsetZ = value.X;
             }
         }
@@ -103,7 +103,7 @@ public class SphereModel : DataModel {
 
     public double Radius {
         set {
-            if (SetValue<double>(ref field, value, nameof(Radius))) {
+            if (SetValue<double>(ref field, value)) {
                 ScaleTransform.ScaleX = ScaleTransform.ScaleY = ScaleTransform.ScaleZ = value;
             }
         }

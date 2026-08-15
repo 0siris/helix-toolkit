@@ -96,7 +96,7 @@ public class MainViewModel : BaseViewModel {
     private Random rnd = new();
     private bool isRemoving = true;
     private int removedIndex;
-    private CancellationTokenSource cts = new();
+    private readonly CancellationTokenSource cts = new();
 
     private readonly SynchronizationContext context = SynchronizationContext.Current
                                                       ?? throw new InvalidOperationException(

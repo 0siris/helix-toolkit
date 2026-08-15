@@ -55,7 +55,7 @@ public abstract class MaterialGeometryNode : GeometryNode {
         if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = newVar;
     }
 
-    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? (ushort)0);
+    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? 0);
 
     protected override bool CanRender(RenderContext context) => base.CanRender(context) && materialVariable != null;
 

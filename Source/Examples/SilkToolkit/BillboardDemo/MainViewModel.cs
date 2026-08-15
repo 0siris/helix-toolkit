@@ -73,9 +73,9 @@ public class MainViewModel : DemoCore.BaseViewModel {
         IsDynamic = true
     }; // Mark dynamic because it will change frequently
 
-    public BillboardText3D LandmarkBillboards2 { get; } = new();
+    public BillboardText3D LandmarkBillboards2 { get; }
     public BillboardImage3D? BatchedText { private set; get; }
-    public Stream BackgroundTexture { private set; get; } = Stream.Null;
+    public Stream BackgroundTexture { private set; get; }
 
     public Flag[] Flags => FlagsCollection.Flags;
 

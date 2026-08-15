@@ -115,7 +115,7 @@ public static class SceneUi {
         if (options.Viewport.RenderHost is {RenderStatistics: { } statistics}) {
             _fps[_currFpsIndex] = 1000f / (float) statistics.LatencyStatistics.AverageValue;
             _latency[_currFpsIndex] = (float) statistics.LatencyStatistics.AverageValue;
-            _frustumTest[_currFpsIndex] = (float) statistics.FrustumTestTime * 1000;
+            _frustumTest[_currFpsIndex] = statistics.FrustumTestTime * 1000;
         }
 
         ImGui.Text("Frustum Test Ms");

@@ -45,7 +45,7 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
         FloorModel = builder.ToMesh();
 
         builder = new MeshBuilder();
-        builder.AddSphere(Vector3.Zero, 1);
+        builder.AddSphere(Vector3.Zero);
         SphereModel = builder.ToMesh();
 
         var reader = new ObjReader();

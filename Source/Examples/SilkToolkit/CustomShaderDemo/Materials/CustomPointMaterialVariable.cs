@@ -24,10 +24,6 @@ public class CustomPointMaterialVariable : PointMaterialVariable {
         customConstantBuffer.Attach(technique);
     }
 
-    protected override void OnInitialPropertyBindings() {
-        base.OnInitialPropertyBindings();
-    }
-
     public override bool BindMaterialResources(
         RenderContext context,
         DeviceContextProxy deviceContext,

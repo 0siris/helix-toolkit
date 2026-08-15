@@ -22,7 +22,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (field != value) {
                 field = value;
-                OnPropertyChanged(nameof(PointHit));
+                OnPropertyChanged();
             }
         }
     } = NoHit;

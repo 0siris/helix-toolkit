@@ -193,7 +193,7 @@ public class MainViewModel : BaseViewModel {
         };
 
         var background = Colors.Blue;
-        background.A = (byte) 120;
+        background.A = 120;
         Billboard2Model = new BillboardSingleText3D() {
             TextInfo = new TextInfo("Model 2", new Vector3(2, 1, 0)) {
                 Angle = -(float) Math.PI / 3
@@ -205,7 +205,7 @@ public class MainViewModel : BaseViewModel {
             Padding = new HelixToolkit.SharpDX.Core.Model.Scene2D.Thickness(2),
         };
         background = Colors.Purple;
-        background.A = (byte) 50;
+        background.A = 50;
         Billboard3Model = new BillboardSingleText3D(2, 0.8f) {
             TextInfo = new TextInfo("Model 3", new Vector3(-2, 1, 0)) {
                 Angle = -(float) Math.PI / 6

@@ -63,7 +63,7 @@ public class GeometryContractTests {
 
         Assert.Equal(new Vector3D<float>(-2.1f, 0.9f, 3.9f), box.Minimum);
         Assert.Equal(new Vector3D<float>(2.1f, 1.1f, 8.1f), box.Maximum);
-        Assert.Equal(new Vector3D<float>(0, 1, 6), BoundingBoxExtensions.Center(box));
+        Assert.Equal(new Vector3D<float>(0, 1, 6), box.Center());
     }
 
     [Fact]

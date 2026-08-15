@@ -65,7 +65,7 @@ public class MainViewModel : BaseViewModel {
         FloorModel = builder.ToMesh();
 
         builder = new MeshBuilder();
-        builder.AddSphere(new Vector3(0, 0, 0), 1);
+        builder.AddSphere(new Vector3(0, 0, 0));
         MeshModel3 = builder.ToMesh();
 
         var lineBuilder = new LineBuilder();

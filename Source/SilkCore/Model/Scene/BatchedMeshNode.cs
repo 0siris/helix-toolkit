@@ -119,7 +119,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         base.OnDetach();
     }
 
-    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? (ushort) 0);
+    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? 0);
 
     /// <summary>
     ///     <para>Determine if this can be rendered.</para>
@@ -140,7 +140,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
             var b = currentGeometries[0].Geometry.Bound;
             var bs = currentGeometries[0].Geometry.BoundingSphere;
             foreach (var geo in currentGeometries) {
-                b = BoundingBox.Merge(b, BoundingBoxExtensions.Transform(geo.Geometry.Bound, geo.ModelTransform));
+                b = BoundingBox.Merge(b, geo.Geometry.Bound.Transform(geo.ModelTransform));
                 bs = BoundingSphereExtensions.Merge(bs,
                     geo.Geometry.BoundingSphere.TransformBoundingSphere(
                         geo.ModelTransform));
@@ -166,7 +166,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         var old = boundsWithTransform;
         boundsWithTransform = originalBounds == MaxBound
             ? MaxBound
-            : BoundingBoxExtensions.Transform(originalBounds, TotalModelMatrixInternal);
+            : originalBounds.Transform(TotalModelMatrixInternal);
         
         var oldBs = boundsSphereWithTransform;
         boundsSphereWithTransform = originalBoundsSphere == MaxBoundSphere
@@ -219,7 +219,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         ref List<HitTestResult> hits
     ) {
         var rayWs = context.RayWs;
-        if (RayExtensions.Intersects(rayWs, boundsWithTransform) && RayExtensions.Intersects(rayWs, boundsSphereWithTransform)) {
+        if (rayWs.Intersects(boundsWithTransform) && rayWs.Intersects(boundsSphereWithTransform)) {
             var source = WrapperSource.AssertNotNull("Hit-test source must be initialized.");
             if (BatchedGeometryOctree is {TreeBuilt: true})
                 return BatchedGeometryOctree.HitTest(context, source, null, totalModelMatrix, ref hits);

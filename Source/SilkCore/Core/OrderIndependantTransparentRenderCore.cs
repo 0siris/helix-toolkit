@@ -207,7 +207,7 @@ public sealed class OrderIndependentTransparentRenderCore : RenderCore {
     private ShaderResourceViewProxy? alphaTargetNoMsaa;
     private SamplerStateProxy? targetSampler;
 
-    private SampleDescription sampleDesc = new((int) 1, (int) 0);
+    private SampleDescription sampleDesc = new(1, 0);
 
     private Texture2DDescription colorDesc = new() {
         Format = Format.FormatR16G16B16A16Float,

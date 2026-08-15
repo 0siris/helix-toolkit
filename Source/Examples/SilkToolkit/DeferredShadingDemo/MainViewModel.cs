@@ -255,8 +255,8 @@ public class MainViewModel : BaseViewModel {
                 Color = PointLightColor,
                 Attenuation = PointLightAttenuation,
                 Transform = CreateAnimatedTransform(
-                    new Vector3D(rndx.NextDouble() * spread - spread / 2.0, 1, rndz.NextDouble() * spread - spread / 2),
-                    new Vector3D(0, 1, 0),
+                    new Vector3D(rndx.NextDouble() * spread - spread / 2.0, 1, rndz.NextDouble() * spread - spread / 2), //TODO review division /2
+                                                              new Vector3D(0, 1, 0),
                     rndx.Next(10) + 4),
             };
             PointLightCollection.Add(pointLight);
@@ -397,7 +397,7 @@ public class MainViewModel : BaseViewModel {
     }
 
 
-    private string meshTopology = MeshFaces.Default.ToString();
+    private string meshTopology = nameof(MeshFaces.Default);
 }
 
 public class ColorVectorConverter : IValueConverter {

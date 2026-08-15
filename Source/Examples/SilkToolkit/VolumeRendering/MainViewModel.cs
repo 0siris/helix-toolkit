@@ -176,7 +176,7 @@ public class MainViewModel : BaseViewModel {
             histogram[data[i]]++;
         }
 
-        GetTransferFunction(histogram, data.Length, 1, 0.0001f);
+        GetTransferFunction(histogram, data.Length, 1);
         var gradients = VolumeDataHelper.GenerateGradients(fdata, width, height, depth, 1);
         VolumeDataHelper.FilterNxNxN(gradients, width, height, depth, 3);
         m.Texture = new VolumeTextureGradientParams(gradients, width, height, depth);

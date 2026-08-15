@@ -206,7 +206,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void CopyAsBitmapToClipBoard(Viewport3DX viewport) {
-        var bitmap = ViewportExtensions.RenderBitmap(viewport);
+        var bitmap = viewport.RenderBitmap();
         try {
             Clipboard.Clear();
             if (bitmap is { } actualBitmap)
@@ -220,7 +220,7 @@ public class MainViewModel : BaseViewModel {
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        var bitmap = ViewportExtensions.RenderBitmap(viewport, 1920, 1080);
+        var bitmap = viewport.RenderBitmap(1920, 1080);
         try {
             Clipboard.Clear();
             if (bitmap is { } actualBitmap)

@@ -127,7 +127,7 @@ public class MainViewModel : BaseViewModel {
             if (m.Geometry is not { } geometry)
                 return;
             Target = null;
-            CenterOffset = BoundingBoxExtensions.Center(geometry.Bound); // Must update this before updating target
+            CenterOffset = geometry.Bound.Center(); // Must update this before updating target
             Target = m;
         }
     }

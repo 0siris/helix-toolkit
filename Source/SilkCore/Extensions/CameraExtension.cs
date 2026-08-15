@@ -133,9 +133,9 @@ public static class CameraExtension {
                 var u = topLeftRay.Direction;
                 var v = topRightRay.Direction;
                 var w = centerRay.Direction;
-                u = VectorExtensions.Normalized((Vector3) u);
-                v = VectorExtensions.Normalized((Vector3) v);
-                w = VectorExtensions.Normalized((Vector3) w);
+                u = u.Normalized();
+                v = v.Normalized();
+                w = w.Normalized();
                 if (camera is PerspectiveCameraCore perspectiveCamera) {
                     var distance = pcam.LookDirection.Length;
 
@@ -150,7 +150,7 @@ public static class CameraExtension {
                     var oldTarget = pcam.Position + pcam.LookDirection;
                     var distance = pcam.LookDirection.Length;
 
-                    if (RayExtensions.PlaneIntersection(centerRay, oldTarget, w, out var newTarget)) {
+                    if (centerRay.PlaneIntersection(oldTarget, w, out var newTarget)) {
                         orthographicCamera.LookDirection = w * distance;
                         orthographicCamera.Position = newTarget - orthographicCamera.LookDirection;
                     }

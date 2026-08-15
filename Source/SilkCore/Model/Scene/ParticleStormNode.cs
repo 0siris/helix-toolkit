@@ -104,10 +104,10 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
             BoundingBox newBound;
             BoundingSphere newBoundSphere;
             if (HasInstances) {
-                newBound = BoundingBoxExtensions.Transform(OriginalBounds, Instances[0]);
+                newBound = OriginalBounds.Transform(Instances[0]);
                 newBoundSphere = OriginalBoundsSphere.TransformBoundingSphere(Instances[0]);
                 foreach (var instance in Instances) {
-                    var b = BoundingBoxExtensions.Transform(OriginalBounds, instance);
+                    var b = OriginalBounds.Transform(instance);
                     BoundingBox.Merge(ref newBound, ref b, out newBound);
                     var bs = OriginalBoundsSphere.TransformBoundingSphere(instance);
                     BoundingSphereExtensions.Merge(ref newBoundSphere, ref bs, out newBoundSphere);
@@ -126,7 +126,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         }
 
         var oldT = boundsWithTransform;
-        if (Set(ref boundsWithTransform, BoundingBoxExtensions.Transform(bounds, ModelMatrix)))
+        if (Set(ref boundsWithTransform, bounds.Transform(ModelMatrix)))
             RaiseOnTransformBoundChanged(new BoundChangeArgs<BoundingBox>(ref boundsWithTransform, ref oldT));
         var oldTs = boundsSphereWithTransform;
         if (Set(ref boundsSphereWithTransform, boundsSphere.TransformBoundingSphere(ModelMatrix)))

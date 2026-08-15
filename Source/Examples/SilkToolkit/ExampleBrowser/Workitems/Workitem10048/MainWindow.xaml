@@ -22,7 +22,6 @@
         <workitem10048:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <controls:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
         <geometry:LineGeometry3D
             x:Key="Lines"
             Indices="0 1"

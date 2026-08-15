@@ -201,8 +201,7 @@ public static class CameraExtensions {
     /// <returns>
     ///     The inverse transform.
     /// </returns>
-    public static Matrix3D GetInverseViewProjectionMatrix3D(this Camera.Camera camera, double aspectRatio) =>
-        GetInverseViewProjectionMatrix(camera.CameraInternal, aspectRatio).ToMatrix3D();
+    public static Matrix3D GetInverseViewProjectionMatrix3D(this Camera.Camera camera, double aspectRatio) => camera.CameraInternal.GetInverseViewProjectionMatrix(aspectRatio).ToMatrix3D();
 
     /// <summary>
     ///     Gets the inverse camera transform.
@@ -228,8 +227,7 @@ public static class CameraExtensions {
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The projection matrix.</returns>
-    public static Matrix3D GetProjectionMatrix3D(this Camera.Camera camera, double aspectRatio) =>
-        GetProjectionMatrix(camera.CameraInternal, aspectRatio).ToMatrix3D();
+    public static Matrix3D GetProjectionMatrix3D(this Camera.Camera camera, double aspectRatio) => camera.CameraInternal.GetProjectionMatrix(aspectRatio).ToMatrix3D();
 
     /// <summary>
     ///     Gets the projection matrix for the specified camera.
@@ -245,8 +243,7 @@ public static class CameraExtensions {
     /// <param name="camera">The camera.</param>
     /// <param name="aspectRatio">The aspect ratio.</param>
     /// <returns>The total view and projection transform.</returns>
-    public static Matrix3D GetViewProjectionMatrix3D(this Camera.Camera camera, double aspectRatio) =>
-        GetViewProjectionMatrix(camera.CameraInternal, aspectRatio).ToMatrix3D();
+    public static Matrix3D GetViewProjectionMatrix3D(this Camera.Camera camera, double aspectRatio) => camera.CameraInternal.GetViewProjectionMatrix(aspectRatio).ToMatrix3D();
 
     /// <summary>
     ///     Get the combined view and projection transform
@@ -268,7 +265,7 @@ public static class CameraExtensions {
     /// <returns>
     ///     A Matrix object with the camera view transform matrix, or a Matrix with all zeros if the "camera" is null.
     /// </returns>
-    public static Matrix3D GetViewMatrix3D(this Camera.Camera camera) => GetViewMatrix(camera.CameraInternal).ToMatrix3D();
+    public static Matrix3D GetViewMatrix3D(this Camera.Camera camera) => camera.CameraInternal.GetViewMatrix().ToMatrix3D();
 
     /// <summary>
     ///     Obtains the view transform matrix for a camera. (see page 327)
@@ -282,7 +279,7 @@ public static class CameraExtensions {
     public static Matrix GetViewMatrix(this CameraCore camera) => camera.CreateViewMatrix();
 
     public static Matrix3D GetInversedViewMatrix(this Camera.Camera camera) {
-        var viewMatrix = GetViewMatrix(camera.CameraInternal);
+        var viewMatrix = camera.CameraInternal.GetViewMatrix();
         return MatrixExtensions.PsudoInvert(ref viewMatrix).ToMatrix3D();
     }
 
@@ -499,7 +496,7 @@ public static class CameraExtensions {
     ) {
         var diagonal = bounds.Maximum - bounds.Minimum;
 
-        if (SilkNetMathExtensions.LengthSquared((Vector3) diagonal).Equals(0)) return;
+        if (diagonal.LengthSquared().Equals(0)) return;
         if (camera is PerspectiveCamera p && camera.CameraInternal is PerspectiveCameraCore pCore) {
             pCore.ZoomExtents((float)(viewport.ActualWidth / viewport.ActualHeight),
                               bounds,
@@ -581,9 +578,9 @@ public static class CameraExtensions {
             && viewport.UnProject(new Vector2((float)(zoomRectangle.Left + zoomRectangle.Right) * 0.5f,
                                               (float)(zoomRectangle.Top + zoomRectangle.Bottom) * 0.5f),
                                   out var centerRay)) {
-            SilkMath.Normalize((Vector3) topLeftRay.Direction);
-            SilkMath.Normalize((Vector3) topRightRay.Direction);
-            var w = SilkMath.Normalize((Vector3) centerRay.Direction);
+            SilkMath.Normalize(topLeftRay.Direction);
+            SilkMath.Normalize(topRightRay.Direction);
+            var w = SilkMath.Normalize(centerRay.Direction);
             if (camera is IPerspectiveCameraModel) {
                 var distance = camera.LookDirection.Length;
 
@@ -602,7 +599,7 @@ public static class CameraExtensions {
             } else if (camera is IOrthographicCameraModel orthographicCamera) {
                 orthographicCamera.Width *= zoomRectangle.Width / viewport.ActualWidth;
                 var oldTarget = camera.CameraInternal.Position + camera.CameraInternal.LookDirection;
-                if (RayExtensions.PlaneIntersection(centerRay, oldTarget, w, out var newTarget))
+                if (centerRay.PlaneIntersection(oldTarget, w, out var newTarget))
                     orthographicCamera.LookAt(newTarget.ToPoint3D(), 200);
             }
         }

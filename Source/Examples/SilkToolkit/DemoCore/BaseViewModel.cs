@@ -27,20 +27,20 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
 
     public string Title {
         get;
-        set => SetValue(ref field, value, "Title");
-    } = "Demo (HelixToolkitDX)";
+        set => SetValue(ref field, value);
+    }
 
     public string SubTitle {
         get;
-        set => SetValue(ref field, value, "SubTitle");
-    } = "Default Base View Model";
+        set => SetValue(ref field, value);
+    }
 
-    public List<string> CameraModelCollection { get; private set; } = [];
+    public List<string> CameraModelCollection { get; private set; }
 
     public string CameraModel {
         get => cameraModel;
         set {
-            if (SetValue(ref cameraModel, value, "CameraModel")) {
+            if (SetValue(ref cameraModel, value)) {
                 OnCameraModelChanged();
             }
         }
@@ -50,7 +50,7 @@ public abstract class BaseViewModel : ObservableObject, IDisposable {
         get;
 
         protected set {
-            SetValue(ref field, value, "Camera");
+            SetValue(ref field, value);
             CameraModel = value is PerspectiveCamera
                 ? Perspective
                 : value is OrthographicCamera

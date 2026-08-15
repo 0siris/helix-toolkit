@@ -97,7 +97,7 @@ public static class ViewportExtensions {
     /// <returns>The bounding box.</returns>
     public static Rect3D FindBounds3D(this Viewport3DX viewport) {
         var bounds = viewport.FindBounds();
-        return new Rect3D(Media3DExtension.ToPoint3D(bounds.Minimum), Media3DExtension.ToSize3D((bounds.Maximum - bounds.Minimum)));
+        return new Rect3D(bounds.Minimum.ToPoint3D(), (bounds.Maximum - bounds.Minimum).ToSize3D());
     }
 
     /// <summary>
@@ -455,7 +455,7 @@ public static class ViewportExtensions {
         var bounds = viewport.FindBounds();
         var diagonal = bounds.Maximum - bounds.Minimum;
 
-        if (SilkNetMathExtensions.LengthSquared((Vector3) diagonal) == 0) return;
+        if (diagonal.LengthSquared() == 0) return;
         viewport.Camera.ZoomExtents(viewport, bounds, animationTime);
     }
 

@@ -20,6 +20,11 @@
         <!--<x:StaticExtension Member="hx:Techniques.RenderTechniques" x:Key="RenderTechniques"/>-->
     </Window.Resources>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
@@ -69,7 +74,7 @@
                 Color="{Binding GridColor}" />
         </controls:Viewport3DX>
 
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="1" Grid.Column="0">
             <Expander
                 x:Name="LightPanel"
                 Width="150"
@@ -83,9 +88,6 @@
                     <SolidColorBrush Opacity="0.25" Color="WhiteSmoke" />
                 </Expander.Background>
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
                     <CheckBox
                         Grid.Row="0"
                         Margin="3"
@@ -95,7 +97,7 @@
                 </Grid>
             </Expander>
         </StackPanel>
-        <StatusBar Grid.Row="1" VerticalAlignment="Bottom">
+        <StatusBar Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom">
             <StatusBar.Background>
                 <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </StatusBar.Background>

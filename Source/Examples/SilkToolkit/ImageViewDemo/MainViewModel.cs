@@ -126,7 +126,7 @@ public class MainViewModel : BaseViewModel {
     private void SetImages(BitmapSource img) {
         var ratio = img.PixelWidth / (double) img.PixelHeight;
         var transform = Media3D.Transform3D.Identity;
-        ushort orientation = 1;
+        ushort orientation;
         if (ExifReader != null && ExifReader.GetTagValue(ExifTags.Orientation, out orientation)) {
             switch (orientation) {
                 default:
@@ -191,9 +191,8 @@ public class MainViewModel : BaseViewModel {
     private void TryGetExif(string filename) {
         try {
             ExifReader = new ExifReader(filename);
-            DateTime dateTime;
-            ExifReader.GetTagValue(ExifTags.DateTime, out dateTime);
-        } catch (Exception ex) {
+            ExifReader.GetTagValue(ExifTags.DateTime, out DateTime _);
+        } catch (Exception) {
             ExifReader = null;
         }
     }
@@ -203,13 +202,14 @@ public class MainViewModel : BaseViewModel {
             var d = new Microsoft.Win32.OpenFileDialog() {
                 Filter = "image files|*.jpg; *.png; *.bmp; *.gif",
             };
-            if (d.ShowDialog() == true) {
-                if (File.Exists(d.FileName)) {
-                    var img = new BitmapImage(new Uri(d.FileName, UriKind.RelativeOrAbsolute));
-                    TryGetExif(d.FileName);
-                    SetImages(img);
-                    Title = d.FileName;
-                }
+            if (d.ShowDialog() == false)
+                return;
+            
+            if (File.Exists(d.FileName)) {
+                var img = new BitmapImage(new Uri(d.FileName, UriKind.RelativeOrAbsolute));
+                TryGetExif(d.FileName);
+                SetImages(img);
+                Title = d.FileName;
             }
         } catch (Exception ex) {
             MessageBox.Show(ex.Message, "File open error!", MessageBoxButton.OK, MessageBoxImage.Error);

@@ -55,7 +55,7 @@ public class MainViewModel : BaseViewModel {
     public ObservableCollection<MeshDataModel> ItemsSource { private set; get; } =
         [];
 
-    private PhongMaterialCollection materialCollection = [];
+    private  PhongMaterialCollection materialCollection = [];
 
     public ICommand AddGroupModelCommand { get; private set; }
 

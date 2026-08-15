@@ -33,8 +33,8 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 public class MainViewModel : BaseViewModel {
-    public MeshGeometry3D Model { get; private set; } = new();
-    public LineGeometry3D Lines { get; private set; } = new();
+    public MeshGeometry3D Model { get; private set; }
+    public LineGeometry3D Lines { get; private set; }
     public LineGeometry3D Grid { get; private set; } = new();
     public Matrix[] ModelInstances { get; private set; } = [];
 
@@ -126,7 +126,6 @@ public class MainViewModel : BaseViewModel {
 
     private const int Num = 40;
     private List<Matrix> instances = new(Num * 2);
-    private List<Matrix> selectedLineInstances = [];
     private List<InstanceParameter> parameters = new(Num * 2);
 
     private List<Matrix> billboardinstances = new(Num * 2);

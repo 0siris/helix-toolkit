@@ -189,7 +189,7 @@
             </elements3D:GroupModel3D>
             <postEffects:PostEffectBloom x:Name="Bloom" />
         </controls:Viewport3DX>
-        <StackPanel Grid.Column="1">
+        <StackPanel Grid.Row="0" Grid.Column="1">
             <Expander
                 x:Name="ShadingPanel"
                 Width="200"

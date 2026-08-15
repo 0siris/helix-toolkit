@@ -32,7 +32,8 @@ public static class SceneNodeExtensions {
     /// </summary>
     /// <param name="root">The root.</param>
     public static void UpdateAllTransformMatrix(this SceneNode root) {
-        foreach (var node in root.Traverse()) node.ComputeTransformMatrix();
+        foreach (var node in root.Traverse()) 
+            node.ComputeTransformMatrix();
     }
 
     /// <summary>

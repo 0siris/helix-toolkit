@@ -240,7 +240,7 @@ public class BillboardSingleText3D : BillboardBase {
                 Height = h;
             }
 
-            DrawCharacter(TextInfo.Text, TextInfo.Origin, Width, Height, TextInfo);
+            DrawCharacter(Width, Height, TextInfo);
         } else {
             Texture = null;
             if (!predefinedSize) {
@@ -253,22 +253,24 @@ public class BillboardSingleText3D : BillboardBase {
     }
 
 
-    private void DrawCharacter(string text, Vector3 origin, float w, float h, TextInfo info) {
+    private void DrawCharacter(float w, float h, TextInfo info) {
         GetQuadOffset(w, h, HorizontalAlignment, VerticalAlignment, out var tl, out var br);
 
-        var uvTl = new Vector2(0, 0);
-        var uvBr = new Vector2(1, 1);
-        var transform = info.Angle != 0 ? Matrix3X2.Rotation(info.Angle) : Matrix3X2.Identity;
+        var transform = info.Angle != 0
+            ? Matrix3X2.Rotation(info.Angle)
+            : Matrix3X2.Identity;
+        
         var offTl = tl * info.Scale;
         var offBr = br * info.Scale;
         var offTr = new Vector2(offBr.X, offTl.Y);
         var offBl = new Vector2(offTl.X, offBr.Y);
+        
         BillboardVertices.Add(new BillboardVertex {
             Position = info.Origin.ToVector4(),
             Foreground = FontColor,
             Background = BackgroundColor,
-            TexTL = uvTl,
-            TexBR = uvBr,
+            TexTL = new Vector2(0, 0),
+            TexBR = new Vector2(1, 1),
             OffTL = Matrix3X2.TransformPoint(transform, offTl) + Offset,
             OffBL = Matrix3X2.TransformPoint(transform, offBl) + Offset,
             OffBR = Matrix3X2.TransformPoint(transform, offBr) + Offset,

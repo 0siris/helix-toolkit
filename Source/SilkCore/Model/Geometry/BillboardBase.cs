@@ -138,12 +138,12 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
                 result.Geometry = this;
                 AssignResultAdditional(result, i);
                 if (Logger.IsEnabled(LogLevel.Trace))
-                    Logger.Verbose("Hit; HitPoint:{Value0}; Text={Value1}", [
-                        result.PointHit,
-                        result.TextInfo == null
+                    Logger.Verbose("Hit; HitPoint:{Value0}; Text={Value1}",
+                        p1: result.PointHit,
+                        p2: result.TextInfo == null
                             ? Type.ToString()
                             : result.TextInfo.Text
-                    ]);
+                    );
             }
         }
 
@@ -211,16 +211,18 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
                 result.Geometry = this;
                 AssignResultAdditional(result, i);
                 if (Logger.IsEnabled(LogLevel.Trace))
-                    Logger.Verbose("Hit; HitPoint:{Value0}; Text={Value1}", [
-                        result.PointHit,
-                        result.TextInfo == null
+                    Logger.Verbose("Hit; HitPoint:{Value0}; Text={Value1}",
+                        p1: result.PointHit,
+                        p2: result.TextInfo == null
                             ? Type.ToString()
                             : result.TextInfo.Text
-                    ]);
+                    );
             }
         }
 
-        if (h) hits.Add(result);
+        if (h) 
+            hits.Add(result);
+        
         return h;
     }
 

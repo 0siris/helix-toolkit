@@ -604,24 +604,30 @@ public class MeshBuilder {
     ///     Calculate the Normals and Tangents for all MeshFaces.
     /// </summary>
     /// <param name="meshFaces">The MeshFaces.</param>
-    /// <param name="tangents">Also calculate the Tangents or not.</param>
-    public void ComputeNormalsAndTangents(MeshFaces meshFaces, bool tangents = false) {
-        if (!HasNormals) ComputeNormals(positions, triangleIndices, out normals);
+    /// <param name="calculateTangents">Also calculate the Tangents or not.</param>
+    public void ComputeNormalsAndTangents(MeshFaces meshFaces, bool calculateTangents = false) {
+        if (!HasNormals) 
+            ComputeNormals(positions, triangleIndices, out normals);
+        
         var meshNormals = normals;
         var meshTextureCoordinates = textureCoordinates;
-        if (!tangents || meshNormals is null || meshTextureCoordinates is null) return;
+        
+        if (!calculateTangents || meshNormals is null || meshTextureCoordinates is null)
+            return;
 
         switch (meshFaces) {
             case MeshFaces.Default:
-                ComputeTangents(positions, meshNormals, meshTextureCoordinates, triangleIndices, out this.tangents,
-                                out bitangents);
+                ComputeTangents(positions, meshNormals, meshTextureCoordinates, triangleIndices, out tangents,
+                    out bitangents);
 
                 break;
             case MeshFaces.QuadPatches:
                 ComputeTangentsQuads(positions, meshNormals, meshTextureCoordinates, triangleIndices,
-                                     out this.tangents, out bitangents);
-
+                    out tangents, out bitangents);
                 break;
+            
+            default:
+                throw new ArgumentOutOfRangeException(nameof(meshFaces), meshFaces, null);
         }
     }
 

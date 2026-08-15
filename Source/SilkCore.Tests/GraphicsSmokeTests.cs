@@ -1,4 +1,3 @@
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 

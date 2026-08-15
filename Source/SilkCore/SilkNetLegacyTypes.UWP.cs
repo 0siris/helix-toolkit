@@ -2,17 +2,10 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
 namespace HelixToolkit.UWP;
-public enum PlaneIntersectionType {
-    Front,
-    Back,
-    Intersecting
-}
 
-public enum ContainmentType {
-    Disjoint,
-    Contains,
-    Intersects
-}
+public enum PlaneIntersectionType { Front, Back, Intersecting }
+
+public enum ContainmentType { Disjoint, Contains, Intersects }
 
 public struct Ray {
     public Vector3 Position;
@@ -45,7 +38,8 @@ public struct Plane {
         D = -Collision.Dot(Normal, point);
     }
 
-    public bool Intersects(ref Ray ray, out float distance) => Collision.RayIntersectsPlane(ref ray, ref this, out distance);
+    public bool Intersects(ref Ray ray, out float distance)
+        => Collision.RayIntersectsPlane(ref ray, ref this, out distance);
 
     public PlaneIntersectionType Intersects(ref BoundingSphere sphere) {
         var distance = Collision.Dot(Normal, sphere.Center) + D;
@@ -66,13 +60,15 @@ public static class Collision {
 
     public static Vector3 Normalize(Vector3 vector) {
         var length = vector.Length;
-        return length > 0 ? vector / length : vector;
+        return length > 0
+            ? vector / length
+            : vector;
     }
 
     public static PlaneIntersectionType PlaneIntersectsPoint(ref Plane plane, ref Vector3 point) {
         var distance = Dot(plane.Normal, point) + plane.D;
         return distance > 0 ? PlaneIntersectionType.Front :
-               distance < 0 ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
+            distance < 0 ? PlaneIntersectionType.Back : PlaneIntersectionType.Intersecting;
     }
 
     public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out float distance) {
@@ -247,7 +243,7 @@ public struct Color {
     private static byte ToByte(float value) {
         if (value <= 0) return 0;
         if (value >= 1) return 255;
-        return (byte)(value * 255f);
+        return (byte) (value * 255f);
     }
 
     public Color4 ToColor4() => new(R / 255f, G / 255f, B / 255f, A / 255f);
@@ -267,7 +263,8 @@ public struct BoundingBox : IEquatable<BoundingBox> {
         Maximum = maximum;
     }
 
-    public static bool operator ==(BoundingBox left, BoundingBox right) => left.Minimum == right.Minimum && left.Maximum == right.Maximum;
+    public static bool operator ==(BoundingBox left, BoundingBox right)
+        => left.Minimum == right.Minimum && left.Maximum == right.Maximum;
 
     public static bool operator !=(BoundingBox left, BoundingBox right) => !(left == right);
 
@@ -275,9 +272,11 @@ public struct BoundingBox : IEquatable<BoundingBox> {
 
     public override int GetHashCode() => HashCode.Combine(Minimum, Maximum);
 
-    private static Vector3 Min(Vector3 left, Vector3 right) => new(Math.Min(left.X, right.X), Math.Min(left.Y, right.Y), Math.Min(left.Z, right.Z));
+    private static Vector3 Min(Vector3 left, Vector3 right) => new(Math.Min(left.X, right.X), Math.Min(left.Y, right.Y),
+        Math.Min(left.Z, right.Z));
 
-    private static Vector3 Max(Vector3 left, Vector3 right) => new(Math.Max(left.X, right.X), Math.Max(left.Y, right.Y), Math.Max(left.Z, right.Z));
+    private static Vector3 Max(Vector3 left, Vector3 right) => new(Math.Max(left.X, right.X), Math.Max(left.Y, right.Y),
+        Math.Max(left.Z, right.Z));
 
     public static BoundingBox Merge(BoundingBox value1, BoundingBox value2) {
         Merge(ref value1, ref value2, out var result);
@@ -319,8 +318,8 @@ public struct BoundingBox : IEquatable<BoundingBox> {
         return Minimum.X <= box.Minimum.X && Maximum.X >= box.Maximum.X
                                           && Minimum.Y <= box.Minimum.Y && Maximum.Y >= box.Maximum.Y
                                           && Minimum.Z <= box.Minimum.Z && Maximum.Z >= box.Maximum.Z
-                   ? ContainmentType.Contains
-                   : ContainmentType.Intersects;
+            ? ContainmentType.Contains
+            : ContainmentType.Intersects;
     }
 
     public ContainmentType Contains(ref BoundingSphere sphere) {
@@ -367,7 +366,7 @@ public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, 
 
     public bool Remove(K key1, T key2) => dictionary.Remove((key1, key2));
 
-    public bool TryGetValue(K key1, T key2,[NotNullWhen(true)] out V? value) 
+    public bool TryGetValue(K key1, T key2, [NotNullWhen(true)] out V? value)
         => dictionary.TryGetValue((key1, key2), out value);
 
     public void Clear() {

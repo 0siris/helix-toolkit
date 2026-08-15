@@ -10,7 +10,6 @@ using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Shaders;
 using TextureType = Assimp.TextureType;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;

@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Threading;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;

@@ -14,8 +14,6 @@ namespace DemoCore;
 
 using System;
 using System.Collections.Generic;
-using HelixToolkit.SharpDX.Core;
-using HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// Base ViewModel for Demo Applications?

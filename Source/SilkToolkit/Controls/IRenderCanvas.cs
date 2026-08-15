@@ -1,5 +1,4 @@
 using System;
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Interface;
 using RelayExceptionEventArgs = HelixToolkit.SharpDX.Core.Utilities.RelayExceptionEventArgs;
 

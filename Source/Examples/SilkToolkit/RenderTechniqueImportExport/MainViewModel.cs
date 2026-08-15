@@ -5,7 +5,6 @@ using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
-using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Material;
 using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using Microsoft.Win32;

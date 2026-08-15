@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Point3D = System.Windows.Media.Media3D.Point3D;

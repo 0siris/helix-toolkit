@@ -23,7 +23,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;

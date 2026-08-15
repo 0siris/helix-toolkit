@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using Color = Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;

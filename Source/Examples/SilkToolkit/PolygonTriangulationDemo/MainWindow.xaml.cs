@@ -8,7 +8,6 @@ using HelixToolkit.Wpf.SharpDX.Model.Materials;
 namespace PolygonTriangulationDemo;
 
 using System;
-using HelixToolkit.Wpf.SharpDX;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 

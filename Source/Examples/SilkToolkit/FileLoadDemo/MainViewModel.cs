@@ -28,7 +28,6 @@ using System.Windows.Input;
 using DemoCore;
 using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Controls;
 using Microsoft.Win32;
 using BoundingBox = BoundingBox;

@@ -1,9 +1,7 @@
 using System;
 using System.Windows;
-using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Render.RenderHost;
 
 namespace HelixToolkit.Wpf.SharpDX.Controls;

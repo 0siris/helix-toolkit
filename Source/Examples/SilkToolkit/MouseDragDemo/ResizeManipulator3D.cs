@@ -17,7 +17,6 @@ namespace MouseDragDemo;
 
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
-using HelixToolkit.Wpf.SharpDX;
 using Colors = System.Windows.Media.Colors;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 

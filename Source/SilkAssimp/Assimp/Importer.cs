@@ -7,7 +7,6 @@ using System.Text;
 using System.Diagnostics.CodeAnalysis;
 using Assimp;
 using Assimp.Configs;
-using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;

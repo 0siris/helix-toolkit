@@ -14,7 +14,6 @@ namespace EnvironmentMapDemo;
 using System;
 using System.Windows.Controls;
 using System.Windows.Data;
-using HelixToolkit.Wpf.SharpDX;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 
 /// <summary>

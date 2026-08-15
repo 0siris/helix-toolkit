@@ -24,7 +24,6 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Point3D = System.Windows.Media.Media3D.Point3D;

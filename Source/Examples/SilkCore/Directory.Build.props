@@ -1,8 +1,8 @@
 <Project>
   <ItemGroup>
     <Using Include="HelixToolkit.SharpDX.Core"/>
-    <Using Include="HelixToolkit.SharpDX.Core.Animations"/>
-    <Using Include="HelixToolkit.SharpDX.Core.Cameras"/>
+    <Using Include="HelixToolkit.SharpDX.Core.Model.Animations"/>
+    <Using Include="HelixToolkit.SharpDX.Core.Model.Camera"/>
     <Using Include="HelixToolkit.SharpDX.Core.Core"/>
     <Using Include="HelixToolkit.SharpDX.Core.Core.Components"/>
     <Using Include="HelixToolkit.SharpDX.Core.Model"/>

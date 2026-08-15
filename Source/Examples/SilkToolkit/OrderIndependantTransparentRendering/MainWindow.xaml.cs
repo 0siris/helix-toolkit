@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 

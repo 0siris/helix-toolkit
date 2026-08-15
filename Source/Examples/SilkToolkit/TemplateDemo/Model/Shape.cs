@@ -9,8 +9,6 @@ using HelixToolkit.Wpf.SharpDX.Material;
 
 namespace TemplateDemo;
 
-using HelixToolkit.Wpf.SharpDX;
-
 public abstract class Shape {
     public Geometry3D Geometry => GetGeometry();
 

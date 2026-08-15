@@ -10,7 +10,6 @@
 using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.Wpf.SharpDX.Controls;
 using HelixToolkit.Wpf.SharpDX.Element3D;
@@ -28,7 +27,6 @@ using System.Linq;
 using System;
 using System.Windows;
 using System.Windows.Input;
-using HelixToolkit.Wpf.SharpDX;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;

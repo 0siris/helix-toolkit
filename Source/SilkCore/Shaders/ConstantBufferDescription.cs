@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;

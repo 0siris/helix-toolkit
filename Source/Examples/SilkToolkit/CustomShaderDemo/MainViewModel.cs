@@ -23,7 +23,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Materials;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Point3D = System.Windows.Media.Media3D.Point3D;

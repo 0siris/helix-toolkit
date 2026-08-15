@@ -13,7 +13,6 @@ namespace TemplateDemo;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Media3D;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 
 public class MainViewModel : BaseViewModel {
     public ObservableCollection<SelectionViewModel> ViewModels { get; } =

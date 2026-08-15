@@ -4,7 +4,6 @@ Copyright(c) 2018 Helix Toolkit contributors
 */
 
 
-using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;

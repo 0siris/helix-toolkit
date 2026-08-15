@@ -24,7 +24,6 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;

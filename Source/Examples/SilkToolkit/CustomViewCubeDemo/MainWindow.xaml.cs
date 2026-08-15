@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media.Media3D;
-using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;

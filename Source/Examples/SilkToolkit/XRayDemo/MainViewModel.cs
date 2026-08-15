@@ -22,7 +22,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using DemoCore;
-using HelixToolkit.Wpf.SharpDX;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;

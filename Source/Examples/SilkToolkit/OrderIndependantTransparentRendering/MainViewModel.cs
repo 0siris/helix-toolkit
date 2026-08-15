@@ -174,7 +174,7 @@ public class MainViewModel : BaseViewModel {
             Width = 100
         };
         ResetCameraCommand = new RelayCommand((_) => { Camera.Reset(); });
-        Task.Run(() => { Load3Ds("NITRO_ENGINE.3ds"); });
+        Task.Run(() => Load3Ds("NITRO_ENGINE.3ds"));
 
         BuildGrid();
         BuildPlanes();
@@ -317,7 +317,7 @@ public class MainViewModel : BaseViewModel {
             MaterialType.Diffuse => new DiffuseMaterial() {
                 DiffuseColor = diffuse
             },
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(materialType))
         };
 
         mesh.Material = material;

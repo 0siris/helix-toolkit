@@ -98,7 +98,7 @@ public class MainViewModel : BaseViewModel {
         }
 
         IsLoading = true;
-        Task.Run<Tuple<Material, Media3D.Transform3D>>(() => {
+        Task.Run(() => {
                 switch (idx) {
                     case 0:
                         return LoadTeapot();
@@ -226,11 +226,33 @@ public class MainViewModel : BaseViewModel {
     ];
 
     /// <summary>
-    /// Gets the transfer function. Please create your own color transfer map.
+    ///     Generates a transfer function based on the provided histogram data.
+    ///     The transfer function determines the mapping of scalar values (from the histogram)
+    ///     to colors, which is used in volume rendering.
     /// </summary>
-    /// <param name="histogram">The histogram.</param>
-    /// <param name="total">The total.</param>
-    /// <returns></returns>
+    /// <param name="histogram">
+    ///     The histogram representing the distribution of scalar values in the dataset.
+    ///     This is an array where each index corresponds to a scalar value, and the value
+    ///     at each index represents the frequency of the corresponding scalar value.
+    /// </param>
+    /// <param name="total">
+    ///     The total number of scalar values in the dataset. This is used to compute the
+    ///     percentage of each scalar value occurrence in the histogram.
+    /// </param>
+    /// <param name="maxPercent">
+    ///     The maximum percentage threshold for considering a scalar value. Any scalar value
+    ///     with a percentage above this threshold will be ignored. Default is 0.003 (0.3%).
+    /// </param>
+    /// <param name="minPercent">
+    ///     The minimum percentage threshold for considering a scalar value. Any scalar value
+    ///     with a percentage below this threshold will be ignored. Default is 0.0001 (0.01%).
+    /// </param>
+    /// <returns>
+    ///     An array of <see cref="Color4" /> objects representing the transfer function.
+    ///     Each index in the array corresponds to a scalar value, and the value at each index
+    ///     represents the color assigned to that scalar value.
+    ///     Scalar values outside the specified percentage thresholds will have a color of zero.
+    /// </returns>
     public static Color4[] GetTransferFunction(
         uint[] histogram,
         int total,

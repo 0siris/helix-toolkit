@@ -75,7 +75,7 @@ public class MainViewModel : BaseViewModel {
     public MeshTopologyEnum MeshTopology {
         get => meshTopology;
         set {
-            /// if topology is changes, reload the model with proper type of faces
+            // if topology is changes, reload the model with proper type of faces
             meshTopology = value;
             DefaultModel = LoadModel(@"./Media/teapot_quads_tex.obj",
                 meshTopology == MeshTopologyEnum.PnTriangles

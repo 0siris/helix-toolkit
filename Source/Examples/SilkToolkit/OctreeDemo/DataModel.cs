@@ -21,7 +21,7 @@ public class DataModel : DemoCore.ObservableObject {
 
 
     public PhongMaterial Material {
-        set => SetValue<PhongMaterial>(ref field, value);
+        set => SetValue(ref field, value);
         get;
     }
 
@@ -74,8 +74,7 @@ public class SphereModel : DataModel {
 
     private static readonly Random rnd = new();
 
-    public SphereModel(Vector3 center, double radius, bool enableTransform = true)
-        : base() {
+    public SphereModel(Vector3 center, double radius, bool enableTransform = true) {
         Center = center;
         Radius = radius;
         CreateModel();
@@ -94,7 +93,7 @@ public class SphereModel : DataModel {
 
     public Vector3 Center {
         set {
-            if (SetValue<Vector3>(ref field, value)) {
+            if (SetValue(ref field, value)) {
                 TranslateTransform.OffsetX = TranslateTransform.OffsetY = TranslateTransform.OffsetZ = value.X;
             }
         }
@@ -103,12 +102,12 @@ public class SphereModel : DataModel {
 
     public double Radius {
         set {
-            if (SetValue<double>(ref field, value)) {
+            if (SetValue(ref field, value)) {
                 ScaleTransform.ScaleX = ScaleTransform.ScaleY = ScaleTransform.ScaleZ = value;
             }
         }
         get;
-    } = 1;
+    }
 
     private void CreateModel() {
         var type = rnd.Next(0, 3);
@@ -128,7 +127,7 @@ public class SphereModel : DataModel {
         }
     }
 
-    private static Media3D.Transform3D CreateAnimatedTransform1(
+    private static void CreateAnimatedTransform1(
         Media3D.Transform3DGroup transformGroup,
         Media3D.Vector3D center,
         Media3D.Vector3D axis,
@@ -161,8 +160,6 @@ public class SphereModel : DataModel {
         rotateTransform1.BeginAnimation(Media3D.RotateTransform3D.RotationProperty, rotateAnimation1);
 
         transformGroup.Children.Add(rotateTransform1);
-
-        return transformGroup;
     }
 }
 

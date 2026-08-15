@@ -395,9 +395,7 @@ public class MainViewModel : BaseViewModel {
         memory.Position = 0;
         return memory;
     }
-
-
-    private string meshTopology = nameof(MeshFaces.Default);
+    
 }
 
 public class ColorVectorConverter : IValueConverter {

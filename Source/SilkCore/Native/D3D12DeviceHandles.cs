@@ -85,7 +85,7 @@ public sealed unsafe class SilkD3D12Device : IDisposable {
 
         SilkD3DBlobPtr signature = default;
         SilkD3DBlobPtr errors = default;
-        SilkMarshal.ThrowHResult(SilkD3D12DeviceFactory.Api.SerializeRootSignature<ID3D10Blob, ID3D10Blob>(in desc,
+        SilkMarshal.ThrowHResult(SilkD3D12DeviceFactory.Api.SerializeRootSignature(in desc,
                                      D3DRootSignatureVersion.Version1,
                                      ref signature,
                                      ref errors));

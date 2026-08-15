@@ -24,7 +24,7 @@ public class MainViewModel : BaseViewModel {
         get;
     } = null;
 
-    private PhongMaterialCollection materials = [];
+    private  PhongMaterialCollection materials = []; //TODO check if the array is initialized correctly
 
     public MainViewModel() {
         EffectsManager = new DefaultEffectsManager();

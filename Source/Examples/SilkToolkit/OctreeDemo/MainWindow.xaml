@@ -113,7 +113,7 @@
                 Octree="{Binding ElementName=GroupOctreeMgr, Path=Octree}" />
         </controls:Viewport3DX>
         <StackPanel
-            Grid.Column="1"
+            Grid.Row="0" Grid.Column="1"
             HorizontalAlignment="Right"
             VerticalAlignment="Center"
             Orientation="Vertical">
@@ -139,7 +139,7 @@
             <Button Command="{Binding MultiViewportCommand}">MultiViewport</Button>
         </StackPanel>
         <StackPanel
-            Grid.Row="1"
+            Grid.Row="1" Grid.Column="0"
             HorizontalAlignment="Center"
             VerticalAlignment="Bottom">
             <TextBlock>Change selected sphere radius</TextBlock>

@@ -228,14 +228,14 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
         positions = [.. cornerMatrix.Select(x => TranslationVector(x.ToMatrix()))];
 
         BoundingBox bb;
-        if (sender == cornerHandles[0] || sender == cornerHandles[2]) {
+        if (ReferenceEquals(sender, cornerHandles[0]) || ReferenceEquals(sender, cornerHandles[2])) {
             Application.Current.MainWindow?.Cursor = Cursors.SizeNESW;
             bb = BoundingBoxExtensions.FromPoints([positions[0], positions[2]]);
-        } else if (sender == cornerHandles[1] || sender == cornerHandles[3]) {
+        } else if (ReferenceEquals(sender, cornerHandles[1]) || ReferenceEquals(sender, cornerHandles[3])) {
             Application.Current.MainWindow?.Cursor = Cursors.SizeNWSE;
             bb = BoundingBoxExtensions.FromPoints([positions[1], positions[3]]);
         } else {
-            if (sender == midpointHandles[0] || sender == midpointHandles[2]) {
+            if (ReferenceEquals(sender, midpointHandles[0]) || ReferenceEquals(sender, midpointHandles[2])) {
                 Application.Current.MainWindow?.Cursor = Cursors.SizeNS;
             } else {
                 Application.Current.MainWindow?.Cursor = Cursors.SizeWE;
@@ -263,7 +263,7 @@ public sealed class InteractionHandle3D : GroupModel3D, IHitable, ISelectable {
         positions[3].Y = bb.Maximum.Y;
 
         for (var i = 0; i < 4; i++) {
-            if (sender != cornerHandles[i]) {
+            if (!ReferenceEquals(sender, cornerHandles[i])) {
                 cornerTrafos[i].Matrix = Matrix3DExtensions.Translate3D(positions[i]
                     .ToVector3D());
             }

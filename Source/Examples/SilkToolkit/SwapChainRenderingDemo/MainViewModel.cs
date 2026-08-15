@@ -338,7 +338,7 @@ public class MainViewModel : BaseViewModel {
         var watch = Stopwatch.StartNew();
         var hitTests = viewport.FindHits(point);
         watch.Stop();
-        Console.WriteLine("Hit test time =" + watch.ElapsedMilliseconds);
+        Console.WriteLine($@"Hit test time = {watch.ElapsedMilliseconds} ms");
         if (hitTests.Count > 0) {
             var lineBuilder = new LineBuilder();
             foreach (var hit in hitTests) {

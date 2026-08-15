@@ -109,7 +109,7 @@
             <element3D:LineGeometryModel3D Geometry="{Binding LineGeo}" Color="Blue" />
         </controls:Viewport3DX>
         <StackPanel
-            Grid.Column="1"
+            Grid.Row="0" Grid.Column="1"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Orientation="Vertical"
@@ -132,7 +132,7 @@
                 Value="{Binding ElementName=View1, Path=SsaoSamplingRadius}" />
         </StackPanel>
         <StackPanel
-            Grid.Row="1"
+            Grid.Row="1" Grid.Column="0"
             VerticalAlignment="Bottom"
             Orientation="Horizontal"
             TextBlock.Foreground="White">

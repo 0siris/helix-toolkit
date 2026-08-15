@@ -33,13 +33,13 @@ public class BindingProxy : Freezable {
     #endregion
 
     public object Data {
-        get => (object) GetValue(DataProperty);
+        get => GetValue(DataProperty);
         set => SetValue(DataProperty, value);
     }
 
     // Using a DependencyProperty as the backing store for Data.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty DataProperty =
-        DependencyProperty.Register("Data", typeof(object), typeof(BindingProxy), new UIPropertyMetadata(null));
+        DependencyProperty.Register(nameof(Data), typeof(object), typeof(BindingProxy), new UIPropertyMetadata(null));
 }
 
 public class MainViewModel : BaseViewModel {
@@ -94,7 +94,7 @@ public class MainViewModel : BaseViewModel {
     public Color LineColor { set; get; }
 
     public PhongMaterial Material {
-        private set => SetValue<PhongMaterial>(ref field, value);
+        private set => SetValue(ref field, value);
         get;
     }
 
@@ -127,7 +127,7 @@ public class MainViewModel : BaseViewModel {
 
     public int SphereSize {
         set {
-            if (SetValue<int>(ref field, value)) {
+            if (SetValue(ref field, value)) {
                 if (highlightItems.Count > 0) {
                     foreach (SphereModel item in highlightItems) {
                         item.Radius = value;
@@ -180,7 +180,7 @@ public class MainViewModel : BaseViewModel {
         var sw = Stopwatch.StartNew();
         CreateDefaultModels();
         sw.Stop();
-        Console.WriteLine("Create Models total time =" + sw.ElapsedMilliseconds + " ms");
+        Console.WriteLine($@"Create Models total time = {sw.ElapsedMilliseconds} ms");
         timer = new DispatcherTimer {
             Interval = TimeSpan.FromMilliseconds(50)
         };
@@ -377,7 +377,7 @@ public class MainViewModel : BaseViewModel {
 
     public bool AutoTesting {
         set {
-            if (SetValue<bool>(ref field, value)) {
+            if (SetValue(ref field, value)) {
                 Enabled = !value;
             }
         }
@@ -385,7 +385,7 @@ public class MainViewModel : BaseViewModel {
     } = false;
 
     public bool Enabled {
-        set => SetValue<bool>(ref field, value);
+        set => SetValue(ref field, value);
         get;
     } = true;
 

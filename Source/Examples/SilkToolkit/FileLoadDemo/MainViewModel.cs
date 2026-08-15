@@ -17,7 +17,6 @@ using SceneNodeExtensions = HelixToolkit.SharpDX.Core.Extensions.SceneNodeExtens
 namespace FileLoadDemo;
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -163,16 +162,10 @@ public class MainViewModel : BaseViewModel {
 
     private HelixToolkitScene? scene;
     private IAnimationUpdater? animationUpdater;
-    private List<BoneSkinMeshNode> boneSkinNodes = [];
-    private List<BoneSkinMeshNode> skeletonNodes = [];
-    private CompositionTargetEx compositeHelper = new();
+    private readonly CompositionTargetEx compositeHelper = new();
     private long initTimeStamp;
 
-    private readonly MainWindow mainWindow;
-
     public MainViewModel(MainWindow window) {
-        mainWindow = window;
-
         OpenFileCommand = new DelegateCommand(OpenFile);
         EffectsManager = new DefaultEffectsManager();
         Camera = new OrthographicCamera() {
@@ -191,8 +184,8 @@ public class MainViewModel : BaseViewModel {
         });
         ExportCommand = new DelegateCommand(ExportFile);
 
-        CopyAsBitmapCommand = new DelegateCommand(() => { CopyAsBitmapToClipBoard(mainWindow.View); });
-        CopyAsHiresBitmapCommand = new DelegateCommand(() => { CopyAsHiResBitmapToClipBoard(mainWindow.View); });
+        CopyAsBitmapCommand = new DelegateCommand(() => { CopyAsBitmapToClipBoard(window.View); });
+        CopyAsHiresBitmapCommand = new DelegateCommand(() => { CopyAsHiResBitmapToClipBoard(window.View); });
 
         EnvironmentMap = TextureModel.Create("Cubemap_Grandcanyon.dds");
 
@@ -344,7 +337,6 @@ public class MainViewModel : BaseViewModel {
             var exporter = new Exporter();
             if (scene is { } loadedScene)
                 exporter.ExportToFile(path, loadedScene, id);
-            return;
         }
     }
 

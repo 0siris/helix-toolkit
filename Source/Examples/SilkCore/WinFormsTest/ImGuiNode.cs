@@ -108,19 +108,18 @@ public class ImGuiNode : SceneNode {
             throw new InvalidOperationException("The ImGui render core is required.");
         renderCore.Buffer = bufferModel;
         var io = ImGui.GetIO();
-        unsafe {
-            io.Fonts.GetTexDataAsRGBA32(out IntPtr textureData, out var width, out var height);
-            if (EffectsManager is not {Device: { } device})
-                throw new InvalidOperationException("An effects manager device is required.");
-            var textureView = new ShaderResourceViewProxy(device);
-            textureView.CreateView(textureData,
-                width,
-                height,
-                Format.FormatR8G8B8A8Unorm);
-            io.Fonts.SetTexID(fontAtlasId);
-            io.Fonts.ClearTexData();
-            renderCore.TextureView = textureView;
-        }
+        
+        io.Fonts.GetTexDataAsRGBA32(out IntPtr textureData, out var width, out var height);
+        if (EffectsManager is not {Device: { } device})
+            throw new InvalidOperationException("An effects manager device is required.");
+        var textureView = new ShaderResourceViewProxy(device);
+        textureView.CreateView(textureData,
+            width,
+            height,
+            Format.FormatR8G8B8A8Unorm);
+        io.Fonts.SetTexID(fontAtlasId);
+        io.Fonts.ClearTexData();
+        renderCore.TextureView = textureView;
 
         ImGui.NewFrame();
         newFrame = true;

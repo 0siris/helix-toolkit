@@ -8,8 +8,6 @@ namespace OrderIndependentTransparentRendering;
 /// Interaction logic for MainWindow.xaml
 /// </summary>
 public partial class MainWindow : Window {
-    private GeometryModel3D? selectedModel;
-
     public MainWindow() {
         InitializeComponent();
         View.AddHandler(Element3D.MouseDown3DEvent,
@@ -23,10 +21,9 @@ public partial class MainWindow : Window {
                 //    selectedModel.PostEffects = null;
                 //    selectedModel = null;
                 //}
-                selectedModel = hitTestResult.ModelHit as GeometryModel3D;
-                selectedModel?.PostEffects =
-                    string.IsNullOrEmpty(selectedModel.PostEffects)
-                        ? $"highlight[color:#FFFF00]"
+                var selectedModel = hitTestResult.ModelHit as GeometryModel3D;
+                selectedModel?.PostEffects = string.IsNullOrEmpty(selectedModel.PostEffects)
+                        ? "highlight[color:#FFFF00]"
                         : null;
             }));
     }

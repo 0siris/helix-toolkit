@@ -317,7 +317,7 @@ public class MainViewModel : BaseViewModel {
             MaterialType.Diffuse => new DiffuseMaterial() {
                 DiffuseColor = diffuse
             },
-            _ => throw new ArgumentOutOfRangeException(nameof(materialType))
+            _ => throw new InvalidOperationException("Material is not supported")
         };
 
         mesh.Material = material;

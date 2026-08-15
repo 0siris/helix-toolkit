@@ -29,7 +29,6 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 public class MainViewModel : BaseViewModel {
     public ObservableElement3DCollection ModelGeometry { get; private set; }
     public PhongMaterial DefaultMaterial { get; private set; }
-    public Color GridColor { get; private set; }
 
     public Transform3D ModelTransform { get; private set; }
 

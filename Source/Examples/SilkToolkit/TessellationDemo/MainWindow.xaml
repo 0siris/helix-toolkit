@@ -116,21 +116,21 @@
                     </TextBlock>
                     <CheckBox
                         Grid.Row="5"
-                        Grid.ColumnSpan="2"
+                        Grid.ColumnSpan="2" Grid.Column="0"
                         Margin="3"
                         IsChecked="{Binding DefaultMaterial.RenderDiffuseMap}">
                         Render Diffuse Map
                     </CheckBox>
                     <CheckBox
                         Grid.Row="6"
-                        Grid.ColumnSpan="2"
+                        Grid.ColumnSpan="2" Grid.Column="0"
                         Margin="3"
                         IsChecked="{Binding DefaultMaterial.RenderNormalMap}">
                         Render Normal Map
                     </CheckBox>
                     <CheckBox
                         Grid.Row="7"
-                        Grid.ColumnSpan="2"
+                        Grid.ColumnSpan="2" Grid.Column="0"
                         Margin="3"
                         IsChecked="{Binding Wireframe}">
                         Render Wireframe
@@ -149,7 +149,7 @@
                         Text="{Binding DefaultMaterial.MinDistanceTessellationFactor}" />
                     <Slider
                         Grid.Row="9"
-                        Grid.ColumnSpan="2"
+                        Grid.ColumnSpan="2" Grid.Column="0"
                         Margin="3"
                         IsSnapToTickEnabled="True"
                         Maximum="24"

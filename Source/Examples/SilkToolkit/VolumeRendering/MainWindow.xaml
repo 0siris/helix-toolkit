@@ -80,7 +80,7 @@
             </StackPanel>
 
         </StackPanel>
-        <Grid Grid.ColumnSpan="2"
+        <Grid Grid.ColumnSpan="2" Grid.Column="0"
               Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
             <Rectangle
                 HorizontalAlignment="Stretch"

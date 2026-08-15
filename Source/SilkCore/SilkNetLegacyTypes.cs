@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace HelixToolkit.SharpDX.Core;
 public enum PlaneIntersectionType {
     Front,
@@ -252,6 +254,7 @@ public struct Color {
         return (byte)(value * 255f);
     }
 
+    [Pure]
     public Color4 ToColor4()
         => new(R / 255f, G / 255f, B / 255f, A / 255f);
 

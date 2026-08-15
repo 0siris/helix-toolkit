@@ -10,10 +10,11 @@
         mc:Ignorable="d"
         Title="{Binding Title}" Height="500" Width="800">
     <Grid>
+
         <Grid.RowDefinitions>
             <RowDefinition />
+            <RowDefinition />
         </Grid.RowDefinitions>
-
         <controls:Viewport3DX
             Grid.Row="0"
             x:Name="View1"

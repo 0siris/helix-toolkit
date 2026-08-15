@@ -69,7 +69,6 @@ public class MainViewModel : BaseViewModel {
         Model = meshGeometry;
 
         // Create Billboard Text
-        var offset = 4.5f;
         var scale = 0.8f;
         Text3D.TextInfo.Add(new TextInfo("2", new Vector3(2, 0, 0)) {
             Foreground = HelixToolkit.SharpDX.Core.Color.Blue,

@@ -58,7 +58,7 @@
             <postEffects:PostEffectMeshBorderHighlight EffectName="highlight" />
         </controls:Viewport3DX>
         <Grid
-            Grid.Row="1"
+            Grid.Row="1" Grid.Column="0"
             Background="#7B363636"
             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel
@@ -73,7 +73,7 @@
             </StackPanel>
         </Grid>
         <Menu
-            Grid.Row="0"
+            Grid.Row="0" Grid.Column="0"
             Height="20"
             VerticalAlignment="Top">
             <MenuItem Header="File">

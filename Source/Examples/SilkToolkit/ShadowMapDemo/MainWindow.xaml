@@ -154,9 +154,6 @@
                         <ColumnDefinition Width="23*" />
                         <ColumnDefinition Width="51*" />
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
                 </Grid>
             </Expander>
             <Expander
@@ -285,7 +282,7 @@
             <Button HorizontalAlignment="Right" Click="Button_Click">MultiViewports</Button>
         </StackPanel>
 
-        <StatusBar Grid.Row="2" VerticalAlignment="Bottom">
+        <StatusBar Grid.Row="2" Grid.Column="0" VerticalAlignment="Bottom">
             <StatusBar.Background>
                 <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </StatusBar.Background>

@@ -122,7 +122,7 @@ public class MainViewModel : BaseViewModel {
                 mPointCount = 10000;
             else
                 mPointCount = value;
-            OnPropertyChanged("PointCountText");
+            OnPropertyChanged();
         }
     }
 

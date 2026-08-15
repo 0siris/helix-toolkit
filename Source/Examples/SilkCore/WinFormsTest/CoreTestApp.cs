@@ -84,7 +84,7 @@ public class CoreTestApp {
     private CameraController cameraController;
     private Stack<IEnumerator<SceneNode>> stackCache = new();
     private IApplyPostEffect? currentHighlight;
-    private double dpiScale = 1;
+    private double dpiScale = DpiHelper.GetWindowsScreenScalingFactor(false);
     private SynchronizationContext context;
 
     private ViewportOptions options = new() {
@@ -103,7 +103,6 @@ public class CoreTestApp {
 
     public CoreTestApp(Form window, SynchronizationContext context) {
         this.context = context;
-        dpiScale = DpiHelper.GetWindowsScreenScalingFactor(false);
 
         LogManager.Create<CoreTestApp>();
 
@@ -229,10 +228,10 @@ public class CoreTestApp {
         InitializeMaterials();
         var materialCount = materials.Count;
         Task.Run(() => {
-            var builder = new MeshBuilder(true, true, true);
-            builder.AddSphere(Vector3.Zero);
+            var mb = new MeshBuilder(true, true, true);
+            mb.AddSphere(Vector3.Zero);
             for (var i = 0; i < NumItems; ++i) {
-                var sphere1 = builder.ToMesh();
+                var sphere1 = mb.ToMesh();
                 var transform =
                     Translation(new Vector3(rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20), rnd.NextFloat(-20, 20)));
                 var material = materials[i % materialCount];

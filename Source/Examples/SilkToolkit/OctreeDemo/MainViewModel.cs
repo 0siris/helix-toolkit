@@ -129,7 +129,8 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value)) {
                 if (highlightItems.Count > 0) {
-                    foreach (SphereModel item in highlightItems) {
+                    foreach (var dataModel in highlightItems) {
+                        var item = (SphereModel) dataModel;
                         item.Radius = value;
                     }
                 }

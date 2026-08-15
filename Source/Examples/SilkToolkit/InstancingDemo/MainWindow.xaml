@@ -19,9 +19,6 @@
     <Window.Resources>
     </Window.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
@@ -115,7 +112,7 @@
                 </StackPanel>
             </Expander>
         </StackPanel>
-        <StatusBar Grid.Row="0" VerticalAlignment="Bottom">
+        <StatusBar Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom">
             <StatusBar.Background>
                 <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
             </StatusBar.Background>

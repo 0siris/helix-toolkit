@@ -150,7 +150,7 @@ public class MainViewModel : BaseViewModel {
     //}
 
     private void SetXValue(double x) {
-        Console.WriteLine("x: {0}", x);
+        Console.WriteLine(@"x: {0}", x);
         xvalue = x;
         //this.DirectionalLightDirection = new Vector3D(x, -10, -10);
         LightDirectionTransform = new Media3D.TranslateTransform3D(x, -10, 10);

@@ -11,6 +11,7 @@ using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using HelixToolkit.Wpf.SharpDX.Model.Lights3D;
 using HelixToolkit.Wpf.SharpDX.Model.Materials;
+using LoggerLib;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -83,7 +84,7 @@ public partial class MainWindow : Window {
 
     private void Viewport_MouseDown3D(object sender, RoutedEventArgs e) {
         if (e is MouseDown3DEventArgs {HitTestResult: { } hitTestResult}) {
-            
+            Logger.Info("HitTestResult: {Hit}", p1: hitTestResult);
         }
     }
 

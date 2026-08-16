@@ -176,24 +176,25 @@ public abstract class ScreenSpacedElement3D : GroupModel3D {
     private bool isMoverInitialized;
 
     private void InitializeMover() {
-        if (isMoverInitialized) return;
-        var createdMover = OnCreateMover();
-        mover = createdMover;
-        MoverCanvas.Children.Add(createdMover);
-        SetBinding(nameof(RelativeScreenLocationX), createdMover, RelativePositionCanvas2D.RelativeXProperty, this);
-        SetBinding(nameof(RelativeScreenLocationY), createdMover, RelativePositionCanvas2D.RelativeYProperty, this);
+        if (isMoverInitialized) 
+            return;
+        
+        mover = OnCreateMover();
+        MoverCanvas.Children.Add(mover);
+        SetBinding(nameof(RelativeScreenLocationX), mover, RelativePositionCanvas2D.RelativeXProperty, this);
+        SetBinding(nameof(RelativeScreenLocationY), mover, RelativePositionCanvas2D.RelativeYProperty, this);
         SetBinding(nameof(IsRendering),
-                   createdMover,
+                   mover,
                    Elements2D.Abstract.Element2D.VisibilityProperty,
                    this,
                    BindingMode.OneWay,
                    new BoolToVisibilityConverter());
         SetBinding(nameof(EnableMover),
-                   createdMover,
+                   mover,
                    ScreenSpacePositionMoverBase.EnableMoverProperty,
                    this,
                    BindingMode.OneWay);
-        createdMover.OnMoveClicked += Mover_OnMoveClicked;
+        mover.OnMoveClicked += Mover_OnMoveClicked;
         isMoverInitialized = true;
     }
 

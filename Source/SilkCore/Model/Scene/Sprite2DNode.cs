@@ -34,8 +34,8 @@ public class Sprite2DNode : SceneNode {
         get => texture;
         set {
             if (SetAffectsRender(ref texture, value) && IsAttached)
-                if (value is { } texture && EffectsManager is { } effectsManager)
-                    SpriteCore.UpdateTexture(texture, effectsManager.MaterialTextureManager);
+                if (value is { } tex && EffectsManager is { } effectsManager)
+                    SpriteCore.UpdateTexture(tex, effectsManager.MaterialTextureManager);
         }
     }
 

@@ -16,10 +16,9 @@ public sealed class WarpLifecycleTests {
             using var effectsManager = new DefaultEffectsManager(new EffectsManagerConfiguration {
                 EnableSoftwareRendering = true
             });
-            using var model = new MeshGeometryModel3D {
-                Geometry = new MeshBuilder().ToMesh(),
-                Material = DiffuseMaterials.Red
-            };
+            using var model = new MeshGeometryModel3D();
+            model.Geometry = new MeshBuilder().ToMesh();
+            model.Material = DiffuseMaterials.Red;
 
             var node = Assert.IsType<MeshNode>(model.SceneNode);
             node.Attach(effectsManager);

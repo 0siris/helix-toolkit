@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Collection;
@@ -16,6 +17,7 @@ using PhongMaterial = PhongMaterialCore;
 public class StudioReader : IModelReader {
     private readonly Dictionary<string, MaterialCore> materials = [];
 
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private enum ChunkId {
         //// Primary chunk
 
@@ -146,17 +148,16 @@ public class StudioReader : IModelReader {
 
     public Object3DGroup Read(string path, ModelInfo info = default) {
         Directory = Path.GetDirectoryName(path);
-        using (var s = File.OpenRead(path)) {
-            return Read(s);
-        }
-
-        ;
+        using var s = File.OpenRead(path);
+        return Read(s);
     }
 
     public Object3DGroup Read(Stream s, ModelInfo info = default) {
         using (var reader = new BinaryReader(s)) {
             var headerId = ReadChunkId(reader);
-            if (headerId != ChunkId.Main3Ds) throw new FileFormatException("Unknown file");
+            if (headerId != ChunkId.Main3Ds) 
+                throw new FileFormatException("Unknown file");
+            
             ReadChunkSize(reader);
             //if (headerSize != length)
             //{
@@ -328,7 +329,7 @@ public class StudioReader : IModelReader {
         IntCollection? faces = null;
         Vector2Collection? textureCoordinates = null;
         List<FaceSet>? facesets = null;
-        IntCollection? triangleIndices = null;
+        IntCollection? triangleIndices;
         Vector3Collection? normals = null;
         //Matrix matrix = Matrix.Identity;
         Vector3Collection? tangents = null;

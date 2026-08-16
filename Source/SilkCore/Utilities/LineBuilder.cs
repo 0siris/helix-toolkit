@@ -82,8 +82,11 @@ public class LineBuilder {
     /// <param name="height"></param>
     public void AddGrid(BoxFaces plane, int columns, int rows, float width, float height) {
         // checks
-        if (columns < 2 || rows < 2) throw new ArgumentNullException("columns or rows too small");
-        if (width <= 0 || height <= 0) throw new ArgumentNullException("width or height too small");
+        if (columns < 2) throw new ArgumentException("columns or rows too small", nameof(columns));
+        if (rows < 2) throw new ArgumentException("rows too small", nameof(rows));
+
+        if (width <= 0) throw new ArgumentException("width too small", nameof(width));
+        if (height <= 0) throw new ArgumentException("height too small", nameof(height));
 
         // step
         var stepy = height / (rows - 1);
@@ -128,7 +131,9 @@ public class LineBuilder {
     /// <param name="radius">The radius.</param>
     /// <param name="segments">The segments.</param>
     public void AddCircle(Vector3 position, Vector3 normal, float radius, int segments) {
-        if (segments < 3) throw new ArgumentNullException("too few segments, at least 3");
+        if (segments < 3) 
+            throw new ArgumentNullException(nameof(segments), "too few segments, at least 3");
+        
         normal.Normalize();
         var sectionAngle = (float)(2.0 * Math.PI / segments);
         var current = new Vector3(radius, 0.0f, 0.0f);

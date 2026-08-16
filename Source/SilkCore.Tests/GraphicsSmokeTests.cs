@@ -42,11 +42,7 @@ public class GraphicsSmokeTests {
         context.Close();
         Assert.Equal(1UL, queue.Signal(fence));
 
-        rootSignature.Dispose();
-        fence.Dispose();
-        context.Dispose();
-        queue.Dispose();
-        device.Dispose();
+
         Assert.True(device.IsDisposed);
     }
 }

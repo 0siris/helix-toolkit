@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Forms;
@@ -98,16 +99,20 @@ public class VirtualTouchDevice : TouchDevice {
     // ReSharper disable InconsistentNaming
     private static class W32 {
         [Flags]
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public enum TOUCHEVENTF {
             MOVE = 0x0001,
             DOWN = 0x0002,
             UP = 0x0004,
+            
             INRANGE = 0x0008,
             PRIMARY = 0x0010,
             NOCOALESCE = 0x0020,
             PEN = 0x0040
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedType.Local")]
         public enum TOUCHINPUTMASKF {
             TIMEFROMSYSTEM = 0x0001,
             EXTRAINFO = 0x0002,

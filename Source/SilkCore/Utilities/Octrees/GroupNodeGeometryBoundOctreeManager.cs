@@ -111,9 +111,11 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
         }
     }
 
-    private BoundableNodeOctree? RebuildOctree(IEnumerable<SceneNode>? items) {
+    private BoundableNodeOctree? RebuildOctree(List<SceneNode>? items) {
         Clear();
-        if (items == null) return null;
+        if (items == null) 
+            return null;
+        
         var tree = new BoundableNodeOctree([.. items], Parameter);
         tree.BuildTree();
         if (tree.TreeBuilt) {

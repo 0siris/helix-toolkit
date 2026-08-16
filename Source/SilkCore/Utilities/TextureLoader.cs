@@ -119,7 +119,8 @@ public static class TextureLoader {
                 GenerateMipMaps(device, texture, out var textureMipmap);
                 return textureMipmap;
             } catch (Exception ex) {
-                throw new Exception(ex.Message);
+                LoggerLib.Logger.Error(ex,"MipMap gen failed");
+                throw;
             }
 
         return texture.Resource;

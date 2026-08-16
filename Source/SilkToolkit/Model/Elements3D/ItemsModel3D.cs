@@ -107,7 +107,8 @@ public class ItemsModel3D : CompositeModel3D {
     private IOctreeBasic? Octree => ((GroupNode)SceneNode).OctreeManager?.Octree;
 
     private void SceneNode_Attached(object? sender, EventArgs e) {
-        if (ItemsSource != null) ItemsSourceChanged(ItemsSource);
+        if (ItemsSource != null)
+            ItemsSourceChanged(ItemsSource);
     }
 
     private void SceneNode_Detached(object? sender, EventArgs e) {
@@ -115,7 +116,9 @@ public class ItemsModel3D : CompositeModel3D {
     }
 
     private void ItemsSourceChanged(IEnumerable? itemsSource) {
-        if (itemsSourceInternal == itemsSource) return;
+        if (ReferenceEquals(itemsSourceInternal, itemsSource)) 
+            return;
+        
         if (itemsSourceInternal is INotifyCollectionChanged o) o.CollectionChanged -= ItemsModel3D_CollectionChanged;
         if (itemsSourceInternal == null && itemsSource != null && Children.Count > 0)
             throw new InvalidOperationException("Children must be empty before using ItemsSource");

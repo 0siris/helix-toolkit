@@ -187,8 +187,11 @@ public sealed class Color4Converter : FromToStringTypeConverter {
     }
 
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
-        if (value == null) throw GetConvertFromException(value);
-        if (value is Color) return ((Color)value).ToColor4();
+        if (value == null) 
+            throw GetConvertFromException(value);
+        
+        if (value is Color) 
+            return ((Color)value).ToColor4();
 
         var source = value as string;
 
@@ -206,7 +209,9 @@ public sealed class Color4Converter : FromToStringTypeConverter {
             try {
                 var obj = System.Windows.Media.ColorConverter.ConvertFromString(source);
                 if (obj is Color color) return color.ToColor4();
-            } catch (Exception) { }
+            } catch (Exception) {
+                // ignored
+            }
         }
 
         return base.ConvertFrom(context, culture, value);

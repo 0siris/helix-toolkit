@@ -64,14 +64,6 @@ internal class ZoomRectangleHandler : MouseGestureHandler {
     }
 
     /// <summary>
-    ///     Occurs when the manipulation is started.
-    /// </summary>
-    /// <param name="e">The <see cref="Point" /> instance containing the event data.</param>
-    public override void Started(Point e) {
-        base.Started(e);
-    }
-
-    /// <summary>
     ///     Zooms to the specified rectangle.
     /// </summary>
     /// <param name="rectangle">

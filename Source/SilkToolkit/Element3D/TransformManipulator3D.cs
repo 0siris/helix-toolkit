@@ -241,22 +241,22 @@ public class TransformManipulator3D : GroupElement3D {
     /// <summary>
     ///     Called when [target changed]. Use target boundingbox center as Manipulator center
     /// </summary>
-    /// <param name="target">The target.</param>
-    private void OnTargetChanged(Model.Elements3D.AbstractElements3D.Element3D? target) {
+    /// <param name="elem3DTarget">The target.</param>
+    private void OnTargetChanged(Model.Elements3D.AbstractElements3D.Element3D? elem3DTarget) {
         Debug.WriteLine("OnTargetChanged");
         //if(target != null)
         //{
         //    target.SceneNode.OnTransformChanged -= SceneNode_OnTransformChanged;
         //}
-        this.target = target;
-        if (target == null)
+        target = elem3DTarget;
+        if (elem3DTarget == null)
             ResetTransforms();
         else
             //target.SceneNode.OnTransformChanged += SceneNode_OnTransformChanged;
-            SceneNode_OnTransformChanged(target.SceneNode, new TransformArgs(target.SceneNode.ModelMatrix));
+            SceneNode_OnTransformChanged(new TransformArgs(elem3DTarget.SceneNode.ModelMatrix));
     }
 
-    private void SceneNode_OnTransformChanged(object? sender, TransformArgs e) {
+    private void SceneNode_OnTransformChanged(TransformArgs e) {
         var m = e.Transform;
         m.Decompose(out var scale, out var rotation, out var translation);
         scaleMatrix = SilkMath.Scaling(scale);
@@ -638,10 +638,10 @@ public class TransformManipulator3D : GroupElement3D {
         scaleY,
         scaleZ;
 
-    private readonly GroupModel3D translationGroup,
-        rotationGroup,
-        scaleGroup,
-        ctrlGroup;
+    private readonly GroupModel3D translationGroup;
+    private readonly GroupModel3D rotationGroup;
+    private readonly GroupModel3D scaleGroup;
+    private readonly GroupModel3D ctrlGroup;
 
     private readonly Model.Elements3D.AbstractElements3D.Element3D xrayEffect;
     private Vector3 centerOffset = Vector3.Zero;

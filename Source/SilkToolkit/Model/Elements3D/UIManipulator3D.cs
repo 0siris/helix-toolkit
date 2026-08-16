@@ -59,7 +59,7 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
         typeof(UiManipulator3D),
         new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, ValueChanged));
 
-    protected bool IsMouseCaptured;
+    protected new bool IsMouseCaptured;
     protected Vector3 LastHitPosWs, CameraNormal;
     protected Viewport3DX? Viewport;
 

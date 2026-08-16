@@ -553,7 +553,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     private BoundingSphere boundsSphereWithTransform;
     public override BoundingSphere BoundsSphereWithTransform => boundsSphereWithTransform;
 
-    protected volatile bool BoundChanged = true;
+    protected new volatile bool BoundChanged = true;
 
     #endregion
 }

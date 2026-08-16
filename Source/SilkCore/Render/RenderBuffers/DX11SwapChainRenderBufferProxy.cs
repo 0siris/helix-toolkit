@@ -65,7 +65,7 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
         if (swapChain is null || swapChain.IsDisposed) {
             swapChain = CreateSwapChain(SurfacePtr);
         } else {
-            RemoveAndDispose(ref D2DTargetInternal);
+            D2DTarget = null;
             RemoveAndDispose(ref backBuffer);
             DeviceResources.NativeDeviceResources.ImmediateContext.ClearState();
             DeviceResources.NativeDeviceResources.ImmediateContext.Flush();
@@ -82,8 +82,8 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
             throw new InvalidOperationException("The swap chain back buffer is not a 2D texture.");
 
         backBuffer = newBackBuffer;
-        D2DTargetInternal = new D2DTargetProxy();
-        D2DTargetInternal.Initialize(texture, DeviceContext2D);
+        D2DTarget = new D2DTargetProxy();
+        D2DTarget.Initialize(texture, DeviceContext2D);
         return newBackBuffer;
     }
 
@@ -129,7 +129,7 @@ public class DX11SwapChainRenderBufferProxy : DX11RenderBufferProxyBase {
     ///     Must release swapchain at last after all its created resources have been released.
     /// </summary>
     public void DisposeAndClear() {
-        RemoveAndDispose(ref D2DTargetInternal);
+        D2DTarget = null;
         RemoveAndDispose(ref backBuffer);
         RemoveAndDispose(ref swapChain);
     }

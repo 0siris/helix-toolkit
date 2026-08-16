@@ -10,9 +10,8 @@ namespace HelixToolkit.SharpDX.Core.Render.RenderBuffers;
 /// <summary>
 /// </summary>
 public sealed class PingPongColorBuffers : DisposeObject {
-    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     private readonly IDevice3DResources deviceResources;
-    private readonly object lockObj = new();
+    private readonly Lock lockObj = new();
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="PingPongColorBuffers" /> class.

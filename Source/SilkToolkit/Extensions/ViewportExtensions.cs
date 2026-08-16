@@ -53,7 +53,8 @@ public static class ViewportExtensions {
     ///     Copies the specified viewport to the clipboard.
     /// </summary>
     public static void Copy(this Viewport3DX view) {
-        if (view.RenderBitmap() is { } bitmap) Clipboard.SetImage(bitmap);
+        if (view.RenderBitmap() is { } bitmap)
+            Clipboard.SetImage(bitmap);
     }
 
     /// <summary>
@@ -128,7 +129,8 @@ public static class ViewportExtensions {
     /// <param name="function">The function. Return true to continue traverse, otherwise stop at current node</param>
     public static void Traverse<T>(this Viewport3DX viewport, Func<T, bool> function) where T : Model.Elements3D.AbstractElements3D.Element3D {
         viewport.Renderables.PreorderDft(node => {
-            if (node.WrapperSource is T element) return function(element);
+            if (node.WrapperSource is T element) 
+                return function(element);
             return true;
         });
     }

@@ -6,6 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
+using Silk.NET.Direct2D;
 
 namespace HelixToolkit.SharpDX.Core.Render.RenderBuffers;
 /// <summary>
@@ -37,11 +38,11 @@ public class DX11Texture2DRenderBufferProxy : DX11RenderBufferProxyBase {
         };
 
         var backBuffer = new ShaderResourceViewProxy(DeviceResources, colordescNms);
-        D2DTargetInternal = new D2DTargetProxy();
+        D2DTarget = new D2DTargetProxy();
         if (backBuffer.Resource is not NativeD3DTexture2D texture)
             throw new InvalidOperationException("The back buffer is not a texture resource.");
 
-        D2DTargetInternal.Initialize(texture, DeviceContext2D);
+        D2DTarget.Initialize(texture, DeviceContext2D);
         return backBuffer;
     }
 

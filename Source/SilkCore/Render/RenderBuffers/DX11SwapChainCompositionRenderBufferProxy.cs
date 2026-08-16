@@ -57,12 +57,12 @@ public class DX11SwapChainCompositionRenderBufferProxy : DX11RenderBufferProxyBa
                                     swapChain.Description.ModeDescription.Format,
                                     swapChain.Description.Flags);
 
-        var backBuffer = CreateBackBufferTexture(width, height);
+        backBuffer = CreateBackBufferTexture(width, height);
         if (backBuffer.Resource is not Texture2D texture)
             throw new InvalidOperationException("The swap chain back buffer is not a 2D texture.");
-        this.backBuffer = backBuffer;
-        D2DTargetInternal = new D2DTargetProxy();
-        D2DTargetInternal.Initialize(texture, DeviceContext2D);
+        
+        D2DTarget = new D2DTargetProxy();
+        D2DTarget.Initialize(texture, DeviceContext2D);
         return backBuffer;
     }
 
@@ -133,7 +133,7 @@ public class DX11SwapChainCompositionRenderBufferProxy : DX11RenderBufferProxyBa
     /// </summary>
     public void DisposeAndClear() {
         RemoveAndDispose(ref backBuffer);
-        RemoveAndDispose(ref D2DTargetInternal);
+        D2DTarget = null;
         RemoveAndDispose(ref swapChain);
     }
 

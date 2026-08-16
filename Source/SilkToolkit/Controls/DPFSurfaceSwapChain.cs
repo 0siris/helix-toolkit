@@ -41,22 +41,20 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
 
     private DispatcherOperation? resizeOperation;
 
-    private readonly RenderControl surfaceD3D;
-
     public DPFSurfaceSwapChain(bool deferredRendering = false, bool attachedToWindow = true) {
-        surfaceD3D = SetupVisual(attachedToWindow);
+        var surfaceD3D1 = SetupVisual(attachedToWindow);
         RenderHost = SetupRenderHost(deferredRendering
-            ? new SwapChainRenderHost(surfaceD3D.Handle,
+            ? new SwapChainRenderHost(surfaceD3D1.Handle,
                 device => new DeferredContextRenderer(
                     device,
                     new AutoRenderTaskScheduler()))
-            : new SwapChainRenderHost(surfaceD3D.Handle));
+            : new SwapChainRenderHost(surfaceD3D1.Handle));
         SetupImage();
     }
 
     public DPFSurfaceSwapChain(Func<IntPtr, IRenderHost> createRenderHost, bool attachedToWindow = true) {
-        surfaceD3D = SetupVisual(attachedToWindow);
-        RenderHost = SetupRenderHost(createRenderHost(surfaceD3D.Handle));
+        var surfaceD3D1 = SetupVisual(attachedToWindow);
+        RenderHost = SetupRenderHost(createRenderHost(surfaceD3D1.Handle));
         SetupImage();
     }
 
@@ -242,16 +240,17 @@ public class DPFSurfaceSwapChain : Grid, IRenderCanvas, IDisposable {
             return true;
         }
 
-        Logger.Error(exception, "Render canvas exception.");
+        Logger.Error(exception, "Render canvas exception");
         var args = new RelayExceptionEventArgs(exception);
         ExceptionOccurred(this, args);
         return args.Handled;
     }
 
-    private static bool IsDeviceLost(int hresult) => hresult == unchecked((int) 0x887A0005)
-                                                     || hresult == unchecked((int) 0x887A0006)
-                                                     || hresult == unchecked((int) 0x887A0007)
-                                                     || hresult == unchecked((int) 0x887A0026);
+    private static bool IsDeviceLost(int hresult) => hresult is
+        unchecked((int) 0x887A0005) or
+        unchecked((int) 0x887A0006) or
+        unchecked((int) 0x887A0007) or
+        unchecked((int) 0x887A0026);
 
     public static T? FindVisualAncestor<T>(DependencyObject? obj) where T : DependencyObject {
         if (obj != null) {

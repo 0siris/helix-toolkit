@@ -182,8 +182,7 @@ public class PointGeometryOctree : DynamicOctreeBase<int> {
     protected override BoundingBox GetBoundingBoxFromItem(int item) => new(positions[item] - BoundOffset, positions[item] + BoundOffset);
 
     /// <summary>
-    ///     <see
-    ///         cref="DynamicOctreeBase{T}.FindNearestPointBySphereExcludeChild(HitTestContext, ref global::SharpDX.BoundingSphere, ref List{HitTestResult}, ref bool)" />
+    ///     <see cref="DynamicOctreeBase{T}.FindNearestPointBySphereExcludeChild(HitTestContext, ref global::SharpDX.BoundingSphere, ref List{HitTestResult}, ref bool)" />
     /// </summary>
     /// <param name="context"></param>
     /// <param name="sphere"></param>

@@ -3,6 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
@@ -13,32 +14,7 @@ namespace HelixToolkit.SharpDX.Core.Render.RenderBuffers;
 /// <summary>
 /// </summary>
 public abstract class DX11RenderBufferProxyBase : DisposeObject {
-    /// <summary>
-    ///     The back buffer
-    /// </summary>
-    private ShaderResourceViewProxy? backBuffer;
-
-    /// <summary>
-    ///     The color buffer
-    /// </summary>
-    private ShaderResourceViewProxy? colorBuffer;
-
-    /// <summary>
-    ///     The D2D controls
-    /// </summary>
-    protected D2DTargetProxy? D2DTargetInternal;
-
-    /// <summary>
-    ///     The depth stencil buffer
-    /// </summary>
-    private ShaderResourceViewProxy? depthStencilBuffer;
-
-    /// <summary>
-    ///     The depth stencil buffer
-    /// </summary>
-    private ShaderResourceViewProxy? depthStencilBufferNoMsaa;
-
-    private IDeviceContextPool? deviceContextPool;
+    
 
     /// <summary>
     ///     The vertical synchronize internal. Only valid under swapchain rendering mode. Default = 0
@@ -53,24 +29,61 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <param name="useDepthStencilBuffer"></param>
     public DX11RenderBufferProxyBase(IDeviceResources deviceResource, bool useDepthStencilBuffer = true) {
         DeviceResources = deviceResource;
-        deviceContextPool = new DeviceContextPool(deviceResource.NativeDeviceResources.Device);
+        DeviceContextPool = new DeviceContextPool(deviceResource.NativeDeviceResources.Device);
         UseDepthStencilBuffer = useDepthStencilBuffer;
     }
 
-    public ShaderResourceViewProxy ColorBuffer
-        => colorBuffer ?? throw new InvalidOperationException("Render buffer is not initialized.");
-    public ShaderResourceViewProxy BackBuffer
-        => backBuffer ?? throw new InvalidOperationException("Render buffer is not initialized.");
+    [AllowNull]
+    public ShaderResourceViewProxy ColorBuffer {
+        get => field ?? throw new InvalidOperationException("ColorBuffer buffer is not initialized.");
+        private set {
+            if (EqualityComparer<ShaderResourceView>.Default.Equals(value,field))
+                return;
+            
+            field?.Dispose();
+            field = value;
+            
+        }
+    }
 
-    /// <summary>
-    ///     The depth stencil buffer
-    /// </summary>
-    public ShaderResourceViewProxy? DepthStencilBuffer => depthStencilBuffer;
+    [AllowNull]
+    public ShaderResourceViewProxy BackBuffer {
+        get => field ?? throw new InvalidOperationException("BackBuffer buffer is not initialized.");
+        private set {
+            if (EqualityComparer<ShaderResourceView>.Default.Equals(value,field))
+                return;
 
-    /// <summary>
-    ///     The depth stencil buffer
-    /// </summary>
-    public ShaderResourceViewProxy? DepthStencilBufferNoMsaa => depthStencilBufferNoMsaa;
+            field?.Dispose();
+            field = value;
+        }
+    }
+
+    ///the depth stencil buffer
+    [AllowNull]
+    public ShaderResourceViewProxy DepthStencilBuffer {
+        get => field ?? throw new InvalidOperationException("DepthStencilBuffer buffer is not initialized.");
+        
+        private set {
+            if (EqualityComparer<ShaderResourceView>.Default.Equals(value,field))
+                return;
+
+            field?.Dispose();
+            field = value;
+        }
+        
+    }
+
+    /// The depth stencil buffer
+    public ShaderResourceViewProxy? DepthStencilBufferNoMsaa {
+        get;
+        private set {
+            if(EqualityComparer<ShaderResourceView>.Default.Equals(value,field))
+                return;
+            
+            field?.Dispose();
+            field = value;
+        }
+    }
 
     /// <summary>
     ///     Gets the d2 d controls.
@@ -78,7 +91,16 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <value>
     ///     The d2 d controls.
     /// </value>
-    public D2DTargetProxy? D2DTarget => D2DTargetInternal;
+    public D2DTargetProxy? D2DTarget {
+        get;
+        protected set {
+            if(EqualityComparer<D2DTargetProxy>.Default.Equals(value,field))
+                return;
+
+            field?.Dispose();
+            field = value;
+        }
+    }
 
     /// <summary>
     ///     Gets or sets the width of the target.
@@ -102,8 +124,17 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <value>
     ///     The device context pool.
     /// </value>
-    public IDeviceContextPool DeviceContextPool
-        => deviceContextPool ?? throw new InvalidOperationException("Render buffer is disposed.");
+    [AllowNull]
+    public IDeviceContextPool DeviceContextPool {
+        get => field ?? throw new InvalidOperationException("Render buffer is disposed.");
+        private set {
+            if(EqualityComparer<IDeviceContextPool>.Default.Equals(value, field))
+                return;
+            field?.Dispose();
+            field = value;
+        }
+    }
+        
 
     /// <summary>
     ///     Gets or sets a value indicating whether this is initialized.
@@ -159,7 +190,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <value>
     ///     <c>true</c> if [use depth stencil buffer]; otherwise, <c>false</c>.
     /// </value>
-    public bool UseDepthStencilBuffer { get; } = true;
+    public bool UseDepthStencilBuffer { get; }
 
     /// <summary>
     ///     Gets or sets the sample description.
@@ -199,18 +230,18 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
                 CpuAccessFlags = CpuAccessFlags.None,
                 ArraySize = 1
             };
-            depthStencilBufferNoMsaa = new ShaderResourceViewProxy(DeviceResources, depthdesc);
-            depthStencilBufferNoMsaa.CreateDepthStencilView(new DepthStencilViewDescription {
+            DepthStencilBufferNoMsaa = new ShaderResourceViewProxy(DeviceResources, depthdesc);
+            DepthStencilBufferNoMsaa.CreateDepthStencilView(new DepthStencilViewDescription {
                 Format = depthFormat.ComputeDsvFormat(),
                 Dimension = DepthStencilViewDimension.Texture2D
             });
-            depthStencilBufferNoMsaa.CreateTextureView(new ShaderResourceViewDescription {
+            DepthStencilBufferNoMsaa.CreateTextureView(new ShaderResourceViewDescription {
                 Format = depthFormat.ComputeSrvFormat(),
                 Dimension = ShaderResourceViewDimension.Texture2D,
                 Texture2D = new ShaderResourceViewDescription.Texture2DResource { MipLevels = 1 }
             });
         } else {
-            depthStencilBufferNoMsaa = depthStencilBuffer;
+            DepthStencilBufferNoMsaa = DepthStencilBuffer;
         }
     }
 
@@ -223,11 +254,14 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         OnCreateRenderTargetAndDepthBuffers(width,
                                             height,
                                             UseDepthStencilBuffer,
-                                            out colorBuffer,
-                                            out depthStencilBuffer);
+                                            out var colorBuffer,
+                                            out var depthStencilBuffer);
+        ColorBuffer = colorBuffer;
+        DepthStencilBuffer = depthStencilBuffer;
+        
         CreateNonMsaaDepthStencilBuffer(width, height);
-        backBuffer = OnCreateBackBuffer(width, height);
-        backBuffer.CreateRenderTargetView();
+        BackBuffer = OnCreateBackBuffer(width, height);
+        BackBuffer.CreateRenderTargetView();
 
         #region Initialize Texture Pool
 
@@ -236,8 +270,8 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         #endregion
 
         Initialized = true;
-        OnNewBufferCreated?.Invoke(this, new Texture2DArgs(backBuffer));
-        return backBuffer;
+        OnNewBufferCreated?.Invoke(this, new Texture2DArgs(BackBuffer));
+        return BackBuffer;
     }
 
     private void InitializeTexturePools(int width, int height) {
@@ -340,11 +374,11 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     protected virtual void DisposeBuffers() {
         DeviceContext2D.Target = null;
         DisposeTexturePools();
-        RemoveAndDispose(ref D2DTargetInternal);
-        RemoveAndDispose(ref colorBuffer);
-        RemoveAndDispose(ref depthStencilBuffer);
-        RemoveAndDispose(ref depthStencilBufferNoMsaa);
-        RemoveAndDispose(ref backBuffer);
+        D2DTarget = null;
+        ColorBuffer = null;
+        DepthStencilBuffer = null;
+        DepthStencilBufferNoMsaa = null;
+        BackBuffer = null;
     }
 
     protected abstract ShaderResourceViewProxy OnCreateBackBuffer(int width, int height);
@@ -439,8 +473,9 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     ///     Sets the default render-targets
     /// </summary>
     public void SetDefaultRenderTargets(DeviceContextProxy.DeviceContextProxy context, bool isColorBuffer = true) {
-        context.SetRenderTargets(isColorBuffer ? depthStencilBuffer : null,
-                                 [isColorBuffer ? colorBuffer : backBuffer]);
+        context.SetRenderTargets(isColorBuffer ? DepthStencilBuffer : null,
+                                 [isColorBuffer ? ColorBuffer : BackBuffer]);
+        
         //context.OutputMerger.SetTargets(depthStencilBuffer, new RenderTargetView[] { isColorBuffer ? colorBuffer : backBuffer });
         context.SetViewport(0, 0, TargetWidth, TargetHeight);
         context.SetScissorRectangle(0, 0, TargetWidth, TargetHeight);
@@ -459,9 +494,8 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="color">The color.</param>
-    public void ClearRenderTarget(DeviceContextProxy.DeviceContextProxy context, Color4 color) {
-        ClearRenderTarget(context, color, true, true);
-    }
+    public void ClearRenderTarget(DeviceContextProxy.DeviceContextProxy context, Color4 color) 
+        => ClearRenderTarget(context, color, clearBackBuffer: true, clearDepthStencilBuffer: true);
 
     /// <summary>
     ///     Clears the buffers with the clear-color
@@ -476,10 +510,10 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         bool clearBackBuffer,
         bool clearDepthStencilBuffer
     ) {
-        if (clearBackBuffer) context.ClearRenderTargetView(colorBuffer, color);
+        if (clearBackBuffer) context.ClearRenderTargetView(ColorBuffer, color);
 
         if (clearDepthStencilBuffer)
-            context.ClearDepthStencilView(depthStencilBuffer,
+            context.ClearDepthStencilView(DepthStencilBuffer,
                                           DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil);
     }
 
@@ -530,7 +564,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         DeviceLost = null;
         DisposeBuffers();
         DisposeTexturePools();
-        RemoveAndDispose(ref deviceContextPool);
+        DeviceContextPool = null;
         Initialized = false;
         base.OnDispose(disposeManagedResources);
     }

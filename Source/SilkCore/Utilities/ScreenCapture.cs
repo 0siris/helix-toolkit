@@ -134,7 +134,7 @@ public static class ScreenCapture {
             var data = context.MapSubresource(stagingTexture, 0, MapMode.Read, MapFlags.None);
             try {
                 if (stagingTexture.Description.Format != Format.FormatB8G8R8A8Unorm) {
-                    Logger.Warn("Screen capture format {Value0} is not supported for WPF encoding.",
+                    Logger.Warn("Screen capture format {Value0} is not supported for WPF encoding",
                         stagingTexture.Description.Format);
                     return false;
                 }

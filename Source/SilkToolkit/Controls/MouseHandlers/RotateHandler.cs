@@ -230,7 +230,8 @@ internal class RotateHandler : MouseGestureHandler {
                 break;
         }
 
-        if (CameraMode == CameraMode.Inspect) Viewport.ShowTargetAdorner(rotationPoint);
+        if (CameraMode == CameraMode.Inspect) 
+            Viewport.ShowTargetAdorner(rotationPoint);
 
         switch (CameraRotationMode) {
             case CameraRotationMode.Trackball:

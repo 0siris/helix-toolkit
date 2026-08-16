@@ -124,7 +124,7 @@ public class ShadowMapNode : SceneNode {
     /// <value>
     ///     <c>true</c> if [automatic cover complete scene]; otherwise, <c>false</c>.
     /// </value>
-    public bool AutoCoverCompleteScene { get; set; } = false;
+    public bool AutoCoverCompleteScene { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the scene is dynamic. Only effective if
@@ -134,7 +134,7 @@ public class ShadowMapNode : SceneNode {
     /// <value>
     ///     <c>true</c> if scene is dynamic; otherwise, <c>false</c>.
     /// </value>
-    public bool IsSceneDynamic { get; set; } = false;
+    public bool IsSceneDynamic { get; set; }
 
     /// <summary>
     ///     Gets or sets the shadow cast scene scale. Only effective if <see cref="AutoCoverCompleteScene" /> is true.
@@ -231,7 +231,7 @@ public class ShadowMapNode : SceneNode {
     private unsafe bool CreateCameraFromBound(ref BoundingBox box, ref Vector3 lookDir) {
         if (box.Maximum == box.Minimum) return false;
         var center = box.Center();
-        var dist = 0.0f;
+        
         var points = stackalloc Vector3[8];
         points[0] = box.Minimum;
         points[1] = box.Maximum;
@@ -242,7 +242,7 @@ public class ShadowMapNode : SceneNode {
         points[6] = new Vector3(box.Minimum.X, box.Maximum.Y, box.Minimum.Z);
         points[7] = new Vector3(box.Maximum.X, box.Minimum.Y, box.Maximum.Z);
         var plane = new Plane(center, lookDir);
-        var farthest = Vector3.Zero;
+        var farthestPoint = Vector3.Zero;
         var farestDist = 0f;
 
         for (var i = 0; i < 8; ++i) {
@@ -253,12 +253,12 @@ public class ShadowMapNode : SceneNode {
             var v = points[i] - t * plane.Normal;
             var vDist = v.Length;
             if (vDist > farestDist) {
-                farthest = points[i];
+                farthestPoint = points[i];
                 farestDist = vDist;
             }
         }
 
-        dist = farestDist * CastSceneScale + 0.1f;
+        var dist = farestDist * CastSceneScale + 0.1f;
         var pos = center + -lookDir * dist;
         orthoCamera.Position = pos;
         orthoCamera.LookDirection = center - pos;

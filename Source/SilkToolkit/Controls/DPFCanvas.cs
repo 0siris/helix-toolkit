@@ -183,7 +183,9 @@ public sealed class DPFCanvas : Image, IRenderCanvas, IDisposable {
     private void EndD3D() => RenderHost.EndD3D();
 
     private void OnIsFrontBufferAvailableChanged(object sender, DependencyPropertyChangedEventArgs e) {
-        if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("OnIsFrontBufferAvailableChanged: {Value0}", (bool)e.NewValue);
+        if (Logger.IsEnabled(LogLevel.Debug)) 
+            Logger.Debug("OnIsFrontBufferAvailableChanged: {Value0}", (bool)e.NewValue);
+        
         // this fires when the screensaver kicks in, the machine goes into sleep or hibernate
         // and any other catastrophic losses of the d3d device from WPF's point of view
         if (true.Equals(e.NewValue))

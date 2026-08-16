@@ -40,20 +40,20 @@ public class Canvas2D : Panel2D {
                     float yPos = 0;
                     var left = GetLeft(element2D);
                     var desired = c.DesiredSize;
-                    if (left != double.PositiveInfinity) {
+                    if (!double.IsPositiveInfinity(left)) {
                         xPos = (float)left;
                     } else {
                         var right = GetRight(element2D);
-                        if (right != double.PositiveInfinity)
+                        if (!double.IsPositiveInfinity(right))
                             xPos = finalSize.Width - desired.X - (float)right;
                     }
 
                     var top = GetTop(element2D);
-                    if (top != double.PositiveInfinity) {
+                    if (!double.IsPositiveInfinity(top)) {
                         yPos = (float)top;
                     } else {
                         var bottom = GetBottom(element2D);
-                        if (bottom != double.PositiveInfinity)
+                        if (!double.IsPositiveInfinity(bottom))
                             yPos = finalSize.Height - desired.Y - (float)bottom;
                     }
 

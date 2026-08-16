@@ -564,7 +564,7 @@ public static class Matrix3DExtensions {
         var m33 = v1.Z * v2.Z;
 
         return new Matrix3D(m11, m12, m13, 0, m21, m22, m23, 0, m31, m32, m33, 0, 0, 0, 0, 0);
-        ;
+        
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

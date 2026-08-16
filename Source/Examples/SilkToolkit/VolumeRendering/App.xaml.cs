@@ -6,5 +6,7 @@ namespace VolumeRendering;
 /// Interaction logic for App.xaml
 /// </summary>
 public partial class App : Application {
-    private NvOptimusEnabler optEnabler = new();
+    public App() {
+        _ = NvOptimusEnabler.Enable();
+    }
 }

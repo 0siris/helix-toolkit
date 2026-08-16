@@ -37,7 +37,7 @@ public sealed class DX11ImageSourceRenderHost : DefaultRenderHost {
 
     protected override void PostRender() {
         if (!hasBackBuffer || surfaceD3D is null) {
-            Logger.Warn("Back buffer is not set.");
+            Logger.Warn("Back buffer is not set");
             return;
         }
 
@@ -46,7 +46,7 @@ public sealed class DX11ImageSourceRenderHost : DefaultRenderHost {
     }
 
     protected override void DisposeBuffers() {
-        Logger.Info("Dispose buffers.");
+        Logger.Info("Dispose buffers");
         if (surfaceD3D is not null) {
             hasBackBuffer = false;
             surfaceD3D.SetRenderTargetDX11(null);
@@ -72,8 +72,8 @@ public sealed class DX11ImageSourceRenderHost : DefaultRenderHost {
         } catch (Exception ex) {
             Logger.Error("Failed to create surfaceD3D. Ex: {Value0}", ex.Message);
             hasBackBuffer = false;
-            if (surfaceD3D is not null)
-                surfaceD3D.IsFrontBufferAvailableChanged -= SurfaceD3D_IsFrontBufferAvailableChanged;
+            surfaceD3D?.IsFrontBufferAvailableChanged -= SurfaceD3D_IsFrontBufferAvailableChanged;
+            
             RemoveAndDispose(ref surfaceD3D);
             hasBackBuffer = false;
             EndD3D();
@@ -85,10 +85,9 @@ public sealed class DX11ImageSourceRenderHost : DefaultRenderHost {
         OnImageSourceChanged?.Invoke(this,
             new DX11ImageSourceArgs(
                 surfaceD3D.AssertNotNull("Image source must be initialized.")));
-        if (hasBackBuffer)
-            Logger.Info("New back buffer is set.");
-        else
-            Logger.Info("Set back buffer failed.");
+        Logger.Info("{Message}", hasBackBuffer
+            ? "New back buffer is set"
+            : "Set back buffer failed");
     }
 
     private void SurfaceD3D_IsFrontBufferAvailableChanged(object? sender, DependencyPropertyChangedEventArgs e) {
@@ -115,7 +114,7 @@ public sealed class DX11ImageSourceRenderHost : DefaultRenderHost {
                     ReinitializeEffectsManager();
                 }
             } catch (Exception ex) {
-                Logger.Error(ex.Message);
+                Logger.Error("{ExceptionMessage}",ex.Message);
             }
         } else {
             frontBufferChange = true;

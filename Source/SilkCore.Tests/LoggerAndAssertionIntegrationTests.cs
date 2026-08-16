@@ -34,7 +34,6 @@ public sealed class LoggerAndAssertionIntegrationTests {
                 null,
                 (_, _) => "formatted fallback");
 
-            logger.Dispose();
         } finally {
             LogManager.Factory = previousFactory;
             Logger.Use(NullLogger.Instance);

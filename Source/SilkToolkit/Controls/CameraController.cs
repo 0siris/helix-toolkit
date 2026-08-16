@@ -29,7 +29,6 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 ///     Provides a control that manipulates the camera by mouse and keyboard gestures.
 /// </summary>
 public class CameraController {
-    private static readonly Point PointZero = new(0, 0);
     private static readonly Vector2 VectorZero = new();
     private static readonly Vector3 Vector3DZero = new();
 
@@ -496,7 +495,7 @@ public class CameraController {
     /// <value>
     ///     <c>true</c> if [fixed rotation point enabled]; otherwise, <c>false</c>.
     /// </value>
-    public bool FixedRotationPointEnabled { get; set; } = false;
+    public bool FixedRotationPointEnabled { get; set; }
 
     /// <summary>
     ///     Gets or sets the fixed rotation point.
@@ -504,7 +503,7 @@ public class CameraController {
     /// <value>
     ///     The fixed rotation point.
     /// </value>
-    public Vector3 FixedRotationPoint { get; set; } = new();
+    public Vector3 FixedRotationPoint { get; set; }
 
     /// <summary>
     ///     Gets or sets to allow rotate x direction and y direction globally. X, Y is screen space.
@@ -811,7 +810,7 @@ public class CameraController {
     }
 
     /// <summary>
-    ///     Called when the <see cref="E:System.Windows.UIElement.ManipulationCompleted" /> event occurs.
+    ///     Called when the <see cref="System.Windows.UIElement.ManipulationCompleted" /> event occurs.
     /// </summary>
     /// <param name="e">
     ///     The data for the event.
@@ -827,7 +826,7 @@ public class CameraController {
     }
 
     /// <summary>
-    ///     Called when the <see cref="E:System.Windows.UIElement.ManipulationDelta" /> event occurs.
+    ///     Called when the <see cref="System.Windows.UIElement.ManipulationDelta" /> event occurs.
     /// </summary>
     /// <param name="e">
     ///     The data for the event.
@@ -928,7 +927,7 @@ public class CameraController {
     }
 
     /// <summary>
-    ///     Called when the <see cref="E:System.Windows.UIElement.ManipulationStarted" /> event occurs.
+    ///     Called when the <see cref="System.Windows.UIElement.ManipulationStarted" /> event occurs.
     /// </summary>
     /// <param name="e">
     ///     The data for the event.
@@ -963,7 +962,7 @@ public class CameraController {
     ///     Implement this method to add class handling for this event.
     /// </summary>
     /// <param name="e">
-    ///     The <see cref="T:System.Windows.Input.MouseButtonEventArgs" /> that contains the event data. This event data
+    ///     The <see cref="System.Windows.Input.MouseButtonEventArgs" /> that contains the event data. This event data
     ///     reports details about the mouse button that was pressed and the handled state.
     /// </param>
     public void OnMouseDown(MouseButtonEventArgs e) {
@@ -975,7 +974,7 @@ public class CameraController {
     ///     this class. Implement this method to add class handling for this event.
     /// </summary>
     /// <param name="e">
-    ///     The <see cref="T:System.Windows.Input.StylusSystemGestureEventArgs" /> that contains the event data.
+    ///     The <see cref="System.Windows.Input.StylusSystemGestureEventArgs" /> that contains the event data.
     /// </param>
     public void OnStylusSystemGesture(StylusSystemGestureEventArgs e) {
         // Debug.WriteLine("OnStylusSystemGesture: " + e.SystemGesture);
@@ -1001,9 +1000,8 @@ public class CameraController {
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void BackViewHandler(object sender, ExecutedRoutedEventArgs e) {
-        ChangeDirection(new Vector3(1, 0, 0), new Vector3(0, 0, 1));
-    }
+    private void BackViewHandler(object sender, ExecutedRoutedEventArgs e) 
+        => ChangeDirection(new Vector3(1, 0, 0), new Vector3(0, 0, 1));
 
     /// <summary>
     ///     The bottom view event handler.
@@ -1014,9 +1012,8 @@ public class CameraController {
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void BottomViewHandler(object sender, ExecutedRoutedEventArgs e) {
-        ChangeDirection(new Vector3(0, 0, 1), new Vector3(0, -1, 0));
-    }
+    private void BottomViewHandler(object sender, ExecutedRoutedEventArgs e) 
+        => ChangeDirection(new Vector3(0, 0, 1), new Vector3(0, -1, 0));
 
     /// <summary>
     ///     Clamps the specified value between the limits.
@@ -1078,9 +1075,8 @@ public class CameraController {
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void FrontViewHandler(object sender, ExecutedRoutedEventArgs e) {
-        ChangeDirection(new Vector3(-1, 0, 0), new Vector3(0, 0, 1));
-    }
+    private void FrontViewHandler(object sender, ExecutedRoutedEventArgs e) 
+        => ChangeDirection(new Vector3(-1, 0, 0), new Vector3(0, 0, 1));
 
     /// <summary>
     ///     Initializes the input bindings.
@@ -1110,9 +1106,8 @@ public class CameraController {
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void LeftViewHandler(object sender, ExecutedRoutedEventArgs e) {
-        ChangeDirection(new Vector3(0, 1, 0), new Vector3(0, 0, 1));
-    }
+    private void LeftViewHandler(object sender, ExecutedRoutedEventArgs e) 
+        => ChangeDirection(new Vector3(0, 1, 0), new Vector3(0, 0, 1));
 
     /// <summary>
     ///     The on camera changed.
@@ -1307,16 +1302,14 @@ public class CameraController {
     /// <summary>
     ///     The on viewport changed.
     /// </summary>
-    private void OnViewportChanged() {
-        InitializeBindings();
-    }
+    private void OnViewportChanged() 
+        => InitializeBindings();
 
     /// <summary>
     ///     The refresh viewport.
     /// </summary>
-    private void RefreshViewport() {
-        Viewport.InvalidateRender();
-    }
+    private void RefreshViewport() 
+        => Viewport.InvalidateRender();
 
     /// <summary>
     ///     The reset camera event handler.
@@ -1343,9 +1336,8 @@ public class CameraController {
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void RightViewHandler(object sender, ExecutedRoutedEventArgs e) {
-        ChangeDirection(new Vector3(0, -1, 0), new Vector3(0, 0, 1));
-    }
+    private void RightViewHandler(object sender, ExecutedRoutedEventArgs e) 
+        => ChangeDirection(new Vector3(0, -1, 0), new Vector3(0, 0, 1));
 
     /// <summary>
     ///     The stop animations.
@@ -1365,9 +1357,8 @@ public class CameraController {
     /// <param name="e">
     ///     The event arguments.
     /// </param>
-    private void TopViewHandler(object sender, ExecutedRoutedEventArgs e) {
-        ChangeDirection(new Vector3(0, 0, -1), new Vector3(0, 1, 0));
-    }
+    private void TopViewHandler(object sender, ExecutedRoutedEventArgs e) 
+        => ChangeDirection(new Vector3(0, 0, -1), new Vector3(0, 1, 0));
 
     /// <summary>
     ///     The Zoom extents event handler.

@@ -220,10 +220,10 @@ public class Trackball {
     private void Zoom(Point currentPosition) {
         var yDelta = currentPosition.Y - previousPosition2D.Y;
 
-        var scale = zoomFactor * Math.Exp(-yDelta / 100); // e^(yDelta/100) is fairly arbitrary.
+        var s = zoomFactor * Math.Exp(-yDelta / 100); // e^(yDelta/100) is fairly arbitrary.
 
-        this.scale.ScaleX *= scale;
-        this.scale.ScaleY *= scale;
-        this.scale.ScaleZ *= scale;
+        scale.ScaleX *= s;
+        scale.ScaleY *= s;
+        scale.ScaleZ *= s;
     }
 }

@@ -20,7 +20,7 @@ using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
-using GeometryModel3D = HelixToolkit.Wpf.SharpDX.Element3D.Abstract.GeometryModel3D;
+using static HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D.Element3D;
 using ProjectionCamera = HelixToolkit.Wpf.SharpDX.Camera.ProjectionCamera;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfColor = System.Windows.Media.Color;
@@ -2932,24 +2932,24 @@ public partial class Viewport3DX {
     ///     Provide CLR accessors for the event
     /// </summary>
     public event RoutedEventHandler MouseDown3D {
-        add => AddHandler(GeometryModel3D.MouseDown3DEvent, value);
-        remove => RemoveHandler(GeometryModel3D.MouseDown3DEvent, value);
+        add => AddHandler(MouseDown3DEvent, value);
+        remove => RemoveHandler(MouseDown3DEvent, value);
     }
 
     /// <summary>
     ///     Provide CLR accessors for the event
     /// </summary>
     public event RoutedEventHandler MouseUp3D {
-        add => AddHandler(GeometryModel3D.MouseUp3DEvent, value);
-        remove => RemoveHandler(GeometryModel3D.MouseUp3DEvent, value);
+        add => AddHandler(MouseUp3DEvent, value);
+        remove => RemoveHandler(MouseUp3DEvent, value);
     }
 
     /// <summary>
     ///     Provide CLR accessors for the event
     /// </summary>
     public event RoutedEventHandler MouseMove3D {
-        add => AddHandler(GeometryModel3D.MouseMove3DEvent, value);
-        remove => RemoveHandler(GeometryModel3D.MouseMove3DEvent, value);
+        add => AddHandler(MouseMove3DEvent, value);
+        remove => RemoveHandler(MouseMove3DEvent, value);
     }
 
     /// <summary>

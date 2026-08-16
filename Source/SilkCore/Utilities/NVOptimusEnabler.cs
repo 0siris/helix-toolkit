@@ -1,27 +1,30 @@
-using System.Runtime.InteropServices;
-
 namespace HelixToolkit.SharpDX.Core.Utilities;
 #if !WINDOWS_UWP
 /// <summary>
 ///     Enable dedicated graphics card for rendering.
 ///     https://stackoverflow.com/questions/17270429/forcing-hardware-accelerated-rendering
 /// </summary>
-public sealed class NvOptimusEnabler {
-    static NvOptimusEnabler() {
+public static class NvOptimusEnabler {
+    public static int Enable() {
         try {
-            if (Environment.Is64BitProcess)
-                NativeMethods.LoadNvApi64();
-            else
-                NativeMethods.LoadNvApi32();
-        } catch { } // will always fail since 'fake' entry point doesn't exists
+            return Environment.Is64BitProcess
+                ? NativeMethods.LoadNvApi64()
+                : NativeMethods.LoadNvApi32();
+        } catch {
+            // will always fail since 'fake' entry point doesn't exists
+            LoggerLib.Logger.Error("Failed to load NVAPI");
+        }
+
+        return -1;
     }
 }
 
-internal static class NativeMethods {
-    [DllImport("nvapi64.dll", EntryPoint = "fake")]
-    internal static extern int LoadNvApi64();
+internal static partial class NativeMethods {
+    [System.Runtime.InteropServices.LibraryImport("nvapi64.dll", EntryPoint = "fake")]
+    internal static partial int LoadNvApi64();
 
-    [DllImport("nvapi.dll", EntryPoint = "fake")]
-    internal static extern int LoadNvApi32();
+    [System.Runtime.InteropServices.LibraryImport("nvapi.dll", EntryPoint = "fake")]
+    internal static partial int LoadNvApi32();
 }
+
 #endif

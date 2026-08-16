@@ -21,7 +21,7 @@ public class TextureFileLoader : ITextureInfoLoader {
     public string FilePath { get; }
 
     public void Complete(Guid id, TextureInfo info, bool succeeded) {
-        if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("Disposing file stream: {Value0}.", FilePath);
+        if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("Disposing file stream: {Value0}", FilePath);
         fileStream.Dispose();
     }
 

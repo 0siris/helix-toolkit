@@ -27,18 +27,20 @@ public class AssimpImportExportTests {
         Assert.Empty(importedScene.Root.Items);
     }
 
+    private static readonly int[] expected = [0, 1, 2];
+
     [Theory]
     [InlineData(MaterialType.BlinnPhong, typeof(PhongMaterialCore))]
     [InlineData(MaterialType.Pbr, typeof(PbrMaterialCore))]
     [InlineData(MaterialType.Diffuse, typeof(DiffuseMaterialCore))]
     [Trait("Category", "Unit")]
     public void InMemoryTriangleImportsRequestedMaterial(MaterialType materialType, Type expectedType) {
-        using var importer = new HxImporter {
-            Configuration = new ImporterConfiguration {
-                BuildOctree = false,
-                ImportMaterialType = materialType
-            }
+        var config = new ImporterConfiguration {
+            BuildOctree = false,
+            ImportMaterialType = materialType
         };
+        using var importer = new HxImporter();
+        importer.Configuration = config;
 
         var result = importer.ToHelixToolkitScene(CreateTriangleScene(), out var scene);
         Assert.Equal(ErrorCode.Succeed, result);
@@ -49,7 +51,7 @@ public class AssimpImportExportTests {
 
         Assert.IsType(expectedType, mesh.Material);
         Assert.Equal(3, (geometry.Positions ?? throw new InvalidOperationException()).Count);
-        Assert.Equal(new[] {0, 1, 2}, geometry.Indices ?? throw new InvalidOperationException());
+        Assert.Equal(expected, geometry.Indices ?? throw new InvalidOperationException());
         Assert.Equal(3, (geometry.Normals ?? throw new InvalidOperationException()).Count);
         Assert.Equal(3, (geometry.TextureCoordinates ?? throw new InvalidOperationException()).Count);
     }
@@ -86,10 +88,9 @@ public class AssimpImportExportTests {
     [Trait("Category", "Unit")]
     public void HelixAssimpHelixRoundTripPreservesStructure() {
         var source = CreateRichTriangleScene();
-        using var importer = new HxImporter {
-            Configuration = new ImporterConfiguration {
-                BuildOctree = false
-            }
+        using var importer = new HxImporter();
+        importer.Configuration = new ImporterConfiguration {
+            BuildOctree = false
         };
         Assert.Equal(ErrorCode.Succeed, importer.ToHelixToolkitScene(source, out var first));
         var firstScene = first ?? throw new InvalidOperationException("A successful import must return a scene.");
@@ -164,11 +165,10 @@ public class AssimpImportExportTests {
                 + "vt 0 0\nvt 1 0\nvt 0 1\n"
                 + "usemtl Material\nf 1/1 2/2 3/3\n");
 
-            using var importer = new HxImporter {
-                Configuration = new ImporterConfiguration {
-                    BuildOctree = false,
-                    ImportMaterialType = MaterialType.BlinnPhong
-                }
+            using var importer = new HxImporter();
+            importer.Configuration = new ImporterConfiguration {
+                BuildOctree = false,
+                ImportMaterialType = MaterialType.BlinnPhong
             };
             var first = importer.Load(source)
                         ?? throw new InvalidOperationException("A successful import must return a scene.");

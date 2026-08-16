@@ -163,9 +163,9 @@ internal class MorphTargetUploaderCore : RenderCore {
 
     public void BindBuffers(DeviceContextProxy devCtx, int weightsSlot, int deltasSlot, int offsetsSlot) {
         if (HasMorphTarget && MtWeightsB is { } weightsBuffer) {
-            devCtx.SetShaderResource(VertexShader.Type, weightsSlot, weightsBuffer);
-            devCtx.SetShaderResource(VertexShader.Type, deltasSlot, MtDeltasSrv);
-            devCtx.SetShaderResource(VertexShader.Type, offsetsSlot, MtOffsetsSrv);
+            devCtx.SetShaderResource<VertexShaderType>(weightsSlot, weightsBuffer);
+            devCtx.SetShaderResource<VertexShaderType>(deltasSlot, MtDeltasSrv);
+            devCtx.SetShaderResource<VertexShaderType>( offsetsSlot, MtOffsetsSrv);
         }
     }
 

@@ -27,9 +27,9 @@ public class Texture1D : Texture1DBase {
         GraphicsDevice ?? throw new InvalidOperationException("The texture has no graphics device."), Description);
 
     /// <summary>
-    ///     Creates a new texture from a <see cref="Texture1DDescription" />.
+    ///     Creates a new texture from a <see cref="NativeTexture1DDescription" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="description">The description.</param>
     /// <returns>
     ///     A new instance of <see cref="Texture1D" /> class.
@@ -40,13 +40,14 @@ public class Texture1D : Texture1DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture1D** ppTexture1D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
-    public static Texture1D New(NativeD3DDevice device, NativeTexture1DDescription description) => new(device, description);
+    public static Texture1D New(NativeD3DDevice device, NativeTexture1DDescription description) 
+        => new(device, description);
 
     /// <summary>
-    ///     Creates a new texture from a <see cref="Direct3D11.Texture1D" />.
+    ///     Creates a new texture from a <see cref="NativeD3DTexture1D" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
-    /// <param name="texture">The native texture <see cref="Direct3D11.Texture1D" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
+    /// <param name="texture">The native texture <see cref="NativeD3DTexture1D" />.</param>
     /// <returns>
     ///     A new instance of <see cref="Texture1D" /> class.
     /// </returns>
@@ -56,12 +57,13 @@ public class Texture1D : Texture1DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture1D** ppTexture1D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
-    public static Texture1D New(NativeD3DDevice device, NativeD3DTexture1D texture) => new(device, texture);
+    public static Texture1D New(NativeD3DDevice device, NativeD3DTexture1D texture) 
+        => new(device, texture);
 
     /// <summary>
     ///     Creates a new <see cref="Texture1D" /> with a single mipmap.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="format">Describes the format to use.</param>
     /// <param name="usage">The usage.</param>
@@ -89,7 +91,7 @@ public class Texture1D : Texture1DBase {
     /// <summary>
     ///     Creates a new <see cref="Texture1D" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="mipCount">
     ///     Number of mipmaps, set to true to have all mipmaps, set to an int >=1 for a particular mipmap
@@ -123,7 +125,7 @@ public class Texture1D : Texture1DBase {
     ///     Creates a new <see cref="Texture1D" /> with a single level of mipmap.
     /// </summary>
     /// <typeparam name="T">Type of the initial data to upload to the texture</typeparam>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="format">Describes the format to use.</param>
     /// <param name="usage">The usage.</param>
@@ -158,7 +160,7 @@ public class Texture1D : Texture1DBase {
     /// <summary>
     ///     Creates a new <see cref="Texture1D" /> directly from an <see cref="Image" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="image">An image in CPU memory.</param>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">The usage.</param>
@@ -176,7 +178,7 @@ public class Texture1D : Texture1DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         if (image.Description.Dimension != TextureDimension.Texture1D)
-            throw new ArgumentException("Invalid image. Must be 1D", "image");
+            throw new ArgumentException("Invalid image. Must be 1D", nameof(image));
 
         return new Texture1D(device, CreateTextureDescriptionFromImage(image, flags, usage), image.ToDataBox());
     }
@@ -184,7 +186,7 @@ public class Texture1D : Texture1DBase {
     /// <summary>
     ///     Loads a 1D texture from a stream.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="stream">The stream to load the texture from.</param>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
@@ -205,7 +207,7 @@ public class Texture1D : Texture1DBase {
     /// <summary>
     ///     Loads a 1D texture from a stream.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="filePath">The file to load the texture from.</param>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>

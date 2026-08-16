@@ -9,12 +9,12 @@ namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 ///     A TextureCube front end to the native D3D Texture2D.
 /// </summary>
 public class TextureCube : Texture2DBase {
-    internal TextureCube(NativeD3DDevice device, NativeTexture2DDescription description2D, params DataBox[] dataBoxes) :
+    private TextureCube(NativeD3DDevice device, NativeTexture2DDescription description2D, params DataBox[] dataBoxes) :
         base(device, description2D, dataBoxes) {
         Initialize(Resource);
     }
 
-    internal TextureCube(NativeD3DDevice device, NativeD3DTexture2D texture) : base(device, texture) {
+    private TextureCube(NativeD3DDevice device, NativeD3DTexture2D texture) : base(device, texture) {
         Initialize(Resource);
     }
 
@@ -44,7 +44,8 @@ public class TextureCube : Texture2DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static TextureCube New(NativeD3DDevice device, NativeTexture2DDescription description) => new(device, description);
+    public static TextureCube New(NativeD3DDevice device, NativeTexture2DDescription description) 
+        => new(device, description);
 
     /// <summary>
     ///     Creates a new texture from a <see cref="Direct3D11.Texture2D" />.
@@ -60,7 +61,8 @@ public class TextureCube : Texture2DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static TextureCube New(NativeD3DDevice device, NativeD3DTexture2D texture) => new(device, texture);
+    public static TextureCube New(NativeD3DDevice device, NativeD3DTexture2D texture) 
+        => new(device, texture);
 
     /// <summary>
     ///     Creates a new <see cref="TextureCube" />.
@@ -155,7 +157,7 @@ public class TextureCube : Texture2DBase {
     )
         where T : unmanaged {
         if (textureData.Length != 6)
-            throw new ArgumentException("Invalid texture data. First dimension must be equal to 6", "textureData");
+            throw new ArgumentException("Invalid texture data. First dimension must be equal to 6", nameof(textureData));
 
         var dataBox1 = new DataBox();
         var dataBox2 = new DataBox();
@@ -210,7 +212,7 @@ public class TextureCube : Texture2DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         if (textureData.Length != 6)
-            throw new ArgumentException("Invalid texture data. First dimension must be equal to 6", "textureData");
+            throw new ArgumentException("Invalid texture data. First dimension must be equal to 6", nameof(textureData));
 
         return new TextureCube(device,
                                NewTextureCubeDescription(size, format, flags | TextureFlags.ShaderResource, 1, usage),
@@ -238,7 +240,7 @@ public class TextureCube : Texture2DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         if (image.Description.Dimension != TextureDimension.TextureCube)
-            throw new ArgumentException("Invalid image. Must be Cube", "image");
+            throw new ArgumentException("Invalid image. Must be Cube", nameof(image));
 
         return new TextureCube(device,
                                CreateTextureDescriptionFromImage(image, flags | TextureFlags.ShaderResource, usage),

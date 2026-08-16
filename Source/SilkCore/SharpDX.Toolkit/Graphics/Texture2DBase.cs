@@ -16,7 +16,7 @@ public abstract class Texture2DBase : Texture {
     /// <summary>
     ///     Initializes a new instance of the <see cref="Texture2DBase" /> class.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="description2D">The description.</param>
     /// <msdn-id>ff476521</msdn-id>
     /// <unmanaged>
@@ -33,7 +33,7 @@ public abstract class Texture2DBase : Texture {
     /// <summary>
     ///     Initializes a new instance of the <see cref="Texture2DBase" /> class.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="description2D">The description.</param>
     /// <param name="dataBoxes">A variable-length parameters list containing data rectangles.</param>
     /// <msdn-id>ff476521</msdn-id>
@@ -55,7 +55,7 @@ public abstract class Texture2DBase : Texture {
     /// <summary>
     ///     Specialised constructor for use only by derived classes.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="texture">The texture.</param>
     /// <msdn-id>ff476521</msdn-id>
     /// <unmanaged>
@@ -64,7 +64,8 @@ public abstract class Texture2DBase : Texture {
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
     protected internal Texture2DBase(NativeD3DDevice device, NativeD3DTexture2D texture)
-        : base(device, texture.Description) {
+        : base(device, texture.Description)
+    {
         Resource = texture;
         Initialize(Resource);
     }

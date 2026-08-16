@@ -63,7 +63,7 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
         get => name;
         set {
             if (isNameImmutable)
-                throw new ArgumentException("Name property is immutable for this instance", "value");
+                throw new ArgumentException("Name property is immutable for this instance", nameof(value));
             if (name == value)
                 return;
             name = value;

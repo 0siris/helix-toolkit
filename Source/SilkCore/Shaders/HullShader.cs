@@ -11,9 +11,8 @@ using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 namespace HelixToolkit.SharpDX.Core.Shaders;
 /// <summary>
 /// </summary>
-public sealed class HullShader : ShaderBase {
+public sealed class HullShader : ShaderBase, IShaderType {
     public static readonly HullShader NullHullShader = new("NULL");
-    public static readonly HullShaderType Type;
     private HullShaderHandle? shader;
 
     /// <summary>
@@ -49,5 +48,7 @@ public sealed class HullShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator HullShaderType(HullShader s) => Type;
+    public static implicit operator HullShaderType(HullShader s) => new ();
+
+    public static int Index => Constants.HullIdx;
 }

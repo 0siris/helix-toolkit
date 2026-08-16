@@ -147,9 +147,10 @@ public sealed class Image : Component {
     /// </summary>
     /// <param name="disposeManagedResources"></param>
     protected override void Dispose(bool disposeManagedResources) {
-        if (handle.HasValue) handle.Value.Free();
+        handle?.Free();
 
-        if (bufferIsDisposable) Utilities.FreeMemory(buffer);
+        if (bufferIsDisposable)
+            Utilities.FreeMemory(buffer);
 
         base.Dispose(disposeManagedResources);
     }
@@ -159,7 +160,8 @@ public sealed class Image : Component {
     /// </summary>
     /// <param name="mipmap">The mipmap.</param>
     /// <returns>A description of a particular mipmap for this texture.</returns>
-    public MipMapDescription GetMipMapDescription(int mipmap) => mipmapDescriptions[mipmap];
+    public MipMapDescription GetMipMapDescription(int mipmap) 
+        => mipmapDescriptions[mipmap];
 
     /// <summary>
     ///     Gets the pixel buffer for the specified array/z slice and mipmap level.
@@ -174,18 +176,18 @@ public sealed class Image : Component {
     public PixelBuffer GetPixelBuffer(int arrayOrZSliceIndex, int mipmap) {
         // Check for parameters, as it is easy to mess up things...
         if (mipmap > Description.MipLevels)
-            throw new ArgumentException("Invalid mipmap level", "mipmap");
+            throw new ArgumentException("Invalid mipmap level", nameof(mipmap));
 
         if (Description.Dimension == TextureDimension.Texture3D) {
             if (arrayOrZSliceIndex > Description.Depth)
-                throw new ArgumentException("Invalid z slice index", "arrayOrZSliceIndex");
+                throw new ArgumentException("Invalid z slice index", nameof(arrayOrZSliceIndex));
 
             // For 3D textures
             return GetPixelBufferUnsafe(0, arrayOrZSliceIndex, mipmap);
         }
 
         if (arrayOrZSliceIndex > Description.ArraySize)
-            throw new ArgumentException("Invalid array slice index", "arrayOrZSliceIndex");
+            throw new ArgumentException("Invalid array slice index", nameof(arrayOrZSliceIndex));
 
         // For 1D, 2D textures
         return GetPixelBufferUnsafe(arrayOrZSliceIndex, 0, mipmap);
@@ -202,13 +204,13 @@ public sealed class Image : Component {
     public PixelBuffer GetPixelBuffer(int arrayIndex, int zIndex, int mipmap) {
         // Check for parameters, as it is easy to mess up things...
         if (mipmap > Description.MipLevels)
-            throw new ArgumentException("Invalid mipmap level", "mipmap");
+            throw new ArgumentException("Invalid mipmap level", nameof(mipmap));
 
         if (arrayIndex > Description.ArraySize)
-            throw new ArgumentException("Invalid array slice index", "arrayIndex");
+            throw new ArgumentException("Invalid array slice index", nameof(arrayIndex));
 
         if (zIndex > Description.Depth)
-            throw new ArgumentException("Invalid z slice index", "zIndex");
+            throw new ArgumentException("Invalid z slice index", nameof(zIndex));
 
         return GetPixelBufferUnsafe(arrayIndex, zIndex, mipmap);
     }
@@ -225,8 +227,8 @@ public sealed class Image : Component {
     /// <param name="saver">The saver delegate (can be null).</param>
     /// <exception cref="System.ArgumentException"></exception>
     public static void Register(ImageFileType type, ImageLoadDelegate? loader, ImageSaveDelegate? saver) {
-        // If reference equals, then it is null
-        if (ReferenceEquals(loader, saver))
+        // only one can be null
+        if(loader is null && saver is null)
             throw new ArgumentNullException("loader/saver", "Can set both loader and saver to null");
 
         var newDelegate = new LoadSaveDelegate(type, loader, saver);
@@ -283,7 +285,8 @@ public sealed class Image : Component {
     /// <param name="format">The format.</param>
     /// <param name="arraySize">Size of the array.</param>
     /// <returns>A new image.</returns>
-    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1) => New1D(width, mipMapCount, format, arraySize, nint.Zero);
+    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1)
+        => New1D(width, mipMapCount, format, arraySize, nint.Zero);
 
     /// <summary>
     ///     Creates a new instance of a 2D <see cref="Image" />.
@@ -294,7 +297,8 @@ public sealed class Image : Component {
     /// <param name="format">The format.</param>
     /// <param name="arraySize">Size of the array.</param>
     /// <returns>A new image.</returns>
-    public static Image New2D(int width, int height, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1) => New2D(width, height, mipMapCount, format, arraySize, nint.Zero);
+    public static Image New2D(int width, int height, MipMapCount mipMapCount, PixelFormat format, int arraySize = 1) 
+        => New2D(width, height, mipMapCount, format, arraySize, nint.Zero);
 
     /// <summary>
     ///     Creates a new instance of a Cube <see cref="Image" />.
@@ -303,7 +307,8 @@ public sealed class Image : Component {
     /// <param name="mipMapCount">The mip map count.</param>
     /// <param name="format">The format.</param>
     /// <returns>A new image.</returns>
-    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format) => NewCube(width, mipMapCount, format, nint.Zero);
+    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format) 
+        => NewCube(width, mipMapCount, format, nint.Zero);
 
     /// <summary>
     ///     Creates a new instance of a 3D <see cref="Image" />.
@@ -314,7 +319,8 @@ public sealed class Image : Component {
     /// <param name="mipMapCount">The mip map count.</param>
     /// <param name="format">The format.</param>
     /// <returns>A new image.</returns>
-    public static Image New3D(int width, int height, int depth, MipMapCount mipMapCount, PixelFormat format) => New3D(width, height, depth, mipMapCount, format, nint.Zero);
+    public static Image New3D(int width, int height, int depth, MipMapCount mipMapCount, PixelFormat format) 
+        => New3D(width, height, depth, mipMapCount, format, nint.Zero);
 
     /// <summary>
     ///     Creates a new instance of <see cref="Image" /> from an image description.
@@ -333,7 +339,8 @@ public sealed class Image : Component {
     /// <param name="arraySize">Size of the array.</param>
     /// <param name="dataPointer">Pointer to an existing buffer.</param>
     /// <returns>A new image.</returns>
-    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize, nint dataPointer) => new(CreateDescription(TextureDimension.Texture1D, width, 1, 1, mipMapCount, format, arraySize),
+    public static Image New1D(int width, MipMapCount mipMapCount, PixelFormat format, int arraySize, nint dataPointer) 
+        => new(CreateDescription(TextureDimension.Texture1D, width, 1, 1, mipMapCount, format, arraySize),
         dataPointer,
         0,
         null,
@@ -372,7 +379,8 @@ public sealed class Image : Component {
     /// <param name="format">The format.</param>
     /// <param name="dataPointer">Pointer to an existing buffer.</param>
     /// <returns>A new image.</returns>
-    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format, nint dataPointer) => new(CreateDescription(TextureDimension.TextureCube, width, width, 1, mipMapCount, format, 6),
+    public static Image NewCube(int width, MipMapCount mipMapCount, PixelFormat format, nint dataPointer) 
+        => new(CreateDescription(TextureDimension.TextureCube, width, width, 1, mipMapCount, format, 6),
         dataPointer,
         0,
         null,
@@ -433,7 +441,8 @@ public sealed class Image : Component {
     ///     pointer and will release it on Dispose.
     ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
-    public static Image? Load(nint dataPointer, int dataSize, bool makeACopy = false) => Load(dataPointer, dataSize, makeACopy, null);
+    public static Image? Load(nint dataPointer, int dataSize, bool makeACopy = false) 
+        => Load(dataPointer, dataSize, makeACopy, null);
 
     /// <summary>
     ///     Loads an image from a managed buffer.
@@ -554,8 +563,7 @@ public sealed class Image : Component {
         }
 
         // Calculate mipmaps
-        int pixelBufferCount;
-        mipMapToZIndex = CalculateImageArray(description, pitchFlags, out pixelBufferCount, out totalSizeInBytes);
+        mipMapToZIndex = CalculateImageArray(description, pitchFlags, out var pixelBufferCount, out totalSizeInBytes);
         mipmapDescriptions = CalculateMipMapDescription(description, pitchFlags);
         zBufferCountPerArraySlice = mipMapToZIndex[mipMapToZIndex.Count - 1];
 
@@ -687,10 +695,7 @@ public sealed class Image : Component {
         var mipmaps = new MipMapDescription[metadata.MipLevels];
 
         for (var level = 0; level < metadata.MipLevels; ++level) {
-            int rowPitch, slicePitch;
-            int widthPacked;
-            int heightPacked;
-            ComputePitch(metadata.Format, w, h, out rowPitch, out slicePitch, out widthPacked, out heightPacked);
+            ComputePitch(metadata.Format, w, h, out var rowPitch, out var slicePitch, out var widthPacked, out var heightPacked);
 
             mipmaps[level] = new MipMapDescription(w,
                                                    h,
@@ -740,16 +745,13 @@ public sealed class Image : Component {
             var d = imageDesc.Depth;
 
             for (var i = 0; i < imageDesc.MipLevels; i++) {
-                int rowPitch, slicePitch;
-                int widthPacked;
-                int heightPacked;
                 ComputePitch(imageDesc.Format,
                              w,
                              h,
-                             out rowPitch,
-                             out slicePitch,
-                             out widthPacked,
-                             out heightPacked,
+                             out _,
+                             out var slicePitch,
+                             out _,
+                             out _,
                              pitchFlags);
 
                 // Store the number of z-slices per miplevel
@@ -801,16 +803,13 @@ public sealed class Image : Component {
             var d = imageDesc.Depth;
 
             for (uint level = 0; level < imageDesc.MipLevels; ++level) {
-                int rowPitch, slicePitch;
-                int widthPacked;
-                int heightPacked;
                 ComputePitch(imageDesc.Format,
                              w,
                              h,
-                             out rowPitch,
-                             out slicePitch,
-                             out widthPacked,
-                             out heightPacked,
+                             out var rowPitch,
+                             out var slicePitch,
+                             out _,
+                             out _,
                              pitchFlags);
 
                 for (uint zSlice = 0; zSlice < d; ++zSlice) {
@@ -845,39 +844,22 @@ public sealed class Image : Component {
         var extension = Path.GetExtension(fileName);
 
         ImageFileType fileType;
-        extension = extension.TrimStart('.').ToLower();
-        switch (extension) {
-            case "jpg":
-                fileType = ImageFileType.Jpg;
-                break;
-            case "dds":
-                fileType = ImageFileType.Dds;
-                break;
-            case "gif":
-                fileType = ImageFileType.Gif;
-                break;
-            case "bmp":
-                fileType = ImageFileType.Bmp;
-                break;
-            case "png":
-                fileType = ImageFileType.Png;
-                break;
-            case "tga":
-                fileType = ImageFileType.Tga;
-                break;
-            case "tiff":
-                fileType = ImageFileType.Tiff;
-                break;
-            case "tktx":
-                fileType = ImageFileType.Tktx;
-                break;
-            case "wmp":
-                fileType = ImageFileType.Wmp;
-                break;
-            default:
-                throw new ArgumentException(
-                    "Filename must have a supported image extension: dds, bmp, jpg, png, gif, tiff, wmp, tga");
-        }
+        extension = extension.TrimStart('.')
+            .ToLower(System.Globalization.CultureInfo.InvariantCulture);
+
+        fileType = extension switch {
+            "jpg" => ImageFileType.Jpg,
+            "dds" => ImageFileType.Dds,
+            "gif" => ImageFileType.Gif,
+            "bmp" => ImageFileType.Bmp,
+            "png" => ImageFileType.Png,
+            "tga" => ImageFileType.Tga,
+            "tiff" => ImageFileType.Tiff,
+            "tktx" => ImageFileType.Tktx,
+            "wmp" => ImageFileType.Wmp,
+            _ => throw new ArgumentException(
+                "Filename must have a supported image extension: dds, bmp, jpg, png, gif, tiff, wmp, tga")
+        };
 
         Save(fileName, fileType);
     }

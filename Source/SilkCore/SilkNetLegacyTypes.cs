@@ -142,8 +142,7 @@ public static class Collision {
         ref Vector3 vertex3,
         out Vector3 point
     ) {
-        float distance;
-        if (RayIntersectsTriangle(ref ray, ref vertex1, ref vertex2, ref vertex3, out distance)) {
+        if (RayIntersectsTriangle(ref ray, ref vertex1, ref vertex2, ref vertex3, out float distance)) {
             point = ray.Origin + ray.Direction * distance;
             return true;
         }

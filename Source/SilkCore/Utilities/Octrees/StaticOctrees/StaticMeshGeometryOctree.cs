@@ -204,8 +204,6 @@ public class StaticMeshGeometryOctree : StaticOctree<KeyValuePair<int, BoundingB
             isIntersect = true;
             for (var i = octant.Start; i < octant.End; ++i)
                 if (!BoxDisjointSphere(Objects[i].Value, ref sphere)) {
-                    Vector3 cloestPoint;
-
                     var idx = Objects[i].Key * 3;
                     var t1 = Indices[idx];
                     var t2 = Indices[idx + 1];
@@ -217,7 +215,7 @@ public class StaticMeshGeometryOctree : StaticOctree<KeyValuePair<int, BoundingB
                                                         ref v0,
                                                         ref v1,
                                                         ref v2,
-                                                        out cloestPoint);
+                                                        out var cloestPoint);
                     var d = (cloestPoint - sphere.Center).Length;
                     if (tempResult.Distance > d) {
                         var n = SilkMath.Normalize(SilkMath.Cross(v1 - v0, v2 - v0));

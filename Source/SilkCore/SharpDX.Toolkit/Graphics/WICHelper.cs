@@ -18,7 +18,8 @@ internal static class WicHelper {
     /// </summary>
     /// <remarks>Animated GIFs and multi-page TIFFs are intentionally loaded as frame 0 only.</remarks>
     public static Image? LoadFromWicMemory(nint pSource, int size, bool makeACopy, GCHandle? handle) {
-        if (pSource == nint.Zero || size <= 0) return null;
+        if (pSource == nint.Zero || size <= 0)
+            return null;
 
         var encoded = new byte[size];
         Marshal.Copy(pSource, encoded, 0, size);
@@ -27,9 +28,11 @@ internal static class WicHelper {
             var decoder = BitmapDecoder.Create(stream,
                                                BitmapCreateOptions.PreservePixelFormat,
                                                BitmapCacheOption.OnLoad);
-            if (decoder.Frames.Count == 0) return null;
+            if (decoder.Frames.Count == 0)
+                return null;
+            
             if (decoder.Frames.Count > 1)
-                Logger.Warn("WIC image contains {FrameCount} frames; only frame 0 is loaded.", decoder.Frames.Count);
+                Logger.Warn("WIC image contains {FrameCount} frames; only frame 0 is loaded", decoder.Frames.Count);
 
             BitmapSource source = decoder.Frames[0];
             if (source.Format != PixelFormats.Bgra32)
@@ -45,10 +48,10 @@ internal static class WicHelper {
                 throw;
             }
         } catch (FileFormatException ex) {
-            Logger.Warn(ex, "WIC could not decode the image data.");
+            Logger.Warn(ex, "WIC could not decode the image data");
             return null;
         } catch (NotSupportedException ex) {
-            Logger.Warn(ex, "WIC does not support the image data.");
+            Logger.Warn(ex, "WIC does not support the image data");
             return null;
         }
     }
@@ -148,9 +151,7 @@ internal static class WicHelper {
                              row * source.Width * 4,
                              source.Width * 4);
             for (var i = 0; i < pixels.Length; i += 4) {
-                var red = pixels[i];
-                pixels[i] = pixels[i + 2];
-                pixels[i + 2] = red;
+                (pixels[i], pixels[i + 2]) = (pixels[i + 2], pixels[i]);
             }
 
             var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);

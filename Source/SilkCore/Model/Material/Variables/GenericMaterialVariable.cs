@@ -148,7 +148,7 @@ public abstract class GenericMaterialVariable : MaterialVariable {
         ShaderPass shaderPass
     ) {
         foreach (var res in shaderResources)
-            deviceContext.SetShaderResource(PixelShader.Type, res.Key, res.Value);
+            deviceContext.SetShaderResource<PixelShaderType>(res.Key, res.Value);
         return true;
     }
 

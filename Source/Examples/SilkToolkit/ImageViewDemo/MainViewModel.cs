@@ -126,8 +126,7 @@ public class MainViewModel : BaseViewModel {
     private void SetImages(BitmapSource img) {
         var ratio = img.PixelWidth / (double) img.PixelHeight;
         var transform = Media3D.Transform3D.Identity;
-        ushort orientation;
-        if (ExifReader != null && ExifReader.GetTagValue(ExifTags.Orientation, out orientation)) {
+        if (ExifReader != null && ExifReader.GetTagValue(ExifTags.Orientation, out ushort orientation)) {
             switch (orientation) {
                 default:
                 case 1: //

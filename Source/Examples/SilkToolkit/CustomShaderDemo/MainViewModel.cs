@@ -250,8 +250,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private void CreatePerlinNoise() {
-        float[] noise;
-        MathHelper.GenerateNoiseMap(width, height, 8, out noise);
+        MathHelper.GenerateNoiseMap(width, height, 8, out var noise);
         var collection = new Vector2Collection(width * height);
         for (var i = 0; i < width; ++i) {
             for (var j = 0; j < height; ++j) {

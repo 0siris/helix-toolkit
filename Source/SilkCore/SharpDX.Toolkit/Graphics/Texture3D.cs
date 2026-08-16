@@ -27,9 +27,9 @@ public class Texture3D : Texture3DBase {
         GraphicsDevice ?? throw new InvalidOperationException("The texture has no graphics device."), Description);
 
     /// <summary>
-    ///     Creates a new texture from a <see cref="Texture3DDescription" />.
+    ///     Creates a new texture from a <see cref="NativeTexture3DDescription" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="description">The description.</param>
     /// <returns>
     ///     A new instance of <see cref="Texture3D" /> class.
@@ -40,13 +40,14 @@ public class Texture3D : Texture3DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>
-    public static Texture3D New(NativeD3DDevice device, NativeTexture3DDescription description) => new(device, description);
+    public static Texture3D New(NativeD3DDevice device, NativeTexture3DDescription description) 
+        => new(device, description);
 
     /// <summary>
-    ///     Creates a new texture from a <see cref="Direct3D11.Texture3D" />.
+    ///     Creates a new texture from a <see cref="NativeD3DTexture3D" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
-    /// <param name="texture">The native texture <see cref="Direct3D11.Texture3D" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
+    /// <param name="texture">The native texture <see cref="Texture3D" />.</param>
     /// <returns>
     ///     A new instance of <see cref="Texture3D" /> class.
     /// </returns>
@@ -56,12 +57,13 @@ public class Texture3D : Texture3DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture3D** ppTexture3D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture3D</unmanaged-short>
-    public static Texture3D New(NativeD3DDevice device, NativeD3DTexture3D texture) => new(device, texture);
+    public static Texture3D New(NativeD3DDevice device, NativeD3DTexture3D texture) 
+        => new(device, texture);
 
     /// <summary>
     ///     Creates a new <see cref="Texture3D" /> with a single mipmap.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <param name="depth">The depth.</param>
@@ -91,7 +93,7 @@ public class Texture3D : Texture3DBase {
     /// <summary>
     ///     Creates a new <see cref="Texture3D" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <param name="depth">The depth.</param>
@@ -127,7 +129,7 @@ public class Texture3D : Texture3DBase {
     ///     Creates a new <see cref="Texture3D" /> with texture data for the firs map.
     /// </summary>
     /// <typeparam name="T">Type of the data to upload to the texture</typeparam>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <param name="depth">The depth.</param>
@@ -170,7 +172,7 @@ public class Texture3D : Texture3DBase {
     /// <summary>
     ///     Creates a new <see cref="Texture3D" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <param name="depth">The depth.</param>
@@ -208,7 +210,7 @@ public class Texture3D : Texture3DBase {
     /// <summary>
     ///     Creates a new <see cref="Texture3D" /> directly from an <see cref="Image" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="image">An image in CPU memory.</param>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">The usage.</param>
@@ -226,7 +228,7 @@ public class Texture3D : Texture3DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         if (image.Description.Dimension != TextureDimension.Texture3D)
-            throw new ArgumentException("Invalid image. Must be 3D", "image");
+            throw new ArgumentException("Invalid image. Must be 3D", nameof(image));
 
         return new Texture3D(device, CreateTextureDescriptionFromImage(image, flags, usage), image.ToDataBox());
     }
@@ -234,7 +236,7 @@ public class Texture3D : Texture3DBase {
     /// <summary>
     ///     Loads a 3D texture from a stream.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="stream">The stream to load the texture from.</param>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
@@ -255,7 +257,7 @@ public class Texture3D : Texture3DBase {
     /// <summary>
     ///     Loads a 3D texture from a stream.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="filePath">The file to load the texture from.</param>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>

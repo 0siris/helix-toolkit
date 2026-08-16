@@ -110,8 +110,7 @@ public class MeshSimplification {
                         if (v0.Border != v1.Border) continue;
 
                         //Compute vertex to collapse to
-                        Vector3D p;
-                        CalculateError(i0, i1, out p);
+                        CalculateError(i0, i1, out var p);
                         deleted0.Clear();
                         deleted1.Clear();
                         deleted0.AddRange(Enumerable.Repeat(false, v0.TCount));

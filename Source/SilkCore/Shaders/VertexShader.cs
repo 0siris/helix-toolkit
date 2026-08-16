@@ -13,9 +13,8 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 /// <summary>
 ///     Vertex Shader
 /// </summary>
-public sealed class VertexShader : ShaderBase {
+public sealed class VertexShader : ShaderBase, IShaderType{
     public static readonly VertexShader NullVertexShader = new("NULL");
-    public static readonly VertexShaderType Type;
     private VertexShaderHandle? shader;
 
     /// <summary>
@@ -57,7 +56,7 @@ public sealed class VertexShader : ShaderBase {
     /// <param name="texture">The texture.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindTexture(DeviceContextProxy context, int slot, ShaderResourceViewProxy? texture) {
-        context.SetShaderResource(Type, slot, texture);
+        context.SetShaderResource<VertexShaderType>(slot, texture);
     }
 
     /// <summary>
@@ -69,7 +68,7 @@ public sealed class VertexShader : ShaderBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindTexture(DeviceContextProxy context, string name, ShaderResourceViewProxy? texture) {
         var slot = ShaderResourceViewMapping.TryGetBindSlot(name);
-        context.SetShaderResource(Type, slot, texture);
+        context.SetShaderResource<VertexShaderType>(slot, texture);
     }
 
     /// <summary>
@@ -82,7 +81,8 @@ public sealed class VertexShader : ShaderBase {
         DeviceContextProxy context,
         IList<KeyValuePair<int, ShaderResourceViewProxy>> textures
     ) {
-        foreach (var texture in textures) context.SetShaderResource(Type, texture.Key, texture.Value);
+        foreach (var texture in textures) 
+            context.SetShaderResource<VertexShaderType>( texture.Key, texture.Value);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public sealed class VertexShader : ShaderBase {
     /// <param name="sampler">The sampler.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindSampler(DeviceContextProxy context, int slot, SamplerStateProxy? sampler) {
-        context.SetSampler(Type, slot, sampler);
+        context.SetSampler<VertexShaderType>(slot, sampler);
     }
 
     /// <summary>
@@ -105,7 +105,7 @@ public sealed class VertexShader : ShaderBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindSampler(DeviceContextProxy context, string name, SamplerStateProxy? sampler) {
         var slot = SamplerMapping.TryGetBindSlot(name);
-        context.SetSampler(Type, slot, sampler);
+        context.SetSampler<VertexShaderType>(slot, sampler);
     }
 
     /// <summary>
@@ -115,7 +115,9 @@ public sealed class VertexShader : ShaderBase {
     /// <param name="samplers">The samplers.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindSamplers(DeviceContextProxy context, IList<KeyValuePair<int, SamplerStateProxy>> samplers) {
-        foreach (var sampler in samplers) context.SetSampler(Type, sampler.Key, sampler.Value);
+        foreach (var sampler in samplers) 
+            context.SetSampler<VertexShaderType>(sampler.Key, sampler.Value);
+        
     }
 
     protected override void OnDispose(bool disposeManagedResources) {
@@ -124,5 +126,7 @@ public sealed class VertexShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator VertexShaderType(VertexShader s) => Type;
+    public static implicit operator VertexShaderType(VertexShader s) => new();
+
+    public static int Index => Constants.VertexIdx;
 }

@@ -1103,8 +1103,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
     /// <param name="bounds"></param>
     /// <returns></returns>
     public virtual bool RemoveByBound(T item, ref BoundingBox bounds) {
-        int index;
-        var node = FindChildByItemBound(item, ref bounds, out index);
+        var node = FindChildByItemBound(item, ref bounds, out var index);
         if (node == null) {
 #if DEBUG
             if (!RemoveSafe(item)) 

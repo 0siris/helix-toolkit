@@ -9,12 +9,12 @@ namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 ///     A Texture 2D front end to the native D3D texture.
 /// </summary>
 public class Texture2D : Texture2DBase {
-    internal Texture2D(NativeD3DDevice device, NativeTexture2DDescription description2D, params DataBox[] dataBoxes) :
+    private Texture2D(NativeD3DDevice device, NativeTexture2DDescription description2D, params DataBox[] dataBoxes) :
         base(device, description2D, dataBoxes) {
         Initialize(Resource);
     }
 
-    internal Texture2D(NativeD3DDevice device, NativeD3DTexture2D texture) : base(device, texture) {
+    private Texture2D(NativeD3DDevice device, NativeD3DTexture2D texture) : base(device, texture) {
         Initialize(Resource);
     }
 
@@ -31,9 +31,9 @@ public class Texture2D : Texture2DBase {
         GraphicsDevice ?? throw new InvalidOperationException("The texture has no graphics device."), Description);
 
     /// <summary>
-    ///     Creates a new texture from a <see cref="Texture2DDescription" />.
+    ///     Creates a new texture from a <see cref="NativeTexture2DDescription" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="description">The description.</param>
     /// <returns>
     ///     A new instance of <see cref="Texture2D" /> class.
@@ -44,13 +44,14 @@ public class Texture2D : Texture2DBase {
     ///     D3D11_SUBRESOURCE_DATA* pInitialData,[Out, Fast] ID3D11Texture2D** ppTexture2D)
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture2D</unmanaged-short>
-    public static Texture2D New(NativeD3DDevice device, NativeTexture2DDescription description) => new(device, description);
+    public static Texture2D New(NativeD3DDevice device, NativeTexture2DDescription description) 
+        => new(device, description);
 
     /// <summary>
-    ///     Creates a new texture from a <see cref="Direct3D11.Texture2D" />.
+    ///     Creates a new texture from a <see cref="NativeD3DTexture2D" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
-    /// <param name="texture">The native texture <see cref="Direct3D11.Texture2D" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
+    /// <param name="texture">The native texture <see cref="NativeD3DTexture2D" />.</param>
     /// <returns>
     ///     A new instance of <see cref="Texture2D" /> class.
     /// </returns>
@@ -65,7 +66,7 @@ public class Texture2D : Texture2DBase {
     /// <summary>
     ///     Creates a new <see cref="Texture2D" /> with a single mipmap.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <param name="format">Describes the format to use.</param>
@@ -93,7 +94,7 @@ public class Texture2D : Texture2DBase {
     /// <summary>
     ///     Creates a new <see cref="Texture2D" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <param name="format">Describes the format to use.</param>
@@ -127,7 +128,7 @@ public class Texture2D : Texture2DBase {
     ///     Creates a new <see cref="Texture2D" /> with a single level of mipmap.
     /// </summary>
     /// <typeparam name="T">Type of the pixel data to upload to the texture.</typeparam>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <param name="format">Describes the format to use.</param>
@@ -169,7 +170,7 @@ public class Texture2D : Texture2DBase {
     /// <summary>
     ///     Creates a new <see cref="Texture2D" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <param name="format">Describes the format to use.</param>
@@ -206,7 +207,7 @@ public class Texture2D : Texture2DBase {
     /// <summary>
     ///     Creates a new <see cref="Texture2D" /> directly from an <see cref="Image" />.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="image">An image in CPU memory.</param>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">The usage.</param>
@@ -224,7 +225,7 @@ public class Texture2D : Texture2DBase {
         ResourceUsage usage = ResourceUsage.Immutable
     ) {
         if (image.Description.Dimension != TextureDimension.Texture2D)
-            throw new ArgumentException("Invalid image. Must be 2D", "image");
+            throw new ArgumentException("Invalid image. Must be 2D", nameof(image));
 
         return new Texture2D(device, CreateTextureDescriptionFromImage(image, flags, usage), image.ToDataBox());
     }
@@ -232,7 +233,7 @@ public class Texture2D : Texture2DBase {
     /// <summary>
     ///     Loads a 2D texture from a stream.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="stream">The stream to load the texture from.</param>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
@@ -253,7 +254,7 @@ public class Texture2D : Texture2DBase {
     /// <summary>
     ///     Loads a 2D texture from a stream.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="filePath">The file to load the texture from.</param>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
@@ -270,8 +271,9 @@ public class Texture2D : Texture2DBase {
     }
 
     /// <summary>
-    ///     Implicit casting operator to <see cref="Direct3D11.Resource" />
+    ///     Implicit casting operator to <see cref="NativeD3DResource" />
     /// </summary>
     /// <param name="from">The GraphicsResource to convert from.</param>
-    public static implicit operator NativeD3DResource?(Texture2D? from) => from?.Resource;
+    public static implicit operator NativeD3DResource?(Texture2D? from) 
+        => from?.Resource;
 }

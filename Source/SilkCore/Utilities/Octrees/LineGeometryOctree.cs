@@ -176,14 +176,10 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
 
                 var t0 = SilkMath.TransformCoordinate(v0, modelMatrix);
                 var t1 = SilkMath.TransformCoordinate(v1, modelMatrix);
-                Vector3 sp, tp;
-                float sc, tc;
-                var rayToLineDistance = LineBuilder.GetRayToLineDistance(rayWs, t0, t1, out sp, out tp, out sc, out tc);
+                var rayToLineDistance = LineBuilder.GetRayToLineDistance(rayWs, t0, t1, out var sp, out var tp, out var sc, out var tc);
                 var svpm = hitContext.RenderMatrices.ScreenViewProjectionMatrix;
-                Vector4 sp4;
-                Vector4 tp4;
-                SilkMath.Transform(ref sp, ref svpm, out sp4);
-                SilkMath.Transform(ref tp, ref svpm, out tp4);
+                SilkMath.Transform(ref sp, ref svpm, out var sp4);
+                SilkMath.Transform(ref tp, ref svpm, out var tp4);
                 var sp3 = sp4.ToVector3();
                 var tp3 = tp4.ToVector3();
                 var tv2 = new Vector2(tp3.X - sp3.X, tp3.Y - sp3.Y);
@@ -250,16 +246,13 @@ public class LineGeometryOctree : DynamicOctreeBase<KeyValuePair<int, BoundingBo
             for (var i = 0; i < Objects.Count; ++i) {
                 containment = Objects[i].Value.Contains(ref sphere);
                 if (containment == ContainmentType.Contains || containment == ContainmentType.Intersects) {
-                    Vector3 cloestPoint;
-
                     var idx = Objects[i].Key * 3;
                     var t1 = Indices[idx];
                     var t2 = Indices[idx + 1];
                     var v0 = Positions[t1];
                     var v1 = Positions[t2];
-                    float t;
                     var distance =
-                        LineBuilder.GetPointToLineDistance2D(ref sphere.Center, ref v0, ref v1, out cloestPoint, out t);
+                        LineBuilder.GetPointToLineDistance2D(ref sphere.Center, ref v0, ref v1, out var cloestPoint, out var t);
                     if (tempResult.Distance > distance) {
                         tempResult.Distance = distance;
                         tempResult.IsValid = true;

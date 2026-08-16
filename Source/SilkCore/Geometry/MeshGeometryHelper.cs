@@ -117,9 +117,7 @@ public static class MeshGeometryHelper {
         foreach (var kvp in dict)
             // find edges only used by 1 triangle
             if (kvp.Value == 1) {
-                uint i0,
-                    i1;
-                ReverseKey(kvp.Key, out i0, out i1);
+                ReverseKey(kvp.Key, out var i0, out var i1);
                 edges.Add((int) i0);
                 edges.Add((int) i1);
             }
@@ -316,8 +314,7 @@ public static class MeshGeometryHelper {
 
         // Update triangle indices
         foreach (var index in triangleIndices) {
-            int j;
-            ti.Add(dict.TryGetValue(index, out j)
+            ti.Add(dict.TryGetValue(index, out var j)
                 ? newIndex[j]
                 : newIndex[index]);
         }
@@ -402,18 +399,13 @@ public static class MeshGeometryHelper {
             var index1 = triangleIndices[i + 1];
             var index2 = triangleIndices[i + 2];
 
-            Point3D[] facetPositions;
-            Vector3D[] facetNormals;
-            Point[] facetTextureCoordinates;
-            int[] facetTriangleIndices;
-
             contourHelper.ContourFacet(index0,
                 index1,
                 index2,
-                out facetPositions,
-                out facetNormals,
-                out facetTextureCoordinates,
-                out facetTriangleIndices);
+                out var facetPositions,
+                out var facetNormals,
+                out var facetTextureCoordinates,
+                out var facetTriangleIndices);
 
             foreach (var p in facetPositions) meshBuilder.Positions.Add(p);
 
@@ -451,13 +443,12 @@ public static class MeshGeometryHelper {
         var contourHelper = new ContourHelper(plane, normal, mesh);
         var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
         for (var i = 0; i < triangleIndices.Count; i += 3) {
-            Point3D[] positions;
             Vector3D[] normals;
             Point[] textureCoordinates;
             contourHelper.ContourFacet(triangleIndices[i],
                 triangleIndices[i + 1],
                 triangleIndices[i + 2],
-                out positions,
+                out var positions,
                 out normals,
                 out textureCoordinates,
                 out _);
@@ -614,18 +605,14 @@ public static class MeshGeometryHelper {
     public static MeshGeometry3D RemoveIsolatedVertices(this MeshGeometry3D mesh) {
         var vertices = mesh.Positions.AssertNotNull("Mesh positions are not initialized.");
         var triangles = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
-        Point3DCollection vertNew;
-        Int32Collection triNew;
-        PointCollection? textureNew;
-        Vector3DCollection? normalNew;
         RemoveIsolatedVertices(vertices,
             triangles,
             mesh.TextureCoordinates,
             mesh.Normals,
-            out vertNew,
-            out triNew,
-            out textureNew,
-            out normalNew);
+            out var vertNew,
+            out var triNew,
+            out var textureNew,
+            out var normalNew);
         var newMesh = new MeshGeometry3D {
             Positions = vertNew,
             TriangleIndices = triNew,

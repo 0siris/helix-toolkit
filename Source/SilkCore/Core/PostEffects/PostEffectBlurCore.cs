@@ -63,7 +63,7 @@ public class PostEffectBlurCore : DisposeObject {
         BlurDepth depth,
         ref BorderEffectStruct modelStruct
     ) {
-        deviceContext.SetSampler(PixelShader.Type, samplerSlot, sampler);
+        deviceContext.SetSampler<PixelShaderType>(samplerSlot, sampler);
         if ((depth & BlurDepth.One) == 0)
             return;
 

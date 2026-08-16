@@ -61,12 +61,9 @@ public class HitTestResult : IComparable<HitTestResult> {
     /// </summary>
     public Tuple<int, int, int>? TriangleIndices { get; set; }
 
-    public int CompareTo(HitTestResult? other) {
-        if (other == null) 
-            return 1;
-
-        return Distance.CompareTo(other.Distance);
-    }
+    public int CompareTo(HitTestResult? other) => other == null
+        ? 1
+        : Distance.CompareTo(other.Distance);
 
     /// <summary>
     ///     Shallow copy all the properties from another result.
@@ -94,24 +91,16 @@ public class HitTestResult : IComparable<HitTestResult> {
 ///     A specialized line hit test result.
 /// </summary>
 public class LineHitTestResult : HitTestResult {
-    /// <summary>
-    ///     Gets or sets the index of the line segment that was hit.
-    /// </summary>
+    /// Gets or sets the index of the line segment that was hit.
     public int LineIndex { get; set; } = -1;
 
-    /// <summary>
-    ///     Gets or sets the shortest distance between the hit test ray and the line that was hit.
-    /// </summary>
+    /// Gets or sets the shortest distance between the hit test ray and the line that was hit.
     public double RayToLineDistance { get; set; }
 
-    /// <summary>
-    ///     Gets or sets the scalar of the closest point on the hit test ray.
-    /// </summary>
+    /// Gets or sets the scalar of the closest point on the hit test ray.
     public double RayHitPointScalar { get; set; }
 
-    /// <summary>
-    ///     Gets or sets the scalar of the closest point on the line that was hit.
-    /// </summary>
+    /// Gets or sets the scalar of the closest point on the line that was hit.
     public double LineHitPointScalar { get; set; }
 }
 
@@ -129,19 +118,18 @@ public class BatchedMeshHitTestResult : HitTestResult {
         ShallowCopy(result);
     }
 
-    public int MeshConfigIndex { get; } = -1;
+    public int MeshConfigIndex { get; }
 
     public BatchedMeshGeometryConfig Config { get; }
 }
 
 /// <summary>
 /// </summary>
-public class HitTest2DResult {
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="HitTest2DResult" /> class.
-    /// </summary>
-    /// <param name="model">The model.</param>
-    public HitTest2DResult(object model) => ModelHit = model;
+/// <remarks>
+///     Initializes a new instance of the <see cref="HitTest2DResult" /> class.
+/// </remarks>
+/// <param name="model">The model.</param>
+public class HitTest2DResult(object model) {
 
     /// <summary>
     ///     Gets or sets the model hit.
@@ -149,5 +137,5 @@ public class HitTest2DResult {
     /// <value>
     ///     The model hit.
     /// </value>
-    public object ModelHit { get; private set; }
+    public object ModelHit { get; private set; } = model;
 }

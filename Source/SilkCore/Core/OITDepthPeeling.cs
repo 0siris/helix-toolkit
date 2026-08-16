@@ -177,9 +177,9 @@ public sealed class OitDepthPeeling : RenderCore {
             targets[2] = BackBlendingTarget;
 
             deviceContext.SetRenderTargets(depthStencilView, targets);
-            deviceContext.SetShaderResource(new PixelShaderType(), 100, previousTarget);
+            deviceContext.SetShaderResource<PixelShaderType>(100, previousTarget);
             DrawMesh(context, deviceContext);
-            deviceContext.SetShaderResource(new PixelShaderType(), 100, null);
+            deviceContext.SetShaderResource<PixelShaderType>(100, (ShaderResourceView?) null);
         }
 
         context.OitRenderStage = OitRenderStage.None;
@@ -192,7 +192,7 @@ public sealed class OitDepthPeeling : RenderCore {
         finalPass.BindStates(deviceContext, StateType.All);
 
         deviceContext.SetRenderTargets(null, ExternRenderParameter.RenderTargetView);
-        deviceContext.SetShaderResources(new PixelShaderType(), 100, finalSrVs);
+        deviceContext.SetShaderResources<PixelShaderType>(100, finalSrVs);
         deviceContext.Draw(4, 0);
     }
 

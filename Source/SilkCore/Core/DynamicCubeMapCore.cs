@@ -474,11 +474,11 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     /// </summary>
     /// <param name="deviceContext">The device context.</param>
     public void BindCubeMap(DeviceContextProxy deviceContext) {
-        currSampler = deviceContext.GetSampler(PixelShader.Type, textureSamplerSlot, 1);
-        currRes = deviceContext.GetShaderResources(PixelShader.Type, cubeTextureSlot, 1);
+        currSampler = deviceContext.GetSampler<PixelShaderType>(textureSamplerSlot, 1); ;
+        currRes = deviceContext.GetShaderResources<PixelShaderType>(cubeTextureSlot, 1);
         if (EnableReflector) {
-            deviceContext.SetShaderResource(PixelShader.Type, cubeTextureSlot, CubeMap);
-            deviceContext.SetSampler(PixelShader.Type, textureSamplerSlot, TextureSampler);
+            deviceContext.SetShaderResource<PixelShaderType>(cubeTextureSlot, CubeMap);
+            deviceContext.SetSampler<PixelShaderType>(textureSamplerSlot, TextureSampler);
         }
     }
 
@@ -490,8 +490,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
         if (currRes is not { } resources || currSampler is not { } samplers)
             return;
 
-        deviceContext.SetShaderResources(PixelShader.Type, cubeTextureSlot, resources);
-        deviceContext.SetSamplers(PixelShader.Type, textureSamplerSlot, samplers);
+        deviceContext.SetShaderResources<PixelShaderType>(cubeTextureSlot, resources);
+        deviceContext.SetSamplers<PixelShaderType>(textureSamplerSlot, samplers);
 
         currSampler.DisposeAll();
         currRes.DisposeAll();

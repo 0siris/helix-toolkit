@@ -14,9 +14,8 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 /// <summary>
 ///     Pixel Shader
 /// </summary>
-public sealed class PixelShader : ShaderBase {
+public sealed class PixelShader : ShaderBase, IShaderType {
     public static readonly PixelShader NullPixelShader = new("NULL");
-    public static readonly PixelShaderType Type;
     private PixelShaderHandle? shader;
 
     /// <summary>
@@ -55,7 +54,7 @@ public sealed class PixelShader : ShaderBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindTexture(DeviceContextProxy context, string name, ShaderResourceViewProxy? texture) {
         var slot = ShaderResourceViewMapping.TryGetBindSlot(name);
-        context.SetShaderResource(Type, slot, texture);
+        context.SetShaderResource<PixelShaderType>( slot, texture);
     }
 
     /// <summary>
@@ -66,7 +65,7 @@ public sealed class PixelShader : ShaderBase {
     /// <param name="texture">The texture.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindTexture(DeviceContextProxy context, int slot, ShaderResourceViewProxy? texture) {
-        context.SetShaderResource(Type, slot, texture);
+        context.SetShaderResource<PixelShaderType>( slot, texture);
     }
 
     /// <summary>
@@ -80,7 +79,7 @@ public sealed class PixelShader : ShaderBase {
         IList<KeyValuePair<int, ShaderResourceViewProxy>> textures
     ) {
         foreach (var texture in textures) 
-            context.SetShaderResource(Type, texture.Key, texture.Value);
+            context.SetShaderResource<PixelShaderType>( texture.Key, texture.Value);
     }
 
     /// <summary>
@@ -91,7 +90,7 @@ public sealed class PixelShader : ShaderBase {
     /// <param name="sampler">The sampler.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindSampler(DeviceContextProxy context, int slot, SamplerStateProxy? sampler) {
-        context.SetSampler(Type, slot, sampler);
+        context.SetSampler<PixelShaderType>( slot, sampler);
     }
 
     /// <summary>
@@ -103,7 +102,7 @@ public sealed class PixelShader : ShaderBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindSampler(DeviceContextProxy context, string name, SamplerStateProxy? sampler) {
         var slot = SamplerMapping.TryGetBindSlot(name);
-        context.SetSampler(Type, slot, sampler);
+        context.SetSampler<PixelShaderType>( slot, sampler);
     }
 
     /// <summary>
@@ -114,7 +113,7 @@ public sealed class PixelShader : ShaderBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindSamplers(DeviceContextProxy context, IList<KeyValuePair<int, SamplerStateProxy>> samplers) {
         foreach (var sampler in samplers) 
-            context.SetSampler(Type, sampler.Key, sampler.Value);
+            context.SetSampler<PixelShaderType>( sampler.Key, sampler.Value);
     }
 
     protected override void OnDispose(bool disposeManagedResources) {
@@ -123,5 +122,7 @@ public sealed class PixelShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator PixelShaderType(PixelShader s) => Type;
+    public static implicit operator PixelShaderType(PixelShader s) => new ();
+
+    public static int Index => Constants.PixelIdx;
 }

@@ -157,7 +157,7 @@ public sealed class SsaoCore : RenderCore {
          context.SharedResource.SsaoMap = view;
 
         context.RenderHost.SetDefaultRenderTargets(false);
-         deviceContext.SetShaderResource(PixelShader.Type, ssaoTexSlot, view);
+         deviceContext.SetShaderResource<PixelShaderType>(ssaoTexSlot, view);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

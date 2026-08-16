@@ -55,8 +55,7 @@ public sealed class MappingProxy<MappingType> : DisposeObject where MappingType 
     /// <param name="name"></param>
     /// <returns></returns>
     public int TryGetBindSlot(string name) {
-        int item;
-        return mappingCollection.TryGetSlot(name, out item) ? item : -1;
+        return mappingCollection.TryGetSlot(name, out var item) ? item : -1;
     }
 
     /// <summary>
@@ -65,8 +64,7 @@ public sealed class MappingProxy<MappingType> : DisposeObject where MappingType 
     /// <param name="slot"></param>
     /// <returns></returns>
     public string TryGetName(int slot) {
-        string? item;
-        return mappingCollection.TryGetName(slot, out item) ? item : string.Empty;
+        return mappingCollection.TryGetName(slot, out var item) ? item : string.Empty;
     }
 
     /// <summary>

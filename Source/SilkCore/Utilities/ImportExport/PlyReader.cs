@@ -342,8 +342,8 @@ public class PlyReader : ModelReader {
         /// <summary>
         ///     Initializes a new PLY element.
         /// </summary>
-        /// <param name="_y1">The lower or start range.</param>
-        /// <param name="_y2">The upper or end range.</param>
+        /// <param name="y1">The lower or start range.</param>
+        /// <param name="y2">The upper or end range.</param>
         /// <param name="hasNormals"></param>
         /// <param name="hasTextures"></param>
         public PlyElement(int y1 = 0, int y2 = 1, bool hasNormals = false, bool hasTextures = false) {

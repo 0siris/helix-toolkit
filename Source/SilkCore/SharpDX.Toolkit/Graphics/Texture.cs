@@ -127,7 +127,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
         if (mipLevels > 1) {
             var maxMips = CountMips(width, height);
             if (mipLevels > maxMips)
-                throw new InvalidOperationException(string.Format("MipLevels must be <= {0}", maxMips));
+                throw new InvalidOperationException($"MipLevels must be <= {maxMips}");
         } else if (mipLevels == 0) {
             mipLevels = CountMips(width, height);
         } else {
@@ -155,7 +155,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
 
             var maxMips = CountMips(width, height, depth);
             if (mipLevels > maxMips)
-                throw new InvalidOperationException(string.Format("MipLevels must be <= {0}", maxMips));
+                throw new InvalidOperationException($"MipLevels must be <= {maxMips}");
         } else if (mipLevels == 0) {
             if (!IsPow2(width) || !IsPow2(height) || !IsPow2(depth))
                 throw new InvalidOperationException("Width/Height/Depth must be power of 2");
@@ -272,7 +272,7 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
     /// <summary>
     ///     Loads a texture from a stream.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="stream">The stream to load the texture from.</param>
     /// <param name="flags">Sets the texture flags (for unordered access...etc.)</param>
     /// <param name="usage">Usage of the resource. Default is <see cref="ResourceUsage.Immutable" /> </param>
@@ -361,11 +361,12 @@ public abstract class Texture : GraphicsResource, IComparable<Texture> {
         nint fixedPointer
     ) where T : unmanaged {
         // Check that the textureData size is correct
-        int rowPitch;
-        int slicePitch;
-        int widthCount;
-        int heightCount;
-        Image.ComputePitch(format, width, height, out rowPitch, out slicePitch, out widthCount, out heightCount);
+        Image.ComputePitch(format, width, height, 
+            out var rowPitch, 
+            out var slicePitch, 
+            out var widthCount,
+            out var heightCount);
+        
         if (Utilities.SizeOf(textureData) != slicePitch * depth)
             throw new ArgumentException("Invalid size for TextureData");
 

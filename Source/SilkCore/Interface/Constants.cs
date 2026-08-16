@@ -14,39 +14,71 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Interface;
 
-/// <summary>
-///     Used for static function overloading
-/// </summary>
-public struct VertexShaderType { }
+// Marker structs used for static function overloading
 
-public struct HullShaderType { }
+public interface IShaderType {
+    static abstract int Index { get; }
+}
 
-public struct DomainShaderType { }
+public interface IShaderResourceType : IShaderType;
+public interface ISamplerShaderType : IShaderType;
+public interface IUnorderedAccessShaderType : IShaderType;
 
-public struct GeometryShaderType { }
+public readonly struct VertexShaderType :
+    IShaderResourceType,
+    ISamplerShaderType
+{
+    public static int Index => Constants.VertexIdx;
+}
 
-public struct PixelShaderType { }
+public readonly struct HullShaderType :
+    IShaderResourceType,
+    ISamplerShaderType
+{
+    public static int Index => Constants.HullIdx;
+}
 
-public struct ComputeShaderType { }
+public readonly struct DomainShaderType :
+    IShaderResourceType,
+    ISamplerShaderType
+{
+    public static int Index => Constants.DomainIdx;
+}
 
-/// <summary>
-/// </summary>
+public readonly struct GeometryShaderType :
+    IShaderResourceType,
+    ISamplerShaderType
+{
+    public static int Index => Constants.GeometryIdx;
+}
+
+public readonly struct PixelShaderType :
+    IShaderResourceType,
+    ISamplerShaderType
+{
+    public static int Index => Constants.PixelIdx;
+}
+
+public readonly struct ComputeShaderType :
+    IShaderResourceType,
+    ISamplerShaderType,
+    IUnorderedAccessShaderType
+{
+    public static int Index => Constants.ComputeIdx;
+}
+
+
+
 public static class Constants {
     public const int MaxLights = 8;
 
-    /// <summary>
-    ///     Number of shader stages
-    /// </summary>
+    /// Number of shader stages
     public const int NumShaderStages = 6;
 
-    /// <summary>
-    ///     Stages that can bind textures
-    /// </summary>
+    /// Stages that can bind textures
     public const ShaderStage CanBindTextureStages =
         ShaderStage.Vertex | ShaderStage.Pixel | ShaderStage.Domain | ShaderStage.Compute;
 
-    /// <summary>
-    /// </summary>
     public const int VertexIdx = 0, HullIdx = 1, DomainIdx = 2, GeometryIdx = 3, PixelIdx = 4, ComputeIdx = 5;
 
     public static readonly char[] Separators = [';', ' ', ','];

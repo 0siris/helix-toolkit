@@ -83,8 +83,7 @@ public static class Collision {
     }
 
     public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out Vector3 point) {
-        float distance;
-        if (RayIntersectsPlane(ref ray, ref plane, out distance)) {
+        if (RayIntersectsPlane(ref ray, ref plane, out float distance)) {
             point = ray.Origin + ray.Direction * distance;
             return true;
         }
@@ -136,8 +135,7 @@ public static class Collision {
         ref Vector3 vertex3,
         out Vector3 point
     ) {
-        float distance;
-        if (RayIntersectsTriangle(ref ray, ref vertex1, ref vertex2, ref vertex3, out distance)) {
+        if (RayIntersectsTriangle(ref ray, ref vertex1, ref vertex2, ref vertex3, out float distance)) {
             point = ray.Origin + ray.Direction * distance;
             return true;
         }

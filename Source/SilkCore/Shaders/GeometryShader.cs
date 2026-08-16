@@ -11,9 +11,8 @@ using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 namespace HelixToolkit.SharpDX.Core.Shaders;
 /// <summary>
 /// </summary>
-public sealed class GeometryShader : ShaderBase {
+public sealed class GeometryShader : ShaderBase, IShaderType {
     public static readonly GeometryShader NullGeometryShader = new("NULL");
-    public static readonly GeometryShaderType Type;
     private GeometryShaderHandle? shader;
 
     /// <summary>
@@ -70,5 +69,7 @@ public sealed class GeometryShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator GeometryShaderType(GeometryShader s) => Type;
+    public static implicit operator GeometryShaderType(GeometryShader s) => new();
+
+    public static int Index => Constants.GeometryIdx;
 }

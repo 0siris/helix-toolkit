@@ -59,7 +59,7 @@ public sealed class BoneUploaderCore : RenderCore {
 
     public void BindBuffer(DeviceContextProxy deviceContext, int slot) {
         if (BoneSkinSb is not null) 
-            deviceContext.SetShaderResource(VertexShader.Type, slot, BoneSkinSb);
+            deviceContext.SetShaderResource<VertexShaderType>(slot, BoneSkinSb);
     }
 
     public void InvalidateBoneMatrices() => matricesChanged = true;

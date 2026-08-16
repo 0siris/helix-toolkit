@@ -72,11 +72,4 @@ public abstract class GraphicsResource : Component {
         if (disposeManagedResources)
             Resource = null;
     }
-
-    /// <summary>
-    ///     Called when name changed for this component.
-    /// </summary>
-    protected override void OnPropertyChanged(string propertyName) {
-        base.OnPropertyChanged(propertyName);
-    }
 }

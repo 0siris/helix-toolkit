@@ -153,7 +153,8 @@ public class StLReader : ModelReader {
         input = input.ToLowerInvariant();
         input = input.Replace("nan", "NaN");
         var match = NormalRegex.Match(input);
-        if (!match.Success) throw new FileFormatException("Unexpected line.");
+        if (!match.Success) 
+            throw new FileFormatException("Unexpected line");
 
         var x = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         var y = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
@@ -192,8 +193,8 @@ public class StLReader : ModelReader {
 
         var line = reader.ReadLine()
             ?? throw new EndOfStreamException("Unexpected end of STL file.");
-        string id, values;
-        ParseLine(line, out id, out values);
+        
+        ParseLine(line, out var id, out _);
 
         if (!string.Equals(token, id, StringComparison.OrdinalIgnoreCase))
             throw new FileFormatException("Unexpected line.");
@@ -276,14 +277,12 @@ public class StLReader : ModelReader {
 
             line = line.Trim();
 
-            Point3D point;
-            if (TryParseVertex(line, out point)) {
+            if (TryParseVertex(line, out var point)) {
                 points.Add(point);
                 continue;
             }
 
-            string id, values;
-            ParseLine(line, out id, out values);
+            ParseLine(line, out var id, out _);
 
             if (id == "endloop") break;
         }
@@ -390,12 +389,11 @@ public class StLReader : ModelReader {
             if (line == null) continue;
 
             line = line.Trim();
-            if (line.Length == 0 || line.StartsWith("\0") || line.StartsWith("#") || line.StartsWith("!")
-                || line.StartsWith("$"))
+            if (line.Length == 0 || line.StartsWith('\0') || line.StartsWith('#') || line.StartsWith('!')
+                || line.StartsWith('$'))
                 continue;
 
-            string id, values;
-            ParseLine(line, out id, out values);
+            ParseLine(line, out var id, out var values);
             switch (id) {
                 case "solid":
                     Header = values.Trim();
@@ -422,7 +420,8 @@ public class StLReader : ModelReader {
     /// </returns>
     private bool TryReadBinary(Stream stream) {
         var length = stream.Length;
-        if (length < 84) throw new FileFormatException("Incomplete file");
+        if (length < 84) 
+            throw new FileFormatException("Incomplete file");
 
         var reader = new BinaryReader(stream);
         Header = Encoding.ASCII.GetString(reader.ReadBytes(80)).Trim();

@@ -16,7 +16,7 @@ public abstract class Texture1DBase : Texture {
     /// <summary>
     ///     Initializes a new instance of the <see cref="Texture1DBase" /> class.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="description1D">The description.</param>
     /// <msdn-id>ff476520</msdn-id>
     /// <unmanaged>
@@ -25,7 +25,8 @@ public abstract class Texture1DBase : Texture {
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
     protected internal Texture1DBase(NativeD3DDevice device, NativeTexture1DDescription description1D)
-        : base(device, description1D) {
+        : base(device, description1D) 
+    {
         Resource = device.CreateTexture1D(description1D);
         Initialize(Resource);
     }
@@ -33,7 +34,7 @@ public abstract class Texture1DBase : Texture {
     /// <summary>
     ///     Initializes a new instance of the <see cref="Texture1DBase" /> class.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="description1D">The description.</param>
     /// <param name="dataBox">A variable-length parameters list containing data rectangles.</param>
     /// <msdn-id>ff476520</msdn-id>
@@ -46,8 +47,8 @@ public abstract class Texture1DBase : Texture {
         NativeD3DDevice device,
         NativeTexture1DDescription description1D,
         DataBox[] dataBox
-    )
-        : base(device, description1D) {
+    ) : base(device, description1D) 
+    {
         Resource = device.CreateTexture1D(description1D, dataBox);
         Initialize(Resource);
     }
@@ -55,7 +56,7 @@ public abstract class Texture1DBase : Texture {
     /// <summary>
     ///     Specialised constructor for use only by derived classes.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="texture">The texture.</param>
     /// <msdn-id>ff476520</msdn-id>
     /// <unmanaged>
@@ -64,7 +65,8 @@ public abstract class Texture1DBase : Texture {
     /// </unmanaged>
     /// <unmanaged-short>ID3D11Device::CreateTexture1D</unmanaged-short>
     protected internal Texture1DBase(NativeD3DDevice device, NativeD3DTexture1D texture)
-        : base(device, texture.Description) {
+        : base(device, texture.Description)
+    {
         Resource = texture;
         Initialize(Resource);
     }

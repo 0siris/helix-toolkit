@@ -12,9 +12,8 @@ using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 namespace HelixToolkit.SharpDX.Core.Shaders;
 /// <summary>
 /// </summary>
-public sealed class ComputeShader : ShaderBase {
+public sealed class ComputeShader : ShaderBase, IShaderType {
     public static readonly ComputeShader NullComputeShader = new("NULL");
-    public static readonly ComputeShaderType Type;
     private ComputeShaderHandle? shader;
 
     /// <summary>
@@ -53,7 +52,7 @@ public sealed class ComputeShader : ShaderBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindTexture(DeviceContextProxy context, string name, ShaderResourceViewProxy? texture) {
         var slot = ShaderResourceViewMapping.TryGetBindSlot(name);
-        context.SetShaderResource(Type, slot, texture);
+        context.SetShaderResource<ComputeShaderType>(slot, texture);
     }
 
     /// <summary>
@@ -64,7 +63,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="texture">The texture.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindTexture(DeviceContextProxy context, int slot, ShaderResourceViewProxy? texture) {
-        context.SetShaderResource(Type, slot, texture);
+        context.SetShaderResource<ComputeShaderType>( slot, texture);
     }
 
     /// <summary>
@@ -77,7 +76,8 @@ public sealed class ComputeShader : ShaderBase {
         DeviceContextProxy context,
         IList<KeyValuePair<int, ShaderResourceViewProxy>> textures
     ) {
-        foreach (var texture in textures) context.SetShaderResource(Type, texture.Key, texture.Value);
+        foreach (var texture in textures) 
+            context.SetShaderResource<ComputeShaderType>(texture.Key, texture.Value);
     }
 
     /// <summary>
@@ -88,7 +88,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="sampler">The sampler.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindSampler(DeviceContextProxy context, int slot, SamplerStateProxy? sampler) {
-        context.SetSampler(Type, slot, sampler);
+        context.SetSampler<ComputeShaderType>( slot, sampler);
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public sealed class ComputeShader : ShaderBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindSampler(DeviceContextProxy context, string name, SamplerStateProxy? sampler) {
         var slot = SamplerMapping.TryGetBindSlot(name);
-        context.SetSampler(Type, slot, sampler);
+        context.SetSampler<ComputeShaderType>( slot, sampler);
     }
 
     /// <summary>
@@ -110,7 +110,8 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="samplers">The samplers.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindSamplers(DeviceContextProxy context, IList<KeyValuePair<int, SamplerStateProxy>> samplers) {
-        foreach (var sampler in samplers) context.SetSampler(Type, sampler.Key, sampler.Value);
+        foreach (var sampler in samplers) 
+            context.SetSampler<ComputeShaderType>(sampler.Key, sampler.Value);
     }
 
     /// <summary>
@@ -121,7 +122,7 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="uav">The uav.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindUav(DeviceContextProxy context, int slot, UavBufferViewProxy? uav) {
-        context.SetUnorderedAccessView(Type, slot, uav);
+        context.SetUnorderedAccessView<ComputeShaderType>( slot, uav);
     }
 
     /// <summary>
@@ -133,7 +134,7 @@ public sealed class ComputeShader : ShaderBase {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindUav(DeviceContextProxy context, string name, UavBufferViewProxy? uav) {
         var slot = UnorderedAccessViewMapping.TryGetBindSlot(name);
-        context.SetUnorderedAccessView(Type, slot, uav);
+        context.SetUnorderedAccessView<ComputeShaderType>( slot, uav);
     }
 
     /// <summary>
@@ -143,7 +144,8 @@ public sealed class ComputeShader : ShaderBase {
     /// <param name="uavs">The uavs.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void BindUaVs(DeviceContextProxy context, IList<KeyValuePair<int, UavBufferViewProxy>> uavs) {
-        foreach (var uav in uavs) context.SetUnorderedAccessView(Type, uav.Key, uav.Value);
+        foreach (var uav in uavs) 
+            context.SetUnorderedAccessView<ComputeShaderType>( uav.Key, uav.Value);
     }
 
     protected override void OnDispose(bool disposeManagedResources) {
@@ -152,5 +154,7 @@ public sealed class ComputeShader : ShaderBase {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator ComputeShaderType(ComputeShader s) => Type;
+    public static implicit operator ComputeShaderType(ComputeShader s) => new();
+
+    public static int Index => Constants.ComputeIdx;
 }

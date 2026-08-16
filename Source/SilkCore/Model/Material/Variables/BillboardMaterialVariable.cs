@@ -109,7 +109,7 @@ public class BillboardMaterialVariable : MaterialVariable {
         int instanceCount
     ) {
         if (bufferModel is IBillboardBufferModel billboardModel) {
-            deviceContext.SetShaderResource(PixelShader.Type, shaderTextureSlot, billboardModel.TextureView);
+            deviceContext.SetShaderResource<PixelShaderType>(shaderTextureSlot, billboardModel.TextureView);
             if (bufferModel.VertexBuffer.FirstOrDefault() is { } vertexBuffer)
                 DrawPoints(deviceContext, vertexBuffer.ElementCount, instanceCount);
         }

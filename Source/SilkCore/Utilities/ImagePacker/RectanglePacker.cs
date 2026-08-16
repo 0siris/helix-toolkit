@@ -60,9 +60,7 @@ internal abstract class RectanglePacker {
         /// <param name="rectangleHeight">Height of the rectangle to allocate</param>
         /// <returns>The location at which the rectangle has been placed</returns>
     public virtual Point Pack(int rectangleWidth, int rectangleHeight) {
-        Point point;
-
-        if (!TryPack(rectangleWidth, rectangleHeight, out point))
+        if (!TryPack(rectangleWidth, rectangleHeight, out var point))
             throw new OutOfSpaceException("Rectangle does not fit in packing area");
 
         return point;

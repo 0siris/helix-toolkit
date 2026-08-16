@@ -16,7 +16,7 @@ public abstract class Texture3DBase : Texture {
     /// <summary>
     ///     Initializes a new instance of the <see cref="Texture3DBase" /> class.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="description3D">The description.</param>
     /// <msdn-id>ff476522</msdn-id>
     /// <unmanaged>
@@ -33,7 +33,7 @@ public abstract class Texture3DBase : Texture {
     /// <summary>
     ///     Initializes a new instance of the <see cref="Texture3DBase" /> class.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="description3D">The description.</param>
     /// <param name="dataRectangles">A variable-length parameters list containing data rectangles.</param>
     /// <msdn-id>ff476522</msdn-id>
@@ -55,7 +55,7 @@ public abstract class Texture3DBase : Texture {
     /// <summary>
     ///     Specialised constructor for use only by derived classes.
     /// </summary>
-    /// <param name="device">The <see cref="Direct3D11.Device" />.</param>
+    /// <param name="device">The <see cref="NativeD3DDevice" />.</param>
     /// <param name="texture">The texture.</param>
     /// <msdn-id>ff476522</msdn-id>
     /// <unmanaged>

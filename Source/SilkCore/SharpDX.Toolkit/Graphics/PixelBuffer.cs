@@ -27,7 +27,7 @@ public sealed class PixelBuffer {
     /// <param name="dataPointer">The pixels.</param>
     public PixelBuffer(int width, int height, Format format, int rowStride, int bufferStride, nint dataPointer) {
         if (dataPointer == nint.Zero)
-            throw new ArgumentException("Pointer cannot be equal to IntPtr.Zero", "dataPointer");
+            throw new ArgumentException("Pointer cannot be equal to IntPtr.Zero", nameof(dataPointer));
 
         Width = width;
         Height = height;
@@ -105,7 +105,7 @@ public sealed class PixelBuffer {
             || Height != pixelBuffer.Height
             || PixelSize != FormatHelper.SizeOfInBytes(pixelBuffer.Format))
             throw new ArgumentException("Invalid destination pixelBufferArray. Mush have same Width, Height and Format",
-                                        "pixelBuffer");
+                                        nameof(pixelBuffer));
 
         // If buffers have same size, than we can copy it directly
         if (BufferStride == pixelBuffer.BufferStride) {

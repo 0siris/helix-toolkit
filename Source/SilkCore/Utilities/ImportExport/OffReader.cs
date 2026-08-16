@@ -108,9 +108,7 @@ public class OffReader : IModelReader {
     /// </param>
     /// <returns>A Model3D group.</returns>
     public Object3DGroup BuildModel(ModelInfo info = default) {
-        Object3DGroup? modelGroup = null;
-
-        modelGroup = [];
+        
         var g = CreateMeshGeometry3D(info);
         var gm = new Object3D {
             Geometry = g, Transform = [], Material = new PhongMaterialCore {
@@ -122,7 +120,8 @@ public class OffReader : IModelReader {
                 SpecularShininess = 25.6f
             }
         };
-        modelGroup.Add(gm);
+        
+        Object3DGroup modelGroup = [gm];
         return modelGroup;
     }
 
@@ -151,7 +150,7 @@ public class OffReader : IModelReader {
             if (line == null) break;
 
             line = line.Trim();
-            if (line.StartsWith("#") || line.Length == 0) continue;
+            if (line.StartsWith('#') || line.Length == 0) continue;
 
             if (nextLineContainsVertexDimension) {
                 var values = GetIntValues(line);
@@ -161,12 +160,12 @@ public class OffReader : IModelReader {
             }
 
             if (line.Contains("OFF")) {
-                containsNormals = line.Contains("N");
-                containsColors = line.Contains("C");
+                containsNormals = line.Contains('N');
+                containsColors = line.Contains('C');
                 containsTextureCoordinates = line.Contains("ST");
-                if (line.Contains("4")) containsHomogeneousCoordinates = true;
+                if (line.Contains('4')) containsHomogeneousCoordinates = true;
 
-                if (line.Contains("n")) nextLineContainsVertexDimension = true;
+                if (line.Contains('n')) nextLineContainsVertexDimension = true;
 
                 nextLineContainsNumberOfVertices = true;
                 continue;
@@ -191,7 +190,9 @@ public class OffReader : IModelReader {
                 var n = new double[vertexDimension];
                 var uv = new double[2];
                 double w = 0;
-                if (containsHomogeneousCoordinates) w = values[i++];
+                
+                if (containsHomogeneousCoordinates) 
+                    w = values[i++];
 
                 if (containsNormals)
                     for (var j = 0; j < vertexDimension; j++)

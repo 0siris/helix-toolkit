@@ -168,9 +168,8 @@ public class MeshGeometryOctree
                 var v0 = Positions[t1];
                 var v1 = Positions[t2];
                 var v2 = Positions[t3];
-                float d;
 
-                if (Collision.RayIntersectsTriangle(ref rayModel, ref v0, ref v1, ref v2, out d))
+                if (Collision.RayIntersectsTriangle(ref rayModel, ref v0, ref v1, ref v2, out float d))
                     if (d >= 0 && d < result.Distance) // If d is NaN, the condition is false.
                     {
                         result.IsValid = true;

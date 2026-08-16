@@ -3847,8 +3847,7 @@ public class MeshBuilder {
     public MeshGeometry3D ToMeshGeometry3D() {
         if (tangents is { Count: 0 } meshTangents && bitangents is { } meshBitangents &&
             normals is { } meshNormals && textureCoordinates is { } meshTextureCoordinates) {
-            Vector3DCollection tan, bitan;
-            ComputeTangents(positions, meshNormals, meshTextureCoordinates, triangleIndices, out tan, out bitan);
+            ComputeTangents(positions, meshNormals, meshTextureCoordinates, triangleIndices, out var tan, out var bitan);
             meshTangents.AddRange(tan);
             meshBitangents.AddRange(bitan);
         }

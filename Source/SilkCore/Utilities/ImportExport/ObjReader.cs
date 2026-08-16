@@ -237,7 +237,7 @@ public class ObjReader : IModelReader {
                 if (line == null) break;
 
                 line = line.Trim();
-                while (line.EndsWith("\\")) {
+                while (line.EndsWith('\\')) {
                     var nextLine = reader.ReadLine() ?? throw new InvalidDataException("Unexpected end of OBJ file.");
                     while (nextLine.Length == 0)
                         nextLine = reader.ReadLine() ?? throw new InvalidDataException("Unexpected end of OBJ file.");
@@ -245,13 +245,12 @@ public class ObjReader : IModelReader {
                     line = line.TrimEnd('\\') + nextLine;
                 }
 
-                if (line.StartsWith("#") || line.Length == 0) continue;
+                if (line.StartsWith('#') || line.Length == 0) 
+                    continue;
 
-                string keyword;
-                string? values;
-                SplitLine(line, out keyword, out values);
+                SplitLine(line, out var keyword, out var values);
                 values ??= string.Empty;
-                switch (keyword.ToLower()) {
+                switch (keyword.ToLower(CultureInfo.InvariantCulture)) {
                     // Vertex data
                     case "v": // geometric vertices
                         AddVertex(values);
@@ -454,8 +453,7 @@ public class ObjReader : IModelReader {
         if (values == "off") {
             currentSmoothingGroup = 0;
         } else {
-            long smoothingGroup;
-            if (long.TryParse(values, out smoothingGroup)) {
+            if (long.TryParse(values, out var smoothingGroup)) {
                 currentSmoothingGroup = smoothingGroup;
             } else {
                 // invalid parameter
@@ -554,8 +552,7 @@ public class ObjReader : IModelReader {
             if (smoothingGroupMap != null) {
                 var key = Tuple.Create(vi, vti, vni);
 
-                int vix;
-                if (smoothingGroupMap.TryGetValue(key, out vix)) {
+                if (smoothingGroupMap.TryGetValue(key, out var vix)) {
                     // use the index of a previously defined vertex
                     addVertex = false;
                 } else {
@@ -718,11 +715,9 @@ public class ObjReader : IModelReader {
 
             if (line.StartsWith("#") || line.Length == 0) continue;
 
-            string keyword;
-            string? value;
-            SplitLine(line, out keyword, out value);
+            SplitLine(line, out var keyword, out var value);
 
-            switch (keyword.ToLower()) {
+            switch (keyword.ToLower(CultureInfo.CurrentCulture)) {
                 case "newmtl":
                     if (value != null) {
                         if (Materials.ContainsKey(value)) {

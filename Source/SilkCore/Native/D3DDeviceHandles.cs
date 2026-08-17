@@ -847,6 +847,49 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         SetShaderResources(shaderStage, slot, (uint) shaderResourceViews.Length, viewPtrs);
     }
 
+    /// <summary>
+    ///     Gets the shader-resource views bound to a shader stage.
+    /// </summary>
+    /// <param name="shaderStage">The shader-stage index.</param>
+    /// <param name="startSlot">The first slot to query.</param>
+    /// <param name="count">The number of slots to query.</param>
+    /// <returns>The bound shader-resource views. Unbound slots contain <see langword="null" />.</returns>
+    public ShaderResourceView?[] GetShaderResources(int shaderStage, int startSlot, int count) {
+        if (startSlot < 0 || count <= 0)
+            return [];
+
+        var viewPtrs = stackalloc ID3D11ShaderResourceView*[count];
+        switch (shaderStage) {
+            case Constants.VertexIdx:
+                nativeContext.VSGetShaderResources((uint) startSlot, (uint) count, viewPtrs);
+                break;
+            case Constants.HullIdx:
+                nativeContext.HSGetShaderResources((uint) startSlot, (uint) count, viewPtrs);
+                break;
+            case Constants.DomainIdx:
+                nativeContext.DSGetShaderResources((uint) startSlot, (uint) count, viewPtrs);
+                break;
+            case Constants.GeometryIdx:
+                nativeContext.GSGetShaderResources((uint) startSlot, (uint) count, viewPtrs);
+                break;
+            case Constants.PixelIdx:
+                nativeContext.PSGetShaderResources((uint) startSlot, (uint) count, viewPtrs);
+                break;
+            case Constants.ComputeIdx:
+                nativeContext.CSGetShaderResources((uint) startSlot, (uint) count, viewPtrs);
+                break;
+            default:
+                return [];
+        }
+
+        var views = new ShaderResourceView?[count];
+        for (var i = 0; i < count; i++)
+            if (viewPtrs[i] != null)
+                views[i] = new ShaderResourceView(new SilkD3D11ShaderResourceViewPtr(viewPtrs[i]));
+
+        return views;
+    }
+
     public void SetSampler(int shaderStage, int slot, SamplerState? samplerState) {
         if (slot < 0) return;
 
@@ -868,6 +911,72 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
         }
 
         SetSamplers(shaderStage, slot, (uint) samplerStates.Length, statePtrs);
+    }
+
+    /// <summary>
+    ///     Gets the sampler states bound to a shader stage.
+    /// </summary>
+    /// <param name="shaderStage">The shader-stage index.</param>
+    /// <param name="startSlot">The first slot to query.</param>
+    /// <param name="count">The number of slots to query.</param>
+    /// <returns>The bound sampler states. Unbound slots contain <see langword="null" />.</returns>
+    public SamplerState?[] GetSamplers(int shaderStage, int startSlot, int count) {
+        if (startSlot < 0 || count <= 0)
+            return [];
+
+        var statePtrs = stackalloc ID3D11SamplerState*[count];
+        switch (shaderStage) {
+            case Constants.VertexIdx:
+                nativeContext.VSGetSamplers((uint) startSlot, (uint) count, statePtrs);
+                break;
+            case Constants.HullIdx:
+                nativeContext.HSGetSamplers((uint) startSlot, (uint) count, statePtrs);
+                break;
+            case Constants.DomainIdx:
+                nativeContext.DSGetSamplers((uint) startSlot, (uint) count, statePtrs);
+                break;
+            case Constants.GeometryIdx:
+                nativeContext.GSGetSamplers((uint) startSlot, (uint) count, statePtrs);
+                break;
+            case Constants.PixelIdx:
+                nativeContext.PSGetSamplers((uint) startSlot, (uint) count, statePtrs);
+                break;
+            case Constants.ComputeIdx:
+                nativeContext.CSGetSamplers((uint) startSlot, (uint) count, statePtrs);
+                break;
+            default:
+                return [];
+        }
+
+        var states = new SamplerState?[count];
+        for (var i = 0; i < count; i++) {
+            var statePtr = statePtrs[i];
+            if (statePtr == null)
+                continue;
+
+            SamplerDesc description;
+            statePtr->GetDesc(&description);
+            states[i] = new SamplerState(
+                new SilkD3D11SamplerStatePtr(statePtr),
+                new SamplerStateDescription {
+                    Filter = (Filter) description.Filter,
+                    AddressU = (TextureAddressMode) description.AddressU,
+                    AddressV = (TextureAddressMode) description.AddressV,
+                    AddressW = (TextureAddressMode) description.AddressW,
+                    MipLodBias = description.MipLODBias,
+                    MaximumAnisotropy = (int) description.MaxAnisotropy,
+                    ComparisonFunction = (Comparison) description.ComparisonFunc,
+                    BorderColor = new Color4(
+                        description.BorderColor[0],
+                        description.BorderColor[1],
+                        description.BorderColor[2],
+                        description.BorderColor[3]),
+                    MinimumLod = description.MinLOD,
+                    MaximumLod = description.MaxLOD
+                });
+        }
+
+        return states;
     }
 
     public void SetUnorderedAccessView(
@@ -907,6 +1016,28 @@ public sealed unsafe class SilkD3DDeviceContext : IDisposable {
             (uint) unorderedAccessViews.Length,
             viewPtrs,
             counts);
+    }
+
+    /// <summary>
+    ///     Gets the unordered-access views bound to a shader stage.
+    /// </summary>
+    /// <param name="shaderStage">The shader-stage index.</param>
+    /// <param name="startSlot">The first slot to query.</param>
+    /// <param name="count">The number of slots to query.</param>
+    /// <returns>The bound unordered-access views. Unbound slots contain <see langword="null" />.</returns>
+    public UnorderedAccessView?[] GetUnorderedAccessViews(int shaderStage, int startSlot, int count) {
+        if (shaderStage != Constants.ComputeIdx || startSlot < 0 || count <= 0)
+            return [];
+
+        var viewPtrs = stackalloc ID3D11UnorderedAccessView*[count];
+        nativeContext.CSGetUnorderedAccessViews((uint) startSlot, (uint) count, viewPtrs);
+
+        var views = new UnorderedAccessView?[count];
+        for (var i = 0; i < count; i++)
+            if (viewPtrs[i] != null)
+                views[i] = new UnorderedAccessView(new SilkD3D11UnorderedAccessViewPtr(viewPtrs[i]));
+
+        return views;
     }
 
     private void SetShaderResources(

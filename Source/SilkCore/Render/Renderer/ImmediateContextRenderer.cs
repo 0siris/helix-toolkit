@@ -175,7 +175,7 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
 
     /// <summary>
     ///     Updates the no render parallel.
-    ///     <see cref="IRenderer.UpdateNotRenderParallel(RenderContext, FastList{KeyValuePair{int, SceneNode}})" />
+    ///     <see cref="IRenderer.UpdateNotRenderParallel(RenderContext, FastList{(int, SceneNode)}" />
     /// </summary>
     /// <param name="renderables">The renderables.</param>
     /// <param name="context"></param>
@@ -185,7 +185,8 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
         FastList<KeyValuePair<int, SceneNode>> renderables
     ) {
         var count = renderables.Count;
-        for (var i = 0; i < count; ++i) renderables[i].Value.UpdateNotRender(context);
+        for (var i = 0; i < count; ++i) 
+            renderables[i].Value.UpdateNotRender(context);
     }
 
     /// <summary>
@@ -216,7 +217,8 @@ public class ImmediateContextRenderer : DisposeObject, IRenderer {
         ref RenderParameter2D parameter
     ) {
         var count = renderables.Count;
-        for (var i = 0; i < count; ++i) renderables[i].Render(context);
+        for (var i = 0; i < count; ++i) 
+            renderables[i].Render(context);
     }
 
     /// <summary>

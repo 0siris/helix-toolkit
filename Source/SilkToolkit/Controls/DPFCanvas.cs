@@ -182,7 +182,7 @@ public sealed class DPFCanvas : Image, IRenderCanvas, IDisposable {
 
     private void EndD3D() => RenderHost.EndD3D();
 
-    private void OnIsFrontBufferAvailableChanged(object sender, DependencyPropertyChangedEventArgs e) {
+    private void OnIsFrontBufferAvailableChanged(object? sender, DependencyPropertyChangedEventArgs e) {
         if (Logger.IsEnabled(LogLevel.Debug)) 
             Logger.Debug("OnIsFrontBufferAvailableChanged: {Value0}", (bool)e.NewValue);
         

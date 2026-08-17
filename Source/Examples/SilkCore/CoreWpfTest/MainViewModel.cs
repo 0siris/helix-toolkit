@@ -116,7 +116,7 @@ public class MainViewModel : ObservableObject {
     private NodeAnimationUpdater? animationUpdater;
     private List<BoneSkinMeshNode> boneSkinNodes = [];
     private List<BoneSkinMeshNode> skeletonNodes = [];
-    private CompositionTargetEx compositeHelper = new();
+    private readonly CompositionTargetEx compositeHelper = new();
 
 
     public MainViewModel() {

@@ -44,13 +44,19 @@ public partial class DeviceContextProxy {
         where TShader : struct, IShaderResourceType
         => SetShaderResources(TShader.Index, slot, texture);
 
-    [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+    /// <summary>
+    ///     Gets the shader-resource views bound to the specified shader stage.
+    /// </summary>
+    /// <typeparam name="TShader">The shader-stage marker type.</typeparam>
+    /// <param name="startSlot">The first slot to query.</param>
+    /// <param name="num">The number of slots to query.</param>
+    /// <returns>The bound shader-resource views. Unbound slots contain <see langword="null" />.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceView[] GetShaderResources<TShader>(
+    public ShaderResourceView?[] GetShaderResources<TShader>(
         int startSlot,
         int num
     ) where TShader : struct, IShaderResourceType
-        => []; //TODO implement
+        => NativeContext.GetShaderResources(TShader.Index, startSlot, num);
 
     #endregion
 
@@ -82,11 +88,17 @@ public partial class DeviceContextProxy {
     ) where TShader : struct, IUnorderedAccessShaderType
         => NativeContext.SetUnorderedAccessView(slot, uav, uavInitialCount);
 
-    [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+    /// <summary>
+    ///     Gets the unordered-access views bound to the specified shader stage.
+    /// </summary>
+    /// <typeparam name="TShader">The shader-stage marker type.</typeparam>
+    /// <param name="startSlot">The first slot to query.</param>
+    /// <param name="num">The number of slots to query.</param>
+    /// <returns>The bound unordered-access views. Unbound slots contain <see langword="null" />.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public UnorderedAccessView[] GetUnorderedAccessView<TShader>(int startSlot, int num)
+    public UnorderedAccessView?[] GetUnorderedAccessView<TShader>(int startSlot, int num)
         where TShader : struct, IUnorderedAccessShaderType
-        => [];//TODO implement
+        => NativeContext.GetUnorderedAccessViews(TShader.Index, startSlot, num);
     
     #endregion
 
@@ -106,20 +118,39 @@ public partial class DeviceContextProxy {
         where TShader : struct, ISamplerShaderType
         => TrackSamplers(TShader.Index, slot, samplers);
     
-    [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+    /// <summary>
+    ///     Gets the sampler states bound to the specified shader stage.
+    /// </summary>
+    /// <typeparam name="TShader">The shader-stage marker type.</typeparam>
+    /// <param name="startSlot">The first slot to query.</param>
+    /// <param name="num">The number of slots to query.</param>
+    /// <returns>The bound sampler states. Unbound slots contain <see langword="null" />.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SamplerStateProxy[] GetSampler<TShader>(int startSlot, int num) 
+    public SamplerStateProxy?[] GetSampler<TShader>(int startSlot, int num)
         where TShader : struct, ISamplerShaderType
-        => []; //TODO implement
+        => GetSamplers<TShader>(startSlot, num);
     
-    [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+    /// <summary>
+    ///     Gets the sampler states bound to the specified shader stage.
+    /// </summary>
+    /// <typeparam name="TShader">The shader-stage marker type.</typeparam>
+    /// <param name="startSlot">The first slot to query.</param>
+    /// <param name="num">The number of slots to query.</param>
+    /// <returns>The bound sampler states. Unbound slots contain <see langword="null" />.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SamplerStateProxy[] GetSamplers<TShader>(
+    public SamplerStateProxy?[] GetSamplers<TShader>(
         int startSlot,
         int num
     )
-        where TShader : struct, ISamplerShaderType
-        => [];//TODO implement
+        where TShader : struct, ISamplerShaderType {
+        var states = NativeContext.GetSamplers(TShader.Index, startSlot, num);
+        var proxies = new SamplerStateProxy?[states.Length];
+        for (var i = 0; i < states.Length; i++)
+            if (states[i] is { } state)
+                proxies[i] = new SamplerStateProxy(state);
+
+        return proxies;
+    }
 
     #endregion
 

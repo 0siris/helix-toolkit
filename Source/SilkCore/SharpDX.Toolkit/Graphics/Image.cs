@@ -565,7 +565,7 @@ public sealed class Image : Component {
         // Calculate mipmaps
         mipMapToZIndex = CalculateImageArray(description, pitchFlags, out var pixelBufferCount, out totalSizeInBytes);
         mipmapDescriptions = CalculateMipMapDescription(description, pitchFlags);
-        zBufferCountPerArraySlice = mipMapToZIndex[mipMapToZIndex.Count - 1];
+        zBufferCountPerArraySlice = mipMapToZIndex[^1];
 
         // Allocate all pixel buffers
         PixelBuffers = new PixelBuffer[pixelBufferCount];

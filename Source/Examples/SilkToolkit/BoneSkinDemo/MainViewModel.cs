@@ -102,13 +102,13 @@ public class MainViewModel : BaseViewModel {
     private const int NumSegments = 100;
     private const int Theta = 24;
     private long startAniTime;
-    private CancellationTokenSource cts = new();
+    private readonly CancellationTokenSource cts = new();
     private bool reset = true;
     private HelixToolkitScene? scene;
     private NodeAnimationUpdater? animationUpdater;
-    private List<BoneSkinMeshNode> boneSkinNodes = [];
-    private List<BoneSkinMeshNode> skeletonNodes = [];
-    private CompositionTargetEx compositeHelper = new();
+    private readonly List<BoneSkinMeshNode> boneSkinNodes = [];
+    private readonly List<BoneSkinMeshNode> skeletonNodes = [];
+    private readonly CompositionTargetEx compositeHelper = new();
 
     public MainViewModel() {
         Title = "BoneSkin Demo";

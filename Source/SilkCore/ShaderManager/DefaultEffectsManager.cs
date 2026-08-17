@@ -13,8 +13,6 @@ namespace HelixToolkit.SharpDX.Core.ShaderManager;
 ///     Default shader technique manager, includes all internal shaders
 /// </summary>
 public class DefaultEffectsManager : EffectsManager {
-    private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="DefaultEffectsManager" /> class.
     /// </summary>

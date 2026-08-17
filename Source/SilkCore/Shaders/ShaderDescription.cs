@@ -65,7 +65,7 @@ public sealed class ShaderDescription {
 
     /// <summary>
     ///     Create shader using reflector to get buffer mapping directly from shader codes.
-    ///     <para>Actual creation happened when calling <see cref="CreateShader(Device, IConstantBufferPool)" /></para>
+    ///     <para>Actual creation happened when calling <see cref="CreateShader(NativeD3DDevice, IConstantBufferPool)" /></para>
     /// </summary>
     /// <param name="name"></param>
     /// <param name="type"></param>
@@ -212,7 +212,7 @@ public sealed class ShaderDescription {
         var deviceFeatureLevel = device.FeatureLevel.ToFeatureLevel();
         if (Level > deviceFeatureLevel) {
             Logger.Warn(
-                "Shader {Value0} requires FeatureLevel {Value1}. Current device only supports FeatureLevel {Value2} and below.",
+                "Shader {Value0} requires FeatureLevel {Value1}. Current device only supports FeatureLevel {Value2} and below",
                 Name,
                 Level,
                 deviceFeatureLevel);

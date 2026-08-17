@@ -23,13 +23,13 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
         effectsManager = manager;
         if (description is {InputLayoutDescription: not null, PassDescriptions: not null}
             && manager is { } actualManager)
-                foreach (var desc in description.PassDescriptions) {
-                    if (desc.Name is not { } passName) continue;
-                    desc.InputLayoutDescription ??= description.InputLayoutDescription;
-                    var pass = new Lazy<ShaderPass>(() => new ShaderPass(desc, actualManager), true);
-                    passDict.Add(passName, pass);
-                    passList.Add(pass);
-                }
+            foreach (var desc in description.PassDescriptions) {
+                if (desc.Name is not { } passName) continue;
+                desc.InputLayoutDescription ??= description.InputLayoutDescription;
+                var pass = new Lazy<ShaderPass>(() => new ShaderPass(desc, actualManager), true);
+                passDict.Add(passName, pass);
+                passList.Add(pass);
+            }
     }
 
     public static IRenderTechnique NullTechnique { get; } =
@@ -98,8 +98,8 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    public ShaderPass GetPass(string name) => !string.IsNullOrEmpty(name) && passDict.ContainsKey(name)
-        ? passDict[name].Value
+    public ShaderPass GetPass(string name) => !string.IsNullOrEmpty(name) && passDict.TryGetValue(name, out var value)
+        ? value.Value
         : ShaderPass.NullPass;
 
     /// <summary>

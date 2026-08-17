@@ -383,7 +383,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <exception cref="ArgumentException"></exception>
     public IRenderTechnique GetTechnique(string name) {
         if (!techniqueDict.TryGetValue(name, out var t)) {
-            Logger.Warn("Technique {Value0} does not exist. Return a null technique.", name);
+            Logger.Warn("Technique {Value0} does not exist. Return a null technique", name);
             return new Technique(new TechniqueDescription {
                 Name = name,
                 IsNull = true

@@ -42,12 +42,12 @@ public sealed unsafe class ArrayStorage : DisposeObject {
         }
 
         if (Logger.IsEnabled(LogLevel.Debug))
-            Logger.Debug("Getting new id [{Value0}] on struct size [{Value1}].", id, StructSize);
+            Logger.Debug("Getting new id [{Value0}] on struct size [{Value1}]", id, StructSize);
         return id;
     }
 
     public void ReleaseId(int id) {
-        if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("Release id [{Value0}] on struct size [{Value1}].", id, StructSize);
+        if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("Release id [{Value0}] on struct size [{Value1}]", id, StructSize);
         idHelper.ReleaseId(id);
         Clear(id);
     }

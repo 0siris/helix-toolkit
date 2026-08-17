@@ -466,8 +466,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
 
     #region IReflector
 
-    private SamplerStateProxy[]? currSampler;
-    private ShaderResourceView[]? currRes;
+    private SamplerStateProxy?[]? currSampler;
+    private ShaderResourceView?[]? currRes;
 
     /// <summary>
     ///     Binds the cube map.
@@ -493,8 +493,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
         deviceContext.SetShaderResources<PixelShaderType>(cubeTextureSlot, resources);
         deviceContext.SetSamplers<PixelShaderType>(textureSamplerSlot, samplers);
 
-        currSampler.DisposeAll();
-        currRes.DisposeAll();
+        currSampler.OfType<SamplerStateProxy>().DisposeAll();
+        currRes.OfType<ShaderResourceView>().DisposeAll();
 
         currSampler = [];
         currRes = [];

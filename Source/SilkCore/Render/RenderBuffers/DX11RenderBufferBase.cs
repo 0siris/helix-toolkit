@@ -37,7 +37,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     public ShaderResourceViewProxy ColorBuffer {
         get => field ?? throw new InvalidOperationException("ColorBuffer buffer is not initialized.");
         private set {
-            if (EqualityComparer<ShaderResourceView>.Default.Equals(value,field))
+            if (ReferenceEquals(value, field))
                 return;
             
             field?.Dispose();
@@ -50,7 +50,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     public ShaderResourceViewProxy BackBuffer {
         get => field ?? throw new InvalidOperationException("BackBuffer buffer is not initialized.");
         private set {
-            if (EqualityComparer<ShaderResourceView>.Default.Equals(value,field))
+            if (ReferenceEquals(value, field))
                 return;
 
             field?.Dispose();
@@ -64,7 +64,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         get => field ?? throw new InvalidOperationException("DepthStencilBuffer buffer is not initialized.");
         
         private set {
-            if (EqualityComparer<ShaderResourceView>.Default.Equals(value,field))
+            if (ReferenceEquals(value, field))
                 return;
 
             field?.Dispose();
@@ -77,7 +77,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     public ShaderResourceViewProxy? DepthStencilBufferNoMsaa {
         get;
         private set {
-            if(EqualityComparer<ShaderResourceView>.Default.Equals(value,field))
+            if (ReferenceEquals(value, field))
                 return;
             
             field?.Dispose();
@@ -94,7 +94,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     public D2DTargetProxy? D2DTarget {
         get;
         protected set {
-            if(EqualityComparer<D2DTargetProxy>.Default.Equals(value,field))
+            if (ReferenceEquals(value, field))
                 return;
 
             field?.Dispose();
@@ -128,7 +128,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     public IDeviceContextPool DeviceContextPool {
         get => field ?? throw new InvalidOperationException("Render buffer is disposed.");
         private set {
-            if(EqualityComparer<IDeviceContextPool>.Default.Equals(value, field))
+            if (ReferenceEquals(value, field))
                 return;
             field?.Dispose();
             field = value;

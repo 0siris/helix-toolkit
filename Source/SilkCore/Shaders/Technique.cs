@@ -8,6 +8,7 @@ using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;
+
 public sealed class Technique : DisposeObject, IRenderTechnique {
     private readonly Dictionary<string, Lazy<ShaderPass>> passDict = [];
     private readonly List<Lazy<ShaderPass>> passList = [];
@@ -22,7 +23,8 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
         Name = description.Name ?? string.Empty;
         effectsManager = manager;
         if (description is {InputLayoutDescription: not null, PassDescriptions: not null}
-            && manager is { } actualManager)
+            && manager is { } actualManager) {
+            layout = actualManager.ShaderManager.RegisterInputLayout(description.InputLayoutDescription);
             foreach (var desc in description.PassDescriptions) {
                 if (desc.Name is not { } passName) continue;
                 desc.InputLayoutDescription ??= description.InputLayoutDescription;
@@ -30,10 +32,13 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
                 passDict.Add(passName, pass);
                 passList.Add(pass);
             }
+        }
     }
 
     public static IRenderTechnique NullTechnique { get; } =
-        new Technique(new TechniqueDescription { IsNull = true }, null);
+        new Technique(new TechniqueDescription {
+            IsNull = true
+        }, null);
 
     /// <summary>
     ///     Gets the unique identifier.
@@ -63,7 +68,7 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     ///     <see cref="IRenderTechnique.Layout" />
     /// </summary>
     public InputLayoutProxy Layout => layout
-        ?? throw new InvalidOperationException("The technique has no input layout.");
+                                      ?? throw new InvalidOperationException("The technique has no input layout.");
 
     /// <summary>
     ///     <see cref="IRenderTechnique.Device" />
@@ -91,7 +96,8 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     private IEffectsManager? effectsManager;
 
     public IEffectsManager EffectsManager => effectsManager
-        ?? throw new InvalidOperationException("The technique is not attached to an effects manager.");
+                                             ?? throw new InvalidOperationException(
+                                                 "The technique is not attached to an effects manager.");
 
     /// <summary>
     ///     <see cref="IRenderTechnique.GetPass(string)" />
@@ -107,7 +113,9 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     /// </summary>
     /// <param name="index"></param>
     /// <returns></returns>
-    public ShaderPass GetPass(int index) => index >= 0 && passList.Count > index ? passList[index].Value : ShaderPass.NullPass;
+    public ShaderPass GetPass(int index) => index >= 0 && passList.Count > index
+        ? passList[index].Value
+        : ShaderPass.NullPass;
 
     /// <summary>
     ///     Adds the pass.

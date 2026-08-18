@@ -2,12 +2,16 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
+using HelixToolkit.Wpf.SharpDX.Controls;
 using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using HelixToolkit.Wpf.SharpDX.Material;
+using HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 using HelixToolkit.Wpf.SharpDX.Model.Lights3D;
 using Xunit;
 using Binding = System.Windows.Data.Binding;
@@ -15,8 +19,53 @@ using DiffuseMaterial = HelixToolkit.Wpf.SharpDX.Material.DiffuseMaterial;
 using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.Camera.PerspectiveCamera;
 
 namespace SilkToolkit.Tests;
+
 [Collection(WpfCollection.Name)]
 public sealed class WpfContractTests {
+    /// <summary>
+    ///     Verifies that shape layout properties can create their scene node before a dash array is assigned.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Wpf")]
+    public Task ShapeCreatesSceneNodeWithDefaultStroke() {
+        return StaThread.RunAsync(() => {
+            using var shape = new EllipseModel2D {
+                Width = 20
+            };
+
+            Assert.Empty(Assert.IsType<EllipseNode2D>(shape.SceneNode)
+                .StrokeDashArray);
+        });
+    }
+
+    /// <summary>
+    ///     Verifies that text properties initialize their render core lazily.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Wpf")]
+    public void TextNodeCreatesRenderCoreForPropertyUpdates() {
+        using var node = new TextNode2D {
+            Text = "test"
+        };
+
+        Assert.Equal("test", Assert.IsType<TextRenderCore2D>(node.RenderCore)
+            .Text);
+    }
+
+    /// <summary>
+    ///     Verifies that a viewport starts with an initialized default camera.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Wpf")]
+    public Task ViewportStartsWithDefaultCamera() {
+        return StaThread.RunAsync(() => {
+            using var viewport = new Viewport3DX();
+
+            Assert.IsType<PerspectiveCamera>(viewport.Camera);
+            Assert.IsType<PerspectiveCameraCore>(viewport.CameraCore);
+        });
+    }
+
     [Fact]
     [Trait("Category", "Wpf")]
     public Task CameraDependencyPropertiesUpdateCore() {
@@ -41,15 +90,20 @@ public sealed class WpfContractTests {
     [Trait("Category", "Wpf")]
     public Task CameraPropertySupportsBinding() {
         return StaThread.RunAsync(() => {
-            var source = new FieldOfViewSource { Value = 72 };
+            var source = new FieldOfViewSource {
+                Value = 72
+            };
             var camera = new PerspectiveCamera();
 
             BindingOperations.SetBinding(camera,
-                                         PerspectiveCamera.FieldOfViewProperty,
-                                         new Binding(nameof(FieldOfViewSource.Value)) { Source = source });
+                PerspectiveCamera.FieldOfViewProperty,
+                new Binding(nameof(FieldOfViewSource.Value)) {
+                    Source = source
+                });
 
             Assert.Equal(72, camera.FieldOfView);
-            Assert.Equal(72f, Assert.IsType<PerspectiveCameraCore>(camera.CameraInternal).FieldOfView);
+            Assert.Equal(72f, Assert.IsType<PerspectiveCameraCore>(camera.CameraInternal)
+                .FieldOfView);
         });
     }
 
@@ -124,7 +178,7 @@ public sealed class WpfContractTests {
             typeof(FieldOfViewSource));
 
         public double Value {
-            get => (double)GetValue(ValueProperty);
+            get => (double) GetValue(ValueProperty);
             set => SetValue(ValueProperty, value);
         }
     }

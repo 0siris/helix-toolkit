@@ -11,6 +11,7 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 
 namespace HelixToolkit.SharpDX.Core.Interface;
+
 /// <summary>
 /// </summary>
 public struct RenderParameter {
@@ -22,7 +23,7 @@ public struct RenderParameter {
     /// <summary>
     ///     The depth stencil view
     /// </summary>
-    public DepthStencilView DepthStencilView;
+    public DepthStencilView? DepthStencilView;
 
     /// <summary>
     ///     Current rendered texture

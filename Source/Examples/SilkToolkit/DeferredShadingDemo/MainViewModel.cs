@@ -66,7 +66,7 @@ public class MainViewModel : BaseViewModel {
     public Transform3D PointLightTransform2 { get; private set; }
     public Transform3D PointLightTransform3 { get; private set; }
 
-    public ObservableElement3DCollection PointLightCollection { get; set; }
+    public ObservableElement3DCollection PointLightCollection { get; set; } = [];
 
     public Color PointLightColor {
         get;
@@ -97,7 +97,7 @@ public class MainViewModel : BaseViewModel {
         }
     }
 
-    public ObservableElement3DCollection SpotLightCollection { get; set; }
+    public ObservableElement3DCollection SpotLightCollection { get; set; } = [];
 
     public Color SpotLightColor {
         get;
@@ -153,7 +153,8 @@ public class MainViewModel : BaseViewModel {
             UpDirection = new Vector3D(0, 1, 0)
         };
 
-        // deferred render technique
+        // RenderDeferred's legacy renderer and shader passes were not migrated from SharpDX, so it resolves to NullTechnique.
+        // Keep the deferred selection visible until the pipeline is ported instead of silently selecting Mesh here.
 
         EffectsManager = new DefaultEffectsManager();
         RenderTechnique = EffectsManager[DeferredRenderTechniqueNames.Deferred];
@@ -221,12 +222,10 @@ public class MainViewModel : BaseViewModel {
         SpotLightAttenuation = new Vector3D(1.0, 0.1, 0.01);
 
         // light collection
-        PointLightCollection = [];
         PointLightCount = 7;
         PointLightSpread = 100;
 
         // spotlight collection
-        SpotLightCollection = [];
         SpotLightCount = 7;
         SpotLightSpread = 100;
     }
@@ -255,8 +254,9 @@ public class MainViewModel : BaseViewModel {
                 Color = PointLightColor,
                 Attenuation = PointLightAttenuation,
                 Transform = CreateAnimatedTransform(
-                    new Vector3D(rndx.NextDouble() * spread - spread / 2.0, 1, rndz.NextDouble() * spread - spread / 2), //TODO review division /2
-                                                              new Vector3D(0, 1, 0),
+                    new Vector3D(rndx.NextDouble() * spread - spread / 2.0, 1,
+                        rndz.NextDouble() * spread - spread / 2), //TODO review division /2
+                    new Vector3D(0, 1, 0),
                     rndx.Next(10) + 4),
             };
             PointLightCollection.Add(pointLight);
@@ -395,7 +395,6 @@ public class MainViewModel : BaseViewModel {
         memory.Position = 0;
         return memory;
     }
-    
 }
 
 public class ColorVectorConverter : IValueConverter {

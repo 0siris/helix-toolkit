@@ -11,11 +11,10 @@ using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Render.RenderBuffers;
+
 /// <summary>
 /// </summary>
 public abstract class DX11RenderBufferProxyBase : DisposeObject {
-    
-
     /// <summary>
     ///     The vertical synchronize internal. Only valid under swapchain rendering mode. Default = 0
     ///     <para>0: disable; 1: Sync with frame.</para>
@@ -39,10 +38,9 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         private set {
             if (ReferenceEquals(value, field))
                 return;
-            
+
             field?.Dispose();
             field = value;
-            
         }
     }
 
@@ -59,10 +57,8 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     }
 
     ///the depth stencil buffer
-    [AllowNull]
-    public ShaderResourceViewProxy DepthStencilBuffer {
-        get => field ?? throw new InvalidOperationException("DepthStencilBuffer buffer is not initialized.");
-        
+    public ShaderResourceViewProxy? DepthStencilBuffer {
+        get;
         private set {
             if (ReferenceEquals(value, field))
                 return;
@@ -70,7 +66,6 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
             field?.Dispose();
             field = value;
         }
-        
     }
 
     /// The depth stencil buffer
@@ -79,7 +74,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         private set {
             if (ReferenceEquals(value, field))
                 return;
-            
+
             field?.Dispose();
             field = value;
         }
@@ -134,7 +129,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
             field = value;
         }
     }
-        
+
 
     /// <summary>
     ///     Gets or sets a value indicating whether this is initialized.
@@ -151,10 +146,12 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     ///     The format.
     /// </value>
     public Format Format { get; set; } = Format.FormatB8G8R8A8Unorm;
+
     /// <summary>
     ///     Set MSAA level. If set to Two/Four/Eight, the actual level is set to minimum between Maximum and Two/Four/Eight
     /// </summary>
     public MsaaLevel Msaa { get; private set; } = MsaaLevel.Disable;
+
     /// <summary>
     ///     The currently used Direct3D Device
     /// </summary>
@@ -238,7 +235,9 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
             DepthStencilBufferNoMsaa.CreateTextureView(new ShaderResourceViewDescription {
                 Format = depthFormat.ComputeSrvFormat(),
                 Dimension = ShaderResourceViewDimension.Texture2D,
-                Texture2D = new ShaderResourceViewDescription.Texture2DResource { MipLevels = 1 }
+                Texture2D = new ShaderResourceViewDescription.Texture2DResource {
+                    MipLevels = 1
+                }
             });
         } else {
             DepthStencilBufferNoMsaa = DepthStencilBuffer;
@@ -252,13 +251,13 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
         DisposeBuffers();
         ColorBufferSampleDesc = GetMsaaSampleDescription();
         OnCreateRenderTargetAndDepthBuffers(width,
-                                            height,
-                                            UseDepthStencilBuffer,
-                                            out var colorBuffer,
-                                            out var depthStencilBuffer);
+            height,
+            UseDepthStencilBuffer,
+            out var colorBuffer,
+            out var depthStencilBuffer);
         ColorBuffer = colorBuffer;
         DepthStencilBuffer = depthStencilBuffer;
-        
+
         CreateNonMsaaDepthStencilBuffer(width, height);
         BackBuffer = OnCreateBackBuffer(width, height);
         BackBuffer.CreateRenderTargetView();
@@ -277,85 +276,85 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     private void InitializeTexturePools(int width, int height) {
         fullResPpBuffer = new PingPongColorBuffers(Format, width, height, DeviceResources);
         fullResDepthStencilPool = new TexturePool(DeviceResources,
-                                                  new Texture2DDescription {
-                                                      Width = width,
-                                                      Height = height,
-                                                      ArraySize = 1,
-                                                      BindFlags = BindFlags.DepthStencil,
-                                                      CpuAccessFlags = CpuAccessFlags.None,
-                                                      Usage = ResourceUsage.Default,
-                                                      MipLevels = 1,
-                                                      OptionFlags = ResourceOptionFlags.None,
-                                                      SampleDescription = new SampleDescription(1, 0)
-                                                  });
+            new Texture2DDescription {
+                Width = width,
+                Height = height,
+                ArraySize = 1,
+                BindFlags = BindFlags.DepthStencil,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Usage = ResourceUsage.Default,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription = new SampleDescription(1, 0)
+            });
 
         fullResRenderTargetPool = new TexturePool(DeviceResources,
-                                                  new Texture2DDescription {
-                                                      Width = width,
-                                                      Height = height,
-                                                      BindFlags = BindFlags.RenderTarget |
-                                                                  BindFlags.ShaderResource,
-                                                      CpuAccessFlags = CpuAccessFlags.None,
-                                                      Usage = ResourceUsage.Default,
-                                                      ArraySize = 1,
-                                                      MipLevels = 1,
-                                                      OptionFlags = ResourceOptionFlags.None,
-                                                      SampleDescription = new SampleDescription(1, 0)
-                                                  });
+            new Texture2DDescription {
+                Width = width,
+                Height = height,
+                BindFlags = BindFlags.RenderTarget |
+                            BindFlags.ShaderResource,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Usage = ResourceUsage.Default,
+                ArraySize = 1,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription = new SampleDescription(1, 0)
+            });
 
         halfResDepthStencilPool = new TexturePool(DeviceResources,
-                                                  new Texture2DDescription {
-                                                      Width = Math.Max(2, width / 2),
-                                                      Height = Math.Max(2, height / 2),
-                                                      ArraySize = 1,
-                                                      BindFlags = BindFlags.DepthStencil,
-                                                      CpuAccessFlags = CpuAccessFlags.None,
-                                                      Usage = ResourceUsage.Default,
-                                                      MipLevels = 1,
-                                                      OptionFlags = ResourceOptionFlags.None,
-                                                      SampleDescription = new SampleDescription(1, 0)
-                                                  });
+            new Texture2DDescription {
+                Width = Math.Max(2, width / 2),
+                Height = Math.Max(2, height / 2),
+                ArraySize = 1,
+                BindFlags = BindFlags.DepthStencil,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Usage = ResourceUsage.Default,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription = new SampleDescription(1, 0)
+            });
 
         halfResRenderTargetPool = new TexturePool(DeviceResources,
-                                                  new Texture2DDescription {
-                                                      Width = Math.Max(2, width / 2),
-                                                      Height = Math.Max(2, height / 2),
-                                                      BindFlags = BindFlags.RenderTarget |
-                                                                  BindFlags.ShaderResource,
-                                                      CpuAccessFlags = CpuAccessFlags.None,
-                                                      Usage = ResourceUsage.Default,
-                                                      ArraySize = 1,
-                                                      MipLevels = 1,
-                                                      OptionFlags = ResourceOptionFlags.None,
-                                                      SampleDescription = new SampleDescription(1, 0)
-                                                  });
+            new Texture2DDescription {
+                Width = Math.Max(2, width / 2),
+                Height = Math.Max(2, height / 2),
+                BindFlags = BindFlags.RenderTarget |
+                            BindFlags.ShaderResource,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Usage = ResourceUsage.Default,
+                ArraySize = 1,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription = new SampleDescription(1, 0)
+            });
 
         quarterResDepthStencilPool = new TexturePool(DeviceResources,
-                                                     new Texture2DDescription {
-                                                         Width = Math.Max(2, width / 4),
-                                                         Height = Math.Max(2, height / 4),
-                                                         ArraySize = 1,
-                                                         BindFlags = BindFlags.DepthStencil,
-                                                         CpuAccessFlags = CpuAccessFlags.None,
-                                                         Usage = ResourceUsage.Default,
-                                                         MipLevels = 1,
-                                                         OptionFlags = ResourceOptionFlags.None,
-                                                         SampleDescription = new SampleDescription(1, 0)
-                                                     });
+            new Texture2DDescription {
+                Width = Math.Max(2, width / 4),
+                Height = Math.Max(2, height / 4),
+                ArraySize = 1,
+                BindFlags = BindFlags.DepthStencil,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Usage = ResourceUsage.Default,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription = new SampleDescription(1, 0)
+            });
 
         quarterResRenderTargetPool = new TexturePool(DeviceResources,
-                                                     new Texture2DDescription {
-                                                         Width = Math.Max(2, width / 4),
-                                                         Height = Math.Max(2, height / 4),
-                                                         BindFlags = BindFlags.RenderTarget |
-                                                                     BindFlags.ShaderResource,
-                                                         CpuAccessFlags = CpuAccessFlags.None,
-                                                         Usage = ResourceUsage.Default,
-                                                         ArraySize = 1,
-                                                         MipLevels = 1,
-                                                         OptionFlags = ResourceOptionFlags.None,
-                                                         SampleDescription = new SampleDescription(1, 0)
-                                                     });
+            new Texture2DDescription {
+                Width = Math.Max(2, width / 4),
+                Height = Math.Max(2, height / 4),
+                BindFlags = BindFlags.RenderTarget |
+                            BindFlags.ShaderResource,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Usage = ResourceUsage.Default,
+                ArraySize = 1,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription = new SampleDescription(1, 0)
+            });
     }
 
     private void DisposeTexturePools() {
@@ -397,8 +396,9 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
 
                 sampleCount = newSampleCount;
                 sampleQuality = newSampleQuality;
-                if (sampleCount == (int)Msaa) break;
+                if (sampleCount == (int) Msaa) break;
             } while (sampleCount < 32);
+
         return new SampleDescription(sampleCount, sampleQuality);
     }
 
@@ -455,14 +455,16 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
             depthStencilBuffer.CreateDepthStencilView(new DepthStencilViewDescription {
                 Format = depthdesc.Format.ComputeDsvFormat(),
                 Dimension = HasMsaa
-                                ? DepthStencilViewDimension.Texture2DMultisampled
-                                : DepthStencilViewDimension.Texture2D
+                    ? DepthStencilViewDimension.Texture2DMultisampled
+                    : DepthStencilViewDimension.Texture2D
             });
             if (canUseAsShaderResource)
                 depthStencilBuffer.CreateTextureView(new ShaderResourceViewDescription {
                     Format = depthdesc.Format.ComputeSrvFormat(),
                     Dimension = ShaderResourceViewDimension.Texture2D,
-                    Texture2D = new ShaderResourceViewDescription.Texture2DResource { MipLevels = depthdesc.MipLevels }
+                    Texture2D = new ShaderResourceViewDescription.Texture2DResource {
+                        MipLevels = depthdesc.MipLevels
+                    }
                 });
         } else {
             depthStencilBuffer = null;
@@ -473,9 +475,15 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     ///     Sets the default render-targets
     /// </summary>
     public void SetDefaultRenderTargets(DeviceContextProxy.DeviceContextProxy context, bool isColorBuffer = true) {
-        context.SetRenderTargets(isColorBuffer ? DepthStencilBuffer : null,
-                                 [isColorBuffer ? ColorBuffer : BackBuffer]);
-        
+        context.SetRenderTargets(isColorBuffer
+                ? DepthStencilBuffer
+                : null,
+            [
+                isColorBuffer
+                    ? ColorBuffer
+                    : BackBuffer
+            ]);
+
         //context.OutputMerger.SetTargets(depthStencilBuffer, new RenderTargetView[] { isColorBuffer ? colorBuffer : backBuffer });
         context.SetViewport(0, 0, TargetWidth, TargetHeight);
         context.SetScissorRectangle(0, 0, TargetWidth, TargetHeight);
@@ -494,7 +502,7 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="color">The color.</param>
-    public void ClearRenderTarget(DeviceContextProxy.DeviceContextProxy context, Color4 color) 
+    public void ClearRenderTarget(DeviceContextProxy.DeviceContextProxy context, Color4 color)
         => ClearRenderTarget(context, color, clearBackBuffer: true, clearDepthStencilBuffer: true);
 
     /// <summary>
@@ -512,9 +520,9 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     ) {
         if (clearBackBuffer) context.ClearRenderTargetView(ColorBuffer, color);
 
-        if (clearDepthStencilBuffer)
-            context.ClearDepthStencilView(DepthStencilBuffer,
-                                          DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil);
+        if (clearDepthStencilBuffer && DepthStencilBuffer is { } depthStencilBuffer)
+            context.ClearDepthStencilView(depthStencilBuffer,
+                DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil);
     }
 
     /// <summary>
@@ -524,7 +532,8 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     /// <param name="height">The height.</param>
     /// <param name="msaa">The msaa.</param>
     /// <returns></returns>
-    public ShaderResourceViewProxy Initialize(int width, int height, MsaaLevel msaa) => CreateRenderTarget(width, height, msaa);
+    public ShaderResourceViewProxy Initialize(int width, int height, MsaaLevel msaa)
+        => CreateRenderTarget(width, height, msaa);
 
     /// <summary>
     ///     Resize render target and depthbuffer resolution
@@ -583,30 +592,37 @@ public abstract class DX11RenderBufferProxyBase : DisposeObject {
     #region Offscreen Texture Pools
 
     private PingPongColorBuffers? fullResPpBuffer;
+
     public PingPongColorBuffers FullResPpBuffer
         => fullResPpBuffer ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
     private TexturePool? fullResDepthStencilPool;
+
     public TexturePool FullResDepthStencilPool
         => fullResDepthStencilPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
     private TexturePool? fullResRenderTargetPool;
+
     public TexturePool FullResRenderTargetPool
         => fullResRenderTargetPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
     private TexturePool? halfResDepthStencilPool;
+
     public TexturePool HalfResDepthStencilPool
         => halfResDepthStencilPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
     private TexturePool? halfResRenderTargetPool;
+
     public TexturePool HalfResRenderTargetPool
         => halfResRenderTargetPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
     private TexturePool? quarterResDepthStencilPool;
+
     public TexturePool QuarterResDepthStencilPool
         => quarterResDepthStencilPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 
     private TexturePool? quarterResRenderTargetPool;
+
     public TexturePool QuarterResRenderTargetPool
         => quarterResRenderTargetPool ?? throw new InvalidOperationException("Render buffer is not initialized.");
 

@@ -1,5 +1,8 @@
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core.Components;
 using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
@@ -8,7 +11,135 @@ using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 using Format = Silk.NET.DXGI.Format;
 
 namespace SilkCore.Tests;
+
 public class GraphicsSmokeTests {
+    /// <summary>
+    ///     Verifies that unmanaged generic math vectors expose their native size without marshaling metadata.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void UnsafeSizeSupportsGenericMathVectors() {
+        Assert.Equal(16, UnsafeHelper.SizeOf<Silk.NET.Maths.Vector4D<float>>());
+    }
+
+    /// <summary>
+    ///     Verifies that shadow-map properties initialize their render core lazily.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ShadowMapPropertiesCreateRenderCore() {
+        using var node = new ShadowMapNode {
+            Intensity = 0.5f
+        };
+
+        Assert.Equal(0.5f, Assert.IsType<ShadowMapCore>(node.RenderCore)
+            .Intensity);
+    }
+
+    /// <summary>
+    ///     Verifies that the optional NVIDIA Optimus probe fails without throwing.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void NvOptimusProbeFailsGracefully() {
+        Assert.Equal(-1, NvOptimusEnabler.Enable());
+    }
+
+    /// <summary>
+    ///     Verifies that constant-buffer components retain their registered resources when attached.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpAttachesConstantBufferComponent() {
+        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
+            EnableSoftwareRendering = true
+        });
+        using var component = new ConstantBufferComponent(nameof(WarpAttachesConstantBufferComponent), 16);
+
+        component.Attach(effects[DefaultRenderTechniqueNames.Mesh]);
+
+        Assert.True(component.IsAttached);
+        Assert.NotNull(component.ModelConstBuffer);
+    }
+
+    /// <summary>
+    ///     Verifies that one-dimensional texture descriptions retain their mip range during native conversion.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpCreatesOneDimensionalShaderResourceView() {
+        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
+            EnableSoftwareRendering = true
+        });
+        using var view = new ShaderResourceViewProxy(effects.NativeDeviceResources);
+
+        view.CreateViewFromColorArray([new(1, 0, 0, 1), new(0, 1, 0, 1)]);
+
+        Assert.NotNull(view.TextureView);
+    }
+
+    /// <summary>
+    ///     Verifies that a cube-map core creates its initially empty face views when attached.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpAttachesDynamicCubeMapCore() {
+        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
+            EnableSoftwareRendering = true
+        });
+        using var core = new DynamicCubeMapCore();
+
+        core.Attach(effects[DefaultRenderTechniqueNames.Mesh]);
+
+        Assert.True(core.IsAttached);
+    }
+
+    /// <summary>
+    ///     Verifies that a technique retains its registered input layout.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpParticleTechniqueHasInputLayout() {
+        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
+            EnableSoftwareRendering = true
+        });
+
+        Assert.NotNull(effects[DefaultRenderTechniqueNames.ParticleStorm].Layout);
+    }
+
+    /// <summary>
+    ///     Verifies that the screen-duplication technique and its cursor pass are registered.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpScreenDuplicationTechniqueIsRegistered() {
+        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
+            EnableSoftwareRendering = true
+        });
+
+        var technique = effects[DefaultRenderTechniqueNames.ScreenDuplication];
+
+        Assert.False(technique.IsNull);
+        Assert.False(technique[DefaultPassNames.Default].IsNull);
+        Assert.False(technique[DefaultPassNames.ScreenQuad].IsNull);
+    }
+
+    /// <summary>
+    ///     Verifies that particle buffers expose their full element range when attached.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpAttachesParticleRenderCore() {
+        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
+            EnableSoftwareRendering = true
+        });
+        using var core = new ParticleRenderCore();
+
+        core.Attach(effects[DefaultRenderTechniqueNames.ParticleStorm]);
+
+        Assert.True(core.IsAttached);
+    }
+
     /// <summary>
     ///     Verifies that shader-state getters preserve the requested slot range on a WARP context.
     /// </summary>
@@ -31,12 +162,16 @@ public class GraphicsSmokeTests {
         var shaderResourceDescription = new ShaderResourceViewDescription {
             Format = Format.FormatUnknown,
             Dimension = ShaderResourceViewDimension.Buffer,
-            Buffer = new ShaderResourceViewDescription.BufferResource {ElementCount = 4}
+            Buffer = new ShaderResourceViewDescription.BufferResource {
+                ElementCount = 4
+            }
         };
         var unorderedAccessDescription = new UnorderedAccessViewDescription {
             Format = Format.FormatUnknown,
             Dimension = UnorderedAccessViewDimension.Buffer,
-            Buffer = new UnorderedAccessViewDescription.BufferResource {ElementCount = 4}
+            Buffer = new UnorderedAccessViewDescription.BufferResource {
+                ElementCount = 4
+            }
         };
         using var views = new UavBufferViewProxy(
             context,
@@ -60,20 +195,14 @@ public class GraphicsSmokeTests {
         context.SetSampler<ComputeShaderType>(0, sampler);
 
         var shaderResources = new[] {
-            context.GetShaderResources<VertexShaderType>(0, 2),
-            context.GetShaderResources<HullShaderType>(0, 2),
-            context.GetShaderResources<DomainShaderType>(0, 2),
-            context.GetShaderResources<GeometryShaderType>(0, 2),
-            context.GetShaderResources<PixelShaderType>(0, 2),
-            context.GetShaderResources<ComputeShaderType>(0, 2)
+            context.GetShaderResources<VertexShaderType>(0, 2), context.GetShaderResources<HullShaderType>(0, 2),
+            context.GetShaderResources<DomainShaderType>(0, 2), context.GetShaderResources<GeometryShaderType>(0, 2),
+            context.GetShaderResources<PixelShaderType>(0, 2), context.GetShaderResources<ComputeShaderType>(0, 2)
         };
         var samplers = new[] {
-            context.GetSamplers<VertexShaderType>(0, 2),
-            context.GetSamplers<HullShaderType>(0, 2),
-            context.GetSamplers<DomainShaderType>(0, 2),
-            context.GetSamplers<GeometryShaderType>(0, 2),
-            context.GetSampler<PixelShaderType>(0, 2),
-            context.GetSamplers<ComputeShaderType>(0, 2)
+            context.GetSamplers<VertexShaderType>(0, 2), context.GetSamplers<HullShaderType>(0, 2),
+            context.GetSamplers<DomainShaderType>(0, 2), context.GetSamplers<GeometryShaderType>(0, 2),
+            context.GetSampler<PixelShaderType>(0, 2), context.GetSamplers<ComputeShaderType>(0, 2)
         };
         context.SetUnorderedAccessView<ComputeShaderType>(0, views.Uav);
         var unorderedAccessViews = context.GetUnorderedAccessView<ComputeShaderType>(0, 2);
@@ -93,10 +222,13 @@ public class GraphicsSmokeTests {
         Assert.Null(unorderedAccessViews[1]);
 
         foreach (var resources in shaderResources)
-            resources.OfType<ShaderResourceView>().DisposeAll();
+            resources.OfType<ShaderResourceView>()
+                .DisposeAll();
         foreach (var states in samplers)
-            states.OfType<SamplerStateProxy>().DisposeAll();
-        unorderedAccessViews.OfType<UnorderedAccessView>().DisposeAll();
+            states.OfType<SamplerStateProxy>()
+                .DisposeAll();
+        unorderedAccessViews.OfType<UnorderedAccessView>()
+            .DisposeAll();
     }
 
     [Fact]

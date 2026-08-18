@@ -27,13 +27,11 @@ public sealed class ConstantBufferComponent : CoreComponent {
     private ArrayStorage? Storage {
         get;
         set {
-            if (value != field) {
-                field?.Dispose();
-                field = null;
-            } else {
-                field = value;
-            }
-            
+            if (ReferenceEquals(value, field)) 
+                return;
+
+            field?.Dispose();
+            field = value;
         }
     }
 
@@ -43,7 +41,7 @@ public sealed class ConstantBufferComponent : CoreComponent {
     ///     Initializes a new instance of the <see cref="ConstantBufferComponent" /> class.
     /// </summary>
     /// <param name="desc">The desc.</param>
-    public ConstantBufferComponent(ConstantBufferDescription desc) 
+    public ConstantBufferComponent(ConstantBufferDescription desc)
         => bufferDesc = desc.AssertNotNull("Can' be null");
 
     /// <summary>
@@ -51,7 +49,7 @@ public sealed class ConstantBufferComponent : CoreComponent {
     /// </summary>
     /// <param name="name">The name.</param>
     /// <param name="structSize">Size of the structure.</param>
-    public ConstantBufferComponent(string name, int structSize) 
+    public ConstantBufferComponent(string name, int structSize)
         => bufferDesc = new ConstantBufferDescription(name, structSize);
 
     /// <summary>
@@ -63,13 +61,10 @@ public sealed class ConstantBufferComponent : CoreComponent {
     public ConstantBufferProxy? ModelConstBuffer {
         get;
         private set {
-            if (value != field) {
-                field?.Dispose();
-                field = null;
-            }
-            else {
-                field = value;
-            }
+            if (ReferenceEquals(value, field)) return;
+
+            field?.Dispose();
+            field = value;
         }
     }
 
@@ -98,7 +93,7 @@ public sealed class ConstantBufferComponent : CoreComponent {
         lock (@lock) {
             if (!IsAttached)
                 return false;
-            
+
             var array = Storage.GetArray();
             var off = Storage.GetOffSet(storageId);
             ModelConstBuffer.UploadDataToBuffer(deviceContext, array, ModelConstBuffer.StructureSize, off);
@@ -116,9 +111,9 @@ public sealed class ConstantBufferComponent : CoreComponent {
     /// <returns></returns>
     public bool Upload<T>(DeviceContextProxy deviceContext, ref T data) where T : unmanaged {
         lock (@lock) {
-            if (!IsAttached) 
+            if (!IsAttached)
                 return false;
-            
+
             var structSize = UnsafeHelper.SizeOf<T>();
             if (ModelConstBuffer.StructureSize < structSize) {
 #if DEBUG
@@ -132,13 +127,12 @@ public sealed class ConstantBufferComponent : CoreComponent {
 
             var box = ModelConstBuffer.Map(deviceContext);
             unsafe {
-                var pBuf = (byte*)box.DataPointer.ToPointer();
-                *(T*)pBuf = data;
+                var pBuf = (byte*) box.DataPointer.ToPointer();
+                *(T*) pBuf = data;
             }
 
             ModelConstBuffer.Unmap(deviceContext);
             return true;
-
         }
     }
 
@@ -150,13 +144,13 @@ public sealed class ConstantBufferComponent : CoreComponent {
     /// <param name="value">The value.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteValueByName<T>(string name, T value) where T : unmanaged {
-        if (!IsAttached) 
+        if (!IsAttached)
             return;
-        
+
         lock (@lock) {
-            if (!IsAttached) 
+            if (!IsAttached)
                 return;
-            
+
             if (ModelConstBuffer.TryGetVariableByName(name, out var variable)) {
                 if (UnsafeHelper.SizeOf<T>() > variable.Size) {
                     var structSize = UnsafeHelper.SizeOf<T>();
@@ -184,11 +178,11 @@ public sealed class ConstantBufferComponent : CoreComponent {
     /// <param name="value">The value.</param>
     /// <param name="offset">The offset.</param>
     public void WriteValue<T>(T value, int offset) where T : unmanaged {
-        if (!IsAttached) 
+        if (!IsAttached)
             return;
-        
+
         lock (@lock) {
-            if (IsAttached) 
+            if (IsAttached)
                 Storage.Write(storageId, offset, ref value);
         }
     }
@@ -219,7 +213,7 @@ public sealed class ConstantBufferComponent : CoreComponent {
         var v = default(T);
         if (IsAttached)
             lock (@lock) {
-                if (IsAttached) 
+                if (IsAttached)
                     return Storage.Read(storageId, offset, out value);
             }
 

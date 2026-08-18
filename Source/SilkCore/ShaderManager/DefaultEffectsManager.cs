@@ -384,7 +384,7 @@ public class DefaultEffectsManager : EffectsManager {
 
         var renderMeshBatched = new TechniqueDescription(DefaultRenderTechniqueNames.MeshBatched) {
             InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshBatched,
-                                                                DefaultInputLayout.VsMeshBatchedInput),
+                DefaultInputLayout.VsMeshBatchedInput),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
@@ -646,7 +646,7 @@ public class DefaultEffectsManager : EffectsManager {
 
         var renderMeshInstancing = new TechniqueDescription(DefaultRenderTechniqueNames.InstancingMesh) {
             InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshInstancing,
-                                                                DefaultInputLayout.VsInputInstancing),
+                DefaultInputLayout.VsInputInstancing),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
@@ -1256,7 +1256,7 @@ public class DefaultEffectsManager : EffectsManager {
 
         var renderBillboardText = new TechniqueDescription(DefaultRenderTechniqueNames.BillboardText) {
             InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsBillboard,
-                                                                DefaultInputLayout.VsInputBillboard),
+                DefaultInputLayout.VsInputBillboard),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
@@ -1299,7 +1299,7 @@ public class DefaultEffectsManager : EffectsManager {
 
         var renderBillboardInstancing = new TechniqueDescription(DefaultRenderTechniqueNames.BillboardInstancing) {
             InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsBillboardInstancing,
-                                                                DefaultInputLayout.VsInputBillboardInstancing),
+                DefaultInputLayout.VsInputBillboardInstancing),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
@@ -1671,51 +1671,52 @@ public class DefaultEffectsManager : EffectsManager {
 
         #region Post Effects
 
-        var meshOutlineBlurPostEffect = new TechniqueDescription(DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur) {
-            InputLayoutDescription = InputLayoutDescription.EmptyInputLayout,
-            PassDescriptions = [
-                new ShaderPassDescription(DefaultPassNames.ScreenQuad) {
-                    ShaderList = [
-                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
-                        DefaultPsShaderDescriptions.PsMeshOutlineScreenQuad
-                    ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssOutlineFillQuad,
-                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
-                    Topology = PrimitiveTopology.TriangleStrip
-                },
-                new ShaderPassDescription(DefaultPassNames.EffectBlurVertical) {
-                    ShaderList = [
-                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
-                        DefaultPsShaderDescriptions.PsEffectFullScreenBlurVertical
-                    ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
-                    Topology = PrimitiveTopology.TriangleStrip
-                },
-                new ShaderPassDescription(DefaultPassNames.EffectBlurHorizontal) {
-                    ShaderList = [
-                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
-                        DefaultPsShaderDescriptions.PsEffectFullScreenBlurHorizontal
-                    ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
-                    Topology = PrimitiveTopology.TriangleStrip
-                },
-                new ShaderPassDescription(DefaultPassNames.MeshOutline) {
-                    ShaderList = [
-                        DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
-                        DefaultPsShaderDescriptions.PsMeshOutlineQuadFinal
-                    ],
-                    BlendStateDescription = DefaultBlendStateDescriptions.BsGlowBlending,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
-                    RasterStateDescription = DefaultRasterDescriptions.RsOutline,
-                    Topology = PrimitiveTopology.TriangleStrip
-                }
-            ]
-        };
+        var meshOutlineBlurPostEffect =
+            new TechniqueDescription(DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur) {
+                InputLayoutDescription = InputLayoutDescription.EmptyInputLayout,
+                PassDescriptions = [
+                    new ShaderPassDescription(DefaultPassNames.ScreenQuad) {
+                        ShaderList = [
+                            DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                            DefaultPsShaderDescriptions.PsMeshOutlineScreenQuad
+                        ],
+                        BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssOutlineFillQuad,
+                        RasterStateDescription = DefaultRasterDescriptions.RsOutline,
+                        Topology = PrimitiveTopology.TriangleStrip
+                    },
+                    new ShaderPassDescription(DefaultPassNames.EffectBlurVertical) {
+                        ShaderList = [
+                            DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                            DefaultPsShaderDescriptions.PsEffectFullScreenBlurVertical
+                        ],
+                        BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                        RasterStateDescription = DefaultRasterDescriptions.RsOutline,
+                        Topology = PrimitiveTopology.TriangleStrip
+                    },
+                    new ShaderPassDescription(DefaultPassNames.EffectBlurHorizontal) {
+                        ShaderList = [
+                            DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                            DefaultPsShaderDescriptions.PsEffectFullScreenBlurHorizontal
+                        ],
+                        BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                        RasterStateDescription = DefaultRasterDescriptions.RsOutline,
+                        Topology = PrimitiveTopology.TriangleStrip
+                    },
+                    new ShaderPassDescription(DefaultPassNames.MeshOutline) {
+                        ShaderList = [
+                            DefaultVsShaderDescriptions.VsMeshOutlineScreenQuad,
+                            DefaultPsShaderDescriptions.PsMeshOutlineQuadFinal
+                        ],
+                        BlendStateDescription = DefaultBlendStateDescriptions.BsGlowBlending,
+                        DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                        RasterStateDescription = DefaultRasterDescriptions.RsOutline,
+                        Topology = PrimitiveTopology.TriangleStrip
+                    }
+                ]
+            };
 
         var meshBorderHighlightPostEffect =
             new TechniqueDescription(DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight) {
@@ -1971,6 +1972,33 @@ public class DefaultEffectsManager : EffectsManager {
             ]
         };
 
+        var renderScreenDup = new TechniqueDescription(DefaultRenderTechniqueNames.ScreenDuplication) {
+            InputLayoutDescription = InputLayoutDescription.EmptyInputLayout,
+            PassDescriptions = [
+                new ShaderPassDescription(DefaultPassNames.Default) {
+                    ShaderList = [
+                        DefaultVsShaderDescriptions.VsScreenDup,
+                        DefaultPsShaderDescriptions.PsScreenDup
+                    ],
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    RasterStateDescription = DefaultRasterDescriptions.RsScreenDuplication,
+                    Topology = PrimitiveTopology.TriangleStrip
+                },
+                new ShaderPassDescription(DefaultPassNames.ScreenQuad) {
+                    ShaderList = [
+                        DefaultVsShaderDescriptions.VsScreenDupCursor,
+                        DefaultPsShaderDescriptions.PsScreenDup
+                    ],
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssNoDepthNoStencil,
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsScreenDupCursorBlend,
+                    BlendFactor = new(0, 0, 0, 0),
+                    RasterStateDescription = DefaultRasterDescriptions.RsScreenDuplication,
+                    Topology = PrimitiveTopology.TriangleStrip
+                }
+            ]
+        };
+
         yield return renderMesh;
         yield return renderMeshBatched;
         yield return renderMeshInstancing;
@@ -1994,5 +2022,6 @@ public class DefaultEffectsManager : EffectsManager {
         yield return volume3D;
         yield return ssao;
         yield return meshOitDepthPeeling;
+        yield return renderScreenDup;
     }
 }

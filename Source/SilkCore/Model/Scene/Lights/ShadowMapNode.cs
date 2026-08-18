@@ -18,21 +18,26 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene.Lights;
+
 /// <summary>
 /// </summary>
 public class ShadowMapNode : SceneNode {
-    private readonly OrthographicCameraCore orthoCamera = new() { NearPlaneDistance = 1, FarPlaneDistance = 500 };
-    private readonly PerspectiveCameraCore persCamera = new() { NearPlaneDistance = 1, FarPlaneDistance = 500 };
+    private readonly OrthographicCameraCore orthoCamera = new() {
+        NearPlaneDistance = 1,
+        FarPlaneDistance = 500
+    };
+
+    private readonly PerspectiveCameraCore persCamera = new() {
+        NearPlaneDistance = 1,
+        FarPlaneDistance = 500
+    };
 
     private float distance = 200;
 
     private float orthoWidth = 100;
     private bool sceneChanged;
 
-    private ShadowMapCore? shadowCore;
-
-    private ShadowMapCore ShadowCore
-        => shadowCore ?? throw new InvalidOperationException("Shadow map render core is not attached.");
+    private ShadowMapCore ShadowCore => (ShadowMapCore) RenderCore;
 
     /// <summary>
     ///     Gets or sets the resolution.
@@ -187,8 +192,6 @@ public class ShadowMapNode : SceneNode {
     /// </returns>
     protected override bool OnAttach(IEffectsManager effectsManager) {
         base.OnAttach(effectsManager);
-        shadowCore = RenderCore as ShadowMapCore
-            ?? throw new InvalidOperationException("Shadow map render core is required.");
         Invalidated += Host_SceneGraphUpdated;
         sceneChanged = true;
         return true;
@@ -231,7 +234,7 @@ public class ShadowMapNode : SceneNode {
     private unsafe bool CreateCameraFromBound(ref BoundingBox box, ref Vector3 lookDir) {
         if (box.Maximum == box.Minimum) return false;
         var center = box.Center();
-        
+
         var points = stackalloc Vector3[8];
         points[0] = box.Minimum;
         points[1] = box.Maximum;
@@ -283,7 +286,8 @@ public class ShadowMapNode : SceneNode {
             foreach (var light in lights) {
                 if (light.LightType == LightType.Directional) {
                     if (light.RenderCore is not DirectionalLightCore dlight) continue;
-                    var dir = SilkMath.TransformNormal(dlight.Direction, dlight.ModelMatrix).Normalized();
+                    var dir = SilkMath.TransformNormal(dlight.Direction, dlight.ModelMatrix)
+                        .Normalized();
                     if (AutoCoverCompleteScene) {
                         if (sceneChanged || e.Context.UpdateSceneGraphRequested || IsSceneDynamic) {
                             sceneChanged = false;

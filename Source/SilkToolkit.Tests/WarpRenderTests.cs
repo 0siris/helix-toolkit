@@ -89,6 +89,29 @@ public sealed class WarpRenderTests {
         });
     }
 
+    /// <summary>
+    ///     Verifies that a swap chain can initialize when depth-stencil rendering is disabled.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    [Trait("Category", "Wpf")]
+    public Task InitializesHwndSwapChainWithoutDepthStencilBuffer() {
+        return StaThread.RunAsync(() => {
+            using var window = new HwndSource(new HwndSourceParameters(nameof(WarpRenderTests)) {
+                Width = 32,
+                Height = 24,
+                WindowStyle = unchecked((int) 0x80000000)
+            });
+            using var effectsManager = CreateWarpEffectsManager();
+            using var buffer = new DX11SwapChainRenderBufferProxy(window.Handle, effectsManager, false);
+
+            buffer.Initialize(32, 24, MsaaLevel.Disable);
+
+            Assert.Null(buffer.DepthStencilBuffer);
+            Assert.Null(buffer.DepthStencilBufferNoMsaa);
+        });
+    }
+
     private static DefaultEffectsManager CreateWarpEffectsManager() => new(new EffectsManagerConfiguration {
         EnableSoftwareRendering = true
     });

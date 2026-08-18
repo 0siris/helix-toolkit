@@ -7,6 +7,7 @@ using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 
 namespace HelixToolkit.SharpDX.Core.Native;
+
 internal static class D3DViewConversions {
     public static RenderTargetViewDesc ToSilkDesc(this RenderTargetViewDescription description) {
         var desc = new RenderTargetViewDesc {
@@ -17,15 +18,15 @@ internal static class D3DViewConversions {
         switch (description.Dimension) {
             case RenderTargetViewDimension.Texture2D:
             case RenderTargetViewDimension.Texture2DMultisampled:
-                desc.Anonymous.Texture2D.MipSlice = unchecked((uint)description.Texture2D.MipSlice);
+                desc.Anonymous.Texture2D.MipSlice = unchecked((uint) description.Texture2D.MipSlice);
                 break;
             case RenderTargetViewDimension.Texture2DArray:
             case RenderTargetViewDimension.Texture2DMultisampledArray:
-                desc.Anonymous.Texture2DArray.MipSlice = unchecked((uint)description.Texture2DArray.MipSlice);
+                desc.Anonymous.Texture2DArray.MipSlice = unchecked((uint) description.Texture2DArray.MipSlice);
                 desc.Anonymous.Texture2DArray.FirstArraySlice =
-                    unchecked((uint)description.Texture2DArray.FirstArraySlice);
+                    unchecked((uint) description.Texture2DArray.FirstArraySlice);
                 desc.Anonymous.Texture2DArray.ArraySize =
-                    unchecked((uint)description.Texture2DArray.ArraySize);
+                    unchecked((uint) description.Texture2DArray.ArraySize);
                 break;
         }
 
@@ -36,21 +37,21 @@ internal static class D3DViewConversions {
         var desc = new DepthStencilViewDesc {
             Format = description.Format,
             ViewDimension = description.Dimension.ToSilkDsvDimension(),
-            Flags = (uint)description.Flags
+            Flags = (uint) description.Flags
         };
 
         switch (description.Dimension) {
             case DepthStencilViewDimension.Texture2D:
             case DepthStencilViewDimension.Texture2DMultisampled:
-                desc.Anonymous.Texture2D.MipSlice = unchecked((uint)description.Texture2D.MipSlice);
+                desc.Anonymous.Texture2D.MipSlice = unchecked((uint) description.Texture2D.MipSlice);
                 break;
             case DepthStencilViewDimension.Texture2DArray:
             case DepthStencilViewDimension.Texture2DMultisampledArray:
-                desc.Anonymous.Texture2DArray.MipSlice = unchecked((uint)description.Texture2DArray.MipSlice);
+                desc.Anonymous.Texture2DArray.MipSlice = unchecked((uint) description.Texture2DArray.MipSlice);
                 desc.Anonymous.Texture2DArray.FirstArraySlice =
-                    unchecked((uint)description.Texture2DArray.FirstArraySlice);
+                    unchecked((uint) description.Texture2DArray.FirstArraySlice);
                 desc.Anonymous.Texture2DArray.ArraySize =
-                    unchecked((uint)description.Texture2DArray.ArraySize);
+                    unchecked((uint) description.Texture2DArray.ArraySize);
                 break;
         }
 
@@ -64,18 +65,21 @@ internal static class D3DViewConversions {
         };
 
         if (description.Dimension == ShaderResourceViewDimension.Buffer) {
-            desc.Anonymous.Buffer.Anonymous1.FirstElement = unchecked((uint)description.Buffer.FirstElement);
-            desc.Anonymous.Buffer.Anonymous2.NumElements = unchecked((uint)description.Buffer.ElementCount);
+            desc.Anonymous.Buffer.Anonymous1.FirstElement = unchecked((uint) description.Buffer.FirstElement);
+            desc.Anonymous.Buffer.Anonymous2.NumElements = unchecked((uint) description.Buffer.ElementCount);
+        } else if (description.Dimension == ShaderResourceViewDimension.Texture1D) {
+            desc.Anonymous.Texture1D.MostDetailedMip = unchecked((uint) description.Texture1D.MostDetailedMip);
+            desc.Anonymous.Texture1D.MipLevels = unchecked((uint) description.Texture1D.MipLevels);
         } else if (description.Dimension == ShaderResourceViewDimension.Texture2D) {
-            desc.Anonymous.Texture2D.MostDetailedMip = unchecked((uint)description.Texture2D.MostDetailedMip);
-            desc.Anonymous.Texture2D.MipLevels = unchecked((uint)description.Texture2D.MipLevels);
+            desc.Anonymous.Texture2D.MostDetailedMip = unchecked((uint) description.Texture2D.MostDetailedMip);
+            desc.Anonymous.Texture2D.MipLevels = unchecked((uint) description.Texture2D.MipLevels);
         } else if (description.Dimension == ShaderResourceViewDimension.Texture3D) {
-            desc.Anonymous.Texture3D.MostDetailedMip = unchecked((uint)description.Texture3D.MostDetailedMip);
-            desc.Anonymous.Texture3D.MipLevels = unchecked((uint)description.Texture3D.MipLevels);
+            desc.Anonymous.Texture3D.MostDetailedMip = unchecked((uint) description.Texture3D.MostDetailedMip);
+            desc.Anonymous.Texture3D.MipLevels = unchecked((uint) description.Texture3D.MipLevels);
         } else if (description.Dimension == ShaderResourceViewDimension.TextureCube) {
             desc.Anonymous.TextureCube.MostDetailedMip =
-                unchecked((uint)description.TextureCube.MostDetailedMip);
-            desc.Anonymous.TextureCube.MipLevels = unchecked((uint)description.TextureCube.MipLevels);
+                unchecked((uint) description.TextureCube.MostDetailedMip);
+            desc.Anonymous.TextureCube.MipLevels = unchecked((uint) description.TextureCube.MipLevels);
         }
 
         return desc;
@@ -88,9 +92,9 @@ internal static class D3DViewConversions {
         };
 
         if (description.Dimension == UnorderedAccessViewDimension.Buffer) {
-            desc.Anonymous.Buffer.FirstElement = unchecked((uint)description.Buffer.FirstElement);
-            desc.Anonymous.Buffer.NumElements = unchecked((uint)description.Buffer.ElementCount);
-            desc.Anonymous.Buffer.Flags = (uint)description.Buffer.Flags;
+            desc.Anonymous.Buffer.FirstElement = unchecked((uint) description.Buffer.FirstElement);
+            desc.Anonymous.Buffer.NumElements = unchecked((uint) description.Buffer.ElementCount);
+            desc.Anonymous.Buffer.Flags = (uint) description.Buffer.Flags;
         }
 
         return desc;

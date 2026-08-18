@@ -609,6 +609,7 @@ public class ParticleRenderCore : RenderCore {
 
         bufferDesc.SizeInBytes = particleCount * Particle.SizeInBytes;
         uavBufferViewDesc.Buffer.ElementCount = particleCount;
+        srvBufferViewDesc.Buffer.ElementCount = particleCount;
 
         for (var i = 0; i < BufferProxies.Length; ++i)
             BufferProxies[i] = new UavBufferViewProxy(device,
@@ -712,9 +713,9 @@ public class ParticleRenderCore : RenderCore {
     /// <param name="deviceContext">The device context.</param>
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         if (textureSampler is not { } sampler || blendState is not { } state
-            || BufferProxies[0] is not { } currentBuffer
-            || particleCountGsiaBuffer.Buffer is not { } indirectBuffer
-            || VertexLayout is not { } vertexLayout)
+                                              || BufferProxies[0] is not { } currentBuffer
+                                              || particleCountGsiaBuffer.Buffer is not { } indirectBuffer
+                                              || VertexLayout is not { } vertexLayout)
             return;
         OnUpdatePerModelStruct(context);
         perFrameCb.Upload(deviceContext, ref frameVariables);

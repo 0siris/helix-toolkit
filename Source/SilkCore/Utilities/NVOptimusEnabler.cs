@@ -12,7 +12,6 @@ public static class NvOptimusEnabler {
                 : NativeMethods.LoadNvApi32();
         } catch {
             // will always fail since 'fake' entry point doesn't exists
-            LoggerLib.Logger.Error("Failed to load NVAPI");
         }
 
         return -1;

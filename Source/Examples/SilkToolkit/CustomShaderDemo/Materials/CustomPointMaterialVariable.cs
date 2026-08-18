@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Material.Variables;
@@ -20,7 +19,7 @@ public class CustomPointMaterialVariable : PointMaterialVariable {
     )
         : base(manager, technique, materialCore, pointPassName) {
         customConstantBuffer =
-            new ConstantBufferComponent(new ConstantBufferDescription("CustomBuffer", Marshal.SizeOf<Vector4>()));
+            new ConstantBufferComponent(new ConstantBufferDescription("CustomBuffer", UnsafeHelper.SizeOf<Vector4>()));
         customConstantBuffer.Attach(technique);
     }
 
@@ -34,9 +33,9 @@ public class CustomPointMaterialVariable : PointMaterialVariable {
         colorChanges.Y %= 100;
         colorChanges.Z %= 100;
         customConstantBuffer.WriteValueByName("random_color",
-                                              new Vector3(colorChanges.X / 100,
-                                                          colorChanges.Y / 100,
-                                                          colorChanges.Z / 100));
+            new Vector3(colorChanges.X / 100,
+                colorChanges.Y / 100,
+                colorChanges.Z / 100));
         customConstantBuffer.Upload(deviceContext);
         return base.BindMaterialResources(context, deviceContext, shaderPass);
     }

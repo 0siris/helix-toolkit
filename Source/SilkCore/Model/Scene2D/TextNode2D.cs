@@ -11,11 +11,9 @@ using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
-public class TextNode2D : SceneNode2D {
-    private TextRenderCore2D? textRenderable;
 
-    private TextRenderCore2D TextCore => textRenderable
-        ?? throw new InvalidOperationException("Text render core is not initialized.");
+public class TextNode2D : SceneNode2D {
+    private TextRenderCore2D TextCore => (TextRenderCore2D) RenderCore;
 
     public string Text {
         get;
@@ -64,12 +62,9 @@ public class TextNode2D : SceneNode2D {
         set => TextCore.FontFamily = value;
     }
 
-    protected override RenderCore2D CreateRenderCore() {
-        textRenderable = new TextRenderCore2D();
-        return textRenderable;
-    }
+    protected override RenderCore2D CreateRenderCore() => new TextRenderCore2D();
 
-protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
+    protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
         hitResult = null;
         if (LayoutBoundWithTransform.Contains(mousePoint)) {
             hitResult = new HitTest2DResult(WrapperSource);

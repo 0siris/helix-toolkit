@@ -70,7 +70,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
 
         for (var i = 0; i < 6; ++i) {
             ref var rtv = ref cubeRtVs[i];
-            rtv.Dispose();
+            RemoveAndDispose(ref rtv);
             rtsDesc.Texture2DArray.FirstArraySlice = i;
             rtv = device.CreateRenderTargetView(cubeMapResource, rtsDesc);
         }
@@ -95,7 +95,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
 
         for (var i = 0; i < 6; ++i) {
             ref var dsv = ref cubeDsVs[i];
-            dsv.Dispose();
+            RemoveAndDispose(ref dsv);
             dsvDesc.Texture2DArray.FirstArraySlice = i;
             dsv = device.CreateDepthStencilView(cubeDsvResource, dsvDesc);
         }
@@ -177,8 +177,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             return;
 
         var ctx = pool.Get();
-        ctx.ClearRenderTargetView(cubeRtVs[index], context.RenderHost.ClearColor);
-        ctx.ClearDepthStencilView(cubeDsVs[index], DepthStencilClearFlags.Depth);
+        ctx.ClearRenderTargetView(cubeRtVs[index]!, context.RenderHost.ClearColor);
+        ctx.ClearDepthStencilView(cubeDsVs[index]!, DepthStencilClearFlags.Depth);
         ctx.SetRenderTarget(cubeDsVs[index], cubeRtVs[index]);
         ctx.SetViewport(0, 0, FaceSize, FaceSize);
         ctx.SetScissorRectangle(0, 0, FaceSize, FaceSize);
@@ -279,10 +279,10 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     }
 
     // The RTVs, one for each face of cubemap
-    private readonly RenderTargetView[] cubeRtVs = new RenderTargetView[6];
+    private readonly RenderTargetView?[] cubeRtVs = new RenderTargetView?[6];
 
     // The DSVs, one for each face of cubemap
-    private readonly DepthStencilView[] cubeDsVs = new DepthStencilView[6];
+    private readonly DepthStencilView?[] cubeDsVs = new DepthStencilView?[6];
 
     private SamplerStateProxy? TextureSampler {
         get;
@@ -474,7 +474,8 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     /// </summary>
     /// <param name="deviceContext">The device context.</param>
     public void BindCubeMap(DeviceContextProxy deviceContext) {
-        currSampler = deviceContext.GetSampler<PixelShaderType>(textureSamplerSlot, 1); ;
+        currSampler = deviceContext.GetSampler<PixelShaderType>(textureSamplerSlot, 1);
+        ;
         currRes = deviceContext.GetShaderResources<PixelShaderType>(cubeTextureSlot, 1);
         if (EnableReflector) {
             deviceContext.SetShaderResource<PixelShaderType>(cubeTextureSlot, CubeMap);
@@ -493,8 +494,10 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
         deviceContext.SetShaderResources<PixelShaderType>(cubeTextureSlot, resources);
         deviceContext.SetSamplers<PixelShaderType>(textureSamplerSlot, samplers);
 
-        currSampler.OfType<SamplerStateProxy>().DisposeAll();
-        currRes.OfType<ShaderResourceView>().DisposeAll();
+        currSampler.OfType<SamplerStateProxy>()
+            .DisposeAll();
+        currRes.OfType<ShaderResourceView>()
+            .DisposeAll();
 
         currSampler = [];
         currRes = [];

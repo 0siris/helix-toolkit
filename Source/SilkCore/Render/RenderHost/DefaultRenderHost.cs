@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Logger;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
 using HelixToolkit.SharpDX.Core.ShaderManager;
@@ -464,25 +465,16 @@ public partial class DefaultRenderHost : DX11RenderHostBase {
     }
 
     private void NoFrustumTest() {
-        OpaqueNodesInFrustum.AddAll(OpaqueNodes);
-        TransparentNodesInFrustum.AddAll(TransparentNodes);
+        var frustum = default(BoundingFrustum);
+        SceneNodeFrustumSelector.AppendVisible(OpaqueNodes, OpaqueNodesInFrustum, false, ref frustum);
+        SceneNodeFrustumSelector.AppendVisible(TransparentNodes, TransparentNodesInFrustum, false, ref frustum);
     }
 
     private void FrustumTestDefault() {
         var frustum = RenderContext.AssertNotNull("Render context is not initialized.")
             .BoundingFrustum;
-        for (var i = 0; i < OpaqueNodes.Count; ++i) {
-            OpaqueNodes.Items[i].IsInFrustum = OpaqueNodes.Items[i]
-                .TestViewFrustum(ref frustum);
-            if (OpaqueNodes.Items[i].IsInFrustum) OpaqueNodesInFrustum.Add(OpaqueNodes.Items[i]);
-        }
-
-        for (var i = 0; i < TransparentNodes.Count; ++i) {
-            TransparentNodes.Items[i].IsInFrustum = TransparentNodes.Items[i]
-                .TestViewFrustum(ref frustum);
-            if (TransparentNodes.Items[i].IsInFrustum)
-                TransparentNodesInFrustum.Add(TransparentNodes.Items[i]);
-        }
+        SceneNodeFrustumSelector.AppendVisible(OpaqueNodes, OpaqueNodesInFrustum, true, ref frustum);
+        SceneNodeFrustumSelector.AppendVisible(TransparentNodes, TransparentNodesInFrustum, true, ref frustum);
     }
 
     #endregion

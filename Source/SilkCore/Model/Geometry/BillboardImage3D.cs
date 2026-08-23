@@ -58,6 +58,24 @@ public class BillboardImage3D : BillboardBase {
     }
 
     protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources) {
+        BuildBillboardVertices();
+    }
+
+    /// <inheritdoc />
+    internal override bool TryPrepareVerticesForD3D12() {
+        if (!IsInitialized) {
+            BillboardVertices.Clear();
+            BuildBillboardVertices();
+            UpdateBounds();
+            IsInitialized = true;
+        }
+        return BillboardVertices.Count > 0 && Texture is not null;
+    }
+
+    /// <summary>
+    ///     Builds image vertices without requiring renderer services.
+    /// </summary>
+    private void BuildBillboardVertices() {
         foreach (var img in ImageInfos) {
             img.UpdateImage();
             DrawImageVertex(img);

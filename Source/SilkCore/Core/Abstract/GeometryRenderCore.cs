@@ -176,6 +176,171 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
             context.DrawIndexedInstanced(indexBuffer.ElementCount, buffer.ElementCount, 0, 0, 0);
     }
 
+    /// <summary>
+    ///     Binds and draws a default mesh through the Direct3D 12 command context.
+    /// </summary>
+    /// <param name="context">The Direct3D 12 command context.</param>
+    /// <param name="buffers">The default mesh buffers.</param>
+    /// <param name="instanceCount">The number of mesh instances.</param>
+    /// <param name="vertexBufferStartSlot">The first vertex input slot.</param>
+    /// <returns>The first free vertex input slot after the mesh streams.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static uint DrawIndexed(
+        SilkD3D12CommandContext context,
+        SilkD3D12DefaultMeshBuffers buffers,
+        uint instanceCount = 1,
+        uint vertexBufferStartSlot = 0
+    ) {
+        context.AssertArgumentNotNull();
+        buffers.AssertArgumentNotNull();
+        var nextVertexSlot = buffers.Bind(context, vertexBufferStartSlot);
+        context.DrawIndexedInstanced(buffers.IndexCount, instanceCount);
+        return nextVertexSlot;
+    }
+
+    /// <summary>
+    ///     Binds and draws an instanced default mesh through the Direct3D 12 command context.
+    /// </summary>
+    /// <typeparam name="T">The unmanaged instance element type.</typeparam>
+    /// <param name="context">The Direct3D 12 command context.</param>
+    /// <param name="buffers">The default mesh buffers.</param>
+    /// <param name="instances">The instance vertex stream.</param>
+    /// <param name="vertexBufferStartSlot">The first vertex input slot.</param>
+    /// <returns>The first free vertex input slot after the mesh and instance streams.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static uint DrawIndexed<T>(
+        SilkD3D12CommandContext context,
+        SilkD3D12DefaultMeshBuffers buffers,
+        SilkD3D12ElementsBuffer<T> instances,
+        uint vertexBufferStartSlot = 0
+    ) where T : unmanaged {
+        context.AssertArgumentNotNull();
+        buffers.AssertArgumentNotNull();
+        instances.AssertArgumentNotNull();
+        var instanceSlot = buffers.Bind(context, vertexBufferStartSlot);
+        instances.Bind(context, instanceSlot);
+        context.DrawIndexedInstanced(buffers.IndexCount, instances.ElementCount);
+        return instanceSlot + 1;
+    }
+
+    /// <summary>
+    ///     Binds and draws default line or point geometry through the Direct3D 12 command context.
+    /// </summary>
+    /// <param name="context">The Direct3D 12 command context.</param>
+    /// <param name="buffers">The default line or point buffers.</param>
+    /// <param name="instanceCount">The number of geometry instances.</param>
+    /// <param name="vertexBufferSlot">The vertex input slot.</param>
+    /// <returns>The first free vertex input slot.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static uint Draw(
+        SilkD3D12CommandContext context,
+        SilkD3D12PointLineBuffers buffers,
+        uint instanceCount = 1,
+        uint vertexBufferSlot = 0
+    ) {
+        context.AssertArgumentNotNull();
+        buffers.AssertArgumentNotNull();
+        buffers.Bind(context, vertexBufferSlot);
+        if (buffers.IndexCount > 0)
+            context.DrawIndexedInstanced(buffers.IndexCount, instanceCount);
+        else
+            context.DrawInstanced(buffers.VertexCount, instanceCount);
+        return vertexBufferSlot + 1;
+    }
+
+    /// <summary>
+    ///     Binds and draws instanced default line or point geometry through the Direct3D 12 command context.
+    /// </summary>
+    /// <typeparam name="T">The unmanaged instance element type.</typeparam>
+    /// <param name="context">The Direct3D 12 command context.</param>
+    /// <param name="buffers">The default line or point buffers.</param>
+    /// <param name="instances">The instance vertex stream.</param>
+    /// <param name="vertexBufferSlot">The geometry vertex input slot.</param>
+    /// <returns>The first free vertex input slot.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static uint Draw<T>(
+        SilkD3D12CommandContext context,
+        SilkD3D12PointLineBuffers buffers,
+        SilkD3D12ElementsBuffer<T> instances,
+        uint vertexBufferSlot = 0
+    ) where T : unmanaged {
+        context.AssertArgumentNotNull();
+        buffers.AssertArgumentNotNull();
+        instances.AssertArgumentNotNull();
+        buffers.Bind(context, vertexBufferSlot);
+        instances.Bind(context, vertexBufferSlot + 1);
+        if (buffers.IndexCount > 0)
+            context.DrawIndexedInstanced(buffers.IndexCount, instances.ElementCount);
+        else
+            context.DrawInstanced(buffers.VertexCount, instances.ElementCount);
+        return vertexBufferSlot + 2;
+    }
+
+    /// <summary>
+    ///     Records one supported existing geometry core through the productive Direct3D 12 resource path.
+    /// </summary>
+    /// <param name="context">The open Direct3D 12 command context.</param>
+    /// <param name="resources">The render-host resource manager.</param>
+    /// <param name="pass">The Direct3D 12 shader pass.</param>
+    /// <param name="resourceTable">The optional CBV/SRV/UAV table start.</param>
+    /// <param name="samplerTable">The optional sampler table start.</param>
+    /// <returns>Whether supported geometry was recorded.</returns>
+    internal bool TryRenderD3D12(
+        SilkD3D12CommandContext context,
+        SilkD3D12ResourceManager resources,
+        ShaderPass pass,
+        SilkD3D12Descriptor? resourceTable = null,
+        SilkD3D12Descriptor? samplerTable = null
+    ) {
+        context.AssertArgumentNotNull();
+        resources.AssertArgumentNotNull();
+        pass.AssertArgumentNotNull();
+        if (!CanRenderFlag || pass.IsNull) return false;
+        if (!pass.IsD3D12)
+            throw new ArgumentException("The pass must own a Direct3D 12 pipeline.", nameof(pass));
+        if ((resourceTable is null) != (samplerTable is null))
+            throw new ArgumentException("Graphics resource and sampler tables must be supplied together.");
+
+        var instanceBuffer = InstanceBuffer is IElementsBufferModel<Matrix> matrixInstances
+            ? resources.GetOrCreate(matrixInstances)
+            : null;
+        pass.BindShader(context);
+        if (resourceTable is not null && samplerTable is not null)
+            context.SetGraphicsDescriptorTables(resourceTable, samplerTable);
+        switch (GeometryBuffer) {
+            case DefaultMeshGeometryBufferModel mesh:
+                var meshBuffers = resources.GetOrCreate(mesh);
+                if (instanceBuffer is null)
+                    DrawIndexed(context, meshBuffers);
+                else
+                    DrawIndexed(context, meshBuffers, instanceBuffer);
+                return true;
+            case DefaultLineGeometryBufferModel line:
+                var lineBuffers = resources.GetOrCreate(line);
+                if (instanceBuffer is null)
+                    Draw(context, lineBuffers);
+                else
+                    Draw(context, lineBuffers, instanceBuffer);
+                return true;
+            case DefaultPointGeometryBufferModel point:
+                var pointBuffers = resources.GetOrCreate(point);
+                if (instanceBuffer is null)
+                    Draw(context, pointBuffers);
+                else
+                    Draw(context, pointBuffers, instanceBuffer);
+                return true;
+            case DefaultBillboardBufferModel billboard:
+                var billboardBuffers = resources.GetOrCreate(billboard);
+                if (instanceBuffer is null)
+                    Draw(context, billboardBuffers);
+                else
+                    Draw(context, billboardBuffers, instanceBuffer);
+                return true;
+            default:
+                return false;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void DrawPoints(
         DeviceContextProxy context,

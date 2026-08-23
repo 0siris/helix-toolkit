@@ -17,6 +17,7 @@ public sealed class ShaderDescription {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     private readonly IShaderByteCodeReader? byteCodeReader;
+    private D3D12ShaderModule? d3D12Module;
 
     /// <summary>
     ///     Create a empty description
@@ -137,11 +138,36 @@ public sealed class ShaderDescription {
     [DataMember]
     public byte[]? ByteCode {
         get {
-            if (field == null && !string.IsNullOrEmpty(ByteCodeName))
-                field = UwpShaderBytePool.Read(ByteCodeName, byteCodeReader);
+            if (field == null && !string.IsNullOrEmpty(ByteCodeName)) {
+                var stage = GetD3D12Stage(ShaderType);
+                field = ReferenceEquals(byteCodeReader, UwpShaderBytePool.InternalByteCodeReader)
+                    ? UwpShaderBytePool.ReadDxil(stage,
+                        ByteCodeName,
+                        D3D12ShaderManifest.ResolveEntryPoint(stage, ByteCodeName))
+                    : byteCodeReader?.Read(ByteCodeName);
+            }
             return field;
         }
-        set;
+        set {
+            field = value;
+            d3D12Module = null;
+        }
+    }
+
+    /// <summary>
+    ///     Gets the immutable SM6 DXIL module used by the Direct3D 12 pipeline cache.
+    /// </summary>
+    [IgnoreDataMember]
+    public D3D12ShaderModule? D3D12Module {
+        get {
+            if (d3D12Module is not null) return d3D12Module;
+            if (ByteCode is not {Length: > 0} byteCode) return null;
+
+            var name = ByteCodeName ?? Name ?? throw new InvalidOperationException("Shader name is required.");
+            var stage = GetD3D12Stage(ShaderType);
+            var entryPoint = ByteCodeName is null ? "main" : D3D12ShaderManifest.ResolveEntryPoint(stage, name);
+            return d3D12Module = new D3D12ShaderModule(stage, name, entryPoint, byteCode);
+        }
     }
 
     /// <summary>
@@ -289,6 +315,21 @@ public sealed class ShaderDescription {
                                      [.. (ConstantBufferMappings ?? []).Select(x => x.Clone())],
                                      [.. (TextureMappings ?? []).Select(x => x.Clone())]);
     }
+
+    /// <summary>
+    ///     Converts the public shader-stage enum to the DXC manifest stage.
+    /// </summary>
+    /// <param name="stage">The shader stage.</param>
+    /// <returns>The two-letter DXC stage.</returns>
+    private static string GetD3D12Stage(ShaderStage stage) => stage switch {
+        ShaderStage.Vertex => "VS",
+        ShaderStage.Pixel => "PS",
+        ShaderStage.Geometry => "GS",
+        ShaderStage.Hull => "HS",
+        ShaderStage.Domain => "DS",
+        ShaderStage.Compute => "CS",
+        _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, "Unsupported shader stage.")
+    };
 
     #region GS Stream output Only
 

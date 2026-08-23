@@ -109,8 +109,6 @@ public static class DefaultVsShaderByteCodes {
 
     /// <summary>
     /// </summary>
-    public static string VsMeshBoneSkinningWireframe { get; } = "vsBoneSkinningWireframe";
-
     /// <summary>
     /// </summary>
     public static string VsMeshOutlineP1 { get; } = "vsMeshOutlinePass1";
@@ -188,6 +186,21 @@ public static class DefaultInputLayout {
                          3,
                          InputClassification.PerInstanceData,
                          1)
+    ];
+
+    /// <summary>
+    ///     Gets the input layout retained by the optimized mesh depth vertex shader.
+    /// </summary>
+    public static readonly InputElement[] VsInputDepth = [
+        new("POSITION", 0, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 0),
+        new("TEXCOORD", 1, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 3,
+            InputClassification.PerInstanceData, 1),
+        new("TEXCOORD", 2, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 3,
+            InputClassification.PerInstanceData, 1),
+        new("TEXCOORD", 3, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 3,
+            InputClassification.PerInstanceData, 1),
+        new("TEXCOORD", 4, Format.FormatR32G32B32A32Float, InputElement.AppendAligned, 3,
+            InputClassification.PerInstanceData, 1)
     ];
 
     public static InputElement[] VsMeshBatchedInput = [
@@ -652,14 +665,6 @@ public static class DefaultVsShaderDescriptions {
         ShaderStage.Vertex,
         new ShaderReflector(),
         DefaultVsShaderByteCodes.VsMeshBatchedWireframe);
-
-    /// <summary>
-    ///     The vs bone skinning wireframe
-    /// </summary>
-    public static readonly ShaderDescription VsBoneSkinningWireframe = new(nameof(VsBoneSkinningWireframe),
-        ShaderStage.Vertex,
-        new ShaderReflector(),
-        DefaultVsShaderByteCodes.VsMeshBoneSkinningWireframe);
 
     /// <summary>
     ///     The vs mesh outline pass1

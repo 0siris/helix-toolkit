@@ -45,7 +45,7 @@ public class DefaultEffectsManager : EffectsManager {
     ///     Loads the technique descriptions.
     /// </summary>
     /// <returns></returns>
-    private IEnumerable<TechniqueDescription> LoadTechniqueDescriptions() {
+    internal static IEnumerable<TechniqueDescription> LoadTechniqueDescriptions() {
         var renderMesh = new TechniqueDescription(DefaultRenderTechniqueNames.Mesh) {
             InputLayoutDescription =
                 new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshDefault, DefaultInputLayout.VsInput),
@@ -198,7 +198,9 @@ public class DefaultEffectsManager : EffectsManager {
                         DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess,
+                    InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshDepth,
+                        DefaultInputLayout.VsInputDepth)
                 },
                 new ShaderPassDescription(DefaultPassNames.MeshSsaoPass) {
                     ShaderList = [
@@ -526,7 +528,9 @@ public class DefaultEffectsManager : EffectsManager {
                         DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess,
+                    InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshDepth,
+                        DefaultInputLayout.VsInputDepth)
                 },
                 new ShaderPassDescription(DefaultPassNames.MeshSsaoPass) {
                     ShaderList = [
@@ -788,7 +792,9 @@ public class DefaultEffectsManager : EffectsManager {
                         DefaultPsShaderDescriptions.PsDepthStencilOnly
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.NoBlend,
-                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess,
+                    InputLayoutDescription = new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshDepth,
+                        DefaultInputLayout.VsInputDepth)
                 },
                 new ShaderPassDescription(DefaultPassNames.MeshSsaoPass) {
                     ShaderList = [

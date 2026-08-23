@@ -117,6 +117,22 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     }
 
     /// <summary>
+    ///     Attaches this node to the Direct3D 12 renderer without creating DX11 resources.
+    /// </summary>
+    /// <returns>Whether the node's render core attached successfully.</returns>
+    internal virtual bool AttachD3D12() {
+        RenderCore.AttachD3D12();
+        AssignDefaultValuesToCore(RenderCore);
+        NeedMatrixUpdate = true;
+        return RenderCore.IsD3D12Attached;
+    }
+
+    /// <summary>
+    ///     Detaches this node from the Direct3D 12 renderer.
+    /// </summary>
+    internal virtual void DetachD3D12() => RenderCore.DetachD3D12();
+
+    /// <summary>
     ///     Called when [attached] and <see cref="IsAttached" /> = true.
     /// </summary>
     protected virtual void OnAttached() { }
@@ -224,6 +240,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
 
     protected override void OnDispose(bool disposeManagedResources) {
         Detach();
+        DetachD3D12();
         RenderCore.Dispose();
         Invalidated = null;
         VisibleChanged = null;
@@ -711,7 +728,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="context"></param>
     /// <returns></returns>
     protected virtual bool CanRender(RenderContext context)
-        => visible && IsAttached;
+        => visible && (IsAttached || RenderCore.IsD3D12Attached);
 
     /// <summary>
     ///     Renders the specified context.

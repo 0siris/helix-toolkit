@@ -6,8 +6,10 @@ using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
+using Silk.NET.Direct3D12;
 using Format = Silk.NET.DXGI.Format;
 
 namespace SilkCore.Tests;
@@ -50,16 +52,16 @@ public class GraphicsSmokeTests {
     /// </summary>
     [Fact]
     [Trait("Category", "Warp")]
-    public void WarpAttachesConstantBufferComponent() {
-        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
-            EnableSoftwareRendering = true
-        });
-        using var component = new ConstantBufferComponent(nameof(WarpAttachesConstantBufferComponent), 16);
+    public void WarpCreatesDx12ConstantBufferView() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var heap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 1, true);
+        using var descriptor = heap.Allocate();
+        using var buffer = device.CreateBuffer(256, HeapType.Upload);
 
-        component.Attach(effects[DefaultRenderTechniqueNames.Mesh]);
+        device.CreateConstantBufferView(buffer, descriptor, 256);
 
-        Assert.True(component.IsAttached);
-        Assert.NotNull(component.ModelConstBuffer);
+        Assert.Equal(0, descriptor.Index);
+        Assert.NotEqual(0UL, descriptor.GpuHandle.Ptr);
     }
 
     /// <summary>
@@ -83,15 +85,12 @@ public class GraphicsSmokeTests {
     /// </summary>
     [Fact]
     [Trait("Category", "Warp")]
-    public void WarpAttachesDynamicCubeMapCore() {
-        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
-            EnableSoftwareRendering = true
-        });
+    public void WarpLoadsDynamicCubeMapDependenciesFromDxil() {
         using var core = new DynamicCubeMapCore();
+        var technique = GetTechniqueDescription(DefaultRenderTechniqueNames.Mesh);
 
-        core.Attach(effects[DefaultRenderTechniqueNames.Mesh]);
-
-        Assert.True(core.IsAttached);
+        Assert.NotNull(core);
+        Assert.All(technique.PassDescriptions ?? [], pass => Assert.NotEmpty(pass.GetD3D12ShaderModules()));
     }
 
     /// <summary>
@@ -99,12 +98,10 @@ public class GraphicsSmokeTests {
     /// </summary>
     [Fact]
     [Trait("Category", "Warp")]
-    public void WarpParticleTechniqueHasInputLayout() {
-        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
-            EnableSoftwareRendering = true
-        });
+    public void WarpParticleTechniqueHasDx12InputLayout() {
+        var technique = GetTechniqueDescription(DefaultRenderTechniqueNames.ParticleStorm);
 
-        Assert.NotNull(effects[DefaultRenderTechniqueNames.ParticleStorm].Layout);
+        Assert.NotEmpty(technique.InputLayoutDescription?.D3D12InputElements ?? []);
     }
 
     /// <summary>
@@ -112,16 +109,13 @@ public class GraphicsSmokeTests {
     /// </summary>
     [Fact]
     [Trait("Category", "Warp")]
-    public void WarpScreenDuplicationTechniqueIsRegistered() {
-        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
-            EnableSoftwareRendering = true
-        });
+    public void WarpScreenDuplicationDxilTechniqueIsRegistered() {
+        var technique = GetTechniqueDescription(DefaultRenderTechniqueNames.ScreenDuplication);
+        var passes = technique.PassDescriptions ?? [];
 
-        var technique = effects[DefaultRenderTechniqueNames.ScreenDuplication];
-
-        Assert.False(technique.IsNull);
-        Assert.False(technique[DefaultPassNames.Default].IsNull);
-        Assert.False(technique[DefaultPassNames.ScreenQuad].IsNull);
+        Assert.Contains(passes, pass => pass.Name == DefaultPassNames.Default);
+        Assert.Contains(passes, pass => pass.Name == DefaultPassNames.ScreenQuad);
+        Assert.All(passes, pass => Assert.Equal(2, pass.GetD3D12ShaderModules().Count));
     }
 
     /// <summary>
@@ -129,15 +123,22 @@ public class GraphicsSmokeTests {
     /// </summary>
     [Fact]
     [Trait("Category", "Warp")]
-    public void WarpAttachesParticleRenderCore() {
-        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
-            EnableSoftwareRendering = true
-        });
+    public void WarpCreatesParticleDx12Pass() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var rootSignature = device.CreateDefaultRootSignature();
+        using var cache = new D3D12PipelineStateCache();
         using var core = new ParticleRenderCore();
+        var technique = GetTechniqueDescription(DefaultRenderTechniqueNames.ParticleStorm);
+        var pass = Assert.Single(technique.PassDescriptions ?? [],
+            candidate => candidate.Name == DefaultParticlePassNames.Default);
+        using var nativePass = pass.CreateD3D12(device,
+            rootSignature,
+            cache,
+            technique.InputLayoutDescription,
+            PrimitiveTopology.PointList);
 
-        core.Attach(effects[DefaultRenderTechniqueNames.ParticleStorm]);
-
-        Assert.True(core.IsAttached);
+        Assert.NotNull(core);
+        Assert.False(nativePass.IsNull);
     }
 
     /// <summary>
@@ -233,44 +234,49 @@ public class GraphicsSmokeTests {
 
     [Fact]
     [Trait("Category", "Warp")]
-    public void WarpInitializesEveryTechniqueAndPass() {
-        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration {
-            EnableSoftwareRendering = true
-        });
+    public void WarpLoadsEveryTechniqueAndPassFromDxil() {
+        var techniques = DefaultEffectsManager.LoadTechniqueDescriptions().ToArray();
+        var passes = techniques.SelectMany(technique => technique.PassDescriptions ?? []).ToArray();
 
-        Assert.True(effects.Initialized);
-        Assert.Equal(DriverType.Warp, effects.DriverType);
-        Assert.NotEmpty(effects.RenderTechniques);
-
-        foreach (var techniqueName in effects.RenderTechniques) {
-            var technique = effects[techniqueName];
-            Assert.False(technique.IsNull);
-            Assert.NotEmpty(technique.ShaderPassNames);
-            Assert.All(technique.ShaderPassNames, passName => Assert.False(technique[passName].IsNull));
-        }
+        Assert.Equal(24, techniques.Length);
+        Assert.Equal(199, passes.Length);
+        Assert.All(techniques, technique => Assert.False(string.IsNullOrWhiteSpace(technique.Name)));
+        Assert.All(passes, pass => Assert.NotEmpty(pass.GetD3D12ShaderModules()));
     }
 
+    /// <summary>
+    ///     Verifies creation, command recording, signaling, and deterministic disposal of DX12 bootstrap objects.
+    /// </summary>
     [Fact(Explicit = true)]
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     public void Dx12CreatesAndDisposesBootstrapObjects() {
-        using var device = SilkD3D12DeviceFactory.CreateDefault();
-        using var queue = device.CreateCommandQueue();
-        using var context = device.CreateCommandContext();
-        using var fence = device.CreateFence();
-        using var rootSignature = device.CreateEmptyRootSignature();
+        var device = SilkD3D12DeviceFactory.CreateDefault();
+        using (device) {
+            using var queue = device.CreateCommandQueue();
+            using var context = device.CreateCommandContext();
+            using var fence = device.CreateFence();
+            using var rootSignature = device.CreateEmptyRootSignature();
 
-        Assert.NotEqual(nint.Zero, device.NativePointer);
-        Assert.NotEqual(nint.Zero, queue.NativePointer);
-        Assert.NotEqual(nint.Zero, context.CommandListPointer);
-        Assert.NotEqual(nint.Zero, fence.NativePointer);
-        Assert.NotEqual(nint.Zero, rootSignature.NativePointer);
+            Assert.NotEqual(nint.Zero, device.NativePointer);
+            Assert.NotEqual(nint.Zero, queue.NativePointer);
+            Assert.NotEqual(nint.Zero, context.CommandListPointer);
+            Assert.NotEqual(nint.Zero, fence.NativePointer);
+            Assert.NotEqual(nint.Zero, rootSignature.NativePointer);
 
-        context.Reset();
-        context.Close();
-        Assert.Equal(1UL, queue.Signal(fence));
-
+            context.Reset();
+            context.Close();
+            Assert.Equal(1UL, queue.Signal(fence));
+        }
 
         Assert.True(device.IsDisposed);
     }
+
+    /// <summary>
+    ///     Gets one registered default technique description without constructing the removed DXBC runtime path.
+    /// </summary>
+    /// <param name="name">The registered technique name.</param>
+    /// <returns>The matching technique description.</returns>
+    private static TechniqueDescription GetTechniqueDescription(string name) =>
+        Assert.Single(DefaultEffectsManager.LoadTechniqueDescriptions(), technique => technique.Name == name);
 }

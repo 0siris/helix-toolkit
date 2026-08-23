@@ -55,6 +55,13 @@ public abstract class BillboardBase : Geometry3D, IBillboardText {
 
     protected abstract void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources);
 
+    /// <summary>
+    ///     Prepares renderer-independent billboard vertices for Direct3D 12 when the billboard subtype supports it.
+    /// </summary>
+    /// <returns>Whether prepared vertices and a texture are available.</returns>
+    internal virtual bool TryPrepareVerticesForD3D12() =>
+        IsInitialized && BillboardVertices.Count > 0 && Texture is not null;
+
     protected override void OnAssignTo(Geometry3D target) {
         base.OnAssignTo(target);
         if (target is BillboardBase billboard) {

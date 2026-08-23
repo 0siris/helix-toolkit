@@ -33,6 +33,7 @@ public sealed class LoggerAndAssertionIntegrationTests {
                 state,
                 null,
                 (_, _) => "formatted fallback");
+            logger.Dispose();
 
         } finally {
             LogManager.Factory = previousFactory;

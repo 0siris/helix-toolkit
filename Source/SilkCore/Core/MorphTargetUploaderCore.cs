@@ -70,6 +70,42 @@ internal class MorphTargetUploaderCore : RenderCore {
 
     private bool HasMorphTarget => mtCount > 0 && mtPitch > 0;
 
+    /// <summary>
+    ///     Applies the existing morph-target payload using the same target/vertex indexing as the skinning shader.
+    /// </summary>
+    /// <param name="vertices">The default mesh vertices to update before bone transforms.</param>
+    /// <returns><see langword="true" /> when morph targets were applied.</returns>
+    internal bool ApplyD3D12MorphTargets(Span<DefaultVertex> vertices) {
+        if (!HasMorphTarget) return false;
+        if (vertices.Length != mtPitch)
+            throw new InvalidOperationException("The morph-target pitch must match the mesh vertex count.");
+        if (morphTargetWeights.Length < mtCount)
+            throw new InvalidOperationException("Every morph target requires one weight.");
+        if (morphTargetOffsets.Length != checked(mtCount * mtPitch))
+            throw new InvalidOperationException("The morph-target offset table is incomplete.");
+
+        for (var vertexIndex = 0; vertexIndex < vertices.Length; vertexIndex++) {
+            var vertex = vertices[vertexIndex];
+            for (var targetIndex = 0; targetIndex < mtCount; targetIndex++) {
+                var offset = morphTargetOffsets[targetIndex * mtPitch + vertexIndex];
+                if ((uint) offset > (uint) (morphTargetsDeltas.Length - 3))
+                    throw new InvalidOperationException("A morph-target offset is outside the delta buffer.");
+                var weight = morphTargetWeights[targetIndex];
+                var positionDelta = morphTargetsDeltas[offset] * weight;
+                vertex.Position.X += positionDelta.X;
+                vertex.Position.Y += positionDelta.Y;
+                vertex.Position.Z += positionDelta.Z;
+                vertex.Normal += morphTargetsDeltas[offset + 1] * weight;
+                vertex.Tangent += morphTargetsDeltas[offset + 2] * weight;
+            }
+            vertex.Normal = SilkMath.Normalize(vertex.Normal);
+            vertex.Tangent = SilkMath.Normalize(vertex.Tangent);
+            vertex.BiTangent = SilkMath.Cross(vertex.Normal, vertex.Tangent);
+            vertices[vertexIndex] = vertex;
+        }
+        return true;
+    }
+
     public StructuredBufferProxy? MtWeightsB {
         get;
         private set {
@@ -181,6 +217,9 @@ internal class MorphTargetUploaderCore : RenderCore {
             mtPitch = 0;
             return true;
         }
+        if (pitch <= 0) throw new ArgumentOutOfRangeException(nameof(pitch));
+        if (targets.Length % pitch != 0)
+            throw new ArgumentException("Morph-target data must contain complete vertex pitches.", nameof(targets));
 
         //Setup buffer and keep track of data to update
         setDeltas = true;

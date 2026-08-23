@@ -114,8 +114,49 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
         return false;
     }
 
+    /// <inheritdoc />
+    internal override bool AttachD3D12() {
+        if (RenderCore.IsD3D12Attached && bufferModelInternal is not null)
+            return bufferModelInternal is not EmptyGeometryBufferModel;
+        if (!base.AttachD3D12() || !GeometryValid || RenderCore is not IGeometryRenderCore core)
+            return false;
+        CreateD3D12GeometryBuffer();
+        BoundManager.Geometry = Geometry;
+        InstanceBuffer.Initialize();
+        InstanceBuffer.Elements = Instances;
+        core.InstanceBuffer = InstanceBuffer;
+        return core.GeometryBuffer is not EmptyGeometryBufferModel;
+    }
+
+    /// <inheritdoc />
+    internal override void DetachD3D12() {
+        if (RenderCore is IGeometryRenderCore core) core.GeometryBuffer = null;
+        RemoveAndDispose(ref bufferModelInternal);
+        InstanceBuffer.DisposeAndClear();
+        base.DetachD3D12();
+    }
+
     private void CreateGeometryBuffer() {
         var newBuffer = OnCreateBufferModel(Guid, geometry);
+        RemoveAndDispose(ref bufferModelInternal);
+        bufferModelInternal = newBuffer;
+        if (RenderCore is IGeometryRenderCore core) core.GeometryBuffer = bufferModelInternal;
+    }
+
+    /// <summary>
+    ///     Creates the existing default CPU buffer model required by the productive DX12 resource manager.
+    /// </summary>
+    private void CreateD3D12GeometryBuffer() {
+        IAttachableBufferModel newBuffer = Geometry switch {
+            BoneSkinnedMeshGeometry3D boneGeometry => new BoneSkinPreComputeBufferModel(
+                new BoneSkinnedMeshBufferModel {Geometry = boneGeometry},
+                DefaultVertex.SizeInBytes),
+            BillboardBase billboard => new DefaultBillboardBufferModel {Geometry = billboard},
+            LineGeometry3D line => new DefaultLineGeometryBufferModel {Geometry = line},
+            PointGeometry3D point => new DefaultPointGeometryBufferModel {Geometry = point},
+            MeshGeometry3D mesh => new DefaultMeshGeometryBufferModel {Geometry = mesh},
+            _ => EmptyGeometryBufferModel.Empty
+        };
         RemoveAndDispose(ref bufferModelInternal);
         bufferModelInternal = newBuffer;
         if (RenderCore is IGeometryRenderCore core) core.GeometryBuffer = bufferModelInternal;
@@ -215,6 +256,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
             if (Set(ref geometry, value)) {
                 BoundManager.Geometry = value;
                 if (IsAttached) CreateGeometryBuffer();
+                else if (RenderCore.IsD3D12Attached) CreateD3D12GeometryBuffer();
                 OnGeometryChanged(value, old);
                 InvalidateRender();
             }

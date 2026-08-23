@@ -28,7 +28,7 @@ okf_version: "0.2"
 
 ## Backlog
 
-* [DX12 Migration Plan](/backlog/dx12-migration-plan.md) - Parallel opt-in Direct3D12 backend migration plan.
+* [DX12 Migration Plan](/backlog/dx12-migration-plan.md) - Resumable phased Direct3D12 and DXC cutover plan.
 * [WPF Swap-Chain Canvas Plan](/backlog/wpf-swapchain-canvas-plan.md) - Rein WPF basierte IRenderCanvas-Implementierung als schaltbare Alternative zur WinForms-basierten Variante.
 
 ## References

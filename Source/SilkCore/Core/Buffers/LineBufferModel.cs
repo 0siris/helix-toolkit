@@ -110,7 +110,7 @@ public class DefaultLineGeometryBufferModel : LineGeometryBufferModel<LinesVerte
         // -- set geometry if given
         if (geometry is {Positions.Count: > 0}) {
             // --- get geometry
-            var data = OnBuildVertexArray(geometry);
+            var data = BuildVertexArray(geometry);
             buffer.UploadDataToBuffer(context,
                                       data,
                                       geometry.Positions.Count,
@@ -154,21 +154,19 @@ public class DefaultLineGeometryBufferModel : LineGeometryBufferModel<LinesVerte
     /// </summary>
     /// <param name="geometry">The geometry.</param>
     /// <returns></returns>
-    private LinesVertex[] OnBuildVertexArray(Geometry3D geometry) {
+    internal static LinesVertex[] BuildVertexArray(Geometry3D geometry) {
         var positions = geometry.Positions
             ?? throw new InvalidOperationException("Line geometry requires positions.");
         var vertexCount = positions.Count;
-        var array = ThreadBufferManager<LinesVertex>.GetBuffer(vertexCount);
-        var colors = geometry.Colors?.GetEnumerator() ?? 
-                     Enumerable.Repeat<Color4>(Color.White, vertexCount).GetEnumerator();
+        if (geometry.Colors is { } geometryColors && geometryColors.Count != vertexCount)
+            throw new ArgumentException("Line colors must contain one value per position.", nameof(geometry));
+        var array = new LinesVertex[vertexCount];
 
         for (var i = 0; i < vertexCount; i++) {
-            colors.MoveNext();
             array[i].Position = new Vector4(positions[i], 1f);
-            array[i].Color = colors.Current;
+            array[i].Color = geometry.Colors?[i] ?? Color.White;
         }
 
-        colors.Dispose();
         return array;
     }
 }

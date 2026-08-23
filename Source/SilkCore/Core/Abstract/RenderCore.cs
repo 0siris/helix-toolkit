@@ -104,6 +104,11 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     public bool IsAttached { get; private set; }
 
     /// <summary>
+    ///     Gets whether this render core is attached to the Direct3D 12 renderer.
+    /// </summary>
+    internal bool IsD3D12Attached { get; private set; }
+
+    /// <summary>
     ///     Initializes a new instance of the <see cref="RenderCore" /> class.
     /// </summary>
     /// <param name="renderType">Type of the render.</param>
@@ -145,6 +150,21 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     protected abstract bool OnAttach(IRenderTechnique technique);
 
     /// <summary>
+    ///     Attaches this render core to the Direct3D 12 renderer without creating DX11 resources.
+    /// </summary>
+    internal void AttachD3D12() {
+        if (IsD3D12Attached) return;
+        IsD3D12Attached = OnAttachD3D12();
+        UpdateCanRenderFlag();
+    }
+
+    /// <summary>
+    ///     Creates package-specific Direct3D 12 state during attachment.
+    /// </summary>
+    /// <returns>Whether attachment succeeded.</returns>
+    protected virtual bool OnAttachD3D12() => true;
+
+    /// <summary>
     ///     Detach render core. Release all resources
     /// </summary>
     public void Detach() {
@@ -155,6 +175,21 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
         IsAttached = false;
         UpdateCanRenderFlag();
     }
+
+    /// <summary>
+    ///     Detaches this render core from the Direct3D 12 renderer.
+    /// </summary>
+    internal void DetachD3D12() {
+        if (!IsD3D12Attached) return;
+        OnDetachD3D12();
+        IsD3D12Attached = false;
+        UpdateCanRenderFlag();
+    }
+
+    /// <summary>
+    ///     Releases package-specific Direct3D 12 state during detachment.
+    /// </summary>
+    protected virtual void OnDetachD3D12() { }
 
     /// <summary>
     ///     On detaching, default is to release all resources
@@ -231,7 +266,7 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     /// </summary>
     /// <returns></returns>
     protected virtual bool OnUpdateCanRenderFlag()
-        => IsAttached;
+        => IsAttached || IsD3D12Attached;
 
     /// <summary>
     ///     Resets the invalidate handler.

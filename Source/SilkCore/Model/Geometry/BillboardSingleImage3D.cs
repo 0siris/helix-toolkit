@@ -148,6 +148,24 @@ public class BillboardSingleImage3D : BillboardBase {
     /// </summary>
     /// <param name="deviceResources">The device resources.</param>
     protected override void OnUpdateTextureAndBillboardVertices(IDeviceResources deviceResources) {
+        BuildBillboardVertices();
+    }
+
+    /// <inheritdoc />
+    internal override bool TryPrepareVerticesForD3D12() {
+        if (!IsInitialized) {
+            BillboardVertices.Clear();
+            BuildBillboardVertices();
+            UpdateBounds();
+            IsInitialized = true;
+        }
+        return BillboardVertices.Count > 0 && Texture is not null;
+    }
+
+    /// <summary>
+    ///     Builds the single image vertex without requiring renderer services.
+    /// </summary>
+    private void BuildBillboardVertices() {
         GetQuadOffset(Width, Height, HorizontalAlignment, VerticalAlignment, out var tl, out var br);
 
         var uvTl = new Vector2(0, 0);

@@ -4,6 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.Serialization;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;
@@ -88,6 +89,131 @@ public sealed class ShaderPassDescription {
     public ShaderPassDescription(string name) {
         Name = name;
     }
+
+    /// <summary>
+    ///     Resolves this pass's unique shader stages to immutable SM6 DXIL modules.
+    /// </summary>
+    /// <returns>The Direct3D 12 shader modules keyed by stage.</returns>
+    public IReadOnlyDictionary<ShaderStage, D3D12ShaderModule> GetD3D12ShaderModules() {
+        var result = new Dictionary<ShaderStage, D3D12ShaderModule>();
+        foreach (var shader in ShaderList ?? []) {
+            if (shader.ShaderType == ShaderStage.None)
+                throw new InvalidOperationException($"Shader pass '{Name}' contains an unspecified shader stage.");
+            var module = shader.D3D12Module
+                         ?? throw new InvalidOperationException($"Shader '{shader.Name}' has no DXIL module.");
+            if (!result.TryAdd(shader.ShaderType, module))
+                throw new InvalidOperationException(
+                    $"Shader pass '{Name}' contains more than one {shader.ShaderType} shader.");
+        }
+
+        if (result.ContainsKey(ShaderStage.Compute) && result.Count != 1)
+            throw new InvalidOperationException($"Compute shader pass '{Name}' cannot contain graphics stages.");
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Creates or reuses the Direct3D 12 pipeline for this pass and returns its command-binding wrapper.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="rootSignature">The shared root signature.</param>
+    /// <param name="cache">The owning pipeline-state cache.</param>
+    /// <param name="fallbackInputLayout">The technique input layout used when the pass has no override.</param>
+    /// <param name="fallbackTopology">The draw topology used when the pass has no override.</param>
+    /// <param name="renderTargetFormats">The ordered render-target formats.</param>
+    /// <param name="depthStencilFormat">The optional depth/stencil format.</param>
+    /// <returns>The Direct3D 12 shader pass.</returns>
+    public ShaderPass CreateD3D12(
+        SilkD3D12Device device,
+        SilkD3D12RootSignature rootSignature,
+        D3D12PipelineStateCache cache,
+        InputLayoutDescription? fallbackInputLayout = null,
+        PrimitiveTopology fallbackTopology = PrimitiveTopology.Undefined,
+        IReadOnlyList<Silk.NET.DXGI.Format>? renderTargetFormats = null,
+        Silk.NET.DXGI.Format depthStencilFormat = Silk.NET.DXGI.Format.FormatUnknown
+    ) {
+        device.AssertArgumentNotNull();
+        rootSignature.AssertArgumentNotNull();
+        cache.AssertArgumentNotNull();
+        var modules = GetD3D12ShaderModules();
+        if (modules.TryGetValue(ShaderStage.Compute, out var computeShader)) {
+            var computeKey = D3D12PipelineStateKey.Compute(computeShader);
+            var computePipeline = cache.GetOrCreate(computeKey,
+                () => device.CreateComputePipelineState(rootSignature, computeShader));
+            return ShaderPass.CreateD3D12(Name ?? throw new InvalidOperationException("Shader pass name is required."),
+                rootSignature,
+                computePipeline,
+                true);
+        }
+
+        if (!modules.TryGetValue(ShaderStage.Vertex, out var vertexShader))
+            throw new InvalidOperationException($"Graphics shader pass '{Name}' requires a vertex shader.");
+        modules.TryGetValue(ShaderStage.Pixel, out var pixelShader);
+        modules.TryGetValue(ShaderStage.Geometry, out var geometryShader);
+        modules.TryGetValue(ShaderStage.Hull, out var hullShader);
+        modules.TryGetValue(ShaderStage.Domain, out var domainShader);
+        var topology = Topology == PrimitiveTopology.Undefined ? fallbackTopology : Topology;
+        if (topology == PrimitiveTopology.Undefined)
+            throw new InvalidOperationException($"Graphics shader pass '{Name}' requires a primitive topology.");
+        var topologyType = GetD3D12TopologyType(topology);
+        var inputElements = (InputLayoutDescription ?? fallbackInputLayout)?.D3D12InputElements ?? [];
+        var streamOutput = (ShaderList ?? []).SingleOrDefault(shader => shader.IsGsStreamOut);
+        var streamOutputOnly = streamOutput is {GssoRasterized: < 0};
+        var formats = streamOutputOnly
+            ? []
+            : renderTargetFormats ?? [Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm];
+        var pipelineDepthFormat = streamOutputOnly ? Silk.NET.DXGI.Format.FormatUnknown : depthStencilFormat;
+        var key = D3D12PipelineStateKey.Graphics(vertexShader,
+            pixelShader,
+            geometryShader,
+            hullShader,
+            domainShader,
+            inputLayout: inputElements,
+            streamOutputElements: streamOutput?.GssoElement,
+            streamOutputStrides: streamOutput?.GssoStrides,
+            rasterizedStream: streamOutput?.GssoRasterized ?? 0,
+            topology: topologyType,
+            blendState: BlendStateDescription,
+            rasterizerState: RasterStateDescription,
+            depthStencilState: DepthStencilStateDescription,
+            sampleMask: unchecked((uint) SampleMask),
+            renderTargetFormats: formats,
+            depthStencilFormat: pipelineDepthFormat);
+        var pipeline = cache.GetOrCreate(key,
+            () => device.CreateGraphicsPipelineState(rootSignature,
+                vertexShader,
+                pixelShader,
+                geometryShader,
+                hullShader,
+                domainShader,
+                topologyType,
+                formats,
+                pipelineDepthFormat,
+                inputElements,
+                streamOutput?.GssoElement,
+                streamOutput?.GssoStrides,
+                streamOutput?.GssoRasterized ?? 0,
+                BlendStateDescription,
+                RasterStateDescription,
+                DepthStencilStateDescription,
+                unchecked((uint) SampleMask)));
+        return ShaderPass.CreateD3D12(Name ?? throw new InvalidOperationException("Shader pass name is required."),
+            rootSignature,
+            pipeline,
+            topology: topology);
+    }
+
+    /// <summary>
+    ///     Converts a concrete draw topology to its Direct3D 12 PSO topology class.
+    /// </summary>
+    private static Silk.NET.Direct3D12.PrimitiveTopologyType GetD3D12TopologyType(PrimitiveTopology topology) =>
+        topology switch {
+            PrimitiveTopology.PointList => Silk.NET.Direct3D12.PrimitiveTopologyType.Point,
+            PrimitiveTopology.LineList or PrimitiveTopology.LineStrip or PrimitiveTopology.LineListWithAdjacency
+                or PrimitiveTopology.LineStripWithAdjacency => Silk.NET.Direct3D12.PrimitiveTopologyType.Line,
+            >= PrimitiveTopology.PatchListWith1ControlPoint => Silk.NET.Direct3D12.PrimitiveTopologyType.Patch,
+            _ => Silk.NET.Direct3D12.PrimitiveTopologyType.Triangle
+        };
 
     /// <summary>
     ///     Pass Name

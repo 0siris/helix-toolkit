@@ -34,8 +34,6 @@ public static class DefaultPsShaderByteCodes {
 
     public static string PsMeshBlinnPhongOitdp { get; } = "psMeshBlinnPhongOITDP";
 
-    public static string PsMeshOitdpBlending { get; } = "psMeshOITDPBlending";
-
     public static string PsMeshOitdpFinal { get; } = "psMeshOITDPFinal";
 
     /// <summary>
@@ -355,12 +353,6 @@ public static class DefaultPsShaderDescriptions {
         ShaderStage.Pixel,
         new ShaderReflector(),
         DefaultPsShaderByteCodes.PsMeshBlinnPhongOitdp);
-
-    public static readonly ShaderDescription PsMeshOitdpBlending = new(nameof(PsMeshOitdpBlending),
-                                                                       ShaderStage.Pixel,
-                                                                       new ShaderReflector(),
-                                                                       DefaultPsShaderByteCodes
-                                                                           .PsMeshOitdpBlending);
 
     public static readonly ShaderDescription PsMeshOitdpFinal = new(nameof(PsMeshOitdpFinal),
                                                                     ShaderStage.Pixel,

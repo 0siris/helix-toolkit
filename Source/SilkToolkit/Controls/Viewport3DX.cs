@@ -25,11 +25,13 @@ using System.Windows.Threading;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Camera;
+using HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
 using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using HelixToolkit.Wpf.SharpDX.Model.Elements2D;
@@ -103,6 +105,11 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     private readonly Camera.Camera perspectiveCamera;
 
     /// <summary>
+    ///     Coalesces WPF composition callbacks for the Direct3D 12 presentation path.
+    /// </summary>
+    private readonly CompositionTargetEx d3d12CompositionTarget = new();
+
+    /// <summary>
     ///     The coordinate view.
     /// </summary>
     private ScreenSpacedElement3D? coordinateView;
@@ -111,6 +118,11 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The nearest valid result during a hit test.
     /// </summary>
     private HitTestResult? currentHit;
+
+    /// <summary>
+    ///     The current two-dimensional model under the pointer.
+    /// </summary>
+    private Model.Elements2D.Abstract.Element2D? mouseOverModel2D;
 
     /// <summary>
     ///     Current 2D model hit
@@ -128,6 +140,21 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
     private List<HitTestResult> hits = [];
     private ContentPresenter? hostPresenter;
+
+    /// <summary>
+    ///     The active Direct3D 12 presentation surface when swap-chain rendering is selected.
+    /// </summary>
+    private D3D12PresentationSurface? d3d12Surface;
+
+    /// <summary>
+    ///     The existing camera gesture currently driven by the native Direct3D 12 child window.
+    /// </summary>
+    private MouseGestureHandler? d3d12PointerGesture;
+
+    /// <summary>
+    ///     The first native touch contact routed to the existing viewport hit-test contract.
+    /// </summary>
+    private uint? d3d12TouchPointerId;
 
     private bool isAttached;
 
@@ -201,16 +228,29 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
         Loaded += ControlLoaded;
         Unloaded += ControlUnloaded;
-        IsVisibleChanged += (_, e) => { RenderHostInternal?.IsRendering = (bool) e.NewValue; };
+        IsVisibleChanged += OnIsVisibleChanged;
+    }
+
+    /// <summary>
+    ///     Mirrors WPF visibility to the remaining render-host path.
+    /// </summary>
+    /// <param name="sender">The event source.</param>
+    /// <param name="eventArgs">The visibility change.</param>
+    private void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs eventArgs) {
+        if (RenderHostInternal is { } host) host.IsRendering = (bool) eventArgs.NewValue;
     }
 
     public Model.Elements2D.Abstract.Element2D? MouseOverModel2D {
-        get;
+        get => mouseOverModel2D;
         private set {
-            if (field == value) return;
-            field?.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseLeave2DEvent, field, this));
-            field = value;
-            field?.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseEnter2DEvent, field, this));
+            if (mouseOverModel2D == value) return;
+            mouseOverModel2D?.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseLeave2DEvent,
+                mouseOverModel2D,
+                this));
+            mouseOverModel2D = value;
+            mouseOverModel2D?.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseEnter2DEvent,
+                mouseOverModel2D,
+                this));
         }
     }
 
@@ -223,11 +263,9 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
     private IEnumerable<SceneNode> OwnedRenderables {
         get {
-            if (RenderHostInternal != null) {
-                foreach (var item in Items) yield return item.SceneNode;
-                if (viewCube is { } cube) yield return cube.SceneNode;
-                if (coordinateView is { } coordinate) yield return coordinate.SceneNode;
-            }
+            foreach (var item in Items) yield return item.SceneNode;
+            if (viewCube is { } cube) yield return cube.SceneNode;
+            if (coordinateView is { } coordinate) yield return coordinate.SceneNode;
         }
     }
 
@@ -250,17 +288,25 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     public IEnumerable<SceneNode> Renderables {
         get {
-            if (RenderHostInternal != null) {
-                foreach (var item in Items) yield return item.SceneNode;
-                if (RenderHostInternal is {EnableSharingModelMode: true, SharedModelContainer: not null})
-                    foreach (var item in RenderHostInternal.SharedModelContainer.Renderables)
-                        yield return item;
+            foreach (var item in Items) yield return item.SceneNode;
+            if (RenderHostInternal is {EnableSharingModelMode: true, SharedModelContainer: not null})
+                foreach (var item in RenderHostInternal.SharedModelContainer.Renderables)
+                    yield return item;
 
-                if (viewCube is { } cube) yield return cube.SceneNode;
-                if (coordinateView is { } coordinate) yield return coordinate.SceneNode;
-            }
+            if (viewCube is { } cube) yield return cube.SceneNode;
+            if (coordinateView is { } coordinate) yield return coordinate.SceneNode;
         }
     }
+
+    /// <summary>
+    ///     Gets or sets the Direct3D 12 device type used by the opt-in swap-chain path.
+    /// </summary>
+    internal SilkDriverType D3D12DriverType { get; set; } = SilkDriverType.Hardware;
+
+    /// <summary>
+    ///     Gets the active Direct3D 12 surface for lifecycle verification.
+    /// </summary>
+    internal D3D12PresentationSurface? D3D12Surface => d3d12Surface;
 
     public IEnumerable<SceneNode2D> D2DRenderables {
         get {
@@ -622,6 +668,11 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     public override void OnApplyTemplate() {
         base.OnApplyTemplate();
         if (IsInDesignMode && !EnableDesignModeRendering) return;
+        d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
+        if (d3d12Surface is { } previousSurface)
+            previousSurface.WindowHost.PointerInput -= D3D12PointerInput;
+        d3d12Surface?.Dispose();
+        d3d12Surface = null;
         Disposer.RemoveAndDispose(ref RenderHostInternal);
         var presenter = GetTemplateChild("PART_Canvas") as ContentPresenter ??
                         throw new HelixToolkitException("{0} is missing from the template.", "PART_Canvas");
@@ -634,19 +685,20 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             DpiScale = Math.Max(DpiScale,
                 Math.Max(compositionTarget.TransformToDevice.M11,
                     compositionTarget.TransformToDevice.M22));
-        if (EnableSwapChainRendering)
-            presenter.Content = new DPFSurfaceSwapChain(EnableDeferredRendering, BelongsToParentWindow) {
-                DpiScale = DpiScale
-            };
-        else
+        if (EnableSwapChainRendering) {
+            d3d12Surface = new D3D12PresentationSurface(D3D12DriverType);
+            d3d12Surface.WindowHost.PointerInput += D3D12PointerInput;
+            presenter.Content = d3d12Surface;
+            d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
+        } else {
             presenter.Content = new DPFCanvas(EnableDeferredRendering, BelongsToParentWindow) {
                 DpiScale = DpiScale
             };
-
-        renderCanvas = (IRenderCanvas) presenter.Content;
-        renderCanvas.EnableDpiScale = EnableDpiScale;
-        RenderHostInternal = renderCanvas.RenderHost;
-        renderCanvas.ExceptionOccurred += HandleRenderException;
+            renderCanvas = (IRenderCanvas) presenter.Content;
+            renderCanvas.EnableDpiScale = EnableDpiScale;
+            RenderHostInternal = renderCanvas.RenderHost;
+            renderCanvas.ExceptionOccurred += HandleRenderException;
+        }
         if (RenderHostInternal != null) {
             RenderHostInternal.Rendered += RaiseRenderHostRendered;
             RenderHostInternal.ExceptionOccurred += HandleRenderException;
@@ -963,6 +1015,83 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         base.OnMouseWheel(e);
     }
 
+    /// <summary>
+    ///     Routes renderer-neutral native child-window input through the existing hit-test and camera contracts.
+    /// </summary>
+    /// <param name="sender">The native child-window host.</param>
+    /// <param name="eventArgs">The decoded pointer event in device-independent coordinates.</param>
+    private void D3D12PointerInput(object? sender, HwndPointerEventArgs eventArgs) =>
+        ProcessD3D12Pointer(eventArgs, Keyboard.Modifiers);
+
+    /// <summary>
+    ///     Processes one Direct3D 12 child-window pointer event.
+    /// </summary>
+    /// <param name="eventArgs">The decoded pointer event.</param>
+    /// <param name="modifiers">The current keyboard modifiers used to resolve existing mouse bindings.</param>
+    internal void ProcessD3D12Pointer(HwndPointerEventArgs eventArgs, ModifierKeys modifiers) {
+        eventArgs.AssertArgumentNotNull();
+        var point = new Point(eventArgs.X, eventArgs.Y);
+        if (eventArgs.Device == HwndPointerDevice.Touch) {
+            if (eventArgs.Action == HwndPointerAction.Pressed && d3d12TouchPointerId is null)
+                d3d12TouchPointerId = eventArgs.PointerId;
+            if (d3d12TouchPointerId != eventArgs.PointerId) return;
+        }
+
+        switch (eventArgs.Action) {
+            case HwndPointerAction.Pressed:
+                Focus();
+                MouseDownHitTest(point);
+                if (eventArgs.Device == HwndPointerDevice.Mouse) {
+                    d3d12PointerGesture?.Completed(point);
+                    d3d12PointerGesture = ResolveD3D12PointerGesture(eventArgs.Button, modifiers);
+                    d3d12PointerGesture?.Started(point);
+                }
+                break;
+            case HwndPointerAction.Move:
+                MouseMoveHitTest(point);
+                UpdateCurrentPosition(point);
+                d3d12PointerGesture?.Delta(point);
+                break;
+            case HwndPointerAction.Released:
+                MouseUpHitTest(point);
+                d3d12PointerGesture?.Completed(point);
+                d3d12PointerGesture = null;
+                if (eventArgs.Device == HwndPointerDevice.Touch) d3d12TouchPointerId = null;
+                break;
+            case HwndPointerAction.Wheel:
+                cameraController.OnD3D12MouseWheel(eventArgs.WheelDelta, point);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(eventArgs));
+        }
+    }
+
+    /// <summary>
+    ///     Resolves a native mouse press to the existing configurable viewport gesture binding.
+    /// </summary>
+    /// <param name="button">The pressed native mouse button.</param>
+    /// <param name="modifiers">The current keyboard modifiers.</param>
+    /// <returns>The matching existing camera handler, or <see langword="null" />.</returns>
+    internal MouseGestureHandler? ResolveD3D12PointerGesture(HwndPointerButton button, ModifierKeys modifiers) {
+        var action = button switch {
+            HwndPointerButton.Left => MouseAction.LeftClick,
+            HwndPointerButton.Right => MouseAction.RightClick,
+            HwndPointerButton.Middle => MouseAction.MiddleClick,
+            _ => MouseAction.None
+        };
+        var command = InputBindings.OfType<MouseBinding>()
+            .FirstOrDefault(binding => binding.Gesture is MouseGesture gesture
+                                       && gesture.MouseAction == action
+                                       && gesture.Modifiers == modifiers)
+            ?.Command;
+        if (command == ViewportCommands.Rotate) return cameraController.RotateHandler;
+        if (command == ViewportCommands.Zoom) return cameraController.ZoomHandler;
+        if (command == ViewportCommands.Pan) return cameraController.PanHandler;
+        if (command == ViewportCommands.ChangeFieldOfView) return cameraController.ChangeFieldOfViewHandler;
+        if (command == ViewportCommands.ZoomRectangle) return cameraController.ZoomRectangleHandler;
+        return null;
+    }
+
     /// <inheritdoc />
     protected override void OnTouchUp(TouchEventArgs e) {
         base.OnTouchUp(e);
@@ -1078,14 +1207,14 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     Handles the change of the effects manager.
     /// </summary>
     private void EffectsManagerPropertyChanged() {
-        RenderHostInternal?.EffectsManager = EffectsManager;
+        if (RenderHostInternal is { } host) host.EffectsManager = EffectsManager;
     }
 
     /// <summary>
     ///     Handles the change of the render technique
     /// </summary>
     private void RenderTechniquePropertyChanged(IRenderTechnique technique) {
-        RenderHostInternal?.RenderTechnique = technique;
+        if (RenderHostInternal is { } host) host.RenderTechnique = technique;
     }
 
     /// <summary>
@@ -1159,13 +1288,14 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (ZoomExtentsWhenLoaded)
             Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() => { ZoomExtents(); }));
         if (EnableSwapChainRendering) {
-            FormMouseMove += Viewport3DX_FormMouseMove;
-            FormMouseWheel += Viewport3DX_FormMouseWheel;
+            d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
+            d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
         }
     }
 
     private void ParentWindow_Closed(object? sender, EventArgs e) {
         ControlUnloaded(sender, new RoutedEventArgs());
+
         if (hostPresenter?.Content is IDisposable d) {
             hostPresenter.Content = null;
             d.Dispose();
@@ -1182,6 +1312,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The event arguments.
     /// </param>
     private void ControlUnloaded(object? sender, RoutedEventArgs e) {
+        d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
         FormMouseMove -= Viewport3DX_FormMouseMove;
         FormMouseWheel -= Viewport3DX_FormMouseWheel;
         if (BelongsToParentWindow && parentWindow != null) parentWindow.Closed -= ParentWindow_Closed;
@@ -1230,6 +1361,40 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     /// <summary>
+    ///     Updates the existing camera and records one Direct3D 12 frame from the current viewport items.
+    /// </summary>
+    /// <param name="sender">The composition event source.</param>
+    /// <param name="eventArgs">The WPF rendering timestamp.</param>
+    private void D3D12CompositionTargetRendering(object? sender, RenderingEventArgs eventArgs) {
+        var surface = d3d12Surface;
+        try {
+            _ = RenderD3D12Frame(eventArgs.RenderingTime);
+        } catch (Exception exception) {
+            d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
+            HandleRenderException(surface, new RelayExceptionEventArgs(exception));
+        }
+    }
+
+    /// <summary>
+    ///     Records one Direct3D 12 viewport frame when the opt-in surface is ready and visible.
+    /// </summary>
+    /// <param name="renderingTime">The WPF rendering timestamp.</param>
+    /// <returns>The number of recorded scene draws, or zero when no frame is ready.</returns>
+    internal int RenderD3D12Frame(TimeSpan renderingTime) {
+        var surface = d3d12Surface;
+        var camera = CameraCore;
+        if (surface is not {IsInitialized: true} || camera is null || Visibility != Visibility.Visible) return 0;
+        cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
+        var clearColor = BackgroundColor.ToColor4();
+        var recorded = surface.RenderViewportOnce([clearColor.X, clearColor.Y, clearColor.Z, clearColor.W],
+            Items.Select(item => item.SceneNode),
+            camera,
+            EnableRenderFrustum);
+        OnRendered?.Invoke(surface, EventArgs.Empty);
+        return recorded;
+    }
+
+    /// <summary>
     ///     Called when the camera type is changed.
     /// </summary>
     private void OrthographicChanged() {
@@ -1266,6 +1431,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         }
 
         if (hostPresenter is { } presenter) presenter.Content = null;
+        d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
+        if (d3d12Surface is { } surface) surface.WindowHost.PointerInput -= D3D12PointerInput;
+        d3d12Surface?.Dispose();
+        d3d12Surface = null;
         Disposer.RemoveAndDispose(ref RenderHostInternal);
     }
 
@@ -1601,7 +1770,12 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
     protected virtual void Dispose(bool disposing) {
         if (!disposedValue) {
-            if (disposing)
+            if (disposing) {
+                d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
+                d3d12CompositionTarget.Dispose();
+                if (d3d12Surface is { } surface) surface.WindowHost.PointerInput -= D3D12PointerInput;
+                d3d12Surface?.Dispose();
+                d3d12Surface = null;
                 if (!BelongsToParentWindow) {
                     if (hostPresenter?.Content is IDisposable d) {
                         hostPresenter.Content = null;
@@ -1615,6 +1789,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
                     coordinateView?.Dispose();
                     Items.Clear();
                 }
+            }
             // TODO: dispose managed state (managed objects).
             // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
             // TODO: set large fields to null.

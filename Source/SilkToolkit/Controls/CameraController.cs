@@ -1221,18 +1221,30 @@ public class CameraController {
     ///     The <see cref="System.Windows.Input.MouseWheelEventArgs" /> instance containing the event data.
     /// </param>
     public void OnMouseWheel(object sender, MouseWheelEventArgs e) {
-        if (!IsZoomEnabled) return;
-        if (ZoomAroundMouseDownPoint) {
-            var point = e.GetPosition(Viewport);
-            if (Viewport.FindNearest(point.ToVector2(), out var nearestPoint, out _, out _)) {
-                AddZoomForce(-e.Delta * 0.001f, nearestPoint);
-                e.Handled = true;
-                return;
-            }
-        }
+        if (ZoomByMouseWheel(e.Delta, e.GetPosition(Viewport))) e.Handled = true;
+    }
 
-        AddZoomForce(-e.Delta * 0.001f);
-        e.Handled = true;
+    /// <summary>
+    ///     Applies a wheel event decoded by the native Direct3D 12 child window.
+    /// </summary>
+    /// <param name="delta">The native wheel delta.</param>
+    /// <param name="point">The pointer position in viewport coordinates.</param>
+    internal void OnD3D12MouseWheel(int delta, Point point) => _ = ZoomByMouseWheel(delta, point);
+
+    /// <summary>
+    ///     Reuses the existing wheel-zoom policy for WPF and native child-window input.
+    /// </summary>
+    /// <param name="delta">The wheel delta.</param>
+    /// <param name="point">The pointer position in viewport coordinates.</param>
+    /// <returns><see langword="true" /> when the wheel event changed the camera.</returns>
+    private bool ZoomByMouseWheel(int delta, Point point) {
+        if (!IsZoomEnabled) return false;
+        if (ZoomAroundMouseDownPoint
+            && Viewport.FindNearest(point.ToVector2(), out var nearestPoint, out _, out _))
+            AddZoomForce(-delta * 0.001f, nearestPoint);
+        else
+            AddZoomForce(-delta * 0.001f);
+        return true;
     }
 
     /// <summary>

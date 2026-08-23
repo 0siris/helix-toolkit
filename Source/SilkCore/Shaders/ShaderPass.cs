@@ -20,6 +20,21 @@ public sealed class ShaderPass : DisposeObject {
 
     private readonly IEffectsManager? effectsManager;
 
+    /// <summary>
+    ///     The borrowed Direct3D 12 root signature used by this pass.
+    /// </summary>
+    private readonly SilkD3D12RootSignature? d3D12RootSignature;
+
+    /// <summary>
+    ///     The borrowed cache-owned Direct3D 12 pipeline state used by this pass.
+    /// </summary>
+    private readonly SilkD3D12PipelineState? d3D12PipelineState;
+
+    /// <summary>
+    ///     Whether the Direct3D 12 pipeline is a compute pipeline.
+    /// </summary>
+    private readonly bool isD3D12Compute;
+
     private BlendStateProxy? blendState = BlendStateProxy.Empty;
     private ComputeShader? computeShader = ComputeShader.NullComputeShader;
 
@@ -101,6 +116,51 @@ public sealed class ShaderPass : DisposeObject {
     }
 
     /// <summary>
+    ///     Initializes a Direct3D 12 pass over cache-owned native objects.
+    /// </summary>
+    /// <param name="name">The pass name.</param>
+    /// <param name="rootSignature">The borrowed shared root signature.</param>
+    /// <param name="pipelineState">The borrowed cache-owned pipeline state.</param>
+    /// <param name="isCompute">Whether the pipeline is compute-only.</param>
+    /// <param name="topology">The graphics primitive topology.</param>
+    private ShaderPass(
+        string name,
+        SilkD3D12RootSignature rootSignature,
+        SilkD3D12PipelineState pipelineState,
+        bool isCompute,
+        PrimitiveTopology topology
+    ) {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("A pass name is required.", nameof(name));
+        rootSignature.AssertArgumentNotNull();
+        pipelineState.AssertArgumentNotNull();
+        if (!isCompute && topology == PrimitiveTopology.Undefined)
+            throw new ArgumentOutOfRangeException(nameof(topology));
+
+        d3D12RootSignature = rootSignature;
+        d3D12PipelineState = pipelineState;
+        Name = name;
+        isD3D12Compute = isCompute;
+        Topology = topology;
+    }
+
+    /// <summary>
+    ///     Creates a Direct3D 12 pass that borrows its shared root signature and cache-owned pipeline state.
+    /// </summary>
+    /// <param name="name">The pass name.</param>
+    /// <param name="rootSignature">The shared root signature.</param>
+    /// <param name="pipelineState">The cache-owned pipeline state.</param>
+    /// <param name="isCompute">Whether the pipeline is compute-only.</param>
+    /// <param name="topology">The graphics primitive topology.</param>
+    /// <returns>The Direct3D 12 shader pass.</returns>
+    public static ShaderPass CreateD3D12(
+        string name,
+        SilkD3D12RootSignature rootSignature,
+        SilkD3D12PipelineState pipelineState,
+        bool isCompute = false,
+        PrimitiveTopology topology = PrimitiveTopology.TriangleList
+    ) => new(name, rootSignature, pipelineState, isCompute, topology);
+
+    /// <summary>
     ///     <see cref="ShaderPass.Name" />
     /// </summary>
     public string Name { get; private set; }
@@ -108,6 +168,16 @@ public sealed class ShaderPass : DisposeObject {
     /// <summary>
     /// </summary>
     public bool IsNull { get; }
+
+    /// <summary>
+    ///     Gets whether this pass uses Direct3D 12 command recording.
+    /// </summary>
+    public bool IsD3D12 => d3D12PipelineState is not null;
+
+    /// <summary>
+    ///     Gets the borrowed cache-owned Direct3D 12 pipeline state, if this is a Direct3D 12 pass.
+    /// </summary>
+    public SilkD3D12PipelineState? D3D12PipelineState => d3D12PipelineState;
 
     public VertexShader VertexShader => vertexShader ?? VertexShader.NullVertexShader;
     public DomainShader DomainShader => domainShader ?? DomainShader.NullDomainShader;
@@ -182,6 +252,24 @@ public sealed class ShaderPass : DisposeObject {
     public void BindShader(DeviceContextProxy context, bool bindConstantBuffer = true) {
         context.SetShaderPass(this, bindConstantBuffer);
         if (Layout != null) context.InputLayout = Layout;
+    }
+
+    /// <summary>
+    ///     Binds this Direct3D 12 pass to a command list.
+    /// </summary>
+    /// <param name="context">The Direct3D 12 command context.</param>
+    public void BindShader(SilkD3D12CommandContext context) {
+        context.AssertArgumentNotNull();
+        if (d3D12RootSignature is null || d3D12PipelineState is null)
+            throw new InvalidOperationException("The shader pass is not a Direct3D 12 pass.");
+
+        if (isD3D12Compute) {
+            context.SetComputePipeline(d3D12RootSignature, d3D12PipelineState);
+            return;
+        }
+
+        context.SetGraphicsPipeline(d3D12RootSignature, d3D12PipelineState);
+        context.SetPrimitiveTopology(Topology);
     }
 
     #region Set Shaders

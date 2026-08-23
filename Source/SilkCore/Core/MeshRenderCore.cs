@@ -8,6 +8,8 @@ using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Lights;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
@@ -46,12 +48,51 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
     }
 
     protected override bool OnUpdateCanRenderFlag() 
-        => base.OnUpdateCanRenderFlag() && MaterialVariables != EmptyMaterialVariable.EmptyVariable;
+        => base.OnUpdateCanRenderFlag() &&
+           (IsD3D12Attached || MaterialVariables != EmptyMaterialVariable.EmptyVariable);
 
     protected virtual void OnUpdatePerModelStruct(RenderContext context) {
+        OnUpdatePerModelStructD3D12();
+    }
+
+    /// <summary>
+    ///     Updates the renderer-independent fields of the per-model structure for Direct3D 12.
+    /// </summary>
+    protected virtual void OnUpdatePerModelStructD3D12() {
         ModelStruct.World = ModelMatrix;
         ModelStruct.HasInstances = InstanceBuffer.HasElements ? 1 : 0;
         ModelStruct.Batched = Batched ? 1 : 0;
+    }
+
+    /// <summary>
+    ///     Records this existing mesh core with camera/model constants through Direct3D 12.
+    /// </summary>
+    /// <param name="context">The open Direct3D 12 command context.</param>
+    /// <param name="resources">The render-host resource manager.</param>
+    /// <param name="pass">The selected Direct3D 12 material pass.</param>
+    /// <param name="bindings">The in-flight mesh descriptor and constant-buffer bindings.</param>
+    /// <param name="transforms">The global camera and viewport transforms.</param>
+    /// <param name="lights">The optional shared light model.</param>
+    /// <param name="environmentMap">The optional shared environment cube map.</param>
+    /// <returns>Whether the mesh draw was recorded.</returns>
+    internal virtual bool TryRenderD3D12(
+        SilkD3D12CommandContext context,
+        SilkD3D12ResourceManager resources,
+        ShaderPass pass,
+        SilkD3D12MeshBindings bindings,
+        in GlobalTransformStruct transforms,
+        LightsBufferModel? lights = null,
+        TextureModel? environmentMap = null
+    ) {
+        bindings.AssertArgumentNotNull();
+        OnUpdatePerModelStructD3D12();
+        if (lights is not null) bindings.UpdateLights(lights);
+        bindings.Update(context, resources, in transforms, in ModelStruct, D3D12Material, environmentMap);
+        return base.TryRenderD3D12(context,
+            resources,
+            pass,
+            bindings.ResourceTableStart,
+            bindings.SamplerTableStart);
     }
 
     protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) {
@@ -197,6 +238,16 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
     ///     <c>true</c> if batched; otherwise, <c>false</c>.
     /// </value>
     public bool Batched { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the existing material core used by the Direct3D 12 path.
+    /// </summary>
+    internal MaterialCore? D3D12Material { get; set; }
+
+    /// <summary>
+    ///     Gets the productive opaque DX12 pass name selected by the existing material.
+    /// </summary>
+    internal string D3D12MaterialPassName => D3D12MeshMaterialData.GetPassName(D3D12Material);
 
     /// <summary>
     ///     Used to wrap all material resources

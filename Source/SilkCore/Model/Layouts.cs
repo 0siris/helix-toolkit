@@ -350,6 +350,136 @@ public struct PhongPbrMaterialStruct {
     public const string UvTransformR2Str = "uvTransformR2"; //float4
 
     public const string VertColorBlending = "vertColorBlending"; //float
+
+    /// <summary>
+    ///     The common per-model fields at the start of cbMesh.
+    /// </summary>
+    public ModelStruct Model;
+
+    /// <summary>
+    ///     The minimum tessellation distance.
+    /// </summary>
+    public float MinTessellationDistance;
+
+    /// <summary>
+    ///     The maximum tessellation distance.
+    /// </summary>
+    public float MaxTessellationDistance;
+
+    /// <summary>
+    ///     The tessellation factor at the minimum distance.
+    /// </summary>
+    public float MinDistanceTessellationFactor;
+
+    /// <summary>
+    ///     The tessellation factor at the maximum distance.
+    /// </summary>
+    public float MaxDistanceTessellationFactor;
+
+    /// <summary>
+    ///     The diffuse or PBR albedo color.
+    /// </summary>
+    public Color4 Diffuse;
+
+    /// <summary>
+    ///     The ambient color.
+    /// </summary>
+    public Color4 Ambient;
+
+    /// <summary>
+    ///     The emissive color.
+    /// </summary>
+    public Color4 Emissive;
+
+    /// <summary>
+    ///     The Phong specular color or PBR ambient-occlusion, roughness, metallic, and reflectance factors.
+    /// </summary>
+    public Vector4 SpecularOrPbrFactors;
+
+    /// <summary>
+    ///     The Phong reflection color or PBR clear-coat factors and ambient-occlusion-map flag.
+    /// </summary>
+    public Vector4 ReflectOrClearCoat;
+
+    /// <summary>
+    ///     Whether a diffuse or albedo texture is bound.
+    /// </summary>
+    public int HasDiffuseMap;
+
+    /// <summary>
+    ///     Whether a normal texture is bound; diffuse-only shaders reuse this flag for unlit rendering.
+    /// </summary>
+    public int HasNormalMap;
+
+    /// <summary>
+    ///     Whether an environment cube texture is bound.
+    /// </summary>
+    public int HasCubeMap;
+
+    /// <summary>
+    ///     Whether shadow-map sampling is enabled.
+    /// </summary>
+    public int RenderShadowMap;
+
+    /// <summary>
+    ///     Whether an emissive texture is bound.
+    /// </summary>
+    public int HasEmissiveMap;
+
+    /// <summary>
+    ///     Whether the Phong alpha map or PBR roughness-metallic map is bound.
+    /// </summary>
+    public int HasAlphaOrRoughnessMetallicMap;
+
+    /// <summary>
+    ///     Whether the Phong specular map or PBR irradiance map is bound.
+    /// </summary>
+    public int HasSpecularOrIrradianceMap;
+
+    /// <summary>
+    ///     Whether tangents should be generated automatically.
+    /// </summary>
+    public int EnableAutoTangentFlag;
+
+    /// <summary>
+    ///     Whether a displacement texture is bound.
+    /// </summary>
+    public int HasDisplacementMap;
+
+    /// <summary>
+    ///     Whether the shader should use its PBR branch.
+    /// </summary>
+    public int RenderPbrFlag;
+
+    /// <summary>
+    ///     Whether flat shading is enabled.
+    /// </summary>
+    public int RenderFlatFlag;
+
+    /// <summary>
+    ///     The Phong shininess value.
+    /// </summary>
+    public float Shininess;
+
+    /// <summary>
+    ///     The displacement-map scale and channel mask.
+    /// </summary>
+    public Vector4 DisplacementMapScaleMask;
+
+    /// <summary>
+    ///     The first UV-transform row.
+    /// </summary>
+    public Vector4 UvTransformRow1;
+
+    /// <summary>
+    ///     The second UV-transform row.
+    /// </summary>
+    public Vector4 UvTransformRow2;
+
+    /// <summary>
+    ///     The vertex-color blending factor followed by shader padding.
+    /// </summary>
+    public Vector4 VertexColorBlendingAndPadding;
 }
 
 /// <summary>
@@ -386,6 +516,71 @@ public struct PointLineMaterialStruct {
     public const string AlphaThresholdStr = "pAlphaThreshold";         // float; 
     public const string EnableBlendingStr = "pEnableBlending";         //bool
     public const string BlendingFactorStr = "pBlendingFactor";         //float
+
+    /// <summary>
+    ///     The common per-model fields at the start of cbPointLineModel.
+    /// </summary>
+    public PointLineModelStruct Model;
+
+    /// <summary>
+    ///     The line thickness/smoothness or point width/height/figure/ratio parameters.
+    /// </summary>
+    public Vector4 Parameters;
+
+    /// <summary>
+    ///     The line, point, or billboard color.
+    /// </summary>
+    public Color4 Color;
+
+    /// <summary>
+    ///     Whether screen-space sizing is fixed.
+    /// </summary>
+    public int FixedSizeFlag;
+
+    /// <summary>
+    ///     Three feature flags shared by point, line, and billboard shaders.
+    /// </summary>
+    public Int3 BooleanParameters;
+
+    /// <summary>
+    ///     Whether distance fading is enabled.
+    /// </summary>
+    public int EnableDistanceFadingFlag;
+
+    /// <summary>
+    ///     The near distance for fading.
+    /// </summary>
+    public float FadeNearDistanceValue;
+
+    /// <summary>
+    ///     The far distance for fading.
+    /// </summary>
+    public float FadeFarDistanceValue;
+
+    /// <summary>
+    ///     Whether a line or billboard texture is bound.
+    /// </summary>
+    public int HasTexture;
+
+    /// <summary>
+    ///     The line texture scale.
+    /// </summary>
+    public float TextureScale;
+
+    /// <summary>
+    ///     The line texture alpha threshold.
+    /// </summary>
+    public float AlphaThreshold;
+
+    /// <summary>
+    ///     Whether point color blending is enabled.
+    /// </summary>
+    public int EnableBlending;
+
+    /// <summary>
+    ///     The point color blending factor.
+    /// </summary>
+    public float BlendingFactor;
 }
 
 /// <summary>

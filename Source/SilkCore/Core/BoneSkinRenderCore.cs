@@ -5,8 +5,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 
 using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Core.Buffers;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Lights;
+using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
@@ -29,6 +33,50 @@ public class BoneSkinRenderCore : MeshRenderCore {
     private ShaderPass preComputeBoneSkinPass = ShaderPass.NullPass;
 
     private BoneUploaderCore? sharedBoneBuffer;
+
+    /// <summary>
+    ///     Records the existing bone-skinned mesh through the productive Direct3D 12 mesh path.
+    /// </summary>
+    /// <param name="context">The open Direct3D 12 command context.</param>
+    /// <param name="resources">The render-host resource manager.</param>
+    /// <param name="pass">The selected Direct3D 12 material pass.</param>
+    /// <param name="bindings">The in-flight mesh bindings.</param>
+    /// <param name="transforms">The global camera and viewport transforms.</param>
+    /// <param name="lights">The optional shared light model.</param>
+    /// <param name="environmentMap">The optional shared environment cube map.</param>
+    /// <returns>Whether the skinned mesh draw was recorded.</returns>
+    internal override bool TryRenderD3D12(
+        SilkD3D12CommandContext context,
+        SilkD3D12ResourceManager resources,
+        ShaderPass pass,
+        SilkD3D12MeshBindings bindings,
+        in GlobalTransformStruct transforms,
+        LightsBufferModel? lights = null,
+        TextureModel? environmentMap = null
+    ) {
+        if (!CanRenderFlag || D3D12Material is null ||
+            preComputeBoneBuffer is not BoneSkinPreComputeBufferModel preCompute)
+            return false;
+
+        OnUpdatePerModelStructD3D12();
+        if (lights is not null) bindings.UpdateLights(lights);
+        bindings.Update(context, resources, in transforms, in ModelStruct, D3D12Material, environmentMap);
+        pass.BindShader(context);
+        context.SetGraphicsDescriptorTables(bindings.ResourceTableStart, bindings.SamplerTableStart);
+        var buffers = resources.GetOrCreate(preCompute.SourceMeshBuffer,
+            (SharedBoneBuffer ?? internalBoneBuffer).BoneMatrices,
+            internalMtBuffer);
+        var instances = InstanceBuffer is IElementsBufferModel<Matrix> matrixInstances
+            ? resources.GetOrCreate(matrixInstances)
+            : null;
+        if (instances is null)
+            DrawIndexed(context, buffers);
+        else
+            DrawIndexed(context, buffers, instances);
+        matricsChanged = false;
+        mtChanged = false;
+        return true;
+    }
 
     public BoneSkinRenderCore() {
         NeedUpdate = true;

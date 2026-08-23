@@ -226,16 +226,16 @@ public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVer
     /// </summary>
     /// <param name="geometry">The geometry.</param>
     /// <returns></returns>
-    private DefaultVertex[] BuildVertexArray(MeshGeometry3D geometry) {
+    internal static DefaultVertex[] BuildVertexArray(MeshGeometry3D geometry) {
         //var geometry = this.geometryInternal as MeshGeometry3D;
         var positionsCollection = geometry.Positions
             ?? throw new InvalidOperationException("Mesh geometry positions are required.");
         var vertexCount = positionsCollection.Count;
         using var positions = positionsCollection.GetEnumerator();
                 
-        using var normals = GetEnumerator(geometry.Normals);
-        using var tangents = GetEnumerator(geometry.Tangents);
-        using var bitangents = GetEnumerator(geometry.BiTangents);
+        using var normals = GetEnumerator(geometry.Normals, nameof(geometry.Normals));
+        using var tangents = GetEnumerator(geometry.Tangents, nameof(geometry.Tangents));
+        using var bitangents = GetEnumerator(geometry.BiTangents, nameof(geometry.BiTangents));
 
         var array = ThreadBufferManager<DefaultVertex>.GetBuffer(vertexCount);
         for (var i = 0; i < vertexCount; i++) {
@@ -252,9 +252,13 @@ public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVer
         return array;
 
         [MustDisposeResource]
-        IEnumerator<Color3> GetEnumerator(Vector3Collection? vec3Collection) =>
-            vec3Collection?.GetEnumerator()
-            ?? Enumerable.Repeat(Vector3.Zero, vertexCount).GetEnumerator(); //zero if collection is null
+        IEnumerator<Color3> GetEnumerator(Vector3Collection? collection, string name) {
+            if (collection is not null && collection.Count != vertexCount)
+                throw new ArgumentException($"{name} must contain one value per position.", nameof(geometry));
+
+            return collection?.GetEnumerator()
+                   ?? Enumerable.Repeat(Vector3.Zero, vertexCount).GetEnumerator();
+        }
     }
 }
 

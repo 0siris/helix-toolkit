@@ -4,6 +4,7 @@ Copyright(c) 2020 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Render;
@@ -32,6 +33,10 @@ public abstract class MaterialGeometryNode : GeometryNode {
         set {
             if (!Set(ref material, value))
                 return;
+
+            if (RenderCore is MeshRenderCore meshRenderCore) meshRenderCore.D3D12Material = material;
+            if (RenderCore is PointLineRenderCore pointLineRenderCore)
+                pointLineRenderCore.D3D12Material = material;
             
             if (EffectsManager != null) {
                 if (IsAttached) {
@@ -57,7 +62,8 @@ public abstract class MaterialGeometryNode : GeometryNode {
 
     protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? 0);
 
-    protected override bool CanRender(RenderContext context) => base.CanRender(context) && materialVariable != null;
+    protected override bool CanRender(RenderContext context) =>
+        base.CanRender(context) && (materialVariable != null || RenderCore.IsD3D12Attached && material != null);
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {

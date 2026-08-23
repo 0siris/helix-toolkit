@@ -45,6 +45,8 @@
                       PrivateAssets="all"/>
 
     <InternalsVisibleTo Include="SilkCore.Tests"/>
+    <InternalsVisibleTo Include="SilkToolkit.Tests"/>
+    <InternalsVisibleTo Include="SilkToolkit"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj"/>
@@ -52,8 +54,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Resources\*.cso"/>
     <None Remove="Resources\DX12\**\*.dxil"/>
+    <None Remove="Resources\DX12\shader-manifest.txt"/>
     <EmbeddedResource Include="..\SilkToolkit\Textures\arial.dds">
       <LogicalName>SilkCore.Resources.arial.dds</LogicalName>
     </EmbeddedResource>
@@ -66,13 +68,12 @@
           BeforeTargets="AssignTargetPaths"
           Condition="'$(DesignTimeBuild)' != 'true'">
     <ItemGroup>
-      <_GeneratedShaderResource Include="Resources\*.cso"/>
       <_GeneratedDxilShaderResource Include="Resources\DX12\**\*.dxil"/>
-      <EmbeddedResource Include="@(_GeneratedShaderResource)">
-        <LogicalName>SilkCore.Resources.%(_GeneratedShaderResource.Filename)%(_GeneratedShaderResource.Extension)</LogicalName>
-      </EmbeddedResource>
       <EmbeddedResource Include="@(_GeneratedDxilShaderResource)">
         <LogicalName>SilkCore.Resources.DX12.$([System.String]::Copy('%(_GeneratedDxilShaderResource.RecursiveDir)').Replace('\', '.'))%(_GeneratedDxilShaderResource.Filename)%(_GeneratedDxilShaderResource.Extension)</LogicalName>
+      </EmbeddedResource>
+      <EmbeddedResource Include="Resources\DX12\shader-manifest.txt">
+        <LogicalName>SilkCore.Resources.DX12.shader-manifest.txt</LogicalName>
       </EmbeddedResource>
     </ItemGroup>
   </Target>

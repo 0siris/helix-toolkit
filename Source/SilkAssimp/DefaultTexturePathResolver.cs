@@ -26,7 +26,7 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
 
             return p;
         } catch (Exception ex) {
-            Logger.Warn(ex, "Load Texture Exception. Texture Path = {Value0}", (object)texturePath);
+            Logger.Warn(ex, "Load Texture Exception. Texture Path = {Value0}", p1: texturePath);
         }
 
         return null;
@@ -41,7 +41,7 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
     protected virtual string HandleTexturePathNotFound(string dir, string texturePath) {
         //If file not found in texture path dir, try to find the file in the same dir as the model file
         if (texturePath.StartsWith(ToUpperDictString)) {
-            var t = texturePath.Remove(0, ToUpperDictString.Length);
+            var t = texturePath[ToUpperDictString.Length..];
             var p = Path.GetFullPath(Path.Combine(dir, t));
             if (FileExists(p))
                 return p;
@@ -57,9 +57,11 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
 
         if (FileExists(upper))
             return upper;
+
         var fileName = Path.GetFileName(texturePath);
         var currentPath = Path.Combine(dir, fileName);
-        if (FileExists(currentPath)) return currentPath;
+        if (FileExists(currentPath))
+            return currentPath;
         return string.Empty;
     }
 

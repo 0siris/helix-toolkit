@@ -3,6 +3,7 @@ using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Core.Buffers;
+using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
@@ -13,6 +14,7 @@ using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
@@ -815,6 +817,34 @@ public class D3D12RuntimePrimitiveTests {
             TextureCoordinates = new Vector2Collection([Vector2.Zero])
         };
         Assert.Throws<ArgumentException>(() => SilkD3D12DefaultMeshBuffers.Create(device, model));
+
+        model.Geometry = new MeshGeometry3D {
+            Positions = new Vector3Collection([Vector3.Zero, Vector3.One]),
+            Indices = new IntCollection([0, 1]),
+            Colors = new Color4Collection([Vector4.One])
+        };
+        Assert.Throws<ArgumentException>(() => SilkD3D12DefaultMeshBuffers.Create(device, model));
+    }
+
+    /// <summary>
+    ///     Verifies empty optional mesh streams receive one default value per position before upload.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpTreatsEmptyOptionalMeshStreamsAsAbsent() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var model = new DefaultMeshGeometryBufferModel {
+            Geometry = new MeshGeometry3D {
+                Positions = new Vector3Collection([Vector3.Zero, Vector3.UnitX, Vector3.UnitY]),
+                Indices = new IntCollection([0, 1, 2]),
+                TextureCoordinates = [],
+                Colors = []
+            }
+        };
+
+        using var buffers = SilkD3D12DefaultMeshBuffers.Create(device, model);
+
+        Assert.Equal(3u, buffers.VertexCount);
     }
 
     /// <summary>
@@ -1083,6 +1113,48 @@ public class D3D12RuntimePrimitiveTests {
     }
 
     /// <summary>
+    ///     Verifies WARP uploads every depth slice of a 3D texture, creates its SRV, and reads the volume back.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpUploadsTexture3DAndReadsBackDepthSlices() {
+        byte[] expected = [1, 2, 3, 4, 5, 6, 7, 8];
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var texture = device.CreateTexture3D(2, 2, 2, Format.FormatR8Unorm);
+        using var upload = device.CreateTextureUploadBuffer(texture,
+            [new D3D12SubresourceData(expected, 2, 4)],
+            out var footprints);
+        using var heap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 1);
+        using var descriptor = heap.Allocate();
+        device.CreateTexture3DShaderResourceView(texture, descriptor);
+        _ = device.GetCopyableFootprint(texture, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+
+        context.Reset();
+        context.CopyBufferToTexture(texture, upload, footprints);
+        Assert.True(context.Transition(texture, ResourceStates.CopySource));
+        context.CopyTextureToBuffer(readback, texture, in footprints[0]);
+        context.Close();
+
+        queue.Execute(context);
+        var fenceValue = queue.Signal(fence);
+        fence.Wait(fenceValue, TimeSpan.FromSeconds(5));
+
+        var actual = readback.Read((int) totalBytes);
+        var rowPitch = checked((int) footprints[0].Footprint.RowPitch);
+        var slicePitch = checked(rowPitch * 2);
+        Assert.Equal(expected.AsSpan(0, 2).ToArray(), actual.AsSpan(0, 2).ToArray());
+        Assert.Equal(expected.AsSpan(2, 2).ToArray(), actual.AsSpan(rowPitch, 2).ToArray());
+        Assert.Equal(expected.AsSpan(4, 2).ToArray(), actual.AsSpan(slicePitch, 2).ToArray());
+        Assert.Equal(expected.AsSpan(6, 2).ToArray(), actual.AsSpan(slicePitch + rowPitch, 2).ToArray());
+        Assert.Equal(ResourceDimension.Texture3D, texture.Description.Dimension);
+        Assert.Equal(ResourceStates.CopySource, texture.State);
+    }
+
+    /// <summary>
     ///     Verifies WARP accepts a UAV state transition and ordering barrier on an unordered-access buffer.
     /// </summary>
     [Fact]
@@ -1123,23 +1195,163 @@ public class D3D12RuntimePrimitiveTests {
         using var descriptor = resourceHeap.Allocate();
         using var structured = device.CreateBuffer(4 * sizeof(float), HeapType.Upload);
         using var output = device.CreateBuffer(256);
+        using var filledSize = device.CreateBuffer(sizeof(uint));
 
         device.CreateStructuredBufferShaderResourceView(structured, descriptor, 4, sizeof(float));
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             device.CreateStructuredBufferShaderResourceView(structured, descriptor, 5, sizeof(float)));
         Assert.Throws<InvalidOperationException>(() => context.SetStreamOutputTarget(structured));
+        Assert.Throws<InvalidOperationException>(() => context.SetStreamOutputTarget(output, 128));
+        Assert.Throws<InvalidOperationException>(() =>
+            context.SetStreamOutputTarget(output, filledSize, 128));
 
         context.Reset();
         Assert.True(context.Transition(output, ResourceStates.StreamOut));
-        context.SetStreamOutputTarget(output, 128);
+        Assert.Throws<InvalidOperationException>(() =>
+            context.SetStreamOutputTarget(output, filledSize, 128));
+        Assert.True(context.Transition(filledSize, ResourceStates.StreamOut));
+        context.SetStreamOutputTarget(output, filledSize, 128);
         context.SetStreamOutputTarget(null);
-        Assert.Throws<ArgumentOutOfRangeException>(() => context.SetStreamOutputTarget(output, 257));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            context.SetStreamOutputTarget(output, filledSize, 257));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            context.SetStreamOutputTarget(output, filledSize, 128, 4));
         context.Close();
         queue.Execute(context);
         fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
 
         Assert.Equal(ResourceStates.StreamOut, output.State);
+        Assert.Equal(ResourceStates.StreamOut, filledSize.State);
         device.ThrowIfDeviceRemoved();
+    }
+
+    /// <summary>
+    ///     Verifies the complete b9/t40/t60-t62 skinning table, output lifecycle, and uploaded byte layouts on WARP.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpBuildsBoneSkinningBindingsAndOutputBuffer() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 118, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 10, true);
+        using var bindings = new SilkD3D12MeshBindings(device, resourceHeap, samplerHeap);
+        using var morphTargets = new MorphTargetUploaderCore();
+        var translated = Matrix.Identity;
+        translated.M41 = 2;
+        translated.M42 = 3;
+        translated.M43 = 4;
+        Matrix[] matrices = [Matrix.Identity, translated];
+        BoneIds[] boneIds = [
+            new() {Bone1 = 0, Weights = Vector4.UnitX},
+            new() {Bone1 = 1, Weights = Vector4.UnitX}
+        ];
+        var targets = new[] {
+            new MorphTargetVertex {deltaPosition = new Vector3(2, 0, 0)},
+            new MorphTargetVertex(),
+            new MorphTargetVertex(),
+            new MorphTargetVertex {deltaPosition = new Vector3(0, 4, 0)}
+        };
+        Assert.True(morphTargets.InitializeMorphTargets(targets, 2));
+        Assert.Throws<InvalidOperationException>(() =>
+            bindings.UpdateBoneSkinning(boneIds, matrices, morphTargets, 2));
+        morphTargets.MorphTargetWeights = [0.5f, 0.25f];
+        Assert.Throws<InvalidOperationException>(() =>
+            bindings.UpdateBoneSkinning(boneIds, matrices, morphTargets, 3));
+        var invalidBoneIds = boneIds.ToArray();
+        invalidBoneIds[0].Bone1 = 2;
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            bindings.UpdateBoneSkinning(invalidBoneIds, matrices, morphTargets, 2));
+
+        var skinning = bindings.UpdateBoneSkinning(boneIds, matrices, morphTargets, 2);
+
+        Assert.Equal(9, SilkD3D12BoneSkinResources.MorphTargetConstantRegister);
+        Assert.Equal(40, SilkD3D12BoneSkinResources.BoneMatrixRegister);
+        Assert.Equal(60, SilkD3D12BoneSkinResources.MorphTargetWeightRegister);
+        Assert.Equal(61, SilkD3D12BoneSkinResources.MorphTargetDeltaRegister);
+        Assert.Equal(62, SilkD3D12BoneSkinResources.MorphTargetOffsetRegister);
+        Assert.Equal((ulong) (2 * DefaultVertex.SizeInBytes), skinning.OutputSizeInBytes);
+        Assert.Equal(ResourceStates.Common, skinning.Output.State);
+
+        var boneResource = skinning.BoneMatrixResource
+            ?? throw new InvalidOperationException("The bone-matrix upload was not created.");
+        var weightResource = skinning.MorphTargetWeightResource
+            ?? throw new InvalidOperationException("The morph-target-weight upload was not created.");
+        var deltaResource = skinning.MorphTargetDeltaResource
+            ?? throw new InvalidOperationException("The morph-target-delta upload was not created.");
+        var offsetResource = skinning.MorphTargetOffsetResource
+            ?? throw new InvalidOperationException("The morph-target-offset upload was not created.");
+        var boneIdBytes = checked((int) skinning.BoneIdResource.SizeInBytes);
+        var boneBytes = checked((int) boneResource.SizeInBytes);
+        var weightBytes = checked((int) weightResource.SizeInBytes);
+        var deltaBytes = checked((int) deltaResource.SizeInBytes);
+        var offsetBytes = checked((int) offsetResource.SizeInBytes);
+        const int constantBytes = 16;
+        var totalBytes = boneIdBytes + boneBytes + weightBytes + deltaBytes + offsetBytes + constantBytes;
+        using var readback = device.CreateBuffer((ulong) totalBytes, HeapType.Readback);
+        context.Reset();
+        skinning.BindOutput(context);
+        skinning.UnbindOutput(context);
+        ulong destinationOffset = 0;
+        context.CopyBuffer(readback, destinationOffset, skinning.BoneIdResource, 0, (ulong) boneIdBytes);
+        destinationOffset += (ulong) boneIdBytes;
+        context.CopyBuffer(readback, destinationOffset, boneResource, 0, (ulong) boneBytes);
+        destinationOffset += (ulong) boneBytes;
+        context.CopyBuffer(readback, destinationOffset, weightResource, 0, (ulong) weightBytes);
+        destinationOffset += (ulong) weightBytes;
+        context.CopyBuffer(readback, destinationOffset, deltaResource, 0, (ulong) deltaBytes);
+        destinationOffset += (ulong) deltaBytes;
+        context.CopyBuffer(readback, destinationOffset, offsetResource, 0, (ulong) offsetBytes);
+        destinationOffset += (ulong) offsetBytes;
+        context.CopyBuffer(readback,
+            destinationOffset,
+            skinning.MorphTargetConstantResource,
+            0,
+            constantBytes);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        var bytes = readback.Read(totalBytes);
+        var sourceOffset = 0;
+        Assert.Equal(boneIds,
+            MemoryMarshal.Cast<byte, BoneIds>(bytes.AsSpan(sourceOffset, boneIdBytes)).ToArray());
+        sourceOffset += boneIdBytes;
+        Assert.Equal(matrices,
+            MemoryMarshal.Cast<byte, Matrix>(bytes.AsSpan(sourceOffset, boneBytes)).ToArray());
+        sourceOffset += boneBytes;
+        Assert.Equal(new[] {0.5f, 0.25f},
+            MemoryMarshal.Cast<byte, float>(bytes.AsSpan(sourceOffset, weightBytes)).ToArray());
+        sourceOffset += weightBytes;
+        var deltas = MemoryMarshal.Cast<byte, Vector3>(bytes.AsSpan(sourceOffset, deltaBytes));
+        Assert.Equal(Vector3.Zero, deltas[0]);
+        Assert.Equal(new Vector3(2, 0, 0), deltas[3]);
+        Assert.Equal(new Vector3(0, 4, 0), deltas[6]);
+        sourceOffset += deltaBytes;
+        Assert.Equal(new[] {3, 0, 0, 6},
+            MemoryMarshal.Cast<byte, int>(bytes.AsSpan(sourceOffset, offsetBytes)).ToArray());
+        sourceOffset += offsetBytes;
+        Assert.Equal(new[] {2, 2, 0, 0},
+            MemoryMarshal.Cast<byte, int>(bytes.AsSpan(sourceOffset, constantBytes)).ToArray());
+        Assert.Equal(ResourceStates.VertexAndConstantBuffer, skinning.Output.State);
+        device.ThrowIfDeviceRemoved();
+
+        using var emptyMorphTargets = new MorphTargetUploaderCore();
+        var previousOutput = skinning.Output;
+        BoneIds[] fourBoneIds = [boneIds[0], boneIds[1], boneIds[0], boneIds[1]];
+        Assert.Same(skinning, bindings.UpdateBoneSkinning(fourBoneIds, matrices, emptyMorphTargets, 4));
+        Assert.True(previousOutput.IsDisposed);
+        Assert.Null(skinning.MorphTargetWeightResource);
+        Assert.Null(skinning.MorphTargetDeltaResource);
+        Assert.Null(skinning.MorphTargetOffsetResource);
+        Assert.Equal((ulong) (4 * DefaultVertex.SizeInBytes), skinning.OutputSizeInBytes);
+
+        bindings.Dispose();
+        Assert.True(skinning.IsDisposed);
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
     }
 
     /// <summary>
@@ -1965,6 +2177,13 @@ public class D3D12RuntimePrimitiveTests {
         morphTargets.MorphTargetWeights = [0.5f, 0.25f];
         Assert.True(morphTargets.InitializeMorphTargets(targets, 2));
 
+        Assert.True(morphTargets.HasMorphTarget);
+        Assert.Equal(2, morphTargets.MorphTargetCount);
+        Assert.Equal(2, morphTargets.MorphTargetPitch);
+        Assert.Equal(new[] {0.5f, 0.25f}, morphTargets.D3D12Weights.ToArray());
+        Assert.Equal(new[] {3, 0, 0, 6}, morphTargets.D3D12Offsets.ToArray());
+        Assert.Equal(9, morphTargets.D3D12Deltas.Length);
+
         Assert.True(morphTargets.ApplyD3D12MorphTargets(vertices));
 
         Assert.Equal(new Vector4(1, 0, 0, 1), vertices[0].Position);
@@ -2018,6 +2237,12 @@ public class D3D12RuntimePrimitiveTests {
         using var point = new PointNode {Material = new PointMaterialCore()};
         using var billboard = new BillboardNode {Material = new BillboardMaterialCore()};
         using var environment = new EnvironmentMapNode();
+        using var volume = new VolumeTextureNode {
+            Material = new VolumeTextureRawDataMaterialCore {
+                VolumeTexture = new VolumeTextureParams([255], 1, 1, 1, Format.FormatR8Unorm)
+            }
+        };
+        using var particle = new ParticleStormNode();
 
         Assert.Equal((DefaultRenderTechniqueNames.Mesh, DefaultPassNames.Colors),
             D3D12ScenePassCatalog.GetSelection(mesh));
@@ -2029,7 +2254,281 @@ public class D3D12RuntimePrimitiveTests {
             D3D12ScenePassCatalog.GetSelection(point));
         Assert.Equal((DefaultRenderTechniqueNames.BillboardText, DefaultPassNames.Default),
             D3D12ScenePassCatalog.GetSelection(billboard));
+        Assert.Equal((DefaultRenderTechniqueNames.Volume3D, DefaultPassNames.Default),
+            D3D12ScenePassCatalog.GetSelection(volume));
+        Assert.Equal((DefaultRenderTechniqueNames.ParticleStorm, DefaultParticlePassNames.Default),
+            D3D12ScenePassCatalog.GetSelection(particle));
         Assert.Equal((null, null), D3D12ScenePassCatalog.GetSelection(environment));
+    }
+
+    /// <summary>
+    ///     Verifies the particle CPU payload retains its exact layout, capacity limit, and insertion cadence.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ParticleCoreCreatesCompleteD3D12Payloads() {
+        using var core = new ParticleRenderCore {
+            ParticleCount = 16,
+            ParticleSize = new Vector2(0.5f),
+            EmitterLocation = Vector3.One,
+            ParticleBlendColor = new Vector4(1, 0, 0, 1)
+        };
+        core.AttachD3D12();
+
+        Assert.True(core.PrepareD3D12(1,
+            out var frame,
+            out var insert,
+            out var model));
+        Assert.Equal(ParticlePerFrame.SizeInBytes, Marshal.SizeOf<ParticlePerFrame>());
+        Assert.Equal(ParticleInsertParameters.SizeInBytes, Marshal.SizeOf<ParticleInsertParameters>());
+        Assert.Equal(ParticleModelStruct.SizeInBytes, Marshal.SizeOf<ParticleModelStruct>());
+        Assert.Equal(16u, frame.MaxParticles);
+        Assert.Equal(new Vector2(0.5f), frame.ParticleSize);
+        Assert.Equal(Vector3.One, insert.EmitterLocation);
+        Assert.Equal(new Vector4(1, 0, 0, 1), insert.ParticleBlendColor);
+        Assert.Equal(Matrix.Identity, model.World);
+        Assert.False(core.PrepareD3D12(1, out _, out _, out _));
+        Assert.Throws<ArgumentOutOfRangeException>(() => core.PrepareD3D12(double.NaN,
+            out _,
+            out _,
+            out _));
+    }
+
+    /// <summary>
+    ///     Verifies repository compute and geometry shaders insert eight particles and draw them indirectly on WARP.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpSimulatesAndDrawsExistingParticleNode() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 256, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 20, true);
+        using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(16, 16, Format.FormatR8G8B8A8Unorm);
+        using var depthHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
+        using var depthView = depthHeap.Allocate();
+        using var depth = device.CreateDepthStencilTexture2D(16, 16, Format.FormatD32FloatS8X24Uint);
+        using var node = new ParticleStormNode {
+            ParticleCount = 16,
+            ParticleSize = new Vector2(0.5f),
+            EmitterRadius = 0,
+            InitialVelocity = 0,
+            BlendColor = new Vector4(1, 0, 0, 1)
+        };
+        var nodes = new FastList<SceneNode>(1) {node};
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(16, 16, 1f / 16, 1f / 16),
+            Resolution = new Vector4(16, 16, 1f / 16, 1f / 16),
+            EyePos = new Vector3(0, 0, 2),
+            IsPerspective = true,
+            TimeStamp = 1,
+            DpiScale = 1
+        };
+        var frustum = new BoundingFrustum(Matrix.Identity);
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        device.CreateDepthStencilView(depth, depthView);
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var pixelReadback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        using var counterReadback = device.CreateBuffer(sizeof(uint), HeapType.Readback);
+        using var argumentReadback = device.CreateBuffer(ParticleCountIndirectArgs.SizeInBytes, HeapType.Readback);
+        context.Reset();
+        context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
+        context.ClearDepthStencil(depth, depthView);
+        context.SetRenderTargets(renderTargetView, depthView);
+        context.SetViewport(16, 16);
+
+        var recorded = renderer.RenderParticles(context,
+            nodes,
+            catalog.ResolveParticleUpdate,
+            catalog.ResolveParticleInsert,
+            catalog.ResolveParticle,
+            in transforms,
+            false,
+            ref frustum);
+        var particle = Assert.IsType<SilkD3D12ParticleResources>(
+            renderer.FindParticleResources((ParticleRenderCore) node.RenderCore));
+        context.CopyBuffer(counterReadback, 0, particle.RenderCounter, 0, sizeof(uint));
+        context.Transition(particle.Arguments, ResourceStates.CopySource);
+        context.CopyBuffer(argumentReadback, 0, particle.Arguments, 0, ParticleCountIndirectArgs.SizeInBytes);
+        context.Transition(renderTarget, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(pixelReadback, renderTarget, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        device.ThrowIfDeviceRemoved();
+        Assert.Equal(1, recorded);
+        Assert.Equal(8u, MemoryMarshal.Read<uint>(counterReadback.Read(sizeof(uint))));
+        var arguments = MemoryMarshal.Read<ParticleCountIndirectArgs>(
+            argumentReadback.Read(ParticleCountIndirectArgs.SizeInBytes));
+        Assert.Equal(8u, arguments.VertexCount);
+        Assert.Equal(1u, arguments.InstanceCount);
+        var pixel = pixelReadback.Read(4, footprint.Offset + 8UL * footprint.Footprint.RowPitch + 8UL * 4);
+        Assert.True(pixel[0] > 200, $"Expected red particles, got [{string.Join(',', pixel)}].");
+        Assert.True(pixel[2] < 40, $"Expected particles to replace the blue clear, got [{string.Join(',', pixel)}].");
+        renderer.Dispose();
+        Assert.False(node.RenderCore.IsD3D12Attached);
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
+    }
+
+    /// <summary>
+    ///     Verifies raw and gradient volume materials map to the exact b4 layout and existing pass contracts.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void VolumeMaterialsCreateDx12PayloadAndPassSelection() {
+        var material = new VolumeTextureRawDataMaterialCore {
+            VolumeTexture = new VolumeTextureParams([1, 2, 3, 4, 5, 6, 7, 8],
+                2,
+                2,
+                2,
+                Format.FormatR8Unorm),
+            Color = new Vector4(1, 0.5f, 0.25f, 0.75f),
+            SampleDistance = 0.5,
+            IterationOffset = 3,
+            MaxIterations = 17,
+            IsoValue = 0.25,
+            EnablePlaneAlignment = true,
+            TransferMap = [new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1)]
+        };
+        var model = Matrix.Identity;
+        model.M41 = 4;
+
+        var data = D3D12VolumeMaterialData.Create(in model, material, 2, 4, 8);
+
+        Assert.Equal(D3D12VolumeParams.SizeInBytes, Marshal.SizeOf<D3D12VolumeParams>());
+        Assert.Equal(model, data.World);
+        Assert.Equal(-4, data.WorldInverse.M41);
+        Assert.Equal(material.Color, data.Color);
+        Assert.Equal(0.0625f, data.StepSize);
+        Assert.Equal(3u, data.IterationOffset);
+        Assert.Equal(1, data.EnablePlaneAlignment);
+        Assert.Equal(17u, data.MaxIterations);
+        Assert.Equal(1, data.HasGradientMap);
+        Assert.Equal(0.25f, data.IsoValue);
+        Assert.Equal(0.5f, data.ActualSampleDistance);
+        using var node = new VolumeTextureNode { Material = material };
+        Assert.Equal(DefaultPassNames.Default, ((VolumeRenderCore) node.RenderCore).D3D12MaterialPassName);
+        node.Material = new VolumeTextureDiffuseMaterialCore {
+            VolumeTexture = new VolumeTextureGradientParams([new Half4()], 1, 1, 1)
+        };
+        Assert.Equal(DefaultPassNames.Diffuse, ((VolumeRenderCore) node.RenderCore).D3D12MaterialPassName);
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            D3D12VolumeMaterialData.Create(in model, material, 0, 1, 1));
+    }
+
+    /// <summary>
+    ///     Verifies an existing raw-volume node records backface and ray-march passes through repository DXIL on WARP.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpRendersExistingRawVolumeNode() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 256, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 20, true);
+        using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(16, 16, Format.FormatR8G8B8A8Unorm);
+        using var depthStencilHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
+        using var depthStencilView = depthStencilHeap.Allocate();
+        using var depthStencil = device.CreateDepthStencilTexture2D(16,
+            16,
+            Format.FormatD32FloatS8X24Uint);
+        using var volume = new VolumeTextureNode {
+            Material = new VolumeTextureRawDataMaterialCore {
+                VolumeTexture = new VolumeTextureParams(Enumerable.Repeat((byte) 255, 8).ToArray(),
+                    2,
+                    2,
+                    2,
+                    Format.FormatR8Unorm),
+                Color = new Vector4(1, 0, 0, 1),
+                SampleDistance = 0.25,
+                MaxIterations = 32,
+                IsoValue = 0
+            }
+        };
+        var volumes = new FastList<SceneNode>(1) { volume };
+        var opaque = new FastList<SceneNode>();
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(16, 16, 1f / 16, 1f / 16),
+            Resolution = new Vector4(16, 16, 1f / 16, 1f / 16),
+            EyePos = new Vector3(0, 0, 2),
+            IsPerspective = true,
+            DpiScale = 1
+        };
+        var frustum = new BoundingFrustum(Matrix.Identity);
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        device.CreateDepthStencilView(depthStencil, depthStencilView);
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        context.Reset();
+        context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
+        context.ClearDepthStencil(depthStencil, depthStencilView);
+        context.SetRenderTargets(renderTargetView, depthStencilView);
+        context.SetViewport(16, 16);
+
+        var recorded = renderer.RenderVolumes(context,
+            volumes,
+            opaque,
+            catalog.ResolveVolumeBack,
+            catalog.ResolveVolume,
+            catalog.ResolveVolumePositions,
+            catalog.ResolveBoneSkinning,
+            in transforms,
+            false,
+            ref frustum,
+            renderTargetView,
+            depthStencilView,
+            16,
+            16);
+        var backPositions = Assert.IsType<SilkD3D12Resource>(renderer.VolumeBackPositions);
+        var backFootprint = device.GetCopyableFootprint(backPositions, out var backBytes);
+        using var backReadback = device.CreateBuffer(backBytes, HeapType.Readback);
+        context.Transition(backPositions, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(backReadback, backPositions, in backFootprint);
+        context.Transition(renderTarget, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        device.ThrowIfDeviceRemoved();
+        Assert.Equal(1, recorded);
+        Assert.True(volume.RenderCore.IsD3D12Attached);
+        var backPixel = backReadback.Read(8,
+            backFootprint.Offset + 8UL * backFootprint.Footprint.RowPitch + 8UL * 8);
+        var backZ = BitConverter.UInt16BitsToHalf(BitConverter.ToUInt16(backPixel, 4));
+        Assert.True(backZ < (Half) (-0.4f),
+            $"Expected the cube backface at negative Z, got {backZ} from [{string.Join(',', backPixel)}].");
+        var pixel = readback.Read(4, footprint.Offset + 8UL * footprint.Footprint.RowPitch + 8UL * 4);
+        Assert.True(pixel[0] > 200, $"Expected red volume output, got [{string.Join(',', pixel)}].");
+        Assert.True(pixel[2] < 40, $"Expected the opaque red volume to replace the blue clear, got [{string.Join(',', pixel)}].");
+        renderer.Dispose();
+        Assert.False(volume.RenderCore.IsD3D12Attached);
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
     }
 
     /// <summary>
@@ -2166,6 +2665,312 @@ public class D3D12RuntimePrimitiveTests {
     }
 
     /// <summary>
+    ///     Verifies transparent material families select their exact weighted and depth-peeling repository passes.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void TransparencyPassSelectionCoversMaterialFamiliesAndStages() {
+        using var diffuse = CreateDiffuseQuadNode(new Vector4(1, 0, 0, 0.5f));
+        using var phong = CreateDiffuseQuadNode(Vector4.One);
+        using var pbr = CreateDiffuseQuadNode(Vector4.One);
+        phong.Material = new PhongMaterialCore();
+        pbr.Material = new PbrMaterialCore {EnableTessellation = true};
+
+        Assert.Equal(DefaultPassNames.DiffuseOit,
+            D3D12ScenePassCatalog.GetTransparencyPassName(diffuse, false, false));
+        Assert.Equal(DefaultPassNames.DiffuseOitdp,
+            D3D12ScenePassCatalog.GetTransparencyPassName(diffuse, true, false));
+        Assert.Equal(DefaultPassNames.OitDepthPeelingInit,
+            D3D12ScenePassCatalog.GetTransparencyPassName(diffuse, true, true));
+        Assert.Equal(DefaultPassNames.OitPass,
+            D3D12ScenePassCatalog.GetTransparencyPassName(phong, false, false));
+        Assert.Equal(DefaultPassNames.MeshPbrTriTessellationOitdp,
+            D3D12ScenePassCatalog.GetTransparencyPassName(pbr, true, false));
+        using var unsupported = CreateColoredQuadNode(0, Vector4.One);
+        Assert.Null(D3D12ScenePassCatalog.GetTransparencyPassName(unsupported, false, false));
+    }
+
+    /// <summary>
+    ///     Verifies weighted OIT records a transparent existing mesh, composites stable alpha, resizes, and releases tables.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpCompositesWeightedTransparencyAndResizesTargets() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatB8G8R8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
+        using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(8, 8, Format.FormatB8G8R8A8Unorm);
+        using var depthHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
+        using var depthView = depthHeap.Allocate();
+        using var depth = device.CreateDepthStencilTexture2D(8, 8, Format.FormatD32FloatS8X24Uint);
+        using var node = CreateDiffuseQuadNode(new Vector4(1, 0, 0, 0.5f));
+        var nodes = new FastList<SceneNode>(1) {node};
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(8, 8, 0.125f, 0.125f),
+            Resolution = new Vector4(8, 8, 0.125f, 0.125f),
+            EyePos = new Vector3(0, 0, 2),
+            OITWeightPower = 3,
+            OITWeightDepthSlope = 1,
+            OITWeightMode = (int) OitWeightMode.Linear1,
+            DpiScale = 1
+        };
+        var frustum = new BoundingFrustum(Matrix.Identity);
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        device.CreateDepthStencilView(depth, depthView);
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        context.Reset();
+        context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
+        context.ClearDepthStencil(depth, depthView);
+        context.SetRenderTargets(renderTargetView, depthView);
+        context.SetViewport(8, 8);
+
+        var recorded = renderer.RenderWeightedTransparency(context,
+            nodes,
+            catalog.ResolveWeightedTransparency,
+            catalog.ResolveWeightedComposition(),
+            in transforms,
+            false,
+            ref frustum,
+            renderTargetView,
+            depthView,
+            8,
+            8,
+            null,
+            null,
+            catalog.ResolveBoneSkinning,
+            null);
+        context.Transition(renderTarget, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        device.ThrowIfDeviceRemoved();
+        Assert.Equal(1, recorded);
+        var pixel = readback.Read(4, footprint.Offset + 4UL * footprint.Footprint.RowPitch + 4UL * 4);
+        Assert.InRange(pixel[2], 120, 135);
+        Assert.InRange(pixel[0], 120, 135);
+        Assert.Equal(255, pixel[3]);
+        renderer.Dispose();
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
+    }
+
+    /// <summary>
+    ///     Verifies dual-depth peeling preserves the opaque frame and composites a stable transparent layer.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpCompositesDepthPeelingLayers() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatB8G8R8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
+        using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(8, 8, Format.FormatB8G8R8A8Unorm);
+        using var depthHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
+        using var depthView = depthHeap.Allocate();
+        using var depth = device.CreateDepthStencilTexture2D(8, 8, Format.FormatD32FloatS8X24Uint);
+        using var node = CreateDiffuseQuadNode(new Vector4(1, 0, 0, 0.5f));
+        var nodes = new FastList<SceneNode>(1) {node};
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(8, 8, 0.125f, 0.125f),
+            Resolution = new Vector4(8, 8, 0.125f, 0.125f),
+            EyePos = new Vector3(0, 0, 2),
+            DpiScale = 1
+        };
+        var frustum = new BoundingFrustum(Matrix.Identity);
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        device.CreateDepthStencilView(depth, depthView);
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        context.Reset();
+        context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
+        context.ClearDepthStencil(depth, depthView);
+        context.SetRenderTargets(renderTargetView, depthView);
+        context.SetViewport(8, 8);
+
+        var recorded = renderer.RenderDepthPeeling(context,
+            nodes,
+            catalog.ResolveDepthPeelingInitialization,
+            catalog.ResolveDepthPeeling,
+            catalog.ResolveDepthPeelingComposition(),
+            2,
+            in transforms,
+            false,
+            ref frustum,
+            renderTarget,
+            renderTargetView,
+            depthView,
+            8,
+            8,
+            null,
+            null,
+            catalog.ResolveBoneSkinning,
+            null);
+        context.Transition(renderTarget, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        device.ThrowIfDeviceRemoved();
+        Assert.Equal(2, recorded);
+        var pixel = readback.Read(4, footprint.Offset + 4UL * footprint.Footprint.RowPitch + 4UL * 4);
+        Assert.True(pixel[2] is >= 120 and <= 135, $"Depth-peeling center pixel: {string.Join(',', pixel)}");
+        Assert.InRange(pixel[0], 120, 135);
+        Assert.Equal(255, pixel[3]);
+        renderer.Dispose();
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
+    }
+
+    /// <summary>
+    ///     Verifies the scene catalog resolves and caches the bone-skinning stream-output pass only for bone nodes.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpResolvesBoneSkinningScenePass() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32Float);
+        using var boneNode = new BoneSkinMeshNode();
+        using var meshNode = new MeshNode();
+
+        var pass = catalog.ResolveBoneSkinning(boneNode);
+
+        Assert.NotNull(pass);
+        Assert.Same(pass, catalog.ResolveBoneSkinning(boneNode));
+        Assert.Equal(DefaultPassNames.PreComputeMeshBoneSkinned, pass.Name);
+        Assert.Equal(PrimitiveTopology.PointList, pass.Topology);
+        Assert.Null(catalog.ResolveBoneSkinning(meshNode));
+        device.ThrowIfDeviceRemoved();
+    }
+
+    /// <summary>
+    ///     Verifies an existing shadow node resolves directional-light camera state into the exact b5 payload.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ShadowMapNodeCreatesDx12LightPayload() {
+        using var shadow = new ShadowMapNode {
+            Resolution = new Size2(32, 16),
+            Bias = 0.01f,
+            Intensity = 0.75f,
+            Distance = 4,
+            OrthoWidth = 6
+        };
+        using var light = new DirectionalLightNode {Direction = -Vector3.UnitZ};
+        using var caster = CreateColoredQuadNode(0, Vector4.One, 0.25f);
+        caster.IsThrowingShadow = true;
+        var lights = new FastList<SceneNode>(1) {light};
+        var opaque = new FastList<SceneNode>(1) {caster};
+
+        Assert.True(shadow.TryCreateD3D12Parameters(lights,
+            opaque,
+            out var parameters,
+            out var frustum));
+
+        Assert.Equal(new Vector2(32, 16), parameters.ShadowMapSize);
+        Assert.Equal(1, parameters.HasShadowMap);
+        Assert.Equal(0.75f, parameters.ShadowMapInfo.X);
+        Assert.Equal(0.01f, parameters.ShadowMapInfo.Z);
+        Assert.NotEqual(Matrix.Identity, parameters.LightView);
+        Assert.NotEqual(Matrix.Identity, parameters.LightProjection);
+        Assert.True(caster.TestViewFrustum(ref frustum));
+        Assert.False(shadow.TryCreateD3D12Parameters([], opaque, out parameters, out frustum));
+        Assert.Equal(0, parameters.HasShadowMap);
+    }
+
+    /// <summary>
+    ///     Verifies the native shadow pass writes D32 depth, transitions it for sampling, and releases all tables.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpRendersExistingMeshIntoShadowDepth() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 256, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 32, true);
+        using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32Float);
+        using var caster = CreateColoredQuadNode(0, Vector4.One, 0.25f);
+        caster.IsThrowingShadow = true;
+        var candidates = new FastList<SceneNode>(1) {caster};
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(8, 8, 0.125f, 0.125f),
+            Resolution = new Vector4(8, 8, 0.125f, 0.125f),
+            EyePos = new Vector3(0, 0, 2),
+            DpiScale = 1
+        };
+        var parameters = new ShadowMapParamStruct {
+            ShadowMapSize = new Vector2(8, 8),
+            HasShadowMap = 1,
+            LightView = Matrix.Identity,
+            LightProjection = Matrix.Identity
+        };
+        var frustum = new BoundingFrustum(Matrix.Identity);
+        context.Reset();
+
+        var recorded = renderer.RenderShadows(context,
+            candidates,
+            catalog.ResolveShadow,
+            catalog.ResolveBoneSkinning,
+            in transforms,
+            in parameters,
+            ref frustum);
+        var shadowResource = Assert.IsType<SilkD3D12Resource>(renderer.ShadowResource);
+        Assert.Equal(ResourceStates.PixelShaderResource, shadowResource.State);
+        Assert.Equal(Format.FormatR32Typeless, shadowResource.Description.Format);
+        var footprint = device.GetCopyableFootprint(shadowResource, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        context.Transition(shadowResource, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, shadowResource, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        device.ThrowIfDeviceRemoved();
+        Assert.Equal(1, recorded);
+        var centerOffset = footprint.Offset + 4UL * footprint.Footprint.RowPitch + 4UL * sizeof(float);
+        Assert.InRange(BitConverter.ToSingle(readback.Read(sizeof(float), centerOffset)), 0.24f, 0.26f);
+        renderer.Dispose();
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
+    }
+
+    /// <summary>
     ///     Verifies an existing mesh core selects a default pass and renders from b0/b1 camera/model data on WARP.
     /// </summary>
     [Fact]
@@ -2270,6 +3075,13 @@ public class D3D12RuntimePrimitiveTests {
             cache,
             techniqueDescription.InputLayoutDescription,
             PrimitiveTopology.TriangleList);
+        var preComputeDescription = techniqueDescription.PassDescriptions!
+            .Single(description => description.Name == DefaultPassNames.PreComputeMeshBoneSkinned);
+        using var preComputePass = preComputeDescription.CreateD3D12(device,
+            rootSignature,
+            cache,
+            techniqueDescription.InputLayoutDescription,
+            PrimitiveTopology.PointList);
         using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 118, true);
         using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 10, true);
         using var bindings = new SilkD3D12MeshBindings(device, resourceHeap, samplerHeap);
@@ -2326,13 +3138,27 @@ public class D3D12RuntimePrimitiveTests {
         device.CreateRenderTargetView(renderTarget, renderTargetView);
         var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        using var outputReadback = device.CreateBuffer(4UL * DefaultVertex.SizeInBytes, HeapType.Readback);
+        using var filledSizeReadback = device.CreateBuffer(sizeof(uint), HeapType.Readback);
         core.AttachD3D12();
         context.Reset();
         context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
         context.SetRenderTarget(renderTargetView);
         context.SetViewport(8, 8);
 
-        Assert.True(core.TryRenderD3D12(context, resources, pass, bindings, in transforms));
+        Assert.True(core.TryRenderD3D12(context,
+            resources,
+            pass,
+            bindings,
+            in transforms,
+            null,
+            null,
+            preComputePass));
+        var skinning = bindings.BoneSkinning!;
+        context.Transition(skinning.Output, ResourceStates.CopySource);
+        context.CopyBuffer(outputReadback, 0, skinning.Output, 0, skinning.OutputSizeInBytes);
+        context.Transition(skinning.FilledSizeResource, ResourceStates.CopySource);
+        context.CopyBuffer(filledSizeReadback, 0, skinning.FilledSizeResource, 0, sizeof(uint));
         context.Transition(renderTarget, ResourceStates.CopySource);
         context.CopyTextureToBuffer(readback, renderTarget, in footprint);
         context.Close();
@@ -2342,6 +3168,12 @@ public class D3D12RuntimePrimitiveTests {
         device.ThrowIfDeviceRemoved();
         var centerPixelOffset = footprint.Offset + 4UL * footprint.Footprint.RowPitch + 4UL * 4;
         Assert.Equal([255, 0, 0, 255], readback.Read(4, centerPixelOffset));
+        Assert.Equal(4U * DefaultVertex.SizeInBytes,
+            MemoryMarshal.Read<uint>(filledSizeReadback.Read(sizeof(uint))));
+        var skinnedVertices = MemoryMarshal.Cast<byte, DefaultVertex>(
+            outputReadback.Read(4 * DefaultVertex.SizeInBytes));
+        Assert.Equal(-0.3f, skinnedVertices[0].Position.X, 5);
+        Assert.Equal(0.4f, skinnedVertices[0].Position.Y, 5);
         Assert.Equal(1, resources.GeometryCount);
         core.DetachD3D12();
         device.ThrowIfDeviceRemoved();
@@ -2445,14 +3277,16 @@ public class D3D12RuntimePrimitiveTests {
     }
 
     /// <summary>
-    ///     Verifies existing Phong and PBR materials consume cbMesh and cbLights through their repository DXIL passes.
+    ///     Verifies existing Phong, PBR, and tessellated materials consume their repository DXIL passes.
     /// </summary>
     /// <param name="usePbr">Whether to render the PBR rather than the Phong pass.</param>
+    /// <param name="tessellate">Whether to use the three-control-point tessellation pass.</param>
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
     [Trait("Category", "Warp")]
-    public void WarpRendersExistingPhongAndPbrMaterials(bool usePbr) {
+    public void WarpRendersExistingPhongPbrAndTessellatedMaterials(bool usePbr, bool tessellate) {
         using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
         using var queue = device.CreateCommandQueue();
         using var context = device.CreateCommandContext();
@@ -2464,14 +3298,16 @@ public class D3D12RuntimePrimitiveTests {
         var material = usePbr
             ? (MaterialCore) new PbrMaterialCore {
                 AlbedoColor = new Vector4(0, 0, 0, 1),
-                EmissiveColor = Vector4.Zero
+                EmissiveColor = Vector4.Zero,
+                EnableTessellation = tessellate
             }
             : new PhongMaterialCore {
                 DiffuseColor = new Vector4(0, 0, 0, 1),
                 AmbientColor = Vector4.One,
                 EmissiveColor = Vector4.Zero,
                 SpecularColor = Vector4.Zero,
-                ReflectiveColor = Vector4.Zero
+                ReflectiveColor = Vector4.Zero,
+                EnableTessellation = tessellate
             };
         var passDescription = techniqueDescription.PassDescriptions!
             .Single(description => description.Name == D3D12MeshMaterialData.GetPassName(material));
@@ -2786,6 +3622,888 @@ public class D3D12RuntimePrimitiveTests {
     /// </summary>
     /// <param name="centerX">The mesh center on the X axis.</param>
     /// <returns>The initialized mesh node.</returns>
+    /// <summary>
+    ///     Verifies FXAA constants and the SSAO kernel are deterministic and preserve their shader layouts.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void PostProcessCpuContractsAreDeterministic() {
+        var fxaa = SilkD3D12SceneRenderer.CreateFxaaParameters(FxaaLevel.High, 200, 100);
+        Assert.Equal(0.005f, fxaa.Color.X);
+        Assert.Equal(0.01f, fxaa.Color.Y);
+        Assert.Equal(0.75f, fxaa.Param.M11);
+        Assert.Equal(0.125f, fxaa.Param.M12);
+        Assert.Equal(0.0625f, fxaa.Param.M13);
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            SilkD3D12SceneRenderer.CreateFxaaParameters(FxaaLevel.None, 1, 1));
+
+        var first = SilkD3D12SsaoResources.CreateKernel();
+        var second = SilkD3D12SsaoResources.CreateKernel();
+        Assert.Equal(SilkD3D12SsaoResources.KernelSize, first.Length);
+        Assert.Equal(first, second);
+        Assert.All(first, sample => {
+            Assert.True(sample.Z > 0);
+            Assert.Equal(0, sample.W);
+            Assert.InRange(sample.X * sample.X + sample.Y * sample.Y + sample.Z * sample.Z, 0.009f, 1.001f);
+        });
+    }
+
+    /// <summary>
+    ///     Verifies the repository luma/FXAA ping-pong sequence preserves a stable solid WARP pixel.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpRunsFxaaPingPongAndPreservesSolidColor() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatB8G8R8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
+        using var postProcess = new SilkD3D12PostProcessResources(device, resourceHeap, samplerHeap);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(8, 8, Format.FormatB8G8R8A8Unorm);
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(8, 8, 0.125f, 0.125f),
+            Resolution = new Vector4(8, 8, 0.125f, 0.125f),
+            DpiScale = 1
+        };
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var capturedReadback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        using var lumaReadback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        var parameters = SilkD3D12SceneRenderer.CreateFxaaParameters(FxaaLevel.High, 8, 8);
+        var lumaPass = catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectFxaa,
+            DefaultPassNames.LumaPass);
+        var fxaaPass = catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectFxaa,
+            DefaultPassNames.FxaaPass);
+        context.Reset();
+        context.ClearRenderTarget(renderTarget, renderTargetView, [1, 0, 0, 1]);
+        postProcess.Capture(context, renderTarget, 8, 8);
+        context.Transition(postProcess.First, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(capturedReadback, postProcess.First, in footprint);
+        postProcess.Draw(context, lumaPass, 0, 1, in transforms, in parameters);
+        context.Transition(postProcess.Second, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(lumaReadback, postProcess.Second, in footprint);
+        context.Transition(renderTarget, ResourceStates.RenderTarget);
+        postProcess.DrawToPresentation(context, fxaaPass, 1, renderTargetView, in transforms, in parameters);
+        context.Transition(renderTarget, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        device.ThrowIfDeviceRemoved();
+        var pixelOffset = footprint.Offset + 4UL * footprint.Footprint.RowPitch + 16;
+        var capturedPixel = capturedReadback.Read(4, pixelOffset);
+        var lumaPixel = lumaReadback.Read(4, pixelOffset);
+        var pixel = readback.Read(4, pixelOffset);
+        Assert.InRange(capturedPixel[2], 250, 255);
+        Assert.True(lumaPixel[2] >= 250,
+            $"Expected red luma output; capture=[{string.Join(',', capturedPixel)}], luma=[{string.Join(',', lumaPixel)}].");
+        Assert.InRange(pixel[2], 250, 255);
+        Assert.InRange(pixel[0], 0, 5);
+        Assert.Equal(255, pixel[3]);
+        postProcess.Dispose();
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
+    }
+
+    /// <summary>
+    ///     Verifies bloom extraction, both blur directions, and additive composition preserve a bright WARP pixel.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpRunsBloomPassOrderAndPreservesBrightColor() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatB8G8R8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 1024, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 80, true);
+        using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(8, 8, Format.FormatB8G8R8A8Unorm);
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(8, 8, 0.125f, 0.125f),
+            Resolution = new Vector4(8, 8, 0.125f, 0.125f),
+            DpiScale = 1
+        };
+        var parameters = new BorderEffectStruct {
+            Color = new(0.5f, 0.5f, 0.5f, 0.5f),
+            Param = new Matrix {M11 = 1, M12 = 1, M13 = 1, M14 = 1},
+            ViewportScale = 1
+        };
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        context.Reset();
+        context.ClearRenderTarget(renderTarget, renderTargetView, [1, 0, 0, 1]);
+        renderer.RenderBloom(context,
+            renderTarget,
+            renderTargetView,
+            catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom, DefaultPassNames.ScreenQuad),
+            catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
+                DefaultPassNames.EffectBlurVertical),
+            catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
+                DefaultPassNames.EffectBlurHorizontal),
+            catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom, DefaultPassNames.MeshOutline),
+            in parameters,
+            1,
+            in transforms,
+            8,
+            8);
+        context.Transition(renderTarget, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        device.ThrowIfDeviceRemoved();
+        var pixel = readback.Read(4, footprint.Offset + 4UL * footprint.Footprint.RowPitch + 16);
+        Assert.InRange(pixel[2], 250, 255);
+        Assert.InRange(pixel[1], 0, 5);
+        Assert.InRange(pixel[0], 0, 5);
+        renderer.Dispose();
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
+    }
+
+    /// <summary>
+    ///     Verifies an existing mesh mask, two blur directions, and outline composition record and alter WARP color.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpRendersOutlineMaskBlurAndComposition() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatB8G8R8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 1024, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 100, true);
+        using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(16, 16, Format.FormatB8G8R8A8Unorm);
+        using var depthHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
+        using var depthView = depthHeap.Allocate();
+        using var depth = device.CreateDepthStencilTexture2D(16, 16, Format.FormatD32FloatS8X24Uint);
+        using var node = CreateDiffuseQuadNode(Vector4.One);
+        var nodes = new FastList<SceneNode>(1) {node};
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(16, 16, 1f / 16, 1f / 16),
+            Resolution = new Vector4(16, 16, 1f / 16, 1f / 16),
+            EyePos = new Vector3(0, 0, 2),
+            DpiScale = 1
+        };
+        var parameters = new BorderEffectStruct {
+            Color = new(1, 0, 0, 1),
+            Param = new Matrix {M11 = 1, M12 = 1},
+            ViewportScale = 1
+        };
+        var frustum = new BoundingFrustum(Matrix.Identity);
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        device.CreateDepthStencilView(depth, depthView);
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        context.Reset();
+        context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
+        context.ClearDepthStencil(depth, depthView);
+
+        var recorded = renderer.RenderOutline(context,
+            nodes,
+            current => catalog.ResolvePostEffectGeometry(current,
+                DefaultPassNames.EffectOutlineP1,
+                Format.FormatD32FloatS8X24Uint),
+            catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur,
+                DefaultPassNames.EffectBlurVertical),
+            catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur,
+                DefaultPassNames.EffectBlurHorizontal),
+            catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur,
+                DefaultPassNames.MeshOutline),
+            in parameters,
+            1,
+            in transforms,
+            false,
+            ref frustum,
+            renderTarget,
+            renderTargetView,
+            depthView,
+            16,
+            16);
+        context.Transition(renderTarget, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        device.ThrowIfDeviceRemoved();
+        Assert.Equal(1, recorded);
+        var pixels = readback.Read(checked((int) totalBytes));
+        Assert.Contains(Enumerable.Range(0, 16 * 16), index => {
+            var offset = index / 16 * (int) footprint.Footprint.RowPitch + index % 16 * 4;
+            return pixels[offset + 2] > pixels[offset];
+        });
+        renderer.Dispose();
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
+    }
+
+    /// <summary>
+    ///     Verifies the XRay overlay consumes prepared occlusion depth/stencil state on WARP.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpRendersXRayOverlayFromPreparedOcclusion() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatB8G8R8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 256, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 20, true);
+        using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(8, 8, Format.FormatB8G8R8A8Unorm);
+        using var depthHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
+        using var depthView = depthHeap.Allocate();
+        using var depth = device.CreateDepthStencilTexture2D(8, 8, Format.FormatD32FloatS8X24Uint);
+        using var node = CreateDiffuseQuadNode(Vector4.One);
+        var nodes = new FastList<SceneNode>(1) {node};
+        var selectors = new Func<SceneNode, ShaderPass?>[] {
+            current => catalog.ResolvePostEffectGeometry(current,
+                DefaultPassNames.EffectMeshXRayP1,
+                Format.FormatD32FloatS8X24Uint),
+            current => catalog.ResolvePostEffectGeometry(current,
+                DefaultPassNames.EffectMeshXRayP2,
+                Format.FormatD32FloatS8X24Uint)
+        };
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(8, 8, 0.125f, 0.125f),
+            Resolution = new Vector4(8, 8, 0.125f, 0.125f),
+            EyePos = new Vector3(0, 0, 2),
+            DpiScale = 1
+        };
+        var parameters = new BorderEffectStruct {Color = new(1, 0, 0, 1), Param = new Matrix {M11 = 0.5f}};
+        var frustum = new BoundingFrustum(Matrix.Identity);
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        device.CreateDepthStencilView(depth, depthView);
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        context.Reset();
+        context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
+        context.ClearDepthStencil(depth, depthView, 0, 0);
+
+        var recorded = renderer.RenderXRay(context,
+            nodes,
+            selectors,
+            in parameters,
+            in transforms,
+            false,
+            ref frustum,
+            renderTargetView,
+            depthView,
+            8,
+            8);
+        context.Transition(renderTarget, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        device.ThrowIfDeviceRemoved();
+        Assert.Equal(2, recorded);
+        var pixels = readback.Read(checked((int) totalBytes));
+        Assert.Contains(Enumerable.Range(0, 8 * 8), index => {
+            var offset = index / 8 * (int) footprint.Footprint.RowPitch + index % 8 * 4;
+            return pixels[offset + 2] > 0 || pixels[offset] < 255;
+        });
+        renderer.Dispose();
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
+    }
+
+    /// <summary>
+    ///     Verifies SSAO records geometry, evaluates and blurs into a finite R16 WARP map.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpBuildsStableSsaoMap() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatB8G8R8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
+        using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
+        using var node = CreateDiffuseQuadNode(new Vector4(1, 1, 1, 1));
+        var nodes = new FastList<SceneNode>(1) {node};
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(8, 8, 0.125f, 0.125f),
+            Resolution = new Vector4(8, 8, 0.125f, 0.125f),
+            EyePos = new Vector3(0, 0, 2),
+            SSAOEnabled = 1,
+            SSAOBias = 1e-3f,
+            SSAOIntensity = 1,
+            DpiScale = 1
+        };
+        var frustum = new BoundingFrustum(Matrix.Identity);
+        context.Reset();
+        var occlusion = renderer.RenderSsao(context,
+            nodes,
+            catalog.ResolveSsaoGeometry,
+            catalog.ResolvePostProcess(DefaultRenderTechniqueNames.Ssao, DefaultPassNames.Default),
+            catalog.ResolvePostProcess(DefaultRenderTechniqueNames.Ssao, DefaultPassNames.EffectBlurHorizontal),
+            catalog.ResolveBoneSkinning,
+            in transforms,
+            false,
+            ref frustum,
+            8,
+            8,
+            SsaoQuality.High,
+            0.5f);
+        var footprint = device.GetCopyableFootprint(occlusion, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        context.Transition(occlusion, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, occlusion, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        device.ThrowIfDeviceRemoved();
+        Assert.Equal(SilkD3D12SsaoResources.OcclusionFormat, occlusion.Description.Format);
+        var bytes = readback.Read(2, footprint.Offset + 4UL * footprint.Footprint.RowPitch + 8);
+        var value = (float) BitConverter.UInt16BitsToHalf(BitConverter.ToUInt16(bytes));
+        Assert.True(float.IsFinite(value));
+        Assert.InRange(value, 0, 1.01f);
+        renderer.Dispose();
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
+    }
+
+    /// <summary>
+    ///     Verifies DirectWrite shapes Unicode text once and reuses the same atlas entry.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void GlyphAtlasCachesShapedUnicodeText() {
+        using var atlas = new D3D12GlyphAtlas(32);
+
+        var first = atlas.GetOrCreate("مرحبا 世界 👋",
+            "Arial",
+            FontWeight.Normal,
+            FontStyle.Normal,
+            18,
+            256,
+            64,
+            TextAlignment.Leading,
+            FlowDirection.RightToLeft);
+        var second = atlas.GetOrCreate("مرحبا 世界 👋",
+            "Arial",
+            FontWeight.Normal,
+            FontStyle.Normal,
+            18,
+            256,
+            64,
+            TextAlignment.Leading,
+            FlowDirection.RightToLeft);
+
+        Assert.Same(first, second);
+        Assert.Equal(1, atlas.Count);
+        Assert.True(first.GlyphCount > 0);
+        Assert.True(first.Width > 0);
+        Assert.True(first.Height > 0);
+    }
+
+    /// <summary>
+    ///     Verifies atlas growth preserves previously allocated glyph coordinates.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void GlyphAtlasGrowsWithoutMovingCachedEntries() {
+        using var atlas = new D3D12GlyphAtlas(8);
+        var first = atlas.GetOrCreate("A",
+            "Arial",
+            FontWeight.Normal,
+            FontStyle.Normal,
+            20,
+            64,
+            64,
+            TextAlignment.Leading,
+            FlowDirection.LeftToRight);
+        var original = (first.X, first.Y);
+
+        for (var index = 0; index < 12; index++)
+            atlas.GetOrCreate($"Unicode-{index}-世界",
+                "Arial",
+                FontWeight.Bold,
+                FontStyle.Normal,
+                28,
+                256,
+                64,
+                TextAlignment.Leading,
+                FlowDirection.LeftToRight);
+
+        Assert.True(atlas.Width > 8 || atlas.Height > 8);
+        Assert.Equal(original, (first.X, first.Y));
+        Assert.Equal(13, atlas.Count);
+    }
+
+    /// <summary>
+    ///     Verifies pixel projection, transformed quad vertices, and clip intersection remain deterministic.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Scene2DCpuContractsAreDeterministic() {
+        var transforms = D3D12Scene2DRenderer.CreateTransforms(200, 100);
+        var vertices = D3D12Scene2DRenderer.CreateQuadVertices(new RectangleF(0, 0, 10, 20),
+            Matrix3X2.Translation(5, 7),
+            new Vector4(1, 0, 0, 1),
+            new RectangleF(0, 0, 1, 1));
+        var clip = D3D12Scene2DRenderer.Intersect(new RectangleF(0, 0, 50, 50),
+            new RectangleF(25, 10, 50, 20));
+
+        Assert.Equal(0.01f, transforms.Projection.M11);
+        Assert.Equal(-0.02f, transforms.Projection.M22);
+        Assert.Equal(new Vector2(5, 7), vertices[0].Position);
+        Assert.Equal(new Vector2(15, 27), vertices[2].Position);
+        Assert.Equal(new RectangleF(25, 10, 25, 20), clip);
+    }
+
+    /// <summary>
+    ///     Verifies Scene2D traversal preserves sibling order and inherited clipping.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpPreparesScene2DInOrderWithClipping() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
+        using var resources = new SilkD3D12ResourceManager(device, resourceHeap);
+        using var renderer = new D3D12Scene2DRenderer(device, resources, resourceHeap, samplerHeap);
+        using var context2D = new D2DDeviceContext();
+        using var red = new SolidColorBrush(context2D, new Vector4(1, 0, 0, 1));
+        using var green = new SolidColorBrush(context2D, new Vector4(0, 1, 0, 1));
+        using var root = new PanelNode2D {ClipToBound = true};
+        using var first = new RectangleNode2D {Fill = red};
+        using var second = new RectangleNode2D {Fill = green};
+        root.RenderCore.LayoutClippingBound = new RectangleF(0, 0, 24, 16);
+        first.RenderCore.LayoutBound = new RectangleF(0, 0, 16, 16);
+        second.RenderCore.LayoutBound = new RectangleF(12, 0, 16, 16);
+        root.AddChildNode(first);
+        root.AddChildNode(second);
+
+        renderer.BeginFrame();
+        var prepared = renderer.Prepare([root], 32, 32, 1);
+
+        Assert.Equal(2, prepared);
+        Assert.Same(first, renderer.Draws[0].Node);
+        Assert.Same(second, renderer.Draws[1].Node);
+        Assert.Equal(new RectangleF(0, 0, 24, 16), renderer.Draws[0].Clip);
+        Assert.Equal(renderer.Draws[0].Clip, renderer.Draws[1].Clip);
+    }
+
+    /// <summary>
+    ///     Verifies native Sprite2D rendering draws shape geometry and survives a target resize.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpRendersScene2DShapesAcrossResize() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
+        using var resources = new SilkD3D12ResourceManager(device, resourceHeap);
+        using var renderer = new D3D12Scene2DRenderer(device, resources, resourceHeap, samplerHeap);
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var context2D = new D2DDeviceContext();
+        using var red = new SolidColorBrush(context2D, new Vector4(1, 0, 0, 1));
+        using var node = new RectangleNode2D {Fill = red};
+        node.RenderCore.LayoutBound = new RectangleF(1, 1, 6, 6);
+
+        foreach (var size in new uint[] {8, 16}) {
+            using var renderTarget = device.CreateRenderTargetTexture2D(size,
+                size,
+                Format.FormatR8G8B8A8Unorm);
+            device.CreateRenderTargetView(renderTarget, renderTargetView);
+            var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+            using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+            renderer.BeginFrame();
+            renderer.Prepare([node], size, size, 1);
+            context.Reset();
+            context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 0, 1]);
+            var recorded = renderer.RenderPrepared(context,
+                catalog.ResolveSprite2D(),
+                renderTargetView,
+                size,
+                size);
+            context.Transition(renderTarget, ResourceStates.CopySource);
+            context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+            context.Close();
+            queue.Execute(context);
+            fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+            var pixel = readback.Read(4,
+                footprint.Offset + 4UL * footprint.Footprint.RowPitch + 4UL * 4);
+            Assert.Equal(1, recorded);
+            Assert.True(pixel[0] > 200,
+                $"Expected red at {size}x{size}, got [{string.Join(',', pixel)}].");
+            Assert.True(pixel[3] > 200,
+                $"Expected opaque alpha at {size}x{size}, got [{string.Join(',', pixel)}].");
+        }
+    }
+
+    /// <summary>
+    ///     Verifies an existing encoded image stream is decoded, uploaded, and sampled by the native Sprite2D pass.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpRendersScene2DImageAsTexturedQuad() {
+        const uint size = 8;
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
+        using var resources = new SilkD3D12ResourceManager(device, resourceHeap);
+        using var renderer = new D3D12Scene2DRenderer(device, resources, resourceHeap, samplerHeap);
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(size,
+            size,
+            Format.FormatR8G8B8A8Unorm);
+        using var image = D3D12TextureModelTests.CreateBmp([0, 255, 0, 255]);
+        using var node = new ImageNode2D {ImageStream = image};
+        node.RenderCore.LayoutBound = new RectangleF(1, 1, 6, 6);
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+
+        renderer.BeginFrame();
+        renderer.Prepare([node], size, size, 1);
+        context.Reset();
+        context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 0, 1]);
+        var recorded = renderer.RenderPrepared(context,
+            catalog.ResolveSprite2D(),
+            renderTargetView,
+            size,
+            size);
+        context.Transition(renderTarget, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        var pixel = readback.Read(4,
+            footprint.Offset + 4UL * footprint.Footprint.RowPitch + 4UL * 4);
+        Assert.Equal(1, recorded);
+        Assert.True(pixel[1] > 200, $"Expected green image pixel, got [{string.Join(',', pixel)}].");
+        Assert.True(pixel[3] > 200, $"Expected opaque image pixel, got [{string.Join(',', pixel)}].");
+    }
+
+    /// <summary>
+    ///     Verifies DirectWrite-shaped Unicode text reaches a WARP render target through the DX12 atlas.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpRendersUnicodeTextFromGlyphAtlas() {
+        const uint width = 96;
+        const uint height = 40;
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
+        using var resources = new SilkD3D12ResourceManager(device, resourceHeap);
+        using var renderer = new D3D12Scene2DRenderer(device, resources, resourceHeap, samplerHeap);
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(width,
+            height,
+            Format.FormatR8G8B8A8Unorm);
+        using var context2D = new D2DDeviceContext();
+        using var white = new SolidColorBrush(context2D, new Vector4(1, 1, 1, 1));
+        using var node = new TextNode2D {Text = "DX12 世界", Foreground = white, FontSize = 22};
+        node.RenderCore.LayoutBound = new RectangleF(0, 0, width, height);
+        ((TextRenderCore2D) node.RenderCore).MaxWidth = width;
+        ((TextRenderCore2D) node.RenderCore).MaxHeight = height;
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+        renderer.BeginFrame();
+        renderer.Prepare([node], width, height, 1);
+        context.Reset();
+        context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 0, 1]);
+        var recorded = renderer.RenderPrepared(context,
+            catalog.ResolveSprite2D(),
+            renderTargetView,
+            width,
+            height);
+        context.Transition(renderTarget, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+
+        var pixels = readback.Read(checked((int) totalBytes));
+        Assert.Equal(1, recorded);
+        Assert.True(renderer.Atlas.Count > 0);
+        Assert.Contains(Enumerable.Range(0, checked((int) (width * height))), index => {
+            var offset = index / (int) width * (int) footprint.Footprint.RowPitch + index % (int) width * 4;
+            return pixels[offset] > 32 || pixels[offset + 1] > 32 || pixels[offset + 2] > 32;
+        });
+    }
+
+    /// <summary>
+    ///     Verifies desktop-frame dimensions, row pitch, byte count, and supported format contracts.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ScreenCaptureFrameValidatesFormatAndDimensions() {
+        new ScreenCaptureFrame(2,
+            1,
+            Format.FormatB8G8R8A8Unorm,
+            8,
+            new byte[8]).Validate();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            new ScreenCaptureFrame(0, 1, Format.FormatB8G8R8A8Unorm, 0, []).Validate());
+        Assert.Throws<NotSupportedException>(() =>
+            new ScreenCaptureFrame(1, 1, Format.FormatR8G8B8A8Unorm, 4, new byte[4]).Validate());
+        Assert.Throws<ArgumentException>(() =>
+            new ScreenCaptureFrame(2, 1, Format.FormatB8G8R8A8Unorm, 4, new byte[4]).Validate());
+    }
+
+    /// <summary>
+    ///     Verifies D3D11 capture stays lazy, timeouts are non-destructive, and output changes release the old session.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ScreenCloneCoreOwnsLazyMonitorCaptureLifecycle() {
+        List<FakeDesktopCaptureSource> sources = [];
+        using var core = new ScreenCloneRenderCore(() => {
+            var source = new FakeDesktopCaptureSource();
+            sources.Add(source);
+            return source;
+        });
+
+        Assert.False(core.IsCaptureStarted);
+        Assert.Null(core.TryAcquireFrame(TimeSpan.Zero));
+        Assert.True(core.IsCaptureStarted);
+        Assert.Equal([0], sources[0].StartedOutputs);
+
+        core.Output = 2;
+        Assert.True(sources[0].IsDisposed);
+        Assert.False(core.IsCaptureStarted);
+        Assert.Null(core.TryAcquireFrame(TimeSpan.FromMilliseconds(1)));
+        Assert.Equal([2], sources[1].StartedOutputs);
+
+        core.StopCapture();
+        Assert.True(sources[1].IsDisposed);
+        Assert.False(core.IsCaptureStarted);
+
+        var failingSource = new FakeDesktopCaptureSource {ThrowOnStart = true};
+        using var failingCore = new ScreenCloneRenderCore(() => failingSource);
+        Assert.Throws<InvalidOperationException>(() => failingCore.TryAcquireFrame(TimeSpan.Zero));
+        Assert.True(failingSource.IsDisposed);
+        Assert.False(failingCore.IsCaptureStarted);
+    }
+
+    /// <summary>
+    ///     Verifies capture cropping and aspect preservation produce deterministic screen-pass constants.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ScreenCaptureConstantsApplyCropAndLetterbox() {
+        using var core = new ScreenCloneRenderCore(() => new FakeDesktopCaptureSource()) {
+            CloneRectangle = new Rectangle(50, 25, 100, 50),
+            StretchToFill = false
+        };
+
+        var constants = SilkD3D12ScreenCaptureResources.CreateConstants(core, 200, 100, 100, 100);
+
+        Assert.Equal(new Vector2(0.25f, 0.25f), constants.TexTopLeft);
+        Assert.Equal(new Vector2(0.75f, 0.75f), constants.TexBottomRight);
+        Assert.Equal(new Vector4(-1, 0.5f, 0, 1), constants.TopLeft);
+        Assert.Equal(new Vector4(1, -0.5f, 0, 1), constants.BottomRight);
+    }
+
+    /// <summary>
+    ///     Verifies captured BGRA frames replace a DX12 texture while timeout preserves the preceding frame.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpTransfersReplacesAndRetainsDesktopFrames() {
+        const uint size = 4;
+        var first = new ScreenCaptureFrame(size,
+            size,
+            Format.FormatB8G8R8A8Unorm,
+            size * 4,
+            Enumerable.Repeat(new byte[] {0, 0, 255, 255}, checked((int) (size * size)))
+                .SelectMany(pixel => pixel)
+                .ToArray());
+        var second = new ScreenCaptureFrame(size,
+            size,
+            Format.FormatB8G8R8A8Unorm,
+            size * 4,
+            Enumerable.Repeat(new byte[] {0, 255, 0, 255}, checked((int) (size * size)))
+                .SelectMany(pixel => pixel)
+                .ToArray());
+        using var source = new FakeDesktopCaptureSource(first, null, second);
+        using var core = new ScreenCloneRenderCore(() => source) {StretchToFill = true};
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 256, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 24, true);
+        using var capture = new SilkD3D12ScreenCaptureResources(device, resourceHeap, samplerHeap);
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var renderTargetView = renderTargetHeap.Allocate();
+        using var renderTarget = device.CreateRenderTargetTexture2D(size,
+            size,
+            Format.FormatR8G8B8A8Unorm);
+        device.CreateRenderTargetView(renderTarget, renderTargetView);
+        var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
+        using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
+
+        byte[][] expected = [[255, 0], [255, 0], [0, 255]];
+        for (var frameIndex = 0; frameIndex < expected.Length; frameIndex++) {
+            context.Reset();
+            context.Transition(renderTarget, ResourceStates.RenderTarget);
+            context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 0, 1]);
+            context.SetRenderTarget(renderTargetView);
+            context.SetViewport(size, size);
+            Assert.True(capture.TryRender(context,
+                catalog.ResolveScreenDuplication(),
+                core,
+                size,
+                size));
+            context.Transition(renderTarget, ResourceStates.CopySource);
+            context.CopyTextureToBuffer(readback, renderTarget, in footprint);
+            context.Close();
+            queue.Execute(context);
+            fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+            var pixel = readback.Read(4, footprint.Offset + footprint.Footprint.RowPitch + 4);
+            Assert.True(pixel[0] >= expected[frameIndex][0], $"Unexpected frame {frameIndex}: [{string.Join(',', pixel)}].");
+            Assert.True(pixel[1] >= expected[frameIndex][1], $"Unexpected frame {frameIndex}: [{string.Join(',', pixel)}].");
+            Assert.Equal(frameIndex == 2 ? 2 : 1, capture.Generation);
+        }
+
+        Assert.Equal((ulong) size, capture.Texture!.Description.Width);
+        Assert.Equal(size, capture.Texture.Description.Height);
+        Assert.Equal(Format.FormatB8G8R8A8Unorm, capture.Texture.Description.Format);
+        capture.Dispose();
+        Assert.True(capture.IsDisposed);
+        Assert.Equal(0, resourceHeap.Count);
+        Assert.Equal(0, samplerHeap.Count);
+    }
+
+    /// <summary>
+    ///     Exercises real DXGI desktop duplication only when an interactive hardware session is explicitly requested.
+    /// </summary>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public void HardwareCapturesOneInteractiveDesktopFrame() {
+        using var source = new D3D11DesktopCaptureSource();
+        source.Start(0);
+
+        Assert.True(source.TryAcquire(TimeSpan.FromSeconds(2), out var frame));
+        frame.Validate();
+        Assert.True(frame.Width > 0);
+        Assert.True(frame.Height > 0);
+        source.Dispose();
+        Assert.True(source.IsDisposed);
+    }
+
+    /// <summary>
+    ///     Supplies deterministic frames and timeout responses without loading Direct3D 11.
+    /// </summary>
+    private sealed class FakeDesktopCaptureSource : IDesktopCaptureSource {
+        /// <summary>The queued frame or timeout responses.</summary>
+        private readonly Queue<ScreenCaptureFrame?> frames;
+
+        /// <summary>Initializes a source with ordered responses.</summary>
+        /// <param name="frames">Frames, where <see langword="null" /> represents timeout.</param>
+        internal FakeDesktopCaptureSource(params ScreenCaptureFrame?[] frames) => this.frames = new(frames);
+
+        /// <summary>Gets the outputs used to start this source.</summary>
+        internal List<int> StartedOutputs { get; } = [];
+
+        /// <summary>Gets whether the source was disposed.</summary>
+        internal bool IsDisposed { get; private set; }
+
+        /// <summary>Gets or sets whether starting the source fails.</summary>
+        internal bool ThrowOnStart { get; init; }
+
+        /// <inheritdoc />
+        public void Start(int output) {
+            StartedOutputs.Add(output);
+            if (ThrowOnStart) throw new InvalidOperationException("Capture start failed.");
+        }
+
+        /// <inheritdoc />
+        public bool TryAcquire(TimeSpan timeout, out ScreenCaptureFrame frame) {
+            var response = frames.Count == 0 ? null : frames.Dequeue();
+            frame = response.GetValueOrDefault();
+            return response.HasValue;
+        }
+
+        /// <inheritdoc />
+        public void Dispose() => IsDisposed = true;
+    }
+
     private static MeshNode CreateFrustumTestNode(float centerX) => new() {
         Geometry = new MeshGeometry3D {
             Positions = new Vector3Collection([
@@ -2814,6 +4532,26 @@ public class D3D12RuntimePrimitiveTests {
                 new Vector3(centerX + 0.8f, -0.8f, depth)
             ]),
             Colors = new Color4Collection([color, color, color, color]),
+            Indices = new IntCollection([0, 1, 2, 2, 1, 3])
+        }
+    };
+
+    /// <summary>
+    ///     Creates one centered transparent diffuse quad for OIT tests.
+    /// </summary>
+    /// <param name="color">The diffuse RGBA color.</param>
+    /// <returns>The initialized mesh node.</returns>
+    private static MeshNode CreateDiffuseQuadNode(Vector4 color) => new() {
+        IsTransparent = true,
+        Material = new DiffuseMaterialCore {DiffuseColor = color, EnableUnLit = true},
+        Geometry = new MeshGeometry3D {
+            Positions = new Vector3Collection([
+                new Vector3(-0.8f, 0.8f, 0.25f),
+                new Vector3(0.8f, 0.8f, 0.25f),
+                new Vector3(-0.8f, -0.8f, 0.25f),
+                new Vector3(0.8f, -0.8f, 0.25f)
+            ]),
+            Normals = new Vector3Collection([Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitZ]),
             Indices = new IntCollection([0, 1, 2, 2, 1, 3])
         }
     };

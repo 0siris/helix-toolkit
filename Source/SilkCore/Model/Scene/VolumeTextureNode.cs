@@ -25,16 +25,18 @@ public class VolumeTextureNode : SceneNode {
     public MaterialCore? Material {
         get => material;
         set {
-            if (Set(ref material, value))
-                if (EffectsManager != null) {
-                    if (IsAttached) {
-                        AttachMaterial();
-                        InvalidateRender();
-                    } else {
-                        Detach();
-                        Attach(EffectsManager);
-                    }
+            if (!Set(ref material, value)) return;
+            if (RenderCore is VolumeRenderCore volumeRenderCore)
+                volumeRenderCore.D3D12Material = material;
+            if (EffectsManager != null) {
+                if (IsAttached) {
+                    AttachMaterial();
+                    InvalidateRender();
+                } else {
+                    Detach();
+                    Attach(EffectsManager);
                 }
+            }
         }
     }
 
@@ -51,6 +53,12 @@ public class VolumeTextureNode : SceneNode {
     protected override void OnDetach() {
         RemoveAndDispose(ref materialVariable);
         base.OnDetach();
+    }
+
+    /// <inheritdoc />
+    internal override bool AttachD3D12() {
+        if (RenderCore is VolumeRenderCore core) core.D3D12Material = material;
+        return material is IVolumeTextureMaterial && base.AttachD3D12();
     }
 
     protected virtual void AttachMaterial() {
@@ -70,7 +78,8 @@ public class VolumeTextureNode : SceneNode {
 
     protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? 0);
 
-    protected override bool CanRender(RenderContext context) => base.CanRender(context) && materialVariable != null;
+    protected override bool CanRender(RenderContext context) =>
+        base.CanRender(context) && (materialVariable != null || RenderCore.IsD3D12Attached && material is not null);
 
     protected override RenderCore OnCreateRenderCore() => new VolumeRenderCore { DefaultStateBinding = StateType.All };
 

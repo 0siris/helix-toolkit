@@ -12,11 +12,13 @@ using Silk.NET.DXGI;
 namespace HelixToolkit.SharpDX.Core.Native;
 
 /// <summary>
-///     Contains every subresource required to upload one two-dimensional texture, array, or cube map.
+///     Contains every subresource required to upload one texture, array, or cube map.
 /// </summary>
 /// <param name="Width">The texture width.</param>
 /// <param name="Height">The texture height.</param>
+/// <param name="Depth">The texture depth.</param>
 /// <param name="Format">The DXGI pixel format.</param>
+/// <param name="Dimension">The native resource dimension.</param>
 /// <param name="ArraySize">The texture array size.</param>
 /// <param name="MipLevels">The mip-level count.</param>
 /// <param name="IsCubeMap">Whether the six array slices form one cube map.</param>
@@ -24,7 +26,9 @@ namespace HelixToolkit.SharpDX.Core.Native;
 internal readonly record struct D3D12TextureUploadData(
     uint Width,
     uint Height,
+    ushort Depth,
     Format Format,
+    ResourceDimension Dimension,
     ushort ArraySize,
     ushort MipLevels,
     bool IsCubeMap,
@@ -119,16 +123,33 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
         var completionAttempted = false;
         try {
             var data = PrepareUploadData(info);
-            resource = device.CreateTexture2D(data.Width,
-                data.Height,
-                data.Format,
-                arraySize: data.ArraySize,
-                mipLevels: data.MipLevels);
+            resource = data.Dimension switch {
+                ResourceDimension.Texture1D => device.CreateTexture1D(data.Width,
+                    data.Format,
+                    arraySize: data.ArraySize,
+                    mipLevels: data.MipLevels),
+                ResourceDimension.Texture2D => device.CreateTexture2D(data.Width,
+                    data.Height,
+                    data.Format,
+                    arraySize: data.ArraySize,
+                    mipLevels: data.MipLevels),
+                ResourceDimension.Texture3D => device.CreateTexture3D(data.Width,
+                    data.Height,
+                    data.Depth,
+                    data.Format,
+                    mipLevels: data.MipLevels),
+                _ => throw new NotSupportedException($"The texture dimension {data.Dimension} is not supported.")
+            };
             upload = device.CreateTextureUploadBuffer(resource,
                 data.Subresources,
                 out var footprints);
             descriptor = descriptorHeap.Allocate();
-            device.CreateShaderResourceView(resource, descriptor, data.IsCubeMap);
+            if (data.Dimension == ResourceDimension.Texture1D)
+                device.CreateTexture1DShaderResourceView(resource, descriptor);
+            else if (data.Dimension == ResourceDimension.Texture3D)
+                device.CreateTexture3DShaderResourceView(resource, descriptor);
+            else
+                device.CreateShaderResourceView(resource, descriptor, data.IsCubeMap);
             context.CopyBufferToTexture(resource, upload, footprints);
             context.Transition(resource,
                 ResourceStates.PixelShaderResource | ResourceStates.NonPixelShaderResource);
@@ -157,11 +178,13 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
                 info.PixelFormat,
                 info.Width,
                 info.Height,
+                info.Depth,
                 info.Dimension),
             TextureDataType.Color4 => PrepareBytes(MemoryMarshal.AsBytes(info.Color4Array.AsSpan()).ToArray(),
                 Format.FormatR32G32B32A32Float,
                 info.Width,
                 info.Height,
+                info.Depth,
                 info.Dimension),
             TextureDataType.RawPointer => PreparePointer(info),
             TextureDataType.Stream when info.IsCompressed => PrepareEncodedStream(info.Texture),
@@ -196,20 +219,25 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
         Format format,
         int width,
         int height,
+        int depth,
         int dimension
     ) {
-        var rowPitch = GetRowPitch(format, width, height, dimension, out var expectedLength);
+        var rowPitch = GetRowPitch(format, width, height, depth, dimension, out var expectedLength);
         if (pixels.Length != expectedLength)
             throw new ArgumentException("The texture data length does not match its dimensions and format.",
                 nameof(pixels));
 
         return new D3D12TextureUploadData(checked((uint) width),
-            checked((uint) height),
+            checked((uint) Math.Max(1, height)),
+            checked((ushort) Math.Max(1, depth)),
             format,
+            ToResourceDimension(dimension),
             1,
             1,
             false,
-            [new D3D12SubresourceData(pixels, rowPitch, checked((uint) pixels.Length))]);
+            [new D3D12SubresourceData(pixels,
+                rowPitch,
+                checked(rowPitch * (uint) Math.Max(1, height)))]);
     }
 
     /// <summary>
@@ -220,16 +248,25 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
     private static D3D12TextureUploadData PreparePointer(TextureInfo info) {
         if (info.RawPointer == nint.Zero)
             throw new ArgumentException("The texture pointer is null.", nameof(info));
-        var rowPitch = GetRowPitch(info.PixelFormat, info.Width, info.Height, info.Dimension, out var length);
+        var rowPitch = GetRowPitch(info.PixelFormat,
+            info.Width,
+            info.Height,
+            info.Depth,
+            info.Dimension,
+            out var length);
         var pixels = new byte[length];
         Marshal.Copy(info.RawPointer, pixels, 0, length);
         return new D3D12TextureUploadData(checked((uint) info.Width),
-            checked((uint) info.Height),
+            checked((uint) Math.Max(1, info.Height)),
+            checked((ushort) Math.Max(1, info.Depth)),
             info.PixelFormat,
+            ToResourceDimension(info.Dimension),
             1,
             1,
             false,
-            [new D3D12SubresourceData(pixels, rowPitch, checked((uint) pixels.Length))]);
+            [new D3D12SubresourceData(pixels,
+                rowPitch,
+                checked(rowPitch * (uint) Math.Max(1, info.Height)))]);
     }
 
     /// <summary>
@@ -238,15 +275,24 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
     /// <param name="info">The stream-backed texture information.</param>
     /// <returns>The prepared upload.</returns>
     private static D3D12TextureUploadData PrepareRawStream(TextureInfo info) {
-        var rowPitch = GetRowPitch(info.PixelFormat, info.Width, info.Height, info.Dimension, out var length);
+        var rowPitch = GetRowPitch(info.PixelFormat,
+            info.Width,
+            info.Height,
+            info.Depth,
+            info.Dimension,
+            out var length);
         var pixels = ReadExactStream(info.Texture, length);
         return new D3D12TextureUploadData(checked((uint) info.Width),
-            checked((uint) info.Height),
+            checked((uint) Math.Max(1, info.Height)),
+            checked((ushort) Math.Max(1, info.Depth)),
             info.PixelFormat,
+            ToResourceDimension(info.Dimension),
             1,
             1,
             false,
-            [new D3D12SubresourceData(pixels, rowPitch, checked((uint) pixels.Length))]);
+            [new D3D12SubresourceData(pixels,
+                rowPitch,
+                checked(rowPitch * (uint) Math.Max(1, info.Height)))]);
     }
 
     /// <summary>
@@ -275,43 +321,76 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
         image.AssertArgumentNotNull();
         var description = image.Description;
         var isCubeMap = description.Dimension == TextureDimension.TextureCube;
-        if (description.Dimension != TextureDimension.Texture2D && !isCubeMap)
-            throw new NotSupportedException("The DX12 texture-model bridge supports 2D textures and cube maps.");
+        var is3D = description.Dimension == TextureDimension.Texture3D;
+        var is1D = description.Dimension == TextureDimension.Texture1D;
+        if (!is1D && description.Dimension != TextureDimension.Texture2D && !is3D && !isCubeMap)
+            throw new NotSupportedException("The decoded texture dimension is not supported by DX12.");
         if (description.Width <= 0 || description.Height <= 0 || description.ArraySize <= 0 ||
             description.MipLevels <= 0)
             throw new ArgumentException("The decoded texture description is incomplete.", nameof(image));
         if (isCubeMap && description.ArraySize != 6)
             throw new ArgumentException("Cube maps require exactly six array slices.", nameof(image));
 
-        var subresources = new D3D12SubresourceData[checked(description.ArraySize * description.MipLevels)];
+        var subresources = new D3D12SubresourceData[is3D
+            ? description.MipLevels
+            : checked(description.ArraySize * description.MipLevels)];
         var index = 0;
-        for (var arrayIndex = 0; arrayIndex < description.ArraySize; arrayIndex++)
-        for (var mipIndex = 0; mipIndex < description.MipLevels; mipIndex++) {
-            var pixelBuffer = image.GetPixelBuffer(arrayIndex, mipIndex);
-            if (pixelBuffer.RowStride <= 0 || pixelBuffer.BufferStride <= 0)
-                throw new ArgumentException("A decoded texture subresource has invalid pitches.", nameof(image));
-            var pixels = new byte[pixelBuffer.BufferStride];
-            Marshal.Copy(pixelBuffer.DataPointer, pixels, 0, pixels.Length);
-            subresources[index++] = new D3D12SubresourceData(pixels,
-                checked((uint) pixelBuffer.RowStride),
-                checked((uint) pixelBuffer.BufferStride));
+        if (is3D) {
+            for (var mipIndex = 0; mipIndex < description.MipLevels; mipIndex++) {
+                var mipDepth = Math.Max(1, description.Depth >> mipIndex);
+                var firstSlice = image.GetPixelBuffer(0, mipIndex);
+                if (firstSlice.RowStride <= 0 || firstSlice.BufferStride <= 0)
+                    throw new ArgumentException("A decoded texture subresource has invalid pitches.", nameof(image));
+                var pixels = new byte[checked(firstSlice.BufferStride * mipDepth)];
+                for (var slice = 0; slice < mipDepth; slice++) {
+                    var pixelBuffer = image.GetPixelBuffer(slice, mipIndex);
+                    if (pixelBuffer.RowStride != firstSlice.RowStride || pixelBuffer.BufferStride != firstSlice.BufferStride)
+                        throw new ArgumentException("A decoded volume mip has inconsistent slice pitches.", nameof(image));
+                    Marshal.Copy(pixelBuffer.DataPointer,
+                        pixels,
+                        checked(slice * firstSlice.BufferStride),
+                        firstSlice.BufferStride);
+                }
+                subresources[index++] = new D3D12SubresourceData(pixels,
+                    checked((uint) firstSlice.RowStride),
+                    checked((uint) firstSlice.BufferStride));
+            }
+        } else {
+            for (var arrayIndex = 0; arrayIndex < description.ArraySize; arrayIndex++)
+            for (var mipIndex = 0; mipIndex < description.MipLevels; mipIndex++) {
+                var pixelBuffer = image.GetPixelBuffer(arrayIndex, mipIndex);
+                if (pixelBuffer.RowStride <= 0 || pixelBuffer.BufferStride <= 0)
+                    throw new ArgumentException("A decoded texture subresource has invalid pitches.", nameof(image));
+                var pixels = new byte[pixelBuffer.BufferStride];
+                Marshal.Copy(pixelBuffer.DataPointer, pixels, 0, pixels.Length);
+                subresources[index++] = new D3D12SubresourceData(pixels,
+                    checked((uint) pixelBuffer.RowStride),
+                    checked((uint) pixelBuffer.BufferStride));
+            }
         }
 
         return new D3D12TextureUploadData(checked((uint) description.Width),
             checked((uint) description.Height),
+            checked((ushort) description.Depth),
             description.Format,
-            checked((ushort) description.ArraySize),
+            description.Dimension switch {
+                TextureDimension.Texture1D => ResourceDimension.Texture1D,
+                TextureDimension.Texture3D => ResourceDimension.Texture3D,
+                _ => ResourceDimension.Texture2D
+            },
+            checked((ushort) (is3D ? 1 : description.ArraySize)),
             checked((ushort) description.MipLevels),
             isCubeMap,
             subresources);
     }
 
     /// <summary>
-    ///     Computes an uncompressed two-dimensional source row pitch and byte length.
+    ///     Computes an uncompressed source row pitch and byte length.
     /// </summary>
     /// <param name="format">The pixel format.</param>
     /// <param name="width">The texture width.</param>
     /// <param name="height">The texture height.</param>
+    /// <param name="depth">The texture depth.</param>
     /// <param name="dimension">The declared texture dimension.</param>
     /// <param name="length">The complete byte length.</param>
     /// <returns>The source row pitch.</returns>
@@ -319,13 +398,15 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
         Format format,
         int width,
         int height,
+        int depth,
         int dimension,
         out int length
     ) {
-        if (dimension != 2)
-            throw new NotSupportedException("The initial DX12 texture-model bridge supports only 2D textures.");
+        if (dimension is < 1 or > 3)
+            throw new NotSupportedException("The texture dimension must be 1D, 2D, or 3D.");
         if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+        if (dimension >= 2 && height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+        if (dimension == 3 && depth <= 0) throw new ArgumentOutOfRangeException(nameof(depth));
         var toolkitFormat = (HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics.Format) format;
         if (format == Format.FormatUnknown || FormatHelper.IsCompressed(toolkitFormat) ||
             FormatHelper.IsPacked(toolkitFormat) || FormatHelper.IsVideo(toolkitFormat))
@@ -336,9 +417,21 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
             throw new NotSupportedException($"The pixel size for {format} is unavailable.");
         var bytesPerPixel = bitsPerPixel / 8;
         var rowPitch = checked(width * bytesPerPixel);
-        length = checked(rowPitch * height);
+        length = checked(rowPitch * Math.Max(1, height) * Math.Max(1, depth));
         return checked((uint) rowPitch);
     }
+
+    /// <summary>
+    ///     Maps the existing managed dimension contract to a native resource dimension.
+    /// </summary>
+    /// <param name="dimension">The managed dimension value.</param>
+    /// <returns>The native resource dimension.</returns>
+    private static ResourceDimension ToResourceDimension(int dimension) => dimension switch {
+        1 => ResourceDimension.Texture1D,
+        2 => ResourceDimension.Texture2D,
+        3 => ResourceDimension.Texture3D,
+        _ => throw new NotSupportedException("The texture dimension must be 1D, 2D, or 3D.")
+    };
 
     /// <summary>
     ///     Reads exactly one raw texture from a stream and restores seekable streams.

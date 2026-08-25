@@ -34,6 +34,7 @@
             TextBrush="Black"
             ShowCoordinateSystem="False"
             CoordinateSystemLabelForeground="White"
+            EnableSwapChainRendering="True"
             UseDefaultGestures="False"
             RenderTechnique="{Binding RenderTechnique}"
             EffectsManager="{Binding EffectsManager}">

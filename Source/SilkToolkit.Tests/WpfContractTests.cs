@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -7,12 +8,14 @@ using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
+using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Controls;
 using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using HelixToolkit.Wpf.SharpDX.Material;
 using HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 using HelixToolkit.Wpf.SharpDX.Model.Lights3D;
+using LoggerLib;
 using Xunit;
 using Binding = System.Windows.Data.Binding;
 using DiffuseMaterial = HelixToolkit.Wpf.SharpDX.Material.DiffuseMaterial;
@@ -63,6 +66,35 @@ public sealed class WpfContractTests {
 
             Assert.IsType<PerspectiveCamera>(viewport.Camera);
             Assert.IsType<PerspectiveCameraCore>(viewport.CameraCore);
+        });
+    }
+
+    /// <summary>
+    ///     Verifies handled viewport render failures remain visible through the configured console logger.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Wpf")]
+    public Task ViewportWritesHandledRenderExceptionToConsole() {
+        return StaThread.RunAsync(() => {
+            var originalOutput = Console.Out;
+            var originalLogger = Logger.Current;
+            using var output = new StringWriter();
+            using var logger = new ConsoleLogger(queueCapacity: 16, maxEnqueueWaitMs: 50);
+            try {
+                Console.SetOut(output);
+                Logger.Use(logger);
+                using var viewport = new Viewport3DX();
+
+                viewport.HandleRenderException(viewport,
+                    new RelayExceptionEventArgs(new InvalidOperationException("render-test")));
+                logger.Dispose();
+            } finally {
+                Logger.Use(originalLogger);
+                Console.SetOut(originalOutput);
+            }
+
+            Assert.Contains("Viewport rendering failed", output.ToString());
+            Assert.Contains("render-test", output.ToString());
         });
     }
 

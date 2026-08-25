@@ -1389,7 +1389,19 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         var recorded = surface.RenderViewportOnce([clearColor.X, clearColor.Y, clearColor.Z, clearColor.W],
             Items.Select(item => item.SceneNode),
             camera,
-            EnableRenderFrustum);
+            EnableRenderFrustum,
+            IsShadowMappingEnabled,
+            OitRenderMode,
+            OitDepthPeelingIteration,
+            (float) OitWeightPower,
+            (float) OitWeightDepthSlope,
+            OitWeightMode,
+            FxaaLevel,
+            EnableSsao,
+            (float) SsaoSamplingRadius,
+            (float) SsaoIntensity,
+            SsaoQuality,
+            D2DRenderables);
         OnRendered?.Invoke(surface, EventArgs.Empty);
         return recorded;
     }
@@ -1412,7 +1424,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="e">The event arguments.</param>
-    private void HandleRenderException(object? sender, RelayExceptionEventArgs e) {
+    internal void HandleRenderException(object? sender, RelayExceptionEventArgs e) {
+        LoggerLib.Logger.Error(e.Exception, "Viewport rendering failed");
         var bindingExpression = GetBindingExpression(RenderExceptionProperty);
         if (bindingExpression != null) {
             // If RenderExceptionProperty is bound, we assume the exception will be handled.

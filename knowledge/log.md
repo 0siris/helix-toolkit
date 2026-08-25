@@ -1,5 +1,10 @@
 # Knowledge Bundle Update Log
 
+## 2026-08-25
+
+* **Update**: Completed DX12 migration Phase 4.2 with productive 1D/3D textures, tessellation, shadow depth,
+  volume rendering, and GPU compute particles plus focused CPU, contract, and WARP coverage; Phase 4.3 is active.
+
 ## 2026-07-08
 
 * **Initialization**: Created the OKF bundle under `knowledge/`.
@@ -130,7 +135,53 @@
   recorded the green 271-test standard gate and refreshed Graphify to 12,903 nodes, 23,059 edges, and 2,036
   communities.
 * **Update**: Added validated D3D12 stream-output target binding and structured buffer SRV creation as the native
-  foundation for the existing t40-t43/b9 GPU skinning precompute pass.
+  foundation for the existing t40/t60-t62/b9 GPU skinning precompute pass.
 * **Verification**: Added WARP coverage for structured ranges, SO resource state/ranges, binding/unbinding, and
   device health; recorded the green 272-test standard gate and refreshed Graphify to 12,906 nodes, 23,064
   edges, and 2,025 communities.
+* **Update**: Added per-core b9/t40/t60-t62 bone/morph uploads and a validated, growable stream-output vertex
+  allocation while preserving the current CPU-skinned productive draw until the precompute PSO is wired.
+* **Verification**: Added compact-payload CPU assertions and WARP byte-layout, validation, state, growth, null-SRV,
+  descriptor-cleanup, and device-health coverage; recorded the green 273-test standard gate and refreshed the
+  1,043-file Graphify database to 12,927 nodes, 23,117 edges, and 2,041 communities.
+* **Update**: Replaced the productive CPU bone/morph preparation with the existing DXIL
+  `PreComputeMeshBoneSkinned` point-list stream-output pass, including bone-ID input, the required filled-size
+  counter, catalog/scene wiring, and indexed consumption of the generated `DefaultVertex` stream.
+* **Verification**: Added focused CPU and WARP coverage for counter validation, pass caching, bone-ID rejection,
+  complete GPU-written vertex count, combined morph/bone output readback, and final material rendering; recorded
+  the green 274-test standard gate and refreshed the 1,043-file Graphify database to 12,949 nodes, 23,157 edges,
+  and 2,054 communities.
+* **Update**: Completed DX12 Phase 4.2 with 1D/3D textures, Phong/PBR/tessellation, typed shadow depth,
+  volume passes, and GPU compute-particle simulation/drawing through existing repository DXIL.
+* **Update**: Completed DX12 Phase 4.3 with resize-safe weighted OIT and depth peeling, SSAO, FXAA, bloom,
+  outline, and ordered XRay recording. Fullscreen draws now use frame-local descriptor tables, and DX12 pass
+  creation preserves the declared stencil reference instead of silently binding zero.
+* **Verification**: Eight focused Phase 4.3 CPU/WARP tests pass for transparency, ping-pong/order, alpha/depth,
+  outline, XRay stencil/depth, and finite SSAO output. Full solution, standard-suite, Graphify, Rider, and hardware
+  gates remain scheduled after the remaining Phase 4 packages.
+* **Update**: Completed DX12 Phase 4.4 by routing existing Scene2D shapes, encoded images, and DirectWrite-shaped
+  Unicode text through the repository Sprite2D DXIL pass, with a growable host-lifetime glyph atlas and inherited
+  transform/clipping traversal after 3D post-processing.
+* **Verification**: Focused unit and WARP checks cover glyph caching and shaping, stable atlas growth, Unicode,
+  sibling order, inherited clipping, encoded image sampling, solid geometry, resize, and atlas/resource release.
+* **Update**: Completed DX12 Phase 4.5 by isolating lazy D3D11/DXGI Desktop Duplication behind a CPU-owned BGRA
+  frame boundary and transferring captured frames into productive DX12 screen-pass textures. Output changes,
+  timeouts, failed starts, crop/aspect behavior, and deterministic release are handled without loading D3D11 on
+  normal renderer startup.
+* **Verification**: The complete DX12 runtime class passes 100/100 automated tests with one explicit interactive
+  capture test not run; all 14 DX12 texture-model tests, 303 standard tests, the solution build, Graphify over
+  1,053 sources, and `git diff --check` pass. Phase 4 is complete and Phase 5 is the resumable next checkpoint.
+* **Update**: Started Phase 5 example cutover by making `DeferredShadingDemo` explicitly select the productive
+  DX12 swap-chain surface and represent its missing deferred technique without constructing a legacy D3D11
+  effects manager.
+* **Verification**: The focused demo build passes with zero errors, and an eight-second hardware startup smoke
+  produced a responsive `Deferred Shading Demo` window with empty standard output/error, no D3D11 initialization,
+  and no missing-`vsMeshDefault.cso` exception. `RenderDeferred` remains a named `NullTechnique`, so deferred
+  shading itself remains unavailable.
+* **Update**: Hardened the Phase 5 DX12 example path by treating empty optional mesh texture/color collections as
+  absent and by logging every handled `Viewport3DX` render failure through the configured console logger before
+  the existing event and viewport-message handling.
+* **Verification**: Focused WARP and WPF tests cover empty-stream default upload, partial-stream rejection, and
+  console output including exception text. The 305-test standard suite and zero-error solution build pass; a
+  ten-second `DeferredShadingDemo` hardware smoke remains responsive with empty standard output/error and no
+  viewport exception. Graphify refreshed 1,053 sources to 13,324 nodes, 24,482 edges, and 2,085 communities.

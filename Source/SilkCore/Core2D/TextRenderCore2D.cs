@@ -160,6 +160,7 @@ public class TextRenderCore2D : RenderCore2DBase {
         }
 
         TextLayout.TextAlignment = TextAlignment;
+        TextLayout.FlowDirection = FlowDirection;
     }
 
     protected override bool CanRender(RenderContext2D context) => base.CanRender(context) && Foreground is not null;

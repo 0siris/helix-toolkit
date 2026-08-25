@@ -8,6 +8,7 @@ using Silk.NET.Direct3D12;
 using SilkD3D12CommandAllocatorPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D12.ID3D12CommandAllocator>;
 using SilkD3D12CommandListPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D12.ID3D12GraphicsCommandList>;
 using SilkD3D12CommandQueuePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D12.ID3D12CommandQueue>;
+using SilkD3D12CommandSignaturePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D12.ID3D12CommandSignature>;
 using SilkD3D12DevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D12.ID3D12Device>;
 using SilkD3D12FencePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D12.ID3D12Fence>;
 using SilkD3D12PipelineStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D12.ID3D12PipelineState>;
@@ -89,6 +90,25 @@ public sealed unsafe class SilkD3D12Device : IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         SilkMarshal.ThrowHResult(nativeDevice.CreateFence<ID3D12Fence>(initialValue, FenceFlags.None, out var fence));
         return new SilkD3D12Fence(fence, initialValue);
+    }
+
+    /// <summary>
+    ///     Creates a command signature containing one non-indexed draw argument.
+    /// </summary>
+    /// <returns>The native indirect-draw signature.</returns>
+    public SilkD3D12CommandSignature CreateDrawCommandSignature() {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        var argument = new IndirectArgumentDesc {Type = IndirectArgumentType.Draw};
+        var description = new CommandSignatureDesc {
+            ByteStride = SilkD3D12CommandSignature.DrawArgumentSizeInBytes,
+            NumArgumentDescs = 1,
+            PArgumentDescs = &argument
+        };
+        SilkMarshal.ThrowHResult(nativeDevice
+            .CreateCommandSignature<ID3D12RootSignature, ID3D12CommandSignature>(in description,
+                default,
+                out var signature));
+        return new SilkD3D12CommandSignature(signature);
     }
 
     public SilkD3D12RootSignature CreateEmptyRootSignature(
@@ -205,6 +225,54 @@ public sealed unsafe class SilkD3D12RootSignature : IDisposable {
         if (IsDisposed) return;
 
         nativeRootSignature.Dispose();
+        IsDisposed = true;
+    }
+}
+
+/// <summary>
+///     Owns one Direct3D 12 indirect-command signature.
+/// </summary>
+public sealed unsafe class SilkD3D12CommandSignature : IDisposable {
+    /// <summary>
+    ///     The byte size of one D3D12 draw argument.
+    /// </summary>
+    internal const uint DrawArgumentSizeInBytes = sizeof(uint) * 4;
+
+    /// <summary>
+    ///     The owned native signature.
+    /// </summary>
+    private SilkD3D12CommandSignaturePtr nativeSignature;
+
+    /// <summary>
+    ///     Initializes the managed owner.
+    /// </summary>
+    /// <param name="nativeSignature">The native command signature.</param>
+    internal SilkD3D12CommandSignature(SilkD3D12CommandSignaturePtr nativeSignature) {
+        if (nativeSignature.Handle == null) throw new ArgumentNullException(nameof(nativeSignature));
+        this.nativeSignature = nativeSignature;
+    }
+
+    /// <summary>
+    ///     Gets the native signature pointer.
+    /// </summary>
+    internal ID3D12CommandSignature* Handle {
+        get {
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
+            return nativeSignature.Handle;
+        }
+    }
+
+    /// <summary>
+    ///     Gets whether the native signature has been released.
+    /// </summary>
+    public bool IsDisposed { get; private set; }
+
+    /// <summary>
+    ///     Releases the native signature.
+    /// </summary>
+    public void Dispose() {
+        if (IsDisposed) return;
+        nativeSignature.Dispose();
         IsDisposed = true;
     }
 }
@@ -348,6 +416,17 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     }
 
     /// <summary>
+    ///     Sets the output-merger stencil reference used by the current graphics pipeline.
+    /// </summary>
+    /// <param name="stencilReference">The eight-bit stencil reference.</param>
+    public void SetStencilReference(int stencilReference) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if ((uint) stencilReference > byte.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(stencilReference));
+        commandList.OMSetStencilRef((uint) stencilReference);
+    }
+
+    /// <summary>
     ///     Binds one render-target descriptor without a depth/stencil target.
     /// </summary>
     /// <param name="renderTarget">The render-target view descriptor.</param>
@@ -359,6 +438,20 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
             throw new ArgumentException("An RTV descriptor is required.", nameof(renderTarget));
         var handle = renderTarget.CpuHandle;
         commandList.OMSetRenderTargets(1, in handle, false, null);
+    }
+
+    /// <summary>
+    ///     Binds one depth/stencil descriptor without color render targets.
+    /// </summary>
+    /// <param name="depthStencil">The depth/stencil view descriptor.</param>
+    public void SetDepthStencil(SilkD3D12Descriptor depthStencil) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        depthStencil.AssertArgumentNotNull();
+        ObjectDisposedException.ThrowIf(depthStencil.IsDisposed, depthStencil);
+        if (depthStencil.Type != DescriptorHeapType.Dsv)
+            throw new ArgumentException("A DSV descriptor is required.", nameof(depthStencil));
+        var handle = depthStencil.CpuHandle;
+        commandList.OMSetRenderTargets(0, null, false, in handle);
     }
 
     /// <summary>
@@ -382,6 +475,47 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     }
 
     /// <summary>
+    ///     Binds a contiguous set of render-target descriptors and an optional depth/stencil descriptor.
+    /// </summary>
+    /// <param name="renderTargets">The render-target view descriptors in output-slot order.</param>
+    /// <param name="depthStencil">The optional depth/stencil view descriptor.</param>
+    public void SetRenderTargets(
+        ReadOnlySpan<SilkD3D12Descriptor> renderTargets,
+        SilkD3D12Descriptor? depthStencil = null
+    ) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (renderTargets.IsEmpty || renderTargets.Length > 8)
+            throw new ArgumentOutOfRangeException(nameof(renderTargets));
+        Span<CpuDescriptorHandle> handles = stackalloc CpuDescriptorHandle[renderTargets.Length];
+        for (var index = 0; index < renderTargets.Length; index++) {
+            var descriptor = renderTargets[index];
+            descriptor.AssertArgumentNotNull();
+            ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
+            if (descriptor.Type != DescriptorHeapType.Rtv)
+                throw new ArgumentException("Every descriptor must be an RTV.", nameof(renderTargets));
+            handles[index] = descriptor.CpuHandle;
+        }
+        if (depthStencil is not null) {
+            ObjectDisposedException.ThrowIf(depthStencil.IsDisposed, depthStencil);
+            if (depthStencil.Type != DescriptorHeapType.Dsv)
+                throw new ArgumentException("A DSV descriptor is required.", nameof(depthStencil));
+        }
+        fixed (CpuDescriptorHandle* renderTargetHandles = handles)
+            if (depthStencil is null) {
+                commandList.OMSetRenderTargets((uint) handles.Length,
+                    renderTargetHandles,
+                    false,
+                    (CpuDescriptorHandle*) null);
+            } else {
+                var depthStencilHandle = depthStencil.CpuHandle;
+                commandList.OMSetRenderTargets((uint) handles.Length,
+                    renderTargetHandles,
+                    false,
+                    in depthStencilHandle);
+            }
+    }
+
+    /// <summary>
     ///     Sets a viewport and matching scissor rectangle from the render-target dimensions.
     /// </summary>
     /// <param name="width">The viewport width.</param>
@@ -395,6 +529,23 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         var viewport = new Silk.NET.Direct3D12.Viewport(0, 0, width, height, 0, 1);
         var scissor = new Silk.NET.Maths.Box2D<int>(0, 0, (int) width, (int) height);
         commandList.RSSetViewports(1, in viewport);
+        commandList.RSSetScissorRects(1, in scissor);
+    }
+
+    /// <summary>
+    ///     Sets an axis-aligned scissor rectangle without changing the current viewport.
+    /// </summary>
+    /// <param name="left">The inclusive left pixel coordinate.</param>
+    /// <param name="top">The inclusive top pixel coordinate.</param>
+    /// <param name="right">The exclusive right pixel coordinate.</param>
+    /// <param name="bottom">The exclusive bottom pixel coordinate.</param>
+    public void SetScissorRectangle(int left, int top, int right, int bottom) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (left < 0) throw new ArgumentOutOfRangeException(nameof(left));
+        if (top < 0) throw new ArgumentOutOfRangeException(nameof(top));
+        if (right <= left) throw new ArgumentOutOfRangeException(nameof(right));
+        if (bottom <= top) throw new ArgumentOutOfRangeException(nameof(bottom));
+        var scissor = new Silk.NET.Maths.Box2D<int>(left, top, right, bottom);
         commandList.RSSetScissorRects(1, in scissor);
     }
 
@@ -466,17 +617,44 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
             commandList.SOSetTargets(0, 0, (StreamOutputBufferView*) null);
             return;
         }
+        throw new InvalidOperationException("A stream-output filled-size buffer is required.");
+    }
+
+    /// <summary>
+    ///     Binds one buffer and its required filled-size counter as a stream-output target.
+    /// </summary>
+    /// <param name="buffer">The stream-output buffer.</param>
+    /// <param name="filledSizeBuffer">The buffer containing the 32-bit filled-size counter.</param>
+    /// <param name="sizeInBytes">The exposed output range, or zero for the complete output buffer.</param>
+    /// <param name="filledSizeOffset">The aligned byte offset of the counter.</param>
+    public void SetStreamOutputTarget(
+        SilkD3D12Resource buffer,
+        SilkD3D12Resource filledSizeBuffer,
+        ulong sizeInBytes = 0,
+        ulong filledSizeOffset = 0
+    ) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        buffer.AssertArgumentNotNull();
+        filledSizeBuffer.AssertArgumentNotNull();
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
+        ObjectDisposedException.ThrowIf(filledSizeBuffer.IsDisposed, filledSizeBuffer);
         if (buffer.Description.Dimension != ResourceDimension.Buffer)
             throw new ArgumentException("The resource must be a buffer.", nameof(buffer));
+        if (filledSizeBuffer.Description.Dimension != ResourceDimension.Buffer)
+            throw new ArgumentException("The filled-size resource must be a buffer.", nameof(filledSizeBuffer));
         if ((buffer.State & ResourceStates.StreamOut) == 0)
             throw new InvalidOperationException("The buffer must be in the stream-output state.");
+        if ((filledSizeBuffer.State & ResourceStates.StreamOut) == 0)
+            throw new InvalidOperationException("The filled-size buffer must be in the stream-output state.");
         var size = sizeInBytes == 0 ? buffer.SizeInBytes : sizeInBytes;
         if (size > buffer.SizeInBytes) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        if (filledSizeBuffer.SizeInBytes < sizeof(uint) || filledSizeOffset % sizeof(uint) != 0 ||
+            filledSizeOffset > filledSizeBuffer.SizeInBytes - sizeof(uint))
+            throw new ArgumentOutOfRangeException(nameof(filledSizeOffset));
         var view = new StreamOutputBufferView {
             BufferLocation = buffer.GpuVirtualAddress,
             SizeInBytes = size,
-            BufferFilledSizeLocation = 0
+            BufferFilledSizeLocation = filledSizeBuffer.GpuVirtualAddress + filledSizeOffset
         };
         commandList.SOSetTargets(0, 1, in view);
     }
@@ -527,6 +705,38 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
             startIndexLocation,
             baseVertexLocation,
             startInstanceLocation);
+    }
+
+    /// <summary>
+    ///     Executes one non-indexed indirect draw from a GPU argument buffer.
+    /// </summary>
+    /// <param name="signature">The one-draw command signature.</param>
+    /// <param name="arguments">The buffer containing <see cref="ParticleCountIndirectArgs" />.</param>
+    /// <param name="argumentOffset">The aligned byte offset of the draw arguments.</param>
+    public void DrawInstancedIndirect(
+        SilkD3D12CommandSignature signature,
+        SilkD3D12Resource arguments,
+        ulong argumentOffset = 0
+    ) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        signature.AssertArgumentNotNull();
+        arguments.AssertArgumentNotNull();
+        ObjectDisposedException.ThrowIf(signature.IsDisposed, signature);
+        ObjectDisposedException.ThrowIf(arguments.IsDisposed, arguments);
+        if (!graphicsPipelineBound)
+            throw new InvalidOperationException("Bind a graphics pipeline before recording a draw.");
+        if (arguments.Description.Dimension != ResourceDimension.Buffer ||
+            (arguments.State & ResourceStates.IndirectArgument) == 0)
+            throw new ArgumentException("An indirect-argument buffer is required.", nameof(arguments));
+        if (arguments.SizeInBytes < SilkD3D12CommandSignature.DrawArgumentSizeInBytes ||
+            argumentOffset > arguments.SizeInBytes - SilkD3D12CommandSignature.DrawArgumentSizeInBytes)
+            throw new ArgumentOutOfRangeException(nameof(argumentOffset));
+        commandList.ExecuteIndirect(signature.Handle,
+            1,
+            arguments.Handle,
+            argumentOffset,
+            (ID3D12Resource*) null,
+            0);
     }
 
     /// <summary>

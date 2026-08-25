@@ -68,7 +68,35 @@ internal class MorphTargetUploaderCore : RenderCore {
         }
     }
 
-    private bool HasMorphTarget => mtCount > 0 && mtPitch > 0;
+    /// <summary>
+    ///     Gets whether a complete morph-target payload is available.
+    /// </summary>
+    internal bool HasMorphTarget => mtCount > 0 && mtPitch > 0;
+
+    /// <summary>
+    ///     Gets the number of initialized morph targets.
+    /// </summary>
+    internal int MorphTargetCount => mtCount;
+
+    /// <summary>
+    ///     Gets the vertex pitch between initialized morph targets.
+    /// </summary>
+    internal int MorphTargetPitch => mtPitch;
+
+    /// <summary>
+    ///     Gets the current morph-target weights for Direct3D 12 upload.
+    /// </summary>
+    internal ReadOnlySpan<float> D3D12Weights => morphTargetWeights;
+
+    /// <summary>
+    ///     Gets the compact morph-target deltas for Direct3D 12 upload.
+    /// </summary>
+    internal ReadOnlySpan<Vector3> D3D12Deltas => morphTargetsDeltas;
+
+    /// <summary>
+    ///     Gets the compact-delta offsets for Direct3D 12 upload.
+    /// </summary>
+    internal ReadOnlySpan<int> D3D12Offsets => morphTargetOffsets;
 
     /// <summary>
     ///     Applies the existing morph-target payload using the same target/vertex indexing as the skinning shader.

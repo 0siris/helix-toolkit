@@ -123,24 +123,29 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="pipelineState">The borrowed cache-owned pipeline state.</param>
     /// <param name="isCompute">Whether the pipeline is compute-only.</param>
     /// <param name="topology">The graphics primitive topology.</param>
+    /// <param name="stencilReference">The eight-bit output-merger stencil reference.</param>
     private ShaderPass(
         string name,
         SilkD3D12RootSignature rootSignature,
         SilkD3D12PipelineState pipelineState,
         bool isCompute,
-        PrimitiveTopology topology
+        PrimitiveTopology topology,
+        int stencilReference
     ) {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("A pass name is required.", nameof(name));
         rootSignature.AssertArgumentNotNull();
         pipelineState.AssertArgumentNotNull();
         if (!isCompute && topology == PrimitiveTopology.Undefined)
             throw new ArgumentOutOfRangeException(nameof(topology));
+        if ((uint) stencilReference > byte.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(stencilReference));
 
         d3D12RootSignature = rootSignature;
         d3D12PipelineState = pipelineState;
         Name = name;
         isD3D12Compute = isCompute;
         Topology = topology;
+        StencilRef = stencilReference;
     }
 
     /// <summary>
@@ -151,14 +156,16 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="pipelineState">The cache-owned pipeline state.</param>
     /// <param name="isCompute">Whether the pipeline is compute-only.</param>
     /// <param name="topology">The graphics primitive topology.</param>
+    /// <param name="stencilReference">The eight-bit output-merger stencil reference.</param>
     /// <returns>The Direct3D 12 shader pass.</returns>
     public static ShaderPass CreateD3D12(
         string name,
         SilkD3D12RootSignature rootSignature,
         SilkD3D12PipelineState pipelineState,
         bool isCompute = false,
-        PrimitiveTopology topology = PrimitiveTopology.TriangleList
-    ) => new(name, rootSignature, pipelineState, isCompute, topology);
+        PrimitiveTopology topology = PrimitiveTopology.TriangleList,
+        int stencilReference = 0
+    ) => new(name, rootSignature, pipelineState, isCompute, topology, stencilReference);
 
     /// <summary>
     ///     <see cref="ShaderPass.Name" />
@@ -269,6 +276,7 @@ public sealed class ShaderPass : DisposeObject {
         }
 
         context.SetGraphicsPipeline(d3D12RootSignature, d3D12PipelineState);
+        context.SetStencilReference(StencilRef);
         context.SetPrimitiveTopology(Topology);
     }
 

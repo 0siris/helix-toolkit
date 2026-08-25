@@ -19,7 +19,7 @@ namespace HelixToolkit.SharpDX.Core.Native;
 /// </summary>
 /// <param name="Data">The source bytes.</param>
 /// <param name="RowPitch">The source byte count per row.</param>
-/// <param name="SlicePitch">The source byte count for the complete two-dimensional slice.</param>
+/// <param name="SlicePitch">The source byte count for one complete two-dimensional depth slice.</param>
 internal readonly record struct D3D12SubresourceData(
     ReadOnlyMemory<byte> Data,
     uint RowPitch,
@@ -625,6 +625,121 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     }
 
     /// <summary>
+    ///     Creates one committed one-dimensional texture.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="width">The texture width.</param>
+    /// <param name="format">The texture format.</param>
+    /// <param name="flags">The resource flags.</param>
+    /// <param name="initialState">The initial resource state.</param>
+    /// <param name="arraySize">The texture array size.</param>
+    /// <param name="mipLevels">The mip-level count.</param>
+    /// <returns>The created texture resource.</returns>
+    public static SilkD3D12Resource CreateTexture1D(
+        this SilkD3D12Device device,
+        uint width,
+        Format format,
+        ResourceFlags flags = ResourceFlags.None,
+        ResourceStates initialState = ResourceStates.CopyDest,
+        ushort arraySize = 1,
+        ushort mipLevels = 1
+    ) {
+        device.AssertArgumentNotNull();
+        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
+        if (format == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(format));
+        if (arraySize == 0) throw new ArgumentOutOfRangeException(nameof(arraySize));
+        if (mipLevels == 0) throw new ArgumentOutOfRangeException(nameof(mipLevels));
+
+        var heapProperties = new HeapProperties {
+            Type = HeapType.Default,
+            CreationNodeMask = 1,
+            VisibleNodeMask = 1
+        };
+        var description = new ResourceDesc {
+            Dimension = ResourceDimension.Texture1D,
+            Width = width,
+            Height = 1,
+            DepthOrArraySize = arraySize,
+            MipLevels = mipLevels,
+            Format = format,
+            SampleDesc = new SampleDesc(1, 0),
+            Layout = TextureLayout.LayoutUnknown,
+            Flags = flags
+        };
+        SilkMarshal.ThrowHResult(device.NativeDevice.CreateCommittedResource(in heapProperties,
+            HeapFlags.None,
+            in description,
+            initialState,
+            null,
+            out SilkD3D12ResourcePtr resource));
+        return new SilkD3D12Resource(resource,
+            description,
+            0,
+            HeapType.Default,
+            initialState,
+            device.ResourceStates);
+    }
+
+    /// <summary>
+    ///     Creates one committed three-dimensional texture.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="width">The texture width.</param>
+    /// <param name="height">The texture height.</param>
+    /// <param name="depth">The texture depth.</param>
+    /// <param name="format">The texture format.</param>
+    /// <param name="flags">The resource flags.</param>
+    /// <param name="initialState">The initial resource state.</param>
+    /// <param name="mipLevels">The mip-level count.</param>
+    /// <returns>The created texture resource.</returns>
+    public static SilkD3D12Resource CreateTexture3D(
+        this SilkD3D12Device device,
+        uint width,
+        uint height,
+        ushort depth,
+        Format format,
+        ResourceFlags flags = ResourceFlags.None,
+        ResourceStates initialState = ResourceStates.CopyDest,
+        ushort mipLevels = 1
+    ) {
+        device.AssertArgumentNotNull();
+        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
+        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
+        if (depth == 0) throw new ArgumentOutOfRangeException(nameof(depth));
+        if (format == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(format));
+        if (mipLevels == 0) throw new ArgumentOutOfRangeException(nameof(mipLevels));
+
+        var heapProperties = new HeapProperties {
+            Type = HeapType.Default,
+            CreationNodeMask = 1,
+            VisibleNodeMask = 1
+        };
+        var description = new ResourceDesc {
+            Dimension = ResourceDimension.Texture3D,
+            Width = width,
+            Height = height,
+            DepthOrArraySize = depth,
+            MipLevels = mipLevels,
+            Format = format,
+            SampleDesc = new SampleDesc(1, 0),
+            Layout = TextureLayout.LayoutUnknown,
+            Flags = flags
+        };
+        SilkMarshal.ThrowHResult(device.NativeDevice.CreateCommittedResource(in heapProperties,
+            HeapFlags.None,
+            in description,
+            initialState,
+            null,
+            out SilkD3D12ResourcePtr resource));
+        return new SilkD3D12Resource(resource,
+            description,
+            0,
+            HeapType.Default,
+            initialState,
+            device.ResourceStates);
+    }
+
+    /// <summary>
     ///     Creates one committed render-target texture.
     /// </summary>
     /// <param name="device">The Direct3D 12 device.</param>
@@ -706,6 +821,20 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         this SilkD3D12Device device,
         SilkD3D12Resource texture,
         SilkD3D12Descriptor descriptor
+    ) => device.CreateDepthStencilView(texture, descriptor, texture.Description.Format);
+
+    /// <summary>
+    ///     Creates a typed depth/stencil view for a compatible depth/stencil texture.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="texture">The depth/stencil texture.</param>
+    /// <param name="descriptor">The target DSV descriptor.</param>
+    /// <param name="viewFormat">The typed depth/stencil view format.</param>
+    public static void CreateDepthStencilView(
+        this SilkD3D12Device device,
+        SilkD3D12Resource texture,
+        SilkD3D12Descriptor descriptor,
+        Format viewFormat
     ) {
         device.AssertArgumentNotNull();
         texture.AssertArgumentNotNull();
@@ -717,10 +846,18 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             throw new ArgumentException("The resource is not a depth/stencil texture.", nameof(texture));
         if (descriptor.Type != DescriptorHeapType.Dsv)
             throw new ArgumentException("The descriptor must come from a DSV heap.", nameof(descriptor));
+        if (viewFormat is not (Format.FormatD16Unorm or Format.FormatD24UnormS8Uint or Format.FormatD32Float or
+            Format.FormatD32FloatS8X24Uint))
+            throw new ArgumentOutOfRangeException(nameof(viewFormat), viewFormat,
+                "A typed depth/stencil view format is required.");
 
-        device.NativeDevice.CreateDepthStencilView(texture.Handle,
-            (DepthStencilViewDesc*) null,
-            descriptor.CpuHandle);
+        var description = new DepthStencilViewDesc {
+            Format = viewFormat,
+            ViewDimension = DsvDimension.Texture2D,
+            Flags = DsvFlags.None,
+            Texture2D = new Tex2DDsv(0)
+        };
+        device.NativeDevice.CreateDepthStencilView(texture.Handle, in description, descriptor.CpuHandle);
     }
 
     /// <summary>
@@ -764,6 +901,22 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Resource texture,
         SilkD3D12Descriptor descriptor,
         bool cubeMap = false
+    ) => device.CreateShaderResourceView(texture, descriptor, texture.Description.Format, cubeMap);
+
+    /// <summary>
+    ///     Creates a typed shader-resource view for a compatible two-dimensional texture.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="texture">The texture resource.</param>
+    /// <param name="descriptor">The destination CBV/SRV/UAV descriptor.</param>
+    /// <param name="viewFormat">The typed shader-resource view format.</param>
+    /// <param name="cubeMap">Whether a six-slice texture should be viewed as a cube map.</param>
+    public static void CreateShaderResourceView(
+        this SilkD3D12Device device,
+        SilkD3D12Resource texture,
+        SilkD3D12Descriptor descriptor,
+        Format viewFormat,
+        bool cubeMap = false
     ) {
         device.AssertArgumentNotNull();
         texture.AssertArgumentNotNull();
@@ -776,11 +929,12 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             throw new ArgumentException("The texture denies shader-resource views.", nameof(texture));
         if (descriptor.Type != DescriptorHeapType.CbvSrvUav)
             throw new ArgumentException("The descriptor must come from a CBV/SRV/UAV heap.", nameof(descriptor));
+        if (viewFormat == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(viewFormat));
         if (cubeMap && texture.Description.DepthOrArraySize != 6)
             throw new ArgumentException("Cube maps require exactly six array slices.", nameof(texture));
 
         var description = new ShaderResourceViewDesc {
-            Format = texture.Description.Format,
+            Format = viewFormat,
             Shader4ComponentMapping = 5768
         };
         if (cubeMap) {
@@ -797,6 +951,85 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         } else {
             description.ViewDimension = SrvDimension.Texture2D;
             description.Texture2D = new Tex2DSrv(0, texture.Description.MipLevels, 0, 0);
+        }
+        device.NativeDevice.CreateShaderResourceView(texture.Handle, in description, descriptor.CpuHandle);
+    }
+
+    /// <summary>
+    ///     Creates a shader-resource view for a three-dimensional texture.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="texture">The three-dimensional texture.</param>
+    /// <param name="descriptor">The destination CBV/SRV/UAV descriptor.</param>
+    public static void CreateTexture3DShaderResourceView(
+        this SilkD3D12Device device,
+        SilkD3D12Resource texture,
+        SilkD3D12Descriptor descriptor
+    ) {
+        device.AssertArgumentNotNull();
+        texture.AssertArgumentNotNull();
+        descriptor.AssertArgumentNotNull();
+        ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
+        ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
+        if (texture.Description.Dimension != ResourceDimension.Texture3D)
+            throw new ArgumentException("The resource must be a three-dimensional texture.", nameof(texture));
+        if ((texture.Description.Flags & ResourceFlags.DenyShaderResource) != 0)
+            throw new ArgumentException("The texture denies shader-resource views.", nameof(texture));
+        if (descriptor.Type != DescriptorHeapType.CbvSrvUav)
+            throw new ArgumentException("The descriptor must come from a CBV/SRV/UAV heap.", nameof(descriptor));
+
+        var description = new ShaderResourceViewDesc {
+            Format = texture.Description.Format,
+            Shader4ComponentMapping = 5768,
+            ViewDimension = SrvDimension.Texture3D,
+            Texture3D = new Tex3DSrv(0, texture.Description.MipLevels, 0)
+        };
+        device.NativeDevice.CreateShaderResourceView(texture.Handle, in description, descriptor.CpuHandle);
+    }
+
+    /// <summary>
+    ///     Creates a shader-resource view for a one-dimensional texture or texture array.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="texture">The one-dimensional texture.</param>
+    /// <param name="descriptor">The destination CBV/SRV/UAV descriptor.</param>
+    public static void CreateTexture1DShaderResourceView(
+        this SilkD3D12Device device,
+        SilkD3D12Resource texture,
+        SilkD3D12Descriptor descriptor
+    ) {
+        device.AssertArgumentNotNull();
+        texture.AssertArgumentNotNull();
+        descriptor.AssertArgumentNotNull();
+        ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
+        ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
+        if (texture.Description.Dimension != ResourceDimension.Texture1D)
+            throw new ArgumentException("The resource must be a one-dimensional texture.", nameof(texture));
+        if ((texture.Description.Flags & ResourceFlags.DenyShaderResource) != 0)
+            throw new ArgumentException("The texture denies shader-resource views.", nameof(texture));
+        if (descriptor.Type != DescriptorHeapType.CbvSrvUav)
+            throw new ArgumentException("The descriptor must come from a CBV/SRV/UAV heap.", nameof(descriptor));
+
+        var description = new ShaderResourceViewDesc {
+            Format = texture.Description.Format,
+            Shader4ComponentMapping = 5768
+        };
+        if (texture.Description.DepthOrArraySize > 1) {
+            description.ViewDimension = SrvDimension.Texture1Darray;
+            description.Texture1DArray = new Tex1DArraySrv {
+                MostDetailedMip = 0,
+                MipLevels = texture.Description.MipLevels,
+                FirstArraySlice = 0,
+                ArraySize = texture.Description.DepthOrArraySize,
+                ResourceMinLODClamp = 0
+            };
+        } else {
+            description.ViewDimension = SrvDimension.Texture1D;
+            description.Texture1D = new Tex1DSrv {
+                MostDetailedMip = 0,
+                MipLevels = texture.Description.MipLevels,
+                ResourceMinLODClamp = 0
+            };
         }
         device.NativeDevice.CreateShaderResourceView(texture.Handle, in description, descriptor.CpuHandle);
     }
@@ -841,6 +1074,56 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             }
         };
         device.NativeDevice.CreateShaderResourceView(buffer.Handle, in description, descriptor.CpuHandle);
+    }
+
+    /// <summary>
+    ///     Creates an append/consume unordered-access view over a structured buffer and separate counter.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="buffer">The structured data buffer.</param>
+    /// <param name="counter">The separate 32-bit counter buffer.</param>
+    /// <param name="descriptor">The destination UAV descriptor.</param>
+    /// <param name="elementCount">The maximum element count.</param>
+    /// <param name="strideInBytes">The structured element stride.</param>
+    public static void CreateStructuredBufferUnorderedAccessView(
+        this SilkD3D12Device device,
+        SilkD3D12Resource buffer,
+        SilkD3D12Resource counter,
+        SilkD3D12Descriptor descriptor,
+        uint elementCount,
+        uint strideInBytes
+    ) {
+        device.AssertArgumentNotNull();
+        buffer.AssertArgumentNotNull();
+        counter.AssertArgumentNotNull();
+        descriptor.AssertArgumentNotNull();
+        ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
+        ObjectDisposedException.ThrowIf(counter.IsDisposed, counter);
+        ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
+        if (buffer.Description.Dimension != ResourceDimension.Buffer ||
+            (buffer.Description.Flags & ResourceFlags.AllowUnorderedAccess) == 0)
+            throw new ArgumentException("The buffer must allow unordered access.", nameof(buffer));
+        if (counter.Description.Dimension != ResourceDimension.Buffer || counter.SizeInBytes < sizeof(uint))
+            throw new ArgumentException("A 32-bit counter buffer is required.", nameof(counter));
+        if (descriptor.Type != DescriptorHeapType.CbvSrvUav)
+            throw new ArgumentException("The descriptor must come from a CBV/SRV/UAV heap.", nameof(descriptor));
+        if (elementCount == 0) throw new ArgumentOutOfRangeException(nameof(elementCount));
+        if (strideInBytes == 0) throw new ArgumentOutOfRangeException(nameof(strideInBytes));
+        if (checked((ulong) elementCount * strideInBytes) > buffer.SizeInBytes)
+            throw new ArgumentOutOfRangeException(nameof(elementCount));
+        var description = new UnorderedAccessViewDesc {
+            Format = Format.FormatUnknown,
+            ViewDimension = UavDimension.Buffer,
+            Buffer = new BufferUav(0,
+                elementCount,
+                strideInBytes,
+                0,
+                BufferUavFlags.None)
+        };
+        device.NativeDevice.CreateUnorderedAccessView(buffer.Handle,
+            counter.Handle,
+            in description,
+            descriptor.CpuHandle);
     }
 
     /// <summary>
@@ -991,7 +1274,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             AddressW = (Silk.NET.Direct3D12.TextureAddressMode) state.AddressW,
             MipLODBias = state.MipLodBias,
             MaxAnisotropy = checked((uint) Math.Max(1, state.MaximumAnisotropy)),
-            ComparisonFunc = (Silk.NET.Direct3D12.ComparisonFunc) state.ComparisonFunction,
+            ComparisonFunc = state.ComparisonFunction == 0
+                ? Silk.NET.Direct3D12.ComparisonFunc.Always
+                : (Silk.NET.Direct3D12.ComparisonFunc) state.ComparisonFunction,
             MinLOD = state.MinimumLod,
             MaxLOD = state.MaximumLod
         };
@@ -1034,7 +1319,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         if (texture.Description.Dimension == ResourceDimension.Buffer)
             throw new ArgumentException("The resource must be a texture.", nameof(texture));
-        var subresourceCount = checked((uint) (texture.Description.DepthOrArraySize * texture.Description.MipLevels));
+        var subresourceCount = texture.Description.Dimension == ResourceDimension.Texture3D
+            ? texture.Description.MipLevels
+            : checked((uint) (texture.Description.DepthOrArraySize * texture.Description.MipLevels));
         if (subresource >= subresourceCount) throw new ArgumentOutOfRangeException(nameof(subresource));
 
         var description = texture.Description;
@@ -1077,7 +1364,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     }
 
     /// <summary>
-    ///     Creates and fills one upload allocation for all subresources of a two-dimensional texture.
+    ///     Creates and fills one upload allocation for all subresources of a two- or three-dimensional texture.
     /// </summary>
     /// <param name="device">The Direct3D 12 device.</param>
     /// <param name="texture">The destination texture.</param>
@@ -1094,9 +1381,13 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         texture.AssertArgumentNotNull();
         subresources.AssertArgumentNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
-        if (texture.Description.Dimension != ResourceDimension.Texture2D)
-            throw new ArgumentException("The resource must be a two-dimensional texture.", nameof(texture));
-        var expectedCount = checked(texture.Description.DepthOrArraySize * texture.Description.MipLevels);
+        if (texture.Description.Dimension is not (ResourceDimension.Texture1D or ResourceDimension.Texture2D or
+            ResourceDimension.Texture3D))
+            throw new ArgumentException("The resource must be a texture.",
+                nameof(texture));
+        var expectedCount = texture.Description.Dimension == ResourceDimension.Texture3D
+            ? texture.Description.MipLevels
+            : checked(texture.Description.DepthOrArraySize * texture.Description.MipLevels);
         if (subresources.Count != expectedCount)
             throw new ArgumentException("The source must contain every texture subresource.", nameof(subresources));
 
@@ -1127,17 +1418,22 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             if (source.RowPitch < rowSizes[index])
                 throw new ArgumentException("A source row is smaller than the native copy footprint.",
                     nameof(subresources));
-            var requiredSourceBytes = checked((ulong) source.RowPitch * rowCounts[index]);
-            if (source.SlicePitch < requiredSourceBytes || source.Data.Length != source.SlicePitch)
-                throw new ArgumentException("A source slice does not contain all required rows.",
+            var requiredSliceBytes = checked((ulong) source.RowPitch * rowCounts[index]);
+            var depth = footprints[index].Footprint.Depth;
+            var requiredSourceBytes = checked((ulong) source.SlicePitch * depth);
+            if (source.SlicePitch < requiredSliceBytes || (ulong) source.Data.Length != requiredSourceBytes)
+                throw new ArgumentException("A source subresource does not contain all required depth slices.",
                     nameof(subresources));
             if (rowSizes[index] > int.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(subresources), "A source row exceeds managed limits.");
 
             var footprint = footprints[index];
+            for (uint slice = 0; slice < depth; slice++)
             for (uint row = 0; row < rowCounts[index]; row++) {
-                var sourceOffset = checked((int) (row * source.RowPitch));
-                var destinationOffset = checked((int) (footprint.Offset + row * footprint.Footprint.RowPitch));
+                var sourceOffset = checked((int) (slice * source.SlicePitch + row * source.RowPitch));
+                var destinationOffset = checked((int) (footprint.Offset +
+                    slice * footprint.Footprint.RowPitch * rowCounts[index] +
+                    row * footprint.Footprint.RowPitch));
                 source.Data.Span.Slice(sourceOffset, (int) rowSizes[index])
                     .CopyTo(paddedData.AsSpan(destinationOffset, (int) rowSizes[index]));
             }
@@ -1217,6 +1513,38 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     }
 
     /// <summary>
+    ///     Copies every subresource between identically described textures.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    /// <param name="destination">The texture in copy-destination state.</param>
+    /// <param name="source">The texture in copy-source state.</param>
+    public static void CopyTexture(
+        this SilkD3D12CommandContext context,
+        SilkD3D12Resource destination,
+        SilkD3D12Resource source
+    ) {
+        context.AssertArgumentNotNull();
+        destination.AssertArgumentNotNull();
+        source.AssertArgumentNotNull();
+        ObjectDisposedException.ThrowIf(destination.IsDisposed, destination);
+        ObjectDisposedException.ThrowIf(source.IsDisposed, source);
+        if (destination.Description.Dimension == ResourceDimension.Buffer ||
+            source.Description.Dimension == ResourceDimension.Buffer)
+            throw new ArgumentException("Both resources must be textures.");
+        if (destination.Description.Width != source.Description.Width ||
+            destination.Description.Height != source.Description.Height ||
+            destination.Description.DepthOrArraySize != source.Description.DepthOrArraySize ||
+            destination.Description.MipLevels != source.Description.MipLevels ||
+            destination.Description.Format != source.Description.Format)
+            throw new ArgumentException("Texture descriptions must match.");
+        if ((destination.State & ResourceStates.CopyDest) == 0)
+            throw new InvalidOperationException("The destination texture must be in copy-destination state.");
+        if ((source.State & ResourceStates.CopySource) == 0)
+            throw new InvalidOperationException("The source texture must be in copy-source state.");
+        context.CommandList.CopyResource(destination.Handle, source.Handle);
+    }
+
+    /// <summary>
     ///     Copies one placed upload-buffer footprint into the first texture subresource.
     /// </summary>
     /// <param name="context">The command context.</param>
@@ -1251,13 +1579,17 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         footprints.AssertArgumentNotNull();
         ObjectDisposedException.ThrowIf(destination.IsDisposed, destination);
         ObjectDisposedException.ThrowIf(source.IsDisposed, source);
-        if (destination.Description.Dimension != ResourceDimension.Texture2D)
-            throw new ArgumentException("The destination must be a two-dimensional texture.", nameof(destination));
+        if (destination.Description.Dimension is not (ResourceDimension.Texture1D or ResourceDimension.Texture2D or
+            ResourceDimension.Texture3D))
+            throw new ArgumentException("The destination must be a texture.",
+                nameof(destination));
         if (source.Description.Dimension != ResourceDimension.Buffer || source.HeapType != HeapType.Upload)
             throw new ArgumentException("The source must be an upload buffer.", nameof(source));
         if (destination.State != ResourceStates.CopyDest)
             throw new InvalidOperationException("The destination must be in copy-destination state.");
-        var expectedCount = checked(destination.Description.DepthOrArraySize * destination.Description.MipLevels);
+        var expectedCount = destination.Description.Dimension == ResourceDimension.Texture3D
+            ? destination.Description.MipLevels
+            : checked(destination.Description.DepthOrArraySize * destination.Description.MipLevels);
         if (footprints.Count != expectedCount)
             throw new ArgumentException("A copy footprint is required for every destination subresource.",
                 nameof(footprints));
@@ -1410,7 +1742,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             throw new ArgumentException("The destination must be a readback buffer.", nameof(destination));
         if (source.Description.Dimension == ResourceDimension.Buffer)
             throw new ArgumentException("The source must be a texture.", nameof(source));
-        var subresourceCount = checked((uint) (source.Description.DepthOrArraySize * source.Description.MipLevels));
+        var subresourceCount = source.Description.Dimension == ResourceDimension.Texture3D
+            ? source.Description.MipLevels
+            : checked((uint) (source.Description.DepthOrArraySize * source.Description.MipLevels));
         if (sourceSubresource >= subresourceCount)
             throw new ArgumentOutOfRangeException(nameof(sourceSubresource));
         if (destination.State != ResourceStates.CopyDest)

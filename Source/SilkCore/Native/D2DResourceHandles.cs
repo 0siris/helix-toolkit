@@ -391,6 +391,21 @@ public sealed unsafe class TextLayout : D2DNativeResource {
         }
     } = TextAlignment.Leading;
 
+    /// <summary>
+    ///     Gets or sets the text reading direction used by native DirectWrite shaping.
+    /// </summary>
+    public FlowDirection FlowDirection {
+        get;
+        set {
+            field = value;
+            if (nativeLayout.Handle != null)
+                SilkMarshal.ThrowHResult(
+                    nativeLayout.Handle->SetReadingDirection(value == FlowDirection.LeftToRight
+                        ? Silk.NET.DirectWrite.ReadingDirection.LeftToRight
+                        : Silk.NET.DirectWrite.ReadingDirection.RightToLeft));
+        }
+    } = FlowDirection.LeftToRight;
+
     public TextMetrics Metrics { get; }
 
     internal IDWriteTextLayout* Handle => nativeLayout.Handle;

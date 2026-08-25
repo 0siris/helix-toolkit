@@ -33,6 +33,9 @@ static const float3 direction[8] =
 
 [numthreads(8, 1, 1)]
 void main(uint3 GroupThreadID : SV_GroupThreadID) {
+    if (NumParticles + GroupThreadID.x >= MaxParticles) {
+        return;
+    }
     Particle p;
     uint state = wang_hash(RandomSeed + GroupThreadID.x);
     float f0 = float(rand_lcg(state)) * (1.0 / 4294967296.0);

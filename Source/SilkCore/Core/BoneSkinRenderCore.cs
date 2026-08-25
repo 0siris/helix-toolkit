@@ -3,11 +3,12 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-
-using HelixToolkit.SharpDX.Core.DefaultShaders;
+using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Core.Buffers;
+using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Lights;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
@@ -53,6 +54,36 @@ public class BoneSkinRenderCore : MeshRenderCore {
         in GlobalTransformStruct transforms,
         LightsBufferModel? lights = null,
         TextureModel? environmentMap = null
+    ) => TryRenderD3D12(context,
+        resources,
+        pass,
+        bindings,
+        in transforms,
+        lights,
+        environmentMap,
+        null);
+
+    /// <summary>
+    ///     Records GPU bone/morph precompute followed by the productive material draw.
+    /// </summary>
+    /// <param name="context">The open Direct3D 12 command context.</param>
+    /// <param name="resources">The render-host resource manager.</param>
+    /// <param name="pass">The selected Direct3D 12 material pass.</param>
+    /// <param name="bindings">The in-flight mesh bindings.</param>
+    /// <param name="transforms">The global camera and viewport transforms.</param>
+    /// <param name="lights">The optional shared light model.</param>
+    /// <param name="environmentMap">The optional shared environment cube map.</param>
+    /// <param name="preComputePass">The existing stream-output precompute pass.</param>
+    /// <returns>Whether the skinned mesh draw was recorded.</returns>
+    internal bool TryRenderD3D12(
+        SilkD3D12CommandContext context,
+        SilkD3D12ResourceManager resources,
+        ShaderPass pass,
+        SilkD3D12MeshBindings bindings,
+        in GlobalTransformStruct transforms,
+        LightsBufferModel? lights,
+        TextureModel? environmentMap,
+        ShaderPass? preComputePass
     ) {
         if (!CanRenderFlag || D3D12Material is null ||
             preComputeBoneBuffer is not BoneSkinPreComputeBufferModel preCompute)
@@ -61,18 +92,61 @@ public class BoneSkinRenderCore : MeshRenderCore {
         OnUpdatePerModelStructD3D12();
         if (lights is not null) bindings.UpdateLights(lights);
         bindings.Update(context, resources, in transforms, in ModelStruct, D3D12Material, environmentMap);
+        var source = preCompute.SourceMeshBuffer;
+        var buffers = resources.GetOrCreate(source);
+        var boneMatrices = (SharedBoneBuffer ?? internalBoneBuffer).BoneMatrices;
+        SilkD3D12BoneSkinResources? skinning = null;
+        if (boneMatrices.Length > 0) {
+            if (preComputePass is null || preComputePass.IsNull) return false;
+            if (!preComputePass.IsD3D12)
+                throw new ArgumentException("The precompute pass must own a Direct3D 12 pipeline.",
+                    nameof(preComputePass));
+            if (source.Geometry is not BoneSkinnedMeshGeometry3D {
+                    Positions: {Count: > 0} positions,
+                    VertexBoneIds: { } boneIds
+                } || positions.Count != boneIds.Count)
+                throw new InvalidOperationException(
+                    "Bone-skinned geometry requires one bone identifier per vertex.");
+
+            ReadOnlySpan<BoneIds> boneIdSpan;
+            if (boneIds is BoneIds[] boneIdArray)
+                boneIdSpan = boneIdArray;
+            else if (boneIds is List<BoneIds> boneIdList)
+                boneIdSpan = CollectionsMarshal.AsSpan(boneIdList);
+            else
+                boneIdSpan = boneIds.ToArray();
+
+            skinning = bindings.UpdateBoneSkinning(boneIdSpan,
+                boneMatrices,
+                internalMtBuffer,
+                positions.Count);
+            preComputePass.BindShader(context);
+            context.SetGraphicsDescriptorTables(bindings.ResourceTableStart, bindings.SamplerTableStart);
+            buffers.BindBoneSkinningInput(context, skinning.BoneIdResource);
+            skinning.BindOutput(context);
+            try {
+                context.DrawInstanced(buffers.VertexCount);
+            } finally {
+                skinning.UnbindOutput(context);
+            }
+        }
+
         pass.BindShader(context);
         context.SetGraphicsDescriptorTables(bindings.ResourceTableStart, bindings.SamplerTableStart);
-        var buffers = resources.GetOrCreate(preCompute.SourceMeshBuffer,
-            (SharedBoneBuffer ?? internalBoneBuffer).BoneMatrices,
-            internalMtBuffer);
         var instances = InstanceBuffer is IElementsBufferModel<Matrix> matrixInstances
             ? resources.GetOrCreate(matrixInstances)
             : null;
-        if (instances is null)
-            DrawIndexed(context, buffers);
-        else
-            DrawIndexed(context, buffers, instances);
+        if (skinning is null) {
+            if (instances is null)
+                DrawIndexed(context, buffers, topology: pass.Topology);
+            else
+                DrawIndexed(context, buffers, instances, topology: pass.Topology);
+        } else {
+            var instanceSlot = buffers.BindSkinned(context, skinning.Output, skinning.OutputSizeInBytes);
+            if (instances is not null) instances.Bind(context, instanceSlot);
+            context.SetPrimitiveTopology(pass.Topology);
+            context.DrawIndexedInstanced(buffers.IndexCount, instances?.ElementCount ?? 1);
+        }
         matricsChanged = false;
         mtChanged = false;
         return true;

@@ -326,6 +326,69 @@ public class ShadowMapNode : SceneNode {
         }
     }
 
+    /// <summary>
+    ///     Resolves the existing light-camera rules into the Direct3D 12 shadow payload and culling frustum.
+    /// </summary>
+    /// <param name="lights">The current visible light nodes.</param>
+    /// <param name="opaqueNodes">The opaque shadow-caster candidates.</param>
+    /// <param name="parameters">The completed b5 payload.</param>
+    /// <param name="frustum">The light-space culling frustum.</param>
+    /// <returns>Whether a supported shadow-casting light was found.</returns>
+    internal bool TryCreateD3D12Parameters(
+        FastList<SceneNode> lights,
+        FastList<SceneNode> opaqueNodes,
+        out ShadowMapParamStruct parameters,
+        out BoundingFrustum frustum
+    ) {
+        lights.AssertArgumentNotNull();
+        opaqueNodes.AssertArgumentNotNull();
+        parameters = ShadowCore.CreateD3D12Parameters(false);
+        frustum = default;
+        if (!Visible || !ShadowCore.NeedRender || ShadowCore.Width <= 0 || ShadowCore.Height <= 0) return false;
+
+        CameraCore? camera = LightCamera;
+        if (camera is null) {
+            for (var index = 0; index < lights.Count; index++) {
+                var light = lights.Items[index];
+                if (!light.Visible) continue;
+                light.ComputeTransformMatrix();
+                switch (light) {
+                    case DirectionalLightNode directional:
+                        var direction = SilkMath.TransformNormal(directional.Direction,
+                                directional.TotalModelMatrixInternal)
+                            .Normalized();
+                        if (AutoCoverCompleteScene) {
+                            var bounds = FindSceneBound(opaqueNodes);
+                            if (!CreateCameraFromBound(ref bounds, ref direction))
+                                SetOrthoCameraParameters(ref direction);
+                        } else {
+                            SetOrthoCameraParameters(ref direction);
+                        }
+                        camera = orthoCamera;
+                        break;
+                    case SpotLightNode spot:
+                        persCamera.Position = spot.Position + spot.TotalModelMatrixInternal.Row4.ToVector3();
+                        persCamera.LookDirection = SilkMath.TransformNormal(spot.Direction,
+                            spot.TotalModelMatrixInternal);
+                        persCamera.FarPlaneDistance = spot.Range;
+                        persCamera.FieldOfView = spot.OuterAngle;
+                        persCamera.UpDirection = Vector3.UnitZ;
+                        camera = persCamera;
+                        break;
+                }
+                if (camera is not null) break;
+            }
+        }
+
+        ShadowCore.FoundLightSource = camera is not null;
+        if (camera is null) return false;
+        ShadowCore.LightView = camera.CreateViewMatrix();
+        ShadowCore.LightProjection = camera.CreateProjectionMatrix(ShadowCore.Width / (float) ShadowCore.Height);
+        parameters = ShadowCore.CreateD3D12Parameters(true);
+        frustum = new BoundingFrustum(parameters.LightView * parameters.LightProjection);
+        return true;
+    }
+
     protected override bool CanHitTest(HitTestContext? context) => false;
 
     protected override bool OnHitTest(

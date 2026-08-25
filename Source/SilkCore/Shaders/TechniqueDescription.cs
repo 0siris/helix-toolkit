@@ -200,7 +200,8 @@ public sealed class ShaderPassDescription {
         return ShaderPass.CreateD3D12(Name ?? throw new InvalidOperationException("Shader pass name is required."),
             rootSignature,
             pipeline,
-            topology: topology);
+            topology: topology,
+            stencilReference: StencilRef);
     }
 
     /// <summary>

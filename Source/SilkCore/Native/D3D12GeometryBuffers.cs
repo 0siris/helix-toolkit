@@ -50,6 +50,11 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
     internal uint IndexCount { get; private set; }
 
     /// <summary>
+    ///     Gets the number of vertices in the default mesh streams.
+    /// </summary>
+    internal uint VertexCount => checked((uint) (vertexBuffers[0].SizeInBytes / DefaultVertex.SizeInBytes));
+
+    /// <summary>
     ///     Gets the mesh primitive topology.
     /// </summary>
     internal PrimitiveTopology Topology { get; private set; }
@@ -192,6 +197,51 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
     }
 
     /// <summary>
+    ///     Binds the original vertex stream and per-vertex bone data for the skinning precompute pass.
+    /// </summary>
+    /// <param name="context">The command context.</param>
+    /// <param name="boneIds">The vertex bone identifiers and weights.</param>
+    internal void BindBoneSkinningInput(SilkD3D12CommandContext context, SilkD3D12Resource boneIds) {
+        context.AssertArgumentNotNull();
+        boneIds.AssertArgumentNotNull();
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        context.SetVertexBuffer(0, vertexBuffers[0], DefaultVertex.SizeInBytes);
+        context.SetVertexBuffer(1, boneIds, BoneIds.SizeInBytes);
+    }
+
+    /// <summary>
+    ///     Binds a GPU-skinned first stream with the unchanged texture, color, index, and topology data.
+    /// </summary>
+    /// <param name="context">The command context.</param>
+    /// <param name="skinnedVertices">The stream-output vertex allocation.</param>
+    /// <param name="skinnedSizeInBytes">The logical byte size written by the precompute pass.</param>
+    /// <param name="vertexBufferStartSlot">The first vertex input slot.</param>
+    /// <returns>The first free vertex input slot after the mesh streams.</returns>
+    internal uint BindSkinned(
+        SilkD3D12CommandContext context,
+        SilkD3D12Resource skinnedVertices,
+        ulong skinnedSizeInBytes,
+        uint vertexBufferStartSlot = 0
+    ) {
+        context.AssertArgumentNotNull();
+        skinnedVertices.AssertArgumentNotNull();
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        context.SetVertexBuffer(vertexBufferStartSlot,
+            skinnedVertices,
+            DefaultVertex.SizeInBytes,
+            checked((uint) skinnedSizeInBytes));
+        context.SetVertexBuffer(vertexBufferStartSlot + 1,
+            vertexBuffers[1],
+            SilkMath.Vector2SizeInBytes);
+        context.SetVertexBuffer(vertexBufferStartSlot + 2,
+            vertexBuffers[2],
+            SilkMath.Vector4SizeInBytes);
+        context.SetIndexBuffer(IndexBuffer, Format.FormatR32Uint);
+        context.SetPrimitiveTopology(Topology);
+        return vertexBufferStartSlot + (uint) vertexBuffers.Length;
+    }
+
+    /// <summary>
     ///     Releases every native mesh resource.
     /// </summary>
     public void Dispose() {
@@ -265,8 +315,12 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
             }
         }
         return (defaults,
-            geometry.TextureCoordinates?.ToArray() ?? new Vector2[positions.Count],
-            geometry.Colors?.ToArray() ?? new Color4[positions.Count],
+            geometry.TextureCoordinates is {Count: > 0} textureCoordinates
+                ? textureCoordinates.ToArray()
+                : new Vector2[positions.Count],
+            geometry.Colors is {Count: > 0} colors
+                ? colors.ToArray()
+                : new Color4[positions.Count],
             indices.ToArray(),
             source.Topology);
     }
@@ -335,7 +389,7 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
     /// <param name="vertexCount">The required position count.</param>
     /// <param name="name">The stream name.</param>
     private static void ValidateCount(int? actualCount, int vertexCount, string name) {
-        if (actualCount is not null && actualCount != vertexCount)
+        if (actualCount is > 0 && actualCount != vertexCount)
             throw new ArgumentException($"{name} must contain one value per position.", nameof(actualCount));
     }
 

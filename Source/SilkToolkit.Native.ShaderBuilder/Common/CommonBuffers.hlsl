@@ -254,7 +254,7 @@ cbuffer cbParticleFrame : register(b7) {
     bool AnimateByEnergyLevel;
     float2 ParticleSize;
     float Turbulance;
-    float pad0;
+    uint MaxParticles;
 };
 
 cbuffer cbParticleCreateParameters : register(b8) {
@@ -315,7 +315,7 @@ Texture2D<float3> texSSAONoise : register(t32);
 Texture2D<float> texSSAODepth : register(t33);
 #endif
 
-Texture2D texParticle : register(t0);
+Texture2D texParticle : register(t1);
 StructuredBuffer<Particle> SimulationState : register(t0);
 Texture2D billboardTexture : register(t0);; // billboard text image
 

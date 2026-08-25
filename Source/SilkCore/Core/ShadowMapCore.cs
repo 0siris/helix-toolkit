@@ -82,6 +82,17 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 #endif
     }
 
+    /// <summary>
+    ///     Creates the shared b5 payload from the current renderer-independent shadow settings.
+    /// </summary>
+    /// <param name="hasShadowMap">Whether the completed depth texture is available for sampling.</param>
+    /// <returns>The current shadow-map constant-buffer payload.</returns>
+    internal ShadowMapParamStruct CreateD3D12Parameters(bool hasShadowMap) {
+        var result = modelStruct;
+        result.HasShadowMap = hasShadowMap ? 1 : 0;
+        return result;
+    }
+
     protected override bool OnAttach(IRenderTechnique technique) => true;
 
     protected override void OnDetach() {

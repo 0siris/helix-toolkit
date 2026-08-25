@@ -12,7 +12,7 @@ tags:
 timestamp: 2026-07-09T00:00:00+02:00
 generated: false
 status: active
-verified: 2026-08-23
+verified: 2026-08-25
 sources:
   - ../../Source/SilkToolkit.slnx
   - ../../Source/SilkToolkit.Native.ShaderBuilder/SilkToolkit.Native.ShaderBuilder.csproj
@@ -23,7 +23,10 @@ sources:
 
 ## Current checkpoint
 
-* **Current phase:** Phase 3 - make DXC/SM6/DXIL the only shader build and loading path.
+* **Current phase:** Phase 5 - final DX12-only cutover. Phase 4 renderer parity is complete, and
+  `DeferredShadingDemo` now explicitly selects the productive DX12 swap-chain path instead of entering the
+  CSO-dependent legacy D3D11 canvas. Empty optional mesh streams now receive per-position DX12 defaults, and
+  handled viewport render failures are also written through the configured console logger.
 * **Branch:** `feature/wpf-sharpdx`
 * **Starting commit:** `a3ac7ca4ee7397e84ddfb7a3b66ac16963b586b0`
 * **Completed:** Phase 0, Phase 1, and the automated Phase 2 implementation: hardware/WARP adapter selection,
@@ -31,7 +34,8 @@ sources:
   committed buffers and render-target textures, RTV creation, clear, GPU copy/readback, fence waits, and
   device-removal reporting, subresource upload, UAV barriers, deterministic dispose/recreate contracts,
   pure-WPF HWND hosting, pointer input, three-buffer flip presentation, resize, and surface lifecycle.
-* **In progress:** Phase 3 shader-object work. All repository declarations are explicit SM6.0 DXC items,
+* **Completed renderer parity:** Phase 4 builds on the Phase 3 DX12/DXIL foundation. All repository declarations
+  are explicit SM6.0 DXC items,
   the embedded resource contract is DXIL-only, and immutable DX12 shader modules plus graphics/compute PSO
   creation and caching are implemented. `ShaderDescription` resolves built-in and custom DXIL modules, all
   24 techniques and 199 passes expose validated stage sets and DX12 input layouts, and `ShaderPass` binds
@@ -67,18 +71,18 @@ sources:
   uploaded textures through the host resource manager. The first productive diffuse material/textured-mesh
   pass renders repository DXIL to a deterministic WARP pixel. The existing `LightsBufferModel` now uploads its
   complete eight-light array, ambient color, light count, and environment metadata into b3. Productive Phong
-  and PBR passes consume that buffer and their material payloads in parameterized WARP scenes. General
-  render-host traversal plus environment/shadow resources remain. Existing `LineNode` and `PointNode` material
-  ownership now reaches `PointLineRenderCore`; their complete 160-byte b4 layout, optional line texture/s7
+  and PBR passes consume that buffer and their material payloads in parameterized WARP scenes. Existing
+  `LineNode` and `PointNode` material ownership now reaches `PointLineRenderCore`; their complete 160-byte b4
+  layout, optional line texture/s7
   sampler, full descriptor tables, geometry-shader passes, and indexed/non-indexed draws are productive on DX12.
   Existing single- and multi-image billboard models now prepare their CPU vertices without DX11 device
   services, reuse the point/line resource owner, bind their `TextureModel` at t0 and sampler at s7, and record
-  productive repository geometry-shader draws. DirectWrite text preparation remains in Phase 4.4. Existing
-  `BoneSkinRenderCore` instances now consume their managed bone matrices through the productive mesh bindings;
-  the first DX12 package applies the shader-equivalent four-weight transform during CPU buffer preparation,
-  supports material and instance bindings, and updates animation matrices on every draw. GPU t40/stream-output
-  skinning and morph-target buffers remain outstanding. Opaque and transparent scene lists now share one
-  renderer-independent camera-frustum selector that updates `IsInFrustum`; the legacy host uses it immediately
+  productive repository geometry-shader draws. Existing
+  `BoneSkinRenderCore` instances now consume their managed bone matrices and morph targets through the existing
+  `PreComputeMeshBoneSkinned` DXIL pass. The productive path uploads bone IDs plus b9/t40/t60-t62, records the
+  point-list stream-output draw, and binds its `DefaultVertex` output to the existing indexed material draw;
+  material and instance bindings remain shared with static meshes. Opaque and transparent scene lists now share
+  one renderer-independent camera-frustum selector that updates `IsInFrustum`; the legacy host uses it immediately
   and the DX12 host consumes the identical contract without duplicating culling logic. A host-lifetime DX12
   scene renderer now attaches existing geometry nodes without an `IEffectsManager` or DX11 resources, creates
   their existing default mesh/line/point/billboard/bone buffer models, owns per-core descriptor/constant-buffer
@@ -102,19 +106,37 @@ sources:
   mouse-wheel policy, configurable right-button camera bindings, and existing gesture handlers. The productive
   bone-skin path now applies the existing morph-target offset/pitch/weight payload before the bone matrices,
   matching the repository shader's position, normal, tangent, and bitangent preparation. The command context
-  now also binds validated D3D12 stream-output targets, and structured upload buffers can populate t-register
-  SRVs; these are the independently tested native primitives required by the GPU skinning precompute pass.
-* **Last verified gates:** CLI-fallback solution build passed with 304 warnings and 0 errors. The standard tests
-  pass 272/272 (`SilkAssimp` 13, `SilkCore` 224, `SilkToolkit` 35), including the WPF-model-to-DX12 repeated
-  mesh-buffer lifecycle that replaced the final CSO-dependent WPF smoke. Explicit DX12 hardware creation
-  passed 1/1 in a preceding work package. Graphify passes without syntax-recovery warnings for 1,042 source
-  files with 12,906 nodes, 23,064 edges, and 2,025 final communities. `git diff --check` passes with
-  line-ending notices only.
+  binds the required separate 32-bit filled-size resource beside the stream-output target, resets it before each
+  precompute draw, and transitions the resulting vertex stream for immediate indexed consumption. Per-core
+  resources validate and upload bone IDs plus the shader's actual b9/t40/t60-t62 contract and grow their
+  state-tracked output atomically. The former CPU morph/skin preparation is no longer used by the productive draw.
+  Phase 4.2 is complete: 1D/3D texture upload, tessellation topology, typed shadow DSV/SRV resources, depth-only
+  shadow traversal, three-pass volume rendering, and compute particles are productive. Particle simulation keeps
+  append/consume buffers and counters on the GPU, copies the current count into b7 and the next count into a
+  non-indexed indirect argument, and draws existing ParticleStormNodes through repository DXIL. The shared-root
+  t0 collision was removed by assigning the optional particle texture its own t1 register.
+  Phase 4.3 is complete with productive weighted OIT, depth peeling, SSAO, FXAA, bloom, outline, and XRay
+  resources and ordered passes. Phase 4.4 is complete: existing Scene2D rectangles, ellipses, rounded borders,
+  images, and text now render through the repository Sprite2D DXIL pass after the 3D/post-effect frame.
+  DirectWrite shapes Unicode glyph runs into a growable DX12 atlas; traversal, transforms, inherited clipping,
+  image upload, atlas caching/growth, and resize behavior have focused CPU and WARP coverage.
+  Phase 4.5 is complete: D3D11/DXGI Desktop Duplication is confined to one lazily created capture source; each
+  tightly packed BGRA frame crosses an explicit CPU-owned boundary into a replaceable DX12 texture. Timeout
+  retains the preceding frame, output changes and failures release the old session, crop/aspect behavior is
+  deterministic, and real desktop capture remains an explicit interactive-hardware test.
+* **Last verified gates:** CLI-fallback solution build passed with 330 warnings and 0 errors. The standard tests
+  pass 305/305 (`SilkAssimp` 13, `SilkCore` 256, `SilkToolkit` 36). Explicit DX12 hardware creation passed 1/1
+  in a preceding work package; the new interactive desktop-capture test was intentionally not run. Graphify
+  passes without syntax-recovery warnings for 1,053 source files with 13,324 nodes, 24,482 edges, and 2,085
+  final communities. `git diff --check` passes with line-ending notices only.
 * **Validation note:** Rider/ReSharper MCP was not exposed in the implementation session, so its diagnostics
   and formatter gates remain outstanding; the documented `dotnet` fallback was used for build and tests.
-* **Latest focused gates:** All 45 DX12 runtime tests, 12 HWND/surface/input tests, and 2 DX12 WARP swap-chain
-  tests pass; all 115 texture/resource tests pass, including 103 manifest-parameterized DXC cases. The WARP
-  tests create real vertex/pixel, geometry, hull/domain, and compute PSOs from repository DXIL. A catalog gate
+* **Latest focused gates:** The complete DX12 runtime class passes 100/100 automated tests with one explicit
+  hardware capture test not run, and all 14 DX12 texture-model tests pass. The latest package gate additionally
+  passes all 11 combined Phase 4.4/4.5 CPU/WARP checks. Three focused regressions additionally cover empty
+  optional texture/color streams, rejection of non-empty partial streams, and console output for handled
+  viewport exceptions including their exception text. WARP tests create real vertex/pixel, geometry,
+  hull/domain, and compute PSOs from repository DXIL. A catalog gate
   now creates native PSOs for all 199 default passes, including stream output and the DXC-normalized depth,
   line, point, outline, and XRay linkage contracts; every live built-in `ShaderDescription` resolves through
   the explicit manifest. All 12 `TextureModel` CPU/lifecycle/WARP tests pass, including multi-mip BC1 array and
@@ -159,19 +181,30 @@ sources:
   covers multiple target/vertex indices, weights, basis reconstruction, invalid pitch/data rejection, and the
   existing bone-skin WARP draw now consumes a non-zero morph target before applying its bone transform. A WARP
   primitive test covers structured buffer SRV creation, range rejection, Common-to-StreamOut transition,
-  bounded SO target binding/unbinding, and native device health.
-* **Known unrelated work:** The untracked `2026-08-18.md` and `Unbenannt*.canvas` files are user work;
-  preserve them.
+  bounded SO target binding/unbinding, and native device health. A focused WARP resource test now covers the
+  complete b9/t40/t60-t62 uploads, compact morph layout, validation failures, stream-output state transitions,
+  growth replacement, cleared optional SRVs, descriptor cleanup, and native device health. Five focused CPU/WARP
+  checks now additionally cover the required filled-size counter contract, precompute-pass catalog selection and
+  caching, bone-ID validation, GPU-written vertex count, combined non-zero morph/bone output readback, and final
+  indexed material rendering from the generated stream.
+  Phase 4.2 additionally covers native 1D/3D texture upload, shadow depth readback, exact volume parameters and
+  back-position/final pixels, tessellation topology, structured append/consume UAVs with separate counters,
+  command signatures, indirect arguments, particle payload/capacity contracts, and a WARP particle simulation
+  that validates eight inserted particles, indirect drawing, red output, detach, and descriptor cleanup.
 * **Graphify note:** The AST subprocess requires execution outside the workspace sandbox on this machine. The
   canonical wrapper completed successfully and removed `.graphify-code-corpus`; tool-version and community-name
   notices remain non-blocking warnings.
-* **Outstanding manual Phase 2 gate:** Visible hardware swap-chain presentation, live DPI changes, and physical
-  mouse/touch behavior have not been observed in this non-interactive session.
-* **Next action:** Build the bone/morph binding table and output buffer on the now verified structured-SRV/SO
-  primitives, then replace the parity-complete CPU morph/skin upload with the existing t40-t43/b9 precompute
-  pass. Shadow bindings follow. Productive skybox rendering remains
-  separate from the now shared material environment-map binding; multi-touch camera manipulation remains a
-  manual/full-parity follow-up beyond first-contact hit testing.
+* **Outstanding manual gates:** Visible hardware swap-chain presentation, live DPI changes, physical mouse/touch
+  behavior, and real interactive Desktop Duplication have not been observed in this non-interactive session.
+* **Latest Phase 5 smoke:** `DeferredShadingDemo` builds with zero errors and remains responsive in a ten-second
+  DX12 hardware startup check with empty standard output/error, without initializing D3D11, requesting
+  `vsMeshDefault.cso`, or failing on its empty `Colors` collection. Future handled viewport render exceptions
+  are written to the configured console logger before the existing event/UI handling. Its legacy
+  `RenderDeferred` registration is still absent and is represented by a named `NullTechnique`, so this proves
+  stable DX12 startup rather than deferred shading.
+* **Next action:** Make the DX12 presentation/scene path the repository-wide `Viewport3DX` default, migrate the
+  remaining explicit legacy examples, and then remove renderer-wide DX11 hosts and resources while retaining
+  only the isolated desktop-capture source.
 
 Update this checkpoint after every completed work package, every changed technical decision, and before
 stopping. A work package is complete only when its implementation, tests, and checkpoint agree.
@@ -319,7 +352,7 @@ Implement each group as a separate green work package.
 
 ### 4.1 Geometry
 
-- [ ] Port cameras, static and dynamic meshes, instancing, skinning, lines, points, and billboards.
+- [x] Port cameras, static and dynamic meshes, instancing, skinning, lines, points, and image billboards.
 - [x] Bridge immutable default-mesh CPU preparation and indexed binding from the existing geometry buffer model.
 - [x] Add same-capacity dynamic default-mesh updates, atomic growth replacement, and the first render-core entry
   point.
@@ -340,35 +373,37 @@ Implement each group as a separate green work package.
   per-core bindings, host-lifetime cleanup, and deterministic WARP coverage.
 - [x] Integrate visible scene recording into the WPF HWND swap-chain back-buffer/present/fence frame lifecycle
   and cover repeated WARP attach, render, resize, detach, and recreation.
-- [ ] Move DX12 skinning and morph targets to the declared t40-t43/b9 GPU resources and stream-output path.
-- [ ] Cover CPU data preparation, visibility, draw arguments, buffer updates, and representative WARP readback.
+- [x] Build the per-core b9/t40/t60-t62 bone/morph table plus validated, growable stream-output allocation.
+- [x] Record the existing precompute pass from unskinned vertex/bone-ID streams and consume its output in the
+  productive indexed draw, replacing the CPU transform upload.
+- [x] Cover CPU data preparation, visibility, draw arguments, buffer updates, and representative WARP readback.
 
 ### 4.2 Materials and advanced geometry
 
-- [ ] Port textures, Blinn-Phong, PBR, volume rendering, tessellation, compute particles, and shadows.
+- [x] Port textures, Blinn-Phong, PBR, volume rendering, tessellation, compute particles, and shadows.
 - [x] Map existing diffuse, Phong, and PBR CPU material data, texture models, samplers, and opaque/tessellation
   pass names into the shared DX12 root tables and exact cbMesh layout.
 - [x] WARP-render one existing diffuse textured material through repository DXIL with deterministic readback.
 - [x] Upload the existing shared light model into b3 and WARP-render existing Phong and PBR material passes.
-- [ ] Cover material/pass selection, texture bindings, tessellation/compute dispatch, and shadow depth behavior.
+- [x] Cover material/pass selection, texture bindings, tessellation/compute dispatch, and shadow depth behavior.
 
 ### 4.3 Transparency and post effects
 
-- [ ] Port OIT, depth peeling, SSAO, FXAA, bloom, outline, XRay, and remaining post effects.
-- [ ] Cover pass ordering, ping-pong targets, alpha/depth contracts, and stable reference pixels.
+- [x] Port OIT, depth peeling, SSAO, FXAA, bloom, outline, XRay, and remaining post effects.
+- [x] Cover pass ordering, ping-pong targets, alpha/depth contracts, and stable reference pixels.
 
 ### 4.4 Native DX12 2D
 
-- [ ] Render shapes as geometry and images/sprites as textured quads.
-- [ ] Shape and rasterize text with DirectWrite glyph analysis; upload glyphs into a DX12 atlas.
-- [ ] Cover glyph caching, shaping, atlas growth, Unicode, 2D ordering, clipping, and resize behavior.
+- [x] Render shapes as geometry and images/sprites as textured quads.
+- [x] Shape and rasterize text with DirectWrite glyph analysis; upload glyphs into a DX12 atlas.
+- [x] Cover glyph caching, shaping, atlas growth, Unicode, 2D ordering, clipping, and resize behavior.
 
 ### 4.5 Desktop Duplication
 
-- [ ] Isolate the only permitted D3D11 use in the screen-duplication implementation.
-- [ ] Load D3D11 only when capture starts and transfer captured frames into DX12 textures.
-- [ ] Cover format, dimensions, frame replacement, timeout, monitor changes, and resource release.
-- [ ] Keep real desktop capture explicit because it requires an interactive hardware session.
+- [x] Isolate the only permitted D3D11 use in the screen-duplication implementation.
+- [x] Load D3D11 only when capture starts and transfer captured frames into DX12 textures.
+- [x] Cover format, dimensions, frame replacement, timeout, monitor changes, and resource release.
+- [x] Keep real desktop capture explicit because it requires an interactive hardware session.
 
 ### Tests common to every parity package
 

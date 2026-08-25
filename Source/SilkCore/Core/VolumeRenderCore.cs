@@ -14,6 +14,7 @@ using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
@@ -36,6 +37,21 @@ public sealed class VolumeRenderCore : RenderCore {
     private ShaderPass? meshFrontPass;
     private ModelMatrices modelMatrices;
     private ShaderPass? volumePass;
+
+    /// <summary>
+    ///     Gets or sets the material supplied by the DX12 scene-node boundary.
+    /// </summary>
+    internal MaterialCore? D3D12Material { get; set; }
+
+    /// <summary>
+    ///     Gets the existing productive volume pass selected by the current material.
+    /// </summary>
+    internal string D3D12MaterialPassName => D3D12Material switch {
+        VolumeTextureDiffuseMaterialCore => DefaultPassNames.Diffuse,
+        VolumeTextureRawDataMaterialCore or VolumeTextureDds3DMaterialCore => DefaultPassNames.Default,
+        null => throw new InvalidOperationException("A DX12 volume material is required for pass selection."),
+        _ => throw new NotSupportedException($"DX12 volume material '{D3D12Material.GetType().Name}' is not supported.")
+    };
 
     static VolumeRenderCore() {
         BoxMesh = new MeshGeometry3D {
@@ -103,6 +119,51 @@ public sealed class VolumeRenderCore : RenderCore {
     protected override void OnDetach() {
         RemoveAndDispose(ref buffer);
     }
+
+    /// <summary>
+    ///     Updates the existing volume material, camera, and model resources for a DX12 draw.
+    /// </summary>
+    /// <param name="context">The open Direct3D 12 command context.</param>
+    /// <param name="resources">The shared render-host resources.</param>
+    /// <param name="bindings">The per-core volume bindings.</param>
+    /// <param name="volumeResources">The shared volume cube and offscreen resources.</param>
+    /// <param name="transforms">The current camera transforms.</param>
+    /// <returns>Whether the core has a complete supported volume material.</returns>
+    internal bool PrepareD3D12(
+        SilkD3D12CommandContext context,
+        SilkD3D12ResourceManager resources,
+        SilkD3D12VolumeBindings bindings,
+        SilkD3D12VolumeResources volumeResources,
+        in GlobalTransformStruct transforms
+    ) => bindings.Update(context,
+        resources,
+        in transforms,
+        in ModelMatrix,
+        D3D12Material,
+        volumeResources.BackPositions);
+
+    /// <summary>
+    ///     Records one indexed volume-cube pass using the prepared shared-root bindings.
+    /// </summary>
+    /// <param name="context">The open Direct3D 12 command context.</param>
+    /// <param name="pass">The selected existing volume pass.</param>
+    /// <param name="bindings">The prepared per-core bindings.</param>
+    /// <param name="volumeResources">The shared volume cube.</param>
+    internal static void DrawD3D12(
+        SilkD3D12CommandContext context,
+        ShaderPass pass,
+        SilkD3D12VolumeBindings bindings,
+        SilkD3D12VolumeResources volumeResources
+    ) {
+        pass.BindShader(context);
+        bindings.Bind(context);
+        volumeResources.DrawCube(context, pass.Topology);
+    }
+
+    /// <inheritdoc />
+    protected override bool OnUpdateCanRenderFlag() => base.OnUpdateCanRenderFlag() &&
+        (IsD3D12Attached && D3D12Material is IVolumeTextureMaterial ||
+         MaterialVariables != EmptyMaterialVariable.EmptyVariable);
 
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
         if (buffer is not { } volumeBuffer || cubeBackPass is not { } backPass || meshFrontPass is not { } frontPass

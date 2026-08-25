@@ -24,6 +24,14 @@ public class D3D12TextureModelTests {
         var bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8};
         var byteData = SilkD3D12TextureModelResource.PrepareUploadData(
             new TextureInfo(bytes, Format.FormatR8G8B8A8Unorm, 2, 1));
+        var lineData = SilkD3D12TextureModelResource.PrepareUploadData(
+            new TextureInfo([1, 2, 3, 4], Format.FormatR8Unorm, 4));
+        var volumeData = SilkD3D12TextureModelResource.PrepareUploadData(
+            new TextureInfo(Enumerable.Range(1, 8).Select(value => (byte) value).ToArray(),
+                Format.FormatR8Unorm,
+                2,
+                2,
+                2));
         var colors = new[] {new Color4(1, 0.5f, 0.25f, 1)};
         var colorData = SilkD3D12TextureModelResource.PrepareUploadData(new TextureInfo(colors, 1, 1));
 
@@ -32,6 +40,16 @@ public class D3D12TextureModelTests {
         Assert.Equal(1u, byteData.Height);
         Assert.Equal(8u, byteData.RowPitch);
         Assert.Equal(Format.FormatR8G8B8A8Unorm, byteData.Format);
+        Assert.Equal(ResourceDimension.Texture1D, lineData.Dimension);
+        Assert.Equal(4u, lineData.Width);
+        Assert.Equal(1u, lineData.Height);
+        Assert.Equal((ushort) 1, lineData.Depth);
+        Assert.Equal(4u, lineData.RowPitch);
+        Assert.Equal(ResourceDimension.Texture3D, volumeData.Dimension);
+        Assert.Equal((ushort) 2, volumeData.Depth);
+        Assert.Equal(2u, volumeData.RowPitch);
+        Assert.Equal(4u, volumeData.Subresources[0].SlicePitch);
+        Assert.Equal(Enumerable.Range(1, 8).Select(value => (byte) value), volumeData.Pixels);
         Assert.Equal(new[] {1f, 0.5f, 0.25f, 1f},
             MemoryMarshal.Cast<byte, float>(colorData.Pixels).ToArray());
         Assert.Equal(16u, colorData.RowPitch);
@@ -124,6 +142,41 @@ public class D3D12TextureModelTests {
     }
 
     /// <summary>
+    ///     Verifies decoded 1D arrays and 3D mip volumes retain their native subresource layout.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void PreparesMipmappedOneAndThreeDimensionalSubresources() {
+        using var lineImage = ToolkitImage.New1D(4, 2, ToolkitPixelFormat.R8.UNorm, 2);
+        FillSubresources(lineImage);
+        using var volumeImage = ToolkitImage.New3D(4, 4, 2, 2, ToolkitPixelFormat.R8.UNorm);
+        var value = 1;
+        for (var mipIndex = 0; mipIndex < volumeImage.Description.MipLevels; mipIndex++)
+        for (var slice = 0; slice < Math.Max(1, volumeImage.Description.Depth >> mipIndex); slice++) {
+            var buffer = volumeImage.GetPixelBuffer(slice, mipIndex);
+            Marshal.Copy(Enumerable.Repeat((byte) value++, buffer.BufferStride).ToArray(),
+                0,
+                buffer.DataPointer,
+                buffer.BufferStride);
+        }
+
+        var lineData = SilkD3D12TextureModelResource.PrepareImage(lineImage);
+        var volumeData = SilkD3D12TextureModelResource.PrepareImage(volumeImage);
+
+        Assert.Equal(ResourceDimension.Texture1D, lineData.Dimension);
+        Assert.Equal((ushort) 2, lineData.ArraySize);
+        Assert.Equal(4, lineData.Subresources.Length);
+        Assert.Equal([1, 2, 3, 4], lineData.Subresources.Select(data => data.Data.Span[0]).ToArray());
+        Assert.Equal(ResourceDimension.Texture3D, volumeData.Dimension);
+        Assert.Equal((ushort) 2, volumeData.Depth);
+        Assert.Equal((ushort) 1, volumeData.ArraySize);
+        Assert.Equal(2, volumeData.Subresources.Length);
+        Assert.Equal(1, volumeData.Subresources[0].Data.Span[0]);
+        Assert.Equal(2, volumeData.Subresources[0].Data.Span[(int) volumeData.Subresources[0].SlicePitch]);
+        Assert.Equal(3, volumeData.Subresources[1].Data.Span[0]);
+    }
+
+    /// <summary>
     ///     Verifies the encoded DDS bridge keeps BC1 array slices, mip levels, and cube faces intact.
     /// </summary>
     [Fact]
@@ -198,7 +251,7 @@ public class D3D12TextureModelTests {
             SilkD3D12TextureModelResource.PrepareUploadData(TextureInfo.Null));
         Assert.Throws<NotSupportedException>(() =>
             SilkD3D12TextureModelResource.PrepareUploadData(
-                new TextureInfo([1], Format.FormatR8Unorm, 1)));
+                new TextureInfo(new byte[8], Format.FormatBC1Unorm, 4)));
         Assert.Throws<NotSupportedException>(() =>
             SilkD3D12TextureModelResource.PrepareUploadData(
                 new TextureInfo([1], Format.FormatBC1Unorm, 1, 1)));
@@ -352,7 +405,7 @@ public class D3D12TextureModelTests {
     /// </summary>
     /// <param name="pixel">The single BGRA pixel.</param>
     /// <returns>The bitmap stream positioned at its beginning.</returns>
-    private static MemoryStream CreateBmp(byte[] pixel) {
+    internal static MemoryStream CreateBmp(byte[] pixel) {
         if (pixel.Length != 4) throw new ArgumentException("One BGRA pixel is required.", nameof(pixel));
 
         var stream = new MemoryStream();

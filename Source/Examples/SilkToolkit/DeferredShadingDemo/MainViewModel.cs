@@ -11,6 +11,7 @@ using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
 using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Element3D;
@@ -153,11 +154,11 @@ public class MainViewModel : BaseViewModel {
             UpDirection = new Vector3D(0, 1, 0)
         };
 
-        // RenderDeferred's legacy renderer and shader passes were not migrated from SharpDX, so it resolves to NullTechnique.
-        // Keep the deferred selection visible until the pipeline is ported instead of silently selecting Mesh here.
-
-        EffectsManager = new DefaultEffectsManager();
-        RenderTechnique = EffectsManager[DeferredRenderTechniqueNames.Deferred];
+        // Keep the missing deferred selection visible without initializing the legacy D3D11 effects manager.
+        RenderTechnique = new Technique(new TechniqueDescription {
+            Name = DeferredRenderTechniqueNames.Deferred,
+            IsNull = true
+        }, null);
         //load model
         var reader = new ObjReader();
         var objModel = reader.Read(@"./Media/bunny.obj");

@@ -434,16 +434,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <param name="context">The context.</param>
     public void Render(RenderContext2D context) {
         if (!IsRenderable) return;
-        if (IsTransformDirty) {
-            RelativeMatrix = Matrix3X2.Translation(-RenderSize * RenderTransformOrigin)
-                             * ModelMatrix * Matrix3X2.Translation(RenderSize * RenderTransformOrigin)
-                             * LayoutTranslate;
-            TotalModelMatrix = RelativeMatrix * ParentMatrix;
-            IsTransformDirty = false;
-            InvalidateVisual();
-        }
-
-        LayoutBoundWithTransform = LayoutBound.Translate(TotalModelMatrix.TranslationVector);
+        UpdateTransform();
 
 #if DISABLEBITMAPCACHE
         IsBitmapCacheValid = false;
@@ -482,6 +473,22 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
             context.PopRelativeTransform();
             IsVisualDirty = false;
         }
+    }
+
+    /// <summary>
+    ///     Updates the shared layout transform before either Direct2D or Direct3D 12 records the node.
+    /// </summary>
+    internal void UpdateTransform() {
+        if (IsTransformDirty) {
+            RelativeMatrix = Matrix3X2.Translation(-RenderSize * RenderTransformOrigin)
+                             * ModelMatrix * Matrix3X2.Translation(RenderSize * RenderTransformOrigin)
+                             * LayoutTranslate;
+            TotalModelMatrix = RelativeMatrix * ParentMatrix;
+            IsTransformDirty = false;
+            InvalidateVisual();
+        }
+
+        LayoutBoundWithTransform = LayoutBound.Translate(TotalModelMatrix.TranslationVector);
     }
 
     /// <summary>

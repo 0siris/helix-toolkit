@@ -183,17 +183,20 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="buffers">The default mesh buffers.</param>
     /// <param name="instanceCount">The number of mesh instances.</param>
     /// <param name="vertexBufferStartSlot">The first vertex input slot.</param>
+    /// <param name="topology">The pass topology overriding the geometry topology.</param>
     /// <returns>The first free vertex input slot after the mesh streams.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static uint DrawIndexed(
         SilkD3D12CommandContext context,
         SilkD3D12DefaultMeshBuffers buffers,
         uint instanceCount = 1,
-        uint vertexBufferStartSlot = 0
+        uint vertexBufferStartSlot = 0,
+        PrimitiveTopology topology = PrimitiveTopology.Undefined
     ) {
         context.AssertArgumentNotNull();
         buffers.AssertArgumentNotNull();
         var nextVertexSlot = buffers.Bind(context, vertexBufferStartSlot);
+        if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
         context.DrawIndexedInstanced(buffers.IndexCount, instanceCount);
         return nextVertexSlot;
     }
@@ -206,19 +209,22 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="buffers">The default mesh buffers.</param>
     /// <param name="instances">The instance vertex stream.</param>
     /// <param name="vertexBufferStartSlot">The first vertex input slot.</param>
+    /// <param name="topology">The pass topology overriding the geometry topology.</param>
     /// <returns>The first free vertex input slot after the mesh and instance streams.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static uint DrawIndexed<T>(
         SilkD3D12CommandContext context,
         SilkD3D12DefaultMeshBuffers buffers,
         SilkD3D12ElementsBuffer<T> instances,
-        uint vertexBufferStartSlot = 0
+        uint vertexBufferStartSlot = 0,
+        PrimitiveTopology topology = PrimitiveTopology.Undefined
     ) where T : unmanaged {
         context.AssertArgumentNotNull();
         buffers.AssertArgumentNotNull();
         instances.AssertArgumentNotNull();
         var instanceSlot = buffers.Bind(context, vertexBufferStartSlot);
         instances.Bind(context, instanceSlot);
+        if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
         context.DrawIndexedInstanced(buffers.IndexCount, instances.ElementCount);
         return instanceSlot + 1;
     }
@@ -230,17 +236,20 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="buffers">The default line or point buffers.</param>
     /// <param name="instanceCount">The number of geometry instances.</param>
     /// <param name="vertexBufferSlot">The vertex input slot.</param>
+    /// <param name="topology">The pass topology overriding the geometry topology.</param>
     /// <returns>The first free vertex input slot.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static uint Draw(
         SilkD3D12CommandContext context,
         SilkD3D12PointLineBuffers buffers,
         uint instanceCount = 1,
-        uint vertexBufferSlot = 0
+        uint vertexBufferSlot = 0,
+        PrimitiveTopology topology = PrimitiveTopology.Undefined
     ) {
         context.AssertArgumentNotNull();
         buffers.AssertArgumentNotNull();
         buffers.Bind(context, vertexBufferSlot);
+        if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
         if (buffers.IndexCount > 0)
             context.DrawIndexedInstanced(buffers.IndexCount, instanceCount);
         else
@@ -256,19 +265,22 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="buffers">The default line or point buffers.</param>
     /// <param name="instances">The instance vertex stream.</param>
     /// <param name="vertexBufferSlot">The geometry vertex input slot.</param>
+    /// <param name="topology">The pass topology overriding the geometry topology.</param>
     /// <returns>The first free vertex input slot.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static uint Draw<T>(
         SilkD3D12CommandContext context,
         SilkD3D12PointLineBuffers buffers,
         SilkD3D12ElementsBuffer<T> instances,
-        uint vertexBufferSlot = 0
+        uint vertexBufferSlot = 0,
+        PrimitiveTopology topology = PrimitiveTopology.Undefined
     ) where T : unmanaged {
         context.AssertArgumentNotNull();
         buffers.AssertArgumentNotNull();
         instances.AssertArgumentNotNull();
         buffers.Bind(context, vertexBufferSlot);
         instances.Bind(context, vertexBufferSlot + 1);
+        if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
         if (buffers.IndexCount > 0)
             context.DrawIndexedInstanced(buffers.IndexCount, instances.ElementCount);
         else
@@ -311,30 +323,30 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
             case DefaultMeshGeometryBufferModel mesh:
                 var meshBuffers = resources.GetOrCreate(mesh);
                 if (instanceBuffer is null)
-                    DrawIndexed(context, meshBuffers);
+                    DrawIndexed(context, meshBuffers, topology: pass.Topology);
                 else
-                    DrawIndexed(context, meshBuffers, instanceBuffer);
+                    DrawIndexed(context, meshBuffers, instanceBuffer, topology: pass.Topology);
                 return true;
             case DefaultLineGeometryBufferModel line:
                 var lineBuffers = resources.GetOrCreate(line);
                 if (instanceBuffer is null)
-                    Draw(context, lineBuffers);
+                    Draw(context, lineBuffers, topology: pass.Topology);
                 else
-                    Draw(context, lineBuffers, instanceBuffer);
+                    Draw(context, lineBuffers, instanceBuffer, topology: pass.Topology);
                 return true;
             case DefaultPointGeometryBufferModel point:
                 var pointBuffers = resources.GetOrCreate(point);
                 if (instanceBuffer is null)
-                    Draw(context, pointBuffers);
+                    Draw(context, pointBuffers, topology: pass.Topology);
                 else
-                    Draw(context, pointBuffers, instanceBuffer);
+                    Draw(context, pointBuffers, instanceBuffer, topology: pass.Topology);
                 return true;
             case DefaultBillboardBufferModel billboard:
                 var billboardBuffers = resources.GetOrCreate(billboard);
                 if (instanceBuffer is null)
-                    Draw(context, billboardBuffers);
+                    Draw(context, billboardBuffers, topology: pass.Topology);
                 else
-                    Draw(context, billboardBuffers, instanceBuffer);
+                    Draw(context, billboardBuffers, instanceBuffer, topology: pass.Topology);
                 return true;
             default:
                 return false;

@@ -99,7 +99,7 @@ public class ParticleRenderCore : RenderCore {
         set {
             if (particleCount == value) return;
             particleCount = value;
-            if (IsAttached)
+            if (IsAttached || IsD3D12Attached)
                 OnInitialParticleChanged(value);
         }
     }
@@ -500,6 +500,78 @@ public class ParticleRenderCore : RenderCore {
             ParticleInsertParameters.SizeInBytes));
         NeedUpdate = true;
     }
+
+    /// <inheritdoc />
+    protected override bool OnAttachD3D12() {
+        if (ParticleCount <= 0) return false;
+        OnInitialParticleChanged(ParticleCount);
+        prevD3D12Time = double.NaN;
+        return true;
+    }
+
+    /// <inheritdoc />
+    protected override void OnDetachD3D12() {
+        isInitialParticleChanged = true;
+        isRestart = true;
+        prevD3D12Time = double.NaN;
+    }
+
+    /// <summary>
+    ///     Creates the existing particle constant-buffer payloads for one Direct3D 12 frame.
+    /// </summary>
+    /// <param name="timeStamp">The current frame timestamp in seconds.</param>
+    /// <param name="frame">The b7 simulation and geometry-shader payload.</param>
+    /// <param name="insert">The b8 particle-insertion payload.</param>
+    /// <param name="model">The b4 particle-model payload.</param>
+    /// <returns>Whether the insertion compute pass must run this frame.</returns>
+    internal bool PrepareD3D12(
+        double timeStamp,
+        out ParticlePerFrame frame,
+        out ParticleInsertParameters insert,
+        out ParticleModelStruct model
+    ) {
+        if (!double.IsFinite(timeStamp)) throw new ArgumentOutOfRangeException(nameof(timeStamp));
+        var elapsed = double.IsNaN(prevD3D12Time) ? 0 : Math.Max(0, timeStamp - prevD3D12Time);
+        prevD3D12Time = timeStamp;
+        totalElapsed += elapsed;
+        frameVariables.TimeFactors = (float) elapsed;
+        frameVariables.RandomVector = VectorGenerator.RandomVector3;
+        frameVariables.MaxParticles = checked((uint) ParticleCount);
+        modelStruct.World = ModelMatrix;
+        modelStruct.HasInstances = InstanceBuffer.HasElements ? 1 : 0;
+        modelStruct.HasTexture = HasTexture ? 1 : 0;
+        var shouldInsert = isRestart || totalElapsed > InsertElapseThrottle;
+        if (shouldInsert) totalElapsed = 0;
+        isRestart = false;
+        frame = frameVariables;
+        insert = insertVariables;
+        model = modelStruct;
+        RaiseInvalidateRender();
+        return shouldInsert;
+    }
+
+    /// <summary>
+    ///     Gets whether the current Direct3D 12 allocation must be recreated for a changed particle limit.
+    /// </summary>
+    /// <param name="capacity">The existing native capacity.</param>
+    /// <returns>Whether the allocation is too small or belongs to a restarted simulation.</returns>
+    internal bool RequiresD3D12Recreate(uint capacity) =>
+        capacity < checked((uint) ParticleCount) || isInitialParticleChanged;
+
+    /// <summary>
+    ///     Marks the native particle allocation synchronized with the current maximum count.
+    /// </summary>
+    internal void CompleteD3D12Recreate() {
+        isInitialParticleChanged = false;
+        isRestart = true;
+        UpdateInsertThrottle();
+        UpdateCanRenderFlag();
+    }
+
+    /// <summary>
+    ///     The previous Direct3D 12 frame timestamp in seconds.
+    /// </summary>
+    private double prevD3D12Time = double.NaN;
 
     private void OnUpdatePerModelStruct(RenderContext context) {
         modelStruct.World = ModelMatrix;

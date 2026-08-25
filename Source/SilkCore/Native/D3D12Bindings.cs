@@ -4,13 +4,16 @@ Copyright (c) 2026 Helix Toolkit contributors
 */
 
 using System.Runtime.InteropServices;
+using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Lights;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using Silk.NET.Direct3D12;
+using Silk.NET.DXGI;
 
 namespace HelixToolkit.SharpDX.Core.Native;
 
@@ -158,6 +161,17 @@ internal sealed class SilkD3D12GraphicsBindings : IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         context.SetGraphicsDescriptorTables(resources[0], samplers[0]);
+    }
+
+    /// <summary>
+    ///     Binds both heaps and tables after a compute root signature has been set.
+    /// </summary>
+    /// <param name="context">The open Direct3D 12 command context.</param>
+    internal void BindCompute(SilkD3D12CommandContext context) {
+        context.AssertArgumentNotNull();
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        context.SetDescriptorHeaps(resourceHeap, samplerHeap);
+        context.SetComputeDescriptorTables(resources[0], samplers[0]);
     }
 
     /// <summary>
@@ -357,9 +371,24 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     private readonly SilkD3D12ConstantBuffer lights;
 
     /// <summary>
+    ///     The b6 custom-pass/post-effect constants.
+    /// </summary>
+    private readonly SilkD3D12ConstantBuffer effect;
+
+    /// <summary>
+    ///     The b5 shared shadow-map constant buffer.
+    /// </summary>
+    private readonly SilkD3D12ConstantBuffer shadow;
+
+    /// <summary>
     ///     A shared zero buffer used for unused b2-b9 registers.
     /// </summary>
     private readonly SilkD3D12Resource fallbackConstants;
+
+    /// <summary>
+    ///     The optional GPU bone-skinning and morph-target resource set.
+    /// </summary>
+    private SilkD3D12BoneSkinResources? boneSkinning;
 
     /// <summary>
     ///     Initializes one default-mesh binding set.
@@ -378,6 +407,8 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         SilkD3D12ConstantBuffer? createdGlobalTransforms = null;
         SilkD3D12ConstantBuffer? createdModel = null;
         SilkD3D12ConstantBuffer? createdLights = null;
+        SilkD3D12ConstantBuffer? createdEffect = null;
+        SilkD3D12ConstantBuffer? createdShadow = null;
         SilkD3D12Resource? createdFallbackConstants = null;
         try {
             createdGlobalTransforms = new SilkD3D12ConstantBuffer(device,
@@ -389,16 +420,26 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
             createdLights = new SilkD3D12ConstantBuffer(device,
                 bindings.ConstantBuffer(3),
                 LightsBufferModel.SizeInBytes);
+            createdEffect = new SilkD3D12ConstantBuffer(device,
+                bindings.ConstantBuffer(6),
+                BorderEffectStruct.SizeInBytes);
+            createdShadow = new SilkD3D12ConstantBuffer(device,
+                bindings.ConstantBuffer(5),
+                ShadowMapParamStruct.SizeInBytes);
             createdFallbackConstants = device.CreateBuffer(256, HeapType.Upload);
             createdFallbackConstants.Write(new byte[256]);
-            bindings.InitializeFallbackDescriptors(device, createdFallbackConstants, 0, 1, 3);
+            bindings.InitializeFallbackDescriptors(device, createdFallbackConstants, 0, 1, 3, 5, 6);
 
             globalTransforms = createdGlobalTransforms;
             model = createdModel;
             lights = createdLights;
+            effect = createdEffect;
+            shadow = createdShadow;
             fallbackConstants = createdFallbackConstants;
         } catch {
             createdFallbackConstants?.Dispose();
+            createdEffect?.Dispose();
+            createdShadow?.Dispose();
             createdLights?.Dispose();
             createdModel?.Dispose();
             createdGlobalTransforms?.Dispose();
@@ -470,9 +511,64 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     }
 
     /// <summary>
+    ///     Uploads b5 and binds the optional typeless shadow map through typed t30/s5 views.
+    /// </summary>
+    /// <param name="parameters">The current shadow-map parameters.</param>
+    /// <param name="shadowMap">The sampled shadow-map resource, or <see langword="null" />.</param>
+    internal void UpdateShadow(in ShadowMapParamStruct parameters, SilkD3D12Resource? shadowMap) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        shadow.Write(in parameters);
+        if (shadowMap is null) {
+            device.CreateNullShaderResourceView(bindings.ShaderResource(30));
+        } else {
+            device.CreateShaderResourceView(shadowMap,
+                bindings.ShaderResource(30),
+                Format.FormatR32Float);
+        }
+        device.CreateSampler(bindings.Sampler(5), DefaultSamplers.ShadowSampler);
+    }
+
+    /// <summary>
     ///     Gets the b3 resource for focused byte-layout verification.
     /// </summary>
     internal SilkD3D12Resource LightResource => lights.Resource;
+
+    /// <summary>
+    ///     Gets the b5 resource for focused byte-layout verification.
+    /// </summary>
+    internal SilkD3D12Resource ShadowResource => shadow.Resource;
+
+    /// <summary>
+    ///     Uploads b6 for an existing custom geometry pass.
+    /// </summary>
+    /// <param name="value">The post-effect constants.</param>
+    internal void UpdateEffect(in BorderEffectStruct value) => effect.Write(in value);
+
+    /// <summary>
+    ///     Creates or updates the per-core GPU skinning table and stream-output allocation.
+    /// </summary>
+    /// <param name="vertexBoneIds">The vertex bone identifiers and weights.</param>
+    /// <param name="boneMatrices">The current bone matrices.</param>
+    /// <param name="morphTargets">The current morph-target payload.</param>
+    /// <param name="vertexCount">The number of vertices written by the precompute pass.</param>
+    /// <returns>The current GPU skinning resources.</returns>
+    internal SilkD3D12BoneSkinResources UpdateBoneSkinning(
+        ReadOnlySpan<BoneIds> vertexBoneIds,
+        ReadOnlySpan<Matrix> boneMatrices,
+        MorphTargetUploaderCore morphTargets,
+        int vertexCount
+    ) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        morphTargets.AssertArgumentNotNull();
+        boneSkinning ??= new SilkD3D12BoneSkinResources(device, bindings);
+        boneSkinning.Update(vertexBoneIds, boneMatrices, morphTargets, vertexCount);
+        return boneSkinning;
+    }
+
+    /// <summary>
+    ///     Gets the initialized GPU skinning resources, if this core has recorded a precompute pass.
+    /// </summary>
+    internal SilkD3D12BoneSkinResources? BoneSkinning => boneSkinning;
 
     /// <summary>
     ///     Uploads the complete b0 and b1 structures.
@@ -563,10 +659,27 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     internal SilkD3D12Descriptor SamplerTableStart => bindings.SamplerTableStart;
 
     /// <summary>
+    ///     Writes one pass-local texture into this mesh draw's shader-resource table.
+    /// </summary>
+    /// <param name="resource">The texture resource.</param>
+    /// <param name="shaderRegister">The destination t-register.</param>
+    /// <param name="format">The optional typed view format.</param>
+    internal void BindPassTexture(
+        SilkD3D12Resource resource,
+        int shaderRegister,
+        Format? format = null
+    ) => device.CreateShaderResourceView(resource,
+        bindings.ShaderResource(shaderRegister),
+        format ?? resource.Description.Format);
+
+    /// <summary>
     ///     Releases the constant buffers before returning the descriptor ranges.
     /// </summary>
     public void Dispose() {
         if (IsDisposed) return;
+        boneSkinning?.Dispose();
+        shadow.Dispose();
+        effect.Dispose();
         model.Dispose();
         globalTransforms.Dispose();
         lights.Dispose();
@@ -574,6 +687,358 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         bindings.Dispose();
         IsDisposed = true;
     }
+}
+
+/// <summary>
+///     Owns the shared root tables plus b0/b4 used by one existing volume render core.
+/// </summary>
+internal sealed class SilkD3D12VolumeBindings : IDisposable {
+    /// <summary>
+    ///     The device used to write volume descriptors.
+    /// </summary>
+    private readonly SilkD3D12Device device;
+
+    /// <summary>
+    ///     The complete shared-root-signature descriptor tables.
+    /// </summary>
+    private readonly SilkD3D12GraphicsBindings bindings;
+
+    /// <summary>
+    ///     The b0 global-transform buffer.
+    /// </summary>
+    private readonly SilkD3D12ConstantBuffer globalTransforms;
+
+    /// <summary>
+    ///     The b4 volume-model buffer.
+    /// </summary>
+    private readonly SilkD3D12ConstantBuffer volume;
+
+    /// <summary>
+    ///     The zero buffer backing unused constant-buffer registers.
+    /// </summary>
+    private readonly SilkD3D12Resource fallbackConstants;
+
+    /// <summary>
+    ///     The source identity currently represented by the synthetic volume texture model.
+    /// </summary>
+    private object? volumeSource;
+
+    /// <summary>
+    ///     The currently bound volume texture model.
+    /// </summary>
+    private TextureModel? volumeModel;
+
+    /// <summary>
+    ///     Whether the current volume texture model is owned by this binding set.
+    /// </summary>
+    private bool ownsVolumeModel;
+
+    /// <summary>
+    ///     The source transfer-map array currently represented by the synthetic 1D texture.
+    /// </summary>
+    private Color4[]? transferSource;
+
+    /// <summary>
+    ///     The current synthetic transfer-map texture model.
+    /// </summary>
+    private TextureModel? transferModel;
+
+    /// <summary>
+    ///     The resource manager currently owning synthetic texture allocations.
+    /// </summary>
+    private SilkD3D12ResourceManager? resources;
+
+    /// <summary>
+    ///     Initializes one volume binding set.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="resourceHeap">The shader-visible resource heap.</param>
+    /// <param name="samplerHeap">The shader-visible sampler heap.</param>
+    internal SilkD3D12VolumeBindings(
+        SilkD3D12Device device,
+        SilkD3D12DescriptorHeap resourceHeap,
+        SilkD3D12DescriptorHeap samplerHeap
+    ) {
+        device.AssertArgumentNotNull();
+        this.device = device;
+        bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
+        SilkD3D12ConstantBuffer? createdGlobalTransforms = null;
+        SilkD3D12ConstantBuffer? createdVolume = null;
+        SilkD3D12Resource? createdFallbackConstants = null;
+        try {
+            createdGlobalTransforms = new SilkD3D12ConstantBuffer(device,
+                bindings.ConstantBuffer(0),
+                GlobalTransformStruct.SizeInBytes);
+            createdVolume = new SilkD3D12ConstantBuffer(device,
+                bindings.ConstantBuffer(4),
+                D3D12VolumeParams.SizeInBytes);
+            createdFallbackConstants = device.CreateBuffer(256, HeapType.Upload);
+            createdFallbackConstants.Write(new byte[256]);
+            bindings.InitializeFallbackDescriptors(device, createdFallbackConstants, 0, 4);
+            globalTransforms = createdGlobalTransforms;
+            volume = createdVolume;
+            fallbackConstants = createdFallbackConstants;
+        } catch {
+            createdFallbackConstants?.Dispose();
+            createdVolume?.Dispose();
+            createdGlobalTransforms?.Dispose();
+            bindings.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>
+    ///     Gets whether all buffers, descriptors, and synthetic textures have been released.
+    /// </summary>
+    internal bool IsDisposed { get; private set; }
+
+    /// <summary>
+    ///     Updates b0/b4 plus t0/t2/t12/s9 for one volume draw.
+    /// </summary>
+    /// <param name="context">The command context receiving first-use uploads.</param>
+    /// <param name="resources">The shared resource manager.</param>
+    /// <param name="transforms">The current camera transforms.</param>
+    /// <param name="modelMatrix">The volume world transform.</param>
+    /// <param name="material">The existing volume material.</param>
+    /// <param name="backPositions">The completed back-position texture.</param>
+    /// <returns>Whether a valid 3D volume texture was bound.</returns>
+    internal bool Update(
+        SilkD3D12CommandContext context,
+        SilkD3D12ResourceManager resources,
+        in GlobalTransformStruct transforms,
+        in Matrix modelMatrix,
+        MaterialCore? material,
+        SilkD3D12Resource backPositions
+    ) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        context.AssertArgumentNotNull();
+        resources.AssertArgumentNotNull();
+        backPositions.AssertArgumentNotNull();
+        this.resources = resources;
+        if (!TryGetVolumeModel(material, out var currentModel)) return false;
+        var texture = resources.GetOrCreate(context, currentModel);
+        if (texture.Resource.Description.Dimension != ResourceDimension.Texture3D)
+            throw new NotSupportedException("Volume materials require a three-dimensional texture.");
+
+        var parameters = D3D12VolumeMaterialData.Create(modelMatrix,
+            (IVolumeTextureMaterial) material!,
+            checked((int) texture.Resource.Description.Width),
+            checked((int) texture.Resource.Description.Height),
+            texture.Resource.Description.DepthOrArraySize);
+        globalTransforms.Write(in transforms);
+        volume.Write(in parameters);
+        device.CreateTexture3DShaderResourceView(texture.Resource, bindings.ShaderResource(0));
+        device.CreateShaderResourceView(backPositions, bindings.ShaderResource(2));
+        BindTransferMap(context, resources, material as IVolumeTextureMaterial);
+        device.CreateSampler(bindings.Sampler(9), ((IVolumeTextureMaterial) material!).Sampler);
+        return true;
+    }
+
+    /// <summary>
+    ///     Binds both graphics descriptor tables after a volume pass selects its root signature.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    internal void Bind(SilkD3D12CommandContext context) => bindings.BindGraphics(context);
+
+    /// <summary>
+    ///     Releases synthetic cached textures, constant buffers, and descriptor ranges.
+    /// </summary>
+    public void Dispose() {
+        if (IsDisposed) return;
+        ReleaseOwnedVolume();
+        ReleaseTransfer();
+        volume.Dispose();
+        globalTransforms.Dispose();
+        fallbackConstants.Dispose();
+        bindings.Dispose();
+        IsDisposed = true;
+    }
+
+    /// <summary>
+    ///     Resolves an existing volume material into a reusable texture model and b4 payload.
+    /// </summary>
+    /// <param name="material">The existing material.</param>
+    /// <param name="model">The resolved texture model.</param>
+    /// <returns>Whether the material contains a supported volume texture.</returns>
+    private bool TryGetVolumeModel(
+        MaterialCore? material,
+        out TextureModel model
+    ) {
+        object? source;
+        TextureModel? candidate;
+        var ownsCandidate = false;
+        switch (material) {
+            case VolumeTextureRawDataMaterialCore raw when raw.VolumeTexture.VolumeTextures is { Length: > 0 } bytes:
+                source = bytes;
+                candidate = ReferenceEquals(volumeSource, source) ? volumeModel :
+                    new TextureModel(bytes,
+                        raw.VolumeTexture.Format,
+                        raw.VolumeTexture.Width,
+                        raw.VolumeTexture.Height,
+                        raw.VolumeTexture.Depth);
+                ownsCandidate = true;
+                break;
+            case VolumeTextureDiffuseMaterialCore diffuse
+                when diffuse.VolumeTexture.VolumeTextures is { Length: > 0 } gradients:
+                source = gradients;
+                candidate = ReferenceEquals(volumeSource, source) ? volumeModel :
+                    new TextureModel(MemoryMarshal.AsBytes(gradients.AsSpan()).ToArray(),
+                        diffuse.VolumeTexture.Format,
+                        diffuse.VolumeTexture.Width,
+                        diffuse.VolumeTexture.Height,
+                        diffuse.VolumeTexture.Depth);
+                ownsCandidate = true;
+                break;
+            case VolumeTextureDds3DMaterialCore { VolumeTexture: { } dds }:
+                source = dds;
+                candidate = dds;
+                break;
+            default:
+                model = null!;
+                return false;
+        }
+
+        if (!ReferenceEquals(volumeSource, source) || volumeModel is null) {
+            ReleaseOwnedVolume();
+            volumeSource = source;
+            volumeModel = candidate;
+            ownsVolumeModel = ownsCandidate;
+        }
+        model = volumeModel!;
+        return true;
+    }
+
+    /// <summary>
+    ///     Creates or clears the optional 1D transfer-map binding.
+    /// </summary>
+    /// <param name="context">The command context receiving first-use upload commands.</param>
+    /// <param name="resources">The shared resource manager.</param>
+    /// <param name="material">The volume material.</param>
+    private void BindTransferMap(
+        SilkD3D12CommandContext context,
+        SilkD3D12ResourceManager resources,
+        IVolumeTextureMaterial? material
+    ) {
+        var transfer = material?.TransferMap;
+        if (transfer is null || transfer.Length == 0) {
+            ReleaseTransfer();
+            device.CreateNullShaderResourceView(bindings.ShaderResource(12));
+            return;
+        }
+        if (!ReferenceEquals(transferSource, transfer)) {
+            ReleaseTransfer();
+            transferSource = transfer;
+            transferModel = new TextureModel(transfer, transfer.Length);
+        }
+        var texture = resources.GetOrCreate(context, transferModel!);
+        device.CreateTexture1DShaderResourceView(texture.Resource, bindings.ShaderResource(12));
+    }
+
+    /// <summary>
+    ///     Removes the currently owned synthetic volume texture from the shared manager.
+    /// </summary>
+    private void ReleaseOwnedVolume() {
+        if (ownsVolumeModel && volumeModel is not null && resources is { IsDisposed: false } manager)
+            manager.Remove(volumeModel.Guid);
+        volumeSource = null;
+        volumeModel = null;
+        ownsVolumeModel = false;
+    }
+
+    /// <summary>
+    ///     Removes the synthetic transfer-map texture from the shared manager.
+    /// </summary>
+    private void ReleaseTransfer() {
+        if (transferModel is not null && resources is { IsDisposed: false } manager)
+            manager.Remove(transferModel.Guid);
+        transferSource = null;
+        transferModel = null;
+    }
+}
+
+/// <summary>
+///     Converts existing volume materials into the exact 176-byte cbVolumeModel layout.
+/// </summary>
+internal static class D3D12VolumeMaterialData {
+    /// <summary>
+    ///     Creates one complete volume parameter payload.
+    /// </summary>
+    /// <param name="modelMatrix">The volume world transform.</param>
+    /// <param name="material">The existing volume material.</param>
+    /// <param name="width">The volume width.</param>
+    /// <param name="height">The volume height.</param>
+    /// <param name="depth">The volume depth.</param>
+    /// <returns>The complete b4 payload.</returns>
+    internal static D3D12VolumeParams Create(
+        in Matrix modelMatrix,
+        IVolumeTextureMaterial material,
+        int width,
+        int height,
+        int depth
+    ) {
+        material.AssertArgumentNotNull();
+        if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
+        if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+        if (depth <= 0) throw new ArgumentOutOfRangeException(nameof(depth));
+        var sampleDistance = (float) material.SampleDistance;
+        if (!float.IsFinite(sampleDistance) || sampleDistance <= 0)
+            throw new ArgumentOutOfRangeException(nameof(material), "Sample distance must be positive and finite.");
+        return new D3D12VolumeParams {
+            World = modelMatrix,
+            WorldInverse = modelMatrix.Inverted(),
+            Color = material.Color,
+            StepSize = sampleDistance / Math.Max(width, Math.Max(height, depth)),
+            IterationOffset = checked((uint) Math.Max(0, material.IterationOffset)),
+            EnablePlaneAlignment = material.EnablePlaneAlignment ? 1 : 0,
+            MaxIterations = checked((uint) Math.Max(0, material.MaxIterations)),
+            HasGradientMap = material.TransferMap is { Length: > 0 } ? 1 : 0,
+            IsoValue = (float) material.IsoValue,
+            BaseSampleDistance = 1,
+            ActualSampleDistance = sampleDistance
+        };
+    }
+}
+
+/// <summary>
+///     Matches the repository shader's cbVolumeModel layout at b4.
+/// </summary>
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+internal struct D3D12VolumeParams {
+    /// <summary>The volume world transform.</summary>
+    internal Matrix World;
+
+    /// <summary>The inverse volume world transform.</summary>
+    internal Matrix WorldInverse;
+
+    /// <summary>The material tint.</summary>
+    internal Color4 Color;
+
+    /// <summary>The normalized ray-march step.</summary>
+    internal float StepSize;
+
+    /// <summary>The first ray-march iteration.</summary>
+    internal uint IterationOffset;
+
+    /// <summary>Whether sample planes align between frames.</summary>
+    internal int EnablePlaneAlignment;
+
+    /// <summary>The maximum ray-march iteration count.</summary>
+    internal uint MaxIterations;
+
+    /// <summary>Whether t12 contains a transfer map.</summary>
+    internal int HasGradientMap;
+
+    /// <summary>The normalized iso-value threshold.</summary>
+    internal float IsoValue;
+
+    /// <summary>The reference sample distance.</summary>
+    internal float BaseSampleDistance;
+
+    /// <summary>The requested material sample distance.</summary>
+    internal float ActualSampleDistance;
+
+    /// <summary>The byte size of cbVolumeModel.</summary>
+    internal const int SizeInBytes = 176;
 }
 
 /// <summary>
@@ -658,6 +1123,20 @@ internal sealed class SilkD3D12PointLineBindings : IDisposable {
     ///     Gets the first descriptor in the sampler table.
     /// </summary>
     internal SilkD3D12Descriptor SamplerTableStart => bindings.SamplerTableStart;
+
+    /// <summary>
+    ///     Writes one pass-local texture into this point, line, or billboard draw's shader-resource table.
+    /// </summary>
+    /// <param name="resource">The texture resource.</param>
+    /// <param name="shaderRegister">The destination t-register.</param>
+    /// <param name="format">The optional typed view format.</param>
+    internal void BindPassTexture(
+        SilkD3D12Resource resource,
+        int shaderRegister,
+        Format? format = null
+    ) => device.CreateShaderResourceView(resource,
+        bindings.ShaderResource(shaderRegister),
+        format ?? resource.Description.Format);
 
     /// <summary>
     ///     Uploads transforms and one existing point or line material.

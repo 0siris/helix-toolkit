@@ -160,7 +160,7 @@ public struct ParticlePerFrame {
 
     public Vector2 ParticleSize;
     public float Turbulance;
-    private float padding;
+    public uint MaxParticles;
 
     public const int SizeInBytes = 4 * 4 * 7;
     public const int NumParticlesOffset = 0;

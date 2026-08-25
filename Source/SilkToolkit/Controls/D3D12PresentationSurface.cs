@@ -16,8 +16,13 @@ using HelixToolkit.SharpDX.Core.Model.Lights;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
+using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
@@ -73,9 +78,29 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     private readonly FastList<SceneNode> transparentNodes = [];
 
     /// <summary>
+    ///     Reused volume nodes in scene traversal order.
+    /// </summary>
+    private readonly FastList<SceneNode> volumeNodes = [];
+
+    /// <summary>
+    ///     Reused particle nodes in scene traversal order.
+    /// </summary>
+    private readonly FastList<SceneNode> particleNodes = [];
+
+    /// <summary>
     ///     Reused visible light nodes in scene traversal order.
     /// </summary>
     private readonly FastList<SceneNode> lightNodes = [];
+
+    /// <summary>
+    ///     Reused global post-effect nodes in scene traversal order.
+    /// </summary>
+    private readonly FastList<SceneNode> globalEffectNodes = [];
+
+    /// <summary>
+    ///     Reused object-level post-effect nodes in scene traversal order.
+    /// </summary>
+    private readonly FastList<SceneNode> postEffectNodes = [];
 
     /// <summary>
     ///     Shared light payload rebuilt before each viewport frame.
@@ -168,7 +193,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             in transforms,
             testFrustum,
             ref frustum,
-            lights);
+            lights,
+            boneSkinningPassSelector: catalog.ResolveBoneSkinning);
         EndFrame(currentContext, currentSwapChain, backBuffer);
         return recorded;
     }
@@ -180,12 +206,36 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <param name="roots">The current viewport scene roots.</param>
     /// <param name="camera">The current viewport camera.</param>
     /// <param name="testFrustum">Whether camera-frustum culling is enabled.</param>
+    /// <param name="enableShadows">Whether a visible shadow-map node may record a depth pass.</param>
+    /// <param name="oitRenderType">The transparent composition mode.</param>
+    /// <param name="oitDepthPeelingIterations">The positive dual-depth-peeling iteration count.</param>
+    /// <param name="oitWeightPower">The weighted-OIT depth power.</param>
+    /// <param name="oitWeightDepthSlope">The weighted-OIT depth slope.</param>
+    /// <param name="oitWeightMode">The weighted-OIT equation selector.</param>
+    /// <param name="fxaaLevel">The final full-screen anti-aliasing quality.</param>
+    /// <param name="enableSsao">Whether screen-space ambient occlusion is evaluated.</param>
+    /// <param name="ssaoRadius">The SSAO view-space sample radius.</param>
+    /// <param name="ssaoIntensity">The SSAO intensity multiplier.</param>
+    /// <param name="ssaoQuality">The SSAO target resolution.</param>
+    /// <param name="roots2D">The optional Scene2D overlays drawn after post processing.</param>
     /// <returns>The number of recorded draws.</returns>
     internal int RenderViewportOnce(
         ReadOnlySpan<float> clearColor,
         IEnumerable<SceneNode> roots,
         CameraCore camera,
-        bool testFrustum
+        bool testFrustum,
+        bool enableShadows = true,
+        OitRenderType oitRenderType = OitRenderType.None,
+        int oitDepthPeelingIterations = 4,
+        float oitWeightPower = 3,
+        float oitWeightDepthSlope = 1,
+        OitWeightMode oitWeightMode = OitWeightMode.Linear1,
+        FxaaLevel fxaaLevel = FxaaLevel.None,
+        bool enableSsao = false,
+        float ssaoRadius = 0.5f,
+        float ssaoIntensity = 1,
+        SsaoQuality ssaoQuality = SsaoQuality.Low,
+        IEnumerable<SceneNode2D>? roots2D = null
     ) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
@@ -197,11 +247,22 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             ?? throw new InvalidOperationException("The Direct3D 12 pass catalog is unavailable.");
         opaqueNodes.Clear();
         transparentNodes.Clear();
+        volumeNodes.Clear();
+        particleNodes.Clear();
         lightNodes.Clear();
+        globalEffectNodes.Clear();
+        postEffectNodes.Clear();
         TextureModel? environmentMap = null;
+        ShadowMapNode? shadowNode = null;
         foreach (var node in roots.PreorderDft(node => node.Visible))
             if (node is EnvironmentMapNode environment) {
                 environmentMap = environment.Texture;
+            } else if (node is ShadowMapNode shadow) {
+                shadowNode ??= shadow;
+            } else if (node is VolumeTextureNode) {
+                volumeNodes.Add(node);
+            } else if (node is ParticleStormNode) {
+                particleNodes.Add(node);
             } else
             switch (node.RenderType) {
                 case RenderType.Light:
@@ -213,6 +274,12 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                 case RenderType.Transparent:
                     transparentNodes.Add(node);
                     break;
+                case RenderType.GlobalEffect:
+                    globalEffectNodes.Add(node);
+                    break;
+                case RenderType.PostEffect:
+                    postEffectNodes.Add(node);
+                    break;
             }
 
         SilkD3D12SceneRenderer.UpdateLights(lightNodes, lights);
@@ -223,7 +290,53 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             (float) windowHost.DpiScale,
             (float) Stopwatch.GetTimestamp() / Stopwatch.Frequency,
             out var frustum);
+        transforms.OITWeightPower = oitWeightPower;
+        transforms.OITWeightDepthSlope = oitWeightDepthSlope;
+        transforms.OITWeightMode = (int) oitWeightMode;
+        transforms.SSAOEnabled = enableSsao ? 1u : 0u;
+        transforms.SSAOBias = 1e-3f;
+        transforms.SSAOIntensity = ssaoIntensity;
         var (currentContext, currentSwapChain, backBuffer) = BeginFrame(clearColor);
+        renderer.BeginFrame();
+        ShadowMapParamStruct? shadowParameters = null;
+        if (enableShadows && shadowNode is not null &&
+            shadowNode.TryCreateD3D12Parameters(lightNodes,
+                opaqueNodes,
+                out var currentShadowParameters,
+                out var shadowFrustum)) {
+            renderer.RenderShadows(currentContext,
+                opaqueNodes,
+                catalog.ResolveShadow,
+                catalog.ResolveBoneSkinning,
+                in transforms,
+                in currentShadowParameters,
+                ref shadowFrustum);
+            var shadowDepthStencilView = depthStencilView
+                ?? throw new InvalidOperationException("The depth/stencil view is unavailable.");
+            currentContext.SetRenderTargets(currentSwapChain.CurrentRenderTargetView, shadowDepthStencilView);
+            currentContext.SetViewport(currentSwapChain.Width, currentSwapChain.Height);
+            shadowParameters = currentShadowParameters;
+        }
+        var currentDepthStencilView = depthStencilView
+            ?? throw new InvalidOperationException("The depth/stencil view is unavailable.");
+        SilkD3D12Resource? ssaoMap = null;
+        if (enableSsao && opaqueNodes.Count > 0) {
+            ssaoMap = renderer.RenderSsao(currentContext,
+                opaqueNodes,
+                catalog.ResolveSsaoGeometry,
+                catalog.ResolvePostProcess(DefaultRenderTechniqueNames.Ssao, DefaultPassNames.Default),
+                catalog.ResolvePostProcess(DefaultRenderTechniqueNames.Ssao, DefaultPassNames.EffectBlurHorizontal),
+                catalog.ResolveBoneSkinning,
+                in transforms,
+                testFrustum,
+                ref frustum,
+                currentSwapChain.Width,
+                currentSwapChain.Height,
+                ssaoQuality,
+                ssaoRadius);
+            currentContext.SetRenderTargets(currentSwapChain.CurrentRenderTargetView, currentDepthStencilView);
+            currentContext.SetViewport(currentSwapChain.Width, currentSwapChain.Height);
+        }
         var recorded = renderer.RenderVisible(currentContext,
             opaqueNodes,
             catalog.Resolve,
@@ -231,15 +344,229 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             testFrustum,
             ref frustum,
             lights,
-            environmentMap);
-        recorded += renderer.RenderVisible(currentContext,
-            transparentNodes,
-            catalog.Resolve,
+            environmentMap,
+            catalog.ResolveBoneSkinning,
+            shadowParameters,
+            ssaoMap,
+            ssaoMap is null ? -1 : 31);
+        recorded += renderer.RenderVolumes(currentContext,
+            volumeNodes,
+            opaqueNodes,
+            catalog.ResolveVolumeBack,
+            catalog.ResolveVolume,
+            catalog.ResolveVolumePositions,
+            catalog.ResolveBoneSkinning,
             in transforms,
             testFrustum,
             ref frustum,
-            lights,
-            environmentMap);
+            currentSwapChain.CurrentRenderTargetView,
+            currentDepthStencilView,
+            currentSwapChain.Width,
+            currentSwapChain.Height);
+        recorded += renderer.RenderParticles(currentContext,
+            particleNodes,
+            catalog.ResolveParticleUpdate,
+            catalog.ResolveParticleInsert,
+            catalog.ResolveParticle,
+            in transforms,
+            testFrustum,
+            ref frustum);
+        recorded += oitRenderType switch {
+            OitRenderType.SinglePassWeighted => renderer.RenderWeightedTransparency(currentContext,
+                transparentNodes,
+                catalog.ResolveWeightedTransparency,
+                catalog.ResolveWeightedComposition(),
+                in transforms,
+                testFrustum,
+                ref frustum,
+                currentSwapChain.CurrentRenderTargetView,
+                currentDepthStencilView,
+                currentSwapChain.Width,
+                currentSwapChain.Height,
+                lights,
+                environmentMap,
+                catalog.ResolveBoneSkinning,
+                shadowParameters),
+            OitRenderType.DepthPeeling => renderer.RenderDepthPeeling(currentContext,
+                transparentNodes,
+                catalog.ResolveDepthPeelingInitialization,
+                catalog.ResolveDepthPeeling,
+                catalog.ResolveDepthPeelingComposition(),
+                oitDepthPeelingIterations,
+                in transforms,
+                testFrustum,
+                ref frustum,
+                backBuffer,
+                currentSwapChain.CurrentRenderTargetView,
+                currentDepthStencilView,
+                currentSwapChain.Width,
+                currentSwapChain.Height,
+                lights,
+                environmentMap,
+                catalog.ResolveBoneSkinning,
+                shadowParameters),
+            _ => renderer.RenderVisible(currentContext,
+                transparentNodes,
+                catalog.Resolve,
+                in transforms,
+                testFrustum,
+                ref frustum,
+                lights,
+                environmentMap,
+                catalog.ResolveBoneSkinning,
+                shadowParameters)
+        };
+        foreach (var effectNode in globalEffectNodes)
+            if (effectNode is NodePostEffectBloom bloom) {
+                var bloomParameters = new BorderEffectStruct {
+                    Color = bloom.ThresholdColor,
+                    Param = new Matrix {
+                        M11 = bloom.BloomExtractIntensity,
+                        M12 = bloom.BloomPassIntensity,
+                        M13 = bloom.BloomCombineSaturation,
+                        M14 = bloom.BloomCombineIntensity
+                    }
+                };
+                renderer.RenderBloom(currentContext,
+                    backBuffer,
+                    currentSwapChain.CurrentRenderTargetView,
+                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
+                        DefaultPassNames.ScreenQuad),
+                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
+                        DefaultPassNames.EffectBlurVertical),
+                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
+                        DefaultPassNames.EffectBlurHorizontal),
+                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
+                        DefaultPassNames.MeshOutline),
+                    in bloomParameters,
+                    bloom.NumberOfBlurPass,
+                    in transforms,
+                    currentSwapChain.Width,
+                    currentSwapChain.Height);
+            }
+        foreach (var effectNode in postEffectNodes)
+            switch (effectNode) {
+                case NodePostEffectMeshOutlineBlur outline: {
+                    var technique = effectNode is NodePostEffectBorderHighlight
+                        ? DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight
+                        : DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur;
+                    var effectName = outline.EffectName;
+                    var outlineParameters = new BorderEffectStruct {
+                        Color = outline.Color,
+                        Param = new Matrix { M11 = outline.ScaleX, M12 = outline.ScaleY },
+                        ViewportScale = 1
+                    };
+                    recorded += renderer.RenderOutline(currentContext,
+                        opaqueNodes,
+                        node => node.TryGetPostEffect(effectName, out _)
+                            ? catalog.ResolvePostEffectGeometry(node,
+                                DefaultPassNames.EffectOutlineP1,
+                                DepthStencilFormat)
+                            : null,
+                        catalog.ResolvePostProcess(technique, DefaultPassNames.EffectBlurVertical),
+                        catalog.ResolvePostProcess(technique, DefaultPassNames.EffectBlurHorizontal),
+                        catalog.ResolvePostProcess(technique, DefaultPassNames.MeshOutline),
+                        in outlineParameters,
+                        outline.NumberOfBlurPass,
+                        in transforms,
+                        testFrustum,
+                        ref frustum,
+                        backBuffer,
+                        currentSwapChain.CurrentRenderTargetView,
+                        currentDepthStencilView,
+                        currentSwapChain.Width,
+                        currentSwapChain.Height);
+                    break;
+                }
+                case NodePostEffectXRay xray: {
+                    var effectName = xray.EffectName;
+                    var xrayParameters = new BorderEffectStruct {
+                        Color = xray.Color,
+                        Param = new Matrix { M11 = xray.OutlineFadingFactor }
+                    };
+                    List<Func<SceneNode, HelixToolkit.SharpDX.Core.Shaders.ShaderPass?>> selectors = [];
+                    if (xray.EnableDoublePass)
+                        selectors.Add(node => node.TryGetPostEffect(effectName, out _)
+                            ? catalog.ResolvePostEffectGeometry(node,
+                                DefaultPassNames.EffectMeshXRayP1,
+                                DepthStencilFormat)
+                            : null);
+                    selectors.Add(node => node.TryGetPostEffect(effectName, out _)
+                        ? catalog.ResolvePostEffectGeometry(node,
+                            DefaultPassNames.EffectMeshXRayP2,
+                            DepthStencilFormat)
+                        : null);
+                    recorded += renderer.RenderXRay(currentContext,
+                        opaqueNodes,
+                        selectors,
+                        in xrayParameters,
+                        in transforms,
+                        testFrustum,
+                        ref frustum,
+                        currentSwapChain.CurrentRenderTargetView,
+                        currentDepthStencilView,
+                        currentSwapChain.Width,
+                        currentSwapChain.Height);
+                    break;
+                }
+                case NodePostEffectXRayGrid grid: {
+                    var effectName = grid.EffectName;
+                    var gridParameters = new BorderEffectStruct {
+                        Color = grid.Color,
+                        Param = new Matrix {
+                            M11 = grid.GridDensity,
+                            M12 = grid.DimmingFactor,
+                            M13 = grid.BlendingFactor
+                        }
+                    };
+                    List<Func<SceneNode, HelixToolkit.SharpDX.Core.Shaders.ShaderPass?>> selectors = [
+                        node => node.TryGetPostEffect(effectName, out _)
+                            ? catalog.ResolvePostEffectGeometry(node,
+                                DefaultPassNames.EffectMeshXRayGridP1,
+                                DepthStencilFormat)
+                            : null
+                    ];
+                    if (grid.UseDepthOcclusion)
+                        selectors.Add(node => node.TryGetPostEffect(effectName, out _)
+                            ? catalog.ResolvePostEffectGeometry(node,
+                                DefaultPassNames.EffectMeshXRayGridP2,
+                                DepthStencilFormat)
+                            : null);
+                    selectors.Add(node => node.TryGetPostEffect(effectName, out _)
+                        ? catalog.ResolvePostEffectGeometry(node, grid.XRayDrawingPassName, DepthStencilFormat)
+                        : null);
+                    recorded += renderer.RenderXRay(currentContext,
+                        opaqueNodes,
+                        selectors,
+                        in gridParameters,
+                        in transforms,
+                        testFrustum,
+                        ref frustum,
+                        currentSwapChain.CurrentRenderTargetView,
+                        currentDepthStencilView,
+                        currentSwapChain.Width,
+                        currentSwapChain.Height);
+                    break;
+                }
+            }
+        if (fxaaLevel != FxaaLevel.None)
+            renderer.RenderFxaa(currentContext,
+                backBuffer,
+                currentSwapChain.CurrentRenderTargetView,
+                catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectFxaa, DefaultPassNames.LumaPass),
+                catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectFxaa, DefaultPassNames.FxaaPass),
+                fxaaLevel,
+                in transforms,
+                currentSwapChain.Width,
+                currentSwapChain.Height);
+        if (roots2D is not null)
+            recorded += renderer.Render2D(currentContext,
+                roots2D,
+                catalog.ResolveSprite2D(),
+                currentSwapChain.CurrentRenderTargetView,
+                currentSwapChain.Width,
+                currentSwapChain.Height,
+                (float) windowHost.DpiScale);
         EndFrame(currentContext, currentSwapChain, backBuffer);
         return recorded;
     }

@@ -1,7 +1,9 @@
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Extensions;
@@ -22,6 +24,13 @@ public static class IViewportExtensions {
     private static Stack<IEnumerator<SceneNode>> StackCache => stackCache ??= new();
 
     /// <summary>
+    ///     Creates the current camera and viewport matrices used by hit testing and projection.
+    /// </summary>
+    /// <param name="viewport">The source viewport.</param>
+    /// <returns>The current render matrices.</returns>
+    internal static IRenderMatrices CreateRenderMatrices(IViewport3DX viewport) => new ViewportRenderMatrices(viewport);
+
+    /// <summary>
     ///     Forces to update transform and bounds.
     /// </summary>
     /// <param name="viewport">The viewport.</param>
@@ -37,14 +46,11 @@ public static class IViewportExtensions {
     /// <param name="hits">The hits.</param>
     /// <returns></returns>
     public static bool FindHitsInFrustum(this IViewport3DX viewport, Vector2 pos, ref List<HitTestResult> hits) {
-        if (viewport.RenderHost is not {IsRendering: true, RenderContext: { } renderContext} renderHost) return false;
         hits.Clear();
         if (viewport.UnProject(pos, out var ray)) {
-            var hitContext = new HitTestContext(renderContext, ref ray, ref pos);
-            foreach (var element in renderHost.PerFrameOpaqueNodesInFrustum)
-                element.HitTest(hitContext, ref hits);
-            foreach (var element in renderHost.PerFrameTransparentNodesInFrustum)
-                element.HitTest(hitContext, ref hits);
+            var matrices = new ViewportRenderMatrices(viewport);
+            var hitContext = new HitTestContext(matrices, ref ray, ref pos);
+            foreach (var element in viewport.Renderables) element.HitTest(hitContext, ref hits);
             hits.Sort();
             return hits.Count > 0;
         }
@@ -80,16 +86,13 @@ public static class IViewportExtensions {
     /// <returns></returns>
     public static bool FindHits(this IViewport3DX viewport, Vector2 position, ref List<HitTestResult> hits) {
         hits.Clear();
-        if (viewport.RenderHost is {RenderContext: { } renderContext}) {
-            if (!viewport.UnProject(position, out var ray)) return false;
-            var hitContext = new HitTestContext(renderContext, ref ray, ref position);
-            foreach (var element in viewport.Renderables) element.HitTest(hitContext, ref hits);
-            hits.Sort();
+        if (!viewport.UnProject(position, out var ray)) return false;
+        var matrices = new ViewportRenderMatrices(viewport);
+        var hitContext = new HitTestContext(matrices, ref ray, ref position);
+        foreach (var element in viewport.Renderables) element.HitTest(hitContext, ref hits);
+        hits.Sort();
 
-            return hits.Count > 0;
-        }
-
-        return false;
+        return hits.Count > 0;
     }
 
     /// <summary>
@@ -142,11 +145,8 @@ public static class IViewportExtensions {
     /// <param name="ray">The ray.</param>
     /// <returns></returns>
     public static bool UnProject(this IViewport3DX viewport, Vector2 point2D, out Ray ray) {
-        var renderContext = viewport.RenderHost?.RenderContext;
-        if (renderContext is not null) return renderContext.UnProject(point2D, out ray);
-
-        ray = new Ray();
-        return false;
+        var matrices = new ViewportRenderMatrices(viewport);
+        return matrices.UnProject(point2D, out ray);
     }
 
     /// <summary>
@@ -229,8 +229,7 @@ public static class IViewportExtensions {
     /// <param name="point">The 3D point.</param>
     /// <returns>The point.</returns>
     public static Vector2 Project(this IViewport3DX viewport, Vector3 point) {
-        if (viewport.RenderHost?.RenderContext is not { } renderContext) return Vector2.Zero;
-        return renderContext.Project(point);
+        return new ViewportRenderMatrices(viewport).Project(point);
     }
 
     /// <summary>
@@ -244,12 +243,8 @@ public static class IViewportExtensions {
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix GetViewProjectionMatrix(this IViewport3DX viewport) {
-        var renderContext = viewport.RenderHost?.RenderContext;
-        return renderContext is not null
-            ? renderContext.ViewMatrix * renderContext.ProjectionMatrix
-            : viewport.CameraCore.AssertNotNull("Camera must be initialized.")
-                .CreateProjectionMatrix(viewport.ViewportRectangle.Width /
-                                        (float) viewport.ViewportRectangle.Height);
+        var matrices = new ViewportRenderMatrices(viewport);
+        return matrices.ViewMatrix * matrices.ProjectionMatrix;
     }
 
     /// <summary>
@@ -259,12 +254,7 @@ public static class IViewportExtensions {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix GetProjectionMatrix(this IViewport3DX viewport) {
-        var renderContext = viewport.RenderHost?.RenderContext;
-        return renderContext is not null
-            ? renderContext.ProjectionMatrix
-            : viewport.CameraCore.AssertNotNull("Camera must be initialized.")
-                .CreateProjectionMatrix(viewport.ViewportRectangle.Width /
-                                        (float) viewport.ViewportRectangle.Height);
+        return new ViewportRenderMatrices(viewport).ProjectionMatrix;
     }
 
     /// <summary>
@@ -298,7 +288,7 @@ public static class IViewportExtensions {
     /// <param name="viewport">The viewport.</param>
     /// <returns>The bounding box.</returns>
     public static BoundingBox FindBounds(this IViewport3DX viewport) {
-        if (viewport.RenderHost is {IsRendering: true} renderHost) renderHost.UpdateAndRender();
+        viewport.ForceUpdateTransformsAndBounds();
         return viewport.FindBoundsInternal();
     }
 
@@ -332,23 +322,57 @@ public static class IViewportExtensions {
     }
 
     /// <summary>
-    ///     Renders to bitmap stream.
+    /// Supplies camera matrices for viewport projection and hit testing without a legacy render host.
     /// </summary>
-    /// <param name="view">The view.</param>
-    /// <returns></returns>
-    public static MemoryStream? RenderToBitmapStream(this IViewport3DX view) {
-        if (view.RenderHost is {IsRendering: true} renderHost) {
-            renderHost.UpdateAndRender();
-            if (renderHost is {IsRendering: true, EffectsManager: { } effectsManager, RenderBuffer: {BackBuffer.Resource: NativeD3DTexture2D backBuffer}}) {
-                var memoryStream = new MemoryStream();
-                ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
-                    backBuffer,
-                    memoryStream);
-                memoryStream.Position = 0;
-                return memoryStream;
-            }
+    private sealed class ViewportRenderMatrices : IRenderMatrices {
+        /// <summary>
+        /// Initializes matrices from the current viewport camera and dimensions.
+        /// </summary>
+        /// <param name="viewport">The source viewport.</param>
+        public ViewportRenderMatrices(IViewport3DX viewport) {
+            var camera = viewport.CameraCore.AssertNotNull("Camera must be initialized.");
+            ActualWidth = Math.Max(1, viewport.ViewportRectangle.Width);
+            ActualHeight = Math.Max(1, viewport.ViewportRectangle.Height);
+            ViewMatrix = camera.CreateViewMatrix();
+            ViewMatrixInv = ViewMatrix.PsudoInvert();
+            ProjectionMatrix = camera.CreateProjectionMatrix(ActualWidth / ActualHeight);
+            ViewportMatrix = viewport.GetViewportMatrix();
+            ScreenViewProjectionMatrix = ViewMatrix * ProjectionMatrix * ViewportMatrix;
+            CameraParams = camera.CreateCameraParams(ActualWidth / ActualHeight);
+            IsPerspective = !new BoundingFrustum(ViewMatrix * ProjectionMatrix).IsOrthographic;
         }
 
-        return null;
+        /// <inheritdoc />
+        public Matrix ViewMatrix { get; }
+
+        /// <inheritdoc />
+        public Matrix ViewMatrixInv { get; }
+
+        /// <inheritdoc />
+        public Matrix ProjectionMatrix { get; }
+
+        /// <inheritdoc />
+        public Matrix ViewportMatrix { get; }
+
+        /// <inheritdoc />
+        public Matrix ScreenViewProjectionMatrix { get; }
+
+        /// <inheritdoc />
+        public bool IsPerspective { get; }
+
+        /// <inheritdoc />
+        public float ActualWidth { get; }
+
+        /// <inheritdoc />
+        public float ActualHeight { get; }
+
+        /// <inheritdoc />
+        public float DpiScale => 1;
+
+        /// <inheritdoc />
+        public FrustumCameraParams CameraParams { get; }
+
+        /// <inheritdoc />
+        public void Update() { }
     }
 }

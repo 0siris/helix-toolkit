@@ -23,6 +23,7 @@ using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
@@ -41,6 +42,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     private readonly HwndSwapChainHost windowHost = new();
     private readonly D3D12ResizeQueue resizeQueue = new();
     private readonly SilkDriverType driverType;
+    private readonly IEffectsManager? effectsManager;
     private DispatcherOperation? resizeOperation;
     private SilkD3D12Device? device;
     private SilkD3D12CommandQueue? commandQueue;
@@ -111,8 +113,10 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ///     Creates a presentation surface using hardware rendering by default.
     /// </summary>
     /// <param name="driverType">The hardware or WARP device type.</param>
-    public D3D12PresentationSurface(SilkDriverType driverType = SilkDriverType.Hardware) {
+    public D3D12PresentationSurface(SilkDriverType driverType = SilkDriverType.Hardware,
+        IEffectsManager? effectsManager = null) {
         this.driverType = driverType;
+        this.effectsManager = effectsManager;
         Children.Add(windowHost);
         windowHost.HandleCreated += OnHandleCreated;
         windowHost.HandleDestroyed += OnHandleDestroyed;
@@ -235,7 +239,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         float ssaoRadius = 0.5f,
         float ssaoIntensity = 1,
         SsaoQuality ssaoQuality = SsaoQuality.Low,
-        IEnumerable<SceneNode2D>? roots2D = null
+        IEnumerable<SceneNode2D>? roots2D = null,
+        bool captureFrame = false
     ) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
@@ -567,8 +572,79 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                 currentSwapChain.Width,
                 currentSwapChain.Height,
                 (float) windowHost.DpiScale);
+        SilkD3D12Resource? readback = null;
+        PlacedSubresourceFootprint footprint = default;
+        ulong totalBytes = 0;
+        if (captureFrame) {
+            var currentDevice = device
+                ?? throw new InvalidOperationException("The Direct3D 12 device is unavailable.");
+            footprint = currentDevice.GetCopyableFootprint(backBuffer, out totalBytes);
+            readback = currentDevice.CreateBuffer(totalBytes, HeapType.Readback);
+            currentContext.Transition(backBuffer, ResourceStates.CopySource);
+            currentContext.CopyTextureToBuffer(readback, backBuffer, in footprint);
+        }
         EndFrame(currentContext, currentSwapChain, backBuffer);
+        if (readback is not null) {
+            using (readback) {
+                LastCapturedFrame = CreateCapturedFrame(readback,
+                    in footprint,
+                    totalBytes,
+                    currentSwapChain.Width,
+                    currentSwapChain.Height);
+            }
+        }
         return recorded;
+    }
+
+    /// <summary>
+    ///     Gets the last synchronously captured viewport frame.
+    /// </summary>
+    internal D3D12CapturedFrame? LastCapturedFrame { get; private set; }
+
+    /// <summary>
+    ///     Removes native row padding and converts the swap-chain RGBA bytes to WPF BGRA bytes.
+    /// </summary>
+    /// <param name="readback">The completed readback buffer.</param>
+    /// <param name="footprint">The native copy footprint.</param>
+    /// <param name="totalBytes">The complete readback allocation size.</param>
+    /// <param name="width">The frame width.</param>
+    /// <param name="height">The frame height.</param>
+    /// <returns>The tightly packed WPF frame.</returns>
+    private static D3D12CapturedFrame CreateCapturedFrame(SilkD3D12Resource readback,
+        in PlacedSubresourceFootprint footprint,
+        ulong totalBytes,
+        uint width,
+        uint height) => CreateCapturedFrame(readback.Read(checked((int) totalBytes)),
+        footprint.Offset,
+        footprint.Footprint.RowPitch,
+        width,
+        height);
+
+    /// <summary>
+    ///     Converts a padded RGBA readback allocation to tightly packed WPF BGRA pixels.
+    /// </summary>
+    /// <param name="padded">The complete native readback allocation.</param>
+    /// <param name="offset">The first texture byte in the allocation.</param>
+    /// <param name="rowPitch">The padded native row size.</param>
+    /// <param name="width">The frame width.</param>
+    /// <param name="height">The frame height.</param>
+    /// <returns>The tightly packed WPF frame.</returns>
+    internal static D3D12CapturedFrame CreateCapturedFrame(byte[] padded,
+        ulong offset,
+        uint rowPitch,
+        uint width,
+        uint height) {
+        padded.AssertArgumentNotNull();
+        var rowBytes = checked((int) width * 4);
+        var pixels = new byte[checked(rowBytes * (int) height)];
+        for (var row = 0; row < height; row++) {
+            var sourceOffset = checked((int) offset + (int) row * (int) rowPitch);
+            var destinationOffset = checked((int) row * rowBytes);
+            padded.AsSpan(sourceOffset, rowBytes).CopyTo(pixels.AsSpan(destinationOffset, rowBytes));
+        }
+        for (var index = 0; index < pixels.Length; index += 4)
+            (pixels[index], pixels[index + 2]) = (pixels[index + 2], pixels[index]);
+        return new D3D12CapturedFrame(width, height, pixels);
     }
 
     /// <summary>
@@ -698,7 +774,11 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 16_384, true);
             samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 2_048, true);
             sceneRenderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
-            passCatalog = new D3D12ScenePassCatalog(device, swapChain.Format, DepthStencilFormat);
+            passCatalog = new D3D12ScenePassCatalog(device,
+                swapChain.Format,
+                DepthStencilFormat,
+                (effectsManager as EffectsManager)?.TechniqueDescriptions,
+                effectsManager);
         } catch {
             StopNative();
             throw;
@@ -836,6 +916,14 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         depthStencilBuffer = replacement;
     }
 }
+
+/// <summary>
+///     Contains one tightly packed BGRA viewport frame for WPF bitmap encoding.
+/// </summary>
+/// <param name="Width">The frame width.</param>
+/// <param name="Height">The frame height.</param>
+/// <param name="Pixels">The tightly packed BGRA pixels.</param>
+internal readonly record struct D3D12CapturedFrame(uint Width, uint Height, byte[] Pixels);
 
 /// <summary>
 ///     Retains only the newest pending presentation size and requests at most one dispatcher operation.

@@ -14,7 +14,8 @@ The solution contains one xUnit v3 project per production assembly:
 * `Source/SilkToolkit.Tests`
 * `Source/SilkAssimp.Tests`
 
-Tests use only xUnit assertions. `Unit`, `Warp`, and `Wpf` tests run by default. `Hardware` and `DX12` smokes are explicit and remain opt-in so the normal suite is deterministic on machines without suitable hardware.
+Tests use only xUnit assertions. `Unit`, `Warp`, `Wpf`, and DX12 WARP tests run by default. Only `Hardware`
+smokes remain opt-in so the normal suite is deterministic on machines without suitable hardware.
 
 ## Local Commands
 
@@ -23,7 +24,7 @@ Tests use only xUnit assertions. `Unit`, `Warp`, and `Wpf` tests run by default.
 After a successful Rider build, run the deterministic standard suite through `rider_execute_terminal_command` with `rootFolder: "F:/Repositories/helix-toolkit/Source"`, `executeInShell: false`, and:
 
 ```powershell
-dotnet test SilkToolkit.slnx --no-build --filter "Category!=Hardware&Category!=DX12"
+dotnet test SilkToolkit.slnx --no-build --filter "Category!=Hardware"
 ```
 
 The discovered `SilkCore.Tests`, `SilkToolkit.Tests`, and `SilkAssimp.Tests` Rider configurations do not support dynamic launch overrides, so the terminal route preserves the repository's category filter. Use `rider_get_run_configurations` plus `rider_execute_run_configuration` only for targeted projects or run points.
@@ -34,10 +35,11 @@ If Rider is unavailable before the test process starts, run the same standard su
 
 ```powershell
 dotnet build Source\SilkToolkit.slnx
-dotnet test Source\SilkToolkit.slnx --no-build --filter "Category!=Hardware&Category!=DX12"
+dotnet test Source\SilkToolkit.slnx --no-build --filter "Category!=Hardware"
 ```
 
-Do not rerun a started Rider test process through the fallback after a test failure. `Hardware` and `DX12` remain explicit opt-in categories.
+Do not rerun a started Rider test process through the fallback after a test failure. Only `Hardware` remains an
+explicit opt-in category; a `DX12` trait no longer excludes a WARP-capable test from the standard suite.
 
 Run explicit smokes locally through the VSTest RunSettings option:
 

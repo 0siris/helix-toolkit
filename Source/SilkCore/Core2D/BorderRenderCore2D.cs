@@ -92,10 +92,10 @@ public class BorderRenderCore2D : RenderCore2DBase {
         }
     }
 
-    protected override bool OnAttach(IRenderHost host) {
-        if (base.OnAttach(host)) {
+    protected override bool OnAttach() {
+        if (base.OnAttach()) {
             isBorderGeometryChanged = true;
-            foreach (var core in borderRenderCore) core.Attach(host);
+            foreach (var core in borderRenderCore) core.Attach();
             return true;
         }
 

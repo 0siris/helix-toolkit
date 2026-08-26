@@ -35,7 +35,6 @@
             BackgroundColor="#595959"
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}"
-            EnableSwapChainRendering="True"
             FxaaLevel="Low"
             FixedRotationPoint="{Binding ModelCentroid}"
             FixedRotationPointEnabled="True">

@@ -222,77 +222,14 @@ public class EffectsManager : DisposeObject, IEffectsManager {
 
     public EffectsManager(EffectsManagerConfiguration configuration) {
         EnableSoftwareRendering = configuration.EnableSoftwareRendering;
-        Initialize(configuration.AdapterIndex);
-    }
-
-    /// <summary>
-    ///     Initializes this instance.
-    /// </summary>
-    private void Initialize() {
-#if DEBUGMEMORY
-            global::SharpDX.Configuration.EnableObjectTracking = true;
-#endif
-        if (AdapterIndex == -1)
-            Initialize(0);
-        else
-            Initialize(AdapterIndex);
-    }
-
-    /// <summary>
-    ///     Initializes this instance.
-    /// </summary>
-    private void Initialize(int adapterIndex) {
-        Logger.Info("Adapter Index = {Value0}", adapterIndex);
-        AdapterIndex = Math.Max(0, adapterIndex);
+        AdapterIndex = Math.Max(0, configuration.AdapterIndex);
         DriverType = EnableSoftwareRendering
             ? DriverType.Warp
             : DriverType.Hardware;
-        RemoveAndDispose(ref nativeDeviceResources);
-        var resources = SilkD3D11DeviceFactory.CreateDefault(AdapterIndex,
-            DriverType == DriverType.Warp
-                ? SilkDriverType.Warp
-                : SilkDriverType.Hardware);
-        nativeDeviceResources = resources;
-
-        Logger.Info("Direct3D device initilized. DriverType: {Value0}; FeatureLevel: {Value1}",
-            DriverType,
-            resources.Device.FeatureLevel);
-
-        #region Initial Internal Pools
-
-        Logger.Info("Initializing resource pools");
-        RemoveAndDispose(ref constantBufferPool);
-        constantBufferPool = new ConstantBufferPool(resources.Device);
-
-        RemoveAndDispose(ref shaderPoolManager);
-        shaderPoolManager = new ShaderPoolManager(resources.Device, constantBufferPool);
-
-        RemoveAndDispose(ref statePoolManager);
-        statePoolManager = new StatePoolManager(resources.Device);
-
-        RemoveAndDispose(ref geometryBufferManager);
-        geometryBufferManager = new GeometryBufferManager(this);
-
-        RemoveAndDispose(ref materialTextureManager);
-        materialTextureManager = new TextureResourceManager(resources.Device);
-
-        RemoveAndDispose(ref materialVariableManager);
-        materialVariableManager = new MaterialVariablePool(this);
-
-        RemoveAndDispose(ref deviceContextPool);
-        deviceContextPool = new DeviceContextPool(resources.Device);
-
-        RemoveAndDispose(ref structArrayPool);
         structArrayPool = new StructArrayPool();
-
-        #endregion
-
-        Logger.Info("Initializing Direct2D resource handles");
         factory2D = new D2DFactory();
         wicImgFactory = new WicImagingFactory();
         directWriteFactory = new DirectWriteFactory();
-        device2D = new D2DDevice(resources.Device);
-        deviceContext2D = new D2DDeviceContext(device2D);
         Initialized = true;
     }
 
@@ -307,7 +244,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
         techniqueDescriptions.Add(name, description);
         techniqueDict.Add(name,
             new Lazy<IRenderTechnique?>(() => Initialized
-                    ? new Technique(description, this)
+                    ? new Technique(description, null)
                     : null,
                 true));
     }
@@ -317,12 +254,12 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     public void Reinitialize() {
         if (!Initialized) {
-            Initialize();
+            Initialized = true;
             foreach (var tech in techniqueDescriptions.Values) {
                 var name = tech.Name.AssertNotNull("Technique name must be initialized.");
                 techniqueDict.Add(name,
                     new Lazy<IRenderTechnique?>(() => Initialized
-                            ? new Technique(tech, this)
+                            ? new Technique(tech, null)
                             : null,
                         true));
             }
@@ -470,12 +407,10 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     ///     Outputs the resource cout summary.
     /// </summary>
     /// <returns></returns>
-    public string GetResourceCountSummary() => $"ConstantBuffer Count: {ConstantBufferPool.Count}\n" +
-                                               $"BlendState Count: {StateManager.BlendStatePool.Count}\n" +
-                                               $"DepthStencilState Count: {StateManager.DepthStencilStatePool.Count}\n" +
-                                               $"RasterState Count: {StateManager.RasterStatePool.Count}\n" +
-                                               $"SamplerState Count: {StateManager.SamplerStatePool.Count}\n" +
-                                               $"GeometryBuffer Count:{GeometryBufferManager.Count}\n" +
-                                               $"MaterialTexture Count:{MaterialTextureManager.Count}\n" +
-                                               $"MaterialVariable Count:{MaterialVariableManager.Count}\n";
+    public string GetResourceCountSummary() => "Direct3D 12 resources are owned by the presentation surface.";
+
+    /// <summary>
+    ///     Gets the registered technique descriptions consumed by Direct3D 12 presentation.
+    /// </summary>
+    internal IEnumerable<TechniqueDescription> TechniqueDescriptions => techniqueDescriptions.Values;
 }

@@ -37,15 +37,6 @@ public abstract class GroupNodeBase : SceneNode {
         Name = name;
     }
 
-    public override IRenderHost? RenderHost {
-        get;
-        set {
-            field = value;
-            foreach (var sceneNode in ItemsInternal)
-                sceneNode.RenderHost = field;
-        }
-    }
-
     /// <summary>
     ///     Gets or sets the metadata.
     ///     Metadata is used to store additional data to describe the scene node.
@@ -74,7 +65,6 @@ public abstract class GroupNodeBase : SceneNode {
             node.Parent = this;
             if (IsAttached) {
                 node.Attach(EffectsManager);
-                node.RenderHost = RenderHost;
                 InvalidateSceneGraph();
             }
 
@@ -157,7 +147,6 @@ public abstract class GroupNodeBase : SceneNode {
             if (detachChild) node.Detach();
             ItemsInternal.Remove(node);
             node.Parent = null;
-            node.RenderHost = null;
             ChildNodeRemoved?.Invoke(this, new OnChildNodeChangedArgs(node, Operation.Remove));
             return true;
         }

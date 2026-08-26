@@ -34,7 +34,6 @@
             EnableD2DRendering="False"
             EnableDeferredRendering="False"
             EnableRenderFrustum="False"
-            EnableSwapChainRendering="True"
             FixedRotationPoint="0,0,0"
             FixedRotationPointEnabled="True"
             ShowCoordinateSystem="False"

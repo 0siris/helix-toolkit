@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -29,8 +28,6 @@
 
     <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0"/>
     <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0"/>
-    <PackageReference Include="Silk.NET.Direct3D11" Version="2.23.0"/>
-    <PackageReference Include="Silk.NET.Direct3D9" Version="2.23.0"/>
     <PackageReference Include="Silk.NET.DXGI" Version="2.23.0"/>
     <PackageReference Include="Silk.NET.Maths" Version="2.23.0"/>
   </ItemGroup>

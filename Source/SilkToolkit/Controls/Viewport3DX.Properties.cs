@@ -35,24 +35,17 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 /// </summary>
 public partial class Viewport3DX {
     /// <summary>
-    ///     Background WpfColor property.this.RenderHost
+    ///     Background WPF color property.
     /// </summary>
     public static readonly DependencyProperty BackgroundColorProperty = DependencyProperty.Register("BackgroundColor",
         typeof(WpfColor),
         typeof(Viewport3DX),
-        new PropertyMetadata(Colors.White,
-                             (s, e) => {
-                                 ((Viewport3DX)s).RenderHostInternal?.ClearColor =
-                                         ((WpfColor)e.NewValue).ToColor4();
-                             }));
+        new PropertyMetadata(Colors.White));
 
     public static readonly DependencyProperty RenderTechniqueProperty = DependencyProperty.Register("RenderTechnique",
         typeof(IRenderTechnique),
         typeof(Viewport3DX),
-        new PropertyMetadata(null,
-                             (s, e) => {
-                                 ((Viewport3DX)s).RenderTechniquePropertyChanged((IRenderTechnique)e.NewValue);
-                             }));
+        new PropertyMetadata(null));
 
     /// <summary>
     ///     The camera changed event.
@@ -315,8 +308,7 @@ public partial class Viewport3DX {
     public static readonly DependencyProperty EffectsManagerProperty = DependencyProperty.Register("EffectsManager",
         typeof(IEffectsManager),
         typeof(Viewport3DX),
-        new PropertyMetadata(null,
-                             (s, _) => ((Viewport3DX)s).EffectsManagerPropertyChanged()));
+        new PropertyMetadata(null));
 
     /// <summary>
     ///     The field of view text property.
@@ -410,10 +402,7 @@ public partial class Viewport3DX {
         "IsShadowMappingEnabled",
         typeof(bool),
         typeof(Viewport3DX),
-        new PropertyMetadata(false,
-                             (s, e) => {
-                                 ((Viewport3DX)s).RenderHostInternal?.IsShadowMapEnabled = (bool)e.NewValue;
-                             }));
+        new PropertyMetadata(false));
 
     /// <summary>
     ///     The is change field of view enabled property
@@ -684,15 +673,7 @@ public partial class Viewport3DX {
     public static readonly DependencyProperty ShowCameraInfoProperty = DependencyProperty.Register("ShowCameraInfo",
         typeof(bool),
         typeof(Viewport3DX),
-        new PropertyMetadata(false,
-                             (d, e) => {
-                                 if ((d as Viewport3DX).RenderHostInternal != null) {
-                                     if ((bool)e.NewValue)
-                                         (d as Viewport3DX).RenderHostInternal.ShowRenderDetail |= RenderDetail.Camera;
-                                     else
-                                         (d as Viewport3DX).RenderHostInternal.ShowRenderDetail &= ~RenderDetail.Camera;
-                                 }
-                             }));
+        new PropertyMetadata(false));
 
     /// <summary>
     ///     The show camera target property.
@@ -721,15 +702,7 @@ public partial class Viewport3DX {
     public static readonly DependencyProperty ShowFrameRateProperty = DependencyProperty.Register("ShowFrameRate",
         typeof(bool),
         typeof(Viewport3DX),
-        new PropertyMetadata(false,
-                             (d, e) => {
-                                 if ((d as Viewport3DX).RenderHostInternal != null) {
-                                     if ((bool)e.NewValue)
-                                         (d as Viewport3DX).RenderHostInternal.ShowRenderDetail |= RenderDetail.Fps;
-                                     else
-                                         (d as Viewport3DX).RenderHostInternal.ShowRenderDetail &= ~RenderDetail.Fps;
-                                 }
-                             }));
+        new PropertyMetadata(false));
 
     /// <summary>
     ///     The show frame rate property.
@@ -737,17 +710,7 @@ public partial class Viewport3DX {
     public static readonly DependencyProperty ShowFrameDetailsProperty = DependencyProperty.Register("ShowFrameDetails",
         typeof(bool),
         typeof(Viewport3DX),
-        new PropertyMetadata(false,
-                             (d, e) => {
-                                 if ((d as Viewport3DX).RenderHostInternal != null) {
-                                     if ((bool)e.NewValue)
-                                         (d as Viewport3DX).RenderHostInternal.ShowRenderDetail |=
-                                             RenderDetail.Statistics;
-                                     else
-                                         (d as Viewport3DX).RenderHostInternal.ShowRenderDetail &=
-                                             ~RenderDetail.Statistics;
-                                 }
-                             }));
+        new PropertyMetadata(false));
 
     /// <summary>
     ///     The show triangle count info property.
@@ -756,17 +719,7 @@ public partial class Viewport3DX {
         "ShowTriangleCountInfo",
         typeof(bool),
         typeof(Viewport3DX),
-        new PropertyMetadata(false,
-                             (d, e) => {
-                                 if ((d as Viewport3DX).RenderHostInternal != null) {
-                                     if ((bool)e.NewValue)
-                                         (d as Viewport3DX).RenderHostInternal.ShowRenderDetail |=
-                                             RenderDetail.TriangleInfo;
-                                     else
-                                         (d as Viewport3DX).RenderHostInternal.ShowRenderDetail &=
-                                             ~RenderDetail.TriangleInfo;
-                                 }
-                             }));
+        new PropertyMetadata(false));
 
     /// <summary>
     ///     The show view cube property.
@@ -1074,11 +1027,7 @@ public partial class Viewport3DX {
     public static readonly DependencyProperty MsaaProperty = DependencyProperty.Register("Msaa",
         typeof(MsaaLevel),
         typeof(Viewport3DX),
-        new PropertyMetadata(MsaaLevel.Disable,
-                             (s, e) => {
-                                 var viewport = s as Viewport3DX;
-                                 viewport.RenderHostInternal?.Msaa = (MsaaLevel)e.NewValue;
-                             }));
+        new PropertyMetadata(MsaaLevel.Disable));
 
     /// <summary>
     ///     The is move enabled property.
@@ -1150,12 +1099,7 @@ public partial class Viewport3DX {
         = DependencyProperty.Register("EnableRenderFrustumProperty",
                                       typeof(bool),
                                       typeof(Viewport3DX),
-                                      new PropertyMetadata(true,
-                                                           (s, e) => {
-                                                               var viewport = s as Viewport3DX;
-                                                               if (viewport.RenderHostInternal != null)
-                                                                   viewport.EnableRenderFrustum = (bool)e.NewValue;
-                                                           }));
+        new PropertyMetadata(true));
 
     /// <summary>
     ///     <para>Enable deferred rendering. Use multithreading to call rendering procedure using different Deferred Context.</para>
@@ -1176,12 +1120,7 @@ public partial class Viewport3DX {
         = DependencyProperty.Register("EnableSharedModelMode",
                                       typeof(bool),
                                       typeof(Viewport3DX),
-                                      new PropertyMetadata(false,
-                                                           (s, e) => {
-                                                               var viewport = s as Viewport3DX;
-                                                               viewport.RenderHostInternal?.EnableSharingModelMode =
-                                                                       (bool)e.NewValue;
-                                                           }));
+        new PropertyMetadata(false));
 
     /// <summary>
     ///     Binding to the element inherit with <see cref="IModelContainer" />
@@ -1191,26 +1130,8 @@ public partial class Viewport3DX {
                                       typeof(IModelContainer),
                                       typeof(Viewport3DX),
                                       new PropertyMetadata(null,
-                                                           (d, e) => {
-                                                               var viewport = d as Viewport3DX;
-                                                               if (e.OldValue is IModelContainer o)
-                                                                   o.DettachViewport3DX(viewport);
-                                                               if (e.NewValue is IModelContainer n)
-                                                                   n.AttachViewport3DX(viewport);
-                                                               viewport.SharedModelContainerInternal =
-                                                                   (IModelContainer)e.NewValue;
-                                                               viewport.RenderHostInternal?.SharedModelContainer =
-                                                                       (IModelContainer)e.NewValue;
-                                                           }));
-
-    /// <summary>
-    ///     The enable swap chain rendering property
-    /// </summary>
-    public static readonly DependencyProperty EnableSwapChainRenderingProperty
-        = DependencyProperty.Register("EnableSwapChainRendering",
-                                      typeof(bool),
-                                      typeof(Viewport3DX),
-                                      new PropertyMetadata(false));
+                                                           (d, e) => ((Viewport3DX)d).SharedModelContainerInternal =
+                                                               (IModelContainer?)e.NewValue));
 
     /// <summary>
     ///     The content2 d property
@@ -1236,15 +1157,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("EnableD2DRendering",
                                     typeof(bool),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .RenderD2D = (bool)e.NewValue;
-                                                                 viewport.InvalidateRender();
-                                                             }
-                                                         }));
+        new PropertyMetadata(true));
 
     /// <summary>
     ///     The enable automatic octree update property
@@ -1253,12 +1166,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("EnableAutoOctreeUpdate",
                                     typeof(bool),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             viewport.RenderHostInternal?.RenderConfiguration
-                                                                         .AutoUpdateOctree = (bool)e.NewValue;
-                                                         }));
+        new PropertyMetadata(false));
 
     /// <summary>
     ///     Gets or sets a value indicating for Transparent objects render mode.
@@ -1268,15 +1176,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("OitRenderMode",
                                     typeof(OitRenderType),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(OitRenderType.DepthPeeling,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .OitRenderType = (OitRenderType)e.NewValue;
-                                                                 viewport.InvalidateRender();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(OitRenderType.DepthPeeling));
 
     /// <summary>
     ///     The Order independent transparent rendering color weight power property
@@ -1285,15 +1185,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("OitWeightPower",
                                     typeof(double),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(3.0,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .OitWeightPower = (float)(double)e.NewValue;
-                                                                 viewport.InvalidateRender();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(3.0));
 
 
     /// <summary>
@@ -1303,16 +1195,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("OitWeightDepthSlope",
                                     typeof(double),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(1.0,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .OitWeightDepthSlope =
-                                                                     (float)(double)e.NewValue;
-                                                                 viewport.InvalidateRender();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(1.0));
 
     /// <summary>
     ///     The oit weight mode property
@@ -1323,29 +1206,13 @@ public partial class Viewport3DX {
         DependencyProperty.Register("OitWeightMode",
                                     typeof(OitWeightMode),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(OitWeightMode.Linear1,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .OitWeightMode = (OitWeightMode)e.NewValue;
-                                                                 viewport.InvalidateRender();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(OitWeightMode.Linear1));
 
     public static readonly DependencyProperty OitDepthPeelingIterationProperty =
         DependencyProperty.Register("OitDepthPeelingIteration",
                                     typeof(int),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(4,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .OitDepthPeelingIteration = (int)e.NewValue;
-                                                                 viewport.InvalidateRender();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(4));
 
     /// <summary>
     ///     The fxaa level property
@@ -1354,15 +1221,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("FxaaLevel",
                                     typeof(FxaaLevel),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(FxaaLevel.None,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .FxaaLevel = (FxaaLevel)e.NewValue;
-                                                                 viewport.InvalidateRender();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(FxaaLevel.None));
 
 
     /// <summary>
@@ -1382,16 +1241,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("EnableRenderOrder",
                                     typeof(bool),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .EnableRenderOrder = (bool)e.NewValue;
-                                                                 viewport.RenderHostInternal
-                                                                         .InvalidatePerFrameRenderables();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(false));
 
     /// <summary>
     ///     The enable ssao property
@@ -1400,15 +1250,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("EnableSsao",
                                     typeof(bool),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(false,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .EnableSsao = (bool)e.NewValue;
-                                                                 viewport.RenderHostInternal.InvalidateRender();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(false));
 
 
     /// <summary>
@@ -1418,29 +1260,13 @@ public partial class Viewport3DX {
         DependencyProperty.Register("SsaoSamplingRadius",
                                     typeof(double),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(0.5,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .SsaoRadius = (float)(double)e.NewValue;
-                                                                 viewport.RenderHostInternal.InvalidateRender();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(0.5));
 
     public static readonly DependencyProperty SsaoIntensityProperty =
         DependencyProperty.Register("SsaoIntensity",
                                     typeof(double),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(1.0,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .SsaoIntensity = (float)(double)e.NewValue;
-                                                                 viewport.RenderHostInternal.InvalidateRender();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(1.0));
 
     /// <summary>
     ///     The ssao quality property
@@ -1449,15 +1275,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("SsaoQuality",
                                     typeof(SsaoQuality),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(SsaoQuality.Low,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.RenderHostInternal != null) {
-                                                                 viewport.RenderHostInternal.RenderConfiguration
-                                                                         .SsaoQuality = (SsaoQuality)e.NewValue;
-                                                                 viewport.RenderHostInternal.InvalidateRender();
-                                                             }
-                                                         }));
+                                    new PropertyMetadata(SsaoQuality.Low));
 
 
     /// <summary>
@@ -1467,13 +1285,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("MinimumUpdateCount",
                                     typeof(int),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(6,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             viewport.RenderHostInternal?.RenderConfiguration
-                                                                         .MinimumUpdateCount =
-                                                                     (uint)Math.Max(0, (int)e.NewValue);
-                                                         }));
+                                    new PropertyMetadata(6));
 
     /// <summary>
     ///     The belongs to parent window property
@@ -1491,47 +1303,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("DpiScale",
                                     typeof(double),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(1.0,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.hostPresenter is {Content: IRenderCanvas canvas})
-                                                                 canvas.DpiScale = (double)e.NewValue;
-                                                         }));
-
-    /// <summary>
-    ///     The enable dpi scale property
-    /// </summary>
-    public static readonly DependencyProperty EnableDpiScaleProperty =
-        DependencyProperty.Register("EnableDpiScale",
-                                    typeof(bool),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.hostPresenter is {Content: IRenderCanvas canvas})
-                                                                 canvas.EnableDpiScale = (bool)e.NewValue;
-                                                         }));
-
-    public static readonly DependencyProperty IncreaseSwapchainFpsProperty =
-        DependencyProperty.Register("IncreaseSwapchainFps",
-                                    typeof(bool),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(true,
-                                                         (d, e) => {
-                                                             var viewport = d as Viewport3DX;
-                                                             if (viewport.hostPresenter is {Content: DPFSurfaceSwapChain
-                                                                     surface
-                                                                 })
-                                                                 surface.IncreaseFps = (bool)e.NewValue;
-                                                         }));
-
-    /// <summary>
-    ///     Gets or sets the render host internal.
-    /// </summary>
-    /// <value>
-    ///     The render host internal.
-    /// </value>
-    protected IRenderHost? RenderHostInternal;
+                                    new PropertyMetadata(1.0));
 
     /// <summary>
     ///     Background WpfColor
@@ -2609,23 +2381,6 @@ public partial class Viewport3DX {
     protected IModelContainer? SharedModelContainerInternal { get; private set; }
 
     /// <summary>
-    ///     <para>Use HwndHost as rendering surface, swapchain for rendering. Much faster than using D3DImage.</para>
-    ///     <para>
-    ///         Drawbacks: The rendering surface will cover all WPF controls in the same Viewport region. Move controls out
-    ///         of viewport region to solve this problem.
-    ///     </para>
-    ///     <para>
-    ///         For displaying ViewCube and CoordinateSystem, separate Model needs to create to render along with the other
-    ///         models. WPF viewport will not be visibled.
-    ///     </para>
-    ///     <para>Note: Enable deferred rendering will use seperate rendering thread or rendering.</para>
-    /// </summary>
-    public bool EnableSwapChainRendering {
-        get => (bool)GetValue(EnableSwapChainRenderingProperty);
-        set => SetValue(EnableSwapChainRenderingProperty, value);
-    }
-
-    /// <summary>
     ///     Gets or sets the content2d.
     /// </summary>
     /// <value>
@@ -2874,30 +2629,6 @@ public partial class Viewport3DX {
     }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [enable dpi scale].
-    ///     Enable this option if you want to render high definition image with using high definition monitor and using dpi
-    ///     scaling in windows.
-    ///     This option may impact rendering performance due to higher resolution.
-    /// </summary>
-    /// <value>
-    ///     <c>true</c> if [enable dpi scale]; otherwise, <c>false</c>.
-    /// </value>
-    public bool EnableDpiScale {
-        get => (bool)GetValue(EnableDpiScaleProperty);
-        set => SetValue(EnableDpiScaleProperty, value);
-    }
-
-    /// <summary>
-    ///     Increase swapchain fps by speed up the wpf composition target frame rate.
-    ///     This may negatively impact the performance on low end graphics card.
-    ///     Default is enabled.
-    /// </summary>
-    public bool IncreaseSwapchainFps {
-        get => (bool)GetValue(IncreaseSwapchainFpsProperty);
-        set => SetValue(IncreaseSwapchainFpsProperty, value);
-    }
-
-    /// <summary>
     ///     Gets or sets the <see cref="IEffectsManager" />.
     /// </summary>
     public IEffectsManager? EffectsManager {
@@ -2950,22 +2681,6 @@ public partial class Viewport3DX {
     public event RoutedEventHandler MouseMove3D {
         add => AddHandler(MouseMove3DEvent, value);
         remove => RemoveHandler(MouseMove3DEvent, value);
-    }
-
-    /// <summary>
-    ///     Occurs when [form mouse move].
-    /// </summary>
-    public event WinformHostExtend.FormMouseMoveEventHandler FormMouseMove {
-        add => AddHandler(WinformHostExtend.FormMouseMoveEvent, value);
-        remove => RemoveHandler(WinformHostExtend.FormMouseMoveEvent, value);
-    }
-
-    /// <summary>
-    ///     Occurs when [form mouse wheel].
-    /// </summary>
-    public event WinformHostExtend.FormMouseWheelEventHandler FormMouseWheel {
-        add => AddHandler(WinformHostExtend.FormMouseWheelEvent, value);
-        remove => RemoveHandler(WinformHostExtend.FormMouseWheelEvent, value);
     }
 
     /// <summary>

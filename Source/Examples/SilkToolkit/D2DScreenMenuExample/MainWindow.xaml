@@ -21,18 +21,13 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Grid.Row="0" Background="AntiqueWhite">
-            <CheckBox IsChecked="{Binding ElementName=View1, Path=EnableDpiScale}" HorizontalAlignment="Left"
-                      VerticalAlignment="Center">
-                High Dpi
-            </CheckBox>
-            <Label Margin="25,0,0,0">Test Binding:</Label>
+            <Label>Test Binding:</Label>
             <TextBox x:Name="Tb" Width="200" VerticalContentAlignment="Center">Btn 3</TextBox>
         </StackPanel>
         <controls:Viewport3DX Name="View1"
                         Grid.Row="1"
                         Camera="{Binding Camera}"
                         EffectsManager="{Binding EffectsManager}"
-                        EnableSwapChainRendering="True"
                         EnableDesignModeRendering="False">
             <lights3D:DirectionalLight3D Direction="{Binding Vm3D.Light1Direction}" Color="{Binding Vm3D.Light1Color}" />
             <lights3D:DirectionalLight3D Direction="{Binding Vm3D.Light2Direction}" Color="{Binding Vm3D.Light2Color}" />

@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ScreenDuplicationDemo"
-        xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
         xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
         xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
         mc:Ignorable="d"
@@ -13,8 +12,8 @@
         <local:MainViewModel />
     </Window.DataContext>
     <Grid>
-        <controls:ScreenDuplicationViewport3DX EffectsManager="{Binding EffectsManager}">
+        <controls:Viewport3DX>
             <elements3D:ScreenDuplicationModel />
-        </controls:ScreenDuplicationViewport3DX>
+        </controls:Viewport3DX>
     </Grid>
 </Window>

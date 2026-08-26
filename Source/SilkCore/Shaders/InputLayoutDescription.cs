@@ -60,8 +60,12 @@ public sealed class InputLayoutDescription {
     [DataMember]
     public byte[]? ShaderByteCode {
         get {
-            if (field == null && ShaderByteCodeName is { } name)
-                field = UwpShaderBytePool.Read(name, byteCodeReader);
+            if (field == null && ShaderByteCodeName is { } name) {
+                var entryPoint = D3D12ShaderManifest.ResolveEntryPoint("VS", name);
+                field = ReferenceEquals(byteCodeReader, UwpShaderBytePool.InternalByteCodeReader)
+                    ? UwpShaderBytePool.ReadDxil("VS", name, entryPoint)
+                    : byteCodeReader.ReadDxil("VS", name, entryPoint);
+            }
             return field;
         }
         set;

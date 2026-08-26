@@ -4,7 +4,6 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
 
     <RootNamespace>PolygonTriangulationDemo</RootNamespace>
     <AssemblyName>PolygonTriangulationDemo</AssemblyName>

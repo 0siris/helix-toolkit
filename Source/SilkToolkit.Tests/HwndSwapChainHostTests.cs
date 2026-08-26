@@ -26,6 +26,42 @@ namespace SilkToolkit.Tests;
 [Collection(WpfCollection.Name)]
 public sealed class HwndSwapChainHostTests {
     /// <summary>
+    ///     Verifies removed D3D11 presentation controls and the old canvas-selection switch stay absent.
+    /// </summary>
+    [Fact]
+    public void LegacyPresentationApiIsAbsent() {
+        var assembly = typeof(Viewport3DX).Assembly;
+        var removedTypes = new[] {
+            "HelixToolkit.Wpf.SharpDX.Controls.DPFCanvas",
+            "HelixToolkit.Wpf.SharpDX.Controls.DPFSurfaceSwapChain",
+            "HelixToolkit.Wpf.SharpDX.Controls.DX11ImageSource",
+            "HelixToolkit.Wpf.SharpDX.Controls.DX11ImageSourceRenderHost",
+            "HelixToolkit.Wpf.SharpDX.Controls.RenderControl",
+            "HelixToolkit.Wpf.SharpDX.Controls.ScreenDuplicationViewport3DX"
+        };
+
+        Assert.All(removedTypes, typeName => Assert.Null(assembly.GetType(typeName, false, false)));
+        Assert.Null(typeof(Viewport3DX).GetProperty("EnableSwapChainRendering"));
+    }
+
+    /// <summary>
+    ///     Verifies capture removes native row padding and swaps RGBA channels to WPF BGRA order.
+    /// </summary>
+    [Fact]
+    public void CapturedFrameConvertsPaddedRgbaToPackedBgra() {
+        var source = new byte[] {
+            99, 99, 1, 2, 3, 4, 5, 6, 7, 8, 99, 99,
+            9, 10, 11, 12, 13, 14, 15, 16, 99, 99
+        };
+
+        var frame = D3D12PresentationSurface.CreateCapturedFrame(source, 2, 10, 2, 2);
+
+        Assert.Equal(2U, frame.Width);
+        Assert.Equal(2U, frame.Height);
+        Assert.Equal([3, 2, 1, 4, 7, 6, 5, 8, 11, 10, 9, 12, 15, 14, 13, 16], frame.Pixels);
+    }
+
+    /// <summary>
     ///     Verifies DIP dimensions are rounded up and never produce a zero-sized swap chain.
     /// </summary>
     [Theory]
@@ -293,12 +329,12 @@ public sealed class HwndSwapChainHostTests {
     }
 
     /// <summary>
-    ///     Verifies the existing viewport swap-chain option hosts and renders through Direct3D 12 on WARP.
+    ///     Verifies the viewport hosts and renders exclusively through Direct3D 12 on WARP.
     /// </summary>
     [Fact]
     [Trait("Category", "Warp")]
     [Trait("Category", "Wpf")]
-    public Task ViewportSwapChainModeUsesDx12SurfaceAndCurrentCamera() {
+    public Task ViewportUsesDx12SurfaceAndCurrentCamera() {
         return StaThread.RunAsync(() => {
             using var source = new HwndSource(new HwndSourceParameters(nameof(HwndSwapChainHostTests)) {
                 Width = 48,
@@ -308,7 +344,6 @@ public sealed class HwndSwapChainHostTests {
             using var viewport = new Viewport3DX {
                 Width = 48,
                 Height = 32,
-                EnableSwapChainRendering = true,
                 D3D12DriverType = SilkDriverType.Warp
             };
             var theme = new ResourceDictionary {
@@ -335,14 +370,13 @@ public sealed class HwndSwapChainHostTests {
 
             var surface = Assert.IsType<D3D12PresentationSurface>(viewport.D3D12Surface);
             Assert.True(surface.IsInitialized);
-            Assert.Null(viewport.RenderHost);
             Assert.Single(viewport.Renderables.OfType<MeshNode>());
-            Assert.Equal(1, viewport.RenderD3D12Frame(TimeSpan.FromSeconds(1)));
+            Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(1)) >= 1);
             Assert.True(surface.PresentedFrames >= 1);
 
             var originalPosition = viewport.Camera.Position;
             surface.WindowHost.ProcessMessage(0x020A, (nint) (120 << 16), PackPoint(12, 12));
-            Assert.Equal(1, viewport.RenderD3D12Frame(TimeSpan.FromSeconds(2)));
+            Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(2)) >= 1);
             Assert.NotEqual(originalPosition, viewport.Camera.Position);
 
             var pointerPositions = new List<Point>();

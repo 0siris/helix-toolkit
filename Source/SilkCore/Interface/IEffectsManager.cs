@@ -133,6 +133,11 @@ public interface IDeviceResources : IDevice3DResources, IDevice2DResources, IDis
 /// </summary>
 public interface IEffectsManager : IDeviceResources {
     /// <summary>
+    ///     Gets whether Direct3D 12 WARP presentation is requested.
+    /// </summary>
+    bool EnableSoftwareRendering { get; }
+
+    /// <summary>
     /// </summary>
     IShaderPoolManager ShaderManager { get; }
 

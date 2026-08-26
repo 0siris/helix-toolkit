@@ -108,14 +108,6 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     }
 
     /// <summary>
-    ///     Gets or sets the render host.
-    /// </summary>
-    /// <value>
-    ///     The render host.
-    /// </value>
-    protected IRenderHost? RenderHost { get; private set; }
-
-    /// <summary>
     ///     Gets the items.
     /// </summary>
     /// <value>
@@ -251,20 +243,18 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
 
     /// <summary>
     ///     <para>
-    ///         Attaches the element to the specified host. To overide Attach, please override
-    ///         <see cref="OnAttach(IRenderHost)" /> function.
+    ///         Attaches the element to the Direct3D 12 scene lifecycle.
     ///     </para>
     ///     <para>
-    ///         Attach Flow: Set RenderHost -> Get Effect ->
-    ///         <see cref="OnAttach(IRenderHost)" /> -> <see cref="OnAttach" /> -> <see cref="InvalidateRender" />
+    ///         Attach Flow: <see cref="OnAttach" /> -> <see cref="InvalidateRender" />
     ///     </para>
     /// </summary>
-    /// <param name="host">The host.</param>
-    public void Attach(IRenderHost host) {
+    /// <param name="dpiScale">The physical-pixel scale.</param>
+    public void Attach(float dpiScale = 1) {
         if (IsAttached) return;
-        RenderHost = host;
-        DpiScale = host.DpiScale;
-        IsAttached = OnAttach(host);
+        if (!float.IsFinite(dpiScale) || dpiScale <= 0) throw new ArgumentOutOfRangeException(nameof(dpiScale));
+        DpiScale = dpiScale;
+        IsAttached = OnAttach();
         if (IsAttached) Attached?.Invoke(this, EventArgs.Empty);
         InvalidateAll();
     }
@@ -272,10 +262,9 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     To override Attach routine, please override this.
     /// </summary>
-    /// <param name="host"></param>
     /// <returns>Return true if attached</returns>
-    protected virtual bool OnAttach(IRenderHost host) {
-        RenderCore.Attach(host);
+    protected virtual bool OnAttach() {
+        RenderCore.Attach();
         return true;
     }
 
@@ -295,9 +284,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     Called when [detach].
     /// </summary>
-    protected virtual void OnDetach() {
-        RenderHost = null;
-    }
+    protected virtual void OnDetach() { }
 
     /// <summary>
     ///     Updates the specified context.
@@ -314,7 +301,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <returns>
     ///     <c>true</c> if this instance [can hit test]; otherwise, <c>false</c>.
     /// </returns>
-    protected virtual bool CanHitTest() => IsAttached && IsHitTestVisible;
+    protected virtual bool CanHitTest() => IsHitTestVisible && Visibility == Visibility.Visible;
 
     /// <summary>
     ///     Called when [hit test].
@@ -336,9 +323,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     Invalidates the render.
     /// </summary>
-    public void InvalidateRender() {
-        RenderHost?.InvalidateRender();
-    }
+    public void InvalidateRender() => InvalidateVisual();
 
     protected override void OnDispose(bool disposeManagedResources) {
         renderCore?.Dispose();

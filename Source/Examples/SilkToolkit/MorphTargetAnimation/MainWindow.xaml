@@ -25,7 +25,7 @@
             x:Name="Viewport"
             EffectsManager="{Binding ElementName=Grid, Path=DataContext.EffectsManager}"
             EnableD2DRendering="False"
-            EnableSwapChainRendering="True">
+            >
             <lights3D:AmbientLight3D Color="White" />
             <lights3D:DirectionalLight3D Direction="-2,-5,-2" />
             <elements3D:Element3DPresenter Content="{Binding ModelGroup}" />

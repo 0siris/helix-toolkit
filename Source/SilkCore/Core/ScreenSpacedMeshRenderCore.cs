@@ -103,8 +103,7 @@ public interface IScreenSpacedRenderParams {
 /// <summary>
 ///     Used to change view matrix and projection matrix to screen spaced coordinate system.
 ///     <para>
-///         Usage: Call SetScreenSpacedCoordinates(RenderHost) to move coordinate system. Call other render functions for
-///         sub models. Finally call RestoreCoordinates(RenderHost) to restore original coordinate system.
+///         The Direct3D 12 renderer applies screen-space coordinates around the nested model draw.
 ///     </para>
 /// </summary>
 public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams {

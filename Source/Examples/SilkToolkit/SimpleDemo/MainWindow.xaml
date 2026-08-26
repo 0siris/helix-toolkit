@@ -47,7 +47,7 @@
             CoordinateSystemLabelForeground="#434343"
             EffectsManager="{Binding EffectsManager}"
             EnableDesignModeRendering="True"
-            FxaaLevel="Low" EnableSwapChainRendering="False"
+            FxaaLevel="Low"
             ModelUpDirection="{Binding UpDirection}"
             ShowCoordinateSystem="True"
             SubTitle="{Binding SubTitle}"
@@ -137,9 +137,6 @@
             <Separator />
             <StatusBarItem>
                 <TextBlock Text="{Binding Items.Count, ElementName=View1, StringFormat=Children: \{0\}}" />
-            </StatusBarItem>
-            <StatusBarItem>
-                <CheckBox IsChecked="{Binding ElementName=View1, Path=EnableDpiScale}">Enable DPI Scale</CheckBox>
             </StatusBarItem>
         </StatusBar>
 

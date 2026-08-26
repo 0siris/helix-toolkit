@@ -8,10 +8,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
 using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Element3D;
@@ -52,8 +49,6 @@ public class MainViewModel : BaseViewModel {
     public PhongMaterial GreenMaterial { get; private set; }
     public PhongMaterial BlueMaterial { get; private set; }
     public PhongMaterial PlaneMaterial { get; private set; }
-    public IRenderTechnique RenderTechnique { get; private set; }
-
     public Transform3D Model1Transform { get; private set; }
     public Transform3D Model2Transform { get; private set; }
     public Transform3D Model3Transform { get; private set; }
@@ -144,8 +139,8 @@ public class MainViewModel : BaseViewModel {
     [Obsolete]
     public MainViewModel() {
         // titles
-        Title = "Deferred Shading Demo";
-        SubTitle = "WPF & SharpDX";
+        Title = "DX12 Lighting Demo";
+        SubTitle = "WPF & Silk.NET Direct3D 12";
 
         // camera setup
         Camera = new PerspectiveCamera {
@@ -154,11 +149,6 @@ public class MainViewModel : BaseViewModel {
             UpDirection = new Vector3D(0, 1, 0)
         };
 
-        // Keep the missing deferred selection visible without initializing the legacy D3D11 effects manager.
-        RenderTechnique = new Technique(new TechniqueDescription {
-            Name = DeferredRenderTechniqueNames.Deferred,
-            IsNull = true
-        }, null);
         //load model
         var reader = new ObjReader();
         var objModel = reader.Read(@"./Media/bunny.obj");
@@ -236,12 +226,6 @@ public class MainViewModel : BaseViewModel {
     /// </summary>
     /// <param name="numberLights"></param>
     private void InitPointLightCollection(int numberLights) {
-        // store the current technique
-        //  var technique = this.RenderTechnique;
-
-        // detouch the renderer
-        //   this.RenderTechnique = null;
-
         // random            
         var rndx = new Random();
         var rndy = new Random(rndx.Next());
@@ -262,9 +246,6 @@ public class MainViewModel : BaseViewModel {
             };
             PointLightCollection.Add(pointLight);
         }
-
-        // attach the renderer
-        //    this.RenderTechnique = technique;
     }
 
     /// <summary>
@@ -284,12 +265,6 @@ public class MainViewModel : BaseViewModel {
     /// </summary>
     /// <param name="numberLights"></param>
     private void InitSpotLightCollection(int numberLights) {
-        // store the current technique
-        //var technique = this.RenderTechnique;
-
-        // detouch the renderer
-        //this.RenderTechnique = null;
-
         // random            
         var rndx = new Random();
         var rndy = new Random(rndx.Next());
@@ -312,9 +287,6 @@ public class MainViewModel : BaseViewModel {
             };
             SpotLightCollection.Add(spotLight);
         }
-
-        // attach the renderer
-        //this.RenderTechnique = technique;
     }
 
     /// <summary>

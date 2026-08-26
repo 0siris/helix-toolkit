@@ -72,7 +72,6 @@
             CoordinateSystemLabelForeground="White"
             EffectsManager="{Binding EffectsManager}"
             EnableRenderFrustum="True"
-            EnableSwapChainRendering="True"
             IsShadowMappingEnabled="False"
             Msaa="Two"
             ShowCoordinateSystem="False"

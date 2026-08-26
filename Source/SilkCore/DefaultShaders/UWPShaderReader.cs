@@ -4,18 +4,21 @@ namespace HelixToolkit.SharpDX.Core.DefaultShaders;
 /// <summary>
 /// </summary>
 public interface IShaderByteCodeReader {
-    byte[] Read(string name);
+    /// <summary>
+    ///     Reads one Shader Model 6 DXIL module.
+    /// </summary>
+    /// <param name="stage">The two-letter shader stage.</param>
+    /// <param name="name">The shader name.</param>
+    /// <param name="entryPoint">The shader entry point.</param>
+    /// <returns>The DXIL bytecode.</returns>
+    byte[] ReadDxil(string stage, string name, string entryPoint = "main");
 }
 
 /// <summary>
 ///     Used to read HelixToolkit internal default shader byte codes
 /// </summary>
 public sealed class HelixToolkitByteCodeReader : IShaderByteCodeReader {
-    public byte[] Read(string name) {
-        var assembly = typeof(UwpShaderBytePool).GetTypeInfo().Assembly;
-        return ReadResource(assembly, $"SilkCore.Resources.{name}.cso", $"{name}.cso");
-    }
-
+    /// <inheritdoc />
     public byte[] ReadDxil(string stage, string name, string entryPoint = "main") {
         var assembly = typeof(UwpShaderBytePool).GetTypeInfo().Assembly;
         return ReadResource(assembly,
@@ -40,23 +43,13 @@ public static class UwpShaderBytePool {
     public static Dictionary<string, byte[]> Dict = [];
     internal static readonly HelixToolkitByteCodeReader InternalByteCodeReader = new();
 
-    public static byte[] Read(string name, IShaderByteCodeReader? reader = null) {
-        lock (Dict) {
-            if (!Dict.TryGetValue(name, out var byteCode))
-                lock (Dict) {
-                    if (!Dict.TryGetValue(name, out byteCode)) {
-                        if (reader == null)
-                            byteCode = InternalByteCodeReader.Read(name);
-                        else
-                            byteCode = reader.Read(name);
-                        Dict.Add(name, byteCode);
-                    }
-                }
-
-            return byteCode;
-        }
-    }
-
+    /// <summary>
+    ///     Reads and caches one embedded Shader Model 6 DXIL module.
+    /// </summary>
+    /// <param name="stage">The two-letter shader stage.</param>
+    /// <param name="name">The shader name.</param>
+    /// <param name="entryPoint">The shader entry point.</param>
+    /// <returns>The DXIL bytecode.</returns>
     public static byte[] ReadDxil(string stage, string name, string entryPoint = "main") {
         var key = $"DX12/{stage}/{name}/{entryPoint}";
         lock (Dict) {

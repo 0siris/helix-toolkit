@@ -18,7 +18,6 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Model.Lights;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
@@ -51,6 +50,9 @@ public enum OitRenderStage {
 /// </summary>
 public sealed class RenderContext : DisposeObject, IRenderMatrices {
     private readonly Stack<GlobalTransformStruct> transformHistory = new();
+    private readonly float actualWidth;
+    private readonly float actualHeight;
+    private readonly float dpiScale;
 
     /// <summary>
     ///     Gets or sets a value indicating whether [update octree] automatically.
@@ -133,18 +135,23 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <summary>
     ///     Initializes a new instance of the <see cref="RenderContext" /> class.
     /// </summary>
-    /// <param name="renderHost">The render host.</param>
-    public RenderContext(IRenderHost renderHost) {
-        RenderHost = renderHost;
+    /// <param name="camera">The active camera.</param>
+    /// <param name="actualWidth">The viewport width.</param>
+    /// <param name="actualHeight">The viewport height.</param>
+    /// <param name="dpiScale">The physical-pixel scale.</param>
+    public RenderContext(CameraCore camera, float actualWidth, float actualHeight, float dpiScale = 1) {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(actualWidth);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(actualHeight);
+        if (!float.IsFinite(dpiScale) || dpiScale <= 0) throw new ArgumentOutOfRangeException(nameof(dpiScale));
+        this.actualWidth = actualWidth;
+        this.actualHeight = actualHeight;
+        this.dpiScale = dpiScale;
         IsDeferredPass = false;
-        var effectsManager = renderHost.EffectsManager.AssertNotNull("Effects manager must be initialized.");
-        cbuffer = effectsManager.ConstantBufferPool.Register(DefaultBufferNames.GlobalTransformCb,
-                                                             GlobalTransformStruct.SizeInBytes);
-        lightScene = new Light3DSceneShared(effectsManager.ConstantBufferPool);
         sharedResource = new ContextSharedResource();
         OitWeightPower = 3;
         OitWeightDepthSlope = 1;
         OitWeightMode = OitWeightMode.Linear2;
+        Camera = camera;
     }
 
     /// <summary>
@@ -298,7 +305,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     <c>true</c> if this instance is shadow map enabled; otherwise, <c>false</c>.
     /// </value>
-    public bool IsShadowMapEnabled => RenderHost.IsShadowMapEnabled;
+    public bool IsShadowMapEnabled { get; set; }
 
     /// <summary>
     ///     Gets the camera parameters.
@@ -372,7 +379,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The actual width.
     /// </value>
-    public float ActualWidth => RenderHost.ActualWidth;
+    public float ActualWidth => actualWidth;
 
     /// <summary>
     ///     Gets the actual height.
@@ -380,7 +387,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The actual height.
     /// </value>
-    public float ActualHeight => RenderHost.ActualHeight;
+    public float ActualHeight => actualHeight;
 
     /// <summary>
     ///     Gets the dpi scale.
@@ -388,21 +395,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The dpi scale.
     /// </value>
-    public float DpiScale => RenderHost.DpiScale;
-
-    /// <summary>
-    ///     Gets the render host.
-    /// </summary>
-    /// <value>
-    ///     The render host.
-    /// </value>
-    public IRenderHost RenderHost { get; }
-
-    /// <summary>
-    ///     Gets the active render buffer.
-    /// </summary>
-    private DX11RenderBufferProxyBase RenderBuffer =>
-        RenderHost.RenderBuffer.AssertNotNull("Render buffer must be initialized.");
+    public float DpiScale => dpiScale;
 
     public void Update() {
         if (camera == null || !needsUpdate) return;
@@ -510,16 +503,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ShaderResourceViewProxy GetOffScreenRt(OffScreenTextureSize size, Format format) {
-        switch (size) {
-            case OffScreenTextureSize.Full:
-                return RenderBuffer.FullResRenderTargetPool.Get(format);
-            case OffScreenTextureSize.Half:
-                return RenderBuffer.HalfResRenderTargetPool.Get(format);
-            case OffScreenTextureSize.Quarter:
-                return RenderBuffer.QuarterResRenderTargetPool.Get(format);
-            default:
-                return ShaderResourceViewProxy.Empty;
-        }
+        return ShaderResourceViewProxy.Empty;
     }
 
     /// <summary>
@@ -537,23 +521,8 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
         out int width,
         out int height
     ) {
-        switch (size) {
-            case OffScreenTextureSize.Full:
-                width = RenderBuffer.FullResRenderTargetPool.Width;
-                height = RenderBuffer.FullResRenderTargetPool.Height;
-                return RenderBuffer.FullResRenderTargetPool.Get(format);
-            case OffScreenTextureSize.Half:
-                width = RenderBuffer.HalfResRenderTargetPool.Width;
-                height = RenderBuffer.HalfResRenderTargetPool.Height;
-                return RenderBuffer.HalfResRenderTargetPool.Get(format);
-            case OffScreenTextureSize.Quarter:
-                width = RenderBuffer.QuarterResRenderTargetPool.Width;
-                height = RenderBuffer.QuarterResRenderTargetPool.Height;
-                return RenderBuffer.QuarterResRenderTargetPool.Get(format);
-            default:
-                width = height = 0;
-                return ShaderResourceViewProxy.Empty;
-        }
+        width = height = 0;
+        return ShaderResourceViewProxy.Empty;
     }
 
     /// <summary>
@@ -564,16 +533,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ShaderResourceViewProxy GetOffScreenDs(OffScreenTextureSize size, Format format) {
-        switch (size) {
-            case OffScreenTextureSize.Full:
-                return RenderBuffer.FullResDepthStencilPool.Get(format);
-            case OffScreenTextureSize.Half:
-                return RenderBuffer.HalfResDepthStencilPool.Get(format);
-            case OffScreenTextureSize.Quarter:
-                return RenderBuffer.QuarterResDepthStencilPool.Get(format);
-            default:
-                return ShaderResourceViewProxy.Empty;
-        }
+        return ShaderResourceViewProxy.Empty;
     }
 
     /// <summary>
@@ -591,30 +551,15 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
         out int width,
         out int height
     ) {
-        switch (size) {
-            case OffScreenTextureSize.Full:
-                width = RenderBuffer.FullResDepthStencilPool.Width;
-                height = RenderBuffer.FullResDepthStencilPool.Height;
-                return RenderBuffer.FullResDepthStencilPool.Get(format);
-            case OffScreenTextureSize.Half:
-                width = RenderBuffer.HalfResDepthStencilPool.Width;
-                height = RenderBuffer.HalfResDepthStencilPool.Height;
-                return RenderBuffer.HalfResDepthStencilPool.Get(format);
-            case OffScreenTextureSize.Quarter:
-                width = RenderBuffer.QuarterResDepthStencilPool.Width;
-                height = RenderBuffer.QuarterResDepthStencilPool.Height;
-                return RenderBuffer.QuarterResDepthStencilPool.Get(format);
-            default:
-                width = height = 0;
-                return ShaderResourceViewProxy.Empty;
-        }
+        width = height = 0;
+        return ShaderResourceViewProxy.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy? GetPingPongBufferNextRtv() => RenderBuffer.FullResPpBuffer.NextRtv;
+    public ShaderResourceViewProxy? GetPingPongBufferNextRtv() => null;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy? GetPingPongBufferCurrentRtv() => RenderBuffer.FullResPpBuffer.CurrentRtv;
+    public ShaderResourceViewProxy? GetPingPongBufferCurrentRtv() => null;
 
     protected override void OnDispose(bool disposeManagedResources) {
         Camera = null;

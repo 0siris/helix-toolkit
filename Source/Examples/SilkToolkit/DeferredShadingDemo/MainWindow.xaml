@@ -34,9 +34,7 @@
             TextBrush="Black"
             ShowCoordinateSystem="False"
             CoordinateSystemLabelForeground="White"
-            EnableSwapChainRendering="True"
             UseDefaultGestures="False"
-            RenderTechnique="{Binding RenderTechnique}"
             EffectsManager="{Binding EffectsManager}">
             <controls:Viewport3DX.InputBindings>
                 <MouseBinding Gesture="RightClick" Command="controls:ViewportCommands.Rotate" />

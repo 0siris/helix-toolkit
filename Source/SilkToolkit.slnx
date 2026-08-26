@@ -12,8 +12,6 @@
     <Folder Name="/Examples/">
         <Project Path="Examples/SilkCore/CoreWpfTest/CoreWpfTest.csproj"/>
         <Project Path="Examples/SilkCore/DynamicPointsAndLines/DynamicPointsAndLines.csproj"/>
-        <Project Path="Examples/SilkCore/OffScreenRendering/OffScreenRendering.csproj"/>
-        <Project Path="Examples/SilkCore/WinFormsTest/WinFormsTest.csproj"/>
         <Project Path="Examples/SilkToolkit/BatchedMeshDemo/BatchedMeshDemo.csproj"/>
         <Project Path="Examples/SilkToolkit/BillboardDemo/BillboardDemo.csproj"/>
         <Project Path="Examples/SilkToolkit/BoneSkinDemo/BoneSkinDemo.csproj"/>

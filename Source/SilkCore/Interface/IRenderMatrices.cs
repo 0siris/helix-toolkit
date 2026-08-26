@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IRenderHost.cs" company="Helix Toolkit">
+// <copyright file="IRenderMatrices.cs" company="Helix Toolkit">
 //   Copyright (c) 2018 Helix Toolkit contributors
 // </copyright>
 // <summary>
@@ -85,14 +85,6 @@ public interface IRenderMatrices {
     ///     The dpi scale.
     /// </value>
     float DpiScale { get; }
-
-    /// <summary>
-    ///     Gets the render host.
-    /// </summary>
-    /// <value>
-    ///     The render host.
-    /// </value>
-    IRenderHost RenderHost { get; }
 
     /// <summary>
     ///     Gets the bounding frustum.

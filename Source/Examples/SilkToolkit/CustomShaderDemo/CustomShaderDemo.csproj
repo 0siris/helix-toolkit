@@ -4,7 +4,6 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
 
     <RootNamespace>CustomShaderDemo</RootNamespace>
     <AssemblyName>CustomShaderDemo</AssemblyName>
@@ -21,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JeremyAnsel.HLSL.Targets" Version="2.0.34"/>
+    <PackageReference Include="Microsoft.Direct3D.DXC" Version="1.9.2607.13" PrivateAssets="all" GeneratePathProperty="true"/>
     <PackageReference Include="PropertyTools.Wpf" Version="3.1.0"/>
   </ItemGroup>
 
@@ -34,18 +33,20 @@
     <Content Include="Shaders\CommonBuffers.hlsl"/>
     <Content Include="Shaders\DataStructs.hlsl"/>
     <Content Include="Shaders\PerlinNoise3D.hlsl"/>
-    <HLSLShader Include="Shaders\psMeshDataSampling.hlsl">
-      <ShaderProfile>ps_4_0</ShaderProfile>
-    </HLSLShader>
-    <HLSLShader Include="Shaders\psMeshNoiseBlinnPhong.hlsl">
-      <ShaderProfile>ps_4_0</ShaderProfile>
-    </HLSLShader>
-    <HLSLShader Include="Shaders\vsMeshDataSampling.hlsl">
-      <ShaderProfile>vs_4_0</ShaderProfile>
-    </HLSLShader>
-    <HLSLShader Include="Shaders\psCustomPoint.hlsl">
-      <ShaderProfile>ps_4_0</ShaderProfile>
-    </HLSLShader>
+    <DxcShader Include="Shaders\psMeshDataSampling.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="Shaders\psMeshNoiseBlinnPhong.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="Shaders\vsMeshDataSampling.hlsl">
+      <ShaderProfile>vs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="Shaders\psCustomPoint.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
   </ItemGroup>
+
+  <Import Project="..\..\..\SilkToolkit.ShaderBuild\SilkToolkit.ShaderBuild.targets"/>
 
 </Project>

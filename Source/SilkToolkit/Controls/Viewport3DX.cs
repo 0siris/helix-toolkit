@@ -29,6 +29,7 @@ using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
@@ -39,7 +40,6 @@ using HelixToolkit.Wpf.SharpDX.Model.Elements2D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using HitTestResult = HelixToolkit.SharpDX.Core.Utilities.HitTestResult;
 using IViewportExtensions = HelixToolkit.SharpDX.Core.Extensions.IViewportExtensions;
-using MouseButtons = System.Windows.Forms.MouseButtons;
 using OrthographicCamera = HelixToolkit.Wpf.SharpDX.Camera.OrthographicCamera;
 using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.Camera.PerspectiveCamera;
 using Visibility = System.Windows.Visibility;
@@ -156,7 +156,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     private uint? d3d12TouchPointerId;
 
-    private bool isAttached;
 
     private Window? parentWindow;
 
@@ -228,16 +227,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
         Loaded += ControlLoaded;
         Unloaded += ControlUnloaded;
-        IsVisibleChanged += OnIsVisibleChanged;
-    }
-
-    /// <summary>
-    ///     Mirrors WPF visibility to the remaining render-host path.
-    /// </summary>
-    /// <param name="sender">The event source.</param>
-    /// <param name="eventArgs">The visibility change.</param>
-    private void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs eventArgs) {
-        if (RenderHostInternal is { } host) host.IsRendering = (bool) eventArgs.NewValue;
     }
 
     public Model.Elements2D.Abstract.Element2D? MouseOverModel2D {
@@ -254,20 +243,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         }
     }
 
-    /// <summary>
-    ///     Get current render context
-    /// </summary>
-    public RenderContext? RenderContext => RenderHostInternal?.RenderContext;
-
     public ObservableElement3DCollection Items { get; } = [];
-
-    private IEnumerable<SceneNode> OwnedRenderables {
-        get {
-            foreach (var item in Items) yield return item.SceneNode;
-            if (viewCube is { } cube) yield return cube.SceneNode;
-            if (coordinateView is { } coordinate) yield return coordinate.SceneNode;
-        }
-    }
 
     private Overlay Overlay2D { get; } = new() {
         EnableBitmapCache = true
@@ -289,8 +265,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     public IEnumerable<SceneNode> Renderables {
         get {
             foreach (var item in Items) yield return item.SceneNode;
-            if (RenderHostInternal is {EnableSharingModelMode: true, SharedModelContainer: not null})
-                foreach (var item in RenderHostInternal.SharedModelContainer.Renderables)
+            if (EnableSharedModelMode && SharedModelContainerInternal is { } sharedModels)
+                foreach (var item in sharedModels.Renderables)
                     yield return item;
 
             if (viewCube is { } cube) yield return cube.SceneNode;
@@ -317,60 +293,19 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
     public CameraCore? CameraCore => CameraController.ActualCamera;
 
-    public IRenderHost? RenderHost => RenderHostInternal;
-
     public Rectangle ViewportRectangle => new(0, 0, (int) ActualWidth, (int) ActualHeight);
 
     /// <summary>
     ///     Tries to invalidate the current render.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void InvalidateRender() {
-        RenderHostInternal?.InvalidateRender();
-    }
+    public void InvalidateRender() { }
 
     /// <summary>
     ///     Invalidates the scene graph.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void InvalidateSceneGraph() {
-        RenderHostInternal?.InvalidateSceneGraph();
-    }
-
-    /// <summary>
-    ///     Attaches the elements to the specified host.
-    /// </summary>
-    /// <param name="host">The host.</param>
-    public void Attach(IRenderHost host) {
-        if (!isAttached) {
-            foreach (var e in OwnedRenderables) {
-                e.Attach(EffectsManager);
-                e.RenderHost = host;
-                e.Invalidated += NodeInvalidated;
-            }
-
-            SharedModelContainerInternal?.Attach(host);
-            foreach (var e in D2DRenderables) e.Attach(host);
-            isAttached = true;
-        }
-    }
-
-    /// <summary>
-    ///     Detaches the elements.
-    /// </summary>
-    public void Detach() {
-        if (isAttached) {
-            isAttached = false;
-            foreach (var e in OwnedRenderables) {
-                e.Invalidated -= NodeInvalidated;
-                e.RenderHost = null;
-                e.Detach();
-            }
-
-            if (RenderHostInternal is { } host) SharedModelContainerInternal?.Detach(host);
-            foreach (var e in D2DRenderables) e.Detach();
-        }
-    }
+    public void InvalidateSceneGraph() { }
 
     /// <summary>
     /// </summary>
@@ -386,7 +321,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     public event EventHandler<RelayExceptionEventArgs> RenderExceptionOccurred = delegate { };
 
     /// <summary>
-    ///     Occurs when each render frame finished rendering. Called directly from RenderHost after each frame.
+    ///     Occurs after each Direct3D 12 frame has been recorded and presented.
     ///     Use this event carefully. Unsubscrible this event when not used. Otherwise may cause performance issue.
     /// </summary>
     public event EventHandler? OnRendered;
@@ -441,20 +376,13 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             foreach (var item in e.OldItems) {
                 partItemsControl?.Items.Remove(item);
                 if (item is Model.Elements3D.AbstractElements3D.Element3D element) {
-                    element.SceneNode.Invalidated -= NodeInvalidated;
                     element.SceneNode.Detach();
-                    element.SceneNode.RenderHost = null;
                 }
             }
 
         if (e.NewItems != null)
             foreach (var item in e.NewItems) {
                 partItemsControl?.Items.Add(item);
-                if (isAttached && item is Model.Elements3D.AbstractElements3D.Element3D element) {
-                    element.SceneNode.RenderHost = RenderHostInternal;
-                    element.SceneNode.Invalidated += NodeInvalidated;
-                    element.SceneNode.Attach(EffectsManager);
-                }
             }
 
         //Fix for ORL-1571: We need to invalidate the graph here. Otherwise, detached elements will
@@ -673,75 +601,23 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             previousSurface.WindowHost.PointerInput -= D3D12PointerInput;
         d3d12Surface?.Dispose();
         d3d12Surface = null;
-        Disposer.RemoveAndDispose(ref RenderHostInternal);
         var presenter = GetTemplateChild("PART_Canvas") as ContentPresenter ??
                         throw new HelixToolkitException("{0} is missing from the template.", "PART_Canvas");
         hostPresenter = presenter;
 
-        if (presenter.Content is IRenderCanvas renderCanvas)
-            renderCanvas.ExceptionOccurred -= HandleRenderException;
         var source = PresentationSource.FromVisual(this);
         if (source?.CompositionTarget is { } compositionTarget)
             DpiScale = Math.Max(DpiScale,
                 Math.Max(compositionTarget.TransformToDevice.M11,
                     compositionTarget.TransformToDevice.M22));
-        if (EnableSwapChainRendering) {
-            d3d12Surface = new D3D12PresentationSurface(D3D12DriverType);
-            d3d12Surface.WindowHost.PointerInput += D3D12PointerInput;
-            presenter.Content = d3d12Surface;
-            d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
-        } else {
-            presenter.Content = new DPFCanvas(EnableDeferredRendering, BelongsToParentWindow) {
-                DpiScale = DpiScale
-            };
-            renderCanvas = (IRenderCanvas) presenter.Content;
-            renderCanvas.EnableDpiScale = EnableDpiScale;
-            RenderHostInternal = renderCanvas.RenderHost;
-            renderCanvas.ExceptionOccurred += HandleRenderException;
-        }
-        if (RenderHostInternal != null) {
-            RenderHostInternal.Rendered += RaiseRenderHostRendered;
-            RenderHostInternal.ExceptionOccurred += HandleRenderException;
-            RenderHostInternal.ClearColor = BackgroundColor.ToColor4();
-            RenderHostInternal.IsShadowMapEnabled = IsShadowMappingEnabled;
-            RenderHostInternal.Msaa = Msaa;
-            RenderHostInternal.EnableRenderFrustum = EnableRenderFrustum;
-            RenderHostInternal.EnableSharingModelMode = EnableSharedModelMode;
-            RenderHostInternal.SharedModelContainer = SharedModelContainer;
-            RenderHostInternal.Viewport = this;
-            RenderHostInternal.EffectsManager = EffectsManager;
-            RenderHostInternal.IsRendering = Visibility == Visibility.Visible;
-            RenderHostInternal.RenderConfiguration.RenderD2D = EnableD2DRendering;
-            RenderHostInternal.RenderConfiguration.AutoUpdateOctree = EnableAutoOctreeUpdate;
-            RenderHostInternal.RenderConfiguration.OitRenderType = OitRenderMode;
-            RenderHostInternal.RenderConfiguration.OitWeightPower = (float) OitWeightPower;
-            RenderHostInternal.RenderConfiguration.OitWeightDepthSlope = (float) OitWeightDepthSlope;
-            RenderHostInternal.RenderConfiguration.OitWeightMode = OitWeightMode;
-            RenderHostInternal.RenderConfiguration.OitDepthPeelingIteration = OitDepthPeelingIteration;
-            RenderHostInternal.RenderConfiguration.FxaaLevel = FxaaLevel;
-            RenderHostInternal.RenderConfiguration.EnableRenderOrder = EnableRenderOrder;
-            RenderHostInternal.RenderConfiguration.EnableSsao = EnableSsao;
-            RenderHostInternal.RenderConfiguration.SsaoRadius = (float) SsaoSamplingRadius;
-            RenderHostInternal.RenderConfiguration.SsaoIntensity = (float) SsaoIntensity;
-            RenderHostInternal.RenderConfiguration.SsaoQuality = SsaoQuality;
-            RenderHostInternal.RenderConfiguration.MinimumUpdateCount = (uint) Math.Max(0, MinimumUpdateCount);
-            if (ShowFrameRate)
-                RenderHostInternal.ShowRenderDetail |= RenderDetail.Fps;
-            else
-                RenderHostInternal.ShowRenderDetail &= ~RenderDetail.Fps;
-            if (ShowFrameDetails)
-                RenderHostInternal.ShowRenderDetail |= RenderDetail.Statistics;
-            else
-                RenderHostInternal.ShowRenderDetail &= ~RenderDetail.Statistics;
-            if (ShowTriangleCountInfo)
-                RenderHostInternal.ShowRenderDetail |= RenderDetail.TriangleInfo;
-            else
-                RenderHostInternal.ShowRenderDetail &= ~RenderDetail.TriangleInfo;
-            if (ShowCameraInfo)
-                RenderHostInternal.ShowRenderDetail |= RenderDetail.Camera;
-            else
-                RenderHostInternal.ShowRenderDetail &= ~RenderDetail.Camera;
-        }
+        var effectsManager = EffectsManager;
+        var driverType = effectsManager?.EnableSoftwareRendering == true
+            ? SilkDriverType.Warp
+            : D3D12DriverType;
+        d3d12Surface = new D3D12PresentationSurface(driverType, effectsManager);
+        d3d12Surface.WindowHost.PointerInput += D3D12PointerInput;
+        presenter.Content = d3d12Surface;
+        d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
 
         coordinateView ??= Template.FindName(PartCoordinateView, this) as ScreenSpacedElement3D;
         if (coordinateView == null)
@@ -884,27 +760,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         ViewportExtensions.ZoomExtents(this, animationTime);
     }
 
-    private void NodeInvalidated(object? sender, InvalidateTypes e) {
-        RenderHostInternal?.Invalidate(e);
-    }
-
-    /// <summary>
-    ///     Gets the pressed mouse buttons as flags of <see cref="MouseButtons" />.
-    ///     If no button is pressed (result is zero), then it was a touch down.
-    /// </summary>
-    /// <returns>
-    ///     The pressed mouse buttons as flags of <see cref="MouseButtons" />.
-    /// </returns>
-    public static MouseButtons GetPressedMouseButtons() {
-        var flags = 0;
-        flags |= (int) Mouse.LeftButton << 20;
-        flags |= (int) Mouse.RightButton << 21;
-        flags |= (int) Mouse.MiddleButton << 22;
-        flags |= (int) Mouse.XButton1 << 23;
-        flags |= (int) Mouse.XButton2 << 24;
-        return (MouseButtons) flags;
-    }
-
     /// <inheritdoc />
     protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
         base.OnPreviewMouseDown(e);
@@ -945,14 +800,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (touchDownDevice == null) {
             var pt = e.GetPosition(this);
             MouseMoveHitTest(pt, e);
-            UpdateCurrentPosition(pt);
-        }
-    }
-
-    private void Viewport3DX_FormMouseMove(object sender, WinformHostExtend.FormMouseMoveEventArgs e) {
-        if (touchDownDevice == null) {
-            var pt = e.Location;
-            MouseMoveHitTest(pt);
             UpdateCurrentPosition(pt);
         }
     }
@@ -1006,11 +853,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     protected override void OnMouseWheel(MouseWheelEventArgs e) {
-        cameraController.OnMouseWheel(this, e);
-        base.OnMouseWheel(e);
-    }
-
-    private void Viewport3DX_FormMouseWheel(object sender, WinformHostExtend.FormMouseWheelEventArgs e) {
         cameraController.OnMouseWheel(this, e);
         base.OnMouseWheel(e);
     }
@@ -1204,20 +1046,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
 
     /// <summary>
-    ///     Handles the change of the effects manager.
-    /// </summary>
-    private void EffectsManagerPropertyChanged() {
-        if (RenderHostInternal is { } host) host.EffectsManager = EffectsManager;
-    }
-
-    /// <summary>
-    ///     Handles the change of the render technique
-    /// </summary>
-    private void RenderTechniquePropertyChanged(IRenderTechnique technique) {
-        if (RenderHostInternal is { } host) host.RenderTechnique = technique;
-    }
-
-    /// <summary>
     ///     Handles changes in the camera properties.
     /// </summary>
     private void CameraPropertyChanged(DependencyPropertyChangedEventArgs e) {
@@ -1287,10 +1115,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
         if (ZoomExtentsWhenLoaded)
             Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() => { ZoomExtents(); }));
-        if (EnableSwapChainRendering) {
-            d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-            d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
-        }
+        d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
+        d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
     }
 
     private void ParentWindow_Closed(object? sender, EventArgs e) {
@@ -1313,8 +1139,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </param>
     private void ControlUnloaded(object? sender, RoutedEventArgs e) {
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        FormMouseMove -= Viewport3DX_FormMouseMove;
-        FormMouseWheel -= Viewport3DX_FormMouseWheel;
         if (BelongsToParentWindow && parentWindow != null) parentWindow.Closed -= ParentWindow_Closed;
     }
 
@@ -1354,10 +1178,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The rendering event handler.
     /// </summary>
     private void OnCompositionTargetRendering() {
-        var statistics = RenderHostInternal?.RenderStatistics;
-        if (statistics is null) return;
-        FrameRate = Math.Round(statistics.FpsStatistics.AverageFrequency, 2);
-        FrameRateText = FrameRate + " FPS";
     }
 
     /// <summary>
@@ -1380,14 +1200,14 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     /// <param name="renderingTime">The WPF rendering timestamp.</param>
     /// <returns>The number of recorded scene draws, or zero when no frame is ready.</returns>
-    internal int RenderD3D12Frame(TimeSpan renderingTime) {
+    internal int RenderD3D12Frame(TimeSpan renderingTime, bool captureFrame = false) {
         var surface = d3d12Surface;
         var camera = CameraCore;
         if (surface is not {IsInitialized: true} || camera is null || Visibility != Visibility.Visible) return 0;
         cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
         var clearColor = BackgroundColor.ToColor4();
         var recorded = surface.RenderViewportOnce([clearColor.X, clearColor.Y, clearColor.Z, clearColor.W],
-            Items.Select(item => item.SceneNode),
+            Renderables,
             camera,
             EnableRenderFrustum,
             IsShadowMappingEnabled,
@@ -1401,9 +1221,20 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             (float) SsaoSamplingRadius,
             (float) SsaoIntensity,
             SsaoQuality,
-            D2DRenderables);
+            D2DRenderables,
+            captureFrame);
         OnRendered?.Invoke(surface, EventArgs.Empty);
         return recorded;
+    }
+
+    /// <summary>
+    ///     Renders and reads back one complete Direct3D 12 viewport frame.
+    /// </summary>
+    /// <returns>The captured frame.</returns>
+    internal D3D12CapturedFrame CaptureD3D12Frame() {
+        _ = RenderD3D12Frame(TimeSpan.Zero, true);
+        return d3d12Surface?.LastCapturedFrame
+            ?? throw new InvalidOperationException("The Direct3D 12 presentation surface is unavailable.");
     }
 
     /// <summary>
@@ -1448,7 +1279,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (d3d12Surface is { } surface) surface.WindowHost.PointerInput -= D3D12PointerInput;
         d3d12Surface?.Dispose();
         d3d12Surface = null;
-        Disposer.RemoveAndDispose(ref RenderHostInternal);
     }
 
     /// <summary>
@@ -1640,10 +1470,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     private bool ViewBoxHitTest(Point p, InputEventArgs? originalInputEventArgs = null) {
-        if (RenderContext is not { } renderContext || viewCube is not { } cube) return false;
+        if (viewCube is not { } cube) return false;
         var ray = this.UnProject(p.ToVector2());
         var hits = new List<HitTestResult>();
-        var hitContext = new HitTestContext(renderContext, ray, p.ToVector2());
+        var hitContext = new HitTestContext(IViewportExtensions.CreateRenderMatrices(this), ray, p.ToVector2());
         if (cube.HitTest(hitContext, ref hits)) {
             cube.RaiseEvent(new MouseDown3DEventArgs(cube, currentHit, p, this, originalInputEventArgs));
             var normal = hits[0].NormalAtHit;
@@ -1749,11 +1579,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
                 RaiseEvent(new MouseUp3DEventArgs(this, null, pt, this, originalInputEventArgs));
             }
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void RaiseRenderHostRendered(object? sender, EventArgs e) {
-        OnRendered?.Invoke(sender, e);
     }
 
     public static T? FindVisualAncestor<T>(DependencyObject obj) where T : DependencyObject {

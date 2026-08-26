@@ -85,25 +85,6 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         clipParamCb.Upload(deviceContext);
         base.OnRender(renderContext, deviceContext);
         
-        // Draw backface into stencil buffer
-        var dsView = renderContext.RenderHost.DepthStencilBufferView;
-        deviceContext.ClearDepthStencilView(dsView, DepthStencilClearFlags.Stencil, 0);
-        deviceContext.SetDepthStencil(dsView); //Remove render target
-        deviceContext.SetRasterState(BackfaceRasterState);
-        
-        drawBackfacePass.BindShader(deviceContext);
-        drawBackfacePass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
-        
-        if (GeometryBuffer is not { IndexBuffer: { } indexBuffer })
-            return;
-        DrawIndexed(deviceContext, indexBuffer, InstanceBuffer);
-
-        //Draw full screen quad to fill cross section            
-        deviceContext.SetRasterState(RasterState);
-        drawScreenQuadPass.BindShader(deviceContext);
-        drawScreenQuadPass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
-        renderContext.RenderHost.SetDefaultRenderTargets(false); //Rebind render target
-        deviceContext.Draw(4, 0);
     }
 
 #region Shader Variables

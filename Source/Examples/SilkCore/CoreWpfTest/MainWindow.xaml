@@ -32,7 +32,7 @@
             BackgroundColor="#595959"
             Camera="{Binding Camera}"
             CameraMode="Inspect"
-            CameraRotationMode="Trackball" EnableSwapChainRendering="True"
+            CameraRotationMode="Trackball"
             EffectsManager="{Binding EffectsManager}"
             FxaaLevel="Low">
             <controls:Viewport3DX.InputBindings>

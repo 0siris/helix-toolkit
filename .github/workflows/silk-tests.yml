@@ -37,7 +37,7 @@ jobs:
 
           foreach ($test in $tests) {
             dotnet test $test.Path --configuration Release --no-build `
-              --filter 'Category!=Hardware&Category!=DX12' `
+              --filter 'Category!=Hardware' `
               --logger "trx;LogFileName=$($test.Name).trx" `
               --results-directory $results `
               '-p:CollectCoverage=true' `

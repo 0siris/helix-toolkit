@@ -177,7 +177,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
             return;
 
         var ctx = pool.Get();
-        ctx.ClearRenderTargetView(cubeRtVs[index]!, context.RenderHost.ClearColor);
+        ctx.ClearRenderTargetView(cubeRtVs[index]!, Color.Transparent);
         ctx.ClearDepthStencilView(cubeDsVs[index]!, DepthStencilClearFlags.Depth);
         ctx.SetRenderTarget(cubeDsVs[index], cubeRtVs[index]);
         ctx.SetViewport(0, 0, FaceSize, FaceSize);
@@ -190,19 +190,6 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
         transforms.ViewProjection = transforms.View * transforms.Projection;
 
         modelCb.Upload(ctx, ref transforms);
-
-        var frustum = new BoundingFrustum(transforms.ViewProjection);
-        //Render opaque
-        foreach (var node in context.RenderHost.PerFrameOpaqueNodes) {
-            if (node.Guid != Guid && !IgnoredGuid.Contains(node.Guid) && node.TestViewFrustum(ref frustum))
-                node.Render(context, ctx);
-        }
-
-        //Render particle
-        foreach (var node in context.RenderHost.PerFrameParticleNodes) {
-            if (node.Guid != Guid && !IgnoredGuid.Contains(node.Guid) && node.TestViewFrustum(ref frustum))
-                node.Render(context, ctx);
-        }
 
         commands[index] = ctx.FinishCommandList(true);
         contextPool.Put(ctx);

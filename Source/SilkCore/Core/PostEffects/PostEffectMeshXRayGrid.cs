@@ -56,69 +56,7 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="deviceContext">The device context.</param>
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (context.RenderHost.RenderBuffer is not { } buffer)
-            return;
-
-        var depthStencilBuffer = buffer.DepthStencilBufferNoMsaa;
-        deviceContext.SetRenderTarget(depthStencilBuffer, buffer.FullResPpBuffer.CurrentRtv);
-        
-        var viewport = context.Viewport;
-        deviceContext.SetViewport(ref viewport);
-        deviceContext.SetScissorRectangle(ref viewport);
-        //First pass, draw onto stencil buffer
-        foreach (var mesh in context.RenderHost.PerFrameNodesWithPostEffect) {
-            if (!mesh.TryGetPostEffect(EffectName, out var effect)) 
-                continue;
-            
-            currentCores.Add((mesh, effect));
-            
-            RenderPass(mesh, DefaultPassNames.EffectMeshXRayGridP1);
-        }
-
-        //Second pass, remove not covered part from stencil buffer
-        if (UseDepthOcclusion)
-            for (var i = 0; i < currentCores.Count; ++i) {
-                var mesh = currentCores[i].SceneNode;
-                RenderPass(mesh, DefaultPassNames.EffectMeshXRayGridP2);
-            }
-
-        OnUpdatePerModelStruct(context);
-        modelCb.Upload(deviceContext, ref modelStruct);
-        
-        //Thrid pass, draw mesh with grid overlay
-        foreach (var (mesh, effect) in currentCores) {
-            var color = Color;
-            if (effect.TryGetAttribute(EffectAttributeNames.ColorAttributeName, out var attribute) 
-                && attribute is string colorStr) 
-                color = colorStr.ToColor4();
-            
-            if (modelStruct.Color != color) {
-                modelStruct.Color = color;
-                modelCb.Upload(deviceContext, ref modelStruct);
-            }
-
-            RenderPass(mesh, XRayDrawingPassName,
-                      pass => {
-                          if (mesh.RenderCore is IMaterialRenderParams material)
-                              material.MaterialVariables.BindMaterialResources(context, deviceContext, pass);
-                      });
-        }
-
-        currentCores.Clear();
-
-        void RenderPass(Model.Scene.Abstract.SceneNode mesh, string passName, Action<ShaderPass>? bindResources = null) {
-            context.CustomPassName = passName;
-            var pass = mesh.EffectTechnique?[passName];
-            if (pass is null || pass.IsNull) 
-                return;
-            
-            pass.BindShader(deviceContext);
-            pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
-            bindResources?.Invoke(pass);
-            mesh.RenderCustom(context, deviceContext);
-        }
-    }
+    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
 
     private void OnUpdatePerModelStruct(RenderContext context) {
         modelStruct.Param.M11 = gridDensity;

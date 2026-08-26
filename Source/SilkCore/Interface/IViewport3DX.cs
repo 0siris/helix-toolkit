@@ -15,14 +15,6 @@ namespace HelixToolkit.SharpDX.Core.Interface;
 /// </summary>
 public interface IViewport3DX : IDisposable {
     /// <summary>
-    ///     Gets the render host.
-    /// </summary>
-    /// <value>
-    ///     The render host.
-    /// </value>
-    IRenderHost? RenderHost { get; }
-
-    /// <summary>
     ///     Gets a value indicating whether this instance is shadow mapping enabled.
     /// </summary>
     /// <value>
@@ -69,17 +61,6 @@ public interface IViewport3DX : IDisposable {
     ///     The viewport rectangle.
     /// </value>
     Rectangle ViewportRectangle { get; }
-
-    /// <summary>
-    ///     Attaches the specified host.
-    /// </summary>
-    /// <param name="host">The host.</param>
-    void Attach(IRenderHost host);
-
-    /// <summary>
-    ///     Detaches this instance.
-    /// </summary>
-    void Detach();
 
     /// <summary>
     /// </summary>

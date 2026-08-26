@@ -9,6 +9,23 @@ using DxgiFormat = Silk.NET.DXGI.Format;
 namespace SilkCore.Tests;
 
 public class TextureAndResourceTests {
+    /// <summary>
+    ///     Verifies CPU images retain automatic mip-chain validation after removal of D3D11 texture wrappers.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void CpuImagesCalculateMipChainsWithoutD3D11Textures() {
+        using var image1D = Image.New1D(8, true, PixelFormat.R8.UNorm);
+        using var image2D = Image.New2D(8, 4, true, PixelFormat.R8.UNorm);
+        using var image3D = Image.New3D(8, 8, 4, true, PixelFormat.R8.UNorm);
+
+        Assert.Equal(4, image1D.Description.MipLevels);
+        Assert.Equal(4, image2D.Description.MipLevels);
+        Assert.Equal(4, image3D.Description.MipLevels);
+        Assert.Throws<InvalidOperationException>(() => Image.New1D(8, 5, PixelFormat.R8.UNorm));
+        Assert.Throws<InvalidOperationException>(() => Image.New3D(6, 6, 6, true, PixelFormat.R8.UNorm));
+    }
+
     [Fact]
     [Trait("Category", "Unit")]
     public void DdsLoaderReadsBc1Pixels() {

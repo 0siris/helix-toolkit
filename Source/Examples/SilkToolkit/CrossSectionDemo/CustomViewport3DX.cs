@@ -15,16 +15,10 @@ public class CustomViewport3DX : Viewport3DX {
         e.AssertArgumentNotNull();
         base.OnPreviewMouseMove(e);
 
-        // During startup the camera in the render context might be null while the camera in this class isn't.
-        // In that case don't do the hit test. The program is just starting anyway and the model at cursor won't be interesting yet.
-        if (RenderContext?.Camera != null) {
-            var hits = this.FindHits(e.GetPosition(this));
-            ModelAtCursor = hits.Count > 0
-                ? hits[0].ModelHit
-                : null;
-        } else {
-            ModelAtCursor = null;
-        }
+        var hits = this.FindHits(e.GetPosition(this));
+        ModelAtCursor = hits.Count > 0
+            ? hits[0].ModelHit
+            : null;
     }
 
     public static readonly DependencyProperty ModelAtCursorProperty = DependencyProperty.Register(

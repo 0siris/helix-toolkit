@@ -32,7 +32,6 @@
             CoordinateSystemLabelForeground="White"
             EffectsManager="{Binding EffectsManager}"
             EnableDesignModeRendering="False"
-            EnableSwapChainRendering="False"
             FxaaLevel="Low"
             IsShadowMappingEnabled="True"
             ShowCoordinateSystem="False"

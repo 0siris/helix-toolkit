@@ -218,19 +218,6 @@ public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
     ) {
-        if (BoneMatrices.Length > 0 && Geometry is BoneSkinnedMeshGeometry3D {Positions: { } positions} skGeometry)
-            if (RenderCore is BoneSkinRenderCore skCore) {
-                if (skinnedVerticesCache.Length < positions.Count)
-                    skinnedVerticesCache = new Vector3[positions.Count];
-                if (context.RenderMatrices.RenderHost.ImmediateDeviceContext is { } immediateDeviceContext
-                    && skCore.CopySkinnedToArray(immediateDeviceContext, skinnedVerticesCache) > 0)
-                    return skGeometry.HitTestWithSkinnedVertices(context,
-                                                                 skinnedVerticesCache,
-                                                                 totalModelMatrix,
-                                                                 ref hits,
-                                                                 WrapperSource ?? this);
-            }
-
         return base.OnHitTest(context, totalModelMatrix, ref hits);
     }
 }

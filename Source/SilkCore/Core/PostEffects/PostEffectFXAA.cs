@@ -78,32 +78,7 @@ public sealed class PostEffectFxaa : RenderCore, IPostEffect {
     protected override bool OnUpdateCanRenderFlag() 
         => IsAttached && !string.IsNullOrEmpty(EffectName) && FxaaLevel != FxaaLevel.None;
 
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        var buffer = context.RenderHost.RenderBuffer
-            ?? throw new InvalidOperationException("Render buffer is not initialized.");
-        deviceContext.SetRenderTarget(buffer.FullResPpBuffer.NextRtv);
-        
-        var viewport = context.Viewport;
-        deviceContext.SetViewport(ref viewport);
-        deviceContext.SetScissorRectangle(ref viewport);
-        
-        OnUpdatePerModelStruct(context);
-        modelCb.Upload(deviceContext, ref modelStruct);
-        
-        lumaPass.BindShader(deviceContext);
-        lumaPass.BindStates(deviceContext, StateType.All);
-        
-        lumaPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPpBuffer.CurrentSrv);
-        lumaPass.PixelShader.BindSampler(deviceContext, samplerSlot, Sampler!); //sampler can't be null in render loop 
-        deviceContext.Draw(4, 0);
-
-        deviceContext.SetRenderTarget(buffer.FullResPpBuffer.CurrentRtv);
-        fxaaPass.BindShader(deviceContext);
-        fxaaPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPpBuffer.NextSrv);
-        deviceContext.Draw(4, 0);
-        
-        fxaaPass.PixelShader.BindTexture(deviceContext, textureSlot, null);
-    }
+    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
 
     private void OnUpdatePerModelStruct(RenderContext context) {
         modelStruct.Color = new Color4(1 / context.ActualWidth,

@@ -27,7 +27,8 @@ public static class ShaderHelper {
 /// Build using Nuget Micorsoft.HLSL.Microsoft.HLSL.CSharpVB automatically during project build
 /// </summary>
 public static class CustomVsShaderDescription {
-    public static byte[] VsMeshDataSamplerByteCode => ShaderHelper.LoadShaderCode(@"Shaders\vsMeshDataSampling.cso");
+    public static byte[] VsMeshDataSamplerByteCode =>
+        ShaderHelper.LoadShaderCode(@"DX12\Shaders\vsMeshDataSampling.main.dxil");
 
     public static ShaderDescription VsDataSampling = new(nameof(VsDataSampling),
                                                                            ShaderStage.Vertex,
@@ -43,20 +44,20 @@ public static class CustomPsShaderDescription {
                                                                            ShaderStage.Pixel,
                                                                            new ShaderReflector(),
                                                                            ShaderHelper.LoadShaderCode(
-                                                                               @"Shaders\psMeshDataSampling.cso"));
+                                                                               @"DX12\Shaders\psMeshDataSampling.main.dxil"));
 
     public static ShaderDescription PsNoiseMesh = new(nameof(PsNoiseMesh),
                                                                         ShaderStage.Pixel,
                                                                         new ShaderReflector(),
                                                                         ShaderHelper.LoadShaderCode(
-                                                                            @"Shaders\psMeshNoiseBlinnPhong.cso"));
+                                                                            @"DX12\Shaders\psMeshNoiseBlinnPhong.main.dxil"));
 
 
     public static ShaderDescription PsCustomPoint = new(nameof(PsCustomPoint),
                                                                           ShaderStage.Pixel,
                                                                           new ShaderReflector(),
                                                                           ShaderHelper.LoadShaderCode(
-                                                                              @"Shaders\psCustomPoint.cso"));
+                                                                              @"DX12\Shaders\psCustomPoint.main.dxil"));
 }
 
 public class CustomEffectsManager : DefaultEffectsManager {

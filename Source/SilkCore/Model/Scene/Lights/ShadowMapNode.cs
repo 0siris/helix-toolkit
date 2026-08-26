@@ -158,11 +158,7 @@ public class ShadowMapNode : SceneNode {
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
-    protected override RenderCore OnCreateRenderCore() {
-        var core = new ShadowMapCore();
-        core.OnUpdateLightSource += Core_OnUpdateLightSource;
-        return core;
-    }
+    protected override RenderCore OnCreateRenderCore() => new ShadowMapCore();
 
     /// <summary>
     ///     Assigns the default values to core.
@@ -212,8 +208,7 @@ public class ShadowMapNode : SceneNode {
     /// <param name="context"></param>
     /// <returns></returns>
     protected override bool CanRender(RenderContext context) {
-        ShadowCore.NeedRender =
-            base.CanRender(context) && context.RenderHost.IsShadowMapEnabled;
+        ShadowCore.NeedRender = base.CanRender(context) && context.IsShadowMapEnabled;
         return true;
     }
 
@@ -277,53 +272,6 @@ public class ShadowMapNode : SceneNode {
         orthoCamera.Position = -lookDir * distance;
         orthoCamera.UpDirection = Vector3.UnitZ;
         orthoCamera.Width = orthoWidth;
-    }
-
-    private void Core_OnUpdateLightSource(object? sender, ShadowMapCore.UpdateLightSourceEventArgs e) {
-        CameraCore? camera = LightCamera;
-        if (LightCamera == null) {
-            var lights = e.Context.RenderHost.PerFrameLights.Take(Constants.MaxLights);
-            foreach (var light in lights) {
-                if (light.LightType == LightType.Directional) {
-                    if (light.RenderCore is not DirectionalLightCore dlight) continue;
-                    var dir = SilkMath.TransformNormal(dlight.Direction, dlight.ModelMatrix)
-                        .Normalized();
-                    if (AutoCoverCompleteScene) {
-                        if (sceneChanged || e.Context.UpdateSceneGraphRequested || IsSceneDynamic) {
-                            sceneChanged = false;
-                            var boundingBox = FindSceneBound(e.Context.RenderHost.PerFrameOpaqueNodes);
-                            if (!CreateCameraFromBound(ref boundingBox, ref dir))
-                                SetOrthoCameraParameters(ref dir);
-                        }
-                    } else {
-                        SetOrthoCameraParameters(ref dir);
-                    }
-
-                    camera = orthoCamera;
-                    break;
-                }
-
-                if (light.LightType == LightType.Spot) {
-                    if (light.RenderCore is not SpotLightCore splight) continue;
-                    persCamera.Position = splight.Position + splight.ModelMatrix.Row4.ToVector3();
-                    var look = SilkMath.TransformNormal(splight.Direction, splight.ModelMatrix);
-                    persCamera.LookDirection = look;
-                    persCamera.FarPlaneDistance = splight.Range;
-                    persCamera.FieldOfView = splight.OuterAngle;
-                    persCamera.UpDirection = Vector3.UnitZ;
-                    camera = persCamera;
-                    break;
-                }
-            }
-        }
-
-        if (camera == null) {
-            ShadowCore.FoundLightSource = false;
-        } else {
-            ShadowCore.FoundLightSource = true;
-            ShadowCore.LightView = camera.CreateViewMatrix();
-            ShadowCore.LightProjection = camera.CreateProjectionMatrix(ShadowCore.Width / ShadowCore.Height);
-        }
     }
 
     /// <summary>

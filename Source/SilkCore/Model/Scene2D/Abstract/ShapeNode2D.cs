@@ -93,8 +93,8 @@ public abstract class ShapeNode2D : SceneNode2D {
 
     protected abstract ShapeRenderCore2DBase CreateShapeRenderCore();
 
-    protected override bool OnAttach(IRenderHost host) {
-        if (base.OnAttach(host)) {
+    protected override bool OnAttach() {
+        if (base.OnAttach()) {
             strokeStyleChanged = true;
             return true;
         }

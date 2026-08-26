@@ -30,7 +30,7 @@ public class PresenterNode2D : SceneNode2D {
                 content = value;
                 if (content is { } actualContent) {
                     actualContent.Parent = this;
-                    if (IsAttached && RenderHost is { } host) actualContent.Attach(host);
+                    if (IsAttached) actualContent.Attach(DpiScale);
                     ItemsInternal.Add(actualContent);
                 }
 
@@ -39,9 +39,9 @@ public class PresenterNode2D : SceneNode2D {
         }
     }
 
-    protected override bool OnAttach(IRenderHost host) {
-        if (base.OnAttach(host)) {
-            content?.Attach(host);
+    protected override bool OnAttach() {
+        if (base.OnAttach()) {
+            content?.Attach(DpiScale);
             return true;
         }
 

@@ -1,16 +1,11 @@
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
 using Buffer = HelixToolkit.SharpDX.Core.Native.Buffer;
 
 namespace HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 
 public partial class DeviceContextProxy {
     private static readonly RenderTargetView?[] ZeroRenderTargetArray = [];
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRenderTargets(DX11RenderBufferProxyBase buffer)
-        => buffer.SetDefaultRenderTargets(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetRenderTarget(DepthStencilView? dsv, RenderTargetView? renderTarget)
@@ -76,10 +71,6 @@ public partial class DeviceContextProxy {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UnorderedAccessView?[] GetUnorderedAccessViews(int startSlot, int count)
         => NativeContext.GetUnorderedAccessViews(startSlot, count);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ClearRenderTargets(DX11RenderBufferProxyBase buffer, Color4 color)
-        => buffer.ClearRenderTarget(this, color);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ClearDepthStencilView(

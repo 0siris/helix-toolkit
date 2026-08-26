@@ -47,7 +47,7 @@ internal sealed class AsyncActionWaitable : DisposeObject {
 }
 
 /// <summary>
-///     Used to run real-time non-rendering tasks in RenderHost.
+///     Used to run real-time non-rendering tasks alongside presentation.
 /// </summary>
 internal sealed class AsyncActionThread : IDisposable {
     private readonly Queue<AsyncActionWaitable> jobs = new();

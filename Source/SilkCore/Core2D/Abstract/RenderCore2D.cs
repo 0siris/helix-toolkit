@@ -3,8 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Diagnostics.CodeAnalysis;
-using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -28,8 +26,6 @@ public abstract class RenderCore2D : DisposeObject {
     ///     <c>true</c> if this instance is rendering; otherwise, <c>false</c>.
     /// </value>
     public bool IsRendering { get; set; } = true;
-
-    public IRenderHost? RenderHost { get; private set; }
 
     /// <summary>
     ///     Absolute layout rectangle cooridnate for renderable
@@ -100,26 +96,18 @@ public abstract class RenderCore2D : DisposeObject {
     public event EventHandler<EventArgs>? InvalidateRender;
 
     /// <summary>
-    ///     Attaches the specified host.
+    ///     Attaches the data core.
     /// </summary>
-    /// <param name="host">The host.</param>
-    [MemberNotNull(nameof(RenderHost))]
-    public void Attach(IRenderHost host) {
-        if (IsAttached) {
-            RenderHost.AssertNotNull("Host must be already present");
-            return;
-        }
-        
-        RenderHost = host.AssertNotNull();
-        IsAttached = OnAttach(host);
+    public void Attach() {
+        if (IsAttached) return;
+        IsAttached = OnAttach();
     }
 
     /// <summary>
     ///     Called when [attach].
     /// </summary>
-    /// <param name="host">The target.</param>
     /// <returns></returns>
-    protected virtual bool OnAttach(IRenderHost host) => true;
+    protected virtual bool OnAttach() => true;
 
     /// <summary>
     ///     Detaches this instance.

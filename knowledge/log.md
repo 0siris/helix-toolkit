@@ -1,5 +1,17 @@
 # Knowledge Bundle Update Log
 
+## 2026-08-26
+
+* **Update**: Isolated Desktop Duplication from the shared D3D11 device wrapper and removed unused DXGI handles,
+  legacy OIT/depth-peeling/SSAO render orchestrators, never-created D3D11 resource-pool implementations, and the
+  closed `SharpDX.Toolkit.Graphics.Texture*` D3D11 GPU island while retaining CPU image/DDS/WIC decoding.
+* **Update**: Removed the four public legacy `DeviceContextProxy` render dispatches from `SceneNode` and the
+  corresponding empty dynamic-cube-map dispatch loops, while retaining the productive DX12 traversal.
+* **Verification**: Recorded the 321-warning/zero-error solution build across all 43 examples, the green 338-test
+  repository standard gate and 29 focused cutover contract cases, and the remaining nine-file D3D11 source
+  inventory before the matching `RenderCore` boundary is removed; refreshed the 986-file Graphify database to
+  12,742 nodes, 21,970 edges, and 2,518 communities.
+
 ## 2026-08-25
 
 * **Update**: Completed DX12 migration Phase 4.2 with productive 1D/3D textures, tessellation, shadow depth,
@@ -185,3 +197,11 @@
   console output including exception text. The 305-test standard suite and zero-error solution build pass; a
   ten-second `DeferredShadingDemo` hardware smoke remains responsive with empty standard output/error and no
   viewport exception. Graphify refreshed 1,053 sources to 13,324 nodes, 24,482 edges, and 2,085 communities.
+* **Update**: Advanced Phase 5 to one WPF HWND/DX12 `Viewport3DX` path; removed legacy D3D11 hosts, render
+  buffers, D3DImage/WinForms presentation, `IRenderHost`, and obsolete WinForms/off-screen examples. DX12 now
+  owns screenshot readback, custom scene-node technique selection, and WARP presentation tests. Desktop
+  Duplication now owns its raw lazy D3D11 device/context/staging handles without the renderer device factory.
+* **Verification**: The zero-error solution build covers all 43 SilkToolkit examples. The standard suite now
+  excludes only hardware and passes 308/308 before the final capture-island lifecycle additions. Reflection
+  contracts keep removed host/canvas APIs absent, capture conversion covers padded RGBA-to-BGRA rows, and
+  Graphify refreshed 1,007 sources to 12,908 nodes, 22,694 edges, and 2,351 communities.

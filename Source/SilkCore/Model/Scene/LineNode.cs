@@ -68,9 +68,7 @@ public class LineNode : MaterialGeometryNode {
     protected override IRenderTechnique OnCreateRenderTechnique(IEffectsManager effectsManager) => effectsManager[DefaultRenderTechniqueNames.Lines];
 
     protected override bool CanRender(RenderContext context) {
-        if (base.CanRender(context)) return !context.RenderHost.IsDeferredLighting;
-
-        return false;
+        return base.CanRender(context);
     }
 
     protected override bool OnCheckGeometry(Geometry3D? geometry) => base.OnCheckGeometry(geometry) && geometry is LineGeometry3D;

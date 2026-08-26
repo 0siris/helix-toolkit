@@ -57,14 +57,12 @@ public class FrameStatisticsRenderCore : RenderCore2DBase {
     /// <summary>
     ///     Called when [attach].
     /// </summary>
-    /// <param name="target">The target.</param>
     /// <returns></returns>
-    protected override bool OnAttach(IRenderHost target) {
+    protected override bool OnAttach() {
         Factory = new DirectWriteFactory();
-        Format = new TextFormat(Factory, "Arial", FontWeight.Normal, FontStyle.Normal, 12 * target.DpiScale);
+        Format = new TextFormat(Factory, "Arial", FontWeight.Normal, FontStyle.Normal, 12);
         previousStr = string.Empty;
-        statistics = target.RenderStatistics;
-        return base.OnAttach(target);
+        return base.OnAttach();
     }
 
     protected override void OnDetach() {

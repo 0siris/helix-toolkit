@@ -14,6 +14,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using HelixToolkit.SharpDX.Core.Extensions;
@@ -329,27 +330,17 @@ public static class ViewportExtensions {
     /// <param name="view">The viewport.</param>
     /// <returns>A bitmap.</returns>
     public static BitmapSource? RenderBitmap(this Viewport3DX view) {
-        if (view.RenderHost is { IsRendering: true } host) {
-            host.UpdateAndRender();
-            using var memoryStream = new MemoryStream();
-            if (host is {IsRendering: true, RenderBuffer: {BackBuffer.Resource: NativeD3DTexture2D backBuffer}, EffectsManager: { } effectsManager}) {
-                if (view.EnableSwapChainRendering) host.UpdateAndRender();
-                // be sure to render the Scene before capture, otherwise the image is just black
-                ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
-                                                           backBuffer,
-                                                           memoryStream);
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                memoryStream.Position = 0;
-                bitmap.StreamSource = memoryStream;
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.EndInit();
-                bitmap.Freeze();
-                return bitmap;
-            }
-        }
-
-        return null;
+        var frame = view.CaptureD3D12Frame();
+        var bitmap = BitmapSource.Create(checked((int) frame.Width),
+            checked((int) frame.Height),
+            96,
+            96,
+            PixelFormats.Bgra32,
+            null,
+            frame.Pixels,
+            checked((int) frame.Width * 4));
+        bitmap.Freeze();
+        return bitmap;
     }
 
     /// <summary>
@@ -364,15 +355,14 @@ public static class ViewportExtensions {
         int width,
         int height
     ) {
-        var renderHost = view.RenderHost;
-        if (renderHost is null) return null;
-
-        var w = renderHost.ActualWidth;
-        var h = renderHost.ActualHeight;
-        renderHost.Resize(width, height);
-        var rtb = view.RenderBitmap();
-        renderHost.Resize((int)w, (int)h);
-        return rtb;
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+        var source = view.RenderBitmap();
+        if (source is null || source.PixelWidth == width && source.PixelHeight == height) return source;
+        var resized = new TransformedBitmap(source,
+            new ScaleTransform(width / (double) source.PixelWidth, height / (double) source.PixelHeight));
+        resized.Freeze();
+        return resized;
     }
 
     /// <summary>
@@ -390,10 +380,9 @@ public static class ViewportExtensions {
     public static void ResizeAndArrange(this Viewport3DX view, int width, int height) {
         view.Width = width;
         view.Height = height;
-        if (view.RenderHost == null || !view.RenderHost.IsRendering) return;
         view.Measure(new Size(width, height));
         view.Arrange(new Rect(0, 0, width, height));
-        view.RenderHost.Resize(width, height);
+        view.UpdateLayout();
     }
 
 
@@ -428,21 +417,20 @@ public static class ViewportExtensions {
     /// <param name="fileName">Name of the file.</param>
     /// <param name="format">The format.</param>
     public static void SaveScreen(this Viewport3DX view, string fileName, Direct2DImageFormat format) {
-        using (var file = File.OpenWrite(fileName)) {
-            if (!file.CanWrite) throw new IOException($"File cannot be written. {fileName}");
-        }
-
-        if (view.RenderHost is { IsRendering: true } host) {
-            host.UpdateAndRender();
-            if (host.RenderBuffer is not { } buffer
-                || host.EffectsManager is not { } effectsManager
-                || buffer.BackBuffer.Resource is not NativeD3DTexture2D backBuffer)
-                return;
-            ScreenCapture.SaveWicTextureToFile(effectsManager,
-                                               backBuffer,
-                                               fileName,
-                                               format);
-        }
+        var bitmap = view.RenderBitmap()
+            ?? throw new InvalidOperationException("The Direct3D 12 presentation surface is unavailable.");
+        BitmapEncoder encoder = format switch {
+            Direct2DImageFormat.Png => new PngBitmapEncoder(),
+            Direct2DImageFormat.Gif => new GifBitmapEncoder(),
+            Direct2DImageFormat.Ico => new PngBitmapEncoder(),
+            Direct2DImageFormat.Jpeg => new JpegBitmapEncoder(),
+            Direct2DImageFormat.Wmp => new WmpBitmapEncoder(),
+            Direct2DImageFormat.Tiff => new TiffBitmapEncoder(),
+            _ => new BmpBitmapEncoder()
+        };
+        encoder.Frames.Add(BitmapFrame.Create(bitmap));
+        using var file = File.Create(fileName);
+        encoder.Save(file);
     }
 
     /// <summary>

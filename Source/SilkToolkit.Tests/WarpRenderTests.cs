@@ -1,118 +1,108 @@
-using System.IO;
-using System.Windows;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using HelixToolkit.SharpDX.Core.Interface;
+using System.Windows.Threading;
+using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.RenderBuffers;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.Wpf.SharpDX.Controls;
 using Xunit;
-using Color4 = Silk.NET.Maths.Vector4D<float>;
+using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace SilkToolkit.Tests;
 
+/// <summary>
+///     Verifies the Direct3D 12 WARP presentation path.
+/// </summary>
 [Collection(WpfCollection.Name)]
 public sealed class WarpRenderTests {
+    /// <summary>
+    ///     Verifies a clear-only frame can be rendered and captured as tightly packed BGRA pixels.
+    /// </summary>
     [Fact]
     [Trait("Category", "Warp")]
-    public Task ClearsAndCapturesOffscreenTarget() {
-        return StaThread.RunAsync(() => {
-            using var effectsManager = CreateWarpEffectsManager();
-            using var buffer = new DX11Texture2DRenderBufferProxy(effectsManager);
-            var backBuffer = buffer.Initialize(64, 32, MsaaLevel.Disable);
-            var context = effectsManager.DeviceContext2D;
-            if (buffer.D2DTarget is not {D2DTarget: { } target})
-                throw new InvalidOperationException("The D2D target is required.");
-            context.Target = target;
+    public Task ClearsAndCapturesSwapChainTarget() => StaThread.RunAsync(() => {
+        using var window = CreateWindow();
+        using var surface = CreateSurface(window, 64, 32);
 
-            context.BeginDraw();
-            context.Clear(new Color4(0.25f, 0.5f, 0.75f, 1));
-            context.EndDraw();
-            effectsManager.NativeDeviceResources.ImmediateContext.Flush();
+        Assert.Equal(0, surface.RenderViewportOnce([0.25f, 0.5f, 0.75f, 1], [], CreateCamera(), false,
+            captureFrame: true));
 
-            using var stream = new MemoryStream();
-            var resource = backBuffer.Resource ??
-                           throw new InvalidOperationException("The back buffer resource is required.");
-            Assert.True(ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
-                (Texture2D) resource,
-                stream));
-
-            var frame = new BmpBitmapDecoder(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad).Frames[0];
-            Assert.Equal(64, frame.PixelWidth);
-            Assert.Equal(32, frame.PixelHeight);
-            BitmapSource source = frame.Format == PixelFormats.Bgra32
-                ? frame
-                : new FormatConvertedBitmap(frame, PixelFormats.Bgra32, null, 0);
-            var pixel = new byte[4];
-            source.CopyPixels(new Int32Rect(0, 0, 1, 1), pixel, 4, 0);
-            Assert.Contains(pixel, value => value != 0);
-        });
-    }
-
-    [Fact]
-    [Trait("Category", "Warp")]
-    [Trait("Category", "Wpf")]
-    public Task ResizesPresentsAndCapturesHwndSwapChain() {
-        return StaThread.RunAsync(() => {
-            using var window = new HwndSource(new HwndSourceParameters(nameof(WarpRenderTests)) {
-                Width = 32,
-                Height = 24,
-                WindowStyle = unchecked((int) 0x80000000)
-            });
-            using var effectsManager = CreateWarpEffectsManager();
-            using var buffer = new DX11SwapChainRenderBufferProxy(window.Handle, effectsManager);
-
-            var backBuffer = buffer.Initialize(32, 24, MsaaLevel.Disable);
-            if (buffer.SwapChain is not { } swapChain)
-                throw new InvalidOperationException("The swap chain is required.");
-            if (backBuffer.Resource is not { } initialResource)
-                throw new InvalidOperationException("The initial back buffer resource is required.");
-            Assert.NotEqual(IntPtr.Zero, initialResource.NativePointer);
-            Assert.True(buffer.Present());
-
-            backBuffer = buffer.Resize(80, 60);
-            Assert.Equal(80, swapChain.Description1.Width);
-            Assert.Equal(60, swapChain.Description1.Height);
-            Assert.True(buffer.Present());
-
-            using var stream = new MemoryStream();
-            var resource = backBuffer.Resource ??
-                           throw new InvalidOperationException("The back buffer resource is required.");
-            Assert.True(ScreenCapture.SaveWicTextureToBitmapStream(effectsManager,
-                (Texture2D) resource,
-                stream));
-            var frame = new BmpBitmapDecoder(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad).Frames[0];
-            Assert.Equal(80, frame.PixelWidth);
-            Assert.Equal(60, frame.PixelHeight);
-        });
-    }
+        var frame = Assert.IsType<D3D12CapturedFrame>(surface.LastCapturedFrame);
+        Assert.Equal(surface.PixelWidth, frame.Width);
+        Assert.Equal(surface.PixelHeight, frame.Height);
+        Assert.Equal(checked((int) (frame.Width * frame.Height * 4)), frame.Pixels.Length);
+        Assert.InRange(frame.Pixels[0], 188, 194);
+        Assert.InRange(frame.Pixels[1], 124, 130);
+        Assert.InRange(frame.Pixels[2], 60, 66);
+        Assert.Equal(255, frame.Pixels[3]);
+    });
 
     /// <summary>
-    ///     Verifies that a swap chain can initialize when depth-stencil rendering is disabled.
+    ///     Verifies the WARP swap chain presents before and after a WPF resize.
     /// </summary>
     [Fact]
     [Trait("Category", "Warp")]
     [Trait("Category", "Wpf")]
-    public Task InitializesHwndSwapChainWithoutDepthStencilBuffer() {
-        return StaThread.RunAsync(() => {
-            using var window = new HwndSource(new HwndSourceParameters(nameof(WarpRenderTests)) {
-                Width = 32,
-                Height = 24,
-                WindowStyle = unchecked((int) 0x80000000)
-            });
-            using var effectsManager = CreateWarpEffectsManager();
-            using var buffer = new DX11SwapChainRenderBufferProxy(window.Handle, effectsManager, false);
+    public Task ResizesPresentsAndCapturesHwndSwapChain() => StaThread.RunAsync(() => {
+        using var window = CreateWindow();
+        using var surface = CreateSurface(window, 32, 24);
 
-            buffer.Initialize(32, 24, MsaaLevel.Disable);
+        surface.RenderViewportOnce([0, 0, 0, 1], [], CreateCamera(), false);
+        surface.Width = 80;
+        surface.Height = 60;
+        surface.UpdateLayout();
+        Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, () => { });
+        surface.RenderViewportOnce([0, 0, 0, 1], [], CreateCamera(), false, captureFrame: true);
 
-            Assert.Null(buffer.DepthStencilBuffer);
-            Assert.Null(buffer.DepthStencilBufferNoMsaa);
-        });
+        var frame = Assert.IsType<D3D12CapturedFrame>(surface.LastCapturedFrame);
+        Assert.Equal(surface.PixelWidth, frame.Width);
+        Assert.Equal(surface.PixelHeight, frame.Height);
+        Assert.Equal(2UL, surface.PresentedFrames);
+    });
+
+    /// <summary>
+    ///     Verifies the WARP surface owns a valid Direct3D 12 depth target.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    [Trait("Category", "Wpf")]
+    public Task InitializesHwndSwapChainWithDepthStencilBuffer() => StaThread.RunAsync(() => {
+        using var window = CreateWindow();
+        using var surface = CreateSurface(window, 32, 24);
+
+        Assert.True(surface.IsInitialized);
+        Assert.Equal(D3D12PresentationSize.Calculate(32, 24, surface.WindowHost.DpiScale),
+            (surface.PixelWidth, surface.PixelHeight));
+        surface.RenderViewportOnce([0, 0, 0, 1], [], CreateCamera(), false);
+        Assert.Equal(1UL, surface.PresentedFrames);
+    });
+
+    /// <summary>
+    ///     Creates the hidden WPF owner used by a WARP presentation surface.
+    /// </summary>
+    private static HwndSource CreateWindow() => new(new HwndSourceParameters(nameof(WarpRenderTests)) {
+        Width = 80,
+        Height = 60,
+        WindowStyle = unchecked((int) 0x80000000)
+    });
+
+    /// <summary>
+    ///     Creates and initializes a WARP presentation surface at the requested size.
+    /// </summary>
+    private static D3D12PresentationSurface CreateSurface(HwndSource window, double width, double height) {
+        var surface = new D3D12PresentationSurface(SilkDriverType.Warp) { Width = width, Height = height };
+        window.RootVisual = surface;
+        surface.UpdateLayout();
+        Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, () => { });
+        return surface;
     }
 
-    private static DefaultEffectsManager CreateWarpEffectsManager() => new(new EffectsManagerConfiguration {
-        EnableSoftwareRendering = true
-    });
+    /// <summary>
+    ///     Creates a deterministic camera for clear-only presentation tests.
+    /// </summary>
+    private static PerspectiveCameraCore CreateCamera() => new() {
+        Position = new Vector3(0, 0, 2),
+        LookDirection = new Vector3(0, 0, -2),
+        UpDirection = Vector3.UnitY,
+        NearPlaneDistance = 0.1f,
+        FarPlaneDistance = 100
+    };
 }

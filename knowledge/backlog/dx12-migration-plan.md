@@ -12,7 +12,7 @@ tags:
 timestamp: 2026-07-09T00:00:00+02:00
 generated: false
 status: active
-verified: 2026-08-25
+verified: 2026-08-26
 sources:
   - ../../Source/SilkToolkit.slnx
   - ../../Source/SilkToolkit.Native.ShaderBuilder/SilkToolkit.Native.ShaderBuilder.csproj
@@ -23,10 +23,10 @@ sources:
 
 ## Current checkpoint
 
-* **Current phase:** Phase 5 - final DX12-only cutover. Phase 4 renderer parity is complete, and
-  `DeferredShadingDemo` now explicitly selects the productive DX12 swap-chain path instead of entering the
-  CSO-dependent legacy D3D11 canvas. Empty optional mesh streams now receive per-position DX12 defaults, and
-  handled viewport render failures are also written through the configured console logger.
+* **Current phase:** Phase 5 - final DX12-only cutover. `Viewport3DX` now has one WPF HWND/DX12 presentation
+  path; the legacy D3D11 render hosts, render buffers, D3DImage/WinForms canvases, `IRenderHost`, WinForms and
+  off-screen examples are removed. Screenshot capture now reads the DX12 back buffer, and custom scene-node
+  technique selection reaches the DX12 pass catalog without attaching D3D11 resources.
 * **Branch:** `feature/wpf-sharpdx`
 * **Starting commit:** `a3ac7ca4ee7397e84ddfb7a3b66ac16963b586b0`
 * **Completed:** Phase 0, Phase 1, and the automated Phase 2 implementation: hardware/WARP adapter selection,
@@ -84,7 +84,7 @@ sources:
   material and instance bindings remain shared with static meshes. Opaque and transparent scene lists now share
   one renderer-independent camera-frustum selector that updates `IsInFrustum`; the legacy host uses it immediately
   and the DX12 host consumes the identical contract without duplicating culling logic. A host-lifetime DX12
-  scene renderer now attaches existing geometry nodes without an `IEffectsManager` or DX11 resources, creates
+  scene renderer now attaches existing geometry nodes without DX11 resources, creates
   their existing default mesh/line/point/billboard/bone buffer models, owns per-core descriptor/constant-buffer
   bindings, records visible cores in candidate order, and detaches every node and native resource deterministically.
   `D3D12PresentationSurface` now owns that renderer and its shader-visible heaps; one frame binds the current
@@ -96,8 +96,8 @@ sources:
   materials cross the same constant-buffer binding path. The existing `Viewport3DX` swap-chain option now owns
   this DX12 surface instead of `DPFSurfaceSwapChain`, drives it from the coalesced WPF composition callback,
   flattens current item scene trees into ordered opaque/transparent candidates, and derives b0 plus the culling
-  frustum from the active camera and physical surface dimensions. The non-swap-chain `DPFCanvas` path remains
-  temporarily available until its unsupported renderer features have productive DX12 replacements. Existing
+  frustum from the active camera and physical surface dimensions. The former non-swap-chain `DPFCanvas` path
+  has been removed. Existing
   visible ambient, directional, point, and spot nodes now rebuild the shared light buffer in scene order with
   the legacy world-space transforms and eight-light cap. The current existing environment node supplies its
   cube `TextureModel` through the shared resource manager to t20/s4, while b3 publishes the validated mip count;
@@ -124,11 +124,13 @@ sources:
   tightly packed BGRA frame crosses an explicit CPU-owned boundary into a replaceable DX12 texture. Timeout
   retains the preceding frame, output changes and failures release the old session, crop/aspect behavior is
   deterministic, and real desktop capture remains an explicit interactive-hardware test.
-* **Last verified gates:** CLI-fallback solution build passed with 330 warnings and 0 errors. The standard tests
-  pass 305/305 (`SilkAssimp` 13, `SilkCore` 256, `SilkToolkit` 36). Explicit DX12 hardware creation passed 1/1
+* **Last verified gates:** CLI-fallback solution build passed with 321 warnings and 0 errors, including all 43
+  SilkToolkit example projects. The repository standard gate excludes `Hardware` and `DX12` and passes 338/338
+  (`SilkAssimp` 13, `SilkCore` 287, `SilkToolkit` 38). Explicit DX12 hardware creation passed 1/1
   in a preceding work package; the new interactive desktop-capture test was intentionally not run. Graphify
-  passes without syntax-recovery warnings for 1,053 source files with 13,324 nodes, 24,482 edges, and 2,085
-  final communities. `git diff --check` passes with line-ending notices only.
+  passes for 986 source files with 12,742 nodes, 21,970 edges, and 2,518 final communities; known duplicate
+  namespace and stale skill-version notices remain non-blocking. `git diff --check` passes with line-ending
+  notices only.
 * **Validation note:** Rider/ReSharper MCP was not exposed in the implementation session, so its diagnostics
   and formatter gates remain outstanding; the documented `dotnet` fallback was used for build and tests.
 * **Latest focused gates:** The complete DX12 runtime class passes 100/100 automated tests with one explicit
@@ -196,15 +198,26 @@ sources:
   notices remain non-blocking warnings.
 * **Outstanding manual gates:** Visible hardware swap-chain presentation, live DPI changes, physical mouse/touch
   behavior, and real interactive Desktop Duplication have not been observed in this non-interactive session.
-* **Latest Phase 5 smoke:** `DeferredShadingDemo` builds with zero errors and remains responsive in a ten-second
+* **Latest Phase 5 smoke:** The former `DeferredShadingDemo` builds with zero errors and remained responsive in a ten-second
   DX12 hardware startup check with empty standard output/error, without initializing D3D11, requesting
   `vsMeshDefault.cso`, or failing on its empty `Colors` collection. Future handled viewport render exceptions
   are written to the configured console logger before the existing event/UI handling. Its legacy
-  `RenderDeferred` registration is still absent and is represented by a named `NullTechnique`, so this proves
-  stable DX12 startup rather than deferred shading.
-* **Next action:** Make the DX12 presentation/scene path the repository-wide `Viewport3DX` default, migrate the
-  remaining explicit legacy examples, and then remove renderer-wide DX11 hosts and resources while retaining
-  only the isolated desktop-capture source.
+  `RenderDeferred` registration is absent, so this proves stable DX12 startup rather than deferred shading. Its
+  UI is now explicitly titled `DX12 Lighting Demo` and no longer binds a null deferred technique; a fresh
+  post-change hardware smoke is pending.
+* **Latest Phase 5 native cleanup:** Desktop Duplication now owns its raw D3D11 device/context/staging lifetime
+  inside `D3D11DesktopCaptureSource`; the shared D3D11 device factory and unused DXGI swap-chain handles are
+  removed. The unreachable legacy OIT/depth-peeling/SSAO orchestrators and their render parameter are removed,
+  as are the never-created D3D11 shader, state, constant-buffer, material, texture, geometry, and deferred-context
+  pool implementations. The closed D3D11 `SharpDX.Toolkit.Graphics.Texture*` GPU island and its unused loader
+  are also removed; CPU `Image`/DDS/WIC decoding retains local mip-chain validation for DX12 uploads. Scene nodes
+  no longer expose the four legacy `DeviceContextProxy` render dispatch methods, and the corresponding empty
+  dynamic-cube-map dispatch loops are removed. The full solution and all 338 standard tests pass; 29 focused
+  cutover contract cases keep the removed surface absent. The direct D3D11 hygiene inventory remains nine source
+  files rather than the permitted single capture file.
+* **Next action:** Remove the matching legacy `RenderCore` attach/update/render boundary and its derived D3D11
+  implementations, then delete the native shader/state/view/resource handle paths that become unreachable. Keep
+  raw D3D11 only inside Desktop Duplication before running the sequential hardware demo matrix.
 
 Update this checkpoint after every completed work package, every changed technical decision, and before
 stopping. A work package is complete only when its implementation, tests, and checkpoint agree.
@@ -423,23 +436,23 @@ Implement each group as a separate green work package.
 
 ### Work
 
-- [ ] Make DX12 the only `Viewport3DX` and `IRenderHost` path.
+- [x] Make DX12 the only `Viewport3DX` path and remove `IRenderHost`.
 - [ ] Remove DX11 render hosts, render buffers, D3DImage/WinForms presentation, and DX11-specific public types.
-- [ ] Remove `JeremyAnsel.HLSL.Targets`, CSO copy targets, `.cso` resources, and redundant shader-reader paths.
+- [x] Remove `JeremyAnsel.HLSL.Targets`, CSO copy targets, `.cso` resources, and redundant shader-reader paths.
 - [ ] Retain `Silk.NET.Direct3D11` only for the isolated screen-duplication implementation.
 - [ ] Update examples, test commands, project knowledge, and this checkpoint to the final state.
 
 ### Tests and gates
 
-- [ ] Preserve and convert existing unit, WPF, and WARP tests; do not delete tests merely to make the cutover
+- [x] Preserve and convert existing unit, WPF, and WARP tests; do not delete tests merely to make the cutover
   pass.
-- [ ] Require complete DXIL resources, zero `.cso`, and zero JeremyAnsel references.
+- [x] Require complete DXIL resources, zero `.cso`, and zero JeremyAnsel references.
 - [ ] Enforce that D3D11 source references exist only in the screen-duplication area.
-- [ ] Initialize all 24 techniques and 199 pass descriptions under WARP and render a representative case for
+- [x] Initialize all 24 techniques and 199 pass descriptions under WARP and render a representative case for
   each feature group.
-- [ ] Build all 43 SilkToolkit example projects.
+- [x] Build all 43 SilkToolkit example projects.
 - [ ] Sequentially start the central demos and verify startup, rendering, resize, and clean shutdown.
-- [ ] Change the standard suite to exclude only `Hardware`; DX12 is no longer an exceptional category.
+- [x] Change the standard suite to exclude only `Hardware`; DX12 is no longer an exceptional category.
 - [ ] Explicitly hardware-test present, resize, materials, OIT, post effects, 2D/text, and Desktop Duplication.
 
 ### Exit criteria

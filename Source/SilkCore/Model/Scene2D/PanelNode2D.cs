@@ -21,7 +21,7 @@ public class PanelNode2D : SceneNode2D {
             ItemHashSet.Add(node.Guid, node);
             ItemsInternal.Add(node);
             node.Parent = this;
-            if (IsAttached && RenderHost is { } host) node.Attach(host);
+            if (IsAttached) node.Attach(DpiScale);
             return true;
         }
 
@@ -65,8 +65,8 @@ public class PanelNode2D : SceneNode2D {
     /// <returns></returns>
     public bool TryGetNode(Guid guid, out SceneNode2D? node) => ItemHashSet.TryGetValue(guid, out node);
 
-    protected override bool OnAttach(IRenderHost host) {
-        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Attach(host);
+    protected override bool OnAttach() {
+        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Attach(DpiScale);
         return true;
     }
 

@@ -67,17 +67,9 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
         deviceContext.SetViewport(0, 0, Width, Height);
 
         deviceContext.SetDepthStencil(shadowMap.DepthStencilView);
-        modelStruct.HasShadowMap = context.RenderHost.IsShadowMapEnabled ? 1 : 0;
+        modelStruct.HasShadowMap = context.IsShadowMapEnabled ? 1 : 0;
         modelCb.Upload(deviceContext, ref modelStruct);
-        for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodes.Count; ++i) {
-            //Only support opaque object for throwing shadows.
-            var core = context.RenderHost.PerFrameOpaqueNodes[i];
-            if (core.RenderCore.IsThrowingShadow && core.TestViewFrustum(ref frustum))
-                core.RenderShadow(context, deviceContext);
-        }
-
         context.BoundingFrustum = orgFrustum;
-        context.RenderHost.SetDefaultRenderTargets(false);
         context.SharedResource.ShadowView = shadowMap;
 #endif
     }

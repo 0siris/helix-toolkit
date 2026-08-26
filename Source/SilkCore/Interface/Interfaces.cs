@@ -22,23 +22,6 @@ public interface IGuid {
 
 /// <summary>
 /// </summary>
-public interface IAttachable {
-    /// <summary>
-    /// </summary>
-    bool IsAttached { get; }
-
-    /// <summary>
-    /// </summary>
-    /// <param name="host"></param>
-    void Attach(IRenderHost host);
-
-    /// <summary>
-    /// </summary>
-    void Detach();
-}
-
-/// <summary>
-/// </summary>
 public interface IResourceSharing : IDisposable {
     /// <summary>
     ///     Attaches the specified model unique identifier.

@@ -78,59 +78,7 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
     protected override bool OnUpdateCanRenderFlag() 
         => IsAttached && !string.IsNullOrEmpty(EffectName);
 
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (blurCore is not { } currentBlurCore || sampler is not { } currentSampler)
-            return;
-
-        if (context.RenderHost.RenderBuffer is not { } buffer) return;
-        var nextBuffer = buffer.FullResPpBuffer.NextRtv;
-        if (nextBuffer is not { } nextBufferProxy || nextBufferProxy.RenderTargetView is not { } nextRtv)
-            return;
-
-        #region Do Bloom Pass
-
-        modelCb.Upload(deviceContext, ref modelStruct);
-        //Extract bloom samples
-        deviceContext.SetRenderTarget(nextRtv);
-
-        screenQuadPass.PixelShader.BindTexture(deviceContext, textureSlot, buffer.FullResPpBuffer.CurrentSrv);
-        screenQuadPass.PixelShader.BindSampler(deviceContext, samplerSlot, currentSampler);
-        screenQuadPass.BindShader(deviceContext);
-        screenQuadPass.BindStates(deviceContext, StateType.All);
-        deviceContext.Draw(4, 0);
-        var viewport = context.Viewport;
-        // Down sampling
-        for (var i = 0; i < numberOfBlurPass; ++i)
-            currentBlurCore.Run(context,
-                         deviceContext,
-                         nextBufferProxy,
-                         ref viewport,
-                         PostEffectBlurCore.BlurDepth.Two,
-                         ref modelStruct);
-
-        #endregion
-
-        #region Draw outline onto original target
-
-        var currentBuffer = buffer.FullResPpBuffer.CurrentRtv;
-        if (currentBuffer is not { RenderTargetView: { } currentRtv }
-            || buffer.FullResPpBuffer.NextSrv is not { } nextSrv)
-            return;
-
-        BindTarget(null,
-                   currentRtv,
-                   deviceContext,
-                   buffer.TargetWidth,
-                   buffer.TargetHeight,
-                   false);
-        screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, nextSrv);
-        screenOutlinePass.BindShader(deviceContext);
-        screenOutlinePass.BindStates(deviceContext, StateType.All);
-        deviceContext.Draw(4, 0);
-        screenOutlinePass.PixelShader.BindTexture(deviceContext, textureSlot, null);
-
-    #endregion
-    }
+    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
 
     protected override void OnDetach() {
         RemoveAndDispose(ref sampler);

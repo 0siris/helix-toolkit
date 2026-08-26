@@ -198,25 +198,11 @@ public sealed class VolumeRenderCore : RenderCore {
 
         #region Render all mesh Positions onto off-screen texture region with stencil = 0 only
 
-            if (context.RenderHost.PerFrameOpaqueNodesInFrustum.Count > 0)
-                for (var i = 0; i < context.RenderHost.PerFrameOpaqueNodesInFrustum.Count; ++i) {
-                    var mesh = context.RenderHost.PerFrameOpaqueNodesInFrustum[i];
-                    if (mesh.EffectTechnique is not { } meshTechnique) continue;
-                    var meshPass = meshTechnique[DefaultPassNames.Positions];
-                    if (meshPass.IsNull) continue;
-                    meshPass.BindShader(deviceContext);
-                    meshPass.BindStates(deviceContext, StateType.BlendState);
-                    // Set special depth stencil state to only render into region with stencil region is 0
-                    frontPass.BindStates(deviceContext, StateType.DepthStencilState);
-                    mesh.RenderCustom(context, deviceContext);
-                }
-
             #endregion
         }
 
         #region Render box back face again and do actual volume sampling
 
-        context.RenderHost.SetDefaultRenderTargets(false);
         var pass = materialVariables.GetPass(RenderType.Opaque, context);
         if (pass != volumePass) {
             volumePass = pass;

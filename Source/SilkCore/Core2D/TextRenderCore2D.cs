@@ -117,15 +117,15 @@ public class TextRenderCore2D : RenderCore2DBase {
         }
     }
 
-    protected override bool OnAttach(IRenderHost host) {
-        if (base.OnAttach(host)) {
+    protected override bool OnAttach() {
+        if (base.OnAttach()) {
             TextLayoutDirty = true;
             textFactory = new DirectWriteFactory();
             textFormat = new TextFormat(textFactory,
                                         FontFamily,
                                         FontWeight,
                                         FontStyle,
-                                        FontSize * host.DpiScale);
+                                        FontSize);
             return true;
         }
 
@@ -143,12 +143,11 @@ public class TextRenderCore2D : RenderCore2DBase {
 
     private void UpdateFontFormat() {
         RemoveAndDispose(ref textFormat);
-        var renderHost = RenderHost ?? throw new InvalidOperationException("Render host is not initialized.");
         textFormat = new TextFormat(TextFactory,
                                     FontFamily,
                                     FontWeight,
                                     FontStyle,
-                                    FontSize * renderHost.DpiScale);
+                                    FontSize);
         TextLayoutDirty = true;
     }
 

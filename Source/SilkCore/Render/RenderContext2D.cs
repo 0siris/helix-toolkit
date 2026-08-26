@@ -12,9 +12,19 @@ public sealed class RenderContext2D : DisposeObject {
     private readonly Stack<Matrix3X2> relativeTransformStack = new();
 
     /// <summary>
-    ///     The render host
+    ///     The viewport width.
     /// </summary>
-    private readonly IRenderHost renderHost;
+    private readonly double actualWidth;
+
+    /// <summary>
+    ///     The viewport height.
+    /// </summary>
+    private readonly double actualHeight;
+
+    /// <summary>
+    ///     The physical-pixel scale.
+    /// </summary>
+    private readonly float dpiScale;
 
     /// <summary>
     ///     The target stack
@@ -25,12 +35,23 @@ public sealed class RenderContext2D : DisposeObject {
     ///     Initializes a new instance of the <see cref="RenderContext2D" /> class.
     /// </summary>
     /// <param name="deviceContext">The device context.</param>
-    /// <param name="host">The host.</param>
-    public RenderContext2D(D2DDeviceContext deviceContext, IRenderHost host) {
+    /// <param name="deviceResources">The Direct2D resources.</param>
+    /// <param name="actualWidth">The viewport width.</param>
+    /// <param name="actualHeight">The viewport height.</param>
+    /// <param name="dpiScale">The physical-pixel scale.</param>
+    public RenderContext2D(D2DDeviceContext deviceContext,
+        IDevice2DResources deviceResources,
+        double actualWidth,
+        double actualHeight,
+        float dpiScale = 1) {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(actualWidth);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(actualHeight);
+        if (!float.IsFinite(dpiScale) || dpiScale <= 0) throw new ArgumentOutOfRangeException(nameof(dpiScale));
         DeviceContext = deviceContext;
-        renderHost = host;
-        DeviceResources = host.EffectsManager
-            ?? throw new InvalidOperationException("The render host has no effects manager.");
+        DeviceResources = deviceResources;
+        this.actualWidth = actualWidth;
+        this.actualHeight = actualHeight;
+        this.dpiScale = dpiScale;
     }
 
     /// <summary>
@@ -39,7 +60,7 @@ public sealed class RenderContext2D : DisposeObject {
     /// <value>
     ///     The actual width.
     /// </value>
-    public double ActualWidth => renderHost.ActualWidth;
+    public double ActualWidth => actualWidth;
 
     /// <summary>
     ///     Gets the actual height.
@@ -47,7 +68,7 @@ public sealed class RenderContext2D : DisposeObject {
     /// <value>
     ///     The actual height.
     /// </value>
-    public double ActualHeight => renderHost.ActualHeight;
+    public double ActualHeight => actualHeight;
 
     /// <summary>
     ///     Gets the dpi scale.
@@ -55,7 +76,7 @@ public sealed class RenderContext2D : DisposeObject {
     /// <value>
     ///     The dpi scale.
     /// </value>
-    public float DpiScale => renderHost.DpiScale;
+    public float DpiScale => dpiScale;
 
     /// <summary>
     ///     Gets or sets the device context.

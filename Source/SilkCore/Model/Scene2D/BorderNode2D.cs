@@ -88,8 +88,8 @@ public class BorderNode2D : ContentNode2D {
         }
     }
 
-    protected override bool OnAttach(IRenderHost host) {
-        if (base.OnAttach(host)) {
+    protected override bool OnAttach() {
+        if (base.OnAttach()) {
             strokeStyleChanged = true;
             return true;
         }

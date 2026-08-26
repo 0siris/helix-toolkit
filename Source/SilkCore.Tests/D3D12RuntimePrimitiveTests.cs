@@ -4468,6 +4468,21 @@ public class D3D12RuntimePrimitiveTests {
     }
 
     /// <summary>
+    ///     Verifies the isolated desktop-capture source remains lazy and validates its lifecycle without hardware use.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void DesktopCaptureSourceValidatesLazyLifecycle() {
+        var source = new D3D11DesktopCaptureSource();
+
+        Assert.False(source.IsDisposed);
+        Assert.Throws<InvalidOperationException>(() => source.TryAcquire(TimeSpan.Zero, out _));
+        source.Dispose();
+        Assert.True(source.IsDisposed);
+        Assert.Throws<ObjectDisposedException>(() => source.Start(0));
+    }
+
+    /// <summary>
     ///     Supplies deterministic frames and timeout responses without loading Direct3D 11.
     /// </summary>
     private sealed class FakeDesktopCaptureSource : IDesktopCaptureSource {

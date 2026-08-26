@@ -531,7 +531,7 @@ public sealed class Image : Component {
                     throw new InvalidOperationException("Invalid Width/Height/Depth/ArraySize for Image 1D");
 
                 // Check that miplevels are fine
-                description.MipLevels = Texture.CalculateMipLevels(description.Width, 1, description.MipLevels);
+                description.MipLevels = CalculateMipLevels(description.Width, 1, 1, description.MipLevels, false);
                 break;
 
             case TextureDimension.Texture2D:
@@ -546,7 +546,7 @@ public sealed class Image : Component {
 
                 // Check that miplevels are fine
                 description.MipLevels =
-                    Texture.CalculateMipLevels(description.Width, description.Height, description.MipLevels);
+                    CalculateMipLevels(description.Width, description.Height, 1, description.MipLevels, false);
                 break;
 
             case TextureDimension.Texture3D:
@@ -555,10 +555,11 @@ public sealed class Image : Component {
                     throw new InvalidOperationException("Invalid Width/Height/Depth/ArraySize for Image 3D");
 
                 // Check that miplevels are fine
-                description.MipLevels = Texture.CalculateMipLevels(description.Width,
-                                                                   description.Height,
-                                                                   description.Depth,
-                                                                   description.MipLevels);
+                description.MipLevels = CalculateMipLevels(description.Width,
+                                                           description.Height,
+                                                           description.Depth,
+                                                           description.MipLevels,
+                                                           true);
                 break;
         }
 
@@ -589,6 +590,43 @@ public sealed class Image : Component {
         // PreCompute databoxes
         dataBoxArray = ComputeDataBox();
     }
+
+    /// <summary>
+    ///     Normalizes an explicit or automatic mip count for a CPU image.
+    /// </summary>
+    /// <param name="width">The image width.</param>
+    /// <param name="height">The image height.</param>
+    /// <param name="depth">The image depth.</param>
+    /// <param name="requested">The requested mip count, or zero for the complete chain.</param>
+    /// <param name="requirePowerOfTwo">Whether every dimension must be a power of two for multiple mips.</param>
+    /// <returns>The normalized mip count.</returns>
+    private static int CalculateMipLevels(
+        int width,
+        int height,
+        int depth,
+        MipMapCount requested,
+        bool requirePowerOfTwo
+    ) {
+        var requestedCount = requested.Count;
+        if (requestedCount <= 1 && requestedCount != 0)
+            return 1;
+
+        if (requirePowerOfTwo && (!IsPowerOfTwo(width) || !IsPowerOfTwo(height) || !IsPowerOfTwo(depth)))
+            throw new InvalidOperationException("Width/Height/Depth must be power of 2");
+
+        var maxMipLevels = System.Numerics.BitOperations.Log2((uint)Math.Max(width, Math.Max(height, depth))) + 1;
+        if (requestedCount > maxMipLevels)
+            throw new InvalidOperationException($"MipLevels must be <= {maxMipLevels}");
+
+        return requestedCount == 0 ? maxMipLevels : requestedCount;
+    }
+
+    /// <summary>
+    ///     Determines whether a positive dimension is a power of two.
+    /// </summary>
+    /// <param name="value">The dimension.</param>
+    /// <returns><see langword="true" /> when the dimension is a power of two.</returns>
+    private static bool IsPowerOfTwo(int value) => value != 0 && (value & (value - 1)) == 0;
 
     private PixelBuffer GetPixelBufferUnsafe(int arrayIndex, int zIndex, int mipmap) {
         var depthIndex = mipMapToZIndex[mipmap];

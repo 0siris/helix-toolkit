@@ -9,6 +9,7 @@ using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using Silk.NET.DXGI;
@@ -28,6 +29,11 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     ///     The complete existing technique descriptions keyed by name.
     /// </summary>
     private readonly IReadOnlyDictionary<string, TechniqueDescription> techniques;
+
+    /// <summary>
+    ///     The optional application technique registry used by custom scene nodes.
+    /// </summary>
+    private readonly IEffectsManager? effectsManager;
 
     /// <summary>
     ///     Native passes keyed by technique, pass, and primitive topology.
@@ -63,7 +69,9 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     internal D3D12ScenePassCatalog(
         SilkD3D12Device device,
         Format renderTargetFormat,
-        Format depthStencilFormat
+        Format depthStencilFormat,
+        IEnumerable<TechniqueDescription>? customTechniques = null,
+        IEffectsManager? effectsManager = null
     ) {
         device.AssertArgumentNotNull();
         if (renderTargetFormat == Format.FormatUnknown)
@@ -73,9 +81,15 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         this.device = device;
         this.renderTargetFormat = renderTargetFormat;
         this.depthStencilFormat = depthStencilFormat;
+        this.effectsManager = effectsManager;
         rootSignature = device.CreateDefaultRootSignature();
-        techniques = DefaultEffectsManager.LoadTechniqueDescriptions()
-            .ToDictionary(description => description.Name, StringComparer.Ordinal);
+        var descriptions = DefaultEffectsManager.LoadTechniqueDescriptions()
+            .ToDictionary(description => description.Name!, StringComparer.Ordinal);
+        if (customTechniques is not null)
+            foreach (var description in customTechniques)
+                if (description.Name is { } name)
+                    descriptions[name] = description;
+        techniques = descriptions;
     }
 
     /// <summary>
@@ -96,7 +110,10 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
                 DefaultPassNames.Default,
                 PrimitiveTopology.TriangleStrip);
         if (node.RenderCore is not GeometryRenderCore {GeometryBuffer: { } geometryBuffer}) return null;
-        var (techniqueName, passName) = GetSelection(node);
+        var (defaultTechniqueName, passName) = GetSelection(node);
+        var techniqueName = effectsManager is null
+            ? defaultTechniqueName
+            : node.ResolveD3D12TechniqueName(effectsManager);
         if (techniqueName is null || passName is null) return null;
         return Resolve(techniqueName, passName, geometryBuffer.Topology);
     }

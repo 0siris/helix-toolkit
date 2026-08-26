@@ -49,7 +49,6 @@
             CoordinateSystemLabelForeground="White"
             EffectsManager="{Binding EffectsManager}"
             EnableD2DRendering="False"
-            EnableSwapChainRendering="True"
             Msaa="Two"
             ShowCoordinateSystem="True"
             SubTitle="{Binding SubTitle}"

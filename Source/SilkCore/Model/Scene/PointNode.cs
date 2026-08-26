@@ -82,9 +82,7 @@ public class PointNode : MaterialGeometryNode {
     /// <param name="context"></param>
     /// <returns></returns>
     protected override bool CanRender(RenderContext context) {
-        if (base.CanRender(context)) return !context.RenderHost.IsDeferredLighting;
-
-        return false;
+        return base.CanRender(context);
     }
 
     protected override bool OnCheckGeometry(Geometry3D? geometry) => base.OnCheckGeometry(geometry) && geometry is PointGeometry3D;

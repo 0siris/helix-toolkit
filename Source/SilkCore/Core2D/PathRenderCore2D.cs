@@ -55,11 +55,10 @@ public class PathRenderCore2D : ShapeRenderCore2DBase {
     /// <summary>
     ///     Called when [attach].
     /// </summary>
-    /// <param name="host">The host.</param>
     /// <returns></returns>
-    protected override bool OnAttach(IRenderHost host) {
+    protected override bool OnAttach() {
         IsGeometryChanged = true;
-        return base.OnAttach(host);
+        return base.OnAttach();
     }
 
     /// <summary>

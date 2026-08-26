@@ -40,7 +40,6 @@
             EnableAutoOctreeUpdate="True"
             EnableDeferredRendering="True"
             EnableRenderFrustum="True"
-            EnableSwapChainRendering="True"
             ShowCoordinateSystem="False"
             ShowFrameDetails="True"
             ShowFrameRate="True"

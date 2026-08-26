@@ -10,7 +10,6 @@ using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -70,7 +69,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     ///         <see cref="OnCreateRenderTechnique" />
     ///     </para>
     ///     <para>
-    ///         Attach Flow: <see cref="OnCreateRenderTechnique(IEffectsManager)" /> -> Set RenderHost -> Get Effect ->
+    ///         Attach Flow: <see cref="OnCreateRenderTechnique(IEffectsManager)" /> -> Get Effect ->
     ///         <see cref="OnAttach(IEffectsManager)" /> -> <see cref="InvalidateSceneGraph" />
     ///     </para>
     /// </summary>
@@ -632,6 +631,22 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         => effectsManager[DefaultRenderTechniqueNames.Mesh];
 
     /// <summary>
+    ///     Resolves the node's existing technique contract for the Direct3D 12 renderer without attaching DX11 resources.
+    /// </summary>
+    /// <param name="effectsManager">The active technique registry.</param>
+    /// <returns>The selected technique name.</returns>
+    internal string ResolveD3D12TechniqueName(IEffectsManager effectsManager) {
+        effectsManager.AssertArgumentNotNull();
+        if (EffectsManager is not null && !ReferenceEquals(EffectsManager, effectsManager))
+            throw new InvalidOperationException("EffectsManager instances must be the same during rendering.");
+        EffectsManager = effectsManager;
+        EffectTechnique ??= OnSetRenderTechnique is not null
+            ? OnSetRenderTechnique(effectsManager)
+            : OnCreateRenderTechnique(effectsManager);
+        return EffectTechnique.Name;
+    }
+
+    /// <summary>
     ///     Called when [create render core].
     /// </summary>
     /// <returns></returns>
@@ -729,51 +744,6 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <returns></returns>
     protected virtual bool CanRender(RenderContext context)
         => visible && (IsAttached || RenderCore.IsD3D12Attached);
-
-    /// <summary>
-    ///     Renders the specified context.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        RenderCore.ModelMatrix = TotalModelMatrixInternal;
-        RenderCore.Render(context, deviceContext);
-    }
-
-    /// <summary>
-    ///     Renders the shadow.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RenderShadow(RenderContext context, DeviceContextProxy deviceContext) {
-        RenderCore.ModelMatrix = TotalModelMatrixInternal;
-        RenderCore.RenderShadow(context, deviceContext);
-    }
-
-    /// <summary>
-    ///     Renders the custom.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RenderCustom(RenderContext context, DeviceContextProxy deviceContext) {
-        RenderCore.ModelMatrix = TotalModelMatrixInternal;
-        RenderCore.RenderCustom(context, deviceContext);
-    }
-
-    /// <summary>
-    ///     Renders the custom.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    /// <param name="pass"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RenderDepth(RenderContext context, DeviceContextProxy deviceContext, ShaderPass? pass) {
-        RenderCore.ModelMatrix = TotalModelMatrixInternal;
-        RenderCore.RenderDepth(context, deviceContext, pass);
-    }
 
     /// <summary>
     ///     View frustum test.
@@ -964,8 +934,6 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     ///     <c>true</c> if this instance has any post effect; otherwise, <c>false</c>.
     /// </value>
     public bool HasAnyPostEffect => postEffectNames.Count > 0;
-
-    public virtual IRenderHost? RenderHost { get; set; }
 
     /// <summary>
     ///     Adds the post effect.

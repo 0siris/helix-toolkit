@@ -5,9 +5,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
-using System.Windows.Forms;
+using System.Windows.Input;
 using System.Windows.Media;
-using HelixToolkit.Wpf.SharpDX.Controls;
 using HelixToolkit.Wpf.SharpDX.Element3D;
 
 namespace ExampleBrowser.Workitems.Workitem10048;
@@ -24,9 +23,12 @@ public class MyLineGeometryModel3D : LineGeometryModel3D {
         }
 
         var result = base.HitTest(context, ref hits); // this.HitTest2D(rayWS, ref hits);
-        var pressedMouseButtons = Viewport3DX.GetPressedMouseButtons();
-
-        if (pressedMouseButtons == 0 || pressedMouseButtons.HasFlag(MouseButtons.Left)) {
+        var noMouseButtonPressed = Mouse.LeftButton == MouseButtonState.Released
+                                   && Mouse.RightButton == MouseButtonState.Released
+                                   && Mouse.MiddleButton == MouseButtonState.Released
+                                   && Mouse.XButton1 == MouseButtonState.Released
+                                   && Mouse.XButton2 == MouseButtonState.Released;
+        if (noMouseButtonPressed || Mouse.LeftButton == MouseButtonState.Pressed) {
             Color = result ? Colors.Red : initialColor.Value;
         }
 

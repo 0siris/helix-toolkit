@@ -144,7 +144,7 @@ public sealed class ShaderDescription {
                     ? UwpShaderBytePool.ReadDxil(stage,
                         ByteCodeName,
                         D3D12ShaderManifest.ResolveEntryPoint(stage, ByteCodeName))
-                    : byteCodeReader?.Read(ByteCodeName);
+                    : byteCodeReader?.ReadDxil(stage, ByteCodeName, "main");
             }
             return field;
         }

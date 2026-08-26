@@ -30,7 +30,6 @@
             CoordinateSystemLabelForeground="White"
             EffectsManager="{Binding EffectsManager}"
             EnableD2DRendering="False"
-            EnableSwapChainRendering="True"
             FxaaLevel="Low"
             ModelUpDirection="0,0,1"
             ShowCoordinateSystem="False"

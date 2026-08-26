@@ -32,8 +32,8 @@ public class ImageNode2D : SceneNode2D {
 
     protected override RenderCore2D CreateRenderCore() => new ImageRenderCore2D();
 
-    protected override bool OnAttach(IRenderHost host) {
-        if (base.OnAttach(host)) {
+    protected override bool OnAttach() {
+        if (base.OnAttach()) {
             BitmapChanged = true;
             return true;
         }

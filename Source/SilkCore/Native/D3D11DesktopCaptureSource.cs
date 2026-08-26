@@ -15,6 +15,15 @@ namespace HelixToolkit.SharpDX.Core.Native;
 ///     Isolates the permitted Direct3D 11 desktop-duplication edge and returns CPU-owned BGRA frames.
 /// </summary>
 internal sealed unsafe class D3D11DesktopCaptureSource : IDesktopCaptureSource {
+    /// <summary>The Direct3D 11 SDK version.</summary>
+    private const uint D3D11SdkVersion = 7;
+
+    /// <summary>DXGI_ERROR_WAIT_TIMEOUT.</summary>
+    private const int WaitTimeout = unchecked((int) 0x887A0027);
+
+    /// <summary>DXGI_ERROR_ACCESS_LOST.</summary>
+    private const int AccessLost = unchecked((int) 0x887A0026);
+
     /// <summary>The COM identifier for IDXGIDevice.</summary>
     private static readonly Guid DxgiDeviceGuid = new("54ec77fa-1377-44e6-8c32-88fd5f44c84c");
 
@@ -24,45 +33,53 @@ internal sealed unsafe class D3D11DesktopCaptureSource : IDesktopCaptureSource {
     /// <summary>The COM identifier for ID3D11Texture2D.</summary>
     private static readonly Guid Texture2DGuid = new("6f15aaf2-d208-4e89-9ab4-489535d34f9c");
 
-    /// <summary>DXGI_ERROR_WAIT_TIMEOUT.</summary>
-    private const int WaitTimeout = unchecked((int) 0x887A0027);
+    /// <summary>The feature levels accepted by the isolated capture device.</summary>
+    private static readonly D3DFeatureLevel[] FeatureLevels = [
+        D3DFeatureLevel.Level111,
+        D3DFeatureLevel.Level110,
+        D3DFeatureLevel.Level101,
+        D3DFeatureLevel.Level100
+    ];
 
-    /// <summary>DXGI_ERROR_ACCESS_LOST.</summary>
-    private const int AccessLost = unchecked((int) 0x887A0026);
+    // ponytail: the API vtable must remain loaded for the lifetime of every capture session.
+    private static readonly D3D11 D3D11Api = D3D11.GetApi(null);
 
-    /// <summary>The lazily created D3D11 device and immediate context.</summary>
-    private SilkD3DDeviceResources? resources;
+    /// <summary>The isolated capture device.</summary>
+    private ID3D11Device* device;
+
+    /// <summary>The isolated immediate context.</summary>
+    private ID3D11DeviceContext* context;
 
     /// <summary>The current output-duplication session.</summary>
     private IDXGIOutputDuplication* duplication;
 
     /// <summary>The reusable CPU-readable staging texture.</summary>
-    private Texture2D? staging;
+    private ID3D11Texture2D* staging;
+
+    /// <summary>The description of the current staging texture.</summary>
+    private Texture2DDesc stagingDescription;
 
     /// <summary>Starts duplication on the selected adapter-local output.</summary>
     /// <param name="output">The zero-based output index.</param>
     public void Start(int output) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         ArgumentOutOfRangeException.ThrowIfNegative(output);
-        if (resources is not null) throw new InvalidOperationException("Desktop capture has already started.");
+        if (device != null) throw new InvalidOperationException("Desktop capture has already started.");
 
-#pragma warning disable CS0612
-        resources = SilkD3D11DeviceFactory.CreateDefault();
-#pragma warning restore CS0612
+        CreateDevice();
         IDXGIDevice* dxgiDevice = null;
         IDXGIAdapter* adapter = null;
         IDXGIOutput* dxgiOutput = null;
         IDXGIOutput1* output1 = null;
         try {
             var deviceGuid = DxgiDeviceGuid;
-            SilkMarshal.ThrowHResult(resources.Device.Handle->QueryInterface(&deviceGuid, (void**) &dxgiDevice));
+            SilkMarshal.ThrowHResult(device->QueryInterface(&deviceGuid, (void**) &dxgiDevice));
             SilkMarshal.ThrowHResult(dxgiDevice->GetAdapter(&adapter));
             SilkMarshal.ThrowHResult(adapter->EnumOutputs(checked((uint) output), &dxgiOutput));
             var outputGuid = DxgiOutput1Guid;
             SilkMarshal.ThrowHResult(dxgiOutput->QueryInterface(&outputGuid, (void**) &output1));
             IDXGIOutputDuplication* createdDuplication = null;
-            SilkMarshal.ThrowHResult(output1->DuplicateOutput((IUnknown*) resources.Device.Handle,
-                &createdDuplication));
+            SilkMarshal.ThrowHResult(output1->DuplicateOutput((IUnknown*) device, &createdDuplication));
             duplication = createdDuplication;
         } catch {
             DisposeSession();
@@ -81,7 +98,7 @@ internal sealed unsafe class D3D11DesktopCaptureSource : IDesktopCaptureSource {
     /// <returns>Whether a new frame was available.</returns>
     public bool TryAcquire(TimeSpan timeout, out ScreenCaptureFrame frame) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (duplication == null || resources is null)
+        if (duplication == null || context == null)
             throw new InvalidOperationException("Desktop capture has not started.");
         if (timeout < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(timeout));
 
@@ -102,14 +119,14 @@ internal sealed unsafe class D3D11DesktopCaptureSource : IDesktopCaptureSource {
                 Texture2DDesc description = default;
                 texture->GetDesc(&description);
                 EnsureStaging(in description);
-                resources.ImmediateContext.Handle->CopyResource((ID3D11Resource*) staging!.TextureHandle,
-                    (ID3D11Resource*) texture);
-                var mapped = resources.ImmediateContext.MapSubresource(staging, 0, MapMode.Read, MapFlags.None);
+                context->CopyResource((ID3D11Resource*) staging, (ID3D11Resource*) texture);
+                MappedSubresource mapped = default;
+                SilkMarshal.ThrowHResult(context->Map((ID3D11Resource*) staging, 0, Map.Read, 0, ref mapped));
                 try {
                     var rowPitch = checked(description.Width * 4);
                     var pixels = new byte[checked((int) (rowPitch * description.Height))];
                     for (var row = 0u; row < description.Height; row++)
-                        Marshal.Copy(mapped.DataPointer + checked((int) (row * mapped.RowPitch)),
+                        Marshal.Copy((nint) mapped.PData + checked((int) (row * mapped.RowPitch)),
                             pixels,
                             checked((int) (row * rowPitch)),
                             checked((int) rowPitch));
@@ -121,7 +138,7 @@ internal sealed unsafe class D3D11DesktopCaptureSource : IDesktopCaptureSource {
                     frame.Validate();
                     return true;
                 } finally {
-                    resources.ImmediateContext.UnmapSubresource(staging, 0);
+                    context->Unmap((ID3D11Resource*) staging, 0);
                 }
             } finally {
                 texture->Release();
@@ -135,39 +152,51 @@ internal sealed unsafe class D3D11DesktopCaptureSource : IDesktopCaptureSource {
     /// <summary>Gets whether this source has released all native resources.</summary>
     internal bool IsDisposed { get; private set; }
 
+    /// <summary>Creates the isolated Direct3D 11 device and immediate context.</summary>
+    private void CreateDevice() {
+        var selectedFeatureLevel = D3DFeatureLevel.Level110;
+        fixed (D3DFeatureLevel* featureLevels = FeatureLevels)
+            SilkMarshal.ThrowHResult(D3D11Api.CreateDevice(null,
+                D3DDriverType.Hardware,
+                nint.Zero,
+                (uint) CreateDeviceFlag.BgraSupport,
+                featureLevels,
+                (uint) FeatureLevels.Length,
+                D3D11SdkVersion,
+                ref device,
+                ref selectedFeatureLevel,
+                ref context));
+    }
+
     /// <summary>Creates or replaces the staging texture when desktop dimensions or format change.</summary>
     /// <param name="description">The acquired desktop texture description.</param>
     private void EnsureStaging(in Texture2DDesc description) {
-        if (staging is { } current &&
-            current.Description.Width == description.Width &&
-            current.Description.Height == description.Height &&
-            current.Description.Format == description.Format)
+        if (staging != null &&
+            stagingDescription.Width == description.Width &&
+            stagingDescription.Height == description.Height &&
+            stagingDescription.Format == description.Format)
             return;
-        staging?.Dispose();
-        staging = resources!.Device.CreateTexture2D(new Texture2DDescription {
-            Width = checked((int) description.Width),
-            Height = checked((int) description.Height),
-            MipLevels = 1,
-            ArraySize = 1,
-            Format = description.Format,
-            SampleDescription = new SampleDescription(1, 0),
-            Usage = ResourceUsage.Staging,
-            BindFlags = BindFlags.None,
-            CpuAccessFlags = CpuAccessFlags.Read,
-            OptionFlags = ResourceOptionFlags.None
-        });
+        if (staging != null) staging->Release();
+        staging = null;
+        stagingDescription = description;
+        stagingDescription.BindFlags = 0;
+        stagingDescription.Usage = Usage.UsageStaging;
+        stagingDescription.CPUAccessFlags = (uint) CpuAccessFlag.Read;
+        stagingDescription.MiscFlags = 0;
+        SilkMarshal.ThrowHResult(device->CreateTexture2D(in stagingDescription, null, ref staging));
     }
 
     /// <summary>Releases the current session while allowing failed startup cleanup.</summary>
     private void DisposeSession() {
-        staging?.Dispose();
+        if (staging != null) staging->Release();
         staging = null;
-        if (duplication != null) {
-            duplication->Release();
-            duplication = null;
-        }
-        resources?.Dispose();
-        resources = null;
+        stagingDescription = default;
+        if (duplication != null) duplication->Release();
+        duplication = null;
+        if (context != null) context->Release();
+        context = null;
+        if (device != null) device->Release();
+        device = null;
     }
 
     /// <summary>Releases every D3D11 and DXGI object.</summary>

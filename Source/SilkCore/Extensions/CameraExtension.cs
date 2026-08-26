@@ -1,6 +1,6 @@
 using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Viewport;
+using HelixToolkit.SharpDX.Core.Interface;
 
 namespace HelixToolkit.SharpDX.Core.Extensions;
 
@@ -123,7 +123,7 @@ public static class CameraExtension {
     /// <param name="zoomRectangle">
     ///     The zoom rectangle.
     /// </param>
-    public static void ZoomToRectangle(this CameraCore camera, ViewportCore viewport, RectangleF zoomRectangle) {
+    public static void ZoomToRectangle(this CameraCore camera, IViewport3DX viewport, RectangleF zoomRectangle) {
         if (camera is not ProjectionCameraCore projCam)
             return;
 
@@ -228,7 +228,7 @@ public static class CameraExtension {
     /// </param>
     public static void ZoomExtents(
         this CameraCore camera,
-        ViewportCore viewport,
+        IViewport3DX viewport,
         float animationTime = 0
     ) {
         var bounds = viewport.FindBoundsInternal();
@@ -252,7 +252,7 @@ public static class CameraExtension {
     /// </param>
     public static void ZoomExtents(
         this CameraCore camera,
-        ViewportCore viewport,
+        IViewport3DX viewport,
         BoundingBox bounds,
         float animationTime = 0
     ) {
@@ -263,7 +263,7 @@ public static class CameraExtension {
         
         switch (camera) {
             case PerspectiveCameraCore pCore: {
-                pCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+                pCore.ZoomExtents(viewport.ViewportRectangle.Width / (float) viewport.ViewportRectangle.Height,
                     bounds,
                     out var pos,
                     out var look,
@@ -272,7 +272,7 @@ public static class CameraExtension {
                 break;
             }
             case OrthographicCameraCore oCore: {
-                oCore.ZoomExtents((float) (viewport.ActualWidth / viewport.ActualHeight),
+                oCore.ZoomExtents(viewport.ViewportRectangle.Width / (float) viewport.ViewportRectangle.Height,
                     bounds,
                     out var pos,
                     out var look,
@@ -305,7 +305,7 @@ public static class CameraExtension {
     /// </param>
     public static void ZoomExtents(
         this CameraCore camera,
-        ViewportCore viewport,
+        IViewport3DX viewport,
         Vector3 center,
         float radius,
         float animationTime = 0
@@ -327,8 +327,8 @@ public static class CameraExtension {
             case OrthographicCameraCore orth: {
                 orth.LookAt(center, 0);
                 var newWidth = radius * 2;
-                if (viewport.ActualWidth > viewport.ActualHeight)
-                    newWidth = radius * 2 * (float) (viewport.ActualWidth / viewport.ActualHeight);
+                if (viewport.ViewportRectangle.Width > viewport.ViewportRectangle.Height)
+                    newWidth = radius * 2 * viewport.ViewportRectangle.Width / viewport.ViewportRectangle.Height;
                 orth.AnimateWidth(newWidth, animationTime);
                 break;
             }

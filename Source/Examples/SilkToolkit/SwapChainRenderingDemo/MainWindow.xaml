@@ -38,7 +38,6 @@
             EnableD2DRendering="False"
             EnableDeferredRendering="False"
             EnableSsao="True"
-            EnableSwapChainRendering="True"
             FxaaLevel="Low"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"

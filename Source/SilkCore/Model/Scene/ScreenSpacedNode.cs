@@ -84,7 +84,8 @@ public class ScreenSpacedNode : GroupNode {
         Matrix totalModelMatrix,
         ref List<HitTestResult> hits
     ) {
-        screenSpacedContext.RenderHost = context.RenderMatrices.RenderHost;
+        screenSpacedContext.Camera = context.RenderMatrices.CameraParams;
+        screenSpacedContext.DpiScale = context.RenderMatrices.DpiScale;
         var newRay = new Ray();
         var hitSp = context.HitPointSp;
         var preHit = false;
@@ -206,16 +207,11 @@ public class ScreenSpacedNode : GroupNode {
     }
 
     private sealed class ScreenSpacedContext : IRenderMatrices {
-        /// <summary>
-        ///     Stores the active render host.
-        /// </summary>
-        private IRenderHost? renderHost;
-
         public float NearPlane { get; set; }
 
         public float FarPlane { get; set; }
 
-        public CameraCore? Camera => RenderHost.RenderContext?.Camera;
+        public FrustumCameraParams Camera { get; set; }
 
         public Matrix ViewMatrix { get; set; }
 
@@ -249,19 +245,13 @@ public class ScreenSpacedNode : GroupNode {
 
         public float ActualHeight { get; set; }
 
-        public float DpiScale => RenderHost.DpiScale;
-
-        public IRenderHost RenderHost {
-            get => renderHost.AssertNotNull("Render host must be initialized.");
-            set => renderHost = value;
-        }
+        public float DpiScale { get; set; }
 
         public FrustumCameraParams CameraParams { get; private set; }
 
         public void Update() {
             ScreenViewProjectionMatrix = ViewMatrix * ProjectionMatrix * ViewportMatrix;
-            if (Camera is { } camera)
-                CameraParams = camera.CreateCameraParams(ActualWidth / ActualHeight, NearPlane, FarPlane);
+            CameraParams = Camera;
         }
     }
 

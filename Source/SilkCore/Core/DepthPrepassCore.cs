@@ -32,9 +32,6 @@ public sealed class DepthPrepassCore : RenderCore {
     /// <param name="context">The context.</param>
     /// <param name="deviceContext">The device context.</param>
     public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        context.CustomPassName = DefaultPassNames.DepthPrepass;
-        foreach (var sceneNode in context.RenderHost.PerFrameOpaqueNodesInFrustum)
-            sceneNode.RenderDepth(context, deviceContext, null);
     }
 
     protected override bool OnAttach(IRenderTechnique technique) => true;

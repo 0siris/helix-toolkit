@@ -215,6 +215,8 @@ sources:
   dynamic-cube-map dispatch loops are removed. The full solution and all 338 standard tests pass; 29 focused
   cutover contract cases keep the removed surface absent. The direct D3D11 hygiene inventory remains nine source
   files rather than the permitted single capture file.
+* **Remaining Phase 5 scope:** Remove the legacy `RenderCore` boundary and eight native D3D11 handle files,
+  enforce the one-file capture-island contract, then complete the sequential demo and explicit hardware matrix.
 * **Next action:** Remove the matching legacy `RenderCore` attach/update/render boundary and its derived D3D11
   implementations, then delete the native shader/state/view/resource handle paths that become unreachable. Keep
   raw D3D11 only inside Desktop Duplication before running the sequential hardware demo matrix.
@@ -306,7 +308,8 @@ Record verified counts and results here during Phase 0.
 - [x] Add a pure-WPF `HwndHost` that owns the child HWND used by the DX12 swap chain.
 - [x] Add a three-buffer flip-model swap chain, RTV recreation, resize, present, DPI, mouse, and touch handling.
 - [x] Add offscreen render targets and readback for automated tests and screenshots.
-- [ ] Keep the current D3DImage and WinForms paths only as temporary comparison paths.
+- [x] Retain the existing D3DImage and WinForms paths during the comparison period; remove them in the final
+  Phase 5 cutover.
 
 ### Tests
 
@@ -328,10 +331,10 @@ Record verified counts and results here during Phase 0.
 
 - [x] Replace the mirrored inventory with explicit `DxcShader` declarations and SM6.0 profiles for all shaders.
 - [x] Remove `DxcCompileAll` after explicit DXC declarations cover the complete inventory.
-- [ ] Move `DeviceContextProxy` and productive resource binding to DX12 command recording; shader descriptions,
-  shader passes, and fixed-function state translation are complete.
+- [x] Move productive resource binding to `SilkD3D12CommandContext`; shader descriptions, shader passes, and
+  fixed-function state translation are complete. Remove the legacy `DeviceContextProxy` boundary in Phase 5.
 - [x] Cache immutable PSOs by shader set, input layout, topology, blend/raster/depth state, and target formats.
-- [ ] Port vertex/index/constant buffers, textures, subresources, mips, cubemaps, UAVs, and samplers.
+- [x] Port vertex/index/constant buffers, textures, subresources, mips, cubemaps, UAVs, and samplers.
 - [x] Allocate complete contiguous shared-root-signature tables, initialize every descriptor slot, and upload
   camera/model constant buffers for an existing MeshRenderCore WARP draw.
 - [x] Add native 2D/array/cube SRVs, 2D mip UAVs, samplers, and repository-DXIL sampled-texture WARP
@@ -413,7 +416,8 @@ Implement each group as a separate green work package.
 
 ### 4.5 Desktop Duplication
 
-- [x] Isolate the only permitted D3D11 use in the screen-duplication implementation.
+- [x] Isolate the only productive D3D11 use in the screen-duplication implementation; remove unreachable legacy
+  D3D11 handle types during Phase 5 source hygiene.
 - [x] Load D3D11 only when capture starts and transfer captured frames into DX12 textures.
 - [x] Cover format, dimensions, frame replacement, timeout, monitor changes, and resource release.
 - [x] Keep real desktop capture explicit because it requires an interactive hardware session.
@@ -437,10 +441,21 @@ Implement each group as a separate green work package.
 ### Work
 
 - [x] Make DX12 the only `Viewport3DX` path and remove `IRenderHost`.
-- [ ] Remove DX11 render hosts, render buffers, D3DImage/WinForms presentation, and DX11-specific public types.
+- [x] Remove DX11 render hosts, render buffers, and D3DImage/WinForms presentation.
+- [ ] Remove the legacy `RenderCore` attach/update/render boundary, its derived D3D11 implementations, and the
+  remaining DX11-specific public/runtime types.
 - [x] Remove `JeremyAnsel.HLSL.Targets`, CSO copy targets, `.cso` resources, and redundant shader-reader paths.
-- [ ] Retain `Silk.NET.Direct3D11` only for the isolated screen-duplication implementation.
-- [ ] Update examples, test commands, project knowledge, and this checkpoint to the final state.
+- [ ] Retain `Silk.NET.Direct3D11` only in `Native/D3D11DesktopCaptureSource.cs` by removing:
+  - `Native/D3DDeviceHandles.cs`
+  - `Native/D3DResourceHandles.cs`
+  - `Native/D3DResourceHandles.Native.cs`
+  - `Native/D3DShaderHandles.Native.cs`
+  - `Native/D3DStateHandles.cs`
+  - `Native/D3DStateHandles.Native.cs`
+  - `Native/D3DViewHandles.cs`
+  - `Native/D3DViewHandles.Native.cs`
+- [x] Update examples, automated test commands, project knowledge, and this checkpoint for the DX12-only viewport.
+- [ ] Record final demo/hardware results and mark the plan complete.
 
 ### Tests and gates
 
@@ -452,7 +467,8 @@ Implement each group as a separate green work package.
   each feature group.
 - [x] Build all 43 SilkToolkit example projects.
 - [ ] Sequentially start the central demos and verify startup, rendering, resize, and clean shutdown.
-- [x] Change the standard suite to exclude only `Hardware`; DX12 is no longer an exceptional category.
+- [x] Keep `Hardware` and `DX12` opt-in in the repository standard gate using
+  `Category!=Hardware&Category!=DX12`, as required by the current repository agent contract.
 - [ ] Explicitly hardware-test present, resize, materials, OIT, post effects, 2D/text, and Desktop Duplication.
 
 ### Exit criteria

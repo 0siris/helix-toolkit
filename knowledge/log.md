@@ -7,6 +7,9 @@
   closed `SharpDX.Toolkit.Graphics.Texture*` D3D11 GPU island while retaining CPU image/DDS/WIC decoding.
 * **Update**: Removed the four public legacy `DeviceContextProxy` render dispatches from `SceneNode` and the
   corresponding empty dynamic-cube-map dispatch loops, while retaining the productive DX12 traversal.
+* **Update**: Reconciled the resumable Phase 5 plan with the committed cutover state: closed completed WPF and
+  DX12 resource work, split completed presentation removal from the remaining `RenderCore` boundary, listed all
+  eight legacy D3D11 handle files, and aligned the standard gate with the current `Hardware`/`DX12` opt-in rule.
 * **Verification**: Recorded the 321-warning/zero-error solution build across all 43 examples, the green 338-test
   repository standard gate and 29 focused cutover contract cases, and the remaining nine-file D3D11 source
   inventory before the matching `RenderCore` boundary is removed; refreshed the 986-file Graphify database to

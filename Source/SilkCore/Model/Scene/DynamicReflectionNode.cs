@@ -31,8 +31,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     <c>true</c> if [enable reflector]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableReflector {
-        get => ((IDynamicReflector) RenderCore).EnableReflector;
-        set => ((IDynamicReflector) RenderCore).EnableReflector = value;
+        get => ((IDynamicReflector)RenderCore).EnableReflector;
+        set => ((IDynamicReflector)RenderCore).EnableReflector = value;
     }
 
     /// <summary>
@@ -42,8 +42,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     The center.
     /// </value>
     public Vector3 Center {
-        get => ((IDynamicReflector) RenderCore).Center;
-        set => ((IDynamicReflector) RenderCore).Center = value;
+        get => ((IDynamicReflector)RenderCore).Center;
+        set => ((IDynamicReflector)RenderCore).Center = value;
     }
 
     /// <summary>
@@ -53,8 +53,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     The size of the face.
     /// </value>
     public int FaceSize {
-        get => ((IDynamicReflector) RenderCore).FaceSize;
-        set => ((IDynamicReflector) RenderCore).FaceSize = value;
+        get => ((IDynamicReflector)RenderCore).FaceSize;
+        set => ((IDynamicReflector)RenderCore).FaceSize = value;
     }
 
     /// <summary>
@@ -64,8 +64,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     The near field.
     /// </value>
     public float NearField {
-        get => ((IDynamicReflector) RenderCore).NearField;
-        set => ((IDynamicReflector) RenderCore).NearField = value;
+        get => ((IDynamicReflector)RenderCore).NearField;
+        set => ((IDynamicReflector)RenderCore).NearField = value;
     }
 
     /// <summary>
@@ -75,8 +75,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     The far field.
     /// </value>
     public float FarField {
-        get => ((IDynamicReflector) RenderCore).FarField;
-        set => ((IDynamicReflector) RenderCore).FarField = value;
+        get => ((IDynamicReflector)RenderCore).FarField;
+        set => ((IDynamicReflector)RenderCore).FarField = value;
     }
 
     /// <summary>
@@ -86,8 +86,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     <c>true</c> if this coordinate system is left handed; otherwise, <c>false</c>.
     /// </value>
     public bool IsLeftHanded {
-        get => ((IDynamicReflector) RenderCore).IsLeftHanded;
-        set => ((IDynamicReflector) RenderCore).IsLeftHanded = value;
+        get => ((IDynamicReflector)RenderCore).IsLeftHanded;
+        set => ((IDynamicReflector)RenderCore).IsLeftHanded = value;
     }
 
     /// <summary>
@@ -99,8 +99,8 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     ///     <c>true</c> if this instance is dynamic scene; otherwise, <c>false</c>.
     /// </value>
     public bool IsDynamicScene {
-        get => ((IDynamicReflector) RenderCore).IsDynamicScene;
-        set => ((IDynamicReflector) RenderCore).IsDynamicScene = value;
+        get => ((IDynamicReflector)RenderCore).IsDynamicScene;
+        set => ((IDynamicReflector)RenderCore).IsDynamicScene = value;
     }
 
     /// <summary>
@@ -108,7 +108,7 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     /// </summary>
     /// <param name="deviceContext">The device context.</param>
     public void BindCubeMap(DeviceContextProxy deviceContext) {
-        ((IDynamicReflector) RenderCore).BindCubeMap(deviceContext);
+        ((IDynamicReflector)RenderCore).BindCubeMap(deviceContext);
     }
 
     /// <summary>
@@ -116,11 +116,11 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     /// </summary>
     /// <param name="deviceContext">The device context.</param>
     public void UnBindCubeMap(DeviceContextProxy deviceContext) {
-        ((IDynamicReflector) RenderCore).UnBindCubeMap(deviceContext);
+        ((IDynamicReflector)RenderCore).UnBindCubeMap(deviceContext);
     }
 
     private void DynamicReflectionNode_OnClear(object? sender, OnChildNodeChangedArgs e) {
-        ((DynamicCubeMapCore) RenderCore).IgnoredGuid.Clear();
+        ((DynamicCubeMapCore)RenderCore).IgnoredGuid.Clear();
     }
 
     private void DynamicReflectionNode_OnRemoveChildNode(object? sender, OnChildNodeChangedArgs e) {
@@ -139,7 +139,7 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
-            RenderCore.Attach(EffectTechnique.AssertNotNull("Render technique must be initialized."));
+            RenderCore.Attach();
             return true;
         }
 

@@ -21,24 +21,6 @@ public class MeshOutlineRenderCore : MeshRenderCore, IMeshOutlineParams {
     /// </summary>
     public MeshOutlineRenderCore() => OutlineFadingFactor = 1.5f;
 
-#region Variables
-
-    /// <summary>
-    /// </summary>
-    protected ShaderPass OutlineShaderPass { get; private set; } = ShaderPass.NullPass;
-
-#endregion
-
-    /// <summary>
-    ///     Called when [attach].
-    /// </summary>
-    /// <param name="technique">The technique.</param>
-    /// <returns></returns>
-    protected override bool OnAttach(IRenderTechnique technique) {
-        OutlineShaderPass = technique[OutlinePassName];
-        return base.OnAttach(technique);
-    }
-
     /// <summary>
     ///     Called when [update per model structure].
     /// </summary>
@@ -46,28 +28,6 @@ public class MeshOutlineRenderCore : MeshRenderCore, IMeshOutlineParams {
     protected override void OnUpdatePerModelStruct(RenderContext context) {
         base.OnUpdatePerModelStruct(context);
         ModelStruct.Params.Y = OutlineFadingFactor;
-    }
-
-    /// <summary>
-    ///     Called when [render].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) {
-        if (DrawOutlineBeforeMesh) {
-            OutlineShaderPass.BindShader(deviceContext);
-            OutlineShaderPass.BindStates(deviceContext, DefaultStateBinding);
-            if (GeometryBuffer is { IndexBuffer: { } indexBuffer } && InstanceBuffer is { } instanceBuffer)
-                DrawIndexed(deviceContext, indexBuffer, instanceBuffer);
-        }
-
-        if (DrawMesh) base.OnRender(context, deviceContext);
-        if (!DrawOutlineBeforeMesh) {
-            OutlineShaderPass.BindShader(deviceContext);
-            OutlineShaderPass.BindStates(deviceContext, DefaultStateBinding);
-            if (GeometryBuffer is { IndexBuffer: { } indexBuffer } && InstanceBuffer is { } instanceBuffer)
-                DrawIndexed(deviceContext, indexBuffer, instanceBuffer);
-        }
     }
 
 #region Properties
@@ -120,12 +80,8 @@ public class MeshOutlineRenderCore : MeshRenderCore, IMeshOutlineParams {
     /// </value>
     public string OutlinePassName {
         get;
-        set {
-            if (SetAffectsRender(ref field, value) && IsAttached && EffectTechnique is { } technique
-                && technique[value] is { } pass)
-                OutlineShaderPass = pass;
-        }
+        set => SetAffectsRender(ref field, value);
     } = DefaultPassNames.MeshOutline;
 
-#endregion
+    #endregion
 }

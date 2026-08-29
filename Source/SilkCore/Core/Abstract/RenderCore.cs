@@ -3,13 +3,10 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Core.Components;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
-using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Core.Abstract;
@@ -19,7 +16,7 @@ namespace HelixToolkit.SharpDX.Core.Core.Abstract;
 public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     private readonly List<CoreComponent> components = [];
 
-     public event EventHandler<EventArgs>? InvalidateRender;
+    public event EventHandler<EventArgs>? InvalidateRender;
 
     /// <summary>
     ///     <see cref="IGuid.Guid" />
@@ -45,20 +42,6 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     ///     <c>true</c> if this instance can render; otherwise, <c>false</c>.
     /// </value>
     internal bool CanRenderFlag;
-
-    /// <summary>
-    ///     Indicate whether render host should call <see cref="Update(RenderContext, DeviceContextProxy)" /> before
-    ///     <see cref="Render(RenderContext, DeviceContextProxy)" />
-    ///     <para>
-    ///         <see cref="Update(RenderContext, DeviceContextProxy)" /> is used to run such as compute shader before
-    ///         rendering.
-    ///     </para>
-    ///     <para>
-    ///         Compute shader can be run at the beginning of any other
-    ///         <see cref="Render(RenderContext, DeviceContextProxy)" /> routine to avoid waiting.
-    ///     </para>
-    /// </summary>
-    public bool NeedUpdate { get; protected set; }
 
     /// <summary>
     ///     <see cref="IThrowingShadow.IsThrowingShadow" />
@@ -90,23 +73,9 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     public Matrix ModelMatrix = Matrix.Identity;
 
     /// <summary>
-    /// Is null when not attached
-    /// </summary>
-    public IRenderTechnique? EffectTechnique { get; private set; }
-
-    /// <summary>
-    /// </summary>
-    public NativeD3DDevice? Device => EffectTechnique?.Device;
-
-    /// <summary>
     ///     Is render core has been attached
     /// </summary>
     public bool IsAttached { get; private set; }
-
-    /// <summary>
-    ///     Gets whether this render core is attached to the Direct3D 12 renderer.
-    /// </summary>
-    internal bool IsD3D12Attached { get; private set; }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RenderCore" /> class.
@@ -122,39 +91,11 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     }
 
     /// <summary>
-    ///     Call to attach the render core.
+    ///     Attaches this render core to the renderer.
     /// </summary>
-    /// <param name="technique"></param>
-    [MemberNotNull(nameof(EffectTechnique))]
-    public void Attach(IRenderTechnique technique) {
-        if (IsAttached) {
-            EffectTechnique.AssertNotNull("EffectTechnique can not be null when attached");
-            return;
-        }
-
-
-        EffectTechnique = technique;
-        foreach (var comp in components)
-            comp.Attach(technique);
-
-        IsAttached = OnAttach(technique);
-        UpdateCanRenderFlag();
-    }
-
-    /// <summary>
-    ///     During attatching render core. Create all local resources. Use Collect(resource) to let object be released
-    ///     automatically during Detach().
-    /// </summary>
-    /// <param name="technique"></param>
-    /// <returns></returns>
-    protected abstract bool OnAttach(IRenderTechnique technique);
-
-    /// <summary>
-    ///     Attaches this render core to the Direct3D 12 renderer without creating DX11 resources.
-    /// </summary>
-    internal void AttachD3D12() {
-        if (IsD3D12Attached) return;
-        IsD3D12Attached = OnAttachD3D12();
+    internal void Attach() {
+        if (IsAttached) return;
+        IsAttached = OnAttachD3D12();
         UpdateCanRenderFlag();
     }
 
@@ -169,20 +110,8 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     /// </summary>
     public void Detach() {
         if (!IsAttached) return;
-        OnDetach();
-
-        foreach (var comp in components) comp.Detach();
-        IsAttached = false;
-        UpdateCanRenderFlag();
-    }
-
-    /// <summary>
-    ///     Detaches this render core from the Direct3D 12 renderer.
-    /// </summary>
-    internal void DetachD3D12() {
-        if (!IsD3D12Attached) return;
         OnDetachD3D12();
-        IsD3D12Attached = false;
+        IsAttached = false;
         UpdateCanRenderFlag();
     }
 
@@ -190,65 +119,6 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     ///     Releases package-specific Direct3D 12 state during detachment.
     /// </summary>
     protected virtual void OnDetachD3D12() { }
-
-    /// <summary>
-    ///     On detaching, default is to release all resources
-    /// </summary>
-    protected abstract void OnDetach();
-
-    /// <summary>
-    ///     Render routine
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="deviceContext"></param>
-    public abstract void Render(RenderContext context, DeviceContextProxy deviceContext);
-
-    /// <summary>
-    ///     Renders the shadow pass. Used to generate shadow map.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    public virtual void RenderShadow(RenderContext context, DeviceContextProxy deviceContext) { }
-
-    /// <summary>
-    ///     Renders the custom pass. Must apply render pass externally. Usually used during PostEffect rendering.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    public virtual void RenderCustom(RenderContext context, DeviceContextProxy deviceContext) { }
-
-    /// <summary>
-    ///     Renders the depth pass.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    /// <param name="customPass"></param>
-    public virtual void RenderDepth(
-        RenderContext context,
-        DeviceContextProxy deviceContext,
-        ShaderPass? customPass
-    ) { }
-
-    /// <summary>
-    ///     Update routine. Only used to run update computation such as compute shader in particle system.
-    ///     <para>
-    ///         Compute shader can be run at the beginning of any other
-    ///         <see cref="Render(RenderContext, DeviceContextProxy)" /> routine to avoid waiting.
-    ///     </para>
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="deviceContext"></param>
-    public void Update(RenderContext context, DeviceContextProxy deviceContext) {
-        if (CanRenderFlag)
-            OnUpdate(context, deviceContext);
-    }
-
-    /// <summary>
-    ///     Only used for running compute shader such as in particle system.
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="deviceContext"></param>
-    protected virtual void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) { }
 
     /// <summary>
     ///     Updates the can render flag.
@@ -265,8 +135,7 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
     ///     Called when [update can render flag].
     /// </summary>
     /// <returns></returns>
-    protected virtual bool OnUpdateCanRenderFlag()
-        => IsAttached || IsD3D12Attached;
+    protected virtual bool OnUpdateCanRenderFlag() => IsAttached;
 
     /// <summary>
     ///     Resets the invalidate handler.
@@ -317,6 +186,7 @@ public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
 
     protected override void OnDispose(bool disposeManagedResources) {
         if (disposeManagedResources) {
+            Detach();
             foreach (var comp in components)
                 comp.Dispose();
         }

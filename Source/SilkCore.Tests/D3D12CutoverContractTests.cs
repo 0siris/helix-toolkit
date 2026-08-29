@@ -1,6 +1,10 @@
+using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.ShaderManager;
+using HelixToolkit.SharpDX.Core.Utilities;
+
+using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 
 namespace SilkCore.Tests;
 
@@ -8,6 +12,75 @@ namespace SilkCore.Tests;
 ///     Verifies renderer-independent contracts introduced by the final Direct3D 12 cutover.
 /// </summary>
 public sealed class D3D12CutoverContractTests {
+    /// <summary>
+    ///     Verifies the render core exposes only the canonical renderer lifecycle.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void RenderCoreUsesCanonicalLifecycle() {
+        using var core = new LifecycleRenderCore();
+
+        core.Attach();
+        core.Attach();
+
+        Assert.True(core.IsAttached);
+        Assert.Equal(1, core.AttachCount);
+
+        core.Detach();
+        core.Detach();
+
+        Assert.False(core.IsAttached);
+        Assert.Equal(1, core.DetachCount);
+    }
+
+    /// <summary>
+    ///     Verifies the public node detach path releases a node attached by the Direct3D 12 traversal.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void SceneNodeDetachReleasesCanonicalRenderCore() {
+        using var node = new LifecycleSceneNode();
+
+        Assert.True(node.Attach());
+        Assert.True(node.Core.IsAttached);
+
+        node.Detach();
+
+        Assert.False(node.Core.IsAttached);
+        Assert.Equal(1, node.Core.DetachCount);
+    }
+
+    /// <summary>
+    ///     Verifies disposal cannot bypass canonical renderer detachment.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void RenderCoreDisposeDetachesCanonicalLifecycle() {
+        var core = new LifecycleRenderCore();
+        core.Attach();
+
+        core.Dispose();
+
+        Assert.False(core.IsAttached);
+        Assert.Equal(1, core.DetachCount);
+    }
+
+    /// <summary>
+    ///     Verifies the Direct3D 11 technique, device, and command-context boundary stays absent from render cores.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void RenderCoreLegacyD3D11BoundaryIsAbsent() {
+        var type = typeof(RenderCore);
+
+        Assert.Null(type.GetProperty("EffectTechnique"));
+        Assert.Null(type.GetProperty("Device"));
+        Assert.DoesNotContain(type.GetMethods(), method =>
+            method.Name is "Render" or "RenderShadow" or "RenderCustom" or "RenderDepth" or "Update");
+        Assert.DoesNotContain(type.GetMethods(), method =>
+            method.Name == "Attach" && method.GetParameters().Length != 0);
+    }
+
     /// <summary>
     ///     Verifies scene nodes no longer expose the legacy Direct3D 11 render dispatch surface.
     /// </summary>
@@ -85,5 +158,57 @@ public sealed class D3D12CutoverContractTests {
         node.ResolveD3D12TechniqueName(first);
 
         Assert.Throws<InvalidOperationException>(() => node.ResolveD3D12TechniqueName(second));
+    }
+
+    /// <summary>
+    ///     Minimal render core used to observe canonical lifecycle calls.
+    /// </summary>
+    private sealed class LifecycleRenderCore : RenderCore {
+        /// <summary>
+        ///     Initializes the lifecycle test core.
+        /// </summary>
+        internal LifecycleRenderCore() : base(HelixToolkit.SharpDX.Core.Interface.RenderType.None) { }
+
+        /// <summary>
+        ///     Gets the successful attach-call count.
+        /// </summary>
+        internal int AttachCount { get; private set; }
+
+        /// <summary>
+        ///     Gets the detach-call count.
+        /// </summary>
+        internal int DetachCount { get; private set; }
+
+        /// <inheritdoc />
+        protected override bool OnAttachD3D12() {
+            AttachCount++;
+            return true;
+        }
+
+        /// <inheritdoc />
+        protected override void OnDetachD3D12() => DetachCount++;
+    }
+
+    /// <summary>
+    ///     Minimal scene node exposing the lifecycle test core.
+    /// </summary>
+    private sealed class LifecycleSceneNode : SceneNode {
+        /// <summary>
+        ///     Gets the lazily created lifecycle render core.
+        /// </summary>
+        internal LifecycleRenderCore Core => Assert.IsType<LifecycleRenderCore>(RenderCore);
+
+        /// <inheritdoc />
+        protected override RenderCore OnCreateRenderCore() => new LifecycleRenderCore();
+
+        /// <inheritdoc />
+        protected override bool CanHitTest(HitTestContext? context) => false;
+
+        /// <inheritdoc />
+        protected override bool OnHitTest(
+            HitTestContext context,
+            Matrix totalModelMatrix,
+            ref List<HitTestResult> hits
+        ) => false;
     }
 }

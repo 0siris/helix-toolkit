@@ -37,12 +37,5 @@ public sealed class ContinuousRenderNode : SceneNode {
     private sealed class InvalidRendererCore : RenderCore {
         public InvalidRendererCore() : base(RenderType.GlobalEffect) { }
 
-        public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-            RaiseInvalidateRender();
-        }
-
-        protected override bool OnAttach(IRenderTechnique technique) => true;
-
-        protected override void OnDetach() { }
     }
 }

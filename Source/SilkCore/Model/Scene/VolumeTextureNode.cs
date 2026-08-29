@@ -15,6 +15,7 @@ using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
+
 public class VolumeTextureNode : SceneNode {
     private MaterialCore? material;
 
@@ -56,9 +57,9 @@ public class VolumeTextureNode : SceneNode {
     }
 
     /// <inheritdoc />
-    internal override bool AttachD3D12() {
+    internal override bool Attach() {
         if (RenderCore is VolumeRenderCore core) core.D3D12Material = material;
-        return material is IVolumeTextureMaterial && base.AttachD3D12();
+        return material is IVolumeTextureMaterial && base.Attach();
     }
 
     protected virtual void AttachMaterial() {
@@ -70,7 +71,7 @@ public class VolumeTextureNode : SceneNode {
         var newVar = material is { } currentMaterial && EffectTechnique is { } technique
                          ? effectsManager.MaterialVariableManager.Register(currentMaterial, technique)
                          : EmptyMaterialVariable.EmptyVariable;
-        
+
         RemoveAndDispose(ref materialVariable);
         materialVariable = core.MaterialVariables = newVar;
     }
@@ -79,7 +80,7 @@ public class VolumeTextureNode : SceneNode {
     protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? 0);
 
     protected override bool CanRender(RenderContext context) =>
-        base.CanRender(context) && (materialVariable != null || RenderCore.IsD3D12Attached && material is not null);
+        base.CanRender(context) && (materialVariable != null || RenderCore.IsAttached && material is not null);
 
     protected override RenderCore OnCreateRenderCore() => new VolumeRenderCore { DefaultStateBinding = StateType.All };
 

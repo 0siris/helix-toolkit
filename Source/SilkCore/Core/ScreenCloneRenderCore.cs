@@ -147,18 +147,12 @@ public class ScreenCloneRenderCore : RenderCore, IScreenClone {
     }
 
     /// <inheritdoc />
-    protected override bool OnUpdateCanRenderFlag() => IsAttached || IsD3D12Attached;
-
-    protected override bool OnAttach(IRenderTechnique technique) => true;
-
-    protected override void OnDetach() => StopCapture();
+    protected override bool OnUpdateCanRenderFlag() => IsAttached;
 
     /// <inheritdoc />
     protected override void OnDetachD3D12() => StopCapture();
 
     /// <inheritdoc />
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
-
     /// <inheritdoc />
     protected override void OnDispose(bool disposeManagedResources) {
         StopCapture();
@@ -204,7 +198,7 @@ internal readonly record struct ScreenCaptureFrame(
             Silk.NET.DXGI.Format.FormatB8G8R8A8UnormSrgb))
             throw new NotSupportedException($"Desktop format {Format} is not supported.");
         var minimumPitch = checked(Width * 4);
-        if (RowPitch != minimumPitch || Pixels.Length != checked((int) (RowPitch * Height)))
+        if (RowPitch != minimumPitch || Pixels.Length != checked((int)(RowPitch * Height)))
             throw new ArgumentException("Desktop frame bytes do not match the declared dimensions and format.");
     }
 }

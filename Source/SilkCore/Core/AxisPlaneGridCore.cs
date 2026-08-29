@@ -32,7 +32,7 @@ public class AxisPlaneGridCore : RenderCore {
     private SamplerStateProxy? ShadowSampler {
         get;
         set {
-            if (value != field) 
+            if (value != field)
                 field?.Dispose();
             field = value;
         }
@@ -51,7 +51,7 @@ public class AxisPlaneGridCore : RenderCore {
             World = Matrix.Identity,
             Axis = 1
         };
-        
+
         GridSpacing = 10;
         GridThickness = 0.05f;
         FadingFactor = 0.2f;
@@ -68,7 +68,7 @@ public class AxisPlaneGridCore : RenderCore {
     public bool AutoSpacing {
         get => autoSpacing;
         set {
-            if (SetAffectsRender(ref autoSpacing, value) && !value) 
+            if (SetAffectsRender(ref autoSpacing, value) && !value)
                 modelStruct.GridSpacing = GridSpacing;
         }
     }
@@ -102,7 +102,7 @@ public class AxisPlaneGridCore : RenderCore {
     public float GridSpacing {
         get;
         set {
-            if (SetAffectsRender(ref field, value)) 
+            if (SetAffectsRender(ref field, value))
                 modelStruct.GridSpacing = value;
         }
     }
@@ -172,12 +172,12 @@ public class AxisPlaneGridCore : RenderCore {
         get;
         set {
             if (SetAffectsRender(ref field, value)) {
-                modelStruct.Axis = (int) value;
+                modelStruct.Axis = (int)value;
                 upDirection = value switch {
                     Axis.X => Vector3.UnitX,
                     Axis.Y => Vector3.UnitY,
                     Axis.Z => Vector3.UnitZ,
-                    _      => upDirection
+                    _ => upDirection
                 };
             }
         }
@@ -204,47 +204,21 @@ public class AxisPlaneGridCore : RenderCore {
         get;
         set {
             if (SetAffectsRender(ref field, value))
-                modelStruct.Type = (int) value;
+                modelStruct.Type = (int)value;
         }
     } = GridPattern.Tile;
 
     [MemberNotNull(nameof(ShadowSampler))]
     [MemberNotNull(nameof(defaultShaderPass))]
-    protected override bool OnAttach(IRenderTechnique technique) {
-        defaultShaderPass = technique[DefaultPassNames.Default];
-        samplerSlot = defaultShaderPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.ShadowMapSampler);
-        shadowMapSlot = defaultShaderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.ShadowMapTb);
-        ShadowSampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.ShadowSampler);
-        return true;
-    }
-
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (defaultShaderPass is not { } shaderPass)
-            return;
-
-        OnUpdatePerModelStruct(context);
-        modelCb.Upload(deviceContext, ref modelStruct);
-        shaderPass.BindShader(deviceContext);
-        shaderPass.BindStates(deviceContext,
-                              StateType.BlendState | StateType.DepthStencilState |
-                              StateType.RasterState);
-        if (RenderShadowMap && context.SharedResource.ShadowView != null) {
-            shaderPass.PixelShader.BindTexture(deviceContext, shadowMapSlot, context.SharedResource.ShadowView);
-            shaderPass.PixelShader.BindSampler(deviceContext, samplerSlot, ShadowSampler);
-        }
-
-        deviceContext.Draw(4, 0);
-    }
-
     private void OnUpdatePerModelStruct(RenderContext context) {
         modelStruct.World = ModelMatrix;
         if (autoSpacing && context.Camera is { } camera) {
             //Disable auto spacing if view angle larger than 60 degree of plane normal
             var lookDir = SilkMath.Normalize(camera.LookDirection);
             var angle = Math.Acos(Math.Abs(SilkMath.Dot(upDirection, lookDir)));
-            if (angle > Math.PI / 3) 
+            if (angle > Math.PI / 3)
                 return;
-            
+
             var r = new Ray(camera.Position, SilkMath.Normalize(camera.LookDirection));
             var plane = new Plane(upDirection, modelStruct.PlaneD);
             if (plane.Intersects(ref r, out var l)) {
@@ -264,5 +238,4 @@ public class AxisPlaneGridCore : RenderCore {
         }
     }
 
-    protected override void OnDetach() => ShadowSampler = null;
 }

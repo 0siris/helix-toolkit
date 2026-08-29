@@ -43,10 +43,10 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     public SceneNode() {
         WrapperSource = this;
         renderCore = new Lazy<RenderCore>(() => {
-                                              var createdCore = OnCreateRenderCore();
-                                              createdCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
-                                              return createdCore;
-                                          },
+            var createdCore = OnCreateRenderCore();
+            createdCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
+            return createdCore;
+        },
                                           true);
     }
 
@@ -110,26 +110,26 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="effectsManager"></param>
     /// <returns>Return true if attached</returns>
     protected virtual bool OnAttach(IEffectsManager effectsManager) {
-        RenderCore.Attach(EffectTechnique.AssertNotNull("technique muss be set"));
+        RenderCore.Attach();
         AssignDefaultValuesToCore(RenderCore);
-        return RenderCore is {IsAttached: true};
+        return RenderCore.IsAttached;
     }
 
     /// <summary>
-    ///     Attaches this node to the Direct3D 12 renderer without creating DX11 resources.
+    ///     Attaches this node to the renderer without creating legacy technique resources.
     /// </summary>
     /// <returns>Whether the node's render core attached successfully.</returns>
-    internal virtual bool AttachD3D12() {
-        RenderCore.AttachD3D12();
+    internal virtual bool Attach() {
+        RenderCore.Attach();
         AssignDefaultValuesToCore(RenderCore);
         NeedMatrixUpdate = true;
-        return RenderCore.IsD3D12Attached;
+        return RenderCore.IsAttached;
     }
 
     /// <summary>
-    ///     Detaches this node from the Direct3D 12 renderer.
+    ///     Releases renderer-specific resources during detachment.
     /// </summary>
-    internal virtual void DetachD3D12() => RenderCore.DetachD3D12();
+    protected virtual void OnDetachD3D12() => RenderCore.Detach();
 
     /// <summary>
     ///     Called when [attached] and <see cref="IsAttached" /> = true.
@@ -140,13 +140,16 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     ///     Detaches the element from the effectsManager and release all graphics resources. Override <see cref="OnDetach" />
     /// </summary>
     public void Detach() {
-        if (!IsAttached)
+        var wasAttached = IsAttached;
+        var wasRenderCoreAttached = RenderCore.IsAttached;
+        if (!wasAttached && !wasRenderCoreAttached)
             return;
 
         IsAttached = false;
         InvalidateSceneGraph();
-        RenderCore.Detach();
-        OnDetach();
+        if (wasRenderCoreAttached) OnDetachD3D12();
+        if (wasAttached) OnDetach();
+        else EffectsManager = null;
         EffectTechnique = null;
         Detached?.Invoke(this, EventArgs.Empty);
         Invalidated = null;
@@ -239,7 +242,6 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
 
     protected override void OnDispose(bool disposeManagedResources) {
         Detach();
-        DetachD3D12();
         RenderCore.Dispose();
         Invalidated = null;
         VisibleChanged = null;
@@ -328,7 +330,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         return true;
     }
 
-#region Properties
+    #region Properties
 
     private static readonly string NodeStr = "Node";
 
@@ -575,7 +577,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// </summary>
     public bool AffectsGlobalVariable { get; protected set; }
 
-#region Handling Transforms
+    #region Handling Transforms
 
     /// <summary>
     ///     Transforms the changed.
@@ -593,9 +595,9 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// </summary>
     public event EventHandler<TransformArgs>? ModelTransformChanged;
 
-#endregion Handling Transforms
+    #endregion Handling Transforms
 
-#region RenderCore
+    #region RenderCore
     private readonly Lazy<RenderCore> renderCore;
     public RenderCore RenderCore => renderCore.Value; // used ont Attached -> core is initialized in Lazy
 
@@ -662,7 +664,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     private void RenderCore_OnInvalidateRenderer(object? sender, EventArgs e)
         => InvalidateRender();
 
-#endregion RenderCore
+    #endregion RenderCore
 
     /// <summary>
     ///     Gets or sets the wrapper source used for such as hit test model, etc. The wrapper must set this so the
@@ -692,9 +694,9 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// </value>
     public bool IsInFrustum { get; internal set; }
 
-#endregion Properties
+    #endregion Properties
 
-#region Events
+    #region Events
 
     public event EventHandler<StringArgs>? NameChanged;
 
@@ -734,16 +736,16 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// </summary>
     public event EventHandler<InvalidateTypes>? Invalidated;
 
-#endregion Events
+    #endregion Events
 
-#region Rendering
+    #region Rendering
 
     /// <summary>
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
     protected virtual bool CanRender(RenderContext context)
-        => visible && (IsAttached || RenderCore.IsD3D12Attached);
+        => visible && (IsAttached || RenderCore.IsAttached);
 
     /// <summary>
     ///     View frustum test.
@@ -753,9 +755,9 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     public virtual bool TestViewFrustum(ref BoundingFrustum viewFrustum)
         => true;
 
-#endregion Rendering
+    #endregion Rendering
 
-#region Hit Test
+    #region Hit Test
 
     /// <summary>
     ///     Hits the test.
@@ -789,9 +791,9 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         ref List<HitTestResult> hits
     );
 
-#endregion Hit Test
+    #endregion Hit Test
 
-#region IBoundable
+    #region IBoundable
 
     /// <summary>
     ///     The maximum bound
@@ -907,9 +909,9 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     protected void RaiseOnBoundSphereChanged(BoundChangeArgs<BoundingSphere> args)
         => BoundSphereChanged?.Invoke(this, args);
 
-#endregion IBoundable
+    #endregion IBoundable
 
-#region POST EFFECT
+    #region POST EFFECT
 
     /// <summary>
     ///     Gets or sets the post effects.
@@ -971,7 +973,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="effectName">Name of the effect.</param>
     /// <param name="effect">The effect.</param>
     /// <returns></returns>
-    
+
     public bool TryGetPostEffect(string effectName, [NotNullWhen(true)] out IEffectAttributes? effect)
         => postEffectNames.TryGetValue(effectName, out effect);
 
@@ -983,9 +985,9 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         InvalidateRender();
     }
 
-#endregion
+    #endregion
 
-#region ModeMatrixLock
+    #region ModeMatrixLock
 
     public bool IsModelMatrixLocked => modelMatrixKey is not null;
 
@@ -1014,7 +1016,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         public Guid Key { get; } = key;
     }
 
-#endregion
+    #endregion
 }
 
 #region Mouse Events Args

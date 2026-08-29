@@ -14,6 +14,7 @@ using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+
 public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInstancing, IBoundable,
                                      IApplyPostEffect {
     /// <summary>
@@ -115,10 +116,10 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     }
 
     /// <inheritdoc />
-    internal override bool AttachD3D12() {
-        if (RenderCore.IsD3D12Attached && bufferModelInternal is not null)
+    internal override bool Attach() {
+        if (RenderCore.IsAttached && bufferModelInternal is not null)
             return bufferModelInternal is not EmptyGeometryBufferModel;
-        if (!base.AttachD3D12() || !GeometryValid || RenderCore is not IGeometryRenderCore core)
+        if (!base.Attach() || !GeometryValid || RenderCore is not IGeometryRenderCore core)
             return false;
         CreateD3D12GeometryBuffer();
         BoundManager.Geometry = Geometry;
@@ -129,11 +130,11 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     }
 
     /// <inheritdoc />
-    internal override void DetachD3D12() {
+    protected override void OnDetachD3D12() {
         if (RenderCore is IGeometryRenderCore core) core.GeometryBuffer = null;
         RemoveAndDispose(ref bufferModelInternal);
         InstanceBuffer.DisposeAndClear();
-        base.DetachD3D12();
+        base.OnDetachD3D12();
     }
 
     private void CreateGeometryBuffer() {
@@ -149,12 +150,12 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     private void CreateD3D12GeometryBuffer() {
         IAttachableBufferModel newBuffer = Geometry switch {
             BoneSkinnedMeshGeometry3D boneGeometry => new BoneSkinPreComputeBufferModel(
-                new BoneSkinnedMeshBufferModel {Geometry = boneGeometry},
+                new BoneSkinnedMeshBufferModel { Geometry = boneGeometry },
                 DefaultVertex.SizeInBytes),
-            BillboardBase billboard => new DefaultBillboardBufferModel {Geometry = billboard},
-            LineGeometry3D line => new DefaultLineGeometryBufferModel {Geometry = line},
-            PointGeometry3D point => new DefaultPointGeometryBufferModel {Geometry = point},
-            MeshGeometry3D mesh => new DefaultMeshGeometryBufferModel {Geometry = mesh},
+            BillboardBase billboard => new DefaultBillboardBufferModel { Geometry = billboard },
+            LineGeometry3D line => new DefaultLineGeometryBufferModel { Geometry = line },
+            PointGeometry3D point => new DefaultPointGeometryBufferModel { Geometry = point },
+            MeshGeometry3D mesh => new DefaultMeshGeometryBufferModel { Geometry = mesh },
             _ => EmptyGeometryBufferModel.Empty
         };
         RemoveAndDispose(ref bufferModelInternal);
@@ -230,7 +231,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <param name="context">The context.</param>
     public override void UpdateNotRender(RenderContext context) {
         base.UpdateNotRender(context);
-        if (IsHitTestVisible && context.AutoUpdateOctree && geometry is {OctreeDirty: true})
+        if (IsHitTestVisible && context.AutoUpdateOctree && geometry is { OctreeDirty: true })
             geometry?.UpdateOctree();
     }
 
@@ -256,7 +257,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
             if (Set(ref geometry, value)) {
                 BoundManager.Geometry = value;
                 if (IsAttached) CreateGeometryBuffer();
-                else if (RenderCore.IsD3D12Attached) CreateD3D12GeometryBuffer();
+                else if (RenderCore.IsAttached) CreateD3D12GeometryBuffer();
                 OnGeometryChanged(value, old);
                 InvalidateRender();
             }
@@ -475,7 +476,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
         }
     } = true;
 
-#endregion Rasterizer parameters
+    #endregion Rasterizer parameters
 
     /// <summary>
     ///     Gets or sets a value indicating whether [enable view frustum check].

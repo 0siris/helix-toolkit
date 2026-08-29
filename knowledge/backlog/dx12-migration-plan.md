@@ -12,7 +12,7 @@ tags:
 timestamp: 2026-07-09T00:00:00+02:00
 generated: false
 status: active
-verified: 2026-08-26
+verified: 2026-08-28
 sources:
   - ../../Source/SilkToolkit.slnx
   - ../../Source/SilkToolkit.Native.ShaderBuilder/SilkToolkit.Native.ShaderBuilder.csproj
@@ -124,17 +124,19 @@ sources:
   tightly packed BGRA frame crosses an explicit CPU-owned boundary into a replaceable DX12 texture. Timeout
   retains the preceding frame, output changes and failures release the old session, crop/aspect behavior is
   deterministic, and real desktop capture remains an explicit interactive-hardware test.
-* **Last verified gates:** CLI-fallback solution build passed with 321 warnings and 0 errors, including all 43
-  SilkToolkit example projects. The repository standard gate excludes `Hardware` and `DX12` and passes 338/338
-  (`SilkAssimp` 13, `SilkCore` 287, `SilkToolkit` 38). Explicit DX12 hardware creation passed 1/1
-  in a preceding work package; the new interactive desktop-capture test was intentionally not run. Graphify
-  passes for 986 source files with 12,742 nodes, 21,970 edges, and 2,518 final communities; known duplicate
+* **Last verified gates:** CLI-fallback solution build passed with 374 warnings and 0 errors, including all 43
+  SilkToolkit example projects. The repository standard gate excludes `Hardware` and `DX12` and passes 342/342
+  (`SilkAssimp` 13, `SilkCore` 291, `SilkToolkit` 38). Explicit DX12 hardware creation passed 1/1
+  in a preceding work package; the interactive desktop-capture test was intentionally not run. Graphify
+  passes for 986 source files with 12,647 nodes, 21,496 edges, and 2,510 final communities; known duplicate
   namespace and stale skill-version notices remain non-blocking. `git diff --check` passes with line-ending
   notices only.
 * **Validation note:** Rider/ReSharper MCP was not exposed in the implementation session, so its diagnostics
   and formatter gates remain outstanding; the documented `dotnet` fallback was used for build and tests.
-* **Latest focused gates:** The complete DX12 runtime class passes 100/100 automated tests with one explicit
-  hardware capture test not run, and all 14 DX12 texture-model tests pass. The latest package gate additionally
+* **Latest focused gates:** The complete DX12 runtime class passes 102/102 automated tests with one explicit
+  hardware capture test not run. All 33 cutover contract cases pass, including canonical/idempotent render-core
+  attachment, public scene-node detachment, disposal, and reflection guards against the removed D3D11 boundary.
+  All 14 DX12 texture-model tests pass. The latest package gate additionally
   passes all 11 combined Phase 4.4/4.5 CPU/WARP checks. Three focused regressions additionally cover empty
   optional texture/color streams, rejection of non-empty partial streams, and console output for handled
   viewport exceptions including their exception text. WARP tests create real vertex/pixel, geometry,
@@ -212,14 +214,18 @@ sources:
   pool implementations. The closed D3D11 `SharpDX.Toolkit.Graphics.Texture*` GPU island and its unused loader
   are also removed; CPU `Image`/DDS/WIC decoding retains local mip-chain validation for DX12 uploads. Scene nodes
   no longer expose the four legacy `DeviceContextProxy` render dispatch methods, and the corresponding empty
-  dynamic-cube-map dispatch loops are removed. The full solution and all 338 standard tests pass; 29 focused
-  cutover contract cases keep the removed surface absent. The direct D3D11 hygiene inventory remains nine source
-  files rather than the permitted single capture file.
-* **Remaining Phase 5 scope:** Remove the legacy `RenderCore` boundary and eight native D3D11 handle files,
-  enforce the one-file capture-island contract, then complete the sequential demo and explicit hardware matrix.
-* **Next action:** Remove the matching legacy `RenderCore` attach/update/render boundary and its derived D3D11
-  implementations, then delete the native shader/state/view/resource handle paths that become unreachable. Keep
-  raw D3D11 only inside Desktop Duplication before running the sequential hardware demo matrix.
+  dynamic-cube-map dispatch loops are removed.
+* **Latest Phase 5 lifecycle cleanup:** `RenderCore` now has one idempotent `Attach()`/`Detach()` lifecycle and one
+  `IsAttached` state. Its D3D11 `IRenderTechnique`, device, update, and render entry points plus 107 derived legacy
+  implementations are removed. The DX12 scene traversal uses the canonical lifecycle, public `SceneNode.Detach()`
+  also releases a core attached by that traversal, and disposal cannot bypass detachment. The direct D3D11 hygiene
+  inventory remains nine source files rather than the permitted single capture file.
+* **Remaining Phase 5 scope:** Remove the eight native D3D11 handle files and their now-unreachable component,
+  shader, state, view, and resource paths, enforce the one-file capture-island contract, then complete the
+  sequential demo and explicit hardware matrix.
+* **Next action:** Delete the native shader/state/view/resource handle paths that are now unreachable from
+  `RenderCore`, retaining raw D3D11 only inside Desktop Duplication. Then enforce the one-file source contract
+  before running the sequential hardware demo matrix.
 
 Update this checkpoint after every completed work package, every changed technical decision, and before
 stopping. A work package is complete only when its implementation, tests, and checkpoint agree.
@@ -442,8 +448,8 @@ Implement each group as a separate green work package.
 
 - [x] Make DX12 the only `Viewport3DX` path and remove `IRenderHost`.
 - [x] Remove DX11 render hosts, render buffers, and D3DImage/WinForms presentation.
-- [ ] Remove the legacy `RenderCore` attach/update/render boundary, its derived D3D11 implementations, and the
-  remaining DX11-specific public/runtime types.
+- [x] Remove the legacy `RenderCore` attach/update/render boundary and its derived D3D11 implementations.
+- [ ] Remove the remaining DX11-specific public/runtime types.
 - [x] Remove `JeremyAnsel.HLSL.Targets`, CSO copy targets, `.cso` resources, and redundant shader-reader paths.
 - [ ] Retain `Silk.NET.Direct3D11` only in `Native/D3D11DesktopCaptureSource.cs` by removing:
   - `Native/D3DDeviceHandles.cs`

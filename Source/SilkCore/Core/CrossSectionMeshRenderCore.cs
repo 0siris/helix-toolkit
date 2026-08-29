@@ -25,82 +25,10 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
                                            ClipPlaneStruct.SizeInBytes)));
     }
 
-    protected override bool OnAttach(IRenderTechnique technique) {
-        if (!base.OnAttach(technique))
-            return false;
-        
-        needsAssignVariables.Invalidate();
-        drawBackfacePass = technique[DefaultPassNames.Backface];
-        drawScreenQuadPass = technique[DefaultPassNames.ScreenQuad];
-        return true;
-
-    }
-
-    protected override void OnDetach() {
-        BackfaceRasterState = null;
-        base.OnDetach();
-    }
-
-    protected override bool CreateRasterState(RasterizerStateDescription description, bool force) {
-        if (!base.CreateRasterState(description, force)) 
-            return false;
-
-        var desc = new RasterizerStateDescription {
-            FillMode = FillMode.Solid,
-            CullMode = CullMode.Front,
-            DepthBias = description.DepthBias,
-            DepthBiasClamp = description.DepthBiasClamp,
-            SlopeScaledDepthBias = description.SlopeScaledDepthBias,
-            IsDepthClipEnabled = description.IsDepthClipEnabled,
-            IsFrontCounterClockwise = description.IsFrontCounterClockwise,
-            IsMultisampleEnabled = false,
-            IsScissorEnabled = false
-        };
-        
-
-        if (EffectTechnique is not { } technique)
-            return false;
-        BackfaceRasterState = technique.EffectsManager.StateManager.Register(desc);
-        
-        return true;
-    }
-
-    protected override void OnRender(RenderContext renderContext, DeviceContextProxy deviceContext) {
-        needsAssignVariables.TryExecute(() => {
-            clipParamCb.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int)cuttingOperation);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossSectionColorStr, sectionColor);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.EnableCrossPlaneStr, planeEnabled);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.EnableCrossPlane5To8Str, plane5To8Enabled);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane1ParamsStr, plane1Params);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane2ParamsStr, plane2Params);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane3ParamsStr, plane3Params);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane4ParamsStr, plane4Params);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane5ParamsStr, plane5Params);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane6ParamsStr, plane6Params);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane7ParamsStr, plane7Params);
-            clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane8ParamsStr, plane8Params);
-        });
-        
-
-        clipParamCb.Upload(deviceContext);
-        base.OnRender(renderContext, deviceContext);
-        
-    }
-
-#region Shader Variables
+    #region Shader Variables
 
     private ShaderPass drawBackfacePass = ShaderPass.NullPass;
     private ShaderPass drawScreenQuadPass = ShaderPass.NullPass;
-
-    /// <summary>
-    ///     Used to draw back faced triangles onto stencil buffer
-    /// </summary>
-    private RasterizerStateProxy? BackfaceRasterState { get;
-        set {
-            if(field!=value)
-                field?.Dispose();
-            field = value;
-        } }
 
     private readonly ConstantBufferComponent clipParamCb;
 
@@ -108,9 +36,9 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     private readonly DirtyGate needsAssignVariables = new();
 
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     private CuttingOperation cuttingOperation = CuttingOperation.Intersect;
 
@@ -265,5 +193,5 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
         }
     }
 
-#endregion
+    #endregion
 }

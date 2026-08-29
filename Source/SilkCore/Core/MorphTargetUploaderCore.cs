@@ -41,7 +41,7 @@ internal class MorphTargetUploaderCore : RenderCore {
             field = value;
         }
     }
-    
+
     private int mtPitch;
     private bool setCBuffer = true;
 
@@ -49,10 +49,7 @@ internal class MorphTargetUploaderCore : RenderCore {
     private bool weightUpdated;
 
     public MorphTargetUploaderCore()
-        : base(RenderType.None) 
-    {
-        NeedUpdate = false;
-
+        : base(RenderType.None) {
         //Setup cbuffer
         var cbd = new ConstantBufferDescription(DefaultBufferNames.MorphTargetCb, 16); //maybe no slot issue
         cbMorphTarget = AddComponent(new ConstantBufferComponent(cbd));
@@ -116,7 +113,7 @@ internal class MorphTargetUploaderCore : RenderCore {
             var vertex = vertices[vertexIndex];
             for (var targetIndex = 0; targetIndex < mtCount; targetIndex++) {
                 var offset = morphTargetOffsets[targetIndex * mtPitch + vertexIndex];
-                if ((uint) offset > (uint) (morphTargetsDeltas.Length - 3))
+                if ((uint)offset > (uint)(morphTargetsDeltas.Length - 3))
                     throw new InvalidOperationException("A morph-target offset is outside the delta buffer.");
                 var weight = morphTargetWeights[targetIndex];
                 var positionDelta = morphTargetsDeltas[offset] * weight;
@@ -137,7 +134,7 @@ internal class MorphTargetUploaderCore : RenderCore {
     public StructuredBufferProxy? MtWeightsB {
         get;
         private set {
-            if(field != value)
+            if (field != value)
                 field?.Dispose();
             field = value;
         }
@@ -146,7 +143,7 @@ internal class MorphTargetUploaderCore : RenderCore {
     public ImmutableBufferProxy? MtDeltasB {
         get;
         private set {
-            if(field != value)
+            if (field != value)
                 field?.Dispose();
             field = value;
         }
@@ -155,81 +152,19 @@ internal class MorphTargetUploaderCore : RenderCore {
     public ImmutableBufferProxy? MtOffsetsB {
         get;
         private set {
-            if(field != value)
+            if (field != value)
                 field?.Dispose();
             field = value;
         }
     }
-    
+
     public event EventHandler? WeightsChanged;
-
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
-
-    protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) {
-        if (weightUpdated && MtWeightsB is { } weightsBuffer) {
-            weightsBuffer.UploadDataToBuffer(deviceContext, morphTargetWeights, morphTargetWeights.Length, 0);
-            weightUpdated = false;
-        }
-
-        if (setDeltas && MtDeltasB is { Buffer: { } deltasBuffer } deltas &&
-            MtOffsetsB is { Buffer: { } offsetsBuffer } offsets) {
-            //Setup deltas buffer
-            var c = morphTargetsDeltas.Length;
-            deltas.UploadDataToBuffer(deviceContext, morphTargetsDeltas, c);
-            //Handle deltas srv
-            if (deltasBuffer.Device.CreateShaderResourceView(deltasBuffer) is { } deltasView) {
-                MtDeltasSrv = new ShaderResourceViewProxy(deltasBuffer, deltasView);
-                MtDeltasSrv.CreateTextureView();
-            }
-
-            //Setup offsets buffer
-            c = morphTargetOffsets.Length;
-            offsets.UploadDataToBuffer(deviceContext, morphTargetOffsets, c);
-            //Handle offsets srv
-            if (offsetsBuffer.Device.CreateShaderResourceView(offsetsBuffer) is { } offsetsView) {
-                MtOffsetsSrv = new ShaderResourceViewProxy(offsetsBuffer, offsetsView);
-                MtOffsetsSrv.CreateTextureView();
-            }
-
-
-            setDeltas = false;
-        }
-
-        if (setCBuffer) {
-            //Set Values
-            cbMorphTarget.WriteValue(mtCount, 0);
-            cbMorphTarget.WriteValue(mtPitch, sizeof(int));
-
-            setCBuffer = false;
-        }
-
-        //Update/upload or whatever
-        cbMorphTarget.Upload(deviceContext);
-    }
-
-    protected override bool OnAttach(IRenderTechnique technique) {
-        MtWeightsB = new StructuredBufferProxy(sizeof(float), false);
-        MtDeltasB = new ImmutableBufferProxy(sizeof(float) * 3,
-                                             BindFlags.ShaderResource,
-                                             ResourceOptionFlags.BufferStructured);
-        
-        MtOffsetsB = new ImmutableBufferProxy(sizeof(int),
-                                              BindFlags.ShaderResource,
-                                              ResourceOptionFlags.BufferStructured);
-        return true;
-    }
-
-    protected override void OnDetach() {
-        MtWeightsB = null;
-        MtDeltasB = null;
-        MtOffsetsB = null;
-    }
 
     public void BindBuffers(DeviceContextProxy devCtx, int weightsSlot, int deltasSlot, int offsetsSlot) {
         if (HasMorphTarget && MtWeightsB is { } weightsBuffer) {
             devCtx.SetShaderResource<VertexShaderType>(weightsSlot, weightsBuffer);
             devCtx.SetShaderResource<VertexShaderType>(deltasSlot, MtDeltasSrv);
-            devCtx.SetShaderResource<VertexShaderType>( offsetsSlot, MtOffsetsSrv);
+            devCtx.SetShaderResource<VertexShaderType>(offsetsSlot, MtOffsetsSrv);
         }
     }
 

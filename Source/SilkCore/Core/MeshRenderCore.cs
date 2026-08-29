@@ -22,34 +22,9 @@ namespace HelixToolkit.SharpDX.Core.Core;
 public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicReflectable {
     protected ModelStruct ModelStruct = new() { World = Matrix.Identity };
 
-    protected override bool CreateRasterState(RasterizerStateDescription description, bool force) {
-        if (base.CreateRasterState(description, force)) {
-            var wireframeDesc = description with {
-                FillMode = FillMode.Wireframe,
-                DepthBias = -100,
-                SlopeScaledDepthBias = 2f,
-                DepthBiasClamp = -0.00008f
-            };
-
-            if (EffectTechnique is not { EffectsManager: { } effectsManager })
-                return false;
-
-            var newState = effectsManager.StateManager.Register(wireframeDesc);
-            RasterStateWireframe = newState;
-            return true;
-        }
-
-        return false;
-    }
-
-    protected override void OnDetach() {
-        RasterStateWireframe = null;
-        base.OnDetach();
-    }
-
-    protected override bool OnUpdateCanRenderFlag() 
+    protected override bool OnUpdateCanRenderFlag()
         => base.OnUpdateCanRenderFlag() &&
-           (IsD3D12Attached || MaterialVariables != EmptyMaterialVariable.EmptyVariable);
+           (IsAttached || MaterialVariables != EmptyMaterialVariable.EmptyVariable);
 
     protected virtual void OnUpdatePerModelStruct(RenderContext context) {
         OnUpdatePerModelStructD3D12();
@@ -95,103 +70,7 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
             bindings.SamplerTableStart);
     }
 
-    protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) {
-        var pass = MaterialVariables.GetPass(RenderType, context);
-        if (pass.IsNull)
-            return;
-        
-        OnUpdatePerModelStruct(context);
-        if (!MaterialVariables.UpdateMaterialStruct(deviceContext, ref ModelStruct))
-            return;
-        
-        pass.BindShader(deviceContext);
-        pass.BindStates(deviceContext, DefaultStateBinding);
-        
-        if (!MaterialVariables.BindMaterialResources(context, deviceContext, pass))
-            return;
-
-        DynamicReflector?.BindCubeMap(deviceContext);
-        MaterialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
-        DynamicReflector?.UnBindCubeMap(deviceContext);
-
-        if (RenderWireframe) {
-            pass = MaterialVariables.GetWireframePass(RenderType, context);
-            if (pass.IsNull) 
-                return;
-            
-            pass.BindShader(deviceContext, false);
-            pass.BindStates(deviceContext, DefaultStateBinding);
-            deviceContext.SetRasterState(RasterStateWireframe);
-            MaterialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
-        }
-    }
-
-    protected override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext) {
-        if (!MaterialVariables.UpdateMaterialStruct(deviceContext, ref ModelStruct)) 
-            return;
-        
-        MaterialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
-    }
-
-    protected override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext) {
-        var pass = MaterialVariables.GetShadowPass(RenderType, context);
-        if (pass.IsNull) 
-            return;
-        
-        var v = new SimpleMeshStruct {
-            World = ModelMatrix,
-            HasInstances = InstanceBuffer.HasElements ? 1 : 0
-        };
-        if (!MaterialVariables.UpdateNonMaterialStruct(deviceContext, ref v))
-            return;
-        
-        pass.BindShader(deviceContext);
-        pass.BindStates(deviceContext, ShadowStateBinding);
-        MaterialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
-    }
-
-    protected override void OnRenderDepth(
-        RenderContext context,
-        DeviceContextProxy deviceContext,
-        ShaderPass? customPass
-    ) {
-        var pass = customPass ?? MaterialVariables.GetDepthPass(RenderType, context);
-        if (pass.IsNull)
-            return;
-        
-        var v = new SimpleMeshStruct {
-            World = ModelMatrix,
-            HasInstances = InstanceBuffer.HasElements ? 1 : 0
-        };
-        
-        if (!MaterialVariables.UpdateNonMaterialStruct(deviceContext, ref v))
-            return;
-        
-        pass.BindShader(deviceContext);
-        pass.BindStates(deviceContext, ShadowStateBinding);
-        MaterialVariables.Draw(deviceContext, GeometryBuffer, InstanceBuffer.ElementCount);
-    }
-
-#region Variables
-
-    /// <summary>
-    ///     Gets the raster state wireframe.
-    /// </summary>
-    /// <value>
-    ///     The raster state wireframe.
-    /// </value>
-    protected RasterizerStateProxy? RasterStateWireframe {
-        get;
-        private set {
-            if(field != value)
-                field?.Dispose();
-            field = value;
-        }
-    }
-
-#endregion
-
-#region Properties
+    #region Properties
 
     /// <summary>
     /// </summary>
@@ -258,5 +137,5 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
         set => SetAffectsCanRenderFlag(ref field, value ?? EmptyMaterialVariable.EmptyVariable);
     } = EmptyMaterialVariable.EmptyVariable;
 
-#endregion
+    #endregion
 }

@@ -47,7 +47,7 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
                                    new ConstantBufferDescription(
                                        DefaultBufferNames.BorderEffectCb,
                                        BorderEffectStruct.SizeInBytes)));
-        
+
         ThresholdColor = new Color4(0.8f, 0.8f, 0.8f, 0f);
         BloomExtractIntensity = 1f;
         BloomPassIntensity = 0.95f;
@@ -55,35 +55,8 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
         BloomCombineSaturation = 0.7f;
     }
 
-    protected override bool OnAttach(IRenderTechnique technique) {
-        screenQuadPass = technique.GetPass(DefaultPassNames.ScreenQuad);
-        screenQuadCopy = technique.GetPass(DefaultPassNames.ScreenQuadCopy);
-        blurPassVertical = technique.GetPass(DefaultPassNames.EffectBlurVertical);
-        blurPassHorizontal = technique.GetPass(DefaultPassNames.EffectBlurHorizontal);
-        screenOutlinePass = technique.GetPass(DefaultPassNames.MeshOutline);
-        textureSlot = screenOutlinePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTb);
-       
-        samplerSlot = screenOutlinePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
-        
-        sampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
-        blurCore = new PostEffectBlurCore(blurPassVertical,
-                                          blurPassHorizontal,
-                                          textureSlot,
-                                          samplerSlot,
-                                          DefaultSamplers.LinearSamplerClampAni1,
-                                          technique.EffectsManager);
-        return true;
-    }
-
-    protected override bool OnUpdateCanRenderFlag() 
+    protected override bool OnUpdateCanRenderFlag()
         => IsAttached && !string.IsNullOrEmpty(EffectName);
-
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
-
-    protected override void OnDetach() {
-        RemoveAndDispose(ref sampler);
-        RemoveAndDispose(ref blurCore);
-    }
 
     private static void BindTarget(
         DepthStencilView? dsv,
@@ -93,15 +66,15 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
         int height,
         bool clear = true
     ) {
-        if (clear) 
+        if (clear)
             context.ClearRenderTargetView(targetView, Color.Transparent);
-        
+
         context.SetRenderTargets(dsv, [targetView]);
         context.SetViewport(0, 0, width, height);
         context.SetScissorRectangle(0, 0, width, height);
     }
 
-#region Variables
+    #region Variables
 
     private SamplerStateProxy? sampler;
     private ShaderPass screenQuadPass = ShaderPass.NullPass;
@@ -124,9 +97,9 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
 
     private PostEffectBlurCore? blurCore;
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     /// <summary>
     ///     Gets or sets the name of the effect.
@@ -195,5 +168,5 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
         set => SetAffectsRender(ref numberOfBlurPass, value);
     }
 
-#endregion
+    #endregion
 }

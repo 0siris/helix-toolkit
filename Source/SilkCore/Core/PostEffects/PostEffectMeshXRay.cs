@@ -62,29 +62,18 @@ public class PostEffectMeshXRayCore : RenderCore, IPostEffectMeshXRay {
     }
 
 
-    protected override bool OnAttach(IRenderTechnique technique) => true;
-
-    protected override void OnDetach() { }
-
-    /// <summary>
-    ///     Called when [render].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
-
-    protected override bool OnUpdateCanRenderFlag() 
+    protected override bool OnUpdateCanRenderFlag()
         => IsAttached && !string.IsNullOrEmpty(EffectName);
 
-#region Variables
+    #region Variables
 
     private readonly List<(SceneNode Mesh, IEffectAttributes Effect)> currentCoresBuffer = [];
     private readonly ConstantBufferComponent modelCb;
     private BorderEffectStruct modelStruct;
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     /// <summary>
     ///     Gets or sets the name of the effect.
@@ -131,5 +120,5 @@ public class PostEffectMeshXRayCore : RenderCore, IPostEffectMeshXRay {
         set => SetAffectsRender(ref field, value);
     }
 
-#endregion
+    #endregion
 }

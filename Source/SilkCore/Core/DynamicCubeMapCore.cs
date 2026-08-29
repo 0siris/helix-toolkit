@@ -33,145 +33,6 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
         UpdateTargets();
     }
 
-    private bool CreateCubeMapResources() {
-        if (textureDesc.Width == faceSize && CubeMap is {IsDisposed: false})
-            return false;
-
-        if (Device is not { } device)
-            return false;
-
-        textureDesc.Width = textureDesc.Height = dsvTextureDesc.Width = dsvTextureDesc.Height = FaceSize;
-
-        var cubeMap = new ShaderResourceViewProxy(device, textureDesc);
-        if (cubeMap.Resource is not { } cubeMapResource) {
-            cubeMap.Dispose();
-            return false;
-        }
-
-        var srvDesc = new ShaderResourceViewDescription {
-            Format = textureDesc.Format,
-            Dimension = ShaderResourceViewDimension.TextureCube,
-            TextureCube = new ShaderResourceViewDescription.TextureCubeResource {
-                MostDetailedMip = 0,
-                MipLevels = -1
-            }
-        };
-        cubeMap.CreateView(srvDesc);
-
-        var rtsDesc = new RenderTargetViewDescription {
-            Format = textureDesc.Format,
-            Dimension = RenderTargetViewDimension.Texture2DArray,
-            Texture2DArray = new RenderTargetViewDescription.Texture2DArrayResource {
-                MipSlice = 0,
-                FirstArraySlice = 0,
-                ArraySize = 1
-            }
-        };
-
-        for (var i = 0; i < 6; ++i) {
-            ref var rtv = ref cubeRtVs[i];
-            RemoveAndDispose(ref rtv);
-            rtsDesc.Texture2DArray.FirstArraySlice = i;
-            rtv = device.CreateRenderTargetView(cubeMapResource, rtsDesc);
-        }
-
-        var cubeDsv = new ShaderResourceViewProxy(device, dsvTextureDesc);
-        if (cubeDsv.Resource is not { } cubeDsvResource) {
-            cubeMap.Dispose();
-            cubeDsv.Dispose();
-            return false;
-        }
-
-        var dsvDesc = new DepthStencilViewDescription {
-            Format = dsvTextureDesc.Format,
-            Dimension = DepthStencilViewDimension.Texture2DArray,
-            Flags = DepthStencilViewFlags.None,
-            Texture2DArray = new DepthStencilViewDescription.Texture2DArrayResource {
-                MipSlice = 0,
-                FirstArraySlice = 0,
-                ArraySize = 1
-            }
-        };
-
-        for (var i = 0; i < 6; ++i) {
-            ref var dsv = ref cubeDsVs[i];
-            RemoveAndDispose(ref dsv);
-            dsvDesc.Texture2DArray.FirstArraySlice = i;
-            dsv = device.CreateDepthStencilView(cubeDsvResource, dsvDesc);
-        }
-
-        CubeMap = cubeMap;
-        CubeDsv = cubeDsv;
-
-        return true;
-    }
-
-    protected override bool OnAttach(IRenderTechnique technique) {
-        if (EffectTechnique is not { } effectTechnique)
-            return false;
-
-        DefaultShaderPass = effectTechnique[DefaultShaderPassName];
-        contextPool = technique.EffectsManager.DeviceContextPool;
-        TextureSampler = technique.EffectsManager.StateManager.Register(SamplerDescription);
-        CreateCubeMapResources();
-        return true;
-    }
-
-    protected override void OnDetach() {
-        TextureSampler = null;
-        CubeMap = null;
-        CubeDsv = null;
-        textureDesc.Width = textureDesc.Height = dsvTextureDesc.Width = dsvTextureDesc.Height = 0;
-        for (var i = 0; i < 6; ++i) {
-            RemoveAndDispose(ref cubeRtVs[i]);
-            RemoveAndDispose(ref cubeDsVs[i]);
-        }
-
-        contextPool = null;
-    }
-
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (!enableReflector)
-            return;
-
-        if (CreateCubeMapResources()) {
-            RaiseInvalidateRender();
-            return; // Skip this frame if texture resized to reduce latency.
-        }
-
-        if (!(IsDynamicScene || context.UpdateSceneGraphRequested || context.UpdatePerFrameRenderableRequested))
-            return;
-
-        context.IsInvertCullMode = true;
-
-        List<Exception>? exception = null;
-
-        Parallel.For(0, 6,
-            index => {
-                try {
-                    RenderCubeFace(context, index);
-                } catch (Exception e) {
-                    exception ??= [];
-                    exception.Add(e);
-                    LoggerLib.Logger.Error(e, "Cabe face calculation failed");
-                }
-            });
-
-        context.IsInvertCullMode = false;
-        if (exception != null)
-            throw new AggregateException(exception);
-
-        for (var i = 0; i < commands.Length; ++i)
-            if (commands[i] is { } command) {
-                deviceContext.ExecuteCommandList(command, true);
-                Disposer.RemoveAndDispose(ref commands[i]);
-            }
-
-        if (CubeMap?.TextureView is { } cubeMapView)
-            deviceContext.GenerateMips(cubeMapView);
-        context.UpdatePerFrameData(true, false, deviceContext);
-    }
-
     private void RenderCubeFace(RenderContext context, int index) {
         if (contextPool is not { } pool)
             return;
@@ -204,12 +65,12 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
                     : SilkMath.LookAtRh(center, targets[i], upVectors[i])) * SilkMath.Scaling(-1, 1, 1);
             cubeFaceCameras.Cameras[i].Projection = IsLeftHanded
                 ? SilkMath.PerspectiveFovLh(
-                    (float) Math.PI * 0.5f,
+                    (float)Math.PI * 0.5f,
                     1,
                     NearField,
                     FarField)
                 : SilkMath.PerspectiveFovRh(
-                    (float) Math.PI * 0.5f,
+                    (float)Math.PI * 0.5f,
                     1,
                     NearField,
                     FarField);
@@ -325,10 +186,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     /// </summary>
     public string DefaultShaderPassName {
         get;
-        set {
-            if (SetAffectsRender(ref field, value) && IsAttached && EffectTechnique is { } effectTechnique)
-                DefaultShaderPass = effectTechnique[value];
-        }
+        set => SetAffectsRender(ref field, value);
     } = DefaultPassNames.Default;
 
     /// <summary>
@@ -354,12 +212,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     /// </value>
     public SamplerStateDescription SamplerDescription {
         get;
-        set {
-            if (SetAffectsRender(ref field, value) && IsAttached && EffectTechnique is { } effectTechnique) {
-                var newSampler = effectTechnique.EffectsManager.StateManager.Register(value);
-                TextureSampler = newSampler;
-            }
-        }
+        set => SetAffectsRender(ref field, value);
     } = DefaultSamplers.IblSampler;
 
     /// <summary>

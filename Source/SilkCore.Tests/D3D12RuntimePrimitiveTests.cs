@@ -217,7 +217,7 @@ public class D3D12RuntimePrimitiveTests {
     [Trait("Category", "Unit")]
     public void ResourceStatesReturnOnlyRequiredTransitions() {
         var tracker = new D3D12ResourceStateTracker();
-        var resource = (nint) 42;
+        var resource = (nint)42;
         tracker.Track(resource, ResourceStates.Common);
 
         Assert.False(tracker.TryTransition(resource, ResourceStates.Common, out _));
@@ -235,7 +235,7 @@ public class D3D12RuntimePrimitiveTests {
     [Trait("Category", "Unit")]
     public void ResourceStatesRejectInvalidTrackingOperations() {
         var tracker = new D3D12ResourceStateTracker();
-        var resource = (nint) 42;
+        var resource = (nint)42;
 
         Assert.Throws<ArgumentException>(() => tracker.Track(nint.Zero, ResourceStates.Common));
         tracker.Track(resource, ResourceStates.Common);
@@ -567,16 +567,16 @@ public class D3D12RuntimePrimitiveTests {
         using var queue = device.CreateCommandQueue();
         using var context = device.CreateCommandContext();
         using var fence = device.CreateFence();
-        using var upload = device.CreateBuffer((ulong) expected.Length, HeapType.Upload);
-        using var gpu = device.CreateBuffer((ulong) expected.Length);
-        using var readback = device.CreateBuffer((ulong) expected.Length, HeapType.Readback);
+        using var upload = device.CreateBuffer((ulong)expected.Length, HeapType.Upload);
+        using var gpu = device.CreateBuffer((ulong)expected.Length);
+        using var readback = device.CreateBuffer((ulong)expected.Length, HeapType.Readback);
         upload.Write(expected);
 
         context.Reset();
         Assert.True(context.Transition(gpu, ResourceStates.CopyDest));
-        context.CopyBuffer(gpu, 0, upload, 0, (ulong) expected.Length);
+        context.CopyBuffer(gpu, 0, upload, 0, (ulong)expected.Length);
         Assert.True(context.Transition(gpu, ResourceStates.CopySource));
-        context.CopyBuffer(readback, 0, gpu, 0, (ulong) expected.Length);
+        context.CopyBuffer(readback, 0, gpu, 0, (ulong)expected.Length);
         context.Close();
 
         queue.Execute(context);
@@ -764,7 +764,7 @@ public class D3D12RuntimePrimitiveTests {
         using var instanceBuffer = SilkD3D12ElementsBuffer<Matrix>.Create(device, instanceModel);
         using var renderTarget = device.CreateRenderTargetTexture2D(4, 4, Format.FormatR8G8B8A8Unorm);
         var color = new byte[256];
-        System.Buffer.BlockCopy(new[] {1.0f, 0.0f, 0.0f, 1.0f}, 0, color, 0, 16);
+        System.Buffer.BlockCopy(new[] { 1.0f, 0.0f, 0.0f, 1.0f }, 0, color, 0, 16);
         constantBuffer.Write(color);
         device.CreateConstantBufferView(constantBuffer, resourceDescriptors[6], 256);
         device.CreateRenderTargetView(renderTarget, renderTargetView);
@@ -874,7 +874,7 @@ public class D3D12RuntimePrimitiveTests {
         queue.Execute(context);
         fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
 
-        Assert.Equal(new[] {2, 1, 0}, MemoryMarshal.Cast<byte, int>(readback.Read(12)).ToArray());
+        Assert.Equal(new[] { 2, 1, 0 }, MemoryMarshal.Cast<byte, int>(readback.Read(12)).ToArray());
         Assert.Equal(3u, buffers.IndexCount);
 
         model.Geometry = new MeshGeometry3D {
@@ -949,7 +949,7 @@ public class D3D12RuntimePrimitiveTests {
         };
         using var lineBuffers = SilkD3D12PointLineBuffers.Create(device, lineModel);
         using var pointBuffers = SilkD3D12PointLineBuffers.Create(device, pointModel);
-        using var instanceModel = new MatrixInstanceBufferModel {Elements = [Matrix.Identity, Matrix.Identity]};
+        using var instanceModel = new MatrixInstanceBufferModel { Elements = [Matrix.Identity, Matrix.Identity] };
         using var instanceBuffer = SilkD3D12ElementsBuffer<Matrix>.Create(device, instanceModel);
 
         Assert.Equal(PrimitiveTopology.LineList, lineBuffers.Topology);
@@ -973,8 +973,8 @@ public class D3D12RuntimePrimitiveTests {
         queue.Execute(context);
         fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
 
-        Assert.Equal(new[] {1, 0}, MemoryMarshal.Cast<byte, int>(indexReadback.Read(8)).ToArray());
-        Assert.Equal(new[] {0f, 1f, 0f, 1f},
+        Assert.Equal(new[] { 1, 0 }, MemoryMarshal.Cast<byte, int>(indexReadback.Read(8)).ToArray());
+        Assert.Equal(new[] { 0f, 1f, 0f, 1f },
             MemoryMarshal.Cast<byte, float>(vertexReadback.Read(16)).ToArray());
 
         context.Reset();
@@ -1106,10 +1106,10 @@ public class D3D12RuntimePrimitiveTests {
         var fenceValue = queue.Signal(fence);
         fence.Wait(fenceValue, TimeSpan.FromSeconds(5));
 
-        var actual = readback.Read((int) totalBytes);
+        var actual = readback.Read((int)totalBytes);
         Assert.Equal(expected.AsSpan(0, 8).ToArray(), actual.AsSpan(0, 8).ToArray());
         Assert.Equal(expected.AsSpan(8, 8).ToArray(),
-            actual.AsSpan((int) footprint.Footprint.RowPitch, 8).ToArray());
+            actual.AsSpan((int)footprint.Footprint.RowPitch, 8).ToArray());
     }
 
     /// <summary>
@@ -1143,8 +1143,8 @@ public class D3D12RuntimePrimitiveTests {
         var fenceValue = queue.Signal(fence);
         fence.Wait(fenceValue, TimeSpan.FromSeconds(5));
 
-        var actual = readback.Read((int) totalBytes);
-        var rowPitch = checked((int) footprints[0].Footprint.RowPitch);
+        var actual = readback.Read((int)totalBytes);
+        var rowPitch = checked((int)footprints[0].Footprint.RowPitch);
         var slicePitch = checked(rowPitch * 2);
         Assert.Equal(expected.AsSpan(0, 2).ToArray(), actual.AsSpan(0, 2).ToArray());
         Assert.Equal(expected.AsSpan(2, 2).ToArray(), actual.AsSpan(rowPitch, 2).ToArray());
@@ -1272,7 +1272,7 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(60, SilkD3D12BoneSkinResources.MorphTargetWeightRegister);
         Assert.Equal(61, SilkD3D12BoneSkinResources.MorphTargetDeltaRegister);
         Assert.Equal(62, SilkD3D12BoneSkinResources.MorphTargetOffsetRegister);
-        Assert.Equal((ulong) (2 * DefaultVertex.SizeInBytes), skinning.OutputSizeInBytes);
+        Assert.Equal((ulong)(2 * DefaultVertex.SizeInBytes), skinning.OutputSizeInBytes);
         Assert.Equal(ResourceStates.Common, skinning.Output.State);
 
         var boneResource = skinning.BoneMatrixResource
@@ -1283,28 +1283,28 @@ public class D3D12RuntimePrimitiveTests {
             ?? throw new InvalidOperationException("The morph-target-delta upload was not created.");
         var offsetResource = skinning.MorphTargetOffsetResource
             ?? throw new InvalidOperationException("The morph-target-offset upload was not created.");
-        var boneIdBytes = checked((int) skinning.BoneIdResource.SizeInBytes);
-        var boneBytes = checked((int) boneResource.SizeInBytes);
-        var weightBytes = checked((int) weightResource.SizeInBytes);
-        var deltaBytes = checked((int) deltaResource.SizeInBytes);
-        var offsetBytes = checked((int) offsetResource.SizeInBytes);
+        var boneIdBytes = checked((int)skinning.BoneIdResource.SizeInBytes);
+        var boneBytes = checked((int)boneResource.SizeInBytes);
+        var weightBytes = checked((int)weightResource.SizeInBytes);
+        var deltaBytes = checked((int)deltaResource.SizeInBytes);
+        var offsetBytes = checked((int)offsetResource.SizeInBytes);
         const int constantBytes = 16;
         var totalBytes = boneIdBytes + boneBytes + weightBytes + deltaBytes + offsetBytes + constantBytes;
-        using var readback = device.CreateBuffer((ulong) totalBytes, HeapType.Readback);
+        using var readback = device.CreateBuffer((ulong)totalBytes, HeapType.Readback);
         context.Reset();
         skinning.BindOutput(context);
         skinning.UnbindOutput(context);
         ulong destinationOffset = 0;
-        context.CopyBuffer(readback, destinationOffset, skinning.BoneIdResource, 0, (ulong) boneIdBytes);
-        destinationOffset += (ulong) boneIdBytes;
-        context.CopyBuffer(readback, destinationOffset, boneResource, 0, (ulong) boneBytes);
-        destinationOffset += (ulong) boneBytes;
-        context.CopyBuffer(readback, destinationOffset, weightResource, 0, (ulong) weightBytes);
-        destinationOffset += (ulong) weightBytes;
-        context.CopyBuffer(readback, destinationOffset, deltaResource, 0, (ulong) deltaBytes);
-        destinationOffset += (ulong) deltaBytes;
-        context.CopyBuffer(readback, destinationOffset, offsetResource, 0, (ulong) offsetBytes);
-        destinationOffset += (ulong) offsetBytes;
+        context.CopyBuffer(readback, destinationOffset, skinning.BoneIdResource, 0, (ulong)boneIdBytes);
+        destinationOffset += (ulong)boneIdBytes;
+        context.CopyBuffer(readback, destinationOffset, boneResource, 0, (ulong)boneBytes);
+        destinationOffset += (ulong)boneBytes;
+        context.CopyBuffer(readback, destinationOffset, weightResource, 0, (ulong)weightBytes);
+        destinationOffset += (ulong)weightBytes;
+        context.CopyBuffer(readback, destinationOffset, deltaResource, 0, (ulong)deltaBytes);
+        destinationOffset += (ulong)deltaBytes;
+        context.CopyBuffer(readback, destinationOffset, offsetResource, 0, (ulong)offsetBytes);
+        destinationOffset += (ulong)offsetBytes;
         context.CopyBuffer(readback,
             destinationOffset,
             skinning.MorphTargetConstantResource,
@@ -1322,7 +1322,7 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(matrices,
             MemoryMarshal.Cast<byte, Matrix>(bytes.AsSpan(sourceOffset, boneBytes)).ToArray());
         sourceOffset += boneBytes;
-        Assert.Equal(new[] {0.5f, 0.25f},
+        Assert.Equal(new[] { 0.5f, 0.25f },
             MemoryMarshal.Cast<byte, float>(bytes.AsSpan(sourceOffset, weightBytes)).ToArray());
         sourceOffset += weightBytes;
         var deltas = MemoryMarshal.Cast<byte, Vector3>(bytes.AsSpan(sourceOffset, deltaBytes));
@@ -1330,10 +1330,10 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(new Vector3(2, 0, 0), deltas[3]);
         Assert.Equal(new Vector3(0, 4, 0), deltas[6]);
         sourceOffset += deltaBytes;
-        Assert.Equal(new[] {3, 0, 0, 6},
+        Assert.Equal(new[] { 3, 0, 0, 6 },
             MemoryMarshal.Cast<byte, int>(bytes.AsSpan(sourceOffset, offsetBytes)).ToArray());
         sourceOffset += offsetBytes;
-        Assert.Equal(new[] {2, 2, 0, 0},
+        Assert.Equal(new[] { 2, 2, 0, 0 },
             MemoryMarshal.Cast<byte, int>(bytes.AsSpan(sourceOffset, constantBytes)).ToArray());
         Assert.Equal(ResourceStates.VertexAndConstantBuffer, skinning.Output.State);
         device.ThrowIfDeviceRemoved();
@@ -1346,7 +1346,7 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Null(skinning.MorphTargetWeightResource);
         Assert.Null(skinning.MorphTargetDeltaResource);
         Assert.Null(skinning.MorphTargetOffsetResource);
-        Assert.Equal((ulong) (4 * DefaultVertex.SizeInBytes), skinning.OutputSizeInBytes);
+        Assert.Equal((ulong)(4 * DefaultVertex.SizeInBytes), skinning.OutputSizeInBytes);
 
         bindings.Dispose();
         Assert.True(skinning.IsDisposed);
@@ -1529,29 +1529,29 @@ public class D3D12RuntimePrimitiveTests {
         var createdPasses = 0;
 
         foreach (var technique in techniques)
-        foreach (var description in technique.PassDescriptions ?? []) {
-            var inputLayout = description.InputLayoutDescription ?? technique.InputLayoutDescription;
-            var geometryShader = (description.ShaderList ?? []).FirstOrDefault(shader =>
-                shader.ShaderType == ShaderStage.Geometry)?.ByteCodeName;
-            var fallbackTopology = geometryShader is null
-                ? PrimitiveTopology.TriangleList
-                : geometryShader.StartsWith("gsLine", StringComparison.Ordinal)
-                    ? PrimitiveTopology.LineList
-                    : PrimitiveTopology.PointList;
-            try {
-                var pass = description.CreateD3D12(device,
-                    rootSignature,
-                    cache,
-                    inputLayout,
-                    fallbackTopology,
-                    depthStencilFormat: Format.FormatD24UnormS8Uint);
-                Assert.True(pass.IsD3D12);
-                createdPasses++;
-            } catch (Exception exception) {
-                throw new InvalidOperationException($"DX12 PSO creation failed for {technique.Name}/{description.Name}.",
-                    exception);
+            foreach (var description in technique.PassDescriptions ?? []) {
+                var inputLayout = description.InputLayoutDescription ?? technique.InputLayoutDescription;
+                var geometryShader = (description.ShaderList ?? []).FirstOrDefault(shader =>
+                    shader.ShaderType == ShaderStage.Geometry)?.ByteCodeName;
+                var fallbackTopology = geometryShader is null
+                    ? PrimitiveTopology.TriangleList
+                    : geometryShader.StartsWith("gsLine", StringComparison.Ordinal)
+                        ? PrimitiveTopology.LineList
+                        : PrimitiveTopology.PointList;
+                try {
+                    var pass = description.CreateD3D12(device,
+                        rootSignature,
+                        cache,
+                        inputLayout,
+                        fallbackTopology,
+                        depthStencilFormat: Format.FormatD24UnormS8Uint);
+                    Assert.True(pass.IsD3D12);
+                    createdPasses++;
+                } catch (Exception exception) {
+                    throw new InvalidOperationException($"DX12 PSO creation failed for {technique.Name}/{description.Name}.",
+                        exception);
+                }
             }
-        }
 
         Assert.Equal(199, createdPasses);
         Assert.InRange(cache.Count, 1, createdPasses);
@@ -1654,9 +1654,9 @@ public class D3D12RuntimePrimitiveTests {
             }
         };
         using var point = new DefaultPointGeometryBufferModel {
-            Geometry = new PointGeometry3D {Positions = new Vector3Collection([Vector3.Zero])}
+            Geometry = new PointGeometry3D { Positions = new Vector3Collection([Vector3.Zero]) }
         };
-        using var instances = new MatrixInstanceBufferModel {Elements = [Matrix.Identity, Matrix.Identity]};
+        using var instances = new MatrixInstanceBufferModel { Elements = [Matrix.Identity, Matrix.Identity] };
 
         var firstMesh = manager.GetOrCreate(mesh);
         Assert.Same(firstMesh, manager.GetOrCreate(mesh));
@@ -1768,13 +1768,13 @@ public class D3D12RuntimePrimitiveTests {
         constantBuffer.Write(in model);
         var marker = 42u;
         constantBuffer.Write(in marker, ModelStruct.SizeInBytes);
-        using var readback = device.CreateBuffer((ulong) PhongPbrMaterialStruct.SizeInBytes, HeapType.Readback);
+        using var readback = device.CreateBuffer((ulong)PhongPbrMaterialStruct.SizeInBytes, HeapType.Readback);
         context.Reset();
         context.CopyBuffer(readback,
             0,
             constantBuffer.Resource,
             0,
-            (ulong) PhongPbrMaterialStruct.SizeInBytes);
+            (ulong)PhongPbrMaterialStruct.SizeInBytes);
         context.Close();
         queue.Execute(context);
         fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
@@ -1820,13 +1820,13 @@ public class D3D12RuntimePrimitiveTests {
         };
         lightData.IncrementLightCount();
         bindings.UpdateLights(lightData);
-        using var readback = device.CreateBuffer((ulong) LightsBufferModel.SizeInBytes, HeapType.Readback);
+        using var readback = device.CreateBuffer((ulong)LightsBufferModel.SizeInBytes, HeapType.Readback);
         context.Reset();
         context.CopyBuffer(readback,
             0,
             bindings.LightResource,
             0,
-            (ulong) LightsBufferModel.SizeInBytes);
+            (ulong)LightsBufferModel.SizeInBytes);
         context.Close();
         queue.Execute(context);
         fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
@@ -1881,10 +1881,10 @@ public class D3D12RuntimePrimitiveTests {
                 Indices = new IntCollection([0, 1, 2, 2, 1, 3])
             }
         };
-        using var instances = new MatrixInstanceBufferModel {Elements = [Matrix.Identity, Matrix.Identity]};
-        using var core = new TraversalGeometryRenderCore {GeometryBuffer = geometry, InstanceBuffer = instances};
+        using var instances = new MatrixInstanceBufferModel { Elements = [Matrix.Identity, Matrix.Identity] };
+        using var core = new TraversalGeometryRenderCore { GeometryBuffer = geometry, InstanceBuffer = instances };
         var color = new byte[256];
-        System.Buffer.BlockCopy(new[] {1.0f, 0.0f, 0.0f, 1.0f}, 0, color, 0, 16);
+        System.Buffer.BlockCopy(new[] { 1.0f, 0.0f, 0.0f, 1.0f }, 0, color, 0, 16);
         constantBuffer.Write(color);
         device.CreateConstantBufferView(constantBuffer, resourceDescriptors[6], 256);
         device.CreateRenderTargetView(renderTarget, renderTargetView);
@@ -1894,8 +1894,8 @@ public class D3D12RuntimePrimitiveTests {
         try {
             context.Reset();
             Assert.False(core.TryRenderD3D12(context, resources, pass));
-            core.AttachD3D12();
-            Assert.True(core.IsD3D12Attached);
+            core.Attach();
+            Assert.True(core.IsAttached);
             Assert.Throws<ArgumentException>(() =>
                 core.TryRenderD3D12(context, resources, pass, resourceDescriptors[0]));
             context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 0, 1]);
@@ -1916,8 +1916,8 @@ public class D3D12RuntimePrimitiveTests {
             fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
 
             Assert.Equal([255, 0, 0, 255], readback.Read(4));
-            core.DetachD3D12();
-            Assert.False(core.IsD3D12Attached);
+            core.Detach();
+            Assert.False(core.IsAttached);
             device.ThrowIfDeviceRemoved();
         } finally {
             foreach (var descriptor in resourceDescriptors) descriptor.Dispose();
@@ -1930,7 +1930,7 @@ public class D3D12RuntimePrimitiveTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void MeshMaterialsCreateCompleteD3D12Payloads() {
-        var model = new ModelStruct {World = Matrix.Identity, HasInstances = 1};
+        var model = new ModelStruct { World = Matrix.Identity, HasInstances = 1 };
         var texture = new TextureModel(Guid.NewGuid(), new ManagerTextureLoader(TextureInfo.Null));
         var diffuse = new DiffuseMaterialCore {
             DiffuseColor = new Vector4(0.1f, 0.2f, 0.3f, 0.4f),
@@ -2025,7 +2025,7 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Throws<InvalidOperationException>(() => D3D12MeshMaterialData.GetPassName(null));
         Assert.Throws<NotSupportedException>(() =>
             D3D12MeshMaterialData.Create(in model, new BillboardMaterialCore()));
-        using var node = new MeshNode {Material = diffuse};
+        using var node = new MeshNode { Material = diffuse };
         var nodeCore = Assert.IsType<MeshRenderCore>(node.RenderCore);
         Assert.Same(diffuse, nodeCore.D3D12Material);
         Assert.Equal(DefaultPassNames.Diffuse, nodeCore.D3D12MaterialPassName);
@@ -2037,7 +2037,7 @@ public class D3D12RuntimePrimitiveTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void PointLineMaterialsCreateCompleteD3D12Payloads() {
-        var model = new PointLineModelStruct {World = Matrix.Identity, HasInstances = 1};
+        var model = new PointLineModelStruct { World = Matrix.Identity, HasInstances = 1 };
         var texture = new TextureModel(Guid.NewGuid(), new ManagerTextureLoader(TextureInfo.Null));
         var line = new LineMaterialCore {
             Thickness = 3,
@@ -2064,7 +2064,7 @@ public class D3D12RuntimePrimitiveTests {
             EnableColorBlending = true,
             BlendingFactor = 0.4f
         };
-        var billboard = new BillboardMaterialCore {FixedSize = true, Type = BillboardType.Image};
+        var billboard = new BillboardMaterialCore { FixedSize = true, Type = BillboardType.Image };
 
         var lineData = D3D12PointLineMaterialData.Create(in model, line);
         var pointData = D3D12PointLineMaterialData.Create(in model, point);
@@ -2086,25 +2086,25 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(1, lineData.HasTexture);
         Assert.Equal(2, lineData.TextureScale);
         Assert.Equal(0.25f, lineData.AlphaThreshold);
-        Assert.Equal(new Vector4(5, 6, (int) PointFigure.Ellipse, 0.75f), pointData.Parameters);
+        Assert.Equal(new Vector4(5, 6, (int)PointFigure.Ellipse, 0.75f), pointData.Parameters);
         Assert.Equal(point.PointColor, pointData.Color);
         Assert.Equal(1, pointData.EnableBlending);
         Assert.Equal(0.4f, pointData.BlendingFactor);
-        Assert.Equal(new Vector4((int) BillboardType.Image, 0, 0, 0), billboardData.Parameters);
+        Assert.Equal(new Vector4((int)BillboardType.Image, 0, 0, 0), billboardData.Parameters);
         Assert.Equal(1, billboardData.FixedSizeFlag);
         Assert.Equal(1, billboardData.HasTexture);
         Assert.Throws<NotSupportedException>(() =>
             D3D12PointLineMaterialData.Create(in model, new DiffuseMaterialCore()));
-        using var lineNode = new LineNode {Material = line};
-        using var pointNode = new PointNode {Material = point};
-        using var billboardNode = new BillboardNode {Material = billboard};
+        using var lineNode = new LineNode { Material = line };
+        using var pointNode = new PointNode { Material = point };
+        using var billboardNode = new BillboardNode { Material = billboard };
         Assert.Same(line, Assert.IsType<PointLineRenderCore>(lineNode.RenderCore).D3D12Material);
         Assert.Same(point, Assert.IsType<PointLineRenderCore>(pointNode.RenderCore).D3D12Material);
         Assert.Same(billboard,
             Assert.IsType<PointLineRenderCore>(billboardNode.RenderCore).D3D12Material);
         var singleImage = new BillboardSingleImage3D(texture, 8, 6);
         var multipleImages = new BillboardImage3D(texture);
-        multipleImages.ImageInfos.Add(new ImageInfo {Position = Vector3.One, Width = 4, Height = 2});
+        multipleImages.ImageInfos.Add(new ImageInfo { Position = Vector3.One, Width = 4, Height = 2 });
         Assert.True(singleImage.TryPrepareVerticesForD3D12());
         Assert.Single(singleImage.BillboardVertices);
         Assert.True(multipleImages.TryPrepareVerticesForD3D12());
@@ -2124,7 +2124,7 @@ public class D3D12RuntimePrimitiveTests {
             Tangent = Vector3.UnitY,
             BiTangent = Vector3.UnitZ
         };
-        var boneIds = new BoneIds {Bone1 = 0, Bone2 = 1, Weights = new Vector4(0.25f, 0.75f, 0, 0)};
+        var boneIds = new BoneIds { Bone1 = 0, Bone2 = 1, Weights = new Vector4(0.25f, 0.75f, 0, 0) };
         var first = Matrix.Identity;
         first.M41 = -2;
         var second = Matrix.Identity;
@@ -2140,7 +2140,7 @@ public class D3D12RuntimePrimitiveTests {
         boneIds.Weights = new Vector4(1, 0, 0, 0);
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             SilkD3D12DefaultMeshBuffers.SkinVertex(in vertex, in boneIds, [first, second]));
-        using var node = new BoneSkinMeshNode {Material = new DiffuseMaterialCore()};
+        using var node = new BoneSkinMeshNode { Material = new DiffuseMaterialCore() };
         Assert.Same(node.Material, Assert.IsType<BoneSkinRenderCore>(node.RenderCore).D3D12Material);
         node.BoneMatrices = [Matrix.Identity];
         var frustum = default(BoundingFrustum);
@@ -2180,8 +2180,8 @@ public class D3D12RuntimePrimitiveTests {
         Assert.True(morphTargets.HasMorphTarget);
         Assert.Equal(2, morphTargets.MorphTargetCount);
         Assert.Equal(2, morphTargets.MorphTargetPitch);
-        Assert.Equal(new[] {0.5f, 0.25f}, morphTargets.D3D12Weights.ToArray());
-        Assert.Equal(new[] {3, 0, 0, 6}, morphTargets.D3D12Offsets.ToArray());
+        Assert.Equal(new[] { 0.5f, 0.25f }, morphTargets.D3D12Weights.ToArray());
+        Assert.Equal(new[] { 3, 0, 0, 6 }, morphTargets.D3D12Offsets.ToArray());
         Assert.Equal(9, morphTargets.D3D12Deltas.Length);
 
         Assert.True(morphTargets.ApplyD3D12MorphTargets(vertices));
@@ -2208,7 +2208,7 @@ public class D3D12RuntimePrimitiveTests {
     public void SceneNodeSelectorAppliesCameraFrustumToDx12Candidates() {
         using var inside = CreateFrustumTestNode(0);
         using var outside = CreateFrustumTestNode(10);
-        var candidates = new FastList<SceneNode>(2) {inside, outside};
+        var candidates = new FastList<SceneNode>(2) { inside, outside };
         var visible = new FastList<SceneNode>(2);
         var frustum = new BoundingFrustum(Matrix.Identity);
 
@@ -2231,11 +2231,11 @@ public class D3D12RuntimePrimitiveTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void ScenePassCatalogMapsExistingGeometryNodes() {
-        using var mesh = new MeshNode {Material = new ColorMaterialCore()};
-        using var bone = new BoneSkinMeshNode {Material = new DiffuseMaterialCore()};
-        using var line = new LineNode {Material = new LineMaterialCore()};
-        using var point = new PointNode {Material = new PointMaterialCore()};
-        using var billboard = new BillboardNode {Material = new BillboardMaterialCore()};
+        using var mesh = new MeshNode { Material = new ColorMaterialCore() };
+        using var bone = new BoneSkinMeshNode { Material = new DiffuseMaterialCore() };
+        using var line = new LineNode { Material = new LineMaterialCore() };
+        using var point = new PointNode { Material = new PointMaterialCore() };
+        using var billboard = new BillboardNode { Material = new BillboardMaterialCore() };
         using var environment = new EnvironmentMapNode();
         using var volume = new VolumeTextureNode {
             Material = new VolumeTextureRawDataMaterialCore {
@@ -2273,7 +2273,7 @@ public class D3D12RuntimePrimitiveTests {
             EmitterLocation = Vector3.One,
             ParticleBlendColor = new Vector4(1, 0, 0, 1)
         };
-        core.AttachD3D12();
+        core.Attach();
 
         Assert.True(core.PrepareD3D12(1,
             out var frame,
@@ -2323,7 +2323,7 @@ public class D3D12RuntimePrimitiveTests {
             InitialVelocity = 0,
             BlendColor = new Vector4(1, 0, 0, 1)
         };
-        var nodes = new FastList<SceneNode>(1) {node};
+        var nodes = new FastList<SceneNode>(1) { node };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -2357,7 +2357,7 @@ public class D3D12RuntimePrimitiveTests {
             false,
             ref frustum);
         var particle = Assert.IsType<SilkD3D12ParticleResources>(
-            renderer.FindParticleResources((ParticleRenderCore) node.RenderCore));
+            renderer.FindParticleResources((ParticleRenderCore)node.RenderCore));
         context.CopyBuffer(counterReadback, 0, particle.RenderCounter, 0, sizeof(uint));
         context.Transition(particle.Arguments, ResourceStates.CopySource);
         context.CopyBuffer(argumentReadback, 0, particle.Arguments, 0, ParticleCountIndirectArgs.SizeInBytes);
@@ -2378,7 +2378,7 @@ public class D3D12RuntimePrimitiveTests {
         Assert.True(pixel[0] > 200, $"Expected red particles, got [{string.Join(',', pixel)}].");
         Assert.True(pixel[2] < 40, $"Expected particles to replace the blue clear, got [{string.Join(',', pixel)}].");
         renderer.Dispose();
-        Assert.False(node.RenderCore.IsD3D12Attached);
+        Assert.False(node.RenderCore.IsAttached);
         Assert.Equal(0, resourceHeap.Count);
         Assert.Equal(0, samplerHeap.Count);
     }
@@ -2420,11 +2420,11 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(0.25f, data.IsoValue);
         Assert.Equal(0.5f, data.ActualSampleDistance);
         using var node = new VolumeTextureNode { Material = material };
-        Assert.Equal(DefaultPassNames.Default, ((VolumeRenderCore) node.RenderCore).D3D12MaterialPassName);
+        Assert.Equal(DefaultPassNames.Default, ((VolumeRenderCore)node.RenderCore).D3D12MaterialPassName);
         node.Material = new VolumeTextureDiffuseMaterialCore {
             VolumeTexture = new VolumeTextureGradientParams([new Half4()], 1, 1, 1)
         };
-        Assert.Equal(DefaultPassNames.Diffuse, ((VolumeRenderCore) node.RenderCore).D3D12MaterialPassName);
+        Assert.Equal(DefaultPassNames.Diffuse, ((VolumeRenderCore)node.RenderCore).D3D12MaterialPassName);
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             D3D12VolumeMaterialData.Create(in model, material, 0, 1, 1));
     }
@@ -2455,7 +2455,7 @@ public class D3D12RuntimePrimitiveTests {
             Format.FormatD32FloatS8X24Uint);
         using var volume = new VolumeTextureNode {
             Material = new VolumeTextureRawDataMaterialCore {
-                VolumeTexture = new VolumeTextureParams(Enumerable.Repeat((byte) 255, 8).ToArray(),
+                VolumeTexture = new VolumeTextureParams(Enumerable.Repeat((byte)255, 8).ToArray(),
                     2,
                     2,
                     2,
@@ -2516,17 +2516,17 @@ public class D3D12RuntimePrimitiveTests {
 
         device.ThrowIfDeviceRemoved();
         Assert.Equal(1, recorded);
-        Assert.True(volume.RenderCore.IsD3D12Attached);
+        Assert.True(volume.RenderCore.IsAttached);
         var backPixel = backReadback.Read(8,
             backFootprint.Offset + 8UL * backFootprint.Footprint.RowPitch + 8UL * 8);
         var backZ = BitConverter.UInt16BitsToHalf(BitConverter.ToUInt16(backPixel, 4));
-        Assert.True(backZ < (Half) (-0.4f),
+        Assert.True(backZ < (Half)(-0.4f),
             $"Expected the cube backface at negative Z, got {backZ} from [{string.Join(',', backPixel)}].");
         var pixel = readback.Read(4, footprint.Offset + 8UL * footprint.Footprint.RowPitch + 8UL * 4);
         Assert.True(pixel[0] > 200, $"Expected red volume output, got [{string.Join(',', pixel)}].");
         Assert.True(pixel[2] < 40, $"Expected the opaque red volume to replace the blue clear, got [{string.Join(',', pixel)}].");
         renderer.Dispose();
-        Assert.False(volume.RenderCore.IsD3D12Attached);
+        Assert.False(volume.RenderCore.IsAttached);
         Assert.Equal(0, resourceHeap.Count);
         Assert.Equal(0, samplerHeap.Count);
     }
@@ -2537,7 +2537,7 @@ public class D3D12RuntimePrimitiveTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void SceneRendererCollectsExistingLightNodesIntoSharedPayload() {
-        using var ambient = new AmbientLightNode {Color = new Vector4(0.1f, 0.2f, 0.3f, 1)};
+        using var ambient = new AmbientLightNode { Color = new Vector4(0.1f, 0.2f, 0.3f, 1) };
         using var directional = new DirectionalLightNode {
             Color = new Vector4(1, 0, 0, 1),
             Direction = Vector3.UnitZ
@@ -2564,9 +2564,9 @@ public class D3D12RuntimePrimitiveTests {
             FallOff = 2
         };
         var overflow = Enumerable.Range(0, Constants.MaxLights)
-            .Select(_ => new DirectionalLightNode {Direction = Vector3.UnitX})
+            .Select(_ => new DirectionalLightNode { Direction = Vector3.UnitX })
             .ToArray();
-        var nodes = new FastList<SceneNode>(4 + overflow.Length) {ambient, directional, point, spot};
+        var nodes = new FastList<SceneNode>(4 + overflow.Length) { ambient, directional, point, spot };
         nodes.AddRange(overflow);
         var lights = new LightsBufferModel();
         try {
@@ -2574,13 +2574,13 @@ public class D3D12RuntimePrimitiveTests {
 
             Assert.Equal(Constants.MaxLights, lights.LightCount);
             Assert.Equal(ambient.Color, lights.AmbientLight);
-            Assert.Equal((int) LightType.Directional, lights.Lights[0].LightType);
+            Assert.Equal((int)LightType.Directional, lights.Lights[0].LightType);
             Assert.Equal(new Vector4(0, 0, -1, 0), lights.Lights[0].LightDir);
             Assert.Equal(directional.Color, lights.Lights[0].LightColor);
-            Assert.Equal((int) LightType.Point, lights.Lights[1].LightType);
+            Assert.Equal((int)LightType.Point, lights.Lights[1].LightType);
             Assert.Equal(new Vector4(5, 7, 9, 1), lights.Lights[1].LightPos);
             Assert.Equal(new Vector4(1, 0.5f, 0.25f, 42), lights.Lights[1].LightAtt);
-            Assert.Equal((int) LightType.Spot, lights.Lights[2].LightType);
+            Assert.Equal((int)LightType.Spot, lights.Lights[2].LightType);
             Assert.Equal(new Vector4(2, 3, 4, 1), lights.Lights[2].LightPos);
             Assert.Equal(new Vector4(0, 0, -1, 0), lights.Lights[2].LightDir);
             Assert.Equal(2, lights.Lights[2].LightSpot.Z);
@@ -2616,7 +2616,7 @@ public class D3D12RuntimePrimitiveTests {
         using var near = CreateColoredQuadNode(0, new Vector4(0, 1, 0, 1), 0.25f);
         using var far = CreateColoredQuadNode(0, new Vector4(1, 0, 0, 1), 0.75f);
         using var outside = CreateColoredQuadNode(10, new Vector4(0, 0, 1, 1));
-        var candidates = new FastList<SceneNode>(3) {near, far, outside};
+        var candidates = new FastList<SceneNode>(3) { near, far, outside };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -2652,14 +2652,14 @@ public class D3D12RuntimePrimitiveTests {
         device.ThrowIfDeviceRemoved();
         Assert.Equal(2, renderer.VisibleCount);
         Assert.Equal(2, recorded);
-        Assert.True(near.RenderCore.IsD3D12Attached);
-        Assert.True(far.RenderCore.IsD3D12Attached);
-        Assert.False(outside.RenderCore.IsD3D12Attached);
+        Assert.True(near.RenderCore.IsAttached);
+        Assert.True(far.RenderCore.IsAttached);
+        Assert.False(outside.RenderCore.IsAttached);
         var centerPixelOffset = footprint.Offset + 4UL * footprint.Footprint.RowPitch + 4UL * 4;
         Assert.Equal([0, 255, 0, 255], readback.Read(4, centerPixelOffset));
         renderer.Dispose();
-        Assert.False(near.RenderCore.IsD3D12Attached);
-        Assert.False(far.RenderCore.IsD3D12Attached);
+        Assert.False(near.RenderCore.IsAttached);
+        Assert.False(far.RenderCore.IsAttached);
         Assert.Equal(0, resourceHeap.Count);
         Assert.Equal(0, samplerHeap.Count);
     }
@@ -2674,7 +2674,7 @@ public class D3D12RuntimePrimitiveTests {
         using var phong = CreateDiffuseQuadNode(Vector4.One);
         using var pbr = CreateDiffuseQuadNode(Vector4.One);
         phong.Material = new PhongMaterialCore();
-        pbr.Material = new PbrMaterialCore {EnableTessellation = true};
+        pbr.Material = new PbrMaterialCore { EnableTessellation = true };
 
         Assert.Equal(DefaultPassNames.DiffuseOit,
             D3D12ScenePassCatalog.GetTransparencyPassName(diffuse, false, false));
@@ -2713,7 +2713,7 @@ public class D3D12RuntimePrimitiveTests {
         using var depthView = depthHeap.Allocate();
         using var depth = device.CreateDepthStencilTexture2D(8, 8, Format.FormatD32FloatS8X24Uint);
         using var node = CreateDiffuseQuadNode(new Vector4(1, 0, 0, 0.5f));
-        var nodes = new FastList<SceneNode>(1) {node};
+        var nodes = new FastList<SceneNode>(1) { node };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -2723,7 +2723,7 @@ public class D3D12RuntimePrimitiveTests {
             EyePos = new Vector3(0, 0, 2),
             OITWeightPower = 3,
             OITWeightDepthSlope = 1,
-            OITWeightMode = (int) OitWeightMode.Linear1,
+            OITWeightMode = (int)OitWeightMode.Linear1,
             DpiScale = 1
         };
         var frustum = new BoundingFrustum(Matrix.Identity);
@@ -2792,7 +2792,7 @@ public class D3D12RuntimePrimitiveTests {
         using var depthView = depthHeap.Allocate();
         using var depth = device.CreateDepthStencilTexture2D(8, 8, Format.FormatD32FloatS8X24Uint);
         using var node = CreateDiffuseQuadNode(new Vector4(1, 0, 0, 0.5f));
-        var nodes = new FastList<SceneNode>(1) {node};
+        var nodes = new FastList<SceneNode>(1) { node };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -2884,11 +2884,11 @@ public class D3D12RuntimePrimitiveTests {
             Distance = 4,
             OrthoWidth = 6
         };
-        using var light = new DirectionalLightNode {Direction = -Vector3.UnitZ};
+        using var light = new DirectionalLightNode { Direction = -Vector3.UnitZ };
         using var caster = CreateColoredQuadNode(0, Vector4.One, 0.25f);
         caster.IsThrowingShadow = true;
-        var lights = new FastList<SceneNode>(1) {light};
-        var opaque = new FastList<SceneNode>(1) {caster};
+        var lights = new FastList<SceneNode>(1) { light };
+        var opaque = new FastList<SceneNode>(1) { caster };
 
         Assert.True(shadow.TryCreateD3D12Parameters(lights,
             opaque,
@@ -2924,7 +2924,7 @@ public class D3D12RuntimePrimitiveTests {
             Format.FormatD32Float);
         using var caster = CreateColoredQuadNode(0, Vector4.One, 0.25f);
         caster.IsThrowingShadow = true;
-        var candidates = new FastList<SceneNode>(1) {caster};
+        var candidates = new FastList<SceneNode>(1) { caster };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -3017,8 +3017,8 @@ public class D3D12RuntimePrimitiveTests {
                 Indices = new IntCollection([0, 1, 2, 2, 1, 3])
             }
         };
-        using var instances = new MatrixInstanceBufferModel {Elements = [Matrix.Identity]};
-        using var core = new MeshRenderCore {GeometryBuffer = geometry, InstanceBuffer = instances};
+        using var instances = new MatrixInstanceBufferModel { Elements = [Matrix.Identity] };
+        using var core = new MeshRenderCore { GeometryBuffer = geometry, InstanceBuffer = instances };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -3031,7 +3031,7 @@ public class D3D12RuntimePrimitiveTests {
         device.CreateRenderTargetView(renderTarget, renderTargetView);
         var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
-        core.AttachD3D12();
+        core.Attach();
         context.Reset();
         context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
         context.SetRenderTarget(renderTargetView);
@@ -3047,8 +3047,8 @@ public class D3D12RuntimePrimitiveTests {
         device.ThrowIfDeviceRemoved();
         var centerPixelOffset = footprint.Offset + 2UL * footprint.Footprint.RowPitch + 2UL * 4;
         Assert.Equal([255, 0, 0, 255], readback.Read(4, centerPixelOffset));
-        core.DetachD3D12();
-        Assert.False(core.IsD3D12Attached);
+        core.Detach();
+        Assert.False(core.IsAttached);
         device.ThrowIfDeviceRemoved();
     }
 
@@ -3110,7 +3110,7 @@ public class D3D12RuntimePrimitiveTests {
                 new BoneIds {Bone1 = 0, Weights = Vector4.UnitX}
             ]
         };
-        var source = new BoneSkinnedMeshBufferModel {Geometry = geometry};
+        var source = new BoneSkinnedMeshBufferModel { Geometry = geometry };
         using var preCompute = new BoneSkinPreComputeBufferModel(source, DefaultVertex.SizeInBytes);
         using var core = new BoneSkinRenderCore {
             GeometryBuffer = preCompute,
@@ -3140,7 +3140,7 @@ public class D3D12RuntimePrimitiveTests {
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
         using var outputReadback = device.CreateBuffer(4UL * DefaultVertex.SizeInBytes, HeapType.Readback);
         using var filledSizeReadback = device.CreateBuffer(sizeof(uint), HeapType.Readback);
-        core.AttachD3D12();
+        core.Attach();
         context.Reset();
         context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
         context.SetRenderTarget(renderTargetView);
@@ -3175,7 +3175,7 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(-0.3f, skinnedVertices[0].Position.X, 5);
         Assert.Equal(0.4f, skinnedVertices[0].Position.Y, 5);
         Assert.Equal(1, resources.GeometryCount);
-        core.DetachD3D12();
+        core.Detach();
         device.ThrowIfDeviceRemoved();
     }
 
@@ -3239,7 +3239,7 @@ public class D3D12RuntimePrimitiveTests {
                 Indices = new IntCollection([0, 1, 2, 2, 1, 3])
             }
         };
-        using var core = new MeshRenderCore {GeometryBuffer = geometry, D3D12Material = material};
+        using var core = new MeshRenderCore { GeometryBuffer = geometry, D3D12Material = material };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -3252,7 +3252,7 @@ public class D3D12RuntimePrimitiveTests {
         device.CreateRenderTargetView(renderTarget, renderTargetView);
         var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
-        core.AttachD3D12();
+        core.Attach();
         context.Reset();
         context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
         context.SetRenderTarget(renderTargetView);
@@ -3272,7 +3272,7 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(1, textureLoader.CompleteCount);
         Assert.True(textureLoader.Succeeded);
         Assert.Equal(1, resources.TextureCount);
-        core.DetachD3D12();
+        core.Detach();
         device.ThrowIfDeviceRemoved();
     }
 
@@ -3296,7 +3296,7 @@ public class D3D12RuntimePrimitiveTests {
         var techniqueDescription = DefaultEffectsManager.LoadTechniqueDescriptions()
             .Single(description => description.Name == DefaultRenderTechniqueNames.Mesh);
         var material = usePbr
-            ? (MaterialCore) new PbrMaterialCore {
+            ? (MaterialCore)new PbrMaterialCore {
                 AlbedoColor = new Vector4(0, 0, 0, 1),
                 EmissiveColor = Vector4.Zero,
                 EnableTessellation = tessellate
@@ -3354,7 +3354,7 @@ public class D3D12RuntimePrimitiveTests {
                 Indices = new IntCollection([0, 1, 2, 2, 1, 3])
             }
         };
-        using var core = new MeshRenderCore {GeometryBuffer = geometry, D3D12Material = material};
+        using var core = new MeshRenderCore { GeometryBuffer = geometry, D3D12Material = material };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -3364,11 +3364,11 @@ public class D3D12RuntimePrimitiveTests {
             EyePos = new Vector3(0, 0, 2),
             DpiScale = 1
         };
-        var lightData = new LightsBufferModel {AmbientLight = new Vector4(1, 0, 0, 1)};
+        var lightData = new LightsBufferModel { AmbientLight = new Vector4(1, 0, 0, 1) };
         device.CreateRenderTargetView(renderTarget, renderTargetView);
         var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
-        core.AttachD3D12();
+        core.Attach();
         context.Reset();
         context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
         context.SetRenderTarget(renderTargetView);
@@ -3384,7 +3384,7 @@ public class D3D12RuntimePrimitiveTests {
         device.ThrowIfDeviceRemoved();
         var centerPixelOffset = footprint.Offset + 2UL * footprint.Footprint.RowPitch + 2UL * 4;
         Assert.Equal([255, 0, 0, 255], readback.Read(4, centerPixelOffset));
-        core.DetachD3D12();
+        core.Detach();
         device.ThrowIfDeviceRemoved();
     }
 
@@ -3425,7 +3425,7 @@ public class D3D12RuntimePrimitiveTests {
         using var renderTargetView = renderTargetHeap.Allocate();
         using var renderTarget = device.CreateRenderTargetTexture2D(16, 16, Format.FormatR8G8B8A8Unorm);
         using var geometry = renderPoint
-            ? (IGeometryBufferModel) new DefaultPointGeometryBufferModel {
+            ? (IGeometryBufferModel)new DefaultPointGeometryBufferModel {
                 Geometry = new PointGeometry3D {
                     Positions = new Vector3Collection([Vector3.Zero]),
                     Colors = new Color4Collection([Vector4.One])
@@ -3442,7 +3442,7 @@ public class D3D12RuntimePrimitiveTests {
                 }
             };
         var material = renderPoint
-            ? (MaterialCore) new PointMaterialCore {
+            ? (MaterialCore)new PointMaterialCore {
                 Width = 6,
                 Height = 6,
                 PointColor = new Vector4(0, 1, 0, 1),
@@ -3453,7 +3453,7 @@ public class D3D12RuntimePrimitiveTests {
                 LineColor = new Vector4(1, 0, 0, 1),
                 FixedSize = true
             };
-        using var core = new PointLineRenderCore {GeometryBuffer = geometry, D3D12Material = material};
+        using var core = new PointLineRenderCore { GeometryBuffer = geometry, D3D12Material = material };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -3466,7 +3466,7 @@ public class D3D12RuntimePrimitiveTests {
         device.CreateRenderTargetView(renderTarget, renderTargetView);
         var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
-        core.AttachD3D12();
+        core.Attach();
         context.Reset();
         context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
         context.SetRenderTarget(renderTargetView);
@@ -3483,7 +3483,7 @@ public class D3D12RuntimePrimitiveTests {
         var centerPixelOffset = footprint.Offset + 8UL * footprint.Footprint.RowPitch + 8UL * 4;
         Assert.Equal(renderPoint ? [0, 255, 0, 255] : [255, 0, 0, 255],
             readback.Read(4, centerPixelOffset));
-        core.DetachD3D12();
+        core.Detach();
         device.ThrowIfDeviceRemoved();
     }
 
@@ -3521,9 +3521,9 @@ public class D3D12RuntimePrimitiveTests {
             new TextureInfo([0, 255, 0, 255], Format.FormatR8G8B8A8Unorm, 1, 1, false));
         var texture = new TextureModel(Guid.NewGuid(), textureLoader);
         var billboard = new BillboardSingleImage3D(texture, 8, 8);
-        using var geometry = new DefaultBillboardBufferModel {Geometry = billboard};
-        var material = new BillboardMaterialCore {FixedSize = true, Type = BillboardType.Image};
-        using var core = new PointLineRenderCore {GeometryBuffer = geometry, D3D12Material = material};
+        using var geometry = new DefaultBillboardBufferModel { Geometry = billboard };
+        var material = new BillboardMaterialCore { FixedSize = true, Type = BillboardType.Image };
+        using var core = new PointLineRenderCore { GeometryBuffer = geometry, D3D12Material = material };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -3536,7 +3536,7 @@ public class D3D12RuntimePrimitiveTests {
         device.CreateRenderTargetView(renderTarget, renderTargetView);
         var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
-        core.AttachD3D12();
+        core.Attach();
         context.Reset();
         context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
         context.SetRenderTarget(renderTargetView);
@@ -3554,7 +3554,7 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal([0, 255, 0, 255], readback.Read(4, centerPixelOffset));
         Assert.Equal(1, textureLoader.LoadCount);
         Assert.True(textureLoader.Succeeded);
-        core.DetachD3D12();
+        core.Detach();
         device.ThrowIfDeviceRemoved();
     }
 
@@ -3747,7 +3747,7 @@ public class D3D12RuntimePrimitiveTests {
         };
         var parameters = new BorderEffectStruct {
             Color = new(0.5f, 0.5f, 0.5f, 0.5f),
-            Param = new Matrix {M11 = 1, M12 = 1, M13 = 1, M14 = 1},
+            Param = new Matrix { M11 = 1, M12 = 1, M13 = 1, M14 = 1 },
             ViewportScale = 1
         };
         var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
@@ -3807,7 +3807,7 @@ public class D3D12RuntimePrimitiveTests {
         using var depthView = depthHeap.Allocate();
         using var depth = device.CreateDepthStencilTexture2D(16, 16, Format.FormatD32FloatS8X24Uint);
         using var node = CreateDiffuseQuadNode(Vector4.One);
-        var nodes = new FastList<SceneNode>(1) {node};
+        var nodes = new FastList<SceneNode>(1) { node };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -3819,7 +3819,7 @@ public class D3D12RuntimePrimitiveTests {
         };
         var parameters = new BorderEffectStruct {
             Color = new(1, 0, 0, 1),
-            Param = new Matrix {M11 = 1, M12 = 1},
+            Param = new Matrix { M11 = 1, M12 = 1 },
             ViewportScale = 1
         };
         var frustum = new BoundingFrustum(Matrix.Identity);
@@ -3860,9 +3860,9 @@ public class D3D12RuntimePrimitiveTests {
 
         device.ThrowIfDeviceRemoved();
         Assert.Equal(1, recorded);
-        var pixels = readback.Read(checked((int) totalBytes));
+        var pixels = readback.Read(checked((int)totalBytes));
         Assert.Contains(Enumerable.Range(0, 16 * 16), index => {
-            var offset = index / 16 * (int) footprint.Footprint.RowPitch + index % 16 * 4;
+            var offset = index / 16 * (int)footprint.Footprint.RowPitch + index % 16 * 4;
             return pixels[offset + 2] > pixels[offset];
         });
         renderer.Dispose();
@@ -3893,7 +3893,7 @@ public class D3D12RuntimePrimitiveTests {
         using var depthView = depthHeap.Allocate();
         using var depth = device.CreateDepthStencilTexture2D(8, 8, Format.FormatD32FloatS8X24Uint);
         using var node = CreateDiffuseQuadNode(Vector4.One);
-        var nodes = new FastList<SceneNode>(1) {node};
+        var nodes = new FastList<SceneNode>(1) { node };
         var selectors = new Func<SceneNode, ShaderPass?>[] {
             current => catalog.ResolvePostEffectGeometry(current,
                 DefaultPassNames.EffectMeshXRayP1,
@@ -3911,7 +3911,7 @@ public class D3D12RuntimePrimitiveTests {
             EyePos = new Vector3(0, 0, 2),
             DpiScale = 1
         };
-        var parameters = new BorderEffectStruct {Color = new(1, 0, 0, 1), Param = new Matrix {M11 = 0.5f}};
+        var parameters = new BorderEffectStruct { Color = new(1, 0, 0, 1), Param = new Matrix { M11 = 0.5f } };
         var frustum = new BoundingFrustum(Matrix.Identity);
         device.CreateRenderTargetView(renderTarget, renderTargetView);
         device.CreateDepthStencilView(depth, depthView);
@@ -3940,9 +3940,9 @@ public class D3D12RuntimePrimitiveTests {
 
         device.ThrowIfDeviceRemoved();
         Assert.Equal(2, recorded);
-        var pixels = readback.Read(checked((int) totalBytes));
+        var pixels = readback.Read(checked((int)totalBytes));
         Assert.Contains(Enumerable.Range(0, 8 * 8), index => {
-            var offset = index / 8 * (int) footprint.Footprint.RowPitch + index % 8 * 4;
+            var offset = index / 8 * (int)footprint.Footprint.RowPitch + index % 8 * 4;
             return pixels[offset + 2] > 0 || pixels[offset] < 255;
         });
         renderer.Dispose();
@@ -3967,7 +3967,7 @@ public class D3D12RuntimePrimitiveTests {
         using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
         using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
         using var node = CreateDiffuseQuadNode(new Vector4(1, 1, 1, 1));
-        var nodes = new FastList<SceneNode>(1) {node};
+        var nodes = new FastList<SceneNode>(1) { node };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
             Projection = Matrix.Identity,
@@ -4006,7 +4006,7 @@ public class D3D12RuntimePrimitiveTests {
         device.ThrowIfDeviceRemoved();
         Assert.Equal(SilkD3D12SsaoResources.OcclusionFormat, occlusion.Description.Format);
         var bytes = readback.Read(2, footprint.Offset + 4UL * footprint.Footprint.RowPitch + 8);
-        var value = (float) BitConverter.UInt16BitsToHalf(BitConverter.ToUInt16(bytes));
+        var value = (float)BitConverter.UInt16BitsToHalf(BitConverter.ToUInt16(bytes));
         Assert.True(float.IsFinite(value));
         Assert.InRange(value, 0, 1.01f);
         renderer.Dispose();
@@ -4117,9 +4117,9 @@ public class D3D12RuntimePrimitiveTests {
         using var context2D = new D2DDeviceContext();
         using var red = new SolidColorBrush(context2D, new Vector4(1, 0, 0, 1));
         using var green = new SolidColorBrush(context2D, new Vector4(0, 1, 0, 1));
-        using var root = new PanelNode2D {ClipToBound = true};
-        using var first = new RectangleNode2D {Fill = red};
-        using var second = new RectangleNode2D {Fill = green};
+        using var root = new PanelNode2D { ClipToBound = true };
+        using var first = new RectangleNode2D { Fill = red };
+        using var second = new RectangleNode2D { Fill = green };
         root.RenderCore.LayoutClippingBound = new RectangleF(0, 0, 24, 16);
         first.RenderCore.LayoutBound = new RectangleF(0, 0, 16, 16);
         second.RenderCore.LayoutBound = new RectangleF(12, 0, 16, 16);
@@ -4157,10 +4157,10 @@ public class D3D12RuntimePrimitiveTests {
         using var renderTargetView = renderTargetHeap.Allocate();
         using var context2D = new D2DDeviceContext();
         using var red = new SolidColorBrush(context2D, new Vector4(1, 0, 0, 1));
-        using var node = new RectangleNode2D {Fill = red};
+        using var node = new RectangleNode2D { Fill = red };
         node.RenderCore.LayoutBound = new RectangleF(1, 1, 6, 6);
 
-        foreach (var size in new uint[] {8, 16}) {
+        foreach (var size in new uint[] { 8, 16 }) {
             using var renderTarget = device.CreateRenderTargetTexture2D(size,
                 size,
                 Format.FormatR8G8B8A8Unorm);
@@ -4216,7 +4216,7 @@ public class D3D12RuntimePrimitiveTests {
             size,
             Format.FormatR8G8B8A8Unorm);
         using var image = D3D12TextureModelTests.CreateBmp([0, 255, 0, 255]);
-        using var node = new ImageNode2D {ImageStream = image};
+        using var node = new ImageNode2D { ImageStream = image };
         node.RenderCore.LayoutBound = new RectangleF(1, 1, 6, 6);
         device.CreateRenderTargetView(renderTarget, renderTargetView);
         var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
@@ -4270,10 +4270,10 @@ public class D3D12RuntimePrimitiveTests {
             Format.FormatR8G8B8A8Unorm);
         using var context2D = new D2DDeviceContext();
         using var white = new SolidColorBrush(context2D, new Vector4(1, 1, 1, 1));
-        using var node = new TextNode2D {Text = "DX12 世界", Foreground = white, FontSize = 22};
+        using var node = new TextNode2D { Text = "DX12 世界", Foreground = white, FontSize = 22 };
         node.RenderCore.LayoutBound = new RectangleF(0, 0, width, height);
-        ((TextRenderCore2D) node.RenderCore).MaxWidth = width;
-        ((TextRenderCore2D) node.RenderCore).MaxHeight = height;
+        ((TextRenderCore2D)node.RenderCore).MaxWidth = width;
+        ((TextRenderCore2D)node.RenderCore).MaxHeight = height;
         device.CreateRenderTargetView(renderTarget, renderTargetView);
         var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
@@ -4292,11 +4292,11 @@ public class D3D12RuntimePrimitiveTests {
         queue.Execute(context);
         fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
 
-        var pixels = readback.Read(checked((int) totalBytes));
+        var pixels = readback.Read(checked((int)totalBytes));
         Assert.Equal(1, recorded);
         Assert.True(renderer.Atlas.Count > 0);
-        Assert.Contains(Enumerable.Range(0, checked((int) (width * height))), index => {
-            var offset = index / (int) width * (int) footprint.Footprint.RowPitch + index % (int) width * 4;
+        Assert.Contains(Enumerable.Range(0, checked((int)(width * height))), index => {
+            var offset = index / (int)width * (int)footprint.Footprint.RowPitch + index % (int)width * 4;
             return pixels[offset] > 32 || pixels[offset + 1] > 32 || pixels[offset + 2] > 32;
         });
     }
@@ -4349,7 +4349,7 @@ public class D3D12RuntimePrimitiveTests {
         Assert.True(sources[1].IsDisposed);
         Assert.False(core.IsCaptureStarted);
 
-        var failingSource = new FakeDesktopCaptureSource {ThrowOnStart = true};
+        var failingSource = new FakeDesktopCaptureSource { ThrowOnStart = true };
         using var failingCore = new ScreenCloneRenderCore(() => failingSource);
         Assert.Throws<InvalidOperationException>(() => failingCore.TryAcquireFrame(TimeSpan.Zero));
         Assert.True(failingSource.IsDisposed);
@@ -4386,18 +4386,18 @@ public class D3D12RuntimePrimitiveTests {
             size,
             Format.FormatB8G8R8A8Unorm,
             size * 4,
-            Enumerable.Repeat(new byte[] {0, 0, 255, 255}, checked((int) (size * size)))
+            Enumerable.Repeat(new byte[] { 0, 0, 255, 255 }, checked((int)(size * size)))
                 .SelectMany(pixel => pixel)
                 .ToArray());
         var second = new ScreenCaptureFrame(size,
             size,
             Format.FormatB8G8R8A8Unorm,
             size * 4,
-            Enumerable.Repeat(new byte[] {0, 255, 0, 255}, checked((int) (size * size)))
+            Enumerable.Repeat(new byte[] { 0, 255, 0, 255 }, checked((int)(size * size)))
                 .SelectMany(pixel => pixel)
                 .ToArray());
         using var source = new FakeDesktopCaptureSource(first, null, second);
-        using var core = new ScreenCloneRenderCore(() => source) {StretchToFill = true};
+        using var core = new ScreenCloneRenderCore(() => source) { StretchToFill = true };
         using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
         using var queue = device.CreateCommandQueue();
         using var context = device.CreateCommandContext();
@@ -4440,7 +4440,7 @@ public class D3D12RuntimePrimitiveTests {
             Assert.Equal(frameIndex == 2 ? 2 : 1, capture.Generation);
         }
 
-        Assert.Equal((ulong) size, capture.Texture!.Description.Width);
+        Assert.Equal((ulong)size, capture.Texture!.Description.Width);
         Assert.Equal(size, capture.Texture.Description.Height);
         Assert.Equal(Format.FormatB8G8R8A8Unorm, capture.Texture.Description.Format);
         capture.Dispose();
@@ -4558,7 +4558,7 @@ public class D3D12RuntimePrimitiveTests {
     /// <returns>The initialized mesh node.</returns>
     private static MeshNode CreateDiffuseQuadNode(Vector4 color) => new() {
         IsTransparent = true,
-        Material = new DiffuseMaterialCore {DiffuseColor = color, EnableUnLit = true},
+        Material = new DiffuseMaterialCore { DiffuseColor = color, EnableUnLit = true },
         Geometry = new MeshGeometry3D {
             Positions = new Vector3Collection([
                 new Vector3(-0.8f, 0.8f, 0.25f),
@@ -4628,23 +4628,7 @@ public class D3D12RuntimePrimitiveTests {
     /// <summary>
     ///     Minimal concrete geometry core used to exercise the shared DX12 traversal boundary.
     /// </summary>
-    private sealed class TraversalGeometryRenderCore : GeometryRenderCore {
-        /// <inheritdoc />
-        protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) { }
-
-        /// <inheritdoc />
-        protected override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext) { }
-
-        /// <inheritdoc />
-        protected override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext) { }
-
-        /// <inheritdoc />
-        protected override void OnRenderDepth(
-            RenderContext context,
-            DeviceContextProxy deviceContext,
-            ShaderPass? customPass
-        ) { }
-    }
+    private sealed class TraversalGeometryRenderCore : GeometryRenderCore;
 
     /// <summary>
     ///     Minimal disposable used to observe deterministic release behavior.

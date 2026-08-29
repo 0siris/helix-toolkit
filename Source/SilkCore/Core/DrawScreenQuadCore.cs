@@ -29,7 +29,7 @@ public class DrawScreenQuadCore : RenderCore {
     private SamplerStateProxy? Sampler {
         get;
         set {
-            if(field != value)
+            if (field != value)
                 field?.Dispose();
             field = value;
         }
@@ -43,7 +43,7 @@ public class DrawScreenQuadCore : RenderCore {
     private ShaderResourceViewProxy? TextureProxy {
         get;
         set {
-            if(field != value)
+            if (field != value)
                 field?.Dispose();
             field = value;
         }
@@ -69,14 +69,7 @@ public class DrawScreenQuadCore : RenderCore {
 
     public string PassName {
         get => passName;
-        set {
-            if (SetAffectsRender(ref passName, value) && IsAttached) {
-                if (EffectTechnique is not { } technique || technique[value] is not { } selectedPass) return;
-                pass = selectedPass;
-                textureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTb);
-                samplerSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
-            }
-        }
+        set => SetAffectsRender(ref passName, value);
     }
 
     /// <summary>
@@ -87,10 +80,7 @@ public class DrawScreenQuadCore : RenderCore {
     /// </value>
     public TextureModel? Texture {
         get => texture;
-        set {
-            if (SetAffectsRender(ref texture, value) && IsAttached) 
-                UpdateTexture(value);
-        }
+        set => SetAffectsRender(ref texture, value);
     }
 
     /// <summary>
@@ -104,43 +94,4 @@ public class DrawScreenQuadCore : RenderCore {
         set => SetAffectsRender(ref samplerDescription, value);
     }
 
-    private void UpdateTexture(TextureModel? texture) {
-        if (EffectTechnique is not { } technique) return;
-        var newTexture = texture == null
-                             ? null
-                             : technique.EffectsManager.MaterialTextureManager.Register(texture);
-        TextureProxy = newTexture;
-    }
-
-    private void UpdateSampler() {
-        if (EffectTechnique is { } technique)
-            Sampler = technique.EffectsManager.StateManager.Register(samplerDescription);
-    }
-
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (pass.IsNull) 
-            return;
-        
-        ModelStruct.mWorld = ModelMatrix;
-        modelCb.Upload(deviceContext, ref ModelStruct);
-        pass.BindShader(deviceContext);
-        pass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState | StateType.RasterState);
-        pass.PixelShader.BindSampler(deviceContext, samplerSlot, Sampler);
-        pass.PixelShader.BindTexture(deviceContext, textureSlot, TextureProxy);
-        deviceContext.Draw(4, 0);
-    }
-
-    protected override bool OnAttach(IRenderTechnique technique) {
-        pass = technique[passName];
-        textureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTb);
-        samplerSlot = pass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
-        UpdateTexture(texture);
-        UpdateSampler();
-        return true;
-    }
-
-    protected override void OnDetach() {
-        TextureProxy = null;
-        Sampler = null;
-    }
 }

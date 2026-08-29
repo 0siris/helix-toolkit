@@ -10,6 +10,7 @@ using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Render;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+
 public abstract class MaterialGeometryNode : GeometryNode {
     private MaterialCore? material;
     private MaterialVariable? materialVariable;
@@ -37,7 +38,7 @@ public abstract class MaterialGeometryNode : GeometryNode {
             if (RenderCore is MeshRenderCore meshRenderCore) meshRenderCore.D3D12Material = material;
             if (RenderCore is PointLineRenderCore pointLineRenderCore)
                 pointLineRenderCore.D3D12Material = material;
-            
+
             if (EffectsManager != null) {
                 if (IsAttached) {
                     AttachMaterial();
@@ -63,7 +64,7 @@ public abstract class MaterialGeometryNode : GeometryNode {
     protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? 0);
 
     protected override bool CanRender(RenderContext context) =>
-        base.CanRender(context) && (materialVariable != null || RenderCore.IsD3D12Attached && material != null);
+        base.CanRender(context) && (materialVariable != null || RenderCore.IsAttached && material != null);
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {

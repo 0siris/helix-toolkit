@@ -208,3 +208,9 @@
   excludes only hardware and passes 308/308 before the final capture-island lifecycle additions. Reflection
   contracts keep removed host/canvas APIs absent, capture conversion covers padded RGBA-to-BGRA rows, and
   Graphify refreshed 1,007 sources to 12,908 nodes, 22,694 edges, and 2,351 communities.
+* **Update**: Replaced the split legacy/DX12 `RenderCore` attachment state with one canonical lifecycle and removed
+  its D3D11 technique, device, update, and render boundary plus the derived legacy implementations. Public
+  `SceneNode.Detach()` now also releases cores attached by the DX12 traversal.
+* **Verification**: The solution builds with zero errors; 33 cutover contracts, 102 DX12 runtime checks, and all
+  342 standard tests pass. Graphify refreshed 986 sources to 12,647 nodes, 21,496 edges, and 2,510 communities;
+  the interactive hardware capture remains intentionally excluded.

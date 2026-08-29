@@ -343,8 +343,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         float radius
     ) {
         var scale = quality == SsaoQuality.High ? 1 : 2;
-        var targetWidth = Math.Max(1u, width / (uint) scale);
-        var targetHeight = Math.Max(1u, height / (uint) scale);
+        var targetWidth = Math.Max(1u, width / (uint)scale);
+        var targetHeight = Math.Max(1u, height / (uint)scale);
         ssaoResources ??= new SilkD3D12SsaoResources(Device, resourceHeap, samplerHeap);
         ssaoResources.BeginGeometry(context, targetWidth, targetHeight);
         _ = RenderVisible(context,
@@ -512,7 +512,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         var recorded = 0;
         for (var index = 0; index < visibleNodes.Count; index++) {
             var node = visibleNodes.Items[index];
-            if (!node.AttachD3D12()) continue;
+            if (!node.Attach()) continue;
             attachedNodes.Add(node);
             node.ComputeTransformMatrix();
             node.RenderCore.ModelMatrix = node.TotalModelMatrixInternal;
@@ -525,7 +525,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             }
             if (node.RenderCore is MeshRenderCore shadowedMesh) {
                 var usesShadow = shadowParameters.HasValue && shadowedMesh.D3D12Material is
-                    PhongMaterialCore {RenderShadowMap: true} or PbrMaterialCore {RenderShadowMap: true};
+                    PhongMaterialCore { RenderShadowMap: true } or PbrMaterialCore { RenderShadowMap: true };
                 var parameters = usesShadow ? shadowParameters.GetValueOrDefault() : default;
                 GetBindings(shadowedMesh).UpdateShadow(in parameters,
                     usesShadow ? shadowMap?.Resource : null);
@@ -560,8 +560,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 ScreenCloneRenderCore screen => GetScreenCaptureResources(screen).TryRender(context,
                     pass,
                     screen,
-                    checked((uint) Math.Max(1, transforms.Viewport.X)),
-                    checked((uint) Math.Max(1, transforms.Viewport.Y)))
+                    checked((uint)Math.Max(1, transforms.Viewport.X)),
+                    checked((uint)Math.Max(1, transforms.Viewport.Y)))
                     ? 1
                     : 0,
                 _ => 0
@@ -738,8 +738,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         candidates.AssertArgumentNotNull();
         passSelector.AssertArgumentNotNull();
         boneSkinningPassSelector.AssertArgumentNotNull();
-        var width = checked((uint) parameters.ShadowMapSize.X);
-        var height = checked((uint) parameters.ShadowMapSize.Y);
+        var width = checked((uint)parameters.ShadowMapSize.X);
+        var height = checked((uint)parameters.ShadowMapSize.Y);
         shadowMap ??= new SilkD3D12ShadowMap(Device, width, height);
         shadowMap.Resize(width, height);
         shadowMap.BeginDepthWrite(context);
@@ -750,7 +750,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         var recorded = 0;
         for (var index = 0; index < visibleNodes.Count; index++) {
             var node = visibleNodes.Items[index];
-            if (!node.RenderCore.IsThrowingShadow || !node.AttachD3D12()) continue;
+            if (!node.RenderCore.IsThrowingShadow || !node.Attach()) continue;
             attachedNodes.Add(node);
             node.ComputeTransformMatrix();
             node.RenderCore.ModelMatrix = node.TotalModelMatrixInternal;
@@ -815,7 +815,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         var recorded = 0;
         for (var index = 0; index < volumes.Count; index++) {
             var node = volumes.Items[index];
-            if (node is not VolumeTextureNode || !node.AttachD3D12() ||
+            if (node is not VolumeTextureNode || !node.Attach() ||
                 node.RenderCore is not VolumeRenderCore core)
                 continue;
             attachedNodes.Add(node);
@@ -878,7 +878,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         var recorded = 0;
         for (var index = 0; index < visibleNodes.Count; index++) {
             var node = visibleNodes.Items[index];
-            if (node is not ParticleStormNode || !node.AttachD3D12() ||
+            if (node is not ParticleStormNode || !node.Attach() ||
                 node.RenderCore is not ParticleRenderCore core)
                 continue;
             attachedNodes.Add(node);
@@ -990,7 +990,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         destination.AssertArgumentNotNull();
         destination.ResetLightCount();
         for (var index = 0; index < nodes.Count && destination.LightCount < Constants.MaxLights; index++) {
-            if (nodes.Items[index] is not LightNode {Visible: true} node) continue;
+            if (nodes.Items[index] is not LightNode { Visible: true } node) continue;
             node.ComputeTransformMatrix();
             if (node is AmbientLightNode) {
                 destination.AmbientLight = node.Color;
@@ -998,7 +998,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             }
 
             var light = new LightStruct {
-                LightType = (int) node.LightType,
+                LightType = (int)node.LightType,
                 LightColor = node.Color
             };
             switch (node) {
@@ -1012,8 +1012,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                     light.LightDir = SilkMath.TransformNormal(spot.Direction, node.TotalModelMatrixInternal)
                         .Normalized()
                         .ToVector4(0);
-                    light.LightSpot = new Vector4((float) Math.Cos(spot.OuterAngle / 360f * Math.PI),
-                        (float) Math.Cos(spot.InnerAngle / 360f * Math.PI),
+                    light.LightSpot = new Vector4((float)Math.Cos(spot.OuterAngle / 360f * Math.PI),
+                        (float)Math.Cos(spot.InnerAngle / 360f * Math.PI),
                         spot.FallOff,
                         0);
                     break;
@@ -1092,7 +1092,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         particle = new SilkD3D12ParticleResources(Device,
             resourceHeap,
             samplerHeap,
-            checked((uint) core.ParticleCount));
+            checked((uint)core.ParticleCount));
         particleResources.Add(core, particle);
         core.CompleteD3D12Recreate();
         return particle;
@@ -1133,7 +1133,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     public void Dispose() {
         if (IsDisposed) return;
-        foreach (var node in attachedNodes) node.DetachD3D12();
+        foreach (var node in attachedNodes) node.Detach();
         foreach (var bindings in meshBindings.Values) bindings.Dispose();
         foreach (var bindings in pointLineBindings.Values) bindings.Dispose();
         foreach (var bindings in volumeBindings.Values) bindings.Dispose();

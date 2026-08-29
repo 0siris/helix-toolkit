@@ -99,7 +99,7 @@ public class ParticleRenderCore : RenderCore {
         set {
             if (particleCount == value) return;
             particleCount = value;
-            if (IsAttached || IsD3D12Attached)
+            if (IsAttached)
                 OnInitialParticleChanged(value);
         }
     }
@@ -111,10 +111,7 @@ public class ParticleRenderCore : RenderCore {
     /// </summary>
     public TextureModel? ParticleTexture {
         get => particleTexture;
-        set {
-            if (Set(ref particleTexture, value) && IsAttached)
-                OnTextureChanged();
-        }
+        set => Set(ref particleTexture, value);
     }
 
     /// <summary>
@@ -122,14 +119,7 @@ public class ParticleRenderCore : RenderCore {
     /// </summary>
     public SamplerStateDescription SamplerDescription {
         get;
-        set {
-            if (Set(ref field, value) && IsAttached) {
-                if (EffectTechnique is not { } technique) return;
-                var newSampler = technique.EffectsManager.StateManager.Register(value);
-                RemoveAndDispose(ref textureSampler);
-                textureSampler = newSampler;
-            }
-        }
+        set => Set(ref field, value);
     } = DefaultSamplers.LinearSamplerWrapAni1;
 
     /// <summary>
@@ -413,10 +403,7 @@ public class ParticleRenderCore : RenderCore {
     /// </summary>
     public BlendStateDescription BlendDescription {
         get => blendDesc;
-        set {
-            if (Set(ref blendDesc, value) && IsAttached)
-                OnBlendStateChanged();
-        }
+        set => Set(ref blendDesc, value);
     }
 
     private Color4 blendFactor = Color.White;
@@ -498,7 +485,6 @@ public class ParticleRenderCore : RenderCore {
             ParticlePerFrame.SizeInBytes));
         insertCb = AddComponent(new ConstantBufferComponent(DefaultBufferNames.ParticleCreateParameters,
             ParticleInsertParameters.SizeInBytes));
-        NeedUpdate = true;
     }
 
     /// <inheritdoc />
@@ -534,9 +520,9 @@ public class ParticleRenderCore : RenderCore {
         var elapsed = double.IsNaN(prevD3D12Time) ? 0 : Math.Max(0, timeStamp - prevD3D12Time);
         prevD3D12Time = timeStamp;
         totalElapsed += elapsed;
-        frameVariables.TimeFactors = (float) elapsed;
+        frameVariables.TimeFactors = (float)elapsed;
         frameVariables.RandomVector = VectorGenerator.RandomVector3;
-        frameVariables.MaxParticles = checked((uint) ParticleCount);
+        frameVariables.MaxParticles = checked((uint)ParticleCount);
         modelStruct.World = ModelMatrix;
         modelStruct.HasInstances = InstanceBuffer.HasElements ? 1 : 0;
         modelStruct.HasTexture = HasTexture ? 1 : 0;
@@ -556,7 +542,7 @@ public class ParticleRenderCore : RenderCore {
     /// <param name="capacity">The existing native capacity.</param>
     /// <returns>Whether the allocation is too small or belongs to a restarted simulation.</returns>
     internal bool RequiresD3D12Recreate(uint capacity) =>
-        capacity < checked((uint) ParticleCount) || isInitialParticleChanged;
+        capacity < checked((uint)ParticleCount) || isInitialParticleChanged;
 
     /// <summary>
     ///     Marks the native particle allocation synchronized with the current maximum count.
@@ -585,42 +571,6 @@ public class ParticleRenderCore : RenderCore {
     }
 
     /// <summary>
-    ///     Called when [attach].
-    /// </summary>
-    /// <param name="technique">The technique.</param>
-    /// <returns></returns>
-    protected override bool OnAttach(IRenderTechnique technique) {
-        VertexLayout = technique.Layout;
-        updatePass = technique[DefaultParticlePassNames.Update];
-        insertPass = technique[DefaultParticlePassNames.Insert];
-        renderPass = technique[DefaultParticlePassNames.Default];
-
-        if (updatePass.GetShader(ShaderStage.Compute) is not { } updateShader
-            || renderPass.GetShader(ShaderStage.Vertex) is not { } renderShader)
-            return false;
-
-        #region Get binding slots
-
-        currentStateSlot = updateShader.UnorderedAccessViewMapping
-            .TryGetBindSlot(CurrentSimStateUavBufferName);
-        newStateSlot = updateShader.UnorderedAccessViewMapping
-            .TryGetBindSlot(NewSimStateUavBufferName);
-
-        renderStateSlot = renderShader.ShaderResourceViewMapping
-            .TryGetBindSlot(SimStateBufferName);
-        textureSlot = renderPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderTextureBufferName);
-        samplerSlot = renderPass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderTextureSamplerName);
-
-        #endregion
-
-        if (isInitialParticleChanged) OnInitialParticleChanged(ParticleCount);
-        textureSampler = technique.EffectsManager.StateManager.Register(SamplerDescription);
-        OnTextureChanged();
-        OnBlendStateChanged();
-        return true;
-    }
-
-    /// <summary>
     ///     Updates the insert throttle.
     /// </summary>
     public void UpdateInsertThrottle() {
@@ -633,7 +583,7 @@ public class ParticleRenderCore : RenderCore {
         prevTimeMillis = context.TimeStamp.TotalMilliseconds;
         totalElapsed += timeElapsed;
         //Update perframe variables
-        frameVariables.TimeFactors = (float) timeElapsed;
+        frameVariables.TimeFactors = (float)timeElapsed;
     }
 
 
@@ -641,13 +591,6 @@ public class ParticleRenderCore : RenderCore {
         isInitialParticleChanged = true;
         if (count <= 0)
             return;
-
-        if (bufferDesc.SizeInBytes <
-            count * Particle.SizeInBytes) // Create new buffer, otherwise reuse existing buffers
-        {
-            DisposeBuffers();
-            InitializeBuffers(count);
-        }
 
         UpdateInsertThrottle();
         isInitialParticleChanged = false;
@@ -665,152 +608,8 @@ public class ParticleRenderCore : RenderCore {
             RemoveAndDispose(ref BufferProxies[i]);
     }
 
-    /// <summary>
-    ///     Called when [detach].
-    /// </summary>
-    protected override void OnDetach() {
-        DisposeBuffers();
-        isInitialParticleChanged = true;
-        RemoveAndDispose(ref textureSampler);
-        RemoveAndDispose(ref blendState);
-        RemoveAndDispose(ref textureView);
-    }
-
-    private void InitializeBuffers(int count) {
-        if (Device is not { } device) return;
-
-        bufferDesc.SizeInBytes = particleCount * Particle.SizeInBytes;
-        uavBufferViewDesc.Buffer.ElementCount = particleCount;
-        srvBufferViewDesc.Buffer.ElementCount = particleCount;
-
-        for (var i = 0; i < BufferProxies.Length; ++i)
-            BufferProxies[i] = new UavBufferViewProxy(device,
-                ref bufferDesc,
-                ref uavBufferViewDesc,
-                ref srvBufferViewDesc);
-
-        particleCountStaging.CreateBuffer(device);
-        particleCountGsiaBuffer.CreateBuffer(device);
-    }
-
-    private void OnTextureChanged() {
-        if (EffectTechnique is not { } technique) return;
-        var newView = technique.EffectsManager.MaterialTextureManager.Register(ParticleTexture);
-        RemoveAndDispose(ref textureView);
-        textureView = newView;
-    }
-
-    private void OnBlendStateChanged() {
-        if (EffectTechnique is not { } technique) return;
-        var newState = technique.EffectsManager.StateManager.Register(blendDesc);
-        RemoveAndDispose(ref blendState);
-        blendState = newState;
-    }
-
 
     protected override bool OnUpdateCanRenderFlag() => base.OnUpdateCanRenderFlag() && !isInitialParticleChanged;
-
-    /// <summary>
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="deviceContext"></param>
-    protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) {
-        if (BufferProxies[0] is not { } currentBuffer
-            || BufferProxies[1] is not { } nextBuffer
-            || InstanceBuffer.Buffer is not { } instanceBuffer
-            || particleCountGsiaBuffer.Buffer is not { } indirectBuffer)
-            return;
-
-        UpdateTime(context, ref totalElapsed);
-        //Set correct instance count from instance buffer
-        drawArgument.InstanceCount =
-            !InstanceBuffer.HasElements
-                ? 1
-                : (uint) instanceBuffer.ElementCount;
-        //Upload the draw argument
-        particleCountGsiaBuffer.UploadDataToBuffer(deviceContext, ref drawArgument);
-
-        updatePass.BindShader(deviceContext);
-        updatePass.ComputeShader.BindUav(deviceContext, currentStateSlot, currentBuffer);
-        updatePass.ComputeShader.BindUav(deviceContext, newStateSlot, nextBuffer);
-        if (isRestart) {
-            frameVariables.NumParticles = 0;
-            perFrameCb.Upload(deviceContext, ref frameVariables);
-            // Call ComputeShader to add initial particles
-            deviceContext.Dispatch(1, 1, 1);
-            isRestart = false;
-        } else {
-            #region Get consume buffer count
-
-            // Get consume buffer count.
-            //Due to some intel integrated graphic card having issue copy structure count directly into constant buffer.
-            //Has to use staging buffer to read and pass into constant buffer              
-            frameVariables.NumParticles = (uint) ReadCount(string.Empty, deviceContext, currentBuffer.Uav);
-            perFrameCb.Upload(deviceContext, ref frameVariables);
-
-            #endregion
-
-            deviceContext.Dispatch(Math.Max(1, (int) Math.Ceiling((double) frameVariables.NumParticles / 512)),
-                1,
-                1);
-            // Get append buffer count
-            nextBuffer.CopyCount(deviceContext, indirectBuffer, 0);
-        }
-
-#if OUTPUTDEBUGGING
-                ReadCount("UAV 0", deviceContext, BufferProxies[0].UAV);
-#endif
-
-
-        if (totalElapsed > InsertElapseThrottle) {
-            insertCb.Upload(deviceContext, ref insertVariables);
-            // Add more particles 
-            insertPass.BindShader(deviceContext);
-            insertPass.ComputeShader.BindUav(deviceContext, newStateSlot, nextBuffer);
-            deviceContext.Dispatch(1, 1, 1);
-            totalElapsed = 0;
-#if OUTPUTDEBUGGING
-                    ReadCount("UAV 1", deviceContext, BufferProxies[1].UAV);
-#endif
-        }
-
-        // Swap UAV buffers for next frame
-        (BufferProxies[0], BufferProxies[1]) = (nextBuffer, currentBuffer);
-    }
-
-    /// <summary>
-    ///     Called when [render].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (textureSampler is not { } sampler || blendState is not { } state
-                                              || BufferProxies[0] is not { } currentBuffer
-                                              || particleCountGsiaBuffer.Buffer is not { } indirectBuffer
-                                              || VertexLayout is not { } vertexLayout)
-            return;
-        OnUpdatePerModelStruct(context);
-        perFrameCb.Upload(deviceContext, ref frameVariables);
-        modelCb.Upload(deviceContext, ref modelStruct);
-        // Clear binding
-        updatePass.ComputeShader.BindUav(deviceContext, currentStateSlot, null);
-        updatePass.ComputeShader.BindUav(deviceContext, newStateSlot, null);
-
-        // Render existing particles
-        renderPass.BindShader(deviceContext);
-        renderPass.BindStates(deviceContext, StateType.RasterState | StateType.DepthStencilState);
-
-        renderPass.VertexShader.BindTexture(deviceContext, renderStateSlot, currentBuffer);
-        renderPass.PixelShader.BindTexture(deviceContext, textureSlot, textureView);
-        renderPass.PixelShader.BindSampler(deviceContext, samplerSlot, sampler);
-        deviceContext.InputLayout = vertexLayout;
-        var firstSlot = 0;
-        InstanceBuffer.AttachBuffer(deviceContext, ref firstSlot);
-        deviceContext.SetBlendState(state, blendFactor, sampleMask);
-        deviceContext.DrawInstancedIndirect(indirectBuffer, 0);
-        RaiseInvalidateRender(); //Since particle is running all the time. Invalidate once finished rendering
-    }
-
 
     private int ReadCount(string src, DeviceContextProxy context, UnorderedAccessView uav) {
         if (particleCountStaging.Buffer is not { } stagingBuffer) return 0;

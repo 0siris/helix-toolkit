@@ -219,10 +219,6 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
 
     public bool IsPerspective { get; private set; }
 
-    protected override bool OnAttach(IRenderTechnique technique) => true;
-
-    protected override void OnDetach() { }
-
     /// <summary>
     ///     Creates the view matrix.
     /// </summary>
@@ -309,23 +305,13 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     protected void UpdateParameters(RenderContext context, float width, float height) {
         var ratio = width / height;
         if (ScreenRatio != ratio || Width != width || Height != height ||
-            isMainCameraPerspective != context.IsPerspective) 
-        {
+            isMainCameraPerspective != context.IsPerspective) {
             ScreenRatio = ratio;
             Width = width;
             Height = height;
             isMainCameraPerspective = context.IsPerspective;
             OnCreateProjectionMatrix(context);
         }
-    }
-
-    /// <summary>
-    ///     Called when [render].
-    /// </summary>
-    /// <param name="renderContext">The render context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    public override void Render(RenderContext renderContext, DeviceContextProxy deviceContext) {
-        SetScreenSpacedCoordinates(renderContext, deviceContext);
     }
 
     /// <summary>

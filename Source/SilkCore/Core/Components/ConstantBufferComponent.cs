@@ -27,7 +27,7 @@ public sealed class ConstantBufferComponent : CoreComponent {
     private ArrayStorage? Storage {
         get;
         set {
-            if (ReferenceEquals(value, field)) 
+            if (ReferenceEquals(value, field))
                 return;
 
             field?.Dispose();
@@ -127,8 +127,8 @@ public sealed class ConstantBufferComponent : CoreComponent {
 
             var box = ModelConstBuffer.Map(deviceContext);
             unsafe {
-                var pBuf = (byte*) box.DataPointer.ToPointer();
-                *(T*) pBuf = data;
+                var pBuf = (byte*)box.DataPointer.ToPointer();
+                *(T*)pBuf = data;
             }
 
             ModelConstBuffer.Unmap(deviceContext);

@@ -29,7 +29,7 @@ public sealed class PostEffectFxaa : RenderCore, IPostEffect {
     private SamplerStateProxy? Sampler {
         get;
         set {
-            if (value != field) 
+            if (value != field)
                 field?.Dispose();
 
             field = value;
@@ -63,22 +63,8 @@ public sealed class PostEffectFxaa : RenderCore, IPostEffect {
         set => SetAffectsCanRenderFlag(ref field, value);
     } = DefaultRenderTechniqueNames.PostEffectFxaa;
 
-    protected override bool OnAttach(IRenderTechnique technique) {
-        fxaaPass = technique[DefaultPassNames.FxaaPass];
-        lumaPass = technique[DefaultPassNames.LumaPass];
-        textureSlot = fxaaPass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTb);
-        samplerSlot = fxaaPass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
-        
-        Sampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
-        return true;
-    }
-
-    protected override void OnDetach() => Sampler = null;
-
-    protected override bool OnUpdateCanRenderFlag() 
+    protected override bool OnUpdateCanRenderFlag()
         => IsAttached && !string.IsNullOrEmpty(EffectName) && FxaaLevel != FxaaLevel.None;
-
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
 
     private void OnUpdatePerModelStruct(RenderContext context) {
         modelStruct.Color = new Color4(1 / context.ActualWidth,

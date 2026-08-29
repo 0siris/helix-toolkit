@@ -75,38 +75,8 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
                                        BorderEffectStruct.SizeInBytes)));
     }
 
-    protected override bool OnAttach(IRenderTechnique technique) {
-        screenQuadPass = technique.GetPass(DefaultPassNames.ScreenQuad);
-        blurPassVertical = technique.GetPass(DefaultPassNames.EffectBlurVertical);
-        blurPassHorizontal = technique.GetPass(DefaultPassNames.EffectBlurHorizontal);
-        smoothPass = technique.GetPass(DefaultPassNames.EffectOutlineSmooth);
-        screenOutlinePass = technique.GetPass(DefaultPassNames.MeshOutline);
-        
-        textureSlot = screenOutlinePass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(DefaultBufferNames.DiffuseMapTb);
-        
-        samplerSlot = screenOutlinePass.PixelShader.SamplerMapping.TryGetBindSlot(DefaultSamplerStateNames.SurfaceSampler);
-        Sampler = technique.EffectsManager.StateManager.Register(DefaultSamplers.LinearSamplerClampAni1);
-        
-        if (UseBlurCore) { 
-            BlurCore = new PostEffectBlurCore(blurPassVertical,
-                                              blurPassHorizontal,
-                                              textureSlot,
-                                              samplerSlot,
-                                              DefaultSamplers.LinearSamplerClampAni1,
-                                              technique.EffectsManager);
-        }
-        return true;
-    }
-
-    protected override bool OnUpdateCanRenderFlag() 
+    protected override bool OnUpdateCanRenderFlag()
         => IsAttached && !string.IsNullOrEmpty(EffectName);
-
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
-
-    protected override void OnDetach() {
-        BlurCore = null;
-        Sampler = null;
-    }
 
     private void OnUpdatePerModelStruct(RenderContext context) {
         modelStruct.Param.M11 = scaleX;
@@ -115,12 +85,12 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         modelStruct.ViewportScale = (int)TextureSize;
     }
 
-#region Variables
+    #region Variables
 
     private SamplerStateProxy? Sampler {
         get;
         set {
-            if(value != field)
+            if (value != field)
                 field?.Dispose();
             field = value;
         }
@@ -129,7 +99,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     private PostEffectBlurCore? BlurCore {
         get;
         set {
-            if(value != field)
+            if (value != field)
                 field?.Dispose();
             field = value;
         }
@@ -155,11 +125,11 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     private static readonly Color4 Transparent = new(0, 0, 0, 0);
 
     [MemberNotNullWhen(true, nameof(BlurCore))]
-    private  bool UseBlurCore { get; }
+    private bool UseBlurCore { get; }
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     /// <summary>
     ///     Gets or sets the name of the effect.
@@ -227,5 +197,5 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         set => SetAffectsRender(ref drawMode, value);
     }
 
-#endregion
+    #endregion
 }

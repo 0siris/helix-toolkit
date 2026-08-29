@@ -38,7 +38,7 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
         set;
     } = true;
 
-    private ParticleRenderCore ParticleCore => (ParticleRenderCore) RenderCore;
+    private ParticleRenderCore ParticleCore => (ParticleRenderCore)RenderCore;
 
     /// <summary>
     ///     Gets the instance buffer.
@@ -70,8 +70,8 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     }
 
     /// <inheritdoc />
-    internal override bool AttachD3D12() {
-        if (!base.AttachD3D12()) return false;
+    internal override bool Attach() {
+        if (!base.Attach()) return false;
         InstanceBuffer.Initialize();
         InstanceBuffer.Elements = Instances;
         ParticleCore.InstanceBuffer = InstanceBuffer;
@@ -79,10 +79,10 @@ public class ParticleStormNode : SceneNode, IInstancing, IBoundable {
     }
 
     /// <inheritdoc />
-    internal override void DetachD3D12() {
+    protected override void OnDetachD3D12() {
         ParticleCore.InstanceBuffer = MatrixInstanceBufferModel.Empty;
         InstanceBuffer.DisposeAndClear();
-        base.DetachD3D12();
+        base.OnDetachD3D12();
     }
 
     /// <summary>

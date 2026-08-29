@@ -33,31 +33,6 @@ public abstract class LightCoreBase() : RenderCore(RenderType.Light), ILight3D {
     /// </value>
     public LightType LightType { get; protected set; }
 
-    protected override bool OnAttach(IRenderTechnique technique) 
-        => true;
-
-    protected override void OnDetach() { }
-
-    /// <summary>
-    ///     Renders the specified context.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    public sealed override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (!CanRender(context.LightScene))
-            return;
-        
-        OnRender(context.LightScene, context.LightScene.LightModels.LightCount);
-        
-        switch (LightType) {
-            case LightType.Ambient:
-                break;
-            default:
-                context.LightScene.LightModels.IncrementLightCount();
-                break;
-        }
-    }
-
     /// <summary>
     ///     Determines whether this instance can render the specified light scene.
     /// </summary>
@@ -65,7 +40,7 @@ public abstract class LightCoreBase() : RenderCore(RenderType.Light), ILight3D {
     /// <returns>
     ///     <c>true</c> if this instance can render the specified light scene; otherwise, <c>false</c>.
     /// </returns>
-    protected virtual bool CanRender(Light3DSceneShared lightScene) 
+    protected virtual bool CanRender(Light3DSceneShared lightScene)
         => IsAttached && lightScene.LightModels.LightCount < Constants.MaxLights;
 
     /// <summary>
@@ -85,7 +60,7 @@ public class AmbientLightCore : LightCoreBase {
     /// <summary>
     ///     Initializes a new instance of the <see cref="AmbientLightCore" /> class.
     /// </summary>
-    public AmbientLightCore() 
+    public AmbientLightCore()
         => LightType = LightType.Ambient;
 
     /// <summary>
@@ -93,6 +68,6 @@ public class AmbientLightCore : LightCoreBase {
     /// </summary>
     /// <param name="lightScene">The light scene.</param>
     /// <param name="idx">The index.</param>
-    protected override void OnRender(Light3DSceneShared lightScene, int idx) 
+    protected override void OnRender(Light3DSceneShared lightScene, int idx)
         => lightScene.LightModels.AmbientLight = Color;
 }

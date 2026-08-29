@@ -18,14 +18,4 @@ public sealed class EmptyRenderCore : RenderCore {
     /// </summary>
     public EmptyRenderCore() : base(RenderType.None) { }
 
-    /// <summary>
-    ///     Called when [render].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
-
-    protected override bool OnAttach(IRenderTechnique technique) => true;
-
-    protected override void OnDetach() { }
 }

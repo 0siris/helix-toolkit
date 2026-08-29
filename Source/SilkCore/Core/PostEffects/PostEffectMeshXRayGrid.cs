@@ -44,19 +44,8 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
         Color = new Color4(0, 0, 1, 1);
     }
 
-    protected override bool OnAttach(IRenderTechnique technique) => true;
-
-    protected override void OnDetach() { }
-
-    protected override bool OnUpdateCanRenderFlag() 
+    protected override bool OnUpdateCanRenderFlag()
         => IsAttached && !string.IsNullOrEmpty(EffectName);
-
-    /// <summary>
-    ///     Called when [render].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
 
     private void OnUpdatePerModelStruct(RenderContext context) {
         modelStruct.Param.M11 = gridDensity;
@@ -64,15 +53,15 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
         modelStruct.Param.M13 = blendingFactor;
     }
 
-#region Variables
+    #region Variables
 
     private readonly List<(Model.Scene.Abstract.SceneNode SceneNode, IEffectAttributes Effect)> currentCores = [];
     private readonly ConstantBufferComponent modelCb;
     private BorderEffectStruct modelStruct;
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     /// <summary>
     ///     Gets or sets the name of the effect.
@@ -153,5 +142,5 @@ public class PostEffectMeshXRayGridCore : RenderCore, IPostEffectMeshXRayGrid {
         set => SetAffectsRender(ref field, value);
     } = true;
 
-#endregion
+    #endregion
 }

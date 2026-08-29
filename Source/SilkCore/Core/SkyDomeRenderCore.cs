@@ -30,47 +30,6 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     }
 
     /// <summary>
-    ///     Called when [attach].
-    /// </summary>
-    /// <param name="technique">The technique.</param>
-    /// <returns></returns>
-    protected override bool OnAttach(IRenderTechnique technique) {
-        if (base.OnAttach(technique)) {
-            defaultShaderPass = technique[DefaultPassNames.Default];
-            OnDefaultPassChanged(defaultShaderPass);
-            skyBuffer = new SkyDomeBufferModel {
-                Geometry = SphereMesh
-            };
-            GeometryBuffer = skyBuffer;
-            UpdateTexture();
-            textureSampler = technique.EffectsManager.StateManager.Register(SamplerDescription);
-            return true;
-        }
-
-        return false;
-    }
-
-    private void UpdateTexture() {
-        MipMapLevels = 0;
-        RemoveAndDispose(ref cubeTextureRes);
-        if (CubeTexture is { } texture && Device is { } device) {
-            cubeTextureRes = new ShaderResourceViewProxy(device);
-            cubeTextureRes.CreateView(texture);
-            if (cubeTextureRes.TextureView is {Description.Dimension: ShaderResourceViewDimension.TextureCube})
-                MipMapLevels = cubeTextureRes.TextureView.Description.TextureCube.MipLevels;
-        }
-    }
-
-    protected override void OnDetach() {
-        MipMapLevels = 0;
-        RemoveAndDispose(ref textureSampler);
-        RemoveAndDispose(ref cubeTextureRes);
-        GeometryBuffer = null;
-        RemoveAndDispose(ref skyBuffer);
-        base.OnDetach();
-    }
-
-    /// <summary>
     ///     Called when [default pass changed].
     /// </summary>
     /// <param name="pass">The pass.</param>
@@ -78,35 +37,6 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
         cubeTextureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderCubeTextureName);
         textureSamplerSlot = pass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderCubeTextureSamplerName);
     }
-
-    /// <summary>
-    ///     Called when [render].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    protected override void OnRender(RenderContext context, DeviceContextProxy deviceContext) {
-        context.SharedResource.EnvironementMap = cubeTextureRes;
-        context.SharedResource.EnvironmentMapMipLevels = MipMapLevels;
-        if (SkipRendering) return;
-        if (GeometryBuffer is not { } geometryBuffer
-            || geometryBuffer.IndexBuffer is not { } indexBuffer)
-            return;
-        defaultShaderPass.BindShader(deviceContext);
-        defaultShaderPass.BindStates(deviceContext, StateType.BlendState | StateType.DepthStencilState);
-        defaultShaderPass.PixelShader.BindTexture(deviceContext, cubeTextureSlot, cubeTextureRes);
-        defaultShaderPass.PixelShader.BindSampler(deviceContext, textureSamplerSlot, textureSampler);
-        deviceContext.DrawIndexed(indexBuffer.ElementCount, 0, 0);
-    }
-
-    protected sealed override void OnRenderCustom(RenderContext context, DeviceContextProxy deviceContext) { }
-
-    protected sealed override void OnRenderShadow(RenderContext context, DeviceContextProxy deviceContext) { }
-
-    protected sealed override void OnRenderDepth(
-        RenderContext context,
-        DeviceContextProxy deviceContext,
-        ShaderPass? customPass
-    ) { }
 
     /// <summary>
     /// </summary>
@@ -122,12 +52,12 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
             Geometry3D? geometry,
             IDeviceResources deviceResources
         ) {
-            if (bufferIndex == 0 && geometry is {Positions.Count: > 0})
+            if (bufferIndex == 0 && geometry is { Positions.Count: > 0 })
                 buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);
         }
     }
 
-#region Default Mesh
+    #region Default Mesh
 
     private static readonly MeshGeometry3D SphereMesh;
 
@@ -137,20 +67,19 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
         SphereMesh = builder.ToMesh();
     }
 
-#endregion
+    #endregion
 
-#region Variables
+    #region Variables
 
-    private ShaderResourceViewProxy? cubeTextureRes;
     private int cubeTextureSlot;
     private SamplerStateProxy? textureSampler;
     private int textureSamplerSlot;
     private ShaderPass defaultShaderPass = ShaderPass.NullPass;
     private SkyDomeBufferModel? skyBuffer;
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     private TextureModel? cubeTexture;
 
@@ -162,9 +91,7 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     /// </value>
     public TextureModel? CubeTexture {
         get => cubeTexture;
-        set {
-            if (SetAffectsRender(ref cubeTexture, value) && IsAttached) UpdateTexture();
-        }
+        set => SetAffectsRender(ref cubeTexture, value);
     }
 
     /// <summary>
@@ -183,14 +110,7 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     /// </value>
     public SamplerStateDescription SamplerDescription {
         get;
-        set {
-            if (SetAffectsRender(ref field, value) && IsAttached) {
-                if (EffectTechnique is not { } technique) return;
-                var newSampler = technique.EffectsManager.StateManager.Register(value);
-                RemoveAndDispose(ref textureSampler);
-                textureSampler = newSampler;
-            }
-        }
+        set => SetAffectsRender(ref field, value);
     } = DefaultSamplers.EnvironmentSampler;
 
     /// <summary>
@@ -214,5 +134,5 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     /// </summary>
     public bool SkipRendering { get; set; }
 
-#endregion
+    #endregion
 }

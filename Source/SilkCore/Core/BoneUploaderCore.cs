@@ -17,8 +17,7 @@ public sealed class BoneUploaderCore : RenderCore {
     private Matrix[] boneMatrices = [];
     private bool matricesChanged = true;
 
-    public BoneUploaderCore() : base(RenderType.None) 
-        => NeedUpdate = false;
+    public BoneUploaderCore() : base(RenderType.None) { }
 
     [AllowNull]
     public Matrix[] BoneMatrices {
@@ -34,40 +33,24 @@ public sealed class BoneUploaderCore : RenderCore {
     public StructuredBufferProxy? BoneSkinSb {
         get;
         set {
-            if(field != value) 
+            if (field != value)
                 field?.Dispose();
             field = value;
         }
     }
     public event EventHandler? BoneChanged;
 
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) { }
-
-    protected override void OnUpdate(RenderContext context, DeviceContextProxy deviceContext) {
-        if (matricesChanged && BoneSkinSb != null) {
-            BoneSkinSb.UploadDataToBuffer(deviceContext, boneMatrices, boneMatrices.Length);
-            matricesChanged = false;
-        }
-    }
-
-    protected override bool OnAttach(IRenderTechnique technique) {
-        BoneSkinSb = new StructuredBufferProxy(SilkMath.MatrixSizeInBytes, false);
-        return true;
-    }
-
-    protected override void OnDetach() => BoneSkinSb = null;
-
     public void BindBuffer(DeviceContextProxy deviceContext, int slot) {
-        if (BoneSkinSb is not null) 
+        if (BoneSkinSb is not null)
             deviceContext.SetShaderResource<VertexShaderType>(slot, BoneSkinSb);
     }
 
     public void InvalidateBoneMatrices() => matricesChanged = true;
 
     protected override void OnDispose(bool disposeManagedResources) {
-        if (disposeManagedResources) 
+        if (disposeManagedResources)
             BoneChanged = null;
-        
+
         base.OnDispose(disposeManagedResources);
     }
 }

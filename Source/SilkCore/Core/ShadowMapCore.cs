@@ -34,46 +34,6 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 
     public event EventHandler<UpdateLightSourceEventArgs>? OnUpdateLightSource;
 
-    public override void Render(RenderContext context, DeviceContextProxy deviceContext) {
-        if (!NeedRender) {
-            modelStruct.HasShadowMap = 0;
-            modelCb.Upload(deviceContext, ref modelStruct);
-            return;
-        }
-
-        OnUpdateLightSource?.Invoke(this, new UpdateLightSourceEventArgs(context));
-        ++currentFrame;
-        currentFrame %= Math.Max(1, UpdateFrequency);
-        if (!FoundLightSource || currentFrame != 0) return;
-        if (resolutionChanged) {
-            RemoveAndDispose(ref viewResource);
-            if (Device is not { } device)
-                return;
-            var resource = new ShaderResourceViewProxy(device, ShadowMapTextureDesc);
-            resource.CreateView(DepthStencilViewDesc);
-            resource.CreateView(ShaderResourceViewDesc);
-            viewResource = resource;
-            resolutionChanged = false;
-        }
-
-        if (viewResource is not { } shadowMap)
-            return;
-
-        deviceContext.ClearDepthStencilView(shadowMap, DepthStencilClearFlags.Depth);
-        var orgFrustum = context.BoundingFrustum;
-        var frustum = new BoundingFrustum(LightView * LightProjection);
-        context.BoundingFrustum = frustum;
-#if !TEST
-        deviceContext.SetViewport(0, 0, Width, Height);
-
-        deviceContext.SetDepthStencil(shadowMap.DepthStencilView);
-        modelStruct.HasShadowMap = context.IsShadowMapEnabled ? 1 : 0;
-        modelCb.Upload(deviceContext, ref modelStruct);
-        context.BoundingFrustum = orgFrustum;
-        context.SharedResource.ShadowView = shadowMap;
-#endif
-    }
-
     /// <summary>
     ///     Creates the shared b5 payload from the current renderer-independent shadow settings.
     /// </summary>
@@ -85,13 +45,6 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
         return result;
     }
 
-    protected override bool OnAttach(IRenderTechnique technique) => true;
-
-    protected override void OnDetach() {
-        RemoveAndDispose(ref viewResource);
-        resolutionChanged = true;
-    }
-
     public sealed class UpdateLightSourceEventArgs : EventArgs {
         public UpdateLightSourceEventArgs(RenderContext context) {
             Context = context;
@@ -100,7 +53,7 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
         public RenderContext Context { get; private set; }
     }
 
-#region Variables
+    #region Variables
 
     private ShaderResourceViewProxy? viewResource;
     private int currentFrame;
@@ -148,9 +101,9 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 
     private readonly ConstantBufferComponent modelCb;
 
-#endregion
+    #endregion
 
-#region Properties
+    #region Properties
 
     /// <summary>
     /// </summary>
@@ -210,5 +163,5 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 
     public bool NeedRender { get; set; } = true;
 
-#endregion
+    #endregion
 }

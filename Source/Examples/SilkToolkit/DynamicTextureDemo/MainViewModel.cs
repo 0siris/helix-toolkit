@@ -175,7 +175,7 @@ public class MainViewModel : BaseViewModel {
             colors.Add(new Color4(0, 1, 1, 1));
         }
 
-        for (var i = 0; i < count / 2; ++i) {
+        for (var i = colors.Count; i < count; ++i) {
             colors.Add(new Color4(0, 0, 0, 0));
         }
 

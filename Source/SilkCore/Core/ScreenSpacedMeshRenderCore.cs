@@ -7,6 +7,7 @@ using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 
@@ -311,5 +312,108 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
             isMainCameraPerspective = context.IsPerspective;
             OnCreateProjectionMatrix(context);
         }
+    }
+
+    /// <summary>
+    ///     Creates the transform and viewport used to draw this screen-spaced group's children through Direct3D 12.
+    /// </summary>
+    /// <param name="camera">The main viewport camera whose orientation is mirrored by the overlay camera.</param>
+    /// <param name="mainTransform">The main viewport transform payload.</param>
+    /// <param name="width">The physical render-target width.</param>
+    /// <param name="height">The physical render-target height.</param>
+    /// <param name="dpiScale">The logical-to-physical pixel scale.</param>
+    /// <param name="transform">The resulting overlay transform payload.</param>
+    /// <param name="viewport">The resulting overlay viewport.</param>
+    /// <returns><see langword="true" /> when the render target is large enough for the overlay.</returns>
+    internal bool TryCreateD3D12Transform(CameraCore camera,
+        in GlobalTransformStruct mainTransform,
+        float width,
+        float height,
+        float dpiScale,
+        out GlobalTransformStruct transform,
+        out ViewportF viewport) {
+        transform = mainTransform;
+        viewport = default;
+        if (width < Size || height < Size) return false;
+
+        IsRightHand = !camera.CreateLeftHandSystem;
+        Width = width;
+        Height = height;
+        ScreenRatio = width / height;
+        isMainCameraPerspective = mainTransform.IsPerspective;
+        IsPerspective = CameraType switch {
+            ScreenSpacedCameraType.Perspective => true,
+            ScreenSpacedCameraType.Orthographic => false,
+            _ => mainTransform.IsPerspective
+        };
+        projectionMatrix = Mode == ScreenSpacedMode.AbsolutePosition3D && IsPerspective
+            ? camera.CreateProjectionMatrix(width / height, NearPlane, FarPlane)
+            : CreateProjectionMatrix(IsPerspective,
+                IsRightHand,
+                Fov,
+                NearPlane,
+                FarPlane,
+                CameraDistance,
+                CameraDistance);
+
+        if (Mode == ScreenSpacedMode.AbsolutePosition3D && mainTransform.IsPerspective) {
+            var distance = Size / 2 / SizeScale;
+            var viewInverse = mainTransform.View.PsudoInvert();
+            var direction = SilkMath.Normalize(AbsolutePosition3D - mainTransform.EyePos);
+            var position = AbsolutePosition3D - direction * distance - AbsolutePosition3D;
+            viewInverse.M41 = position.X;
+            viewInverse.M42 = position.Y;
+            viewInverse.M43 = position.Z;
+            transform.View = viewInverse.PsudoInvert();
+            transform.EyePos = position;
+            transform.Projection = projectionMatrix;
+            transform.ViewProjection = transform.View * transform.Projection;
+            viewport = new ViewportF(0, 0, width, height);
+        } else {
+            transform.View = CreateViewMatrix(camera, out transform.EyePos);
+            transform.Projection = projectionMatrix;
+            transform.ViewProjection = transform.View * transform.Projection;
+            var viewportSize = Size * SizeScale * dpiScale;
+            float offsetX;
+            float offsetY;
+            if (Mode == ScreenSpacedMode.AbsolutePosition3D) {
+                var viewportMatrix = new Matrix(width / 2, 0, 0, 0,
+                    0, -(height / 2), 0, 0,
+                    0, 0, 1, 0,
+                    (width - 1) / 2, (height - 1) / 2, 0, 1);
+                var screenPoint = SilkMath.TransformCoordinate(AbsolutePosition3D,
+                    mainTransform.ViewProjection * viewportMatrix);
+                offsetX = screenPoint.X - viewportSize / 2;
+                offsetY = screenPoint.Y - viewportSize / 2;
+            } else {
+                offsetX = Math.Max(0,
+                    Math.Min(width / 2 * (1 + RelativeScreenLocationX) - viewportSize / 2,
+                        width - viewportSize));
+                offsetY = Math.Max(0,
+                    Math.Min(height / 2 * (1 - RelativeScreenLocationY) - viewportSize / 2,
+                        height - viewportSize));
+            }
+            transform.Viewport = new Vector4(viewportSize,
+                viewportSize,
+                1 / viewportSize,
+                1 / viewportSize);
+            viewport = new ViewportF(offsetX, offsetY, viewportSize, viewportSize);
+        }
+
+        GlobalTransform = transform;
+        return true;
+    }
+
+    /// <summary>
+    ///     Creates the fixed overlay camera view while preserving the main camera orientation.
+    /// </summary>
+    /// <param name="camera">The main viewport camera.</param>
+    /// <param name="eye">The resulting overlay eye position.</param>
+    /// <returns>The overlay view matrix.</returns>
+    private Matrix CreateViewMatrix(CameraCore camera, out Vector3 eye) {
+        eye = -camera.LookDirection.Normalized() * CameraDistance;
+        return IsRightHand
+            ? SilkMath.LookAtRh(eye, Vector3.Zero, camera.UpDirection)
+            : SilkMath.LookAtLh(eye, Vector3.Zero, camera.UpDirection);
     }
 }

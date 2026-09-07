@@ -150,7 +150,7 @@ internal sealed class D3D12DescriptorIndexAllocator {
     /// </summary>
     /// <param name="capacity">The number of descriptor indices managed by the allocator.</param>
     public D3D12DescriptorIndexAllocator(int capacity) {
-        capacity.AssertArgumentRange(1, int.MaxValue);
+        capacity.Guard().Range(1, int.MaxValue);
 
         allocated = new bool[capacity];
         freeIndices = new SortedSet<int>(Enumerable.Range(0, capacity));
@@ -194,7 +194,7 @@ internal sealed class D3D12DescriptorIndexAllocator {
     /// <returns>The first allocated index.</returns>
     /// <exception cref="InvalidOperationException">No sufficiently large contiguous range is available.</exception>
     public int AllocateRange(int count) {
-        count.AssertArgumentRange(1, Capacity);
+        count.Guard().Range(1, Capacity);
         lock (freeIndices) {
             var start = -1;
             var previous = -2;
@@ -224,7 +224,7 @@ internal sealed class D3D12DescriptorIndexAllocator {
     /// <param name="index">The descriptor index to release.</param>
     /// <exception cref="InvalidOperationException">The descriptor index is not allocated.</exception>
     public void Release(int index) {
-        index.AssertArgumentRange(0, Capacity - 1);
+        index.Guard().Range(0, Capacity - 1);
 
         lock (freeIndices) {
             if (!allocated[index])
@@ -354,7 +354,7 @@ internal sealed class D3D12DeferredReleaseQueue : IDisposable {
     /// <param name="fenceValue">The fence value that protects the resource.</param>
     /// <param name="resource">The resource to dispose.</param>
     public void Enqueue(ulong fenceValue, IDisposable resource) {
-        resource.AssertArgumentNotNull();
+        resource.GuardNotNull();
         if (fenceValue < lastFenceValue)
             throw new ArgumentOutOfRangeException(nameof(fenceValue),
                 fenceValue,
@@ -398,7 +398,7 @@ internal sealed class D3D12FrameFenceTracker {
     /// </summary>
     /// <param name="frameCount">The number of reusable frame slots.</param>
     public D3D12FrameFenceTracker(int frameCount) {
-        frameCount.AssertArgumentRange(1, int.MaxValue);
+        frameCount.Guard().Range(1, int.MaxValue);
         fenceValues = new ulong[frameCount];
     }
 

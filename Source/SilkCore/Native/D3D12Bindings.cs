@@ -71,8 +71,8 @@ internal sealed class SilkD3D12GraphicsBindings : IDisposable {
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap
     ) {
-        resourceHeap.AssertArgumentNotNull();
-        samplerHeap.AssertArgumentNotNull();
+        resourceHeap.GuardNotNull();
+        samplerHeap.GuardNotNull();
         ValidateHeap(resourceHeap, DescriptorHeapType.CbvSrvUav, nameof(resourceHeap));
         ValidateHeap(samplerHeap, DescriptorHeapType.Sampler, nameof(samplerHeap));
 
@@ -157,7 +157,7 @@ internal sealed class SilkD3D12GraphicsBindings : IDisposable {
     /// </summary>
     /// <param name="context">The open Direct3D 12 command context.</param>
     internal void BindGraphics(SilkD3D12CommandContext context) {
-        context.AssertArgumentNotNull();
+        context.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         context.SetGraphicsDescriptorTables(resources[0], samplers[0]);
@@ -168,7 +168,7 @@ internal sealed class SilkD3D12GraphicsBindings : IDisposable {
     /// </summary>
     /// <param name="context">The open Direct3D 12 command context.</param>
     internal void BindCompute(SilkD3D12CommandContext context) {
-        context.AssertArgumentNotNull();
+        context.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         context.SetComputeDescriptorTables(resources[0], samplers[0]);
@@ -268,9 +268,9 @@ internal sealed class SilkD3D12ConstantBuffer : IDisposable {
         SilkD3D12Descriptor descriptor,
         int dataSizeInBytes
     ) {
-        device.AssertArgumentNotNull();
-        descriptor.AssertArgumentNotNull();
-        dataSizeInBytes.AssertArgumentRange(1, 64 * 1024);
+        device.GuardNotNull();
+        descriptor.GuardNotNull();
+        dataSizeInBytes.Guard().Range(1, 64 * 1024);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (descriptor.Type != DescriptorHeapType.CbvSrvUav)
             throw new ArgumentException("A CBV/SRV/UAV descriptor is required.", nameof(descriptor));
@@ -371,7 +371,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     private readonly SilkD3D12ConstantBuffer lights;
 
     /// <summary>
-    ///     The b6 custom-pass/post-effect constants.
+    ///     The b6 clipping or custom-pass/post-effect constants.
     /// </summary>
     private readonly SilkD3D12ConstantBuffer effect;
 
@@ -401,7 +401,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         this.device = device;
         bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
         SilkD3D12ConstantBuffer? createdGlobalTransforms = null;
@@ -422,7 +422,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
                 LightsBufferModel.SizeInBytes);
             createdEffect = new SilkD3D12ConstantBuffer(device,
                 bindings.ConstantBuffer(6),
-                BorderEffectStruct.SizeInBytes);
+                ClipPlaneStruct.SizeInBytes);
             createdShadow = new SilkD3D12ConstantBuffer(device,
                 bindings.ConstantBuffer(5),
                 ShadowMapParamStruct.SizeInBytes);
@@ -480,8 +480,8 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         MaterialCore? material,
         TextureModel? environmentMap = null
     ) {
-        context.AssertArgumentNotNull();
-        resources.AssertArgumentNotNull();
+        context.GuardNotNull();
+        resources.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         var materialData = D3D12MeshMaterialData.Create(in modelData, material);
         BindMaterialResources(context, resources, material, environmentMap);
@@ -493,7 +493,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     /// </summary>
     /// <param name="lightData">The existing light-buffer model.</param>
     internal void UpdateLights(LightsBufferModel lightData) {
-        lightData.AssertArgumentNotNull();
+        lightData.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         lights.Write<LightStruct>(lightData.Lights);
         var offset = LightStruct.SizeInBytes * Constants.MaxLights;
@@ -539,6 +539,38 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     internal SilkD3D12Resource ShadowResource => shadow.Resource;
 
     /// <summary>
+    ///     Gets the b6 resource for focused byte-layout verification.
+    /// </summary>
+    internal SilkD3D12Resource EffectResource => effect.Resource;
+
+    /// <summary>
+    ///     Uploads the existing cross-section parameters into b6.
+    /// </summary>
+    /// <param name="core">The cross-section render core.</param>
+    internal void UpdateClipping(CrossSectionMeshRenderCore core) {
+        core.GuardNotNull();
+        var planeEnabled = core.PlaneEnabled;
+        var plane5To8Enabled = core.Plane5To8Enabled;
+        var sectionColor = core.SectionColor;
+        effect.Write(in planeEnabled);
+        effect.Write(in plane5To8Enabled, 16);
+        effect.Write(in sectionColor, 32);
+        var operation = (int)core.CuttingOperation;
+        effect.Write(in operation, 48);
+        ReadOnlySpan<Vector4> planes = [
+            core.Plane1Params,
+            core.Plane2Params,
+            core.Plane3Params,
+            core.Plane4Params,
+            core.Plane5Params,
+            core.Plane6Params,
+            core.Plane7Params,
+            core.Plane8Params
+        ];
+        effect.Write(planes, 64);
+    }
+
+    /// <summary>
     ///     Uploads b6 for an existing custom geometry pass.
     /// </summary>
     /// <param name="value">The post-effect constants.</param>
@@ -559,7 +591,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         int vertexCount
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        morphTargets.AssertArgumentNotNull();
+        morphTargets.GuardNotNull();
         boneSkinning ??= new SilkD3D12BoneSkinResources(device, bindings);
         boneSkinning.Update(vertexBoneIds, boneMatrices, morphTargets, vertexCount);
         return boneSkinning;
@@ -759,7 +791,7 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         this.device = device;
         bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
         SilkD3D12ConstantBuffer? createdGlobalTransforms = null;
@@ -811,9 +843,9 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
         SilkD3D12Resource backPositions
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        context.AssertArgumentNotNull();
-        resources.AssertArgumentNotNull();
-        backPositions.AssertArgumentNotNull();
+        context.GuardNotNull();
+        resources.GuardNotNull();
+        backPositions.GuardNotNull();
         this.resources = resources;
         if (!TryGetVolumeModel(material, out var currentModel)) return false;
         var texture = resources.GetOrCreate(context, currentModel);
@@ -976,7 +1008,7 @@ internal static class D3D12VolumeMaterialData {
         int height,
         int depth
     ) {
-        material.AssertArgumentNotNull();
+        material.GuardNotNull();
         if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
         if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
         if (depth <= 0) throw new ArgumentOutOfRangeException(nameof(depth));
@@ -1081,7 +1113,7 @@ internal sealed class SilkD3D12PointLineBindings : IDisposable {
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         this.device = device;
         bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
         SilkD3D12ConstantBuffer? createdGlobalTransforms = null;

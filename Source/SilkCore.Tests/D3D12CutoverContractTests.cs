@@ -1,4 +1,5 @@
 using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.ShaderManager;
@@ -182,6 +183,23 @@ public sealed class D3D12CutoverContractTests {
         node.ResolveD3D12TechniqueName(first);
 
         Assert.Throws<InvalidOperationException>(() => node.ResolveD3D12TechniqueName(second));
+    }
+
+    /// <summary>
+    ///     Verifies the Direct3D 12 technique resolution creates the view-box default texture.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ViewBoxCreatesDefaultTextureForD3D12() {
+        using var effectsManager = new DefaultEffectsManager();
+        using var node = new ViewBoxNode();
+        var mesh = Assert.IsType<MeshNode>(node.Items[0]);
+
+        mesh.ResolveD3D12TechniqueName(effectsManager);
+
+        var material = Assert.IsType<ViewCubeMaterialCore>(mesh.Material);
+        Assert.NotNull(material.DiffuseMap);
+        Assert.False(mesh.IsAttached);
     }
 
     /// <summary>

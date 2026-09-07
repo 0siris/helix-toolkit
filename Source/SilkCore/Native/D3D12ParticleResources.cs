@@ -101,7 +101,7 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
         SilkD3D12DescriptorHeap samplerHeap,
         uint capacity
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         if (capacity == 0) throw new ArgumentOutOfRangeException(nameof(capacity));
         this.device = device;
         Capacity = capacity;
@@ -187,9 +187,9 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
         in GlobalTransformStruct transforms
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        context.AssertArgumentNotNull();
-        resources.AssertArgumentNotNull();
-        core.AssertArgumentNotNull();
+        context.GuardNotNull();
+        resources.GuardNotNull();
+        core.GuardNotNull();
         var shouldInsert = core.PrepareD3D12(transforms.TimeStamp,
             out var frameData,
             out var insertData,

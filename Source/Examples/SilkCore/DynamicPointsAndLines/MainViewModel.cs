@@ -97,8 +97,8 @@ public class MainViewModel : INotifyPropertyChanged, IDisposable {
             StopWatch.Stop();
 
             SetValue(ref field, value);
-            var indices = new IntCollection(field * 2);
-            for (var i = 0; i < field * 2; i++) {
+            var indices = new IntCollection((field - 1) * 2);
+            for (var i = 0; i < (field - 1) * 2; i++) {
                 indices.Add(i);
             }
 

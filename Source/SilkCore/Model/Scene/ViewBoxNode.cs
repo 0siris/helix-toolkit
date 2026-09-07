@@ -13,6 +13,7 @@ using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -62,6 +63,10 @@ public class ViewBoxNode : ScreenSpacedNode {
             DiffuseColor = Color.White,
             DiffuseMapSampler = sampler
         };
+        viewBoxMeshModel.OnSetRenderTechnique = effectsManager => {
+            EnsureViewBoxTexture(effectsManager);
+            return effectsManager[DefaultRenderTechniqueNames.Mesh];
+        };
 
         cornerModel = new InstancingMeshNode {
             EnableViewFrustumCheck = false,
@@ -85,33 +90,44 @@ public class ViewBoxNode : ScreenSpacedNode {
 
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
-            if (viewBoxMeshModel.Material is not ViewCubeMaterialCore material)
+            if (viewBoxMeshModel.Material is not ViewCubeMaterialCore)
                 return false;
 
-            material.DiffuseMap ??= ViewBoxTexture ?? BitmapExtensions.CreateViewBoxTextureModel(
-                                              effectsManager,
-                                              "F",
-                                              "B",
-                                              "L",
-                                              "R",
-                                              "U",
-                                              "D",
-                                              Color.Red,
-                                              Color.Red,
-                                              Color.Blue,
-                                              Color.Blue,
-                                              Color.Green,
-                                              Color.Green,
-                                              Color.White,
-                                              Color.White,
-                                              Color.White,
-                                              Color.White,
-                                              Color.White,
-                                              Color.White);
+            EnsureViewBoxTexture(effectsManager);
             return true;
         }
 
         return false;
+    }
+
+    /// <summary>
+    ///     Creates the default labelled view-box texture when no explicit texture was supplied.
+    /// </summary>
+    /// <param name="effectsManager">The active effects manager.</param>
+    private void EnsureViewBoxTexture(IEffectsManager effectsManager) {
+        if (viewBoxMeshModel.Material is not ViewCubeMaterialCore material)
+            return;
+
+        material.DiffuseMap ??= ViewBoxTexture ?? BitmapExtensions.CreateViewBoxTextureModel(
+                                  effectsManager,
+                                  "F",
+                                  "B",
+                                  "L",
+                                  "R",
+                                  "U",
+                                  "D",
+                                  Color.Red,
+                                  Color.Red,
+                                  Color.Blue,
+                                  Color.Blue,
+                                  Color.Green,
+                                  Color.Green,
+                                  Color.White,
+                                  Color.White,
+                                  Color.White,
+                                  Color.White,
+                                  Color.White,
+                                  Color.White);
     }
 
     protected override void OnCoordinateSystemChanged(bool e) {

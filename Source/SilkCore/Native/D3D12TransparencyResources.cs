@@ -80,7 +80,7 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         this.device = device;
         renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 6);
         renderTargetViews = renderTargetHeap.AllocateRange(6);

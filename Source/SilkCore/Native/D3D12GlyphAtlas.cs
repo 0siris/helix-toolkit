@@ -162,8 +162,8 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
         FlowDirection flowDirection
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        text.AssertArgumentNotNull();
-        fontFamily.AssertArgumentNotNull();
+        text.GuardNotNull();
+        fontFamily.GuardNotNull();
         if (!(fontSize > 0) || !float.IsFinite(fontSize)) throw new ArgumentOutOfRangeException(nameof(fontSize));
         var key = new GlyphKey(text,
             fontFamily,

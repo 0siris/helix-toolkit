@@ -1,5 +1,5 @@
 using System.Globalization;
-using Assertions;
+using ValidSphere;
 using HelixToolkit.SharpDX.Core.Logger;
 using HelixToolkit.SharpDX.Core.Utilities;
 using LoggerLib;
@@ -52,12 +52,12 @@ public sealed class LoggerAndAssertionIntegrationTests {
         const string valid = "valid";
         int[] values = [1, 2];
 
-        Assert.Equal(valid, valid.AssertArgumentNotNull());
-        Assert.Equal(valid, valid.AssertNotNull());
-        Assert.Same(values, values.AssertLengthBiggerOrEqual(2));
-        Assert.Throws<ArgumentNullException>(() => ((string?)null).AssertArgumentNotNull());
-        Assert.Throws<AssertException>(() => ((string?)null).AssertNotNull());
-        Assert.Throws<AssertException<int[]>>(() => values.AssertLengthBiggerOrEqual(3));
+        Assert.Equal(valid, valid.GuardNotNull().Value);
+        Assert.Equal(valid, valid.AssertNotNull().Value);
+        Assert.Same(values, values.Is().Satisfy(value => value.Length >= 2).Value);
+        Assert.Throws<ArgumentNullException>(() => ((string?)null).GuardNotNull());
+        Assert.Throws<AssertException>(() => { _ = ((string?)null).AssertNotNull().Value; });
+        Assert.Throws<AssertException>(() => values.Is().Satisfy(value => value.Length >= 3));
     }
 
     [Fact]

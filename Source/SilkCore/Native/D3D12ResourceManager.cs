@@ -58,8 +58,8 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
         SilkD3D12Device device,
         SilkD3D12DescriptorHeap textureHeap
     ) {
-        device.AssertArgumentNotNull();
-        textureHeap.AssertArgumentNotNull();
+        device.GuardNotNull();
+        textureHeap.GuardNotNull();
         ObjectDisposedException.ThrowIf(textureHeap.IsDisposed, textureHeap);
         if (textureHeap.Type != DescriptorHeapType.CbvSrvUav || !textureHeap.IsShaderVisible)
             throw new ArgumentException("Textures require a shader-visible CBV/SRV/UAV heap.", nameof(textureHeap));
@@ -106,7 +106,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     /// <param name="source">The existing mesh buffer model.</param>
     /// <returns>The current native mesh buffers.</returns>
     internal SilkD3D12DefaultMeshBuffers GetOrCreate(DefaultMeshGeometryBufferModel source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         lock (syncRoot) {
             ThrowIfDisposed();
             var entry = GetEntry(source);
@@ -136,8 +136,8 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
         ReadOnlySpan<Matrix> boneMatrices,
         MorphTargetUploaderCore morphTargets
     ) {
-        source.AssertArgumentNotNull();
-        morphTargets.AssertArgumentNotNull();
+        source.GuardNotNull();
+        morphTargets.GuardNotNull();
         lock (syncRoot) {
             ThrowIfDisposed();
             var entry = GetEntry(source);
@@ -161,7 +161,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     /// <param name="source">The existing line buffer model.</param>
     /// <returns>The current native line buffers.</returns>
     internal SilkD3D12PointLineBuffers GetOrCreate(DefaultLineGeometryBufferModel source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         lock (syncRoot) {
             ThrowIfDisposed();
             var entry = GetEntry(source);
@@ -185,7 +185,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     /// <param name="source">The existing point buffer model.</param>
     /// <returns>The current native point buffers.</returns>
     internal SilkD3D12PointLineBuffers GetOrCreate(DefaultPointGeometryBufferModel source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         lock (syncRoot) {
             ThrowIfDisposed();
             var entry = GetEntry(source);
@@ -209,7 +209,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     /// <param name="source">The existing billboard buffer model.</param>
     /// <returns>The current native billboard buffer.</returns>
     internal SilkD3D12PointLineBuffers GetOrCreate(DefaultBillboardBufferModel source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         lock (syncRoot) {
             ThrowIfDisposed();
             var entry = GetEntry(source);
@@ -233,7 +233,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     /// <param name="source">The existing matrix-instance model.</param>
     /// <returns>The current native stream, or <see langword="null" /> when the model is empty.</returns>
     internal SilkD3D12ElementsBuffer<Matrix>? GetOrCreate(IElementsBufferModel<Matrix> source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         lock (syncRoot) {
             ThrowIfDisposed();
             if (!source.HasElements) {
@@ -267,8 +267,8 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
         SilkD3D12CommandContext context,
         TextureModel textureModel
     ) {
-        context.AssertArgumentNotNull();
-        textureModel.AssertArgumentNotNull();
+        context.GuardNotNull();
+        textureModel.GuardNotNull();
         lock (syncRoot) {
             ThrowIfDisposed();
             if (textures.TryGetValue(textureModel.Guid, out var texture)) return texture;
@@ -285,7 +285,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     /// <param name="source">The existing geometry model.</param>
     /// <returns>Whether a cached resource was removed.</returns>
     internal bool Remove(IGeometryBufferModel source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         lock (syncRoot) {
             ThrowIfDisposed();
             if (!geometries.Remove(source, out var entry)) return false;
@@ -300,7 +300,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     /// <param name="source">The existing matrix-instance model.</param>
     /// <returns>Whether a cached resource was removed.</returns>
     internal bool Remove(IElementsBufferModel<Matrix> source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         lock (syncRoot) {
             ThrowIfDisposed();
             if (!instances.Remove(source, out var entry)) return false;

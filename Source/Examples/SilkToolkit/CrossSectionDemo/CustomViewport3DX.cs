@@ -1,6 +1,6 @@
 using System.Windows;
 using System.Windows.Input;
-using Assertions;
+using ValidSphere;
 using HelixToolkit.Wpf.SharpDX.Controls;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 
@@ -12,7 +12,7 @@ namespace CrossSectionDemo;
 public class CustomViewport3DX : Viewport3DX {
     /// <inheritdoc />
     protected override void OnPreviewMouseMove(MouseEventArgs e) {
-        e.AssertArgumentNotNull();
+        e.GuardNotNull();
         base.OnPreviewMouseMove(e);
 
         var hits = this.FindHits(e.GetPosition(this));

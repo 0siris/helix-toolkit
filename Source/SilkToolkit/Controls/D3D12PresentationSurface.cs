@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Model.Collection;
@@ -42,7 +43,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     private readonly HwndSwapChainHost windowHost = new();
     private readonly D3D12ResizeQueue resizeQueue = new();
     private readonly SilkDriverType driverType;
-    private readonly IEffectsManager? effectsManager;
+    private IEffectsManager? effectsManager;
     private DispatcherOperation? resizeOperation;
     private SilkD3D12Device? device;
     private SilkD3D12CommandQueue? commandQueue;
@@ -105,6 +106,21 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     private readonly FastList<SceneNode> postEffectNodes = [];
 
     /// <summary>
+    ///     Reused screen-spaced root nodes in scene traversal order.
+    /// </summary>
+    private readonly FastList<ScreenSpacedNode> screenSpacedNodes = [];
+
+    /// <summary>
+    ///     Reused opaque children of the current screen-spaced root.
+    /// </summary>
+    private readonly FastList<SceneNode> screenSpacedOpaqueNodes = [];
+
+    /// <summary>
+    ///     Reused transparent children of the current screen-spaced root.
+    /// </summary>
+    private readonly FastList<SceneNode> screenSpacedTransparentNodes = [];
+
+    /// <summary>
     ///     Shared light payload rebuilt before each viewport frame.
     /// </summary>
     private readonly LightsBufferModel lights = new();
@@ -139,6 +155,26 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ///     Gets the current physical back-buffer width.
     /// </summary>
     public uint PixelWidth => swapChain?.Width ?? 0;
+
+    /// <summary>
+    ///     Updates the technique registry after a late WPF data binding has resolved.
+    /// </summary>
+    /// <param name="value">The current viewport effects manager.</param>
+    internal void SetEffectsManager(IEffectsManager? value) {
+        Dispatcher.VerifyAccess();
+        if (ReferenceEquals(effectsManager, value)) return;
+
+        effectsManager = value;
+        if (device is null || swapChain is null) return;
+
+        var replacement = new D3D12ScenePassCatalog(device,
+            swapChain.Format,
+            DepthStencilFormat,
+            (effectsManager as EffectsManager)?.TechniqueDescriptions,
+            effectsManager);
+        passCatalog?.Dispose();
+        passCatalog = replacement;
+    }
 
     /// <summary>
     ///     Gets the current physical back-buffer height.
@@ -244,8 +280,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        roots.AssertArgumentNotNull();
-        camera.AssertArgumentNotNull();
+        roots.GuardNotNull();
+        camera.GuardNotNull();
         var renderer = sceneRenderer
             ?? throw new InvalidOperationException("The Direct3D 12 scene renderer is unavailable.");
         var catalog = passCatalog
@@ -257,10 +293,15 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         lightNodes.Clear();
         globalEffectNodes.Clear();
         postEffectNodes.Clear();
+        screenSpacedNodes.Clear();
         TextureModel? environmentMap = null;
         ShadowMapNode? shadowNode = null;
         foreach (var node in roots.PreorderDft(node => node.Visible))
-            if (node is EnvironmentMapNode environment) {
+            if (node is ScreenSpacedNode screenSpaced) {
+                screenSpacedNodes.Add(screenSpaced);
+            } else if (FindScreenSpacedAncestor(node) is not null) {
+                continue;
+            } else if (node is EnvironmentMapNode environment) {
                 environmentMap = environment.Texture;
             } else if (node is ShadowMapNode shadow) {
                 shadowNode ??= shadow;
@@ -554,6 +595,15 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                     break;
                 }
             }
+        recorded += RenderScreenSpaced(currentContext,
+            renderer,
+            catalog,
+            camera,
+            in transforms,
+            currentSwapChain,
+            currentDepthStencilView,
+            lights,
+            environmentMap);
         if (fxaaLevel != FxaaLevel.None)
             renderer.RenderFxaa(currentContext,
                 backBuffer,
@@ -597,6 +647,83 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     }
 
     /// <summary>
+    ///     Renders each screen-spaced root with its own fixed camera and corner viewport.
+    /// </summary>
+    private int RenderScreenSpaced(SilkD3D12CommandContext context,
+        SilkD3D12SceneRenderer renderer,
+        D3D12ScenePassCatalog catalog,
+        CameraCore camera,
+        in GlobalTransformStruct mainTransform,
+        SilkD3D12SwapChain currentSwapChain,
+        SilkD3D12Descriptor currentDepthStencilView,
+        LightsBufferModel lights,
+        TextureModel? environmentMap) {
+        var currentDepthStencilBuffer = depthStencilBuffer
+            ?? throw new InvalidOperationException("The depth/stencil buffer is unavailable.");
+        var recorded = 0;
+        foreach (var root in screenSpacedNodes) {
+            if (root.RenderCore is not ScreenSpacedMeshRenderCore screenCore ||
+                !screenCore.TryCreateD3D12Transform(camera,
+                    in mainTransform,
+                    currentSwapChain.Width,
+                    currentSwapChain.Height,
+                    (float) windowHost.DpiScale,
+                    out var screenTransform,
+                    out var viewport))
+                continue;
+
+            screenSpacedOpaqueNodes.Clear();
+            screenSpacedTransparentNodes.Clear();
+            foreach (var node in root.Items.PreorderDft(node => node.Visible && node is not ScreenSpacedNode)) {
+                if (node.RenderType == RenderType.Opaque) screenSpacedOpaqueNodes.Add(node);
+                else if (node.RenderType == RenderType.Transparent) screenSpacedTransparentNodes.Add(node);
+            }
+
+            var scissorLeft = Math.Max(0, (int) viewport.X);
+            var scissorTop = Math.Max(0, (int) viewport.Y);
+            var scissorRight = Math.Min((int) currentSwapChain.Width,
+                (int) Math.Ceiling(viewport.X + viewport.Width));
+            var scissorBottom = Math.Min((int) currentSwapChain.Height,
+                (int) Math.Ceiling(viewport.Y + viewport.Height));
+            if (scissorRight <= scissorLeft || scissorBottom <= scissorTop) continue;
+            context.ClearDepthStencil(currentDepthStencilBuffer, currentDepthStencilView);
+            context.SetViewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+            context.SetScissorRectangle(scissorLeft, scissorTop, scissorRight, scissorBottom);
+            var screenFrustum = new BoundingFrustum(screenTransform.ViewProjection);
+            recorded += renderer.RenderVisible(context,
+                screenSpacedOpaqueNodes,
+                catalog.Resolve,
+                in screenTransform,
+                false,
+                ref screenFrustum,
+                lights,
+                environmentMap,
+                catalog.ResolveBoneSkinning);
+            recorded += renderer.RenderVisible(context,
+                screenSpacedTransparentNodes,
+                catalog.Resolve,
+                in screenTransform,
+                false,
+                ref screenFrustum,
+                lights,
+                environmentMap,
+                catalog.ResolveBoneSkinning);
+        }
+        context.SetViewport(currentSwapChain.Width, currentSwapChain.Height);
+        return recorded;
+    }
+
+    /// <summary>
+    ///     Finds the screen-spaced group that owns a flattened scene node.
+    /// </summary>
+    private static ScreenSpacedNode? FindScreenSpacedAncestor(SceneNode node) {
+        for (var parent = node.Parent; parent is not null; parent = parent.Parent)
+            if (parent is ScreenSpacedNode screenSpaced)
+                return screenSpaced;
+        return null;
+    }
+
+    /// <summary>
     ///     Gets the last synchronously captured viewport frame.
     /// </summary>
     internal D3D12CapturedFrame? LastCapturedFrame { get; private set; }
@@ -634,7 +761,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         uint rowPitch,
         uint width,
         uint height) {
-        padded.AssertArgumentNotNull();
+        padded.GuardNotNull();
         var rowBytes = checked((int) width * 4);
         var pixels = new byte[checked(rowBytes * (int) height)];
         for (var row = 0; row < height; row++) {
@@ -665,7 +792,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         float timeStamp,
         out BoundingFrustum frustum
     ) {
-        camera.AssertArgumentNotNull();
+        camera.GuardNotNull();
         if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
         if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
         if (!float.IsFinite(dpiScale) || dpiScale <= 0) throw new ArgumentOutOfRangeException(nameof(dpiScale));

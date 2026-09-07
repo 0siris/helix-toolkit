@@ -41,8 +41,8 @@ public static class MeshGeometryHelper {
     /// <returns>
     ///     Collection of normal vectors.
     /// </returns>
-    public static Vector3DCollection CalculateNormals(this MeshGeometry3D mesh) => CalculateNormals(mesh.Positions.AssertNotNull("Mesh positions are not initialized."),
-        mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized."));
+    public static Vector3DCollection CalculateNormals(this MeshGeometry3D mesh) => CalculateNormals(mesh.Positions.AssertNotNull("Mesh positions are not initialized.").Value,
+        mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.").Value);
 
     /// <summary>
     ///     Calculates the normal vectors.
@@ -96,7 +96,7 @@ public static class MeshGeometryHelper {
     /// </returns>
     public static Int32Collection FindBorderEdges(this MeshGeometry3D mesh) {
         var dict = new Dictionary<ulong, int>();
-        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.").Value;
 
         for (var i = 0; i < triangleIndices.Count / 3; i++) {
             var i0 = i * 3;
@@ -137,7 +137,7 @@ public static class MeshGeometryHelper {
     public static Int32Collection FindEdges(this MeshGeometry3D mesh) {
         var edges = new Int32Collection();
         var dict = new HashSet<ulong>();
-        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.").Value;
 
         for (var i = 0; i < triangleIndices.Count / 3; i++) {
             var i0 = i * 3;
@@ -174,8 +174,8 @@ public static class MeshGeometryHelper {
     public static Int32Collection FindSharpEdges(this MeshGeometry3D mesh, double minimumAngle) {
         var edgeIndices = new Int32Collection();
         var edgeNormals = new Dictionary<EdgeKey, Vector3D>();
-        var positions = mesh.Positions.AssertNotNull("Mesh positions are not initialized.");
-        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        var positions = mesh.Positions.AssertNotNull("Mesh positions are not initialized.").Value;
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.").Value;
         for (var i = 0; i < triangleIndices.Count / 3; i++) {
             var i0 = i * 3;
             var p0 = positions[triangleIndices[i0]];
@@ -228,8 +228,8 @@ public static class MeshGeometryHelper {
     public static MeshGeometry3D NoSharedVertices(this MeshGeometry3D input) {
         var p = new Point3DCollection();
         var ti = new Int32Collection();
-        var positions = input.Positions.AssertNotNull("Mesh positions are not initialized.");
-        var triangleIndices = input.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        var positions = input.Positions.AssertNotNull("Mesh positions are not initialized.").Value;
+        var triangleIndices = input.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.").Value;
         var sourceNormals = input.Normals;
         Vector3DCollection? n = sourceNormals is {Count: > 0}
             ? []
@@ -291,8 +291,8 @@ public static class MeshGeometryHelper {
     public static MeshGeometry3D Simplify(this MeshGeometry3D mesh, DoubleOrSingle eps) {
         // Find common positions
         var dict = new Dictionary<int, int>(); // map position index to first occurence of same position
-        var positions = mesh.Positions.AssertNotNull("Mesh positions are not initialized.");
-        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        var positions = mesh.Positions.AssertNotNull("Mesh positions are not initialized.").Value;
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.").Value;
         for (var i = 0; i < positions.Count; i++)
         for (var j = i + 1; j < positions.Count; j++) {
             if (dict.ContainsKey(j)) continue;
@@ -378,8 +378,8 @@ public static class MeshGeometryHelper {
     ///     The <see cref="MeshGeometry3D" />.
     /// </returns>
     public static MeshGeometry3D Cut(this MeshGeometry3D mesh, Point3D plane, Vector3D normal) {
-        var positions = mesh.Positions.AssertNotNull("Mesh positions are not initialized.");
-        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        var positions = mesh.Positions.AssertNotNull("Mesh positions are not initialized.").Value;
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.").Value;
         var sourceTextureCoordinates = mesh.TextureCoordinates;
         var sourceNormals = mesh.Normals;
         var meshBuilder = new MeshBuilder(sourceNormals is {Count: > 0}, sourceTextureCoordinates is {Count: > 0});
@@ -441,7 +441,7 @@ public static class MeshGeometryHelper {
     public static IList<Point3D> GetContourSegments(this MeshGeometry3D mesh, Point3D plane, Vector3D normal) {
         var segments = new List<Point3D>();
         var contourHelper = new ContourHelper(plane, normal, mesh);
-        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        var triangleIndices = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.").Value;
         for (var i = 0; i < triangleIndices.Count; i += 3) {
             Vector3D[] normals;
             Point[] textureCoordinates;
@@ -603,8 +603,8 @@ public static class MeshGeometryHelper {
     /// <param name="mesh"></param>
     /// <returns></returns>
     public static MeshGeometry3D RemoveIsolatedVertices(this MeshGeometry3D mesh) {
-        var vertices = mesh.Positions.AssertNotNull("Mesh positions are not initialized.");
-        var triangles = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.");
+        var vertices = mesh.Positions.AssertNotNull("Mesh positions are not initialized.").Value;
+        var triangles = mesh.TriangleIndices.AssertNotNull("Mesh triangle indices are not initialized.").Value;
         RemoveIsolatedVertices(vertices,
             triangles,
             mesh.TextureCoordinates,

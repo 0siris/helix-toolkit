@@ -454,7 +454,7 @@ public sealed class Image : Component {
     ///     Animated GIFs and multi-page TIFFs load frame 0 only.
     /// </remarks>
     public static unsafe Image? Load(byte[] buffer) {
-        buffer.AssertArgumentNotNull();
+        buffer.GuardNotNull();
 
         var size = buffer.Length;
 

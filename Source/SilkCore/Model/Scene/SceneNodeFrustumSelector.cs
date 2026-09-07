@@ -25,8 +25,8 @@ internal static class SceneNodeFrustumSelector {
         bool testFrustum,
         ref BoundingFrustum frustum
     ) {
-        candidates.AssertArgumentNotNull();
-        visible.AssertArgumentNotNull();
+        candidates.GuardNotNull();
+        visible.GuardNotNull();
         for (var index = 0; index < candidates.Count; index++) {
             var node = candidates.Items[index];
             node.IsInFrustum = !testFrustum || node.TestViewFrustum(ref frustum);

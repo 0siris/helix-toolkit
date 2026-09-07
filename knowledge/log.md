@@ -2,6 +2,21 @@
 
 ## 2026-09-07
 
+* **Fix**: Restored DX12 cross-section clipping by uploading the eight plane controls and cutting operation to the
+  shared `b6` buffer, and initialized the default labelled ViewCube texture during DX12 technique resolution.
+* **Update**: Advanced `External/Assertions` to ValidSphere `v0.1.0-preview.1`, added it to the solution, and migrated
+  guards and invariant assertions to the current fluent API while preserving exception contracts.
+* **Verification**: Rider build and all 346 `Category!=Hardware` tests pass; the `CrossSectionDemo` live smoke visibly
+  clips the model and renders the colored, labelled ViewCube. Graphify reports 940 files, 12,106 nodes, 19,202 edges,
+  and 3,055 communities.
+* **Fix**: Corrected `DynamicPointsAndLines` to create `2 * (n - 1)` line indices and synchronized a late-bound
+  viewport effects manager into the DX12 presentation surface, eliminating its line-index and overlay-billboard
+  render exceptions.
+* **Fix**: Completed the odd-sized point-color stream in `DynamicTextureDemo`, preserving the shared validation
+  that rejects genuinely incomplete geometry streams.
+* **Verification**: Rider build, ReSharper diagnostics, the 344-test standard gate, and a ten-second
+  `DynamicPointsAndLines` and `DynamicTextureDemo` startup/render smokes pass. Graphify now reports 940 files,
+  12,058 nodes, 19,134 edges, and 3,049 communities.
 * **Verification**: Repeated the final solution build, 344-test `Category!=Hardware` gate, six-demo startup/render
   smoke, source-name hygiene scan, and `git diff --check`; all automated closure gates remain green. The visible
   hardware interaction and consented live Desktop Duplication checks remain manual.

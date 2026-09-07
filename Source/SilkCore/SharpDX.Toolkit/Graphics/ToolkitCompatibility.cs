@@ -336,7 +336,7 @@ internal static unsafe class Utilities {
     public static T Read<T>(nint source) where T : unmanaged => *(T*)source.ToPointer();
 
     public static void Read<T>(nint source, T[] destination, int startIndex, int count) where T : unmanaged {
-        destination.AssertArgumentNotNull();
+        destination.GuardNotNull();
 
         fixed (T* destinationPointer = &destination[startIndex]) {
             Buffer.MemoryCopy(source.ToPointer(),
@@ -351,7 +351,7 @@ internal static unsafe class Utilities {
     }
 
     public static void Write<T>(nint destination, T[] source, int startIndex, int count) where T : unmanaged {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
 
         fixed (T* sourcePointer = &source[startIndex]) {
             Buffer.MemoryCopy(sourcePointer, destination.ToPointer(), count * sizeof(T), count * sizeof(T));
@@ -359,9 +359,9 @@ internal static unsafe class Utilities {
     }
 
     public static void Pin<T>(T[] source, Action<nint> action) where T : unmanaged {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
 
-        action.AssertArgumentNotNull();
+        action.GuardNotNull();
 
         fixed (T* sourcePointer = source) {
             action((nint)sourcePointer);

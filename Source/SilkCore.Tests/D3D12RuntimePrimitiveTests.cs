@@ -8,6 +8,7 @@ using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Lights;
@@ -33,6 +34,40 @@ namespace SilkCore.Tests;
 ///     Verifies deterministic Direct3D 12 runtime bookkeeping without requiring graphics hardware.
 /// </summary>
 public class D3D12RuntimePrimitiveTests {
+    /// <summary>
+    ///     Verifies screen-spaced transforms place the navigation overlays in their configured viewport corners.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ScreenSpacedTransformUsesRelativeViewportPosition() {
+        var camera = new PerspectiveCameraCore {
+            Position = new Vector3(0, 0, 10),
+            LookDirection = new Vector3(0, 0, -10),
+            UpDirection = Vector3.UnitY
+        };
+        var mainTransform = new GlobalTransformStruct { IsPerspective = true };
+        var core = new ScreenSpacedMeshRenderCore {
+            RelativeScreenLocationX = 0.8f,
+            RelativeScreenLocationY = -0.8f
+        };
+
+        var created = core.TryCreateD3D12Transform(camera,
+            in mainTransform,
+            800,
+            600,
+            1,
+            out var transform,
+            out var viewport);
+
+        Assert.True(created);
+        Assert.Equal(670, viewport.X);
+        Assert.Equal(490, viewport.Y);
+        Assert.Equal(100, viewport.Width);
+        Assert.Equal(100, viewport.Height);
+        Assert.Equal(new Vector4(100, 100, 0.01f, 0.01f), transform.Viewport);
+        Assert.NotEqual(Matrix.Identity, transform.ViewProjection);
+    }
+
     /// <summary>
     ///     Verifies generated 2D textures retain their rendered pixels without a Direct3D 11 interop device.
     /// </summary>
@@ -1860,6 +1895,49 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(1, MemoryMarshal.Read<int>(bytes.AsSpan(tailOffset + 20)));
         Assert.Equal(7, MemoryMarshal.Read<int>(bytes.AsSpan(tailOffset + 24)));
         Assert.Equal(0, MemoryMarshal.Read<int>(bytes.AsSpan(tailOffset + 28)));
+        device.ThrowIfDeviceRemoved();
+    }
+
+    /// <summary>
+    ///     Verifies cross-section parameters map byte-for-byte onto the clipping b6 constant buffer.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpWritesCrossSectionBuffer() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 118, true);
+        using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 10, true);
+        using var bindings = new SilkD3D12MeshBindings(device, resourceHeap, samplerHeap);
+        using var core = new CrossSectionMeshRenderCore {
+            PlaneEnabled = new Bool4 { X = true, Z = true },
+            Plane5To8Enabled = new Bool4 { Y = true, W = true },
+            SectionColor = new Vector4(0.1f, 0.2f, 0.3f, 0.4f),
+            CuttingOperation = CuttingOperation.Subtract,
+            Plane1Params = new Vector4(1, 2, 3, 4),
+            Plane8Params = new Vector4(8, 9, 10, 11)
+        };
+        bindings.UpdateClipping(core);
+        using var readback = device.CreateBuffer((ulong)ClipPlaneStruct.SizeInBytes, HeapType.Readback);
+        context.Reset();
+        context.CopyBuffer(readback, 0, bindings.EffectResource, 0, ClipPlaneStruct.SizeInBytes);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
+        var bytes = readback.Read(ClipPlaneStruct.SizeInBytes);
+
+        Assert.Equal(1, MemoryMarshal.Read<int>(bytes));
+        Assert.Equal(1, MemoryMarshal.Read<int>(bytes.AsSpan(8)));
+        Assert.Equal(1, MemoryMarshal.Read<int>(bytes.AsSpan(20)));
+        Assert.Equal(1, MemoryMarshal.Read<int>(bytes.AsSpan(28)));
+        Assert.Equal(0.1f, MemoryMarshal.Read<float>(bytes.AsSpan(32)));
+        Assert.Equal((int)CuttingOperation.Subtract, MemoryMarshal.Read<int>(bytes.AsSpan(48)));
+        Assert.All(bytes.AsSpan(52, 12).ToArray(), value => Assert.Equal(0, value));
+        Assert.Equal(1f, MemoryMarshal.Read<float>(bytes.AsSpan(64)));
+        Assert.Equal(8f, MemoryMarshal.Read<float>(bytes.AsSpan(176)));
+        Assert.Equal(256UL, bindings.EffectResource.SizeInBytes);
         device.ThrowIfDeviceRemoved();
     }
 

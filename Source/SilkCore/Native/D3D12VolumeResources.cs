@@ -63,7 +63,7 @@ internal sealed class SilkD3D12VolumeResources : IDisposable {
     /// </summary>
     /// <param name="device">The Direct3D 12 device.</param>
     internal SilkD3D12VolumeResources(SilkD3D12Device device) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         this.device = device;
         Vector3[] positions = [
             new(-0.5f, -0.5f, -0.5f), new(0.5f, -0.5f, -0.5f),
@@ -103,7 +103,7 @@ internal sealed class SilkD3D12VolumeResources : IDisposable {
     /// <param name="height">The target height.</param>
     internal void BeginBackPositions(SilkD3D12CommandContext context, uint width, uint height) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        context.AssertArgumentNotNull();
+        context.GuardNotNull();
         Resize(width, height);
         var positions = BackPositions;
         var depth = depthStencil!;

@@ -871,7 +871,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <param name="eventArgs">The decoded pointer event.</param>
     /// <param name="modifiers">The current keyboard modifiers used to resolve existing mouse bindings.</param>
     internal void ProcessD3D12Pointer(HwndPointerEventArgs eventArgs, ModifierKeys modifiers) {
-        eventArgs.AssertArgumentNotNull();
+        eventArgs.GuardNotNull();
         var point = new Point(eventArgs.X, eventArgs.Y);
         if (eventArgs.Device == HwndPointerDevice.Touch) {
             if (eventArgs.Action == HwndPointerAction.Pressed && d3d12TouchPointerId is null)
@@ -1202,6 +1202,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <returns>The number of recorded scene draws, or zero when no frame is ready.</returns>
     internal int RenderD3D12Frame(TimeSpan renderingTime, bool captureFrame = false) {
         var surface = d3d12Surface;
+        surface?.SetEffectsManager(EffectsManager);
         var camera = CameraCore;
         if (surface is not {IsInitialized: true} || camera is null || Visibility != Visibility.Visible) return 0;
         cameraController.OnCompositionTargetRendering(renderingTime.Ticks);

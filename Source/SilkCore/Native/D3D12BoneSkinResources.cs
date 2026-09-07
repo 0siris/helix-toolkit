@@ -104,8 +104,8 @@ internal sealed class SilkD3D12BoneSkinResources : IDisposable {
         SilkD3D12Device device,
         SilkD3D12GraphicsBindings bindings
     ) {
-        device.AssertArgumentNotNull();
-        bindings.AssertArgumentNotNull();
+        device.GuardNotNull();
+        bindings.GuardNotNull();
         this.device = device;
         this.bindings = bindings;
         morphTargetConstants = new SilkD3D12ConstantBuffer(device,
@@ -191,8 +191,8 @@ internal sealed class SilkD3D12BoneSkinResources : IDisposable {
         int vertexCount
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        morphTargets.AssertArgumentNotNull();
-        vertexCount.AssertArgumentRange(1, int.MaxValue);
+        morphTargets.GuardNotNull();
+        vertexCount.Guard().Range(1, int.MaxValue);
         ValidateBones(vertexBoneIds, matrices, vertexCount);
         ValidateMorphTargets(morphTargets, vertexCount);
 
@@ -235,7 +235,7 @@ internal sealed class SilkD3D12BoneSkinResources : IDisposable {
     /// </summary>
     /// <param name="context">The open command context.</param>
     internal void BindOutput(SilkD3D12CommandContext context) {
-        context.AssertArgumentNotNull();
+        context.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.Transition(filledSize, ResourceStates.CopyDest);
         context.CopyBuffer(filledSize, 0, filledSizeReset, 0, sizeof(uint));
@@ -249,7 +249,7 @@ internal sealed class SilkD3D12BoneSkinResources : IDisposable {
     /// </summary>
     /// <param name="context">The open command context.</param>
     internal void UnbindOutput(SilkD3D12CommandContext context) {
-        context.AssertArgumentNotNull();
+        context.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.SetStreamOutputTarget(null);
         context.Transition(Output, ResourceStates.VertexAndConstantBuffer);

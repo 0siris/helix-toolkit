@@ -46,7 +46,7 @@ public sealed unsafe class SilkD3D12SwapChain : IDisposable {
         Format format = Format.FormatR8G8B8A8Unorm
     ) {
         this.device = device ?? throw new ArgumentNullException(nameof(device));
-        queue.AssertArgumentNotNull();
+        queue.GuardNotNull();
         if (window == 0) throw new ArgumentException("A valid HWND is required.", nameof(window));
         if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
         if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));

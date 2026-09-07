@@ -89,7 +89,7 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
         ReadOnlySpan<Matrix> boneMatrices,
         MorphTargetUploaderCore? morphTargets = null
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         var (defaults, textureCoordinates, colors, indices, topology) = Prepare(source, boneMatrices, morphTargets);
         SilkD3D12Resource[]? vertexBuffers = null;
         SilkD3D12Resource? indexBuffer = null;
@@ -186,7 +186,7 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
     /// <param name="vertexBufferStartSlot">The first vertex input slot.</param>
     /// <returns>The first free vertex input slot after the mesh streams.</returns>
     internal uint Bind(SilkD3D12CommandContext context, uint vertexBufferStartSlot = 0) {
-        context.AssertArgumentNotNull();
+        context.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.SetVertexBuffer(vertexBufferStartSlot, vertexBuffers[0], DefaultVertex.SizeInBytes);
         context.SetVertexBuffer(vertexBufferStartSlot + 1, vertexBuffers[1], SilkMath.Vector2SizeInBytes);
@@ -202,8 +202,8 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
     /// <param name="context">The command context.</param>
     /// <param name="boneIds">The vertex bone identifiers and weights.</param>
     internal void BindBoneSkinningInput(SilkD3D12CommandContext context, SilkD3D12Resource boneIds) {
-        context.AssertArgumentNotNull();
-        boneIds.AssertArgumentNotNull();
+        context.GuardNotNull();
+        boneIds.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.SetVertexBuffer(0, vertexBuffers[0], DefaultVertex.SizeInBytes);
         context.SetVertexBuffer(1, boneIds, BoneIds.SizeInBytes);
@@ -223,8 +223,8 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
         ulong skinnedSizeInBytes,
         uint vertexBufferStartSlot = 0
     ) {
-        context.AssertArgumentNotNull();
-        skinnedVertices.AssertArgumentNotNull();
+        context.GuardNotNull();
+        skinnedVertices.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.SetVertexBuffer(vertexBufferStartSlot,
             skinnedVertices,
@@ -286,7 +286,7 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
         ReadOnlySpan<Matrix> boneMatrices,
         MorphTargetUploaderCore? morphTargets = null
     ) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         ObjectDisposedException.ThrowIf(source.IsDisposed, source);
         if (source.Geometry is not MeshGeometry3D geometry)
             throw new InvalidOperationException("The buffer model must contain mesh geometry.");
@@ -500,7 +500,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
         SilkD3D12Device device,
         DefaultLineGeometryBufferModel source
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         var (vertices, indices) = Prepare(source);
         return Create(device, vertices, indices, LinesVertex.SizeInBytes, PrimitiveTopology.LineList);
     }
@@ -515,7 +515,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
         SilkD3D12Device device,
         DefaultPointGeometryBufferModel source
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         var vertices = Prepare(source);
         return Create(device, vertices, ReadOnlySpan<int>.Empty, PointsVertex.SizeInBytes,
             PrimitiveTopology.PointList);
@@ -531,7 +531,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
         SilkD3D12Device device,
         DefaultBillboardBufferModel source
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         var vertices = Prepare(source);
         return Create(device, vertices, ReadOnlySpan<int>.Empty, BillboardVertex.SizeInBytes,
             PrimitiveTopology.PointList);
@@ -625,7 +625,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     /// <param name="context">The command context.</param>
     /// <param name="vertexBufferSlot">The vertex input slot.</param>
     internal void Bind(SilkD3D12CommandContext context, uint vertexBufferSlot = 0) {
-        context.AssertArgumentNotNull();
+        context.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.SetVertexBuffer(vertexBufferSlot, VertexBuffer, vertexStride);
         if (IndexBuffer is not null)
@@ -693,7 +693,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     ///     Validates and prepares line vertices and indices.
     /// </summary>
     private static (LinesVertex[] Vertices, int[] Indices) Prepare(DefaultLineGeometryBufferModel source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         ObjectDisposedException.ThrowIf(source.IsDisposed, source);
         if (source.Geometry is not LineGeometry3D geometry)
             throw new InvalidOperationException("The buffer model must contain line geometry.");
@@ -709,7 +709,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     ///     Validates and prepares point vertices.
     /// </summary>
     private static PointsVertex[] Prepare(DefaultPointGeometryBufferModel source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         ObjectDisposedException.ThrowIf(source.IsDisposed, source);
         if (source.Geometry is not PointGeometry3D geometry)
             throw new InvalidOperationException("The buffer model must contain point geometry.");
@@ -724,7 +724,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     /// <param name="source">The existing billboard buffer model.</param>
     /// <returns>The prepared billboard vertices.</returns>
     private static BillboardVertex[] Prepare(DefaultBillboardBufferModel source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         ObjectDisposedException.ThrowIf(source.IsDisposed, source);
         if (source.Geometry is not BillboardBase geometry)
             throw new InvalidOperationException("The buffer model must contain billboard geometry.");
@@ -808,7 +808,7 @@ internal sealed class SilkD3D12ElementsBuffer<T> : IDisposable where T : unmanag
         SilkD3D12Device device,
         IElementsBufferModel<T> source
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         var values = Prepare(source);
         var resource = device.CreateBuffer(checked((ulong) values.Length * StrideInBytes), HeapType.Upload);
         try {
@@ -857,7 +857,7 @@ internal sealed class SilkD3D12ElementsBuffer<T> : IDisposable where T : unmanag
     /// <param name="context">The Direct3D 12 command context.</param>
     /// <param name="slot">The vertex input slot.</param>
     internal void Bind(SilkD3D12CommandContext context, uint slot) {
-        context.AssertArgumentNotNull();
+        context.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.SetVertexBuffer(slot, Resource, StrideInBytes);
     }
@@ -878,7 +878,7 @@ internal sealed class SilkD3D12ElementsBuffer<T> : IDisposable where T : unmanag
     /// <param name="source">The existing element buffer model.</param>
     /// <returns>The contiguous element data.</returns>
     private static T[] Prepare(IElementsBufferModel<T> source) {
-        source.AssertArgumentNotNull();
+        source.GuardNotNull();
         if (source.Elements is not {Count: > 0} elements)
             throw new InvalidOperationException("The element buffer model has no elements.");
         return [.. elements];

@@ -3,34 +3,16 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Core.Components;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Lights;
+using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderParams {
-
-    public CrossSectionMeshRenderCore() {
-    }
-
-    #region Shader Variables
-
-    private ShaderPass drawBackfacePass = ShaderPass.NullPass;
-    private ShaderPass drawScreenQuadPass = ShaderPass.NullPass;
-
-    //private bool needsAssignVariables = true;   
-    private readonly DirtyGate needsAssignVariables = new();
-
-
-    #endregion
-
     #region Properties
 
     private CuttingOperation cuttingOperation = CuttingOperation.Intersect;
@@ -175,4 +157,18 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     }
 
     #endregion
+
+    /// <inheritdoc />
+    internal override bool TryRenderD3D12(
+        SilkD3D12CommandContext context,
+        SilkD3D12ResourceManager resources,
+        ShaderPass pass,
+        SilkD3D12MeshBindings bindings,
+        in GlobalTransformStruct transforms,
+        LightsBufferModel? lights = null,
+        TextureModel? environmentMap = null
+    ) {
+        bindings.UpdateClipping(this);
+        return base.TryRenderD3D12(context, resources, pass, bindings, in transforms, lights, environmentMap);
+    }
 }

@@ -22,7 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj"/>
-    <ProjectReference Include="..\..\External\Assertions\Assertions.csproj"/>
+    <ProjectReference Include="..\..\External\Assertions\ValidSphere.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -5,6 +5,7 @@ description: Adopted C# and .NET coding, logging, guard, testing, and migration 
 tags: [csharp, dotnet, coding-standards, logging, assertions, testing]
 generated: { by: process:conventions-adoption, at: 2026-08-01T00:00:00Z }
 status: draft
+verified: 2026-09-07
 ---
 
 # Purpose
@@ -61,7 +62,10 @@ without `<inheritdoc />`.
 
 # Assertions
 
-`Assertions` supplies fluent BCL guards. Argument validation uses `AssertArgument...` methods and preserves `ArgumentNullException`/`ArgumentOutOfRangeException` contracts. Internal invariants use state assertions only where `AssertException` is the correct failure type. New assertion methods remain chainable and carry the existing caller-expression and analyzer attributes.
+`ValidSphere` supplies fluent BCL guards. Argument validation uses `GuardNotNull()` or `Guard().Range(...)` and
+preserves `ArgumentNullException`/`ArgumentOutOfRangeException` contracts. Internal invariants use
+`AssertNotNull().Value` or another `Is()` assertion only where `AssertException` is the correct failure type.
+Assertions remain chainable and carry compiler-provided caller context.
 
 # Async and API Design
 
@@ -77,7 +81,9 @@ Tests use the existing xUnit v3 projects and categories. Names follow `MethodNam
 
 # Compatibility
 
-Submodule library changes are additive only. Existing public members, namespaces, parameters, and behavior remain unchanged. If an API gap is found, use a target-side adapter or extension first; extend a submodule only when necessary, add tests, and pin the new submodule commit.
+Submodule revisions are pinned by the main repository. Existing Helix public members, namespaces, parameters, and
+behavior remain unchanged when a submodule introduces a breaking API revision; migrate target-side calls, preserve
+their exception contracts, and cover the integration with tests.
 
 # Phase Gates
 

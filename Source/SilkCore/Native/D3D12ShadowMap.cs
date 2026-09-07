@@ -39,7 +39,7 @@ internal sealed class SilkD3D12ShadowMap : IDisposable {
     /// <param name="width">The shadow-map width.</param>
     /// <param name="height">The shadow-map height.</param>
     internal SilkD3D12ShadowMap(SilkD3D12Device device, uint width, uint height) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         this.device = device;
         depthStencilHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
         depthStencilView = depthStencilHeap.Allocate();
@@ -97,7 +97,7 @@ internal sealed class SilkD3D12ShadowMap : IDisposable {
     /// </summary>
     /// <param name="context">The open command context.</param>
     internal void BeginDepthWrite(SilkD3D12CommandContext context) {
-        context.AssertArgumentNotNull();
+        context.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.Transition(resource, ResourceStates.DepthWrite);
         context.ClearDepthStencil(resource, depthStencilView);
@@ -110,7 +110,7 @@ internal sealed class SilkD3D12ShadowMap : IDisposable {
     /// </summary>
     /// <param name="context">The open command context.</param>
     internal void EndDepthWrite(SilkD3D12CommandContext context) {
-        context.AssertArgumentNotNull();
+        context.GuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.Transition(resource, ResourceStates.PixelShaderResource);
     }

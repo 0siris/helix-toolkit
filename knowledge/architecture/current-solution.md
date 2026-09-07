@@ -5,11 +5,12 @@ description: Main solution structure and project relationships for Source/SilkTo
 resource: ../Source/SilkToolkit.slnx
 tags: [architecture, solution, silktoolkit]
 timestamp: 2026-07-08T00:00:00+02:00
+verified: 2026-09-07
 ---
 
 # Solution
 
-`Source/SilkToolkit.slnx` is the current solution file in this workspace. It includes four main library/support projects, three test projects, and example applications.
+`Source/SilkToolkit.slnx` is the current solution file in this workspace. It includes five main library/support projects, three test projects, and example applications.
 
 | Project | Target framework | Role |
 |---------|------------------|------|
@@ -17,6 +18,7 @@ timestamp: 2026-07-08T00:00:00+02:00
 | [SilkToolkit](/projects/silktoolkit.md) | `net10.0-windows` | Windows/WPF-facing toolkit layer. |
 | [SilkAssimp](/projects/silkassimp.md) | `net10.0-windows` | Assimp model loading integration. |
 | [ShaderBuilder](/projects/shaderbuilder.md) | `netstandard2.0` | HLSL shader build support. |
+| ValidSphere | `net10.0` | Runtime guards and invariant assertions from `External/Assertions`. |
 
 The `/Tests/` solution folder contains `SilkCore.Tests`, `SilkToolkit.Tests`, and `SilkAssimp.Tests`; each references its matching production project.
 
@@ -27,8 +29,10 @@ SilkToolkit.Native.ShaderBuilder
         ^
         |
 SilkCore <--- SilkToolkit
-    ^
-    |
+  ^  ^          ^
+  |  |          |
+  |  +---- ValidSphere
+  |
 SilkAssimp
 ```
 

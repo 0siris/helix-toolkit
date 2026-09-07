@@ -201,12 +201,12 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     ) {
         var rayWs = context.RayWs;
         if (rayWs.Intersects(boundsWithTransform) && rayWs.Intersects(boundsSphereWithTransform)) {
-            var source = WrapperSource.AssertNotNull("Hit-test source must be initialized.");
+            var source = WrapperSource.AssertNotNull("Hit-test source must be initialized.").Value;
             if (BatchedGeometryOctree is {TreeBuilt: true})
                 return BatchedGeometryOctree.HitTest(context, source, null, totalModelMatrix, ref hits);
 
             var isHit = false;
-            var currentGeometries = Geometries.AssertNotNull("Batched geometries must be initialized.");
+            var currentGeometries = Geometries.AssertNotNull("Batched geometries must be initialized.").Value;
             for (var i = 0; i < currentGeometries.Length; ++i) {
                 var currCount = hits.Count;
                 ref var geo = ref currentGeometries[i];
@@ -241,7 +241,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         set {
             if (SetAffectsRender(ref geometries, value)) {
                 if (IsAttached)
-                    BatchingBuffer.AssertNotNull()
+                    BatchingBuffer.AssertNotNull().Value
                         .Geometries = value;
                 UpdateBounds();
             }
@@ -254,7 +254,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         get => materials;
         set {
             if (SetAffectsRender(ref materials, value) && IsAttached) {
-                var batchingBuffer = BatchingBuffer.AssertNotNull();
+                var batchingBuffer = BatchingBuffer.AssertNotNull().Value;
                 batchingBuffer.Materials = value;
                 if (value is null && Material is PhongMaterialCore p) batchingBuffer.Materials = [p];
             }

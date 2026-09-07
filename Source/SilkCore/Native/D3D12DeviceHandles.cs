@@ -179,7 +179,7 @@ public sealed unsafe class SilkD3D12CommandQueue : IDisposable {
 
     public ulong Signal(SilkD3D12Fence fence) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        fence.AssertArgumentNotNull();
+        fence.GuardNotNull();
 
         var value = fence.NextValue();
         SilkMarshal.ThrowHResult(nativeQueue.Signal(fence.NativeFence, value));
@@ -332,8 +332,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         SilkD3D12PipelineState pipelineState
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        rootSignature.AssertArgumentNotNull();
-        pipelineState.AssertArgumentNotNull();
+        rootSignature.GuardNotNull();
+        pipelineState.GuardNotNull();
         commandList.SetGraphicsRootSignature(rootSignature.Handle);
         commandList.SetPipelineState(pipelineState.Handle);
         graphicsPipelineBound = true;
@@ -349,8 +349,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         SilkD3D12PipelineState pipelineState
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        rootSignature.AssertArgumentNotNull();
-        pipelineState.AssertArgumentNotNull();
+        rootSignature.GuardNotNull();
+        pipelineState.GuardNotNull();
         commandList.SetComputeRootSignature(rootSignature.Handle);
         commandList.SetPipelineState(pipelineState.Handle);
         computePipelineBound = true;
@@ -432,7 +432,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     /// <param name="renderTarget">The render-target view descriptor.</param>
     public void SetRenderTarget(SilkD3D12Descriptor renderTarget) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        renderTarget.AssertArgumentNotNull();
+        renderTarget.GuardNotNull();
         ObjectDisposedException.ThrowIf(renderTarget.IsDisposed, renderTarget);
         if (renderTarget.Type != DescriptorHeapType.Rtv)
             throw new ArgumentException("An RTV descriptor is required.", nameof(renderTarget));
@@ -446,7 +446,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     /// <param name="depthStencil">The depth/stencil view descriptor.</param>
     public void SetDepthStencil(SilkD3D12Descriptor depthStencil) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        depthStencil.AssertArgumentNotNull();
+        depthStencil.GuardNotNull();
         ObjectDisposedException.ThrowIf(depthStencil.IsDisposed, depthStencil);
         if (depthStencil.Type != DescriptorHeapType.Dsv)
             throw new ArgumentException("A DSV descriptor is required.", nameof(depthStencil));
@@ -461,8 +461,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     /// <param name="depthStencil">The depth/stencil view descriptor.</param>
     public void SetRenderTargets(SilkD3D12Descriptor renderTarget, SilkD3D12Descriptor depthStencil) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        renderTarget.AssertArgumentNotNull();
-        depthStencil.AssertArgumentNotNull();
+        renderTarget.GuardNotNull();
+        depthStencil.GuardNotNull();
         ObjectDisposedException.ThrowIf(renderTarget.IsDisposed, renderTarget);
         ObjectDisposedException.ThrowIf(depthStencil.IsDisposed, depthStencil);
         if (renderTarget.Type != DescriptorHeapType.Rtv)
@@ -489,7 +489,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         Span<CpuDescriptorHandle> handles = stackalloc CpuDescriptorHandle[renderTargets.Length];
         for (var index = 0; index < renderTargets.Length; index++) {
             var descriptor = renderTargets[index];
-            descriptor.AssertArgumentNotNull();
+            descriptor.GuardNotNull();
             ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
             if (descriptor.Type != DescriptorHeapType.Rtv)
                 throw new ArgumentException("Every descriptor must be an RTV.", nameof(renderTargets));
@@ -533,6 +533,21 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     }
 
     /// <summary>
+    ///     Sets a viewport at an explicit render-target position.
+    /// </summary>
+    /// <param name="x">The left pixel coordinate.</param>
+    /// <param name="y">The top pixel coordinate.</param>
+    /// <param name="width">The viewport width.</param>
+    /// <param name="height">The viewport height.</param>
+    public void SetViewport(float x, float y, float width, float height) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
+        if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+        var viewport = new Silk.NET.Direct3D12.Viewport(x, y, width, height, 0, 1);
+        commandList.RSSetViewports(1, in viewport);
+    }
+
+    /// <summary>
     ///     Sets an axis-aligned scissor rectangle without changing the current viewport.
     /// </summary>
     /// <param name="left">The inclusive left pixel coordinate.</param>
@@ -563,7 +578,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         uint sizeInBytes = 0
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        buffer.AssertArgumentNotNull();
+        buffer.GuardNotNull();
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
         if (buffer.Description.Dimension != ResourceDimension.Buffer)
             throw new ArgumentException("The resource must be a buffer.", nameof(buffer));
@@ -588,7 +603,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         uint sizeInBytes = 0
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        buffer.AssertArgumentNotNull();
+        buffer.GuardNotNull();
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
         if (buffer.Description.Dimension != ResourceDimension.Buffer)
             throw new ArgumentException("The resource must be a buffer.", nameof(buffer));
@@ -634,8 +649,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         ulong filledSizeOffset = 0
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        buffer.AssertArgumentNotNull();
-        filledSizeBuffer.AssertArgumentNotNull();
+        buffer.GuardNotNull();
+        filledSizeBuffer.GuardNotNull();
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
         ObjectDisposedException.ThrowIf(filledSizeBuffer.IsDisposed, filledSizeBuffer);
         if (buffer.Description.Dimension != ResourceDimension.Buffer)
@@ -719,8 +734,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         ulong argumentOffset = 0
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        signature.AssertArgumentNotNull();
-        arguments.AssertArgumentNotNull();
+        signature.GuardNotNull();
+        arguments.GuardNotNull();
         ObjectDisposedException.ThrowIf(signature.IsDisposed, signature);
         ObjectDisposedException.ThrowIf(arguments.IsDisposed, arguments);
         if (!graphicsPipelineBound)
@@ -766,7 +781,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         DescriptorHeapType expectedType,
         string parameterName
     ) {
-        heap.AssertArgumentNotNull(parameterName);
+        heap.GuardNotNull(expression: parameterName);
         if (heap.Type != expectedType || !heap.IsShaderVisible)
             throw new ArgumentException($"A shader-visible {expectedType} heap is required.", parameterName);
     }
@@ -781,8 +796,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         SilkD3D12Descriptor samplerTable
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        resourceTable.AssertArgumentNotNull();
-        samplerTable.AssertArgumentNotNull();
+        resourceTable.GuardNotNull();
+        samplerTable.GuardNotNull();
         ObjectDisposedException.ThrowIf(resourceTable.IsDisposed, resourceTable);
         ObjectDisposedException.ThrowIf(samplerTable.IsDisposed, samplerTable);
         if (resourceTable.Type != DescriptorHeapType.CbvSrvUav || resourceTable.GpuHandle.Ptr == 0)

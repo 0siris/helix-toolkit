@@ -73,7 +73,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         IEnumerable<TechniqueDescription>? customTechniques = null,
         IEffectsManager? effectsManager = null
     ) {
-        device.AssertArgumentNotNull();
+        device.GuardNotNull();
         if (renderTargetFormat == Format.FormatUnknown)
             throw new ArgumentOutOfRangeException(nameof(renderTargetFormat));
         if (depthStencilFormat == Format.FormatUnknown)
@@ -104,7 +104,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <returns>The native pass, or <see langword="null" /> for unsupported nodes.</returns>
     internal ShaderPass? Resolve(SceneNode node) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        node.AssertArgumentNotNull();
+        node.GuardNotNull();
         if (node is ScreenDuplicationNode)
             return Resolve(DefaultRenderTechniqueNames.ScreenDuplication,
                 DefaultPassNames.Default,
@@ -125,7 +125,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <returns>The native precompute pass, or <see langword="null" /> for non-bone geometry.</returns>
     internal ShaderPass? ResolveBoneSkinning(SceneNode node) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        node.AssertArgumentNotNull();
+        node.GuardNotNull();
         if (node.RenderCore is not BoneSkinRenderCore) return null;
         return Resolve(DefaultRenderTechniqueNames.Mesh,
             DefaultPassNames.PreComputeMeshBoneSkinned,
@@ -139,7 +139,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <returns>The native shadow pass, or <see langword="null" /> for unsupported nodes.</returns>
     internal ShaderPass? ResolveShadow(SceneNode node) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        node.AssertArgumentNotNull();
+        node.GuardNotNull();
         if (node is not MeshNode ||
             node.RenderCore is not GeometryRenderCore {GeometryBuffer: { } geometryBuffer})
             return null;

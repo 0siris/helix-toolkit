@@ -185,7 +185,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The light scene.
     /// </value>
-    public Light3DSceneShared LightScene => lightScene.AssertNotNull("Light scene has been disposed.");
+    public Light3DSceneShared LightScene => lightScene.AssertNotNull("Light scene has been disposed.").Value;
 
     /// <summary>
     ///     Gets the global transform.
@@ -201,7 +201,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The shared resource.
     /// </value>
-    public ContextSharedResource SharedResource => sharedResource.AssertNotNull("Shared resource has been disposed.");
+    public ContextSharedResource SharedResource => sharedResource.AssertNotNull("Shared resource has been disposed.").Value;
 
     /// <summary>
     ///     Gets or sets the oit weight power used for color weight calculation. Default = 3;

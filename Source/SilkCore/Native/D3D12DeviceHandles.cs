@@ -541,9 +541,9 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     /// <param name="height">The viewport height.</param>
     public void SetViewport(float x, float y, float width, float height) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
-        var viewport = new Silk.NET.Direct3D12.Viewport(x, y, width, height, 0, 1);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+        var viewport = new Viewport(x, y, width, height, 0, 1);
         commandList.RSSetViewports(1, in viewport);
     }
 

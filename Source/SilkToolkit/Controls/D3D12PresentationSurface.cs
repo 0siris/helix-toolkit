@@ -296,11 +296,9 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         screenSpacedNodes.Clear();
         TextureModel? environmentMap = null;
         ShadowMapNode? shadowNode = null;
-        foreach (var node in roots.PreorderDft(node => node.Visible))
+        foreach (var node in roots.PreorderDft(node => node.Visible && FindScreenSpacedAncestor(node) is null))
             if (node is ScreenSpacedNode screenSpaced) {
                 screenSpacedNodes.Add(screenSpaced);
-            } else if (FindScreenSpacedAncestor(node) is not null) {
-                continue;
             } else if (node is EnvironmentMapNode environment) {
                 environmentMap = environment.Texture;
             } else if (node is ShadowMapNode shadow) {
@@ -309,23 +307,24 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                 volumeNodes.Add(node);
             } else if (node is ParticleStormNode) {
                 particleNodes.Add(node);
-            } else
-            switch (node.RenderType) {
-                case RenderType.Light:
-                    lightNodes.Add(node);
-                    break;
-                case RenderType.Opaque:
-                    opaqueNodes.Add(node);
-                    break;
-                case RenderType.Transparent:
-                    transparentNodes.Add(node);
-                    break;
-                case RenderType.GlobalEffect:
-                    globalEffectNodes.Add(node);
-                    break;
-                case RenderType.PostEffect:
-                    postEffectNodes.Add(node);
-                    break;
+            } else {
+                switch (node.RenderType) {
+                    case RenderType.Light:
+                        lightNodes.Add(node);
+                        break;
+                    case RenderType.Opaque:
+                        opaqueNodes.Add(node);
+                        break;
+                    case RenderType.Transparent:
+                        transparentNodes.Add(node);
+                        break;
+                    case RenderType.GlobalEffect:
+                        globalEffectNodes.Add(node);
+                        break;
+                    case RenderType.PostEffect:
+                        postEffectNodes.Add(node);
+                        break;
+                }
             }
 
         SilkD3D12SceneRenderer.UpdateLights(lightNodes, lights);

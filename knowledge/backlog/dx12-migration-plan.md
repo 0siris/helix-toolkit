@@ -12,7 +12,7 @@ tags:
 timestamp: 2026-07-09T00:00:00+02:00
 generated: false
 status: active
-verified: 2026-08-28
+verified: 2026-09-07
 sources:
   - ../../Source/SilkToolkit.slnx
   - ../../Source/SilkToolkit.Native.ShaderBuilder/SilkToolkit.Native.ShaderBuilder.csproj
@@ -23,7 +23,7 @@ sources:
 
 ## Current checkpoint
 
-* **Current phase:** Phase 5 - final DX12-only cutover. `Viewport3DX` now has one WPF HWND/DX12 presentation
+* **Current phase:** Phase 5 - final manual validation. `Viewport3DX` now has one WPF HWND/DX12 presentation
   path; the legacy D3D11 render hosts, render buffers, D3DImage/WinForms canvases, `IRenderHost`, WinForms and
   off-screen examples are removed. Screenshot capture now reads the DX12 back buffer, and custom scene-node
   technique selection reaches the DX12 pass catalog without attaching D3D11 resources.
@@ -124,15 +124,15 @@ sources:
   tightly packed BGRA frame crosses an explicit CPU-owned boundary into a replaceable DX12 texture. Timeout
   retains the preceding frame, output changes and failures release the old session, crop/aspect behavior is
   deterministic, and real desktop capture remains an explicit interactive-hardware test.
-* **Last verified gates:** CLI-fallback solution build passed with 374 warnings and 0 errors, including all 43
-  SilkToolkit example projects. The repository standard gate excludes `Hardware` and `DX12` and passes 342/342
-  (`SilkAssimp` 13, `SilkCore` 291, `SilkToolkit` 38). Explicit DX12 hardware creation passed 1/1
+* **Last verified gates:** CLI-fallback solution build passed with 372 warnings and 0 errors, including all 43
+  SilkToolkit example projects. The repository standard gate excludes `Hardware` and passes 344/344
+  (`SilkAssimp` 13, `SilkCore` 293, `SilkToolkit` 38). Explicit DX12 hardware creation passed 1/1
   in a preceding work package; the interactive desktop-capture test was intentionally not run. Graphify
-  passes for 986 source files with 12,647 nodes, 21,496 edges, and 2,510 final communities; known duplicate
-  namespace and stale skill-version notices remain non-blocking. `git diff --check` passes with line-ending
-  notices only.
-* **Validation note:** Rider/ReSharper MCP was not exposed in the implementation session, so its diagnostics
-  and formatter gates remain outstanding; the documented `dotnet` fallback was used for build and tests.
+  passes for 940 source files with 12,054 nodes, 19,154 edges, and 3,045 final communities; known community-name
+  and stale skill-version notices remain non-blocking. `git diff --check` passes with line-ending notices only.
+* **Validation note:** Rider/ReSharper MCP lacked the SilkToolkit solution context in the implementation session,
+  so its diagnostics and formatter gates remain outstanding; the documented `dotnet` fallback was used for
+  build and tests.
 * **Latest focused gates:** The complete DX12 runtime class passes 102/102 automated tests with one explicit
   hardware capture test not run. All 33 cutover contract cases pass, including canonical/idempotent render-core
   attachment, public scene-node detachment, disposal, and reflection guards against the removed D3D11 boundary.
@@ -200,13 +200,11 @@ sources:
   notices remain non-blocking warnings.
 * **Outstanding manual gates:** Visible hardware swap-chain presentation, live DPI changes, physical mouse/touch
   behavior, and real interactive Desktop Duplication have not been observed in this non-interactive session.
-* **Latest Phase 5 smoke:** The former `DeferredShadingDemo` builds with zero errors and remained responsive in a ten-second
-  DX12 hardware startup check with empty standard output/error, without initializing D3D11, requesting
-  `vsMeshDefault.cso`, or failing on its empty `Colors` collection. Future handled viewport render exceptions
-  are written to the configured console logger before the existing event/UI handling. Its legacy
-  `RenderDeferred` registration is absent, so this proves stable DX12 startup rather than deferred shading. Its
-  UI is now explicitly titled `DX12 Lighting Demo` and no longer binds a null deferred technique; a fresh
-  post-change hardware smoke is pending.
+* **Latest Phase 5 smoke:** `SimpleDemo`, `MaterialDemo`, `OrderIndependentTransparentRendering`,
+  `PostEffectsDemo`, `D2DScreenMenuExample`, and `BillboardDemo` each remained alive for a five-second DX12
+  startup/render interval, emitted no render-error diagnostics, and closed cleanly with exit code zero. The
+  smoke exposed and closed missing billboard preparation, empty-billboard draws, presentation-format mismatch,
+  and D3D11-free 2D text-atlas generation. Visible output, resize, input, and Desktop Duplication remain manual.
 * **Latest Phase 5 native cleanup:** Desktop Duplication now owns its raw D3D11 device/context/staging lifetime
   inside `D3D11DesktopCaptureSource`; the shared D3D11 device factory and unused DXGI swap-chain handles are
   removed. The unreachable legacy OIT/depth-peeling/SSAO orchestrators and their render parameter are removed,
@@ -218,14 +216,15 @@ sources:
 * **Latest Phase 5 lifecycle cleanup:** `RenderCore` now has one idempotent `Attach()`/`Detach()` lifecycle and one
   `IsAttached` state. Its D3D11 `IRenderTechnique`, device, update, and render entry points plus 107 derived legacy
   implementations are removed. The DX12 scene traversal uses the canonical lifecycle, public `SceneNode.Detach()`
-  also releases a core attached by that traversal, and disposal cannot bypass detachment. The direct D3D11 hygiene
-  inventory remains nine source files rather than the permitted single capture file.
-* **Remaining Phase 5 scope:** Remove the eight native D3D11 handle files and their now-unreachable component,
-  shader, state, view, and resource paths, enforce the one-file capture-island contract, then complete the
-  sequential demo and explicit hardware matrix.
-* **Next action:** Delete the native shader/state/view/resource handle paths that are now unreachable from
-  `RenderCore`, retaining raw D3D11 only inside Desktop Duplication. Then enforce the one-file source contract
-  before running the sequential hardware demo matrix.
+  also releases a core attached by that traversal, and disposal cannot bypass detachment.
+* **Latest Phase 5 source cleanup:** The eight native D3D11 handle files and their unreachable component, shader,
+  state, view, resource, material-variable, pool, and `DeviceContextProxy` paths are removed. Data-only public
+  descriptions remain available without native D3D11 handles. A source contract now permits direct D3D11 types
+  only in `Native/D3D11DesktopCaptureSource.cs`; the current inventory contains exactly that file.
+* **Remaining Phase 5 scope:** Complete the visible hardware matrix for presentation, resize, materials, OIT,
+  post effects, 2D/text, input, and interactive Desktop Duplication.
+* **Next action:** Run and record the visible/manual hardware matrix, including a consented live desktop capture,
+  then mark Phase 5 complete.
 
 Update this checkpoint after every completed work package, every changed technical decision, and before
 stopping. A work package is complete only when its implementation, tests, and checkpoint agree.
@@ -449,9 +448,9 @@ Implement each group as a separate green work package.
 - [x] Make DX12 the only `Viewport3DX` path and remove `IRenderHost`.
 - [x] Remove DX11 render hosts, render buffers, and D3DImage/WinForms presentation.
 - [x] Remove the legacy `RenderCore` attach/update/render boundary and its derived D3D11 implementations.
-- [ ] Remove the remaining DX11-specific public/runtime types.
+- [x] Remove the remaining DX11-specific public/runtime types.
 - [x] Remove `JeremyAnsel.HLSL.Targets`, CSO copy targets, `.cso` resources, and redundant shader-reader paths.
-- [ ] Retain `Silk.NET.Direct3D11` only in `Native/D3D11DesktopCaptureSource.cs` by removing:
+- [x] Retain `Silk.NET.Direct3D11` only in `Native/D3D11DesktopCaptureSource.cs` by removing:
   - `Native/D3DDeviceHandles.cs`
   - `Native/D3DResourceHandles.cs`
   - `Native/D3DResourceHandles.Native.cs`
@@ -468,13 +467,13 @@ Implement each group as a separate green work package.
 - [x] Preserve and convert existing unit, WPF, and WARP tests; do not delete tests merely to make the cutover
   pass.
 - [x] Require complete DXIL resources, zero `.cso`, and zero JeremyAnsel references.
-- [ ] Enforce that D3D11 source references exist only in the screen-duplication area.
+- [x] Enforce that D3D11 source references exist only in the screen-duplication area.
 - [x] Initialize all 24 techniques and 199 pass descriptions under WARP and render a representative case for
   each feature group.
 - [x] Build all 43 SilkToolkit example projects.
 - [ ] Sequentially start the central demos and verify startup, rendering, resize, and clean shutdown.
-- [x] Keep `Hardware` and `DX12` opt-in in the repository standard gate using
-  `Category!=Hardware&Category!=DX12`, as required by the current repository agent contract.
+- [x] Keep `Hardware` opt-in in the repository standard gate using `Category!=Hardware`, as required by the
+  current repository agent contract.
 - [ ] Explicitly hardware-test present, resize, materials, OIT, post effects, 2D/text, and Desktop Duplication.
 
 ### Exit criteria

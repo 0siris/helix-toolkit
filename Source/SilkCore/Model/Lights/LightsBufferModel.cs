@@ -6,7 +6,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
@@ -47,29 +46,6 @@ public sealed class LightsBufferModel : ILightsBufferProxy<LightStruct> {
     public void ResetLightCount() {
         LightCount = 0;
         AmbientLight = new Color4(0, 0, 0, 1);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void UploadToBuffer(IBufferProxy buffer, DeviceContextProxy context) {
-        if (buffer.StructureSize != SizeInBytes) {
-#if DEBUG
-            throw new ArgumentException("Buffer type or size do not match the model requirement");
-#endif
-            return;
-        }
-
-        if (buffer is ConstantBufferProxy constantBuffer) {
-            constantBuffer.UploadDataToBuffer(context, Upload);
-            return;
-        }
-
-        if (buffer.Buffer is not { } rawBuffer)
-            return;
-
-        var dataBox = context.MapSubresource(rawBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
-        if (dataBox.IsEmpty) return;
-        Upload(dataBox);
-        context.UnmapSubresource(rawBuffer, 0);
     }
 
     private void Upload(DataBox dataBox) {

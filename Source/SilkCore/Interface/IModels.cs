@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Interface;
@@ -140,11 +139,4 @@ public interface ILightsBufferProxy<T> where T : unmanaged {
     ///     Increments the light count. Increment during each light render (except Ambient light).
     /// </summary>
     void IncrementLightCount();
-
-    /// <summary>
-    ///     Upload light models to constant buffer.
-    /// </summary>
-    /// <param name="buffer">The buffer.</param>
-    /// <param name="context">The context.</param>
-    void UploadToBuffer(IBufferProxy buffer, DeviceContextProxy context);
 }

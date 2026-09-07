@@ -263,7 +263,7 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
     private static SilkD3D12Resource CreateUploadBuffer<T>(SilkD3D12Device device, ReadOnlySpan<T> values)
         where T : unmanaged {
         var bytes = MemoryMarshal.AsBytes(values);
-        var buffer = device.CreateBuffer(checked((ulong) bytes.Length), HeapType.Upload);
+        var buffer = device.CreateBuffer(checked((ulong) Math.Max(1, bytes.Length)), HeapType.Upload);
         try {
             buffer.Write(bytes);
             return buffer;
@@ -323,6 +323,24 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
                 : new Color4[positions.Count],
             indices.ToArray(),
             source.Topology);
+    }
+
+    /// <summary>
+    ///     Copies CPU-prepared morph-target and bone-skinned positions into the caller's array.
+    /// </summary>
+    internal static int CopySkinnedPositions(
+        DefaultMeshGeometryBufferModel source,
+        ReadOnlySpan<Matrix> boneMatrices,
+        MorphTargetUploaderCore morphTargets,
+        Span<Vector3> destination
+    ) {
+        var vertices = Prepare(source, boneMatrices, morphTargets).Defaults;
+        var count = Math.Min(vertices.Length, destination.Length);
+        for (var index = 0; index < count; index++) {
+            var position = vertices[index].Position;
+            destination[index] = new Vector3(position.X, position.Y, position.Z);
+        }
+        return count;
     }
 
     /// <summary>
@@ -661,7 +679,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     private static SilkD3D12Resource CreateUploadBuffer<T>(SilkD3D12Device device, ReadOnlySpan<T> values)
         where T : unmanaged {
         var bytes = MemoryMarshal.AsBytes(values);
-        var buffer = device.CreateBuffer(checked((ulong) bytes.Length), HeapType.Upload);
+        var buffer = device.CreateBuffer(checked((ulong) Math.Max(1, bytes.Length)), HeapType.Upload);
         try {
             buffer.Write(bytes);
             return buffer;
@@ -708,8 +726,13 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     private static BillboardVertex[] Prepare(DefaultBillboardBufferModel source) {
         source.AssertArgumentNotNull();
         ObjectDisposedException.ThrowIf(source.IsDisposed, source);
-        if (source.Geometry is not BillboardBase geometry || !geometry.TryPrepareVerticesForD3D12())
-            throw new InvalidOperationException("Billboard geometry requires prepared vertices.");
+        if (source.Geometry is not BillboardBase geometry)
+            throw new InvalidOperationException("The buffer model must contain billboard geometry.");
+        if (!geometry.TryPrepareVerticesForD3D12())
+            geometry.DrawTexture(source.EffectsManager
+                ?? throw new InvalidOperationException("Billboard geometry requires an effects manager."));
+        if (!geometry.IsInitialized)
+            throw new InvalidOperationException("Billboard geometry could not be initialized.");
         return [.. geometry.BillboardVertices];
     }
 

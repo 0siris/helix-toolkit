@@ -80,7 +80,6 @@ public class EnvironmentMapNode : SceneNode {
 
     protected override bool CanRender(RenderContext context) {
         if (!base.CanRender(context)) {
-            context.SharedResource.EnvironementMap = null;
             return false;
         }
 

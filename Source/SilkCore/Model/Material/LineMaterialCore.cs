@@ -6,17 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Model.Material;
 [DataContract]
 public class LineMaterialCore : MaterialCore, ILineRenderParams {
-    public override MaterialVariable CreateMaterialVariables(
-        IEffectsManager manager,
-        IRenderTechnique technique
-    )
-        => new LineMaterialVariable(manager, technique, this);
 
     #region Properties
 

@@ -100,15 +100,10 @@ public sealed unsafe class Bitmap : D2DNativeResource {
     private SilkD2DBitmapBasePtr nativeBitmap;
     private BitmapProxy? target;
 
-    public Bitmap(Size2F size, object? nativeResource = null) {
+    public Bitmap(Size2F size, object? nativeResource = null, byte[]? pixels = null) {
         Size = size;
+        Pixels = pixels ?? new byte[checked(Width * Height * 4)];
         if (nativeResource is SilkD2DBitmapBasePtr bitmap) nativeBitmap = bitmap;
-    }
-
-    internal Bitmap(Size2F size, Texture2D texture, BitmapProxy target) {
-        Size = size;
-        Texture = texture;
-        this.target = target;
     }
 
     public Size2F Size { get; }
@@ -117,18 +112,16 @@ public sealed unsafe class Bitmap : D2DNativeResource {
 
     public int Height => (int) Math.Ceiling(Size.Height);
 
+    internal byte[] Pixels { get; }
+
     internal ID2D1Bitmap* Handle => target?.Bitmap is { } bitmap
         ? (ID2D1Bitmap*) bitmap.Handle
         : nativeBitmap.Handle;
-
-    internal Texture2D? Texture { get; private set; }
 
     public override void Dispose() {
         nativeBitmap.Dispose();
         target?.Dispose();
         target = null;
-        Texture?.Dispose();
-        Texture = null;
         base.Dispose();
     }
 }

@@ -7,7 +7,6 @@ using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 
 #if !WINDOWS_UWP //TODO why do we need this here?!
 namespace HelixToolkit.SharpDX.Core.Core;

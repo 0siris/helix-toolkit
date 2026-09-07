@@ -11,7 +11,6 @@ using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
@@ -19,7 +18,6 @@ using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public class AxisPlaneGridCore : RenderCore {
-    private readonly ConstantBufferComponent modelCb;
     private bool autoSpacing = true;
 
     private float autoSpacingChangeRate = 5;
@@ -29,24 +27,12 @@ public class AxisPlaneGridCore : RenderCore {
     private int samplerSlot;
     private int shadowMapSlot;
 
-    private SamplerStateProxy? ShadowSampler {
-        get;
-        set {
-            if (value != field)
-                field?.Dispose();
-            field = value;
-        }
-    }
-
     private Vector3 upDirection = Vector3.UnitY;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="AxisPlaneGridCore" /> class.
     /// </summary>
     public AxisPlaneGridCore() : base(RenderType.Particle) {
-        modelCb = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-                                                               DefaultBufferNames.PlaneGridModelCb,
-                                                               PlaneGridModelStruct.SizeInBytes)));
         modelStruct = new PlaneGridModelStruct {
             World = Matrix.Identity,
             Axis = 1
@@ -207,35 +193,5 @@ public class AxisPlaneGridCore : RenderCore {
                 modelStruct.Type = (int)value;
         }
     } = GridPattern.Tile;
-
-    [MemberNotNull(nameof(ShadowSampler))]
-    [MemberNotNull(nameof(defaultShaderPass))]
-    private void OnUpdatePerModelStruct(RenderContext context) {
-        modelStruct.World = ModelMatrix;
-        if (autoSpacing && context.Camera is { } camera) {
-            //Disable auto spacing if view angle larger than 60 degree of plane normal
-            var lookDir = SilkMath.Normalize(camera.LookDirection);
-            var angle = Math.Acos(Math.Abs(SilkMath.Dot(upDirection, lookDir)));
-            if (angle > Math.PI / 3)
-                return;
-
-            var r = new Ray(camera.Position, SilkMath.Normalize(camera.LookDirection));
-            var plane = new Plane(upDirection, modelStruct.PlaneD);
-            if (plane.Intersects(ref r, out var l)) {
-                l /= autoSpacingChangeRate;
-                var n = 1;
-                while (n < 1e6) {
-                    if (n > l) {
-                        n /= 10;
-                        break;
-                    }
-
-                    n *= 10;
-                }
-
-                modelStruct.GridSpacing = n;
-            }
-        }
-    }
 
 }

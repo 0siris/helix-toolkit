@@ -24,20 +24,9 @@ public interface IRenderTechnique : IDisposable, IGuid {
     string Name { get; }
 
     /// <summary>
-    /// </summary>
-    NativeD3DDevice? Device { get; }
-
-    /// <summary>
-    ///     Input layout for all passes
-    /// </summary>
-    InputLayoutProxy Layout { get; }
-
-    /// <summary>
     ///     All shader pass names
     /// </summary>
     IEnumerable<string> ShaderPassNames { get; }
-
-    IConstantBufferPool ConstantBufferPool { get; }
 
     IEffectsManager EffectsManager { get; }
 

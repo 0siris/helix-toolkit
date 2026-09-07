@@ -8,7 +8,6 @@ using HelixToolkit.SharpDX.Core.Core.Buffers;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
@@ -153,6 +152,7 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         buffers.AssertArgumentNotNull();
         buffers.Bind(context, vertexBufferSlot);
         if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
+        if (buffers.VertexCount == 0 && buffers.IndexCount == 0) return vertexBufferSlot + 1;
         if (buffers.IndexCount > 0)
             context.DrawIndexedInstanced(buffers.IndexCount, instanceCount);
         else
@@ -184,6 +184,7 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         buffers.Bind(context, vertexBufferSlot);
         instances.Bind(context, vertexBufferSlot + 1);
         if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
+        if (buffers.VertexCount == 0 && buffers.IndexCount == 0) return vertexBufferSlot + 2;
         if (buffers.IndexCount > 0)
             context.DrawIndexedInstanced(buffers.IndexCount, instances.ElementCount);
         else

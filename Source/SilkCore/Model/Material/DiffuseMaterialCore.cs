@@ -6,7 +6,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 
@@ -106,18 +105,7 @@ public class DiffuseMaterialCore : MaterialCore {
         get;
         set => Set(ref field, value);
     }
-
-    public override MaterialVariable CreateMaterialVariables(
-        IEffectsManager manager,
-        IRenderTechnique technique
-    )
-        => new DiffuseMaterialVariables(DefaultPassNames.Diffuse, manager, technique, this);
 }
 
 public sealed class ViewCubeMaterialCore : DiffuseMaterialCore {
-    public override MaterialVariable CreateMaterialVariables(
-        IEffectsManager manager,
-        IRenderTechnique technique
-    )
-        => new DiffuseMaterialVariables(DefaultPassNames.ViewCube, manager, technique, this);
 }

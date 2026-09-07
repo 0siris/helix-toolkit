@@ -7,7 +7,6 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core.Buffers;
@@ -92,62 +91,9 @@ public class DefaultLineGeometryBufferModel : LineGeometryBufferModel<LinesVerte
     /// <param name="isDynamic"></param>
     public DefaultLineGeometryBufferModel(bool isDynamic) : base(LinesVertex.SizeInBytes, isDynamic) { }
 
-    /// <summary>
-    ///     Called when [create vertex buffer].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="buffer">The buffer.</param>
-    /// <param name="geometry">The geometry.</param>
-    /// <param name="deviceResources">The device resources.</param>
-    /// <param name="bufferIndex"></param>
-    protected override void OnCreateVertexBuffer(
-        DeviceContextProxy context,
-        IElementsBufferProxy buffer,
-        int bufferIndex,
-        Geometry3D? geometry,
-        IDeviceResources deviceResources
-    ) {
-        // -- set geometry if given
-        if (geometry is {Positions.Count: > 0}) {
-            // --- get geometry
-            var data = BuildVertexArray(geometry);
-            buffer.UploadDataToBuffer(context,
-                                      data,
-                                      geometry.Positions.Count,
-                                      0,
-                                      geometry.PreDefinedVertexCount);
-        } else {
-            //buffer.DisposeAndClear();
-            buffer.UploadDataToBuffer(context, Array.Empty<LinesVertex>(), 0);
-        }
-    }
-
     protected override bool IsVertexBufferChanged(string? propertyName, int vertexBufferIndex) =>
         base.IsVertexBufferChanged(propertyName, vertexBufferIndex) ||
         propertyName?.Equals(nameof(Geometry3D.Colors), StringComparison.Ordinal) == true;
-
-    /// <summary>
-    ///     Called when [create index buffer].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="buffer">The buffer.</param>
-    /// <param name="geometry">The geometry.</param>
-    /// <param name="deviceResources">The device resources.</param>
-    protected override void OnCreateIndexBuffer(
-        DeviceContextProxy context,
-        IElementsBufferProxy buffer,
-        Geometry3D? geometry,
-        IDeviceResources deviceResources
-    ) {
-        if (geometry is {Indices.Count: > 0})
-            buffer.UploadDataToBuffer(context,
-                                      geometry.Indices,
-                                      geometry.Indices.Count,
-                                      0,
-                                      geometry.PreDefinedIndexCount);
-        else
-            buffer.UploadDataToBuffer(context, Array.Empty<int>(), 0);
-    }
 
     /// <summary>
     ///     Called when [build vertex array].

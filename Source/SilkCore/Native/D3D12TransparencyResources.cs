@@ -32,7 +32,7 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
     /// <summary>
     ///     Depth-peeling color format.
     /// </summary>
-    internal const Format PeelingColorFormat = Format.FormatB8G8R8A8Unorm;
+    internal const Format PeelingColorFormat = Format.FormatR8G8B8A8Unorm;
 
     /// <summary>
     ///     The device used for size-dependent resources.
@@ -172,7 +172,7 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
         uint height
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        Resize(width, height);
+        Resize(width, height, mainColor.Description.Format);
         context.Transition(Target(4), ResourceStates.RenderTarget);
         context.ClearRenderTarget(Target(4), renderTargetViews[4], [0, 0, 0, 1]);
         context.Transition(mainColor, ResourceStates.CopySource);
@@ -266,11 +266,11 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
     /// </summary>
     /// <param name="width">The target width.</param>
     /// <param name="height">The target height.</param>
-    private void Resize(uint width, uint height) {
+    private void Resize(uint width, uint height, Format peelingColorFormat = PeelingColorFormat) {
         if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
         if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
         if (targets[0] is { Description.Width: var oldWidth, Description.Height: var oldHeight } &&
-            oldWidth == width && oldHeight == height)
+            oldWidth == width && oldHeight == height && targets[4]!.Description.Format == peelingColorFormat)
             return;
 
         Format[] formats = [
@@ -278,8 +278,8 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
             WeightedAlphaFormat,
             PeelingDepthFormat,
             PeelingDepthFormat,
-            PeelingColorFormat,
-            PeelingColorFormat
+            peelingColorFormat,
+            peelingColorFormat
         ];
         var replacements = new SilkD3D12Resource[formats.Length];
         try {

@@ -7,7 +7,6 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core.Buffers;
@@ -45,21 +44,6 @@ public abstract class PointGeometryBufferModel<VertexStruct> : GeometryBufferMod
     public PointGeometryBufferModel(IElementsBufferProxy[] vertexBuffer) 
         : base(PrimitiveTopology.PointList, vertexBuffer, null) 
     { }
-
-
-    /// <summary>
-    ///     Called when [create index buffer].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="buffer">The buffer.</param>
-    /// <param name="geometry">The geometry.</param>
-    /// <param name="deviceResources">The device resources.</param>
-    protected override void OnCreateIndexBuffer(
-        DeviceContextProxy context,
-        IElementsBufferProxy buffer,
-        Geometry3D? geometry,
-        IDeviceResources deviceResources
-    ) { }
 }
 
 /// <summary>
@@ -75,35 +59,6 @@ public class DefaultPointGeometryBufferModel : PointGeometryBufferModel<PointsVe
     /// </summary>
     /// <param name="isDynamic"></param>
     public DefaultPointGeometryBufferModel(bool isDynamic) : base(PointsVertex.SizeInBytes, isDynamic) { }
-
-    /// <summary>
-    ///     Called when [create vertex buffer].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="buffer">The buffer.</param>
-    /// <param name="geometry">The geometry.</param>
-    /// <param name="deviceResources">The device resources.</param>
-    /// <param name="bufferIndex"></param>
-    protected override void OnCreateVertexBuffer(
-        DeviceContextProxy context,
-        IElementsBufferProxy buffer,
-        int bufferIndex,
-        Geometry3D? geometry,
-        IDeviceResources deviceResources
-    ) {
-        // -- set geometry if given
-        if (geometry is {Positions.Count: > 0}) {
-            // --- get geometry
-            var data = BuildVertexArray(geometry);
-            buffer.UploadDataToBuffer(context,
-                                      data,
-                                      geometry.Positions.Count,
-                                      0,
-                                      geometry.PreDefinedVertexCount);
-        } else {
-            buffer.UploadDataToBuffer(context, Array.Empty<PointsVertex>(), 0);
-        }
-    }
 
 
     protected override bool IsVertexBufferChanged(string? propertyName, int vertexBufferIndex) =>

@@ -6,7 +6,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core.Buffers;
@@ -78,24 +77,9 @@ public sealed class EmptyGeometryBufferModel : IGeometryBufferModel {
     public IEffectsManager? EffectsManager { get; set; }
 
     /// <summary>
-    ///     Attaches the buffers.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="vertexBufferStartSlot">The vertex buffer start slot. Returns next available bind slot</param>
-    /// <param name="deviceResources"></param>
-    /// <returns></returns>
-    public bool AttachBuffers(
-        DeviceContextProxy context,
-        ref int vertexBufferStartSlot,
-        IDeviceResources deviceResources
-    ) => false;
-
-    /// <summary>
     ///     Releases unmanaged and - optionally - managed resources.
     /// </summary>
     public void Dispose() { }
-
-    public bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources) => false;
 
     /// <summary>
     ///     Attaches this instance.

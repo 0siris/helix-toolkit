@@ -10,37 +10,17 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
 internal class MorphTargetUploaderCore : RenderCore {
-    private readonly ConstantBufferComponent cbMorphTarget;
 
     private int[] morphTargetOffsets = [];
     private Vector3[] morphTargetsDeltas = [];
     private float[] morphTargetWeights = [];
     private int mtCount;
-
-    private ShaderResourceViewProxy? MtDeltasSrv {
-        get;
-        set {
-            if (field != value)
-                field?.Dispose();
-            field = value;
-        }
-    }
-
-    private ShaderResourceViewProxy? MtOffsetsSrv {
-        get;
-        set {
-            if (field != value)
-                field?.Dispose();
-            field = value;
-        }
-    }
 
     private int mtPitch;
     private bool setCBuffer = true;
@@ -52,7 +32,6 @@ internal class MorphTargetUploaderCore : RenderCore {
         : base(RenderType.None) {
         //Setup cbuffer
         var cbd = new ConstantBufferDescription(DefaultBufferNames.MorphTargetCb, 16); //maybe no slot issue
-        cbMorphTarget = AddComponent(new ConstantBufferComponent(cbd));
     }
 
     public float[] MorphTargetWeights {
@@ -159,14 +138,6 @@ internal class MorphTargetUploaderCore : RenderCore {
     }
 
     public event EventHandler? WeightsChanged;
-
-    public void BindBuffers(DeviceContextProxy devCtx, int weightsSlot, int deltasSlot, int offsetsSlot) {
-        if (HasMorphTarget && MtWeightsB is { } weightsBuffer) {
-            devCtx.SetShaderResource<VertexShaderType>(weightsSlot, weightsBuffer);
-            devCtx.SetShaderResource<VertexShaderType>(deltasSlot, MtDeltasSrv);
-            devCtx.SetShaderResource<VertexShaderType>(offsetsSlot, MtOffsetsSrv);
-        }
-    }
 
     protected override void OnDispose(bool disposeManagedResources) {
         if (disposeManagedResources)

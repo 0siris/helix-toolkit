@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
@@ -37,19 +36,7 @@ public abstract class GenericMaterialCore : MaterialCore {
     /// <param name="shaderPass">The shader pass. Currently only supports pixel shader parameter properties</param>
     /// <param name="modelMaterialConstantBufferName">Name of the model material constant buffer in pixel shader.</param>
     public GenericMaterialCore(ShaderPass shaderPass, string modelMaterialConstantBufferName) {
-        if (shaderPass.IsNull || shaderPass.PixelShader.IsNull) return;
-        var properties = new List<string>();
-        var cb = shaderPass.PixelShader.ConstantBufferMapping.Mappings
-                           .Where(x => x.Value.Name == modelMaterialConstantBufferName).FirstOrDefault();
-
-        if (cb.Value != null) {
-            CbDescription = new ConstantBufferDescription(cb.Value.Name, cb.Value.BufferDesc.SizeInBytes);
-            properties.AddRange(cb.Value.VariableDictionary.Keys);
-        }
-
-        PropertieNames = [.. properties];
-        TextureNames = [.. shaderPass.PixelShader.ShaderResourceViewMapping.Mappings.Select(x => x.Value.Description.Name)];
-        SamplerNames = [.. shaderPass.PixelShader.SamplerMapping.Mappings.Select(x => x.Value.Name)];
+        CbDescription = new ConstantBufferDescription(modelMaterialConstantBufferName, 0);
     }
 
     [DataMember]
@@ -91,8 +78,6 @@ public abstract class GenericMaterialCore : MaterialCore {
 
     public string[] SamplerNames { get; } = [];
 
-    internal event EventHandler<UpdateEvent>? UpdatingResource;
-
     public void SetTexture(string name, Stream texture) {
         TextureModel? value = texture;
         if (value is not { } textureModel) {
@@ -102,7 +87,6 @@ public abstract class GenericMaterialCore : MaterialCore {
         } else {
             TextureDict.Add(name, textureModel);
         }
-        UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Texture, name));
     }
 
 
@@ -111,7 +95,6 @@ public abstract class GenericMaterialCore : MaterialCore {
             SamplerDict[name] = samplerDesc;
         else
             SamplerDict.Add(name, samplerDesc);
-        UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Sampler, name));
     }
 
     public TextureModel? GetTexture(string name) {
@@ -132,7 +115,6 @@ public abstract class GenericMaterialCore : MaterialCore {
             FloatDict[name] = value;
         else
             FloatDict.Add(name, value);
-        UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Float, name));
     }
 
     public void SetProperty(string name, float value) {
@@ -140,7 +122,6 @@ public abstract class GenericMaterialCore : MaterialCore {
             FloatDict[name] = value;
         else
             FloatDict.Add(name, value);
-        UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Float, name));
     }
 
     public void SetProperty(string name, bool value) {
@@ -148,7 +129,6 @@ public abstract class GenericMaterialCore : MaterialCore {
             FloatDict[name] = value ? 1 : 0;
         else
             FloatDict.Add(name, value ? 1 : 0);
-        UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Float, name));
     }
 
     public void SetProperty(string name, Vector2 value) {
@@ -156,7 +136,6 @@ public abstract class GenericMaterialCore : MaterialCore {
             Vector2Dict[name] = value;
         else
             Vector2Dict.Add(name, value);
-        UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Vector2, name));
     }
 
     public void SetProperty(string name, Vector3 value) {
@@ -164,7 +143,6 @@ public abstract class GenericMaterialCore : MaterialCore {
             Vector3Dict[name] = value;
         else
             Vector3Dict.Add(name, value);
-        UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Vector3, name));
     }
 
     public void SetProperty(string name, Vector4 value) {
@@ -172,7 +150,6 @@ public abstract class GenericMaterialCore : MaterialCore {
             Vector4Dict[name] = value;
         else
             Vector4Dict.Add(name, value);
-        UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Vector4, name));
     }
 
     public void SetProperty(string name, Matrix value) {
@@ -180,24 +157,13 @@ public abstract class GenericMaterialCore : MaterialCore {
             MatrixDict[name] = value;
         else
             MatrixDict.Add(name, value);
-        UpdatingResource?.Invoke(this, new UpdateEvent(GenericMaterialVariable.ResourceType.Matrix, name));
-    }
-
-    internal sealed class UpdateEvent {
-        public readonly string Name;
-        public readonly GenericMaterialVariable.ResourceType Type;
-
-        public UpdateEvent(GenericMaterialVariable.ResourceType type, string name) {
-            Type = type;
-            Name = name;
-        }
     }
 }
 
 [DataContract]
 public sealed class GenericMeshMaterialCore : GenericMaterialCore {
     public GenericMeshMaterialCore()
-        : base(MaterialVariable.DefaultMeshConstantBufferDesc) { }
+        : base(new ConstantBufferDescription(string.Empty, 0)) { }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="GenericMeshMaterialCore" /> class.
@@ -206,24 +172,12 @@ public sealed class GenericMeshMaterialCore : GenericMaterialCore {
     /// <param name="modelMaterialConstantBufferName">Name of the model material constant buffer in pixel shader.</param>
     public GenericMeshMaterialCore(ShaderPass shaderPass, string modelMaterialConstantBufferName)
         : base(shaderPass, modelMaterialConstantBufferName) { }
-
-    public override MaterialVariable CreateMaterialVariables(
-        IEffectsManager manager,
-        IRenderTechnique technique
-    )
-        => new GenericMeshMaterialVariable(manager,
-            technique,
-            this,
-            CbDescription,
-            MaterialPassName,
-            ShadowPassName,
-            WireframePassName);
 }
 
 [DataContract]
 public sealed class GenericLineMaterialCore : GenericMaterialCore {
     public GenericLineMaterialCore()
-        : base(MaterialVariable.DefaultPointLineConstantBufferDesc) { }
+        : base(new ConstantBufferDescription(string.Empty, 0)) { }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="GenericLineMaterialCore" /> class.
@@ -232,24 +186,12 @@ public sealed class GenericLineMaterialCore : GenericMaterialCore {
     /// <param name="modelMaterialConstantBufferName">Name of the model material constant buffer in pixel shader.</param>
     public GenericLineMaterialCore(ShaderPass shaderPass, string modelMaterialConstantBufferName)
         : base(shaderPass, modelMaterialConstantBufferName) { }
-
-    public override MaterialVariable CreateMaterialVariables(
-        IEffectsManager manager,
-        IRenderTechnique technique
-    )
-        => new GenericMeshMaterialVariable(manager,
-            technique,
-            this,
-            CbDescription,
-            MaterialPassName,
-            ShadowPassName,
-            string.Empty);
 }
 
 [DataContract]
 public sealed class GenericPointMaterialCore : GenericMaterialCore {
     public GenericPointMaterialCore()
-        : base(MaterialVariable.DefaultPointLineConstantBufferDesc) { }
+        : base(new ConstantBufferDescription(string.Empty, 0)) { }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="GenericPointMaterialCore" /> class.
@@ -258,15 +200,4 @@ public sealed class GenericPointMaterialCore : GenericMaterialCore {
     /// <param name="modelMaterialConstantBufferName">Name of the model material constant buffer in pixel shader.</param>
     public GenericPointMaterialCore(ShaderPass shaderPass, string modelMaterialConstantBufferName)
         : base(shaderPass, modelMaterialConstantBufferName) { }
-
-    public override MaterialVariable CreateMaterialVariables(
-        IEffectsManager manager,
-        IRenderTechnique technique
-    )
-        => new GenericPointMaterialVariable(manager,
-            technique,
-            this,
-            CbDescription,
-            MaterialPassName,
-            ShadowPassName);
 }

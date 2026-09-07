@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 
 namespace HelixToolkit.SharpDX.Core.Model.Material;
 public class PointMaterialCore : MaterialCore, IPointRenderParams {
@@ -114,10 +113,4 @@ public class PointMaterialCore : MaterialCore, IPointRenderParams {
         get;
         set => Set(ref field, value);
     } = Color.Black;
-
-    public override MaterialVariable CreateMaterialVariables(
-        IEffectsManager manager,
-        IRenderTechnique technique
-    )
-        => new PointMaterialVariable(manager, technique, this);
 }

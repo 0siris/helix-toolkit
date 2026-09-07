@@ -6,14 +6,12 @@ Copyright(c) 2020 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Render;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
 public abstract class MaterialGeometryNode : GeometryNode {
     private MaterialCore? material;
-    private MaterialVariable? materialVariable;
 
     /// <summary>
     ///     Specifiy if model material is transparent.
@@ -39,45 +37,12 @@ public abstract class MaterialGeometryNode : GeometryNode {
             if (RenderCore is PointLineRenderCore pointLineRenderCore)
                 pointLineRenderCore.D3D12Material = material;
 
-            if (EffectsManager != null) {
-                if (IsAttached) {
-                    AttachMaterial();
-                    InvalidateRender();
-                } else {
-                    Detach();
-                    Attach(EffectsManager);
-                }
-            }
+            InvalidateRender();
         }
     }
 
-    protected virtual void AttachMaterial() {
-        var newVar = material is { } currentMaterial && RenderCore is IMaterialRenderParams &&
-                     EffectsManager is { } effectsManager && EffectTechnique is { } technique
-                         ? effectsManager.MaterialVariableManager.Register(currentMaterial, technique)
-                         : null;
-        RemoveAndDispose(ref materialVariable);
-        materialVariable = newVar;
-        if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = newVar;
-    }
-
-    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? 0);
+    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, 0);
 
     protected override bool CanRender(RenderContext context) =>
-        base.CanRender(context) && (materialVariable != null || RenderCore.IsAttached && material != null);
-
-    protected override bool OnAttach(IEffectsManager effectsManager) {
-        if (base.OnAttach(effectsManager)) {
-            AttachMaterial();
-            return true;
-        }
-
-        return false;
-    }
-
-    protected override void OnDetach() {
-        RemoveAndDispose(ref materialVariable);
-        if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = null;
-        base.OnDetach();
-    }
+        base.CanRender(context) && material is not null;
 }

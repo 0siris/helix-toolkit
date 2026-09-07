@@ -9,7 +9,6 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
@@ -41,90 +40,9 @@ public class PostEffectBlurCore : DisposeObject {
         screenBlurPassHorizontal = blurHorizontalPass;
         this.textureSlot = textureSlot;
         this.samplerSlot = samplerSlot;
-        this.sampler = manager.StateManager.Register(sampler);
-        modelCb = new ConstantBufferComponent(new ConstantBufferDescription(DefaultBufferNames.BorderEffectCb,
-                                                                            BorderEffectStruct.SizeInBytes));
-    }
-
-    /// <summary>
-    ///     Runs the blur procedure
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceContext">The device context.</param>
-    /// <param name="source">The source.</param>
-    /// <param name="depth">The depth.</param>
-    /// <param name="sourceViewport"></param>
-    /// <param name="modelStruct"></param>
-    public virtual void Run(
-        RenderContext context,
-        DeviceContextProxy deviceContext,
-        ShaderResourceViewProxy source,
-        ref ViewportF sourceViewport,
-        BlurDepth depth,
-        ref BorderEffectStruct modelStruct
-    ) {
-        deviceContext.SetSampler<PixelShaderType>(samplerSlot, sampler);
-        if ((depth & BlurDepth.One) == 0)
-            return;
-
-        using var target1 = context.GetOffScreenRt(OffScreenTextureSize.Half,
-                                                   Format.FormatR8G8B8A8Unorm,
-                                                   out var width,
-                                                   out var height);
-        
-        modelStruct.ViewportScale = (int)OffScreenTextureSize.Half;
-        modelCb.Upload(deviceContext, ref modelStruct);
-        
-        //Full -> Half Vertical
-        deviceContext.SetRenderTarget(target1);
-        deviceContext.SetViewport(0, 0, width, height);
-        deviceContext.SetScissorRectangle(0, 0, width, height);
-        
-        screenBlurPassVertical.BindShader(deviceContext);
-        screenBlurPassVertical.BindStates(deviceContext, StateType.All);
-        screenBlurPassVertical.PixelShader.BindTexture(deviceContext, textureSlot, source);
-        deviceContext.Draw(4, 0);
-
-        if ((depth & BlurDepth.Two) != 0) {
-            using var target2 = context.GetOffScreenRt(OffScreenTextureSize.Quarter,
-                                                       Format.FormatR8G8B8A8Unorm,
-                                                       out var width2,
-                                                       out var height2);
-            // Half to Quater Vertical
-            modelStruct.ViewportScale = (int)OffScreenTextureSize.Quarter;
-            modelCb.Upload(deviceContext, ref modelStruct);
-            deviceContext.SetRenderTarget(target2);
-            deviceContext.SetViewport(0, 0, width2, height2);
-            deviceContext.SetScissorRectangle(0, 0, width2, height2);
-            screenBlurPassVertical.BindShader(deviceContext);
-            screenBlurPassVertical.PixelShader.BindTexture(deviceContext, textureSlot, target1);
-            deviceContext.Draw(4, 0);
-
-            // Quater to Half Horizontal
-            modelStruct.ViewportScale = (int)OffScreenTextureSize.Half;
-            modelCb.Upload(deviceContext, ref modelStruct);
-            deviceContext.SetRenderTarget(target1);
-            deviceContext.SetViewport(0, 0, width, height);
-            deviceContext.SetScissorRectangle(0, 0, width, height);
-            screenBlurPassHorizontal.BindShader(deviceContext);
-            screenBlurPassHorizontal.PixelShader.BindTexture(deviceContext, textureSlot, target2);
-            deviceContext.Draw(4, 0);
-        }
-
-        // Half to Full Horizontal
-        modelStruct.ViewportScale = (int)OffScreenTextureSize.Full;
-        modelCb.Upload(deviceContext, ref modelStruct);
-        deviceContext.SetRenderTarget(source);
-        deviceContext.SetViewport(ref sourceViewport);
-        deviceContext.SetScissorRectangle(ref sourceViewport);
-        screenBlurPassHorizontal.BindShader(deviceContext);
-        screenBlurPassHorizontal.PixelShader.BindTexture(deviceContext, textureSlot, target1);
-        deviceContext.Draw(4, 0);
     }
 
     protected override void OnDispose(bool disposeManagedResources) {
-        RemoveAndDispose(ref sampler);
-        RemoveAndDispose(ref modelCb);
         base.OnDispose(disposeManagedResources);
     }
 
@@ -135,10 +53,6 @@ public class PostEffectBlurCore : DisposeObject {
     private readonly ShaderPass screenBlurPassHorizontal;
     private readonly int textureSlot;
     private readonly int samplerSlot;
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-    private ConstantBufferComponent modelCb;
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-    private SamplerStateProxy sampler;
     private static readonly Color4 Transparent = new(0, 0, 0, 0);
 
 #endregion

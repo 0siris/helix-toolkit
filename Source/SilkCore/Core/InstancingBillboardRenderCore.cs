@@ -4,7 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 

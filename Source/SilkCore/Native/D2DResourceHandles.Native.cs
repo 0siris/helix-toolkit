@@ -17,6 +17,8 @@ using SilkD2DBitmapPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1Bitm
 using SilkD2DDeviceContextPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1DeviceContext>;
 using SilkD2DDevicePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct2D.ID2D1Device>;
 using SilkDWriteFactoryPtr = Silk.NET.Core.Native.ComPtr<Silk.NET.DirectWrite.IDWriteFactory>;
+using Media = System.Windows.Media;
+using Imaging = System.Windows.Media.Imaging;
 
 namespace HelixToolkit.SharpDX.Core.Native;
 
@@ -50,22 +52,6 @@ public sealed unsafe class D2DDevice : D2DNativeResource {
     private static readonly Guid DxgiDeviceGuid = new("54ec77fa-1377-44e6-8c32-88fd5f44c84c");
     private SilkD2DDevicePtr nativeDevice;
 
-    public D2DDevice(object? nativeResource = null) {
-        if (nativeResource is SilkD3DDevice d3DDevice) {
-            IDXGIDevice* dxgiDevice = null;
-            var guid = DxgiDeviceGuid;
-            SilkMarshal.ThrowHResult(d3DDevice.Handle->QueryInterface(&guid, (void**) &dxgiDevice));
-            try {
-                ID2D1Device* device = null;
-                SilkMarshal.ThrowHResult(D2DApi.D2D1CreateDevice(dxgiDevice, null, &device));
-                nativeDevice = new SilkD2DDevicePtr(device);
-                device->Release();
-            } finally {
-                dxgiDevice->Release();
-            }
-        }
-    }
-
     internal ID2D1Device* Handle => nativeDevice.Handle;
 
     public override void Dispose() {
@@ -77,6 +63,9 @@ public sealed unsafe class D2DDevice : D2DNativeResource {
 public sealed unsafe class D2DDeviceContext : D2DNativeResource {
     private static readonly Guid DxgiSurfaceGuid = new("cafcb56c-6ac3-4889-bf47-9e23bbd260ec");
     private SilkD2DDeviceContextPtr nativeContext;
+    private Media.DrawingContext? managedContext;
+    private int managedWidth;
+    private int managedHeight;
 
     public D2DDeviceContext(object? nativeResource = null) {
         if (nativeResource is D2DDevice device && device.Handle != null) {
@@ -136,7 +125,9 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
         if (nativeContext.Handle != null) {
             var value = ToSilkColor(color);
             nativeContext.Handle->Clear(&value);
-        }
+        } else managedContext?.DrawRectangle(ToManagedBrush(color),
+            null,
+            new System.Windows.Rect(0, 0, managedWidth, managedHeight));
     }
 
     public void DrawRectangle(RectangleF rect, Brush brush, float strokeWidth, StrokeStyle? strokeStyle = null) {
@@ -150,7 +141,7 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
         if (nativeContext.Handle != null && brush.Handle != null) {
             var value = ToSilkRect(rect);
             nativeContext.Handle->FillRectangle(&value, brush.Handle);
-        }
+        } else managedContext?.DrawRectangle(ToManagedBrush(brush, rect), null, ToManagedRect(rect));
     }
 
     public void DrawRoundedRectangle(
@@ -229,6 +220,16 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
                 opacity,
                 (Silk.NET.Direct2D.BitmapInterpolationMode) interpolationMode,
                 null);
+        } else if (managedContext is { } context) {
+            var source = Imaging.BitmapSource.Create(bitmap.Width,
+                bitmap.Height,
+                96,
+                96,
+                Media.PixelFormats.Pbgra32,
+                null,
+                bitmap.Pixels,
+                bitmap.Width * 4);
+            context.DrawImage(source, ToManagedRect(destinationRectangle));
         }
     }
 
@@ -243,33 +244,35 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
                 (Silk.NET.Direct2D.IDWriteTextLayout*) textLayout.Handle,
                 brush.Handle,
                 Silk.NET.Direct2D.DrawTextOptions.None);
+        else if (managedContext is { } context && brush is SolidColorBrush solidBrush) {
+            var format = textLayout.TextFormat;
+            var typeface = new Media.Typeface(new Media.FontFamily(format.FontFamily),
+                format.FontStyle == FontStyle.Italic ? System.Windows.FontStyles.Italic : System.Windows.FontStyles.Normal,
+                System.Windows.FontWeight.FromOpenTypeWeight((int) format.FontWeight),
+                System.Windows.FontStretches.Normal);
+            var text = new Media.FormattedText(textLayout.Text,
+                System.Globalization.CultureInfo.CurrentUICulture,
+                textLayout.FlowDirection == FlowDirection.LeftToRight
+                    ? System.Windows.FlowDirection.LeftToRight
+                    : System.Windows.FlowDirection.RightToLeft,
+                typeface,
+                format.FontSize,
+                ToManagedBrush(solidBrush.Color),
+                1);
+            context.DrawText(text, new System.Windows.Point(origin.X, origin.Y));
+        }
     }
 
-    internal D2DBitmap CreateTargetBitmap(Texture2D texture, D2DBitmapProperties properties) {
-        if (nativeContext.Handle == null)
-            return new D2DBitmap(new Size2(texture.Description.Width, texture.Description.Height));
+    internal void BeginManagedDraw(Media.DrawingContext context, int width, int height) {
+        managedContext = context;
+        managedWidth = width;
+        managedHeight = height;
+    }
 
-        IDXGISurface* surface = null;
-        var guid = DxgiSurfaceGuid;
-        SilkMarshal.ThrowHResult(texture.Handle->QueryInterface(&guid, (void**) &surface));
-        try {
-            var bitmapProperties = new BitmapProperties1 {
-                PixelFormat = new PixelFormat(properties.PixelFormat.Format,
-                    (AlphaMode) properties.PixelFormat.AlphaMode),
-                DpiX = properties.DpiX,
-                DpiY = properties.DpiY,
-                BitmapOptions = (BitmapOptions) properties.Options
-            };
-            ID2D1Bitmap1* bitmap = null;
-            SilkMarshal.ThrowHResult(
-                nativeContext.Handle->CreateBitmapFromDxgiSurface(surface, &bitmapProperties, &bitmap));
-            var result = new D2DBitmap(new Size2(texture.Description.Width, texture.Description.Height),
-                new SilkD2DBitmapPtr(bitmap));
-            bitmap->Release();
-            return result;
-        } finally {
-            surface->Release();
-        }
+    internal void EndManagedDraw() {
+        managedContext = null;
+        managedWidth = 0;
+        managedHeight = 0;
     }
 
     internal Bitmap CreateBitmap(byte[] pixels, int width, int height, int stride) {
@@ -289,7 +292,7 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
                 (uint) stride,
                 &properties,
                 &bitmap));
-            var result = new Bitmap(new Size2F(width, height), new SilkD2DBitmapBasePtr(bitmap));
+            var result = new Bitmap(new Size2F(width, height), new SilkD2DBitmapBasePtr(bitmap), pixels);
             bitmap->Release();
             return result;
         }
@@ -304,6 +307,37 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
     private static Box2D<float> ToSilkRect(RectangleF rect) => new(rect.Left, rect.Top, rect.Right, rect.Bottom);
 
     private static D3Dcolorvalue ToSilkColor(Color4 color) => new(color.X, color.Y, color.Z, color.W);
+
+    private static System.Windows.Rect ToManagedRect(RectangleF rect) =>
+        new(rect.Left, rect.Top, rect.Width, rect.Height);
+
+    private static Media.Brush ToManagedBrush(Brush brush, RectangleF bounds) => brush switch {
+        SolidColorBrush solid => ToManagedBrush(solid.Color),
+        LinearGradientBrush linear => new Media.LinearGradientBrush(
+            new Media.GradientStopCollection(linear.GradientStops.Gradients.Select(stop =>
+                new Media.GradientStop(ToManagedColor(stop.Color), stop.Position))),
+            new System.Windows.Point(linear.Properties.StartPoint.X, linear.Properties.StartPoint.Y),
+            new System.Windows.Point(linear.Properties.EndPoint.X, linear.Properties.EndPoint.Y)) {
+            MappingMode = Media.BrushMappingMode.Absolute
+        },
+        RadialGradientBrush radial => new Media.RadialGradientBrush(
+            new Media.GradientStopCollection(radial.GradientStops.Gradients.Select(stop =>
+                new Media.GradientStop(ToManagedColor(stop.Color), stop.Position)))) {
+            MappingMode = Media.BrushMappingMode.Absolute,
+            Center = new System.Windows.Point(radial.Properties.Center.X, radial.Properties.Center.Y),
+            GradientOrigin = new System.Windows.Point(
+                radial.Properties.Center.X + radial.Properties.GradientOriginOffset.X,
+                radial.Properties.Center.Y + radial.Properties.GradientOriginOffset.Y),
+            RadiusX = radial.Properties.RadiusX,
+            RadiusY = radial.Properties.RadiusY
+        },
+        _ => Media.Brushes.Transparent
+    };
+
+    private static Media.SolidColorBrush ToManagedBrush(Color4 color) => new(ToManagedColor(color));
+
+    private static System.Windows.Media.Color ToManagedColor(Color4 color) =>
+        System.Windows.Media.Color.FromScRgb(color.W, color.X, color.Y, color.Z);
 }
 
 public sealed class WicImagingFactory : D2DNativeResource {

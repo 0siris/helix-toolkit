@@ -63,8 +63,6 @@ public sealed class ConstantBufferDescription {
 
     public List<ConstantBufferVariable> Variables { get; } = [];
 
-    public ConstantBufferProxy CreateBuffer() => new(this);
-
     public ConstantBufferMapping CreateMapping(int slot) => new(slot, this);
 
     public ConstantBufferDescription Clone() => new(Name, StructSize, StrideSize) {

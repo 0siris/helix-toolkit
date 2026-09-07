@@ -33,9 +33,7 @@ public class Sprite2DNode : SceneNode {
     public TextureModel? Texture {
         get => texture;
         set {
-            if (SetAffectsRender(ref texture, value) && IsAttached)
-                if (value is { } tex && EffectsManager is { } effectsManager)
-                    SpriteCore.UpdateTexture(tex, effectsManager.MaterialTextureManager);
+            if (SetAffectsRender(ref texture, value)) SpriteCore.Texture = value;
         }
     }
 
@@ -79,8 +77,7 @@ public class Sprite2DNode : SceneNode {
             Sprites = Sprites,
             SpriteCount = SpriteCount
         };
-        if (texture is { } currentTexture && EffectTechnique is { } technique)
-            SpriteCore.UpdateTexture(currentTexture, technique.EffectsManager.MaterialTextureManager);
+        SpriteCore.Texture = texture;
         base.OnAttached();
     }
 

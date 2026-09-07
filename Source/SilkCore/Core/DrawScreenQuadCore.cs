@@ -11,7 +11,6 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
@@ -19,42 +18,19 @@ using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public class DrawScreenQuadCore : RenderCore {
-    private readonly ConstantBufferComponent modelCb;
 
     public ScreenQuadModelStruct ModelStruct;
 
     private ShaderPass pass = ShaderPass.NullPass;
     private string passName = DefaultPassNames.Default;
 
-    private SamplerStateProxy? Sampler {
-        get;
-        set {
-            if (field != value)
-                field?.Dispose();
-            field = value;
-        }
-    }
-
     private SamplerStateDescription samplerDescription = DefaultSamplers.LinearSamplerClampAni1;
     private int samplerSlot;
 
     private TextureModel? texture;
-
-    private ShaderResourceViewProxy? TextureProxy {
-        get;
-        set {
-            if (field != value)
-                field?.Dispose();
-            field = value;
-        }
-    }
     private int textureSlot;
 
     public DrawScreenQuadCore() : base(RenderType.Opaque) {
-        modelCb = AddComponent(new ConstantBufferComponent(
-                                   new ConstantBufferDescription(
-                                       DefaultBufferNames.ScreenQuadCb,
-                                       ScreenQuadModelStruct.SizeInBytes)));
         ModelStruct = new ScreenQuadModelStruct {
             TopLeft = new Vector4(-1, 1, 1, 1),
             TopRight = new Vector4(1, 1, 1, 1),

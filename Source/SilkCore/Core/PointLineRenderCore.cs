@@ -12,30 +12,15 @@ using HelixToolkit.SharpDX.Core.Core.Buffers;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
 /// <summary>
 /// </summary>
 public class PointLineRenderCore : GeometryRenderCore, IMaterialRenderParams {
-    private MaterialVariable materialVariables = EmptyMaterialVariable.EmptyVariable;
 
     protected PointLineModelStruct ModelStruct;
-
-    /// <summary>
-    ///     Used to wrap all material resources
-    /// </summary>
-    [AllowNull]
-    public MaterialVariable MaterialVariables {
-        get => materialVariables;
-        set {
-            value ??= EmptyMaterialVariable.EmptyVariable;
-            SetAffectsCanRenderFlag(ref materialVariables, value);
-        }
-    }
 
     protected virtual void OnUpdatePerModelStruct() {
         ModelStruct.World = ModelMatrix;
@@ -45,8 +30,7 @@ public class PointLineRenderCore : GeometryRenderCore, IMaterialRenderParams {
     }
 
     protected override bool OnUpdateCanRenderFlag()
-        => base.OnUpdateCanRenderFlag() &&
-           (IsAttached || materialVariables != EmptyMaterialVariable.EmptyVariable);
+        => base.OnUpdateCanRenderFlag() && D3D12Material is not null;
 
     /// <summary>
     ///     Records this existing point or line core through Direct3D 12.

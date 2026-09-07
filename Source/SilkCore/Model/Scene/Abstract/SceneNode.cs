@@ -642,6 +642,8 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         if (EffectsManager is not null && !ReferenceEquals(EffectsManager, effectsManager))
             throw new InvalidOperationException("EffectsManager instances must be the same during rendering.");
         EffectsManager = effectsManager;
+        if (RenderCore is IGeometryRenderCore { GeometryBuffer: IGeometryBufferModel geometryBuffer })
+            geometryBuffer.EffectsManager = effectsManager;
         EffectTechnique ??= OnSetRenderTechnique is not null
             ? OnSetRenderTechnique(effectsManager)
             : OnCreateRenderTechnique(effectsManager);

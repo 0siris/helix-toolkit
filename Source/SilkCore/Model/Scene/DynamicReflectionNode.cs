@@ -9,7 +9,6 @@ using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
@@ -101,22 +100,6 @@ public class DynamicReflectionNode : GroupNode, IDynamicReflector {
     public bool IsDynamicScene {
         get => ((IDynamicReflector)RenderCore).IsDynamicScene;
         set => ((IDynamicReflector)RenderCore).IsDynamicScene = value;
-    }
-
-    /// <summary>
-    ///     Binds the cube map.
-    /// </summary>
-    /// <param name="deviceContext">The device context.</param>
-    public void BindCubeMap(DeviceContextProxy deviceContext) {
-        ((IDynamicReflector)RenderCore).BindCubeMap(deviceContext);
-    }
-
-    /// <summary>
-    ///     Uns the bind cube map.
-    /// </summary>
-    /// <param name="deviceContext">The device context.</param>
-    public void UnBindCubeMap(DeviceContextProxy deviceContext) {
-        ((IDynamicReflector)RenderCore).UnBindCubeMap(deviceContext);
     }
 
     private void DynamicReflectionNode_OnClear(object? sender, OnChildNodeChangedArgs e) {

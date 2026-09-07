@@ -57,28 +57,6 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     public IEnumerable<string> RenderTechniques => techniqueDict.Keys;
 
-    private IConstantBufferPool? constantBufferPool;
-
-    /// <summary>
-    ///     <see cref="IDevice3DResources.ConstantBufferPool" />
-    /// </summary>
-    public IConstantBufferPool ConstantBufferPool
-        => constantBufferPool.AssertNotNull("Effects manager is not initialized.");
-
-    private IShaderPoolManager? shaderPoolManager;
-
-    /// <summary>
-    ///     <see cref="IEffectsManager.ShaderManager" />
-    /// </summary>
-    public IShaderPoolManager ShaderManager => shaderPoolManager.AssertNotNull("Effects manager is not initialized.");
-
-    private IStatePoolManager? statePoolManager;
-
-    /// <summary>
-    ///     <see cref="IDevice3DResources.StateManager" />
-    /// </summary>
-    public IStatePoolManager StateManager => statePoolManager.AssertNotNull("Effects manager is not initialized.");
-
     /// <summary>
     ///     Gets the geometry buffer manager.
     /// </summary>
@@ -90,52 +68,13 @@ public class EffectsManager : DisposeObject, IEffectsManager {
 
     private IGeometryBufferManager? geometryBufferManager;
 
-    /// <summary>
-    ///     Gets the material texture manager.
-    /// </summary>
-    /// <value>
-    ///     The material texture manager.
-    /// </value>
-    public ITextureResourceManager MaterialTextureManager =>
-        materialTextureManager.AssertNotNull("Effects manager is not initialized.");
-
-    private ITextureResourceManager? materialTextureManager;
-
-    public IMaterialVariablePool MaterialVariableManager =>
-        materialVariableManager.AssertNotNull("Effects manager is not initialized.");
-
-    private IMaterialVariablePool? materialVariableManager;
-
     public IStructArrayPool StructArrayPool => structArrayPool.AssertNotNull("Effects manager is not initialized.");
     private StructArrayPool? structArrayPool;
-
-    #region 3D Resoruces
-
-    private INativeDeviceResources? nativeDeviceResources;
-
-    public INativeDeviceResources NativeDeviceResources
-        => nativeDeviceResources.AssertNotNull("Effects manager is not initialized.");
-
-    /// <summary>
-    /// </summary>
-    public SilkD3DDevice Device => NativeDeviceResources.Device;
 
     /// <summary>
     /// </summary>
     public DriverType DriverType { get; private set; }
 
-    private IDeviceContextPool? deviceContextPool;
-
-    /// <summary>
-    ///     Gets the device context pool.
-    /// </summary>
-    /// <value>
-    ///     The device context pool.
-    /// </value>
-    public IDeviceContextPool DeviceContextPool
-        => deviceContextPool.AssertNotNull("Effects manager is not initialized.");
-
-    #endregion
 
     #region 2D Resources
 
@@ -228,6 +167,8 @@ public class EffectsManager : DisposeObject, IEffectsManager {
             : DriverType.Hardware;
         structArrayPool = new StructArrayPool();
         factory2D = new D2DFactory();
+        device2D = new D2DDevice();
+        deviceContext2D = new D2DDeviceContext(device2D) { Factory = factory2D };
         wicImgFactory = new WicImagingFactory();
         directWriteFactory = new DirectWriteFactory();
         Initialized = true;
@@ -364,20 +305,13 @@ public class EffectsManager : DisposeObject, IEffectsManager {
 
         techniqueDict.Clear();
         RemoveAndDispose(ref geometryBufferManager);
-        RemoveAndDispose(ref materialTextureManager);
-        RemoveAndDispose(ref materialVariableManager);
         RemoveAndDispose(ref directWriteFactory);
-        RemoveAndDispose(ref shaderPoolManager);
-        RemoveAndDispose(ref constantBufferPool);
-        RemoveAndDispose(ref statePoolManager);
-        RemoveAndDispose(ref deviceContextPool);
         RemoveAndDispose(ref deviceContext2D);
         RemoveAndDispose(ref device2D);
         RemoveAndDispose(ref factory2D);
         RemoveAndDispose(ref wicImgFactory);
         RemoveAndDispose(ref structArrayPool);
         Initialized = false;
-        RemoveAndDispose(ref nativeDeviceResources);
 #if DEBUGMEMORY
             ReportResources();
 #endif

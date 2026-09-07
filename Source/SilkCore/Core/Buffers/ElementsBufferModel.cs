@@ -6,7 +6,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
@@ -17,7 +16,6 @@ namespace HelixToolkit.SharpDX.Core.Core.Buffers;
 /// </summary>
 public class ElementsBufferModel<T> : DisposeObject, IElementsBufferModel<T> where T : unmanaged {
     public static readonly ElementsBufferModel<T> Empty = new(0);
-    private VertexBufferBinding bufferBinding;
     
     /// <summary>
     /// We have locks on this reference
@@ -76,29 +74,6 @@ public class ElementsBufferModel<T> : DisposeObject, IElementsBufferModel<T> whe
         elementBuffer = new DynamicBufferProxy(StructSize, BindFlags.VertexBuffer);
         Initialized = true;
         instanceChanged = true;
-    }
-
-    public virtual void AttachBuffer(DeviceContextProxy context, ref int vertexBufferStartSlot) {
-        if (HasElements) {
-            if (instanceChanged) {
-                if (elementBuffer is not { } currentBuffer || elements is not { } currentElements)
-                    return;
-
-                lock (currentBuffer) {
-                    if (instanceChanged) {
-                        currentBuffer.UploadDataToBuffer(context, currentElements, currentElements.Count);
-                        instanceChanged = false;
-                        bufferBinding = new VertexBufferBinding(currentBuffer.Buffer,
-                                                               currentBuffer.StructureSize,
-                                                               currentBuffer.Offset);
-                    }
-                }
-            }
-
-            context.SetVertexBuffers(vertexBufferStartSlot, bufferBinding);
-        }
-
-        ++vertexBufferStartSlot;
     }
 
     public void DisposeAndClear() {

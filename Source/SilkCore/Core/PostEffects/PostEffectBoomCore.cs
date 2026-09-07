@@ -10,7 +10,6 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
@@ -43,10 +42,6 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
     ///     Initializes a new instance of the <see cref="PostEffectMeshOutlineBlurCore" /> class.
     /// </summary>
     public PostEffectBloomCore() : base(RenderType.GlobalEffect) {
-        modelCb = AddComponent(new ConstantBufferComponent(
-                                   new ConstantBufferDescription(
-                                       DefaultBufferNames.BorderEffectCb,
-                                       BorderEffectStruct.SizeInBytes)));
 
         ThresholdColor = new Color4(0.8f, 0.8f, 0.8f, 0f);
         BloomExtractIntensity = 1f;
@@ -57,26 +52,6 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
 
     protected override bool OnUpdateCanRenderFlag()
         => IsAttached && !string.IsNullOrEmpty(EffectName);
-
-    private static void BindTarget(
-        DepthStencilView? dsv,
-        RenderTargetView targetView,
-        DeviceContextProxy context,
-        int width,
-        int height,
-        bool clear = true
-    ) {
-        if (clear)
-            context.ClearRenderTargetView(targetView, Color.Transparent);
-
-        context.SetRenderTargets(dsv, [targetView]);
-        context.SetViewport(0, 0, width, height);
-        context.SetScissorRectangle(0, 0, width, height);
-    }
-
-    #region Variables
-
-    private SamplerStateProxy? sampler;
     private ShaderPass screenQuadPass = ShaderPass.NullPass;
 
     private ShaderPass screenQuadCopy = ShaderPass.NullPass;
@@ -91,13 +66,10 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
 
     private int samplerSlot;
 
-    private readonly ConstantBufferComponent modelCb;
-
     private BorderEffectStruct modelStruct;
 
     private PostEffectBlurCore? blurCore;
 
-    #endregion
 
     #region Properties
 

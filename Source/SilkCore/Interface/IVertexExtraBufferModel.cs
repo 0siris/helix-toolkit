@@ -3,7 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Interface;
@@ -34,13 +33,6 @@ public interface IVertexExtraBufferModel : IGuid, IDisposable {
     ///     The buffer.
     /// </value>
     IElementsBufferProxy? Buffer { get; }
-
-    /// <summary>
-    ///     Attaches the buffer.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="vertexBufferStartSlot">The vertex buffer slot. Returns the next available slot after binding</param>
-    void AttachBuffer(DeviceContextProxy context, ref int vertexBufferStartSlot);
 
     /// <summary>
     ///     Initializes this instance.

@@ -63,20 +63,7 @@ public interface IDevice3DResources {
 
     /// <summary>
     /// </summary>
-    SilkD3DDevice Device { get; }
-
-    /// <summary>
-    /// </summary>
     DriverType DriverType { get; }
-
-    /// <summary>
-    ///     Gets the native Silk.NET device resources used by the DirectX backend.
-    /// </summary>
-    INativeDeviceResources NativeDeviceResources { get; }
-
-    /// <summary>
-    /// </summary>
-    IStatePoolManager StateManager { get; }
 
     /// <summary>
     ///     Gets the geometry buffer manager.
@@ -85,34 +72,6 @@ public interface IDevice3DResources {
     ///     The geometry buffer manager.
     /// </value>
     IGeometryBufferManager GeometryBufferManager { get; }
-
-    /// <summary>
-    ///     Gets the material texture manager.
-    /// </summary>
-    /// <value>
-    ///     The material texture manager.
-    /// </value>
-    ITextureResourceManager MaterialTextureManager { get; }
-
-    /// <summary>
-    ///     Gets the material variable manager.
-    /// </summary>
-    /// <value>
-    ///     The material variable manager.
-    /// </value>
-    IMaterialVariablePool MaterialVariableManager { get; }
-
-    /// <summary>
-    /// </summary>
-    IConstantBufferPool ConstantBufferPool { get; }
-
-    /// <summary>
-    ///     Gets the device context pool.
-    /// </summary>
-    /// <value>
-    ///     The device context pool.
-    /// </value>
-    IDeviceContextPool DeviceContextPool { get; }
 }
 
 /// <summary>
@@ -136,10 +95,6 @@ public interface IEffectsManager : IDeviceResources {
     ///     Gets whether Direct3D 12 WARP presentation is requested.
     /// </summary>
     bool EnableSoftwareRendering { get; }
-
-    /// <summary>
-    /// </summary>
-    IShaderPoolManager ShaderManager { get; }
 
     IStructArrayPool StructArrayPool { get; }
 

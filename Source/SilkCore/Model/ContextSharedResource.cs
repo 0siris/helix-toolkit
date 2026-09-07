@@ -8,11 +8,6 @@ using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 namespace HelixToolkit.SharpDX.Core.Model;
 
 public sealed class ContextSharedResource : IDisposable {
-    public ShaderResourceViewProxy? ShadowView { get; set; }
-
-    public ShaderResourceViewProxy? EnvironementMap { get; set; }
-
-    public ShaderResourceViewProxy? SsaoMap { get; set; }
 
     public int EnvironmentMapMipLevels { get; set; }
 
@@ -22,13 +17,6 @@ public sealed class ContextSharedResource : IDisposable {
 
     private void Dispose(bool disposing) {
         if (!disposedValue) {
-            if (disposing) {
-                ShadowView = null;
-                EnvironementMap = null;
-                SsaoMap = null;
-                // TODO: dispose managed state (managed objects).
-            }
-
             // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
             // TODO: set large fields to null.
 

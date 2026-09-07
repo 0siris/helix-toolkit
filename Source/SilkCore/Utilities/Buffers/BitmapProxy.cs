@@ -130,35 +130,6 @@ public class BitmapProxy : DisposeObject, IGuid {
         => new(format, dpiX, dpiY, bitmapOptions, colorContext);
 
     /// <summary>
-    ///     Creates by native surface.
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="surface">The surface.</param>
-    /// <returns></returns>
-    public static BitmapProxy Create(string name, D2DDeviceContext context, object surface) {
-        if (surface is Texture2D texture) {
-            var description = CreateDescription(context.DotsPerInch.Width,
-                                                context.DotsPerInch.Height,
-                                                texture.Description.Format);
-            var bitmap = context.CreateTargetBitmap(texture, description);
-            return new BitmapProxy(name,
-                                   context,
-                                   new Size2(texture.Description.Width, texture.Description.Height),
-                                   description,
-                                   bitmap);
-        }
-
-        return new BitmapProxy(name,
-                               context,
-                               default,
-                               CreateDescription(context.DotsPerInch.Width,
-                                                 context.DotsPerInch.Height,
-                                                 default),
-                               surface);
-    }
-
-    /// <summary>
     ///     Creates by size and format.
     /// </summary>
     /// <param name="name">The name.</param>

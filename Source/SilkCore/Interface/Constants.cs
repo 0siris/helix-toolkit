@@ -145,29 +145,4 @@ public static class Constants {
                 return ShaderStage.None;
         }
     }
-
-    /// <summary>
-    ///     Gets the null shader.
-    /// </summary>
-    /// <param name="stage">The stage.</param>
-    /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ShaderBase GetNullShader(ShaderStage stage) {
-        switch (stage) {
-            case ShaderStage.Vertex:
-                return VertexShader.NullVertexShader;
-            case ShaderStage.Domain:
-                return DomainShader.NullDomainShader;
-            case ShaderStage.Hull:
-                return HullShader.NullHullShader;
-            case ShaderStage.Geometry:
-                return GeometryShader.NullGeometryShader;
-            case ShaderStage.Pixel:
-                return PixelShader.NullPixelShader;
-            case ShaderStage.Compute:
-                return ComputeShader.NullComputeShader;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(stage), stage, "Unsupported shader stage.");
-        }
-    }
 }

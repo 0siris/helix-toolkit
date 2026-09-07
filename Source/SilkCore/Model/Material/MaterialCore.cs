@@ -4,7 +4,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 
 namespace HelixToolkit.SharpDX.Core.Model.Material;
 /// <summary>
@@ -16,15 +15,4 @@ public abstract class MaterialCore : ObservableObject, IMaterial {
     } = "Material";
 
     public Guid Guid { get; } = Guid.NewGuid();
-
-    /// <summary>
-    ///     Creates the material variables.
-    /// </summary>
-    /// <param name="manager">The manager.</param>
-    /// <param name="technique">The technique.</param>
-    /// <returns></returns>
-    public abstract MaterialVariable CreateMaterialVariables(
-        IEffectsManager manager,
-        IRenderTechnique technique
-    );
 }

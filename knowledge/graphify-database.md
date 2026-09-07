@@ -4,9 +4,9 @@ title: Project Source Knowledge Graph
 description: Generated Graphify database describing the repository's C# and MSBuild source tree.
 resource: ../graphify-out/graph.json
 tags: [knowledge, graphify, source, architecture]
-generated: { by: process:graphify-source-builder, at: 2026-08-26T00:00:00+02:00 }
+generated: { by: process:graphify-source-builder, at: 2026-09-06T00:00:00+02:00 }
 status: stable
-verified: 2026-08-26
+verified: 2026-09-06
 sources:
   - id: builder
     resource: ../tools/build_graphify_source.py
@@ -32,7 +32,7 @@ The builder creates a temporary code-only corpus, runs Graphify AST extraction w
 
 # Current Snapshot
 
-The 2026-08-26 snapshot covers 986 source files and contains 12,742 nodes, 21,970 edges, and 2,518
+The 2026-09-06 snapshot covers 940 source files and contains 12,054 nodes, 19,154 edges, and 3,045
 communities. The source paths are normalized to `Source/...`; no temporary staging corpus remains.
 
 # Scope and Limitations

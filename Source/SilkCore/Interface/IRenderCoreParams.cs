@@ -5,9 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 
 namespace HelixToolkit.SharpDX.Core.Interface;
 
@@ -42,14 +40,6 @@ public interface IGeometryRenderCore {
 /// <summary>
 /// </summary>
 public interface IMaterialRenderParams {
-    /// <summary>
-    ///     Gets or sets the material variables used for rendering.
-    /// </summary>
-    /// <value>
-    ///     The material variable.
-    /// </value>
-    [AllowNull]
-    MaterialVariable MaterialVariables { get; set; }
 }
 
 /// <summary>
@@ -76,9 +66,6 @@ public interface IDynamicReflector {
     float FarField { get; set; }
 
     bool IsLeftHanded { get; set; }
-
-    void BindCubeMap(DeviceContextProxy deviceContext);
-    void UnBindCubeMap(DeviceContextProxy deviceContext);
 }
 
 /// <summary>

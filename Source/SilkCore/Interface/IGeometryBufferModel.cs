@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Interface;
@@ -42,23 +41,6 @@ public interface IAttachableBufferModel : IGuid, IDisposable {
     ///     The index buffer.
     /// </value>
     IElementsBufferProxy? IndexBuffer { get; }
-
-    /// <summary>
-    ///     Attaches the buffers.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="vertexBufferStartSlot">The vertex buffer slot. It will be changed to next available slot after binding.</param>
-    /// <param name="deviceResources"></param>
-    /// <returns></returns>
-    bool AttachBuffers(DeviceContextProxy context, ref int vertexBufferStartSlot, IDeviceResources deviceResources);
-
-    /// <summary>
-    ///     Updates the buffers.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="deviceResources">The device resources.</param>
-    /// <returns>True if buffer updated.</returns>
-    bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources);
 }
 
 /// <summary>
@@ -87,13 +69,6 @@ public interface IGeometryBufferModel : IAttachableBufferModel {
 /// <summary>
 /// </summary>
 public interface IBillboardBufferModel : IDisposable {
-    /// <summary>
-    ///     Gets the texture view.
-    /// </summary>
-    /// <value>
-    ///     The texture view.
-    /// </value>
-    ShaderResourceViewProxy? TextureView { get; }
 
     /// <summary>
     ///     Gets the billboard type.
@@ -116,30 +91,4 @@ public interface IBoneSkinMeshBufferModel : IGeometryBufferModel {
 /// </summary>
 public interface IBoneSkinPreComputehBufferModel {
     bool CanPreCompute { get; }
-
-    /// <summary>
-    ///     Binds the skinned vertex buffer to output.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    void BindSkinnedVertexBufferToOutput(DeviceContextProxy context);
-
-    /// <summary>
-    ///     Uns the bind skinned vertex buffer to output.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    void UnBindSkinnedVertexBufferToOutput(DeviceContextProxy context);
-
-    /// <summary>
-    ///     Resets the skinned vertex buffer.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    void ResetSkinnedVertexBuffer(DeviceContextProxy context);
-
-    /// <summary>
-    ///     Copies the skinned to array.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="array">The array.</param>
-    /// <returns></returns>
-    int CopySkinnedToArray(DeviceContextProxy context, Vector3[] array);
 }

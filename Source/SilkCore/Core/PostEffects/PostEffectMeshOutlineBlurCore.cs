@@ -12,7 +12,6 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
@@ -69,10 +68,6 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     public PostEffectMeshOutlineBlurCore(bool useBlurCore = true) : base(RenderType.PostEffect) {
         UseBlurCore = useBlurCore;
         Color = new Color4(1, 0, 0, 1);
-        modelCb = AddComponent(new ConstantBufferComponent(
-                                   new ConstantBufferDescription(
-                                       DefaultBufferNames.BorderEffectCb,
-                                       BorderEffectStruct.SizeInBytes)));
     }
 
     protected override bool OnUpdateCanRenderFlag()
@@ -83,17 +78,6 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         modelStruct.Param.M12 = ScaleY;
         modelStruct.Color = new Color4();
         modelStruct.ViewportScale = (int)TextureSize;
-    }
-
-    #region Variables
-
-    private SamplerStateProxy? Sampler {
-        get;
-        set {
-            if (value != field)
-                field?.Dispose();
-            field = value;
-        }
     }
 
     private PostEffectBlurCore? BlurCore {
@@ -118,8 +102,6 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     private int textureSlot;
 
     private int samplerSlot;
-
-    private readonly ConstantBufferComponent modelCb;
     private BorderEffectStruct modelStruct;
     private static readonly OffScreenTextureSize TextureSize = OffScreenTextureSize.Full;
     private static readonly Color4 Transparent = new(0, 0, 0, 0);
@@ -127,7 +109,6 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     [MemberNotNullWhen(true, nameof(BlurCore))]
     private bool UseBlurCore { get; }
 
-    #endregion
 
     #region Properties
 

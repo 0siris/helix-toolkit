@@ -393,8 +393,8 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
             : depthPeeling
                 ? [
                     SilkD3D12TransparencyResources.PeelingDepthFormat,
-                    SilkD3D12TransparencyResources.PeelingColorFormat,
-                    SilkD3D12TransparencyResources.PeelingColorFormat
+                    renderTargetFormat,
+                    renderTargetFormat
                 ]
                 : [
                     SilkD3D12TransparencyResources.WeightedColorFormat,

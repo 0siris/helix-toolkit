@@ -12,7 +12,6 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 
@@ -54,10 +53,6 @@ public class PostEffectMeshXRayCore : RenderCore, IPostEffectMeshXRay {
     ///     Initializes a new instance of the <see cref="PostEffectMeshXRayCore" /> class.
     /// </summary>
     public PostEffectMeshXRayCore() : base(RenderType.PostEffect) {
-        modelCb = AddComponent(new ConstantBufferComponent(
-                                   new ConstantBufferDescription(
-                                       DefaultBufferNames.BorderEffectCb,
-                                       BorderEffectStruct.SizeInBytes)));
         Color = new Color4(0, 0, 1, 1);
     }
 
@@ -68,7 +63,6 @@ public class PostEffectMeshXRayCore : RenderCore, IPostEffectMeshXRay {
     #region Variables
 
     private readonly List<(SceneNode Mesh, IEffectAttributes Effect)> currentCoresBuffer = [];
-    private readonly ConstantBufferComponent modelCb;
     private BorderEffectStruct modelStruct;
 
     #endregion

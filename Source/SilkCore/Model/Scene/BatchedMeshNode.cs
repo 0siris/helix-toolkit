@@ -11,7 +11,6 @@ using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
@@ -70,22 +69,6 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
         IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
     };
 
-    /// <summary>
-    /// </summary>
-    protected virtual void AttachMaterial() {
-        var newVar = material is not null && RenderCore is IMaterialRenderParams
-            ? EffectsManager.AssertNotNull()
-                .MaterialVariableManager.Register(
-                    material,
-                    EffectTechnique.AssertNotNull())
-            : null;
-        RemoveAndDispose(ref materialVariable);
-        if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = materialVariable = newVar;
-        if (Materials is null && Material is PhongMaterialCore p)
-            BatchingBuffer.AssertNotNull()
-                .Materials = [p];
-    }
-
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
             var batchingBuffer = new DefaultStaticMeshBatchingBuffer {
@@ -94,7 +77,7 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
             };
             BatchingBuffer = batchingBuffer;
             if (RenderCore is IGeometryRenderCore r) r.GeometryBuffer = batchingBuffer;
-            AttachMaterial();
+            if (RenderCore is MeshRenderCore core) core.D3D12Material = material;
             return true;
         }
 
@@ -114,12 +97,10 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     /// </summary>
     protected override void OnDetach() {
         RemoveAndDispose(ref BatchingBuffer);
-        RemoveAndDispose(ref materialVariable);
-        if (RenderCore is IMaterialRenderParams core) core.MaterialVariables = null;
         base.OnDetach();
     }
 
-    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, materialVariable?.Id ?? 0);
+    protected override OrderKey OnUpdateRenderOrderKey() => OrderKey.Create(RenderOrder, 0);
 
     /// <summary>
     ///     <para>Determine if this can be rendered.</para>
@@ -539,8 +520,6 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
                         : RenderType.Opaque;
         }
     }
-
-    private MaterialVariable? materialVariable;
     private MaterialCore? material;
 
     /// <summary>
@@ -548,16 +527,9 @@ public class BatchedMeshNode : SceneNode, IHitable, IThrowingShadow, IBoundable,
     public MaterialCore? Material {
         get => material;
         set {
-            if (Set(ref material, value))
-                if (EffectsManager is { } effectsManager) {
-                    if (IsAttached) {
-                        AttachMaterial();
-                        InvalidateRender();
-                    } else {
-                        Detach();
-                        Attach(effectsManager);
-                    }
-                }
+            if (!Set(ref material, value)) return;
+            if (RenderCore is MeshRenderCore core) core.D3D12Material = material;
+            InvalidateRender();
         }
     }
 

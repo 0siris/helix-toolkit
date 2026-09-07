@@ -6,7 +6,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Model.Material;
@@ -77,10 +76,4 @@ public class ColorStripeMaterialCore : MaterialCore {
         get;
         set => Set(ref field, value);
     } = DefaultSamplers.LinearSamplerClampAni1;
-
-    public override MaterialVariable CreateMaterialVariables(
-        IEffectsManager manager,
-        IRenderTechnique technique
-    )
-        => new ColorStripeMaterialVariables(manager, technique, this);
 }

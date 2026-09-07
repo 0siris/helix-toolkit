@@ -15,10 +15,8 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
@@ -27,13 +25,11 @@ namespace HelixToolkit.SharpDX.Core.Core;
 
 public sealed class VolumeRenderCore : RenderCore {
     private static readonly MeshGeometry3D BoxMesh;
-    private readonly ConstantBufferComponent modelCb;
     private int backTexSlot;
 
     private VolumeCubeBufferModel? buffer;
 
     private ShaderPass? cubeBackPass;
-    private MaterialVariable materialVariables = EmptyMaterialVariable.EmptyVariable;
     private ShaderPass? meshFrontPass;
     private ModelMatrices modelMatrices;
     private ShaderPass? volumePass;
@@ -84,21 +80,6 @@ public sealed class VolumeRenderCore : RenderCore {
 
     public VolumeRenderCore()
         : base(RenderType.Particle) {
-        modelCb = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-                                                               DefaultBufferNames.VolumeModelCb,
-                                                               VolumeParamsStruct.SizeInBytes)));
-    }
-
-    /// <summary>
-    ///     Used to wrap all material resources
-    /// </summary>
-    public MaterialVariable MaterialVariables {
-        get => materialVariables;
-        set {
-            value.AssertNotNull("Use EmptyVariable const");
-
-            SetAffectsCanRenderFlag(ref materialVariables, value);
-        }
     }
 
     /// <summary>
@@ -142,20 +123,8 @@ public sealed class VolumeRenderCore : RenderCore {
     }
 
     /// <inheritdoc />
-    protected override bool OnUpdateCanRenderFlag() => base.OnUpdateCanRenderFlag() &&
-        (IsAttached && D3D12Material is IVolumeTextureMaterial ||
-         MaterialVariables != EmptyMaterialVariable.EmptyVariable);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void BindTarget(
-        DepthStencilView dsv,
-        RenderTargetView? targetView,
-        DeviceContextProxy context,
-        int width,
-        int height
-    ) {
-        context.SetRenderTargets(dsv, targetView == null ? null : [targetView]);
-    }
+    protected override bool OnUpdateCanRenderFlag()
+        => base.OnUpdateCanRenderFlag() && D3D12Material is IVolumeTextureMaterial;
 
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     private struct ModelMatrices {
@@ -175,20 +144,6 @@ public sealed class VolumeRenderCore : RenderCore {
     private sealed class VolumeCubeBufferModel : MeshGeometryBufferModel<Vector3> {
         public VolumeCubeBufferModel() : base(SilkMath.Vector3SizeInBytes) {
             Topology = PrimitiveTopology.TriangleList;
-        }
-
-        protected override void OnCreateVertexBuffer(
-            DeviceContextProxy context,
-            IElementsBufferProxy buffer,
-            int bufferIndex,
-            Geometry3D? geometry,
-            IDeviceResources deviceResources
-        ) {
-            // -- set geometry if given
-            if (geometry is { Positions.Count: > 0 })
-                buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);
-            else
-                buffer.UploadDataToBuffer(context, EmptyVerts, 0);
         }
     }
 }

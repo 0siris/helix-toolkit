@@ -10,10 +10,8 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Lights;
 using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
@@ -22,9 +20,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
 public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicReflectable {
     protected ModelStruct ModelStruct = new() { World = Matrix.Identity };
 
-    protected override bool OnUpdateCanRenderFlag()
-        => base.OnUpdateCanRenderFlag() &&
-           (IsAttached || MaterialVariables != EmptyMaterialVariable.EmptyVariable);
+    protected override bool OnUpdateCanRenderFlag() => base.OnUpdateCanRenderFlag();
 
     protected virtual void OnUpdatePerModelStruct(RenderContext context) {
         OnUpdatePerModelStructD3D12();
@@ -127,15 +123,6 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
     ///     Gets the productive opaque DX12 pass name selected by the existing material.
     /// </summary>
     internal string D3D12MaterialPassName => D3D12MeshMaterialData.GetPassName(D3D12Material);
-
-    /// <summary>
-    ///     Used to wrap all material resources
-    /// </summary>
-    [AllowNull]
-    public MaterialVariable MaterialVariables {
-        get;
-        set => SetAffectsCanRenderFlag(ref field, value ?? EmptyMaterialVariable.EmptyVariable);
-    } = EmptyMaterialVariable.EmptyVariable;
 
     #endregion
 }

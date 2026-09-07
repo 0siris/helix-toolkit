@@ -3,17 +3,12 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using Buffer = HelixToolkit.SharpDX.Core.Native.Buffer;
 
 namespace HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 /// <summary>
 /// </summary>
 public interface IBufferProxy : IDisposable {
-    /// <summary>
-    ///     Raw Buffer
-    /// </summary>
-    Buffer? Buffer { get; }
 
     /// <summary>
     ///     Element Size
@@ -39,9 +34,6 @@ public interface IBufferProxy : IDisposable {
 /// <summary>
 /// </summary>
 public abstract class BufferProxyBase : DisposeObject, IBufferProxy {
-    /// <summary>
-    /// </summary>
-    protected Buffer? BufferInternal;
 
     /// <summary>
     /// </summary>
@@ -69,17 +61,11 @@ public abstract class BufferProxyBase : DisposeObject, IBufferProxy {
     public int Offset { get; set; } = 0;
 
     /// <summary>
-    ///     <see cref="IBufferProxy.Buffer" />
-    /// </summary>
-    public Buffer? Buffer => BufferInternal;
-
-    /// <summary>
     ///     <see cref="IBufferProxy.BindFlags" />
     /// </summary>
     public BindFlags BindFlags { get; }
 
     public void DisposeAndClear() {
-        RemoveAndDispose(ref BufferInternal);
         ElementCount = 0;
     }
 

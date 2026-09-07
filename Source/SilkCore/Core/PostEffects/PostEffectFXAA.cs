@@ -10,7 +10,6 @@ using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
@@ -18,7 +17,6 @@ using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 namespace HelixToolkit.SharpDX.Core.Core.PostEffects;
 
 public sealed class PostEffectFxaa : RenderCore, IPostEffect {
-    private readonly ConstantBufferComponent modelCb;
 
     [System.Diagnostics.CodeAnalysis.AllowNull]
     private ShaderPass fxaaPass;
@@ -26,25 +24,11 @@ public sealed class PostEffectFxaa : RenderCore, IPostEffect {
     private ShaderPass lumaPass;
     private BorderEffectStruct modelStruct;
 
-    private SamplerStateProxy? Sampler {
-        get;
-        set {
-            if (value != field)
-                field?.Dispose();
-
-            field = value;
-        }
-    }
-
     private int samplerSlot;
 
     private int textureSlot;
 
     public PostEffectFxaa() : base(RenderType.GlobalEffect) {
-        modelCb = AddComponent(new ConstantBufferComponent(
-                                   new ConstantBufferDescription(
-                                       DefaultBufferNames.BorderEffectCb,
-                                       BorderEffectStruct.SizeInBytes)));
     }
 
     /// <summary>

@@ -7,29 +7,6 @@ namespace HelixToolkit.SharpDX.Core.Interface;
 /// <summary>
 /// </summary>
 /// <remarks>
-///     Initializes a new instance of the <see cref="Texture2DArgs" /> class.
-/// </remarks>
-/// <param name="texture">The texture.</param>
-public sealed class Texture2DArgs(ShaderResourceViewProxy texture) : EventArgs {
-    /// <summary>
-    ///     The texture
-    /// </summary>
-    public ShaderResourceViewProxy Texture => texture;
-
-    /// <summary>
-    ///     Performs an implicit conversion from <see cref="Texture2DArgs" /> to <see cref="ShaderResourceViewProxy" />.
-    /// </summary>
-    /// <param name="args">The arguments.</param>
-    /// <returns>
-    ///     The result of the conversion.
-    /// </returns>
-    public static implicit operator ShaderResourceViewProxy(Texture2DArgs args) 
-        => args.Texture;
-}
-
-/// <summary>
-/// </summary>
-/// <remarks>
 ///     Initializes a new instance of the <see cref="OctreeArgs" /> class.
 /// </remarks>
 /// <param name="octree">The octree.</param>

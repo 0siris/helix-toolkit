@@ -9,7 +9,6 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
@@ -19,18 +18,12 @@ namespace HelixToolkit.SharpDX.Core.Core;
 public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderParams {
 
     public CrossSectionMeshRenderCore() {
-        clipParamCb = AddComponent(new ConstantBufferComponent(
-                                       new ConstantBufferDescription(
-                                           DefaultBufferNames.ClipParamsCb,
-                                           ClipPlaneStruct.SizeInBytes)));
     }
 
     #region Shader Variables
 
     private ShaderPass drawBackfacePass = ShaderPass.NullPass;
     private ShaderPass drawScreenQuadPass = ShaderPass.NullPass;
-
-    private readonly ConstantBufferComponent clipParamCb;
 
     //private bool needsAssignVariables = true;   
     private readonly DirtyGate needsAssignVariables = new();
@@ -51,8 +44,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public CuttingOperation CuttingOperation {
         get => cuttingOperation;
         set {
-            if (SetAffectsRender(ref cuttingOperation, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.CuttingOperationStr, (int)value);
+            SetAffectsRender(ref cuttingOperation, value);
         }
     }
 
@@ -64,8 +56,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Color4 SectionColor {
         get => sectionColor;
         set {
-            if (SetAffectsRender(ref sectionColor, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossSectionColorStr, value);
+            SetAffectsRender(ref sectionColor, value);
         }
     }
 
@@ -74,8 +65,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Bool4 PlaneEnabled {
         get => planeEnabled;
         set {
-            if (SetAffectsRender(ref planeEnabled, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.EnableCrossPlaneStr, value);
+            SetAffectsRender(ref planeEnabled, value);
         }
     }
 
@@ -84,8 +74,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Bool4 Plane5To8Enabled {
         get => plane5To8Enabled;
         set {
-            if (SetAffectsRender(ref plane5To8Enabled, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.EnableCrossPlane5To8Str, value);
+            SetAffectsRender(ref plane5To8Enabled, value);
         }
     }
 
@@ -97,8 +86,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Vector4 Plane1Params {
         get => plane1Params;
         set {
-            if (SetAffectsRender(ref plane1Params, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane1ParamsStr, value);
+            SetAffectsRender(ref plane1Params, value);
         }
     }
 
@@ -110,8 +98,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Vector4 Plane2Params {
         get => plane2Params;
         set {
-            if (SetAffectsRender(ref plane2Params, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane2ParamsStr, value);
+            SetAffectsRender(ref plane2Params, value);
         }
     }
 
@@ -123,8 +110,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Vector4 Plane3Params {
         get => plane3Params;
         set {
-            if (SetAffectsRender(ref plane3Params, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane3ParamsStr, value);
+            SetAffectsRender(ref plane3Params, value);
         }
     }
 
@@ -136,8 +122,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Vector4 Plane4Params {
         get => plane4Params;
         set {
-            if (SetAffectsRender(ref plane4Params, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane4ParamsStr, value);
+            SetAffectsRender(ref plane4Params, value);
         }
     }
 
@@ -149,8 +134,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Vector4 Plane5Params {
         get => plane5Params;
         set {
-            if (SetAffectsRender(ref plane5Params, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane5ParamsStr, value);
+            SetAffectsRender(ref plane5Params, value);
         }
     }
 
@@ -162,8 +146,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Vector4 Plane6Params {
         get => plane6Params;
         set {
-            if (SetAffectsRender(ref plane6Params, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane6ParamsStr, value);
+            SetAffectsRender(ref plane6Params, value);
         }
     }
 
@@ -175,8 +158,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Vector4 Plane7Params {
         get => plane7Params;
         set {
-            if (SetAffectsRender(ref plane7Params, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane7ParamsStr, value);
+            SetAffectsRender(ref plane7Params, value);
         }
     }
 
@@ -188,8 +170,7 @@ public class CrossSectionMeshRenderCore : MeshRenderCore, ICrossSectionRenderPar
     public Vector4 Plane8Params {
         get => plane8Params;
         set {
-            if (SetAffectsRender(ref plane8Params, value))
-                clipParamCb.WriteValueByName(ClipPlaneStruct.CrossPlane8ParamsStr, value);
+            SetAffectsRender(ref plane8Params, value);
         }
     }
 

@@ -12,7 +12,6 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -27,33 +26,7 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     ///     Initializes a new instance of the <see cref="DynamicCubeMapCore" /> class.
     /// </summary>
     public DynamicCubeMapCore() : base(RenderType.PreProc) {
-        modelCb = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-            DefaultBufferNames.GlobalTransformCb,
-            GlobalTransformStruct.SizeInBytes)));
         UpdateTargets();
-    }
-
-    private void RenderCubeFace(RenderContext context, int index) {
-        if (contextPool is not { } pool)
-            return;
-
-        var ctx = pool.Get();
-        ctx.ClearRenderTargetView(cubeRtVs[index]!, Color.Transparent);
-        ctx.ClearDepthStencilView(cubeDsVs[index]!, DepthStencilClearFlags.Depth);
-        ctx.SetRenderTarget(cubeDsVs[index], cubeRtVs[index]);
-        ctx.SetViewport(0, 0, FaceSize, FaceSize);
-        ctx.SetScissorRectangle(0, 0, FaceSize, FaceSize);
-        var transforms = new GlobalTransformStruct {
-            Projection = cubeFaceCameras.Cameras[index].Projection,
-            View = cubeFaceCameras.Cameras[index].View,
-            Viewport = new Vector4(FaceSize, FaceSize, 1 / FaceSize, 1 / FaceSize)
-        };
-        transforms.ViewProjection = transforms.View * transforms.Projection;
-
-        modelCb.Upload(ctx, ref transforms);
-
-        commands[index] = ctx.FinishCommandList(true);
-        contextPool.Put(ctx);
     }
 
     private void UpdateTargets() {
@@ -117,48 +90,11 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     private int cubeTextureSlot;
     private int textureSamplerSlot;
 
-    private ShaderResourceViewProxy? CubeDsv {
-        get;
-        set {
-            if (field != value)
-                field?.Dispose();
-            field = value;
-        }
-    }
-
-    // The RTVs, one for each face of cubemap
-    private readonly RenderTargetView?[] cubeRtVs = new RenderTargetView?[6];
-
-    // The DSVs, one for each face of cubemap
-    private readonly DepthStencilView?[] cubeDsVs = new DepthStencilView?[6];
-
-    private SamplerStateProxy? TextureSampler {
-        get;
-        set {
-            if (field != value)
-                field?.Dispose();
-            field = value;
-        }
-    }
-
-    private IDeviceContextPool? contextPool;
-    private readonly CommandList?[] commands = new CommandList[6];
-    private readonly ConstantBufferComponent modelCb;
-
     #endregion
 
     #region Properties
 
     public HashSet<Guid> IgnoredGuid { get; } = [];
-
-    private ShaderResourceViewProxy? CubeMap {
-        get;
-        set {
-            if (field != value)
-                field?.Dispose();
-            field = value;
-        }
-    }
 
     private bool enableReflector = true;
 
@@ -188,21 +124,6 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
         get;
         set => SetAffectsRender(ref field, value);
     } = DefaultPassNames.Default;
-
-    /// <summary>
-    /// </summary>
-    protected ShaderPass DefaultShaderPass {
-        get;
-        private set {
-            if (SetAffectsRender(ref field, value)) {
-                cubeTextureSlot =
-                    value.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderCubeTextureName);
-                textureSamplerSlot =
-                    value.PixelShader.SamplerMapping.TryGetBindSlot(ShaderCubeTextureSamplerName);
-                RaiseInvalidateRender();
-            }
-        }
-    } = ShaderPass.NullPass;
 
     /// <summary>
     ///     Gets or sets the sampler description.
@@ -300,47 +221,6 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     public bool IsDynamicScene {
         get;
         set => SetAffectsRender(ref field, value);
-    }
-
-    #endregion Properties
-
-    #region IReflector
-
-    private SamplerStateProxy?[]? currSampler;
-    private ShaderResourceView?[]? currRes;
-
-    /// <summary>
-    ///     Binds the cube map.
-    /// </summary>
-    /// <param name="deviceContext">The device context.</param>
-    public void BindCubeMap(DeviceContextProxy deviceContext) {
-        currSampler = deviceContext.GetSampler<PixelShaderType>(textureSamplerSlot, 1);
-        ;
-        currRes = deviceContext.GetShaderResources<PixelShaderType>(cubeTextureSlot, 1);
-        if (EnableReflector) {
-            deviceContext.SetShaderResource<PixelShaderType>(cubeTextureSlot, CubeMap);
-            deviceContext.SetSampler<PixelShaderType>(textureSamplerSlot, TextureSampler);
-        }
-    }
-
-    /// <summary>
-    ///     Uns the bind cube map.
-    /// </summary>
-    /// <param name="deviceContext">The device context.</param>
-    public void UnBindCubeMap(DeviceContextProxy deviceContext) {
-        if (currRes is not { } resources || currSampler is not { } samplers)
-            return;
-
-        deviceContext.SetShaderResources<PixelShaderType>(cubeTextureSlot, resources);
-        deviceContext.SetSamplers<PixelShaderType>(textureSamplerSlot, samplers);
-
-        currSampler.OfType<SamplerStateProxy>()
-            .DisposeAll();
-        currRes.OfType<ShaderResourceView>()
-            .DisposeAll();
-
-        currSampler = [];
-        currRes = [];
     }
 
     #endregion IReflector

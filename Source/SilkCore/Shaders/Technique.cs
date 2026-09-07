@@ -12,7 +12,6 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 public sealed class Technique : DisposeObject, IRenderTechnique {
     private readonly Dictionary<string, Lazy<ShaderPass>> passDict = [];
     private readonly List<Lazy<ShaderPass>> passList = [];
-    private InputLayoutProxy? layout;
 
     /// <summary>
     /// </summary>
@@ -24,7 +23,6 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
         effectsManager = manager;
         if (description is {InputLayoutDescription: not null, PassDescriptions: not null}
             && manager is { } actualManager) {
-            layout = actualManager.ShaderManager.RegisterInputLayout(description.InputLayoutDescription);
             foreach (var desc in description.PassDescriptions) {
                 if (desc.Name is not { } passName) continue;
                 desc.InputLayoutDescription ??= description.InputLayoutDescription;
@@ -65,17 +63,6 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     public bool IsNull => Description.IsNull;
 
     /// <summary>
-    ///     <see cref="IRenderTechnique.Layout" />
-    /// </summary>
-    public InputLayoutProxy Layout => layout
-                                      ?? throw new InvalidOperationException("The technique has no input layout.");
-
-    /// <summary>
-    ///     <see cref="IRenderTechnique.Device" />
-    /// </summary>
-    public NativeD3DDevice? Device => effectsManager?.NativeDeviceResources.Device;
-
-    /// <summary>
     ///     <see cref="IRenderTechnique.Name" />
     /// </summary>
     public string Name { get; }
@@ -84,11 +71,6 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
     ///     <see cref="IRenderTechnique.ShaderPassNames" />
     /// </summary>
     public IEnumerable<string> ShaderPassNames => passDict.Keys;
-
-    /// <summary>
-    ///     <see cref="IRenderTechnique.ConstantBufferPool" />
-    /// </summary>
-    public IConstantBufferPool ConstantBufferPool => EffectsManager.ConstantBufferPool;
 
     /// <summary>
     ///     <see cref="IRenderTechnique.EffectsManager" />
@@ -173,7 +155,6 @@ public sealed class Technique : DisposeObject, IRenderTechnique {
                 p.Value.Dispose();
 
         passList.Clear();
-        RemoveAndDispose(ref layout);
         effectsManager = null;
         base.OnDispose(disposeManagedResources);
     }

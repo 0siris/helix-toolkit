@@ -72,8 +72,6 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
 
     private CameraCore? camera;
 
-    private ConstantBufferProxy? cbuffer;
-
     /// <summary>
     ///     Gets or sets the name of the custom pass.
     /// </summary>
@@ -448,124 +446,10 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Matrix GetScreenViewProjectionMatrix() => ScreenViewProjectionMatrix;
 
-    /// <summary>
-    ///     Call to update constant buffer for per frame
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void UpdatePerFrameData(DeviceContextProxy.DeviceContextProxy deviceContext) {
-        UpdatePerFrameData(true, true, deviceContext);
-    }
-
-    /// <summary>
-    ///     Call to update constant buffer for per frame
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void UpdatePerFrameData(bool updateGlobalTransform, bool updateLights, DeviceContextProxy.DeviceContextProxy deviceContext) {
-        if (updateGlobalTransform)
-            cbuffer.AssertNotNull("Global transform buffer has been disposed.")
-                .UploadDataToBuffer(deviceContext, ref globalTransform);
-        if (updateLights) {
-            LightScene.LightModels.HasEnvironmentMap = SharedResource.EnvironementMap != null;
-            LightScene.LightModels.EnvironmentMapMipLevels = SharedResource.EnvironmentMapMipLevels;
-            LightScene.UploadToBuffer(deviceContext);
-        }
-    }
-
-    /// <summary>
-    ///     Gets the off screen texture. Same as <see cref="GetOffScreenRt" /> or
-    ///     <see cref="GetOffScreenDs" />
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <param name="size">The size.</param>
-    /// <param name="format">The format.</param>
-    /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetOffScreenTexture(
-        OffScreenTextureType type,
-        OffScreenTextureSize size,
-        Format format
-    ) {
-        switch (type) {
-            case OffScreenTextureType.RenderTarget:
-                return GetOffScreenRt(size, format);
-            case OffScreenTextureType.DepthStencil:
-                return GetOffScreenDs(size, format);
-            default:
-                return ShaderResourceViewProxy.Empty;
-        }
-    }
-
-    /// <summary>
-    ///     Gets the off screen render target.
-    /// </summary>
-    /// <param name="size">The size.</param>
-    /// <param name="format">The format.</param>
-    /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetOffScreenRt(OffScreenTextureSize size, Format format) {
-        return ShaderResourceViewProxy.Empty;
-    }
-
-    /// <summary>
-    ///     Gets the off screen rt.
-    /// </summary>
-    /// <param name="size">The size.</param>
-    /// <param name="format">The format.</param>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetOffScreenRt(
-        OffScreenTextureSize size,
-        Format format,
-        out int width,
-        out int height
-    ) {
-        width = height = 0;
-        return ShaderResourceViewProxy.Empty;
-    }
-
-    /// <summary>
-    ///     Gets the off screen depth stencil.
-    /// </summary>
-    /// <param name="size">The size.</param>
-    /// <param name="format">The format.</param>
-    /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetOffScreenDs(OffScreenTextureSize size, Format format) {
-        return ShaderResourceViewProxy.Empty;
-    }
-
-    /// <summary>
-    ///     Gets the off screen ds.
-    /// </summary>
-    /// <param name="size">The size.</param>
-    /// <param name="format">The format.</param>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy GetOffScreenDs(
-        OffScreenTextureSize size,
-        Format format,
-        out int width,
-        out int height
-    ) {
-        width = height = 0;
-        return ShaderResourceViewProxy.Empty;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy? GetPingPongBufferNextRtv() => null;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ShaderResourceViewProxy? GetPingPongBufferCurrentRtv() => null;
-
     protected override void OnDispose(bool disposeManagedResources) {
         Camera = null;
         RemoveAndDispose(ref lightScene);
         RemoveAndDispose(ref sharedResource);
-        RemoveAndDispose(ref cbuffer);
         base.OnDispose(disposeManagedResources);
     }
 }

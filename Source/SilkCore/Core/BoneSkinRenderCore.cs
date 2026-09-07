@@ -13,7 +13,6 @@ using HelixToolkit.SharpDX.Core.Model.Lights;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 
@@ -191,11 +190,19 @@ public class BoneSkinRenderCore : MeshRenderCore {
         preComputeBoneBuffer = buffer as IBoneSkinPreComputehBufferModel;
     }
 
-    public int CopySkinnedToArray(DeviceContextProxy context, Vector3[] array)
-        => preComputeBoneBuffer?.CopySkinnedToArray(context, array) ?? 0;
-
     public bool InitializeMorphTargets(MorphTargetVertex[] targets, int pitch)
         => internalMtBuffer.InitializeMorphTargets(targets, pitch);
+
+    /// <summary>
+    ///     Copies the current CPU-prepared skinned positions into the destination array.
+    /// </summary>
+    internal int CopySkinnedToArray(Vector3[] destination) {
+        if (preComputeBoneBuffer is not BoneSkinPreComputeBufferModel source) return 0;
+        return SilkD3D12DefaultMeshBuffers.CopySkinnedPositions(source.SourceMeshBuffer,
+            (SharedBoneBuffer ?? internalBoneBuffer).BoneMatrices,
+            internalMtBuffer,
+            destination);
+    }
 
     public void SetWeight(int i, float w) {
         mtChanged = true;

@@ -5,6 +5,7 @@ using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Core.Buffers;
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.DefaultShaders;
+using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Collection;
@@ -17,7 +18,6 @@ using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using Silk.NET.Direct3D12;
@@ -33,6 +33,24 @@ namespace SilkCore.Tests;
 ///     Verifies deterministic Direct3D 12 runtime bookkeeping without requiring graphics hardware.
 /// </summary>
 public class D3D12RuntimePrimitiveTests {
+    /// <summary>
+    ///     Verifies generated 2D textures retain their rendered pixels without a Direct3D 11 interop device.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void SoftwareBitmapFallbackRendersPixels() {
+        using var effectsManager = new EffectsManager();
+        using var stream = BitmapExtensions.CreateSolidColorBitmapStream(effectsManager,
+            2,
+            2,
+            Direct2DImageFormat.Bmp,
+            new Vector4(1, 0, 0, 1));
+        stream.Position = 54;
+        var pixel = new byte[4];
+        Assert.Equal(4, stream.Read(pixel));
+        Assert.Equal([0, 0, 255, 255], pixel);
+    }
+
     /// <summary>
     ///     Verifies adapter ranking ignores software and unsupported devices and prefers dedicated memory.
     /// </summary>
@@ -3514,6 +3532,12 @@ public class D3D12RuntimePrimitiveTests {
         using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 10, true);
         using var bindings = new SilkD3D12PointLineBindings(device, resourceHeap, samplerHeap);
         using var resources = new SilkD3D12ResourceManager(device, resourceHeap);
+        using var effectsManager = new EffectsManager();
+        using var emptyGeometry = new DefaultBillboardBufferModel {
+            Geometry = new BillboardSingleText3D(),
+            EffectsManager = effectsManager
+        };
+        Assert.Equal(0u, resources.GetOrCreate(emptyGeometry).VertexCount);
         using var renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
         using var renderTargetView = renderTargetHeap.Allocate();
         using var renderTarget = device.CreateRenderTargetTexture2D(16, 16, Format.FormatR8G8B8A8Unorm);

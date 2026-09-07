@@ -10,7 +10,6 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Animations;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
@@ -124,14 +123,11 @@ public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
     /// <param name="manager"></param>
     /// <returns>New array with vertex positions</returns>
     public Vector3[]? TryGetSkinnedVertices(IEffectsManager manager) {
-        if (Geometry is BoneSkinnedMeshGeometry3D skGeometry)
-            if (RenderCore is BoneSkinRenderCore skCore) {
-                var nativeResources = manager.NativeDeviceResources;
-                var proxy = new DeviceContextProxy(nativeResources.ImmediateContext, nativeResources.Device);
-                if (skGeometry.Positions is not { } positions) return null;
-                var array = new Vector3[positions.Count];
-                if (skCore.CopySkinnedToArray(proxy, array) > 0) return array;
-            }
+        if (Geometry is BoneSkinnedMeshGeometry3D {Positions: { } positions}
+            && RenderCore is BoneSkinRenderCore skCore) {
+            var array = new Vector3[positions.Count];
+            if (skCore.CopySkinnedToArray(array) > 0) return array;
+        }
 
         return null;
     }
@@ -143,12 +139,8 @@ public class BoneSkinMeshNode : MeshNode, IBoneMatricesNode {
     /// <param name="array">Vertex positions will be copied into this array</param>
     /// <returns></returns>
     public int TryGetSkinnedVertices(IEffectsManager manager, Vector3[] array) {
-        if (Geometry is BoneSkinnedMeshGeometry3D)
-            if (RenderCore is BoneSkinRenderCore skCore) {
-                var nativeResources = manager.NativeDeviceResources;
-                var proxy = new DeviceContextProxy(nativeResources.ImmediateContext, nativeResources.Device);
-                return skCore.CopySkinnedToArray(proxy, array);
-            }
+        if (Geometry is BoneSkinnedMeshGeometry3D && RenderCore is BoneSkinRenderCore skCore)
+            return skCore.CopySkinnedToArray(array);
 
         return 0;
     }

@@ -9,7 +9,6 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 using JetBrains.Annotations;
 
@@ -93,31 +92,6 @@ public abstract class MeshGeometryBufferModel<TVertexStruct> : GeometryBufferMod
         IElementsBufferProxy indexBuffer
     )
         : base(topology, vertexBuffer, indexBuffer) { }
-
-
-    /// <summary>
-    ///     Called when [create index buffer].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="buffer">The buffer.</param>
-    /// <param name="geometry">The geometry.</param>
-    /// <param name="deviceResources">The device resources.</param>
-    protected override void OnCreateIndexBuffer(
-        DeviceContextProxy context,
-        IElementsBufferProxy buffer,
-        Geometry3D? geometry,
-        IDeviceResources deviceResources
-    ) {
-        if (geometry is {Indices.Count: > 0})
-            buffer.UploadDataToBuffer(context,
-                                      geometry.Indices,
-                                      geometry.Indices.Count,
-                                      0,
-                                      geometry.PreDefinedIndexCount);
-        else
-            buffer.UploadDataToBuffer(context, Array.Empty<int>(), 0);
-        //buffer.DisposeAndClear();
-    }
 }
 
 /// <summary>
@@ -160,64 +134,6 @@ public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVer
                 return propertyName?.Equals(nameof(MeshGeometry3D.Colors), StringComparison.Ordinal) == true;
             default:
                 return false;
-        }
-    }
-
-    /// <summary>
-    ///     Called when [create vertex buffer].
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="buffer">The buffer.</param>
-    /// <param name="bufferIndex">Index of the buffer.</param>
-    /// <param name="geometry">The geometry.</param>
-    /// <param name="deviceResources">The device resources.</param>
-    protected override void OnCreateVertexBuffer(
-        DeviceContextProxy context,
-        IElementsBufferProxy buffer,
-        int bufferIndex,
-        Geometry3D? geometry,
-        IDeviceResources deviceResources
-    ) {
-        if (geometry is not MeshGeometry3D mesh)
-            return;
-                
-        switch (bufferIndex) {
-            case 0:
-                // -- set geometry if given
-                if (mesh.Positions is { Count: > 0 } positions) {
-                    // --- get geometry
-                    var data = BuildVertexArray(mesh);
-                    buffer.UploadDataToBuffer(context,
-                                              data,
-                                              positions.Count,
-                                              0,
-                                              geometry.PreDefinedVertexCount);
-                } else {
-                    //buffer.DisposeAndClear();
-                    buffer.UploadDataToBuffer(context, Array.Empty<DefaultVertex>(), 0);
-                }
-
-                break;
-            case 1:
-                if (mesh.TextureCoordinates is {Count: > 0})
-                    buffer.UploadDataToBuffer(context,
-                                              mesh.TextureCoordinates,
-                                              mesh.TextureCoordinates.Count,
-                                              0,
-                                              geometry.PreDefinedVertexCount);
-                else
-                    buffer.UploadDataToBuffer(context, Array.Empty<Vector2>(), 0);
-                break;
-            case 2:
-                if (geometry.Colors is {Count: > 0})
-                    buffer.UploadDataToBuffer(context,
-                                              geometry.Colors,
-                                              geometry.Colors.Count,
-                                              0,
-                                              geometry.PreDefinedVertexCount);
-                else
-                    buffer.UploadDataToBuffer(context, Array.Empty<Vector4>(), 0);
-                break;
         }
     }
 

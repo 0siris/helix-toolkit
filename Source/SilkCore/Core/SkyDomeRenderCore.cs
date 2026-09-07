@@ -12,7 +12,6 @@ using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
@@ -34,8 +33,6 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     /// </summary>
     /// <param name="pass">The pass.</param>
     protected void OnDefaultPassChanged(ShaderPass pass) {
-        cubeTextureSlot = pass.PixelShader.ShaderResourceViewMapping.TryGetBindSlot(ShaderCubeTextureName);
-        textureSamplerSlot = pass.PixelShader.SamplerMapping.TryGetBindSlot(ShaderCubeTextureSamplerName);
     }
 
     /// <summary>
@@ -43,17 +40,6 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     private sealed class SkyDomeBufferModel : MeshGeometryBufferModel<Vector3> {
         public SkyDomeBufferModel() : base(SilkMath.Vector3SizeInBytes) {
             Topology = PrimitiveTopology.TriangleList;
-        }
-
-        protected override void OnCreateVertexBuffer(
-            DeviceContextProxy context,
-            IElementsBufferProxy buffer,
-            int bufferIndex,
-            Geometry3D? geometry,
-            IDeviceResources deviceResources
-        ) {
-            if (bufferIndex == 0 && geometry is { Positions.Count: > 0 })
-                buffer.UploadDataToBuffer(context, geometry.Positions, geometry.Positions.Count);
         }
     }
 
@@ -72,7 +58,6 @@ public class SkyDomeRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     #region Variables
 
     private int cubeTextureSlot;
-    private SamplerStateProxy? textureSampler;
     private int textureSamplerSlot;
     private ShaderPass defaultShaderPass = ShaderPass.NullPass;
     private SkyDomeBufferModel? skyBuffer;

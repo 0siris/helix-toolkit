@@ -11,7 +11,6 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
@@ -23,10 +22,6 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
     /// <summary>
     /// </summary>
     public ShadowMapCore() : base(RenderType.PreProc) {
-        modelCb = AddComponent(new ConstantBufferComponent(
-                                   new ConstantBufferDescription(
-                                       DefaultBufferNames.ShadowParamCb,
-                                       ShadowMapParamStruct.SizeInBytes)));
         Bias = 0.0015f;
         Intensity = 0.5f;
         Width = Height = 1024;
@@ -52,10 +47,6 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 
         public RenderContext Context { get; private set; }
     }
-
-    #region Variables
-
-    private ShaderResourceViewProxy? viewResource;
     private int currentFrame;
     private bool resolutionChanged = true;
     private ShadowMapParamStruct modelStruct;
@@ -99,9 +90,6 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
             }
         };
 
-    private readonly ConstantBufferComponent modelCb;
-
-    #endregion
 
     #region Properties
 

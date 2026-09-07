@@ -3,13 +3,11 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using System.Runtime.InteropServices;
 using System.Text;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 using HelixToolkit.SharpDX.Core.Utilities.ImagePacker;
@@ -126,55 +124,26 @@ public static class BitmapExtensions {
     ) {
         if (width <= 0 || height <= 0) return null;
 
-        if (deviceResources is not IDevice3DResources device3D
-            || !deviceResources.DeviceContext2D.HasNativeContext)
-            return new Bitmap(new Size2F(width, height));
-
-        var texture = device3D.NativeDeviceResources.Device.CreateTexture2D(new Texture2DDescription {
-            Width = width,
-            Height = height,
-            MipLevels = 1,
-            ArraySize = 1,
-            Format = Format.FormatB8G8R8A8Unorm,
-            SampleDescription = new SampleDescription(1, 0),
-            BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-            CpuAccessFlags = CpuAccessFlags.None,
-            OptionFlags = ResourceOptionFlags.None,
-            Usage = ResourceUsage.Default
-        });
-        BitmapProxy? target = null;
-        try {
+        var visual = new System.Windows.Media.DrawingVisual();
+        using (var drawingContext = visual.RenderOpen()) {
             var context = deviceResources.DeviceContext2D;
-            var properties = BitmapProxy.CreateDescription(context.DotsPerInch.Width,
-                                                           context.DotsPerInch.Height,
-                                                           Format.FormatB8G8R8A8Unorm,
-                                                           D2DAlphaMode.Premultiplied,
-                                                           D2DBitmapOptions.Target);
-            var nativeBitmap = context.CreateTargetBitmap(texture, properties);
-            target = new BitmapProxy(nameof(BitmapExtensions),
-                                     context,
-                                     new Size2(width, height),
-                                     properties,
-                                     nativeBitmap);
-            var previousTarget = context.Target;
+            context.BeginManagedDraw(drawingContext, width, height);
             try {
-                context.Target = target;
-                context.Transform = Matrix3X2.Identity;
-                context.BeginDraw();
                 drawingAction(context);
-                context.EndDraw();
             } finally {
-                context.Target = previousTarget;
+                context.EndManagedDraw();
             }
-
-            var bitmap = new Bitmap(new Size2F(width, height), texture, target);
-            texture = null;
-            target = null;
-            return bitmap;
-        } finally {
-            target?.Dispose();
-            texture?.Dispose();
         }
+
+        var target = new System.Windows.Media.Imaging.RenderTargetBitmap(width,
+            height,
+            96,
+            96,
+            System.Windows.Media.PixelFormats.Pbgra32);
+        target.Render(visual);
+        var pixels = new byte[checked(width * height * 4)];
+        target.CopyPixels(pixels, width * 4, 0);
+        return new Bitmap(new Size2F(width, height), pixels: pixels);
     }
 
 
@@ -183,36 +152,48 @@ public static class BitmapExtensions {
         IDevice2DResources deviceResources,
         Direct2DImageFormat imageType = Direct2DImageFormat.Bmp
     ) {
-        if (bitmap.Texture != null && deviceResources is IDeviceResources resources) {
-            var stream = new MemoryStream();
-            if (ScreenCapture.SaveWicTextureToStream(resources, bitmap.Texture, stream, imageType)) return stream;
-            stream.Dispose();
-        }
-
         var width = Math.Max(1, bitmap.Width);
         var height = Math.Max(1, bitmap.Height);
         var stride = width * 4;
-        var pixelDataSize = stride * height;
-        var systemStream = new MemoryStream(54 + pixelDataSize);
-        using (var writer = new BinaryWriter(systemStream, Encoding.UTF8, true)) {
-            writer.Write((byte)'B');
-            writer.Write((byte)'M');
-            writer.Write(54 + pixelDataSize);
-            writer.Write((short)0);
-            writer.Write((short)0);
-            writer.Write(54);
-            writer.Write(40);
-            writer.Write(width);
-            writer.Write(-height);
-            writer.Write((short)1);
-            writer.Write((short)32);
-            writer.Write(0);
-            writer.Write(pixelDataSize);
-            writer.Write(96 * 39);
-            writer.Write(96 * 39);
-            writer.Write(0);
-            writer.Write(0);
-            writer.Write(new byte[pixelDataSize]);
+        var source = System.Windows.Media.Imaging.BitmapSource.Create(width,
+            height,
+            96,
+            96,
+            System.Windows.Media.PixelFormats.Pbgra32,
+            null,
+            bitmap.Pixels,
+            stride);
+        var systemStream = new MemoryStream();
+        if (imageType == Direct2DImageFormat.Ico) {
+            using var imageStream = new MemoryStream();
+            var png = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            png.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(source));
+            png.Save(imageStream);
+            using var writer = new BinaryWriter(systemStream, Encoding.UTF8, true);
+            writer.Write((ushort) 0);
+            writer.Write((ushort) 1);
+            writer.Write((ushort) 1);
+            writer.Write(checked((byte) (width == 256 ? 0 : width)));
+            writer.Write(checked((byte) (height == 256 ? 0 : height)));
+            writer.Write((byte) 0);
+            writer.Write((byte) 0);
+            writer.Write((ushort) 1);
+            writer.Write((ushort) 32);
+            writer.Write(checked((uint) imageStream.Length));
+            writer.Write(22u);
+            writer.Write(imageStream.GetBuffer(), 0, checked((int) imageStream.Length));
+        } else {
+            System.Windows.Media.Imaging.BitmapEncoder encoder = imageType switch {
+                Direct2DImageFormat.Png => new System.Windows.Media.Imaging.PngBitmapEncoder(),
+                Direct2DImageFormat.Gif => new System.Windows.Media.Imaging.GifBitmapEncoder(),
+                Direct2DImageFormat.Jpeg => new System.Windows.Media.Imaging.JpegBitmapEncoder(),
+                Direct2DImageFormat.Wmp => new System.Windows.Media.Imaging.WmpBitmapEncoder(),
+                Direct2DImageFormat.Tiff => new System.Windows.Media.Imaging.TiffBitmapEncoder(),
+                Direct2DImageFormat.Bmp => new System.Windows.Media.Imaging.BmpBitmapEncoder(),
+                _ => throw new ArgumentOutOfRangeException(nameof(imageType))
+            };
+            encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(source));
+            encoder.Save(systemStream);
         }
 
         systemStream.Position = 0;
@@ -469,33 +450,7 @@ public static class BitmapExtensions {
     private static TextureModel ToTextureModel(this Bitmap bitmap, IDevice2DResources deviceResources) {
         var width = Math.Max(1, bitmap.Width);
         var height = Math.Max(1, bitmap.Height);
-        var pixels = new byte[width * height * 4];
-
-        if (bitmap.Texture is { } texture
-            && deviceResources is IDeviceResources resources
-            && ScreenCapture.CaptureTexture(new DeviceContextProxy(resources.NativeDeviceResources.ImmediateContext,
-                                                                   resources.NativeDeviceResources.Device),
-                                             texture,
-                                             out var stagingTexture)) {
-            var disposeStaging = !ReferenceEquals(stagingTexture, texture);
-            try {
-                var context = resources.NativeDeviceResources.ImmediateContext;
-                    var data = context.MapSubresource(stagingTexture, 0, MapMode.Read, MapFlags.None);
-                try {
-                    for (var row = 0; row < height; ++row)
-                        Marshal.Copy(nint.Add(data.DataPointer, row * data.RowPitch),
-                                     pixels,
-                                     row * width * 4,
-                                     width * 4);
-                } finally {
-                    context.UnmapSubresource(stagingTexture, 0);
-                }
-            } finally {
-                if (disposeStaging) stagingTexture.Dispose();
-            }
-        }
-
-        return new TextureModel(pixels, Format.FormatB8G8R8A8Unorm, width, height);
+        return new TextureModel(bitmap.Pixels, Format.FormatB8G8R8A8Unorm, width, height);
     }
 
     /// <summary>

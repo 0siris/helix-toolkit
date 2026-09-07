@@ -1,5 +1,25 @@
 # Knowledge Bundle Update Log
 
+## 2026-09-07
+
+* **Verification**: Repeated the final solution build, 344-test `Category!=Hardware` gate, six-demo startup/render
+  smoke, source-name hygiene scan, and `git diff --check`; all automated closure gates remain green. The visible
+  hardware interaction and consented live Desktop Duplication checks remain manual.
+
+## 2026-09-06
+
+* **Update**: Completed the automated Phase 5 DX12-only source cutover by removing the remaining native D3D11
+  handle, shader, state, view, resource, material-variable, pool, and `DeviceContextProxy` paths while retaining
+  the isolated Desktop Duplication source and data-only public descriptions.
+* **Update**: Restored D3D11-free billboard/text-atlas generation through the WPF software bitmap path, prepared
+  text billboards before DX12 upload, treated empty billboards as zero-draw geometry, and matched post-process and
+  depth-peeling resources to the presentation texture format.
+* **Verification**: The solution builds with zero errors; the `Category!=Hardware` gate passes 344 tests; six
+  central demos complete clean five-second startup/render smokes without error diagnostics; direct D3D11 source
+  use is confined to `Native/D3D11DesktopCaptureSource.cs`.
+* **Verification**: Refreshed the 940-file Graphify database to 12,054 nodes, 19,154 edges, and 3,045 communities.
+  Visible presentation, resize/input behavior, and interactive Desktop Duplication remain manual gates.
+
 ## 2026-08-26
 
 * **Update**: Isolated Desktop Duplication from the shared D3D11 device wrapper and removed unused DXGI handles,

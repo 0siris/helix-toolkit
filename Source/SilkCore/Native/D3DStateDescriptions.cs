@@ -3,12 +3,6 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using Silk.NET.Direct3D11;
-using SilkD3D11BlendStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11BlendState>;
-using SilkD3D11DepthStencilStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11DepthStencilState>;
-using SilkD3D11RasterizerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11RasterizerState>;
-using SilkD3D11SamplerStatePtr = Silk.NET.Core.Native.ComPtr<Silk.NET.Direct3D11.ID3D11SamplerState>;
-
 namespace HelixToolkit.SharpDX.Core.Native;
 
 public enum BlendOperation {
@@ -240,103 +234,4 @@ public struct SamplerStateDescription {
     public Color4 BorderColor;
     public float MinimumLod;
     public float MaximumLod;
-}
-
-public sealed unsafe class BlendState : IDisposable {
-    private SilkD3D11BlendStatePtr nativeState;
-
-    internal BlendState(SilkD3D11BlendStatePtr nativeState, BlendStateDescription description) {
-        this.nativeState = nativeState;
-        Description = description;
-    }
-
-    public nint NativePointer => (nint)nativeState.Handle;
-
-    internal ID3D11BlendState* Handle => nativeState.Handle;
-
-    public BlendStateDescription Description { get; }
-
-    public bool IsDisposed { get; private set; }
-
-    public void Dispose() {
-        if (IsDisposed) return;
-
-        if (nativeState.Handle != null) nativeState.Dispose();
-        IsDisposed = true;
-    }
-}
-
-public sealed unsafe class DepthStencilState : IDisposable {
-    private SilkD3D11DepthStencilStatePtr nativeState;
-
-    internal DepthStencilState(
-        SilkD3D11DepthStencilStatePtr nativeState,
-        DepthStencilStateDescription description
-    ) {
-        this.nativeState = nativeState;
-        Description = description;
-    }
-
-    public nint NativePointer => (nint)nativeState.Handle;
-
-    internal ID3D11DepthStencilState* Handle => nativeState.Handle;
-
-    public DepthStencilStateDescription Description { get; }
-
-    public bool IsDisposed { get; private set; }
-
-    public void Dispose() {
-        if (IsDisposed) return;
-
-        if (nativeState.Handle != null) nativeState.Dispose();
-        IsDisposed = true;
-    }
-}
-
-public sealed unsafe class RasterizerState : IDisposable {
-    private SilkD3D11RasterizerStatePtr nativeState;
-
-    internal RasterizerState(SilkD3D11RasterizerStatePtr nativeState, RasterizerStateDescription description) {
-        this.nativeState = nativeState;
-        Description = description;
-    }
-
-    public nint NativePointer => (nint)nativeState.Handle;
-
-    internal ID3D11RasterizerState* Handle => nativeState.Handle;
-
-    public RasterizerStateDescription Description { get; }
-
-    public bool IsDisposed { get; private set; }
-
-    public void Dispose() {
-        if (IsDisposed) return;
-
-        if (nativeState.Handle != null) nativeState.Dispose();
-        IsDisposed = true;
-    }
-}
-
-public sealed unsafe class SamplerState : IDisposable {
-    private SilkD3D11SamplerStatePtr nativeState;
-
-    internal SamplerState(SilkD3D11SamplerStatePtr nativeState, SamplerStateDescription description) {
-        this.nativeState = nativeState;
-        Description = description;
-    }
-
-    public nint NativePointer => (nint)nativeState.Handle;
-
-    internal ID3D11SamplerState* Handle => nativeState.Handle;
-
-    public SamplerStateDescription Description { get; }
-
-    public bool IsDisposed { get; private set; }
-
-    public void Dispose() {
-        if (IsDisposed) return;
-
-        if (nativeState.Handle != null) nativeState.Dispose();
-        IsDisposed = true;
-    }
 }

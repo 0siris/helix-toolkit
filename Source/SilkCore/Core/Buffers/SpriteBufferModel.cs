@@ -1,7 +1,6 @@
 ﻿using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
@@ -29,33 +28,6 @@ public sealed class Sprite2DBufferModel : DisposeObject, IGuid, IAttachableBuffe
     public IElementsBufferProxy IndexBuffer => indexBuffer;
 
     public Sprite2DBufferModel(){}
-    
-    public bool AttachBuffers(
-        DeviceContextProxy context,
-        ref int vertexBufferStartSlot,
-        IDeviceResources deviceResources
-    ) {
-        if (!UpdateBuffers(context, deviceResources)) 
-            return false;
-        
-        context.SetVertexBuffers(0,
-                                 new VertexBufferBinding(vertextBuffer.Buffer,
-                                                         vertextBuffer.StructureSize,
-                                                         vertextBuffer.Offset));
-        context.SetIndexBuffer(IndexBuffer.Buffer, Format.FormatR32Uint, IndexBuffer.Offset);
-        return true;
-
-    }
-
-    public bool UpdateBuffers(DeviceContextProxy context, IDeviceResources deviceResources) {
-        if (SpriteCount == 0 || IndexCount == 0 || Sprites == null || Indices == null ||
-            Sprites.Length < SpriteCount || Indices.Length < IndexCount) 
-            return false;
-        
-        vertextBuffer.UploadDataToBuffer(context, Sprites, SpriteCount);
-        IndexBuffer.UploadDataToBuffer(context, Indices, IndexCount);
-        return true;
-    }
 
     public Guid Guid { get; } = Guid.NewGuid();
 

@@ -5,7 +5,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material.Variables;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities.Buffers;
@@ -180,17 +179,6 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
         get;
         set => Set(ref field, value);
     } = true;
-
-    public override MaterialVariable CreateMaterialVariables(
-        IEffectsManager manager,
-        IRenderTechnique technique
-    ) {
-        return new VolumeMaterialVariable<T>(manager, technique, this, DefaultPassName) {
-            OnCreateTexture = (_, effectsManager) => OnCreateTexture(effectsManager)
-        };
-    }
-
-    protected abstract ShaderResourceViewProxy? OnCreateTexture(IEffectsManager manager);
 }
 
 /// <summary>
@@ -198,7 +186,6 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
 ///     <see cref="VolumeTextureMaterialCoreBase{T}.VolumeTexture" />
 /// </summary>
 public sealed class VolumeTextureDds3DMaterialCore : VolumeTextureMaterialCoreBase<TextureModel> {
-    protected override ShaderResourceViewProxy? OnCreateTexture(IEffectsManager manager) => manager.MaterialTextureManager.Register(VolumeTexture, true);
 }
 
 /// <summary>
@@ -210,19 +197,6 @@ public sealed class VolumeTextureDds3DMaterialCore : VolumeTextureMaterialCoreBa
 ///     </para>
 /// </summary>
 public sealed class VolumeTextureRawDataMaterialCore : VolumeTextureMaterialCoreBase<VolumeTextureParams> {
-    protected override ShaderResourceViewProxy? OnCreateTexture(IEffectsManager manager) {
-        if (VolumeTexture.VolumeTextures != null)
-            return ShaderResourceViewProxy.CreateViewFromPixelData(manager.NativeDeviceResources,
-                                                                   VolumeTexture.VolumeTextures,
-                                                                   VolumeTexture.Width,
-                                                                   VolumeTexture.Height,
-                                                                   VolumeTexture.Depth,
-                                                                   VolumeTexture.Format,
-                                                                   true,
-                                                                   false);
-
-        return null;
-    }
 
     public static VolumeTextureParams LoadRawFile(string filename, int width, int height, int depth) {
         using var file = new FileStream(filename, FileMode.Open);
@@ -255,18 +229,4 @@ public sealed class VolumeTextureRawDataMaterialCore : VolumeTextureMaterialCore
 public sealed class
     VolumeTextureDiffuseMaterialCore : VolumeTextureMaterialCoreBase<VolumeTextureGradientParams> {
     protected override string DefaultPassName => DefaultPassNames.Diffuse;
-
-    protected override ShaderResourceViewProxy? OnCreateTexture(IEffectsManager manager) {
-        if (VolumeTexture.VolumeTextures != null)
-            return ShaderResourceViewProxy.CreateViewFromPixelData(manager.NativeDeviceResources,
-                                                                   VolumeTexture.VolumeTextures,
-                                                                   VolumeTexture.Width,
-                                                                   VolumeTexture.Height,
-                                                                   VolumeTexture.Depth,
-                                                                   VolumeTexture.Format,
-                                                                   true,
-                                                                   false);
-
-        return null;
-    }
 }

@@ -129,6 +129,30 @@ public sealed class D3D12CutoverContractTests {
     }
 
     /// <summary>
+    ///     Verifies Silk.NET Direct3D 11 source references remain confined to Desktop Duplication.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Direct3D11SourceReferencesAreConfinedToDesktopCapture() {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null && !Directory.Exists(Path.Combine(directory.FullName, "SilkCore")))
+            directory = directory.Parent;
+
+        var sourceDirectory = Assert.IsType<DirectoryInfo>(directory);
+        var references = Directory.EnumerateFiles(Path.Combine(sourceDirectory.FullName, "SilkCore"), "*.cs",
+                SearchOption.AllDirectories)
+            .Where(path => File.ReadAllText(path).Contains("Silk.NET.Direct3D11", StringComparison.Ordinal))
+            .Select(Path.GetFullPath)
+            .ToArray();
+
+        var captureSource = Path.GetFullPath(Path.Combine(sourceDirectory.FullName,
+            "SilkCore",
+            "Native",
+            "D3D11DesktopCaptureSource.cs"));
+        Assert.Equal([captureSource], references);
+    }
+
+    /// <summary>
     ///     Verifies a scene node retains its custom technique selection without attaching Direct3D 11 resources.
     /// </summary>
     [Fact]

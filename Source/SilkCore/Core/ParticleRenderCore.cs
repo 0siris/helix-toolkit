@@ -15,7 +15,6 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.Render.DeviceContextProxy;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -318,14 +317,6 @@ public class ParticleRenderCore : RenderCore {
     private ShaderPass updatePass = ShaderPass.NullPass;
     private ShaderPass insertPass = ShaderPass.NullPass;
     private ShaderPass renderPass = ShaderPass.NullPass;
-
-    private readonly ConstantBufferComponent perFrameCb;
-    private readonly ConstantBufferComponent insertCb;
-    private readonly ConstantBufferComponent modelCb;
-
-    private ShaderResourceViewProxy? textureView;
-    private SamplerStateProxy? textureSampler;
-    private BlendStateProxy? blendState;
     private double totalElapsed;
     private ParticleModelStruct modelStruct;
 
@@ -352,22 +343,6 @@ public class ParticleRenderCore : RenderCore {
         Usage = ResourceUsage.Default
     };
 
-    //Buffer indirectArgsBuffer;
-    private readonly ConstantBufferProxy particleCountGsiaBuffer
-        = new("particleCount",
-            ParticleCountIndirectArgs.SizeInBytes,
-            BindFlags.None,
-            CpuAccessFlags.None,
-            ResourceOptionFlags.DrawIndirectArguments);
-
-    private readonly ConstantBufferProxy particleCountStaging
-        = new("particleStaging",
-            4 * sizeof(int),
-            BindFlags.None,
-            CpuAccessFlags.Read,
-            ResourceOptionFlags.None,
-            ResourceUsage.Staging);
-
     private UnorderedAccessViewDescription uavBufferViewDesc = new() {
         Dimension = UnorderedAccessViewDimension.Buffer,
         Format = Format.FormatUnknown,
@@ -380,14 +355,6 @@ public class ParticleRenderCore : RenderCore {
     private ShaderResourceViewDescription srvBufferViewDesc = new() {
         Dimension = ShaderResourceViewDimension.Buffer
     };
-
-    /// <summary>
-    ///     Gets or sets the buffer proxies.
-    /// </summary>
-    /// <value>
-    ///     The buffer proxies.
-    /// </value>
-    protected UavBufferViewProxy?[] BufferProxies { get; } = new UavBufferViewProxy?[2];
 
     private ParticleCountIndirectArgs drawArgument;
 
@@ -432,14 +399,6 @@ public class ParticleRenderCore : RenderCore {
         set => SetAffectsRender(ref sampleMask, value);
     }
 
-    /// <summary>
-    ///     Gets or sets the vertex layout.
-    /// </summary>
-    /// <value>
-    ///     The vertex layout.
-    /// </value>
-    public InputLayoutProxy? VertexLayout { get; private set; }
-
     #region Shader Variable Names
 
     /// <summary>
@@ -478,13 +437,6 @@ public class ParticleRenderCore : RenderCore {
     #endregion
 
     public ParticleRenderCore() : base(RenderType.Particle) {
-        modelCb = AddComponent(new ConstantBufferComponent(new ConstantBufferDescription(
-            DefaultBufferNames.ParticleModelCb,
-            ParticleModelStruct.SizeInBytes)));
-        perFrameCb = AddComponent(new ConstantBufferComponent(DefaultBufferNames.ParticleFrameCb,
-            ParticlePerFrame.SizeInBytes));
-        insertCb = AddComponent(new ConstantBufferComponent(DefaultBufferNames.ParticleCreateParameters,
-            ParticleInsertParameters.SizeInBytes));
     }
 
     /// <inheritdoc />
@@ -598,31 +550,5 @@ public class ParticleRenderCore : RenderCore {
         UpdateCanRenderFlag();
     }
 
-    private void DisposeBuffers() {
-        bufferDesc.SizeInBytes = 0;
-        particleCountGsiaBuffer.DisposeAndClear();
-
-        particleCountStaging.DisposeAndClear();
-
-        for (var i = 0; i < BufferProxies.Length; ++i)
-            RemoveAndDispose(ref BufferProxies[i]);
-    }
-
-
     protected override bool OnUpdateCanRenderFlag() => base.OnUpdateCanRenderFlag() && !isInitialParticleChanged;
-
-    private int ReadCount(string src, DeviceContextProxy context, UnorderedAccessView uav) {
-        if (particleCountStaging.Buffer is not { } stagingBuffer) return 0;
-        context.CopyStructureCount(stagingBuffer, 0, uav);
-        var db = context.MapSubresource(stagingBuffer, MapMode.Read, MapFlags.None);
-        var currentParticleCount = UnsafeHelper.Read<int>(db.DataPointer);
-#if OUTPUTDEBUGGING
-                if (Logger.IsEnabled(LogLevel.Debug))
-                {
-                    Logger.Debug("{Value0}: {Value1}", src, currentParticleCount);
-                }
-#endif
-        context.UnmapSubresource(stagingBuffer, 0);
-        return currentParticleCount;
-    }
 }

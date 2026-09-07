@@ -17,7 +17,7 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// <summary>
     ///     The format shared with the WPF swap chain.
     /// </summary>
-    internal const Format TargetFormat = Format.FormatB8G8R8A8Unorm;
+    internal const Format TargetFormat = Format.FormatR8G8B8A8Unorm;
 
     /// <summary>
     ///     The native device.
@@ -140,7 +140,7 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
         uint height
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        Resize(width, height);
+        Resize(width, height, source.Description.Format);
         context.Transition(source, ResourceStates.CopySource);
         context.Transition(Target(0), ResourceStates.CopyDest);
         context.CopyTexture(Target(0), source);
@@ -257,17 +257,17 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// </summary>
     /// <param name="width">The new width.</param>
     /// <param name="height">The new height.</param>
-    private void Resize(uint width, uint height) {
+    private void Resize(uint width, uint height, Format format = TargetFormat) {
         ArgumentOutOfRangeException.ThrowIfZero(width);
         ArgumentOutOfRangeException.ThrowIfZero(height);
         if (targets[0] is { Description.Width: var currentWidth, Description.Height: var currentHeight } &&
-            currentWidth == width && currentHeight == height)
+            currentWidth == width && currentHeight == height && targets[0]!.Description.Format == format)
             return;
 
         var replacements = new SilkD3D12Resource[2];
         try {
             for (var index = 0; index < replacements.Length; index++) {
-                replacements[index] = device.CreateRenderTargetTexture2D(width, height, TargetFormat);
+                replacements[index] = device.CreateRenderTargetTexture2D(width, height, format);
                 device.CreateRenderTargetView(replacements[index], renderTargetViews[index]);
             }
         } catch {

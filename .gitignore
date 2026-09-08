@@ -214,8 +214,6 @@ FakesAssemblies/
 !/Source/Examples/WPF/ExampleBrowser/Resources/simple3dModel.ply
 !/Source/Examples/WPF/ExampleBrowser/Resources/simple3dModel.stl
 
-
-.agents/
 skills-lock.json
 
 # Graphify source-graph staging and local AST cache

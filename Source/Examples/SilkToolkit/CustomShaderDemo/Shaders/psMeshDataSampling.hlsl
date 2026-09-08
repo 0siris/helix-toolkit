@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------------
 // Returns the sum of the diffuse and specular terms in the Blinn-Phong reflection model.
 float4 calcBlinnPhongLighting(float4 LColor, float4 vMaterialTexture, float3 N, float4 diffuse, float3 L, float3 H) {
-    return LColor * pow(0.5 - saturate(dot(N, H)), 4);
+    return LColor * pow(saturate(0.5 - dot(N, H)), 4);
 }
 
 float4 main(PSInput input) : SV_Target {

@@ -391,6 +391,21 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     private SilkD3D12BoneSkinResources? boneSkinning;
 
     /// <summary>
+    ///     The source color lists represented by the synthetic stripe textures.
+    /// </summary>
+    private readonly IList<Color4>?[] stripeSources = new IList<Color4>?[2];
+
+    /// <summary>
+    ///     The synthetic 1D textures used by color-stripe materials.
+    /// </summary>
+    private readonly TextureModel?[] stripeTextures = new TextureModel?[2];
+
+    /// <summary>
+    ///     The resource manager currently owning the synthetic stripe textures.
+    /// </summary>
+    private SilkD3D12ResourceManager? stripeResources;
+
+    /// <summary>
     ///     Initializes one default-mesh binding set.
     /// </summary>
     /// <param name="device">The Direct3D 12 device.</param>
@@ -653,6 +668,11 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
                 device.CreateSampler(bindings.Sampler(1), pbr.IblSampler);
                 device.CreateSampler(bindings.Sampler(3), pbr.DisplacementMapSampler);
                 break;
+            case ColorStripeMaterialCore stripe:
+                BindColorStripe(context, resources, stripe.ColorStripeX, 0, 12);
+                BindColorStripe(context, resources, stripe.ColorStripeY, 1, 13);
+                device.CreateSampler(bindings.Sampler(0), stripe.ColorStripeSampler);
+                break;
         }
 
         if (environmentMap is null) return;
@@ -678,6 +698,49 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         device.CreateShaderResourceView(texture.Resource,
             bindings.ShaderResource(shaderRegister),
             texture.IsCubeMap);
+    }
+
+    /// <summary>
+    ///     Creates or reuses one synthetic 1D color-stripe texture.
+    /// </summary>
+    /// <param name="context">The command context receiving a first-use upload.</param>
+    /// <param name="resources">The shared resource manager.</param>
+    /// <param name="colors">The source stripe colors.</param>
+    /// <param name="index">The stripe cache index.</param>
+    /// <param name="shaderRegister">The destination t-register.</param>
+    private void BindColorStripe(
+        SilkD3D12CommandContext context,
+        SilkD3D12ResourceManager resources,
+        IList<Color4>? colors,
+        int index,
+        int shaderRegister
+    ) {
+        stripeResources = resources;
+        if (!ReferenceEquals(stripeSources[index], colors)) {
+            ReleaseColorStripe(index);
+            stripeSources[index] = colors;
+            if (colors is { Count: > 0 })
+                stripeTextures[index] = new TextureModel([.. colors], colors.Count);
+        }
+
+        if (stripeTextures[index] is not { } textureModel) {
+            device.CreateNullShaderResourceView(bindings.ShaderResource(shaderRegister));
+            return;
+        }
+
+        var texture = resources.GetOrCreate(context, textureModel);
+        device.CreateTexture1DShaderResourceView(texture.Resource, bindings.ShaderResource(shaderRegister));
+    }
+
+    /// <summary>
+    ///     Removes one synthetic color-stripe texture from the shared resource manager.
+    /// </summary>
+    /// <param name="index">The stripe cache index.</param>
+    private void ReleaseColorStripe(int index) {
+        if (stripeTextures[index] is { } texture && stripeResources is { IsDisposed: false } manager)
+            manager.Remove(texture.Guid);
+        stripeSources[index] = null;
+        stripeTextures[index] = null;
     }
 
     /// <summary>
@@ -709,6 +772,8 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     /// </summary>
     public void Dispose() {
         if (IsDisposed) return;
+        ReleaseColorStripe(0);
+        ReleaseColorStripe(1);
         boneSkinning?.Dispose();
         shadow.Dispose();
         effect.Dispose();
@@ -1318,6 +1383,7 @@ internal static class D3D12MeshMaterialData {
         ColorMaterialCore => DefaultPassNames.Colors,
         PositionMaterialCore => DefaultPassNames.Positions,
         NormalVectorMaterialCore => DefaultPassNames.NormalVector,
+        ColorStripeMaterialCore => DefaultPassNames.ColorStripe1D,
         null => throw new InvalidOperationException("A DX12 mesh material is required for pass selection."),
         _ => throw new NotSupportedException($"DX12 mesh material '{material.GetType().Name}' is not supported.")
     };
@@ -1352,6 +1418,16 @@ internal static class D3D12MeshMaterialData {
                 break;
             case ColorMaterialCore or NormalMaterialCore or PositionMaterialCore or NormalVectorMaterialCore:
             case null:
+                break;
+            case ColorStripeMaterialCore stripe:
+                result.Diffuse = stripe.DiffuseColor;
+                result.HasDiffuseMap = stripe.ColorStripeXEnabled && HasColors(stripe.ColorStripeX)
+                    ? 1
+                    : 0;
+                result.HasAlphaOrRoughnessMetallicMap =
+                    stripe.ColorStripeYEnabled && HasColors(stripe.ColorStripeY)
+                        ? 1
+                        : 0;
                 break;
             default:
                 throw new NotSupportedException($"DX12 mesh material '{material.GetType().Name}' is not supported.");
@@ -1449,6 +1525,13 @@ internal static class D3D12MeshMaterialData {
         result.UvTransformRow1 = matrix.Column1;
         result.UvTransformRow2 = matrix.Column2;
     }
+
+    /// <summary>
+    ///     Tests the runtime-compatible optional color-list contract.
+    /// </summary>
+    /// <param name="colors">The optional color list.</param>
+    /// <returns>Whether the list contains colors.</returns>
+    private static bool HasColors(IList<Color4>? colors) => colors is { Count: > 0 };
 
     /// <summary>
     ///     Converts a managed Boolean to the 32-bit HLSL Boolean representation.

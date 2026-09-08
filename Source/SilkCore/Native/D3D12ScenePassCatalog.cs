@@ -384,6 +384,8 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <returns>The selected native pass, or <see langword="null" /> when unsupported.</returns>
     private ShaderPass? ResolveTransparency(SceneNode node, bool depthPeeling, bool initialize) {
         if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: { } geometry }) return null;
+        if (effectsManager is not null)
+            node.ResolveD3D12TechniqueName(effectsManager);
         var (technique, _) = GetSelection(node);
         if (technique is null) return null;
         var passName = GetTransparencyPassName(node, depthPeeling, initialize);

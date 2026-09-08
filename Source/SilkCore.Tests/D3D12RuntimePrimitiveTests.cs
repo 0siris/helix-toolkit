@@ -2118,6 +2118,18 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(DefaultPassNames.MeshPbrTriTessellation, D3D12MeshMaterialData.GetPassName(pbr));
         Assert.Equal(DefaultPassNames.Colors, D3D12MeshMaterialData.GetPassName(ColorMaterialCore.Core));
         Assert.Equal(Color.White, D3D12MeshMaterialData.Create(in model, ColorMaterialCore.Core).Diffuse);
+        var stripe = new ColorStripeMaterialCore {
+            DiffuseColor = Color.Red,
+            ColorStripeX = [Color.White],
+            ColorStripeY = [Color.Black]
+        };
+        var stripeData = D3D12MeshMaterialData.Create(in model, stripe);
+        Assert.Equal(DefaultPassNames.ColorStripe1D, D3D12MeshMaterialData.GetPassName(stripe));
+        Assert.Equal(Color.Red, stripeData.Diffuse);
+        Assert.Equal(1, stripeData.HasDiffuseMap);
+        Assert.Equal(1, stripeData.HasAlphaOrRoughnessMetallicMap);
+        stripe.ColorStripeY = null!;
+        Assert.Equal(0, D3D12MeshMaterialData.Create(in model, stripe).HasAlphaOrRoughnessMetallicMap);
         Assert.Throws<InvalidOperationException>(() => D3D12MeshMaterialData.GetPassName(null));
         Assert.Throws<NotSupportedException>(() =>
             D3D12MeshMaterialData.Create(in model, new BillboardMaterialCore()));

@@ -9,6 +9,7 @@
 
 using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
+using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
 using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Element3D;
@@ -138,6 +139,8 @@ public class MainViewModel : BaseViewModel {
     /// </summary>
     [Obsolete]
     public MainViewModel() {
+        EffectsManager = new DefaultEffectsManager();
+
         // titles
         Title = "DX12 Lighting Demo";
         SubTitle = "WPF & Silk.NET Direct3D 12";

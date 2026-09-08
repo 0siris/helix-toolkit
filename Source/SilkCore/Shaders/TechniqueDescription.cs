@@ -132,9 +132,9 @@ public sealed class ShaderPassDescription {
         IReadOnlyList<Silk.NET.DXGI.Format>? renderTargetFormats = null,
         Silk.NET.DXGI.Format depthStencilFormat = Silk.NET.DXGI.Format.FormatUnknown
     ) {
-        device.GuardNotNull();
-        rootSignature.GuardNotNull();
-        cache.GuardNotNull();
+        device.AsGuardNotNull();
+        rootSignature.AsGuardNotNull();
+        cache.AsGuardNotNull();
         var modules = GetD3D12ShaderModules();
         if (modules.TryGetValue(ShaderStage.Compute, out var computeShader)) {
             var computeKey = D3D12PipelineStateKey.Compute(computeShader);

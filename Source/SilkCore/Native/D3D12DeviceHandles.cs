@@ -179,7 +179,7 @@ public sealed unsafe class SilkD3D12CommandQueue : IDisposable {
 
     public ulong Signal(SilkD3D12Fence fence) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        fence.GuardNotNull();
+        fence.AsGuardNotNull();
 
         var value = fence.NextValue();
         SilkMarshal.ThrowHResult(nativeQueue.Signal(fence.NativeFence, value));
@@ -332,8 +332,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         SilkD3D12PipelineState pipelineState
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        rootSignature.GuardNotNull();
-        pipelineState.GuardNotNull();
+        rootSignature.AsGuardNotNull();
+        pipelineState.AsGuardNotNull();
         commandList.SetGraphicsRootSignature(rootSignature.Handle);
         commandList.SetPipelineState(pipelineState.Handle);
         graphicsPipelineBound = true;
@@ -349,8 +349,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         SilkD3D12PipelineState pipelineState
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        rootSignature.GuardNotNull();
-        pipelineState.GuardNotNull();
+        rootSignature.AsGuardNotNull();
+        pipelineState.AsGuardNotNull();
         commandList.SetComputeRootSignature(rootSignature.Handle);
         commandList.SetPipelineState(pipelineState.Handle);
         computePipelineBound = true;
@@ -432,7 +432,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     /// <param name="renderTarget">The render-target view descriptor.</param>
     public void SetRenderTarget(SilkD3D12Descriptor renderTarget) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        renderTarget.GuardNotNull();
+        renderTarget.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(renderTarget.IsDisposed, renderTarget);
         if (renderTarget.Type != DescriptorHeapType.Rtv)
             throw new ArgumentException("An RTV descriptor is required.", nameof(renderTarget));
@@ -446,7 +446,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     /// <param name="depthStencil">The depth/stencil view descriptor.</param>
     public void SetDepthStencil(SilkD3D12Descriptor depthStencil) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        depthStencil.GuardNotNull();
+        depthStencil.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(depthStencil.IsDisposed, depthStencil);
         if (depthStencil.Type != DescriptorHeapType.Dsv)
             throw new ArgumentException("A DSV descriptor is required.", nameof(depthStencil));
@@ -461,8 +461,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     /// <param name="depthStencil">The depth/stencil view descriptor.</param>
     public void SetRenderTargets(SilkD3D12Descriptor renderTarget, SilkD3D12Descriptor depthStencil) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        renderTarget.GuardNotNull();
-        depthStencil.GuardNotNull();
+        renderTarget.AsGuardNotNull();
+        depthStencil.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(renderTarget.IsDisposed, renderTarget);
         ObjectDisposedException.ThrowIf(depthStencil.IsDisposed, depthStencil);
         if (renderTarget.Type != DescriptorHeapType.Rtv)
@@ -489,7 +489,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         Span<CpuDescriptorHandle> handles = stackalloc CpuDescriptorHandle[renderTargets.Length];
         for (var index = 0; index < renderTargets.Length; index++) {
             var descriptor = renderTargets[index];
-            descriptor.GuardNotNull();
+            descriptor.AsGuardNotNull();
             ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
             if (descriptor.Type != DescriptorHeapType.Rtv)
                 throw new ArgumentException("Every descriptor must be an RTV.", nameof(renderTargets));
@@ -578,7 +578,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         uint sizeInBytes = 0
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        buffer.GuardNotNull();
+        buffer.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
         if (buffer.Description.Dimension != ResourceDimension.Buffer)
             throw new ArgumentException("The resource must be a buffer.", nameof(buffer));
@@ -603,7 +603,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         uint sizeInBytes = 0
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        buffer.GuardNotNull();
+        buffer.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
         if (buffer.Description.Dimension != ResourceDimension.Buffer)
             throw new ArgumentException("The resource must be a buffer.", nameof(buffer));
@@ -649,8 +649,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         ulong filledSizeOffset = 0
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        buffer.GuardNotNull();
-        filledSizeBuffer.GuardNotNull();
+        buffer.AsGuardNotNull();
+        filledSizeBuffer.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
         ObjectDisposedException.ThrowIf(filledSizeBuffer.IsDisposed, filledSizeBuffer);
         if (buffer.Description.Dimension != ResourceDimension.Buffer)
@@ -734,8 +734,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         ulong argumentOffset = 0
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        signature.GuardNotNull();
-        arguments.GuardNotNull();
+        signature.AsGuardNotNull();
+        arguments.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(signature.IsDisposed, signature);
         ObjectDisposedException.ThrowIf(arguments.IsDisposed, arguments);
         if (!graphicsPipelineBound)
@@ -781,7 +781,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         DescriptorHeapType expectedType,
         string parameterName
     ) {
-        heap.GuardNotNull(expression: parameterName);
+        heap.AsGuardNotNull(expression: parameterName);
         if (heap.Type != expectedType || !heap.IsShaderVisible)
             throw new ArgumentException($"A shader-visible {expectedType} heap is required.", parameterName);
     }
@@ -796,8 +796,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         SilkD3D12Descriptor samplerTable
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        resourceTable.GuardNotNull();
-        samplerTable.GuardNotNull();
+        resourceTable.AsGuardNotNull();
+        samplerTable.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(resourceTable.IsDisposed, resourceTable);
         ObjectDisposedException.ThrowIf(samplerTable.IsDisposed, samplerTable);
         if (resourceTable.Type != DescriptorHeapType.CbvSrvUav || resourceTable.GpuHandle.Ptr == 0)

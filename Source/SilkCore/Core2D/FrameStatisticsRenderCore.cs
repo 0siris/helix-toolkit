@@ -94,7 +94,7 @@ public class FrameStatisticsRenderCore : RenderCore2DBase {
 
         var factory = Factory ?? throw new InvalidOperationException("Text factory is not initialized.");
         var format = Format ?? throw new InvalidOperationException("Text format is not initialized.");
-        var str = statistics.AssertNotNull("Must be attached").Value
+        var str = statistics.AsNotNull("Must be attached")
                             .GetDetailString();
         
         if (str != previousStr || TextLayout == null) {

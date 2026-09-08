@@ -29,7 +29,7 @@
 ## Phased Adoption Workflow
 
 - Phase 1: establish this agent contract and its OKF policy; do not change source or build configuration.
-- Phase 2: integrate `External/Logging` and `External/Assertions`, add ProjectReferences, implement the compatibility adapter, and pass the library/API gate.
+- Phase 2: integrate `External/Logging` and the `ValidSphere` NuGet package, add references, implement the compatibility adapter, and pass the library/API gate.
 - Phase 3: enable the approved `.editorconfig` and analyzer rules.
 - Phase 4: migrate logging, guards, tests, and source formatting while preserving public renderer behavior.
 - Phase 5: run solution, smoke, documentation, and name-hygiene verification.

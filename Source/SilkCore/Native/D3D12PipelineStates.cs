@@ -189,7 +189,7 @@ public readonly record struct D3D12PipelineStateKey(
     /// <param name="computeShader">The compute shader.</param>
     /// <returns>The compute pipeline key.</returns>
     public static D3D12PipelineStateKey Compute(D3D12ShaderModule computeShader) {
-        computeShader.GuardNotNull();
+        computeShader.AsGuardNotNull();
         if (computeShader.Stage != "CS")
             throw new ArgumentException("A compute pipeline requires a compute shader.", nameof(computeShader));
 
@@ -339,7 +339,7 @@ public readonly record struct D3D12PipelineStateKey(
     /// <param name="stage">The expected stage.</param>
     /// <param name="parameterName">The public parameter name.</param>
     private static void ValidateStage(D3D12ShaderModule shader, string stage, string parameterName) {
-        shader.GuardNotNull(expression: parameterName);
+        shader.AsGuardNotNull(expression: parameterName);
         if (shader.Stage != stage)
             throw new ArgumentException($"The shader must use the {stage} stage.", parameterName);
     }
@@ -416,7 +416,7 @@ public sealed class D3D12PipelineStateCache : IDisposable {
         Func<SilkD3D12PipelineState> factory
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        factory.GuardNotNull();
+        factory.AsGuardNotNull();
         if (pipelineStates.TryGetValue(key, out var existing)) return existing;
 
         var created = factory() ?? throw new InvalidOperationException("The pipeline factory returned null.");
@@ -450,9 +450,9 @@ public static unsafe class SilkD3D12PipelineExtensions {
         SilkD3D12RootSignature rootSignature,
         D3D12ShaderModule computeShader
     ) {
-        device.GuardNotNull();
-        rootSignature.GuardNotNull();
-        computeShader.GuardNotNull();
+        device.AsGuardNotNull();
+        rootSignature.AsGuardNotNull();
+        computeShader.AsGuardNotNull();
         if (computeShader.Stage != "CS")
             throw new ArgumentException("A compute pipeline requires a compute shader.", nameof(computeShader));
 
@@ -509,8 +509,8 @@ public static unsafe class SilkD3D12PipelineExtensions {
         DepthStencilStateDescription? depthStencilState = null,
         uint sampleMask = uint.MaxValue
     ) {
-        device.GuardNotNull();
-        rootSignature.GuardNotNull();
+        device.AsGuardNotNull();
+        rootSignature.AsGuardNotNull();
         _ = D3D12PipelineStateKey.Graphics(vertexShader,
             pixelShader,
             geometryShader,

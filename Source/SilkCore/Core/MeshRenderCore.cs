@@ -55,7 +55,7 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
         LightsBufferModel? lights = null,
         TextureModel? environmentMap = null
     ) {
-        bindings.GuardNotNull();
+        bindings.AsGuardNotNull();
         OnUpdatePerModelStructD3D12();
         if (lights is not null) bindings.UpdateLights(lights);
         bindings.Update(context, resources, in transforms, in ModelStruct, D3D12Material, environmentMap);

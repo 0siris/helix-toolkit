@@ -19,17 +19,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.4"/>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+    <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.4" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.301">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
 
-    <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0"/>
-    <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0"/>
-    <PackageReference Include="Silk.NET.DXGI" Version="2.23.0"/>
-    <PackageReference Include="Silk.NET.Maths" Version="2.23.0"/>
+    <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.DXGI" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Maths" Version="2.23.0" />
+    <PackageReference Include="ValidSphere" Version="*-*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,12 +40,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
-    <InternalsVisibleTo Include="SilkToolkit.Tests"/>
+    <ProjectReference Include="..\SilkCore\SilkCore.csproj" />
+    <InternalsVisibleTo Include="SilkToolkit.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj"/>
-    <ProjectReference Include="..\..\External\Assertions\ValidSphere.csproj"/>
+    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

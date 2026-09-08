@@ -18,7 +18,7 @@ verified: 2026-09-07
 | [SilkToolkit](/projects/silktoolkit.md) | `net10.0-windows` | Windows/WPF-facing toolkit layer. |
 | [SilkAssimp](/projects/silkassimp.md) | `net10.0-windows` | Assimp model loading integration. |
 | [ShaderBuilder](/projects/shaderbuilder.md) | `netstandard2.0` | HLSL shader build support. |
-| ValidSphere | `net10.0` | Runtime guards and invariant assertions from `External/Assertions`. |
+| ValidSphere | `net10.0` | Runtime guards and invariant assertions via the floating `ValidSphere` NuGet package. |
 
 The `/Tests/` solution folder contains `SilkCore.Tests`, `SilkToolkit.Tests`, and `SilkAssimp.Tests`; each references its matching production project.
 

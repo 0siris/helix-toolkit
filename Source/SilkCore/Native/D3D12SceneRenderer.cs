@@ -119,9 +119,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap
     ) {
-        device.GuardNotNull();
-        resourceHeap.GuardNotNull();
-        samplerHeap.GuardNotNull();
+        device.AsGuardNotNull();
+        resourceHeap.AsGuardNotNull();
+        samplerHeap.AsGuardNotNull();
         this.resourceHeap = resourceHeap;
         this.samplerHeap = samplerHeap;
         resources = new SilkD3D12ResourceManager(device, resourceHeap);
@@ -499,9 +499,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         BorderEffectStruct? effectParameters = null
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        context.GuardNotNull();
-        candidates.GuardNotNull();
-        passSelector.GuardNotNull();
+        context.AsGuardNotNull();
+        candidates.AsGuardNotNull();
+        passSelector.AsGuardNotNull();
         visibleNodes.Clear();
         SceneNodeFrustumSelector.AppendVisible(candidates, visibleNodes, testFrustum, ref frustum);
         context.SetDescriptorHeaps(resourceHeap, samplerHeap);
@@ -734,10 +734,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         ref BoundingFrustum frustum
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        context.GuardNotNull();
-        candidates.GuardNotNull();
-        passSelector.GuardNotNull();
-        boneSkinningPassSelector.GuardNotNull();
+        context.AsGuardNotNull();
+        candidates.AsGuardNotNull();
+        passSelector.AsGuardNotNull();
+        boneSkinningPassSelector.AsGuardNotNull();
         var width = checked((uint)parameters.ShadowMapSize.X);
         var height = checked((uint)parameters.ShadowMapSize.Y);
         shadowMap ??= new SilkD3D12ShadowMap(Device, width, height);
@@ -968,8 +968,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         LightsBufferModel lights,
         TextureModel? environmentMap
     ) {
-        context.GuardNotNull();
-        lights.GuardNotNull();
+        context.AsGuardNotNull();
+        lights.AsGuardNotNull();
         lights.HasEnvironmentMap = false;
         lights.EnvironmentMapMipLevels = 0;
         if (environmentMap is null) return null;
@@ -986,8 +986,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <param name="nodes">The current light nodes.</param>
     /// <param name="destination">The shared destination light model.</param>
     internal static void UpdateLights(FastList<SceneNode> nodes, LightsBufferModel destination) {
-        nodes.GuardNotNull();
-        destination.GuardNotNull();
+        nodes.AsGuardNotNull();
+        destination.AsGuardNotNull();
         destination.ResetLightCount();
         for (var index = 0; index < nodes.Count && destination.LightCount < Constants.MaxLights; index++) {
             if (nodes.Items[index] is not LightNode { Visible: true } node) continue;

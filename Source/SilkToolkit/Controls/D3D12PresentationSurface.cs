@@ -280,8 +280,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        roots.GuardNotNull();
-        camera.GuardNotNull();
+        roots.AsGuardNotNull();
+        camera.AsGuardNotNull();
         var renderer = sceneRenderer
             ?? throw new InvalidOperationException("The Direct3D 12 scene renderer is unavailable.");
         var catalog = passCatalog
@@ -760,7 +760,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         uint rowPitch,
         uint width,
         uint height) {
-        padded.GuardNotNull();
+        padded.AsGuardNotNull();
         var rowBytes = checked((int) width * 4);
         var pixels = new byte[checked(rowBytes * (int) height)];
         for (var row = 0; row < height; row++) {
@@ -791,7 +791,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         float timeStamp,
         out BoundingFrustum frustum
     ) {
-        camera.GuardNotNull();
+        camera.AsGuardNotNull();
         if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
         if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
         if (!float.IsFinite(dpiScale) || dpiScale <= 0) throw new ArgumentOutOfRangeException(nameof(dpiScale));

@@ -1943,7 +1943,7 @@ public class MeshBuilder {
         IList<Vector3D> quadNormals,
         IList<Point> quadTextureCoordinates
     ) {
-        quadPositions.GuardNotNull();
+        quadPositions.AsGuardNotNull();
 
         if (normals != null && quadNormals == null) throw new ArgumentNullException(nameof(quadNormals));
 
@@ -1991,7 +1991,7 @@ public class MeshBuilder {
     ///     The number of columns in the rectangular mesh.
     /// </param>
     public void AddRectangularMesh(IList<Point3D> points, int columns) {
-        points.GuardNotNull();
+        points.AsGuardNotNull();
 
         var index0 = Positions.Count;
 
@@ -2027,7 +2027,7 @@ public class MeshBuilder {
         bool closed0 = false,
         bool closed1 = false
     ) {
-        points.GuardNotNull();
+        points.AsGuardNotNull();
 
         var rows = points.GetUpperBound(0) + 1;
         var columns = points.GetUpperBound(1) + 1;
@@ -2063,7 +2063,7 @@ public class MeshBuilder {
     ///     Flip the Triangles.
     /// </param>
     public void AddRectangularMesh(IList<Point3D> points, int columns, bool flipTriangles = false) {
-        points.GuardNotNull();
+        points.AsGuardNotNull();
 
         var index0 = positions.Count;
 
@@ -2938,7 +2938,7 @@ public class MeshBuilder {
         IList<Vector3D>? triangleNormals = null,
         IList<Point>? triangleTextureCoordinates = null
     ) {
-        trianglePositions.GuardNotNull();
+        trianglePositions.AsGuardNotNull();
 
         if (normals != null && triangleNormals == null) throw new ArgumentNullException(nameof(triangleNormals));
 
@@ -2988,7 +2988,7 @@ public class MeshBuilder {
         IList<Vector3D>? stripNormals = null,
         IList<Point>? stripTextureCoordinates = null
     ) {
-        stripPositions.GuardNotNull();
+        stripPositions.AsGuardNotNull();
 
         if (normals != null && stripNormals == null) throw new ArgumentNullException(nameof(stripNormals));
 
@@ -3130,8 +3130,8 @@ public class MeshBuilder {
         bool frontCap = false,
         bool backCap = false
     ) {
-        path.GuardNotNull();
-        section.GuardNotNull();
+        path.AsGuardNotNull();
+        section.AsGuardNotNull();
 
         var pathLength = path.Count;
         var sectionLength = section.Count;
@@ -3265,8 +3265,8 @@ public class MeshBuilder {
         bool frontCap = false,
         bool backCap = false
     ) {
-        path.GuardNotNull();
-        section.GuardNotNull();
+        path.AsGuardNotNull();
+        section.AsGuardNotNull();
 
         var pathLength = path.Count;
         var sectionLength = section.Count;
@@ -3363,7 +3363,7 @@ public class MeshBuilder {
     ///     The mesh.
     /// </param>
     public void Append(MeshBuilder mesh) {
-        mesh.GuardNotNull();
+        mesh.AsGuardNotNull();
 
         Append(mesh.positions, mesh.triangleIndices, mesh.normals, mesh.textureCoordinates);
     }
@@ -3390,7 +3390,7 @@ public class MeshBuilder {
         IList<Vector3D>? normalsToAppend = null,
         IList<Point>? textureCoordinatesToAppend = null
     ) {
-        positionsToAppend.GuardNotNull();
+        positionsToAppend.AsGuardNotNull();
 
         if (normals != null && normalsToAppend == null)
             throw new InvalidOperationException(SourceMeshNormalsShouldNotBeNull);

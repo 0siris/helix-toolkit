@@ -638,7 +638,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="effectsManager">The active technique registry.</param>
     /// <returns>The selected technique name.</returns>
     internal string ResolveD3D12TechniqueName(IEffectsManager effectsManager) {
-        effectsManager.GuardNotNull();
+        effectsManager.AsGuardNotNull();
         if (EffectsManager is not null && !ReferenceEquals(EffectsManager, effectsManager))
             throw new InvalidOperationException("EffectsManager instances must be the same during rendering.");
         EffectsManager = effectsManager;

@@ -871,7 +871,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <param name="eventArgs">The decoded pointer event.</param>
     /// <param name="modifiers">The current keyboard modifiers used to resolve existing mouse bindings.</param>
     internal void ProcessD3D12Pointer(HwndPointerEventArgs eventArgs, ModifierKeys modifiers) {
-        eventArgs.GuardNotNull();
+        eventArgs.AsGuardNotNull();
         var point = new Point(eventArgs.X, eventArgs.Y);
         if (eventArgs.Device == HwndPointerDevice.Touch) {
             if (eventArgs.Action == HwndPointerAction.Pressed && d3d12TouchPointerId is null)

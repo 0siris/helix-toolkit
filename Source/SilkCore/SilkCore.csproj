@@ -19,15 +19,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.4"/>
-    <PackageReference Include="JetBrains.Annotations" Version="2026.2.0"/>
-    <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0"/>
-    <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0"/>
-    <PackageReference Include="Silk.NET.Direct3D11" Version="2.23.0"/>
-    <PackageReference Include="Silk.NET.Direct3D12" Version="2.23.0"/>
-    <PackageReference Include="Silk.NET.DXGI" Version="2.23.0"/>
-    <PackageReference Include="Silk.NET.Maths" Version="2.23.0"/>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10"/>
+    <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.4" />
+    <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
+    <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Direct3D11" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Direct3D12" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.DXGI" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Maths" Version="2.23.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
+    <PackageReference Include="ValidSphere" Version="*-*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,22 +41,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SilkToolkit.Native.ShaderBuilder\SilkToolkit.Native.ShaderBuilder.csproj"
-                      ReferenceOutputAssembly="false"
-                      PrivateAssets="all"/>
+    <ProjectReference Include="..\SilkToolkit.Native.ShaderBuilder\SilkToolkit.Native.ShaderBuilder.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
 
-    <InternalsVisibleTo Include="SilkCore.Tests"/>
-    <InternalsVisibleTo Include="SilkToolkit.Tests"/>
-    <InternalsVisibleTo Include="SilkToolkit"/>
+    <InternalsVisibleTo Include="SilkCore.Tests" />
+    <InternalsVisibleTo Include="SilkToolkit.Tests" />
+    <InternalsVisibleTo Include="SilkToolkit" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj"/>
-    <ProjectReference Include="..\..\External\Assertions\ValidSphere.csproj"/>
+    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Resources\DX12\**\*.dxil"/>
-    <None Remove="Resources\DX12\shader-manifest.txt"/>
+    <None Remove="Resources\DX12\**\*.dxil" />
+    <None Remove="Resources\DX12\shader-manifest.txt" />
     <EmbeddedResource Include="..\SilkToolkit\Textures\arial.dds">
       <LogicalName>SilkCore.Resources.arial.dds</LogicalName>
     </EmbeddedResource>
@@ -64,11 +62,9 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <Target Name="PrepareGeneratedShaderResources"
-          BeforeTargets="AssignTargetPaths"
-          Condition="'$(DesignTimeBuild)' != 'true'">
+  <Target Name="PrepareGeneratedShaderResources" BeforeTargets="AssignTargetPaths" Condition="'$(DesignTimeBuild)' != 'true'">
     <ItemGroup>
-      <_GeneratedDxilShaderResource Include="Resources\DX12\**\*.dxil"/>
+      <_GeneratedDxilShaderResource Include="Resources\DX12\**\*.dxil" />
       <EmbeddedResource Include="@(_GeneratedDxilShaderResource)">
         <LogicalName>SilkCore.Resources.DX12.$([System.String]::Copy('%(_GeneratedDxilShaderResource.RecursiveDir)').Replace('\', '.'))%(_GeneratedDxilShaderResource.Filename)%(_GeneratedDxilShaderResource.Extension)</LogicalName>
       </EmbeddedResource>

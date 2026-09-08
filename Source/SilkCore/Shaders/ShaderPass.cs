@@ -37,7 +37,7 @@ public sealed class ShaderPass : DisposeObject {
     /// <param name="passDescription"></param>
     /// <param name="manager"></param>
     public ShaderPass(ShaderPassDescription passDescription, IEffectsManager manager) {
-        Name = passDescription.Name.AssertNotNull("Shader pass name must be initialized.").Value;
+        Name = passDescription.Name.AsNotNull("Shader pass name must be initialized.");
         BlendFactor = passDescription.BlendFactor;
         StencilRef = passDescription.StencilRef;
         SampleMask = passDescription.SampleMask;
@@ -70,8 +70,8 @@ public sealed class ShaderPass : DisposeObject {
         int stencilReference
     ) {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("A pass name is required.", nameof(name));
-        rootSignature.GuardNotNull();
-        pipelineState.GuardNotNull();
+        rootSignature.AsGuardNotNull();
+        pipelineState.AsGuardNotNull();
         if (!isCompute && topology == PrimitiveTopology.Undefined)
             throw new ArgumentOutOfRangeException(nameof(topology));
         if ((uint) stencilReference > byte.MaxValue)
@@ -160,7 +160,7 @@ public sealed class ShaderPass : DisposeObject {
     /// </summary>
     /// <param name="context">The Direct3D 12 command context.</param>
     public void BindShader(SilkD3D12CommandContext context) {
-        context.GuardNotNull();
+        context.AsGuardNotNull();
         if (d3D12RootSignature is null || d3D12PipelineState is null)
             throw new InvalidOperationException("The shader pass is not a Direct3D 12 pass.");
 

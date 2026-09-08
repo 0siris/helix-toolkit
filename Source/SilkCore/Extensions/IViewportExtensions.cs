@@ -330,7 +330,7 @@ public static class IViewportExtensions {
         /// </summary>
         /// <param name="viewport">The source viewport.</param>
         public ViewportRenderMatrices(IViewport3DX viewport) {
-            var camera = viewport.CameraCore.AssertNotNull("Camera must be initialized.").Value;
+            var camera = viewport.CameraCore.AsNotNull("Camera must be initialized.");
             ActualWidth = Math.Max(1, viewport.ViewportRectangle.Width);
             ActualHeight = Math.Max(1, viewport.ViewportRectangle.Height);
             ViewMatrix = camera.CreateViewMatrix();

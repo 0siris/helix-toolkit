@@ -128,7 +128,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <returns>The number of prepared draws.</returns>
     internal int Prepare(IEnumerable<SceneNode2D> roots, uint width, uint height, float dpiScale) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        roots.GuardNotNull();
+        roots.AsGuardNotNull();
         ArgumentOutOfRangeException.ThrowIfZero(width);
         ArgumentOutOfRangeException.ThrowIfZero(height);
         if (!(dpiScale > 0) || !float.IsFinite(dpiScale)) throw new ArgumentOutOfRangeException(nameof(dpiScale));

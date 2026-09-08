@@ -17,15 +17,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SilkCore\SilkCore.csproj"/>
-    <InternalsVisibleTo Include="SilkAssimp.Tests"/>
+    <ProjectReference Include="..\SilkCore\SilkCore.csproj" />
+    <InternalsVisibleTo Include="SilkAssimp.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj"/>
-    <ProjectReference Include="..\..\External\Assertions\ValidSphere.csproj"/>
+    <ProjectReference Include="..\..\External\Logging\LoggerLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AssimpNet" Version="5.0.0-beta1"/>
+    <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
+    <PackageReference Include="ValidSphere" Version="*-*" />
   </ItemGroup>
 </Project>

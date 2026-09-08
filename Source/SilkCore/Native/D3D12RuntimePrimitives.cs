@@ -354,7 +354,7 @@ internal sealed class D3D12DeferredReleaseQueue : IDisposable {
     /// <param name="fenceValue">The fence value that protects the resource.</param>
     /// <param name="resource">The resource to dispose.</param>
     public void Enqueue(ulong fenceValue, IDisposable resource) {
-        resource.GuardNotNull();
+        resource.AsGuardNotNull();
         if (fenceValue < lastFenceValue)
             throw new ArgumentOutOfRangeException(nameof(fenceValue),
                 fenceValue,

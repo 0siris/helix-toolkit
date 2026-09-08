@@ -1,5 +1,4 @@
 <Solution>
-    <Project Path="../External/Assertions/ValidSphere.csproj"/>
     <Project Path="SilkToolkit.Native.ShaderBuilder/SilkToolkit.Native.ShaderBuilder.csproj"/>
     <Folder Name="/Solution Items/"/>
     <Project Path="SilkAssimp/SilkAssimp.csproj"/>

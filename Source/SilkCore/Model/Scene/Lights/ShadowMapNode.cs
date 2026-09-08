@@ -288,8 +288,8 @@ public class ShadowMapNode : SceneNode {
         out ShadowMapParamStruct parameters,
         out BoundingFrustum frustum
     ) {
-        lights.GuardNotNull();
-        opaqueNodes.GuardNotNull();
+        lights.AsGuardNotNull();
+        opaqueNodes.AsGuardNotNull();
         parameters = ShadowCore.CreateD3D12Parameters(false);
         frustum = default;
         if (!Visible || !ShadowCore.NeedRender || ShadowCore.Width <= 0 || ShadowCore.Height <= 0) return false;

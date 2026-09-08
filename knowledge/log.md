@@ -1,5 +1,22 @@
 # Knowledge Bundle Update Log
 
+## 2026-09-10
+
+* **Update**: Migrated all 38 `ValidSphere` call sites to the `0.3.1-preview` API (`GuardNotNull()` →
+  `AsGuardNotNull()`, `AssertNotNull(...).Value` → `AsNotNull(...)`); the `*-*` float in the five consumers
+  resolves `0.3.1-preview`, and `Guard()`/`Is()`/`Range()`/`Satisfy()`/`AssertException` are unchanged.
+* **Verification**: Zero-error solution build and the 361-test `Category!=Hardware` gate pass unchanged
+  (13 SilkAssimp + 296 SilkCore + 52 SilkToolkit), preserving the `ArgumentNullException`/`AssertException`
+  failure contracts.
+
+## 2026-09-08
+
+* **Update**: Removed the `External/Assertions` git submodule and switched all five consumers
+  (`SilkCore`, `SilkToolkit`, `SilkAssimp`, `SilkCore.Tests`, `CrossSectionDemo`) to the `ValidSphere`
+  `0.2.0-preview.4` NuGet package; dropped the subproject from `Source/SilkToolkit.slnx`.
+* **Verification**: Zero-error solution build and the 361-test `Category!=Hardware` gate pass unchanged,
+  proving the package covers the used `GuardNotNull`/`AssertNotNull`/`Guard().Range`/`Is().Satisfy` surface.
+
 ## 2026-09-07
 
 * **Fix**: Restored DX12 cross-section clipping by uploading the eight plane controls and cutting operation to the

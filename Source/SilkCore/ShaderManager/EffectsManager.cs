@@ -64,11 +64,11 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     ///     The geometry buffer manager.
     /// </value>
     public IGeometryBufferManager GeometryBufferManager =>
-        geometryBufferManager.AssertNotNull("Effects manager is not initialized.").Value;
+        geometryBufferManager.AsNotNull("Effects manager is not initialized.");
 
     private IGeometryBufferManager? geometryBufferManager;
 
-    public IStructArrayPool StructArrayPool => structArrayPool.AssertNotNull("Effects manager is not initialized.").Value;
+    public IStructArrayPool StructArrayPool => structArrayPool.AsNotNull("Effects manager is not initialized.");
     private StructArrayPool? structArrayPool;
 
     /// <summary>
@@ -86,7 +86,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The device2 d.
     /// </value>
-    public D2DDevice Device2D => device2D.AssertNotNull("Effects manager is not initialized.").Value;
+    public D2DDevice Device2D => device2D.AsNotNull("Effects manager is not initialized.");
 
 
     private D2DDeviceContext? deviceContext2D;
@@ -97,7 +97,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The device2 d context.
     /// </value>
-    public D2DDeviceContext DeviceContext2D => deviceContext2D.AssertNotNull("Effects manager is not initialized.").Value;
+    public D2DDeviceContext DeviceContext2D => deviceContext2D.AsNotNull("Effects manager is not initialized.");
 
     /// <summary>
     ///     Gets the factory2 d.
@@ -105,7 +105,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The factory2 d.
     /// </value>
-    public D2DFactory Factory2D => factory2D.AssertNotNull("Effects manager is not initialized.").Value;
+    public D2DFactory Factory2D => factory2D.AsNotNull("Effects manager is not initialized.");
 
     private D2DFactory? factory2D;
 
@@ -117,7 +117,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// <value>
     ///     The wic img factory.
     /// </value>
-    public WicImagingFactory WicImgFactory => wicImgFactory.AssertNotNull("Effects manager is not initialized.").Value;
+    public WicImagingFactory WicImgFactory => wicImgFactory.AsNotNull("Effects manager is not initialized.");
 
     private DirectWriteFactory? directWriteFactory;
 
@@ -128,7 +128,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     ///     The direct write factory.
     /// </value>
     public DirectWriteFactory DirectWriteFactory
-        => directWriteFactory.AssertNotNull("Effects manager is not initialized.").Value;
+        => directWriteFactory.AsNotNull("Effects manager is not initialized.");
 
     #endregion
 
@@ -179,7 +179,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     /// <param name="description"></param>
     public void AddTechnique(TechniqueDescription description) {
-        var name = description.Name.AssertNotNull("Technique name must be initialized.").Value;
+        var name = description.Name.AsNotNull("Technique name must be initialized.");
         if (techniqueDict.ContainsKey(name))
             throw new ArgumentException($"Technique {name} already exists.");
         techniqueDescriptions.Add(name, description);
@@ -197,7 +197,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
         if (!Initialized) {
             Initialized = true;
             foreach (var tech in techniqueDescriptions.Values) {
-                var name = tech.Name.AssertNotNull("Technique name must be initialized.").Value;
+                var name = tech.Name.AsNotNull("Technique name must be initialized.");
                 techniqueDict.Add(name,
                     new Lazy<IRenderTechnique?>(() => Initialized
                             ? new Technique(tech, null)

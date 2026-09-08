@@ -62,10 +62,11 @@ without `<inheritdoc />`.
 
 # Assertions
 
-`ValidSphere` supplies fluent BCL guards. Argument validation uses `GuardNotNull()` or `Guard().Range(...)` and
+`ValidSphere` supplies fluent BCL guards. Argument validation uses `AsGuardNotNull()` or `Guard().Range(...)` and
 preserves `ArgumentNullException`/`ArgumentOutOfRangeException` contracts. Internal invariants use
-`AssertNotNull().Value` or another `Is()` assertion only where `AssertException` is the correct failure type.
-Assertions remain chainable and carry compiler-provided caller context.
+`AsNotNull()` or another `Is()` assertion only where `AssertException` is the correct failure type.
+Terminal `As`-forms return the validated value directly and inform nullable flow analysis; use the fluent
+`Guard().NotNull()` / `Is().NotNull()` forms only when the null check is part of a longer assertion chain.
 
 # Async and API Design
 

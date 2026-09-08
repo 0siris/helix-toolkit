@@ -391,7 +391,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     /// <param name="device">The Direct3D 12 device.</param>
     /// <returns>The device-removal HRESULT, or a success code while the device is healthy.</returns>
     public static int GetDeviceRemovedReason(this SilkD3D12Device device) {
-        device.GuardNotNull();
+        device.AsGuardNotNull();
         return device.NativeDevice.GetDeviceRemovedReason();
     }
 
@@ -408,7 +408,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     /// <param name="device">The Direct3D 12 device.</param>
     /// <returns>The shared renderer root signature.</returns>
     public static SilkD3D12RootSignature CreateDefaultRootSignature(this SilkD3D12Device device) {
-        device.GuardNotNull();
+        device.AsGuardNotNull();
 
         var resourceDescriptions = D3D12DefaultRootSignatureLayout.ResourceRanges;
         var nativeRanges = stackalloc DescriptorRange[resourceDescriptions.Count + 1];
@@ -486,7 +486,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         int capacity,
         bool shaderVisible = false
     ) {
-        device.GuardNotNull();
+        device.AsGuardNotNull();
         capacity.Guard().Range(1, int.MaxValue);
         if (shaderVisible && type is not (DescriptorHeapType.CbvSrvUav or DescriptorHeapType.Sampler))
             throw new ArgumentException("Only CBV/SRV/UAV and sampler heaps can be shader visible.", nameof(type));
@@ -522,7 +522,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         HeapType heapType = HeapType.Default,
         ResourceFlags flags = ResourceFlags.None
     ) {
-        device.GuardNotNull();
+        device.AsGuardNotNull();
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
         if (heapType != HeapType.Default && flags != ResourceFlags.None)
             throw new ArgumentException("Upload and readback buffers do not support resource flags.", nameof(flags));
@@ -586,7 +586,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         ushort arraySize = 1,
         ushort mipLevels = 1
     ) {
-        device.GuardNotNull();
+        device.AsGuardNotNull();
         if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
         if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
         if (format == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(format));
@@ -644,7 +644,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         ushort arraySize = 1,
         ushort mipLevels = 1
     ) {
-        device.GuardNotNull();
+        device.AsGuardNotNull();
         if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
         if (format == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(format));
         if (arraySize == 0) throw new ArgumentOutOfRangeException(nameof(arraySize));
@@ -702,7 +702,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         ResourceStates initialState = ResourceStates.CopyDest,
         ushort mipLevels = 1
     ) {
-        device.GuardNotNull();
+        device.AsGuardNotNull();
         if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
         if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
         if (depth == 0) throw new ArgumentOutOfRangeException(nameof(depth));
@@ -795,9 +795,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Resource texture,
         SilkD3D12Descriptor descriptor
     ) {
-        device.GuardNotNull();
-        texture.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        texture.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (texture.Description.Dimension != ResourceDimension.Texture2D ||
@@ -836,9 +836,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Descriptor descriptor,
         Format viewFormat
     ) {
-        device.GuardNotNull();
-        texture.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        texture.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (texture.Description.Dimension != ResourceDimension.Texture2D ||
@@ -873,9 +873,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Descriptor descriptor,
         uint sizeInBytes
     ) {
-        device.GuardNotNull();
-        buffer.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        buffer.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (buffer.Description.Dimension != ResourceDimension.Buffer)
@@ -918,9 +918,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         Format viewFormat,
         bool cubeMap = false
     ) {
-        device.GuardNotNull();
-        texture.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        texture.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (texture.Description.Dimension != ResourceDimension.Texture2D)
@@ -966,9 +966,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Resource texture,
         SilkD3D12Descriptor descriptor
     ) {
-        device.GuardNotNull();
-        texture.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        texture.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (texture.Description.Dimension != ResourceDimension.Texture3D)
@@ -998,9 +998,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Resource texture,
         SilkD3D12Descriptor descriptor
     ) {
-        device.GuardNotNull();
-        texture.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        texture.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (texture.Description.Dimension != ResourceDimension.Texture1D)
@@ -1049,9 +1049,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         uint elementCount,
         uint strideInBytes
     ) {
-        device.GuardNotNull();
-        buffer.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        buffer.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (buffer.Description.Dimension != ResourceDimension.Buffer)
@@ -1093,10 +1093,10 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         uint elementCount,
         uint strideInBytes
     ) {
-        device.GuardNotNull();
-        buffer.GuardNotNull();
-        counter.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        buffer.AsGuardNotNull();
+        counter.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
         ObjectDisposedException.ThrowIf(counter.IsDisposed, counter);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
@@ -1135,8 +1135,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         this SilkD3D12Device device,
         SilkD3D12Descriptor descriptor
     ) {
-        device.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (descriptor.Type != DescriptorHeapType.CbvSrvUav)
             throw new ArgumentException("The descriptor must come from a CBV/SRV/UAV heap.", nameof(descriptor));
@@ -1163,9 +1163,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Descriptor descriptor,
         uint mipSlice = 0
     ) {
-        device.GuardNotNull();
-        texture.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        texture.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (texture.Description.Dimension != ResourceDimension.Texture2D ||
@@ -1199,8 +1199,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         this SilkD3D12Device device,
         SilkD3D12Descriptor descriptor
     ) {
-        device.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (descriptor.Type != DescriptorHeapType.CbvSrvUav)
             throw new ArgumentException("The descriptor must come from a CBV/SRV/UAV heap.", nameof(descriptor));
@@ -1228,8 +1228,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         TextureAddressMode addressMode = TextureAddressMode.Wrap,
         uint maxAnisotropy = 1
     ) {
-        device.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (descriptor.Type != DescriptorHeapType.Sampler)
             throw new ArgumentException("The descriptor must come from a sampler heap.", nameof(descriptor));
@@ -1259,8 +1259,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Descriptor descriptor,
         SamplerStateDescription state
     ) {
-        device.GuardNotNull();
-        descriptor.GuardNotNull();
+        device.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (descriptor.Type != DescriptorHeapType.Sampler)
             throw new ArgumentException("The descriptor must come from a sampler heap.", nameof(descriptor));
@@ -1314,8 +1314,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         uint subresource,
         out ulong totalBytes
     ) {
-        device.GuardNotNull();
-        texture.GuardNotNull();
+        device.AsGuardNotNull();
+        texture.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         if (texture.Description.Dimension == ResourceDimension.Buffer)
             throw new ArgumentException("The resource must be a texture.", nameof(texture));
@@ -1377,9 +1377,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         IReadOnlyList<D3D12SubresourceData> subresources,
         out PlacedSubresourceFootprint[] footprints
     ) {
-        device.GuardNotNull();
-        texture.GuardNotNull();
-        subresources.GuardNotNull();
+        device.AsGuardNotNull();
+        texture.AsGuardNotNull();
+        subresources.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         if (texture.Description.Dimension is not (ResourceDimension.Texture1D or ResourceDimension.Texture2D or
             ResourceDimension.Texture3D))
@@ -1461,8 +1461,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Resource resource,
         ResourceStates desiredState
     ) {
-        context.GuardNotNull();
-        resource.GuardNotNull();
+        context.AsGuardNotNull();
+        resource.AsGuardNotNull();
         if (!resource.TryTransition(desiredState, out var transition)) return false;
 
         var barrier = new ResourceBarrier {
@@ -1496,9 +1496,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         ulong sourceOffset,
         ulong sizeInBytes
     ) {
-        context.GuardNotNull();
-        destination.GuardNotNull();
-        source.GuardNotNull();
+        context.AsGuardNotNull();
+        destination.AsGuardNotNull();
+        source.AsGuardNotNull();
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
         if (destinationOffset > destination.SizeInBytes || sizeInBytes > destination.SizeInBytes - destinationOffset)
             throw new ArgumentOutOfRangeException(nameof(destinationOffset));
@@ -1523,9 +1523,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Resource destination,
         SilkD3D12Resource source
     ) {
-        context.GuardNotNull();
-        destination.GuardNotNull();
-        source.GuardNotNull();
+        context.AsGuardNotNull();
+        destination.AsGuardNotNull();
+        source.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(destination.IsDisposed, destination);
         ObjectDisposedException.ThrowIf(source.IsDisposed, source);
         if (destination.Description.Dimension == ResourceDimension.Buffer ||
@@ -1573,10 +1573,10 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Resource source,
         IReadOnlyList<PlacedSubresourceFootprint> footprints
     ) {
-        context.GuardNotNull();
-        destination.GuardNotNull();
-        source.GuardNotNull();
-        footprints.GuardNotNull();
+        context.AsGuardNotNull();
+        destination.AsGuardNotNull();
+        source.AsGuardNotNull();
+        footprints.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(destination.IsDisposed, destination);
         ObjectDisposedException.ThrowIf(source.IsDisposed, source);
         if (destination.Description.Dimension is not (ResourceDimension.Texture1D or ResourceDimension.Texture2D or
@@ -1615,8 +1615,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     /// <param name="context">The command context.</param>
     /// <param name="resource">The unordered-access resource.</param>
     public static void UavBarrier(this SilkD3D12CommandContext context, SilkD3D12Resource resource) {
-        context.GuardNotNull();
-        resource.GuardNotNull();
+        context.AsGuardNotNull();
+        resource.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(resource.IsDisposed, resource);
         if ((resource.Description.Flags & ResourceFlags.AllowUnorderedAccess) == 0)
             throw new ArgumentException("The resource does not allow unordered access.", nameof(resource));
@@ -1642,9 +1642,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Descriptor descriptor,
         ReadOnlySpan<float> color
     ) {
-        context.GuardNotNull();
-        texture.GuardNotNull();
-        descriptor.GuardNotNull();
+        context.AsGuardNotNull();
+        texture.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (color.Length != 4)
@@ -1679,9 +1679,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         float depth = 1,
         byte stencil = 0
     ) {
-        context.GuardNotNull();
-        texture.GuardNotNull();
-        descriptor.GuardNotNull();
+        context.AsGuardNotNull();
+        texture.AsGuardNotNull();
+        descriptor.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(texture.IsDisposed, texture);
         ObjectDisposedException.ThrowIf(descriptor.IsDisposed, descriptor);
         if (depth is < 0 or > 1) throw new ArgumentOutOfRangeException(nameof(depth));
@@ -1733,9 +1733,9 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         in PlacedSubresourceFootprint footprint,
         uint sourceSubresource
     ) {
-        context.GuardNotNull();
-        destination.GuardNotNull();
-        source.GuardNotNull();
+        context.AsGuardNotNull();
+        destination.AsGuardNotNull();
+        source.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(destination.IsDisposed, destination);
         ObjectDisposedException.ThrowIf(source.IsDisposed, source);
         if (destination.Description.Dimension != ResourceDimension.Buffer || destination.HeapType != HeapType.Readback)
@@ -1771,8 +1771,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     /// <param name="queue">The command queue.</param>
     /// <param name="context">The closed command context.</param>
     public static void Execute(this SilkD3D12CommandQueue queue, SilkD3D12CommandContext context) {
-        queue.GuardNotNull();
-        context.GuardNotNull();
+        queue.AsGuardNotNull();
+        context.AsGuardNotNull();
         var commandList = (ID3D12CommandList*) context.CommandList.Handle;
         queue.NativeQueue.ExecuteCommandLists(1, &commandList);
     }
@@ -1785,7 +1785,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     /// <param name="timeout">The maximum wait duration.</param>
     /// <exception cref="TimeoutException">The fence did not complete before the timeout.</exception>
     public static void Wait(this SilkD3D12Fence fence, ulong value, TimeSpan timeout) {
-        fence.GuardNotNull();
+        fence.AsGuardNotNull();
         if (fence.CompletedValue >= value) return;
 
         using var waitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);

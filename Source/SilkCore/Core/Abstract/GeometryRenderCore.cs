@@ -95,8 +95,8 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         uint vertexBufferStartSlot = 0,
         PrimitiveTopology topology = PrimitiveTopology.Undefined
     ) {
-        context.GuardNotNull();
-        buffers.GuardNotNull();
+        context.AsGuardNotNull();
+        buffers.AsGuardNotNull();
         var nextVertexSlot = buffers.Bind(context, vertexBufferStartSlot);
         if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
         context.DrawIndexedInstanced(buffers.IndexCount, instanceCount);
@@ -121,9 +121,9 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         uint vertexBufferStartSlot = 0,
         PrimitiveTopology topology = PrimitiveTopology.Undefined
     ) where T : unmanaged {
-        context.GuardNotNull();
-        buffers.GuardNotNull();
-        instances.GuardNotNull();
+        context.AsGuardNotNull();
+        buffers.AsGuardNotNull();
+        instances.AsGuardNotNull();
         var instanceSlot = buffers.Bind(context, vertexBufferStartSlot);
         instances.Bind(context, instanceSlot);
         if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
@@ -148,8 +148,8 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         uint vertexBufferSlot = 0,
         PrimitiveTopology topology = PrimitiveTopology.Undefined
     ) {
-        context.GuardNotNull();
-        buffers.GuardNotNull();
+        context.AsGuardNotNull();
+        buffers.AsGuardNotNull();
         buffers.Bind(context, vertexBufferSlot);
         if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
         if (buffers.VertexCount == 0 && buffers.IndexCount == 0) return vertexBufferSlot + 1;
@@ -178,9 +178,9 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         uint vertexBufferSlot = 0,
         PrimitiveTopology topology = PrimitiveTopology.Undefined
     ) where T : unmanaged {
-        context.GuardNotNull();
-        buffers.GuardNotNull();
-        instances.GuardNotNull();
+        context.AsGuardNotNull();
+        buffers.AsGuardNotNull();
+        instances.AsGuardNotNull();
         buffers.Bind(context, vertexBufferSlot);
         instances.Bind(context, vertexBufferSlot + 1);
         if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
@@ -208,9 +208,9 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         SilkD3D12Descriptor? resourceTable = null,
         SilkD3D12Descriptor? samplerTable = null
     ) {
-        context.GuardNotNull();
-        resources.GuardNotNull();
-        pass.GuardNotNull();
+        context.AsGuardNotNull();
+        resources.AsGuardNotNull();
+        pass.AsGuardNotNull();
         if (!CanRenderFlag || pass.IsNull) return false;
         if (!pass.IsD3D12)
             throw new ArgumentException("The pass must own a Direct3D 12 pipeline.", nameof(pass));

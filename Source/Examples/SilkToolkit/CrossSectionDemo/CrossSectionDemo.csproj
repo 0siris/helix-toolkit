@@ -17,11 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj"/>
-    <ProjectReference Include="..\DemoCore\DemoCore.csproj"/>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\External\Assertions\ValidSphere.csproj"/>
+    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
+    <ProjectReference Include="..\DemoCore\DemoCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,7 +40,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Properties\AssemblyInfo.cs"/>
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ValidSphere" Version="*-*" />
   </ItemGroup>
 
 </Project>

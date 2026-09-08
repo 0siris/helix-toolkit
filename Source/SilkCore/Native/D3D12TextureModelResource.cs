@@ -107,10 +107,10 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
         SilkD3D12DescriptorHeap descriptorHeap,
         TextureModel textureModel
     ) {
-        device.GuardNotNull();
-        context.GuardNotNull();
-        descriptorHeap.GuardNotNull();
-        textureModel.GuardNotNull();
+        device.AsGuardNotNull();
+        context.AsGuardNotNull();
+        descriptorHeap.AsGuardNotNull();
+        textureModel.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(descriptorHeap.IsDisposed, descriptorHeap);
         if (descriptorHeap.Type != DescriptorHeapType.CbvSrvUav || !descriptorHeap.IsShaderVisible)
             throw new ArgumentException("Texture SRVs require a shader-visible CBV/SRV/UAV heap.",
@@ -172,7 +172,7 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
     /// <param name="info">The texture information.</param>
     /// <returns>The prepared texture upload.</returns>
     internal static D3D12TextureUploadData PrepareUploadData(TextureInfo info) {
-        info.GuardNotNull();
+        info.AsGuardNotNull();
         return info.DataType switch {
             TextureDataType.ByteArray => PrepareBytes(info.TextureRaw,
                 info.PixelFormat,
@@ -318,7 +318,7 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
     /// <param name="image">The decoded image.</param>
     /// <returns>The complete texture upload.</returns>
     internal static D3D12TextureUploadData PrepareImage(Image image) {
-        image.GuardNotNull();
+        image.AsGuardNotNull();
         var description = image.Description;
         var isCubeMap = description.Dimension == TextureDimension.TextureCube;
         var is3D = description.Dimension == TextureDimension.Texture3D;

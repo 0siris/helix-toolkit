@@ -52,11 +52,11 @@ public sealed class LoggerAndAssertionIntegrationTests {
         const string valid = "valid";
         int[] values = [1, 2];
 
-        Assert.Equal(valid, valid.GuardNotNull().Value);
-        Assert.Equal(valid, valid.AssertNotNull().Value);
+        Assert.Equal(valid, valid.AsGuardNotNull());
+        Assert.Equal(valid, valid.AsNotNull());
         Assert.Same(values, values.Is().Satisfy(value => value.Length >= 2).Value);
-        Assert.Throws<ArgumentNullException>(() => ((string?)null).GuardNotNull());
-        Assert.Throws<AssertException>(() => { _ = ((string?)null).AssertNotNull().Value; });
+        Assert.Throws<ArgumentNullException>(() => ((string?)null).AsGuardNotNull());
+        Assert.Throws<AssertException>(() => { _ = ((string?)null).AsNotNull(); });
         Assert.Throws<AssertException>(() => values.Is().Satisfy(value => value.Length >= 3));
     }
 

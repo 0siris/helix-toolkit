@@ -1,0 +1,4 @@
+interface:
+  display_name: "Helix Graphify Workflow"
+  short_description: "Rebuild and verify the Helix source graph safely"
+  default_prompt: "Use $helix-graphify to rebuild and verify the repository source graph locally."

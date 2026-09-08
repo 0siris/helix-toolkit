@@ -1,0 +1,4 @@
+interface:
+  display_name: "Helix Rider Workflow"
+  short_description: "Correct Rider build, run, test, and debug flow"
+  default_prompt: "Use $helix-rider to build, run, test, or debug SilkToolkit through Rider."

@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SilkToolkit\SilkToolkit.csproj"/>
+    <ProjectReference Include="..\Examples\SilkToolkit\DemoCore\DemoCore.csproj"/>
   </ItemGroup>
 
   <Target Name="CopyPresentationFrameworkForCoverlet"

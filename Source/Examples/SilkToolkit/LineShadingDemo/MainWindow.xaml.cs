@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using DemoCore.Automation;
+using System;
 using System.Linq;
 using System.Windows;
 using HelixToolkit.Wpf.SharpDX.Extensions;
@@ -18,10 +20,15 @@ namespace LineShadingDemo;
 /// Interaction logic for MainWindow.xaml
 /// </summary>
 public partial class MainWindow : Window {
+    private DemoAutomationHost? automationHost;
+
     public MainWindow() {
         InitializeComponent();
         var viewModel = new MainViewModel();
         DataContext = viewModel;
+        if (DataContext is MainViewModel vm && vm.EffectsManager is { } effectsManager) {
+            automationHost = DemoBootstrapper.Attach(View1, effectsManager);
+        }
 
         // mouse events            
         View1.MouseDown += (_, e) => {
@@ -36,6 +43,14 @@ public partial class MainWindow : Window {
                         }
                     }
                 }
+            }
+        };
+
+        Closed += (_, _) => {
+            DemoBootstrapper.Detach(automationHost);
+            automationHost = null;
+            if (DataContext is IDisposable disposable) {
+                disposable.Dispose();
             }
         };
     }

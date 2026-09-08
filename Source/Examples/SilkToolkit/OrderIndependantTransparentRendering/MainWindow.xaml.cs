@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using DemoCore.Automation;
+using System.Windows;
 using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 
@@ -8,8 +9,13 @@ namespace OrderIndependentTransparentRendering;
 /// Interaction logic for MainWindow.xaml
 /// </summary>
 public partial class MainWindow : Window {
+    private DemoAutomationHost? automationHost;
+
     public MainWindow() {
         InitializeComponent();
+        if (View.DataContext is MainViewModel vm && vm.EffectsManager is { } effectsManager) {
+            automationHost = DemoBootstrapper.Attach(View, effectsManager);
+        }
         View.AddHandler(Element3D.MouseDown3DEvent,
             new RoutedEventHandler((_, e) => {
                 if (e is not MouseDown3DEventArgs {HitTestResult: { } hitTestResult}) {
@@ -26,5 +32,13 @@ public partial class MainWindow : Window {
                         ? "highlight[color:#FFFF00]"
                         : null;
             }));
+
+        Closed += (_, _) => {
+            DemoBootstrapper.Detach(automationHost);
+            automationHost = null;
+            if (View.DataContext is IDisposable disposable) {
+                disposable.Dispose();
+            }
+        };
     }
 }

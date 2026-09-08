@@ -7,7 +7,9 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Windows;
+using DemoCore.Automation;
 
 namespace ExampleBrowser.Workitems.Workitem10045;
 
@@ -16,7 +18,20 @@ namespace ExampleBrowser.Workitems.Workitem10045;
 /// </summary>
 [Example("Issue 10045", "Enable multiple Viewport3DX instances.")]
 public partial class MainWindow : Window {
+    private DemoAutomationHost? automationHost;
+
     public MainWindow() {
         InitializeComponent();
+        if (DataContext is MainViewModel vm && vm.EffectsManager is { } effectsManager) {
+            automationHost = DemoBootstrapper.Attach(View1, effectsManager);
+        }
+
+        Closed += (_, _) => {
+            DemoBootstrapper.Detach(automationHost);
+            automationHost = null;
+            if (DataContext is IDisposable disposable) {
+                disposable.Dispose();
+            }
+        };
     }
 }

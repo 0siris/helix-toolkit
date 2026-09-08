@@ -7,7 +7,9 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Windows;
+using DemoCore.Automation;
 
 namespace ExampleBrowser.Workitems.Workitem10051;
 
@@ -17,7 +19,20 @@ namespace ExampleBrowser.Workitems.Workitem10051;
 // old issue: [Example("Issue 10051", "SharpDX: Line shader issues.")]
 [Example("Issue 1074-1", "ManipulationBindings: TwoFingerPan-Rotate, Pan-Pan, Pinch-Zoom.")]
 public partial class MainWindow : Window {
+    private DemoAutomationHost? automationHost;
+
     public MainWindow() {
         InitializeComponent();
+        if (DataContext is MainViewModel vm && vm.EffectsManager is { } effectsManager) {
+            automationHost = DemoBootstrapper.Attach(Viewport, effectsManager);
+        }
+
+        Closed += (_, _) => {
+            DemoBootstrapper.Detach(automationHost);
+            automationHost = null;
+            if (DataContext is IDisposable disposable) {
+                disposable.Dispose();
+            }
+        };
     }
 }

@@ -14,7 +14,7 @@
     Height="300"
     mc:Ignorable="d">
     <Grid>
-        <controls:Viewport3DX EffectsManager="{Binding EffectsManager}">
+        <controls:Viewport3DX x:Name="View" EffectsManager="{Binding EffectsManager}">
             <lights3D:DirectionalLight3D Direction="-1,-1,-1" Color="{Binding DirectionalLightColor}" />
             <element3D:MeshGeometryModel3D Geometry="{Binding Mesh}" Material="{Binding Material}" />
             <element3D:LineGeometryModel3D

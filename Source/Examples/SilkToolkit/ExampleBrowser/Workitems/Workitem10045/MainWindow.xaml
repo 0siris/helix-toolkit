@@ -39,6 +39,7 @@
         <TabControl Grid.Row="1">
             <TabItem Header="Viewport 1">
                 <controls:Viewport3DX
+                    x:Name="View1"
                     Title="{Binding Title}"
                     Camera="{Binding Camera}"
                     CoordinateSystemLabelForeground="White"

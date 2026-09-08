@@ -46,6 +46,7 @@
             </ListBox>
         </DockPanel>
         <controls:Viewport3DX
+            x:Name="View"
             Grid.Row="1"
             Grid.Column="1"
             BackgroundColor="Black"

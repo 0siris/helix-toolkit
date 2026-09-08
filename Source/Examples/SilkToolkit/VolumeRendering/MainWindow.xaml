@@ -26,6 +26,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <controls:Viewport3DX
+            x:Name="View"
             BackgroundColor="Black"
             Camera="{Binding Camera}"
             CameraRotationMode="Trackball"

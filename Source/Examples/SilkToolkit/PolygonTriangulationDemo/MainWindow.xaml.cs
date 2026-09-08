@@ -1,3 +1,4 @@
+using DemoCore.Automation;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -24,6 +25,7 @@ public partial class MainWindow : Window {
     /// The ViewModel
     /// </summary>
     private MainViewModel mViewModel;
+    private DemoAutomationHost? automationHost;
 
     /// <summary>
     /// Constructor for the MainWindow
@@ -35,6 +37,9 @@ public partial class MainWindow : Window {
         // Setup the ViewModel
         mViewModel = new MainViewModel();
         DataContext = mViewModel;
+        if (DataContext is MainViewModel viewModel && viewModel.EffectsManager is { } effectsManager) {
+            automationHost = DemoBootstrapper.Attach(Viewport3D, effectsManager);
+        }
 
         // Setup the Line Drawing Handler
         mViewModel.PropertyChanged += ((_, e) => {
@@ -47,6 +52,13 @@ public partial class MainWindow : Window {
                 }
             }
         });
+        Closed += (_, _) => {
+            DemoBootstrapper.Detach(automationHost);
+            automationHost = null;
+            if (DataContext is IDisposable disposable) {
+                disposable.Dispose();
+            }
+        };
     }
 
     /// <summary>

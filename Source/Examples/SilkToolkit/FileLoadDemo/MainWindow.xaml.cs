@@ -7,11 +7,13 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using DemoCore.Automation;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 
 namespace FileLoadDemo;
 
+using System;
 using System.Windows;
 
 /// <summary>
@@ -32,5 +34,12 @@ public partial class MainWindow : Window {
                     vm.Selected = !vm.Selected;
                 }
             }));
+
+        Closed += (_, _) => {
+            DemoBootstrapper.Detach((DataContext as MainViewModel)?.AutomationHost);
+            if (DataContext is IDisposable disposable) {
+                disposable.Dispose();
+            }
+        };
     }
 }

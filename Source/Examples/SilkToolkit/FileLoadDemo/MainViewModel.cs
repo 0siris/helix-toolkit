@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using DemoCore;
+using DemoCore.Automation;
 using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Controls;
@@ -114,8 +115,14 @@ public class MainViewModel : BaseViewModel {
     } = 0;
 
     public ObservableCollection<IAnimationUpdater> Animations { get; } = [];
-
     public SceneNodeGroupModel3D GroupModel { get; } = new();
+
+    /// <summary>
+    /// Gets the attached demo automation host.
+    /// </summary>
+    public DemoAutomationHost? AutomationHost => automationHost;
+
+    private DemoAutomationHost? automationHost;
 
     public IAnimationUpdater? SelectedAnimation {
         set {
@@ -196,6 +203,10 @@ public class MainViewModel : BaseViewModel {
                 StopAnimation();
             }
         });
+        automationHost = DemoBootstrapper.Attach(
+            window.View,
+            EffectsManager ?? throw new InvalidOperationException("EffectsManager is not initialized."),
+            sceneHost: new ViewportSceneHost(window.View, GroupModel));
     }
 
     private void CopyAsBitmapToClipBoard(Viewport3DX viewport) {

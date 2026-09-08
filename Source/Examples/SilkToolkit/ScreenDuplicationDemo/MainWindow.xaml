@@ -12,7 +12,7 @@
         <local:MainViewModel />
     </Window.DataContext>
     <Grid>
-        <controls:Viewport3DX>
+        <controls:Viewport3DX x:Name="View">
             <elements3D:ScreenDuplicationModel />
         </controls:Viewport3DX>
     </Grid>

@@ -14,7 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj"/>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="2.2.0" />
+    <ProjectReference Include="..\..\..\SilkAssimp\SilkAssimp.csproj" />
+    <ProjectReference Include="..\..\..\SilkToolkit\SilkToolkit.csproj" />
   </ItemGroup>
 
 </Project>

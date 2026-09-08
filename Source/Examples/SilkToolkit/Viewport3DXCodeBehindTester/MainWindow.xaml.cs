@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using DemoCore;
+using DemoCore.Automation;
 using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
@@ -29,11 +30,17 @@ public partial class MainWindow : Window {
     private ViewModel viewmodel = new();
     private SceneNodeGroupModel3D? sceneNodeGroup;
 
+    private DemoAutomationHost? automationHost;
+
     public MainWindow() {
         InitializeComponent();
         manager = new DefaultEffectsManager();
         DataContext = viewmodel;
         ButtonRemoveViewport.IsEnabled = false;
+        Closed += (_, _) => {
+            DemoBootstrapper.Detach(automationHost);
+            automationHost = null;
+        };
     }
 
     private void Button_Click_Add(object sender, RoutedEventArgs e) {
@@ -77,6 +84,8 @@ public partial class MainWindow : Window {
         MainGrid.Children.Add(activeViewport);
         viewport = activeViewport;
         sceneNodeGroup = group;
+        DemoBootstrapper.Detach(automationHost);
+        automationHost = DemoBootstrapper.Attach(activeViewport, manager);
         ButtonInit.IsEnabled = false;
         ButtonRemoveViewport.IsEnabled = true;
         viewmodel.EnableButtons = true;
@@ -113,6 +122,8 @@ public partial class MainWindow : Window {
 
         viewport = null;
         sceneNodeGroup = null;
+        DemoBootstrapper.Detach(automationHost);
+        automationHost = null;
         ButtonInit.IsEnabled = true;
         ButtonRemoveViewport.IsEnabled = false;
     }

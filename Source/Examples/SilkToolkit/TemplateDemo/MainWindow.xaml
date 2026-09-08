@@ -24,7 +24,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <controls:Viewport3DX DataContext="{Binding SelectedViewModel}"
+        <controls:Viewport3DX x:Name="View" DataContext="{Binding SelectedViewModel}"
                         EffectsManager="{Binding ElementName=Grid, Path = DataContext.EffectsManager}">
             <lights3D:AmbientLight3D />
             <lights3D:DirectionalLight3D Direction="-2,-5,-2" />

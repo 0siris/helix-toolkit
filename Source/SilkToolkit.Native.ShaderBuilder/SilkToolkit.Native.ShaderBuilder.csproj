@@ -11,6 +11,70 @@
   </ItemGroup>
 
   <ItemGroup>
+    <DxcShader Include="CS\csMeshIntersect.hlsl">
+      <ShaderProfile>cs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="CS\csMeshIntersectSharedRenderBuffer.hlsl">
+      <ShaderProfile>cs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="GS\gsFlatShade.hlsl">
+      <ShaderProfile>gs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="GS\gsFlatShadeSmooth.hlsl">
+      <ShaderProfile>gs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="GS\gsGooch.hlsl">
+      <ShaderProfile>gs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psFlatShade.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psGingiva.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psGingivaOIT.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>gingivaOIT</EntryPointName>
+    </DxcShader>
+    <DxcShader Include="PS\psGingivaOITDP.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>gingivaOITDP</EntryPointName>
+    </DxcShader>
+    <DxcShader Include="PS\psGooch.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psSimple.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psToothEnamel.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psToothEnamelOIT.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>toothEnamelOIT</EntryPointName>
+    </DxcShader>
+    <DxcShader Include="PS\psToothEnamelOITDP.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>toothEnamelOITDP</EntryPointName>
+    </DxcShader>
+    <DxcShader Include="VS\vsCollisionSegmentLine.hlsl">
+      <ShaderProfile>vs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="VS\vsFlatShade.hlsl">
+      <ShaderProfile>vs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="VS\vsGingiva.hlsl">
+      <ShaderProfile>vs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="VS\vsGooch.hlsl">
+      <ShaderProfile>vs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="VS\vsSimple.hlsl">
+      <ShaderProfile>vs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="VS\vsToothEnamel.hlsl">
+      <ShaderProfile>vs_6_0</ShaderProfile>
+    </DxcShader>
     <DxcShader Include="CS\csParticleInsert.hlsl">
       <ShaderProfile>cs_6_0</ShaderProfile>
     </DxcShader>

@@ -8,8 +8,6 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 using HelixToolkit.SharpDX.Core.Utilities.ImagePacker;
 
 namespace HelixToolkit.SharpDX.Core.Extensions;
@@ -51,29 +49,29 @@ public static class BitmapExtensions {
         bool predefinedSize,
         IDevice2DResources deviceResources
     ) {
-        using var layout = text.GetTextLayoutMetrices(deviceResources, fontSize, fontFamily, fontWeight, fontStyle);
-        var metrices = layout.Metrics;
+        using var drawLayout = text.GetTextLayoutMetrices(deviceResources, fontSize, fontFamily, fontWeight, fontStyle);
+        var metrices = drawLayout.Metrics;
         if (!predefinedSize) {
-            width = (float)Math.Ceiling(metrices.WidthIncludingTrailingWhitespace + padding.X + padding.Z);
-            height = (float)Math.Ceiling(metrices.Height + padding.Y + padding.W);
+            width = (float) Math.Ceiling(metrices.WidthIncludingTrailingWhitespace + padding.X + padding.Z);
+            height = (float) Math.Ceiling(metrices.Height + padding.Y + padding.W);
         } else {
             var scale = width / height;
-            width = (float)Math.Ceiling(metrices.WidthIncludingTrailingWhitespace + padding.X + padding.Z);
+            width = (float) Math.Ceiling(metrices.WidthIncludingTrailingWhitespace + padding.X + padding.Z);
             height = width / scale;
         }
 
         using var bitmap = CreateBitmapStream(deviceResources,
-                                               (int)width,
-                                               (int)height,
-                                               Direct2DImageFormat.Bmp,
-                                               target => {
-                                                   target.Clear(background);
-                                                   using var brush = new SolidColorBrush(target, foreground);
-                                                   target.DrawTextLayout(
-                                                           new Vector2(padding.X, padding.Y),
-                                                           layout,
-                                                           brush);
-                                               });
+                                              (int) width,
+                                              (int) height,
+                                              Direct2DImageFormat.Bmp,
+                                              target => {
+                                                  target.Clear(background);
+                                                  using var brush = new SolidColorBrush(target, foreground);
+                                                  target.DrawTextLayout(
+                                                      new Vector2(padding.X, padding.Y),
+                                                      drawLayout,
+                                                      brush);
+                                              });
         return bitmap is { } validBitmap
             ? validBitmap.ToMemoryStream(deviceResources)
             : new MemoryStream();
@@ -94,32 +92,23 @@ public static class BitmapExtensions {
         return new TextLayout(deviceResources.DirectWriteFactory, text, format, maxWidth, maxHeight);
     }
 
-    public static Guid ToWicImageFormat(this Direct2DImageFormat format) {
-        switch (format) {
-            case Direct2DImageFormat.Bmp:
-                return ImageContainerFormats.Bmp;
-            case Direct2DImageFormat.Ico:
-                return ImageContainerFormats.Ico;
-            case Direct2DImageFormat.Gif:
-                return ImageContainerFormats.Gif;
-            case Direct2DImageFormat.Jpeg:
-                return ImageContainerFormats.Jpeg;
-            case Direct2DImageFormat.Png:
-                return ImageContainerFormats.Png;
-            case Direct2DImageFormat.Tiff:
-                return ImageContainerFormats.Tiff;
-            case Direct2DImageFormat.Wmp:
-                return ImageContainerFormats.Wmp;
-        }
-
-        throw new NotSupportedException();
-    }
+    public static Guid ToWicImageFormat(this Direct2DImageFormat format)
+        => format switch {
+            Direct2DImageFormat.Bmp => ImageContainerFormats.Bmp,
+            Direct2DImageFormat.Ico => ImageContainerFormats.Ico,
+            Direct2DImageFormat.Gif => ImageContainerFormats.Gif,
+            Direct2DImageFormat.Jpeg => ImageContainerFormats.Jpeg,
+            Direct2DImageFormat.Png => ImageContainerFormats.Png,
+            Direct2DImageFormat.Tiff => ImageContainerFormats.Tiff,
+            Direct2DImageFormat.Wmp => ImageContainerFormats.Wmp,
+            _ => throw new NotSupportedException(),
+        };
 
     public static Bitmap? CreateBitmapStream(
         IDevice2DResources deviceResources,
         int width,
         int height,
-        Direct2DImageFormat imageType,
+        Direct2DImageFormat _, // reserved for interface compatibility with Helix port
         Action<D2DDeviceContext> drawingAction
     ) {
         if (width <= 0 || height <= 0) return null;
@@ -149,7 +138,7 @@ public static class BitmapExtensions {
 
     public static MemoryStream ToMemoryStream(
         this Bitmap bitmap,
-        IDevice2DResources deviceResources,
+        IDevice2DResources _deviceResources, // reserved for interface compatibility with Helix port
         Direct2DImageFormat imageType = Direct2DImageFormat.Bmp
     ) {
         var width = Math.Max(1, bitmap.Width);
@@ -444,10 +433,10 @@ public static class BitmapExtensions {
                                                     faceRect.Width = faceSize;
                                                 }
                                             });
-        return bmp?.ToTextureModel(deviceResources);
+        return bmp?.ToTextureModel();
     }
 
-    private static TextureModel ToTextureModel(this Bitmap bitmap, IDevice2DResources deviceResources) {
+    private static TextureModel ToTextureModel(this Bitmap bitmap) {
         var width = Math.Max(1, bitmap.Width);
         var height = Math.Max(1, bitmap.Height);
         return new TextureModel(bitmap.Pixels, Format.FormatB8G8R8A8Unorm, width, height);
@@ -489,7 +478,7 @@ public static class BitmapExtensions {
                                     out var imageWidth,
                                     out var imageHeight,
                                     out var map);
-        
+ 
         if (code == ImagePackReturnCode.Succeed && bitmap is { } packedBitmap && map is { } imageMap)
             using (packedBitmap) {
                 var stream = packedBitmap.ToMemoryStream(effectsManager, Direct2DImageFormat.Png);
@@ -511,7 +500,7 @@ public static class BitmapExtensions {
                 return model;
             }
 
-        Logger.Error("Failed to pack TextInfoExts, Error Code = {Value0}", code.ToString());
+        Logger.Error("Failed to pack TextInfoExts, Error Code = {Value0}", code);
         return null;
     }
 }

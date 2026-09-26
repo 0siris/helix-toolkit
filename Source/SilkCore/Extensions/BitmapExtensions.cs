@@ -94,14 +94,14 @@ public static class BitmapExtensions {
 
     public static Guid ToWicImageFormat(this Direct2DImageFormat format)
         => format switch {
-            Direct2DImageFormat.Bmp => ImageContainerFormats.Bmp,
-            Direct2DImageFormat.Ico => ImageContainerFormats.Ico,
-            Direct2DImageFormat.Gif => ImageContainerFormats.Gif,
+            Direct2DImageFormat.Bmp  => ImageContainerFormats.Bmp,
+            Direct2DImageFormat.Ico  => ImageContainerFormats.Ico,
+            Direct2DImageFormat.Gif  => ImageContainerFormats.Gif,
             Direct2DImageFormat.Jpeg => ImageContainerFormats.Jpeg,
-            Direct2DImageFormat.Png => ImageContainerFormats.Png,
+            Direct2DImageFormat.Png  => ImageContainerFormats.Png,
             Direct2DImageFormat.Tiff => ImageContainerFormats.Tiff,
-            Direct2DImageFormat.Wmp => ImageContainerFormats.Wmp,
-            _ => throw new NotSupportedException(),
+            Direct2DImageFormat.Wmp  => ImageContainerFormats.Wmp,
+            _                        => throw new NotSupportedException(),
         };
 
     public static Bitmap? CreateBitmapStream(

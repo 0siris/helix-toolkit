@@ -53,5 +53,5 @@ Our `Source/SilkCore/Geometry/MeshBuilder.cs` is still the pre-#2251 version of 
 
 ## Origin
 
-Found during upstream comparison (fork base Dec 2023 vs upstream `develop3`); GitHub Issues are disabled
-in this repository, so it is tracked here for later pickup.
+Found during upstream comparison (fork base Dec 2023 vs upstream `develop3`).
+Tracked as GitHub issue [#1](https://github.com/0siris/helix-toolkit/issues/1) for later pickup.

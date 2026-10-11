@@ -18,7 +18,7 @@ PSShadow main(VSInput input) {
             input.mr2,
             input.mr3
         };
-        output.p = mul(input.p, mInstance);
+        output.p = mul(output.p, mInstance);
     }
 
     //set position into world space	

@@ -60,7 +60,7 @@ public abstract class StaticOctree<T> : IOctreeBasic where T : unmanaged {
 
     /// <summary>
     /// </summary>
-    public bool TreeBuilt { get; private set; }
+    public bool TreeBuilt { get; protected set; }
 
     /// <summary>
     /// </summary>

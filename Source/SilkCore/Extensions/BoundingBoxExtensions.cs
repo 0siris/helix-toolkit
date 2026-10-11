@@ -39,7 +39,7 @@ public static class BoundingBoxExtensions {
     /// <param name="box"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    public static BoundingBox Transform(this BoundingBox box, Matrix transform) {
+    public static BoundingBox Transform(this BoundingBox box, in Matrix transform) {
         /////////////////Row 4/////////////////
         var min = new Vector3(transform.M41, transform.M42, transform.M43);
         var max = min;

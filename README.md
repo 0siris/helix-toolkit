@@ -8,6 +8,18 @@ It is developed from the Helix Toolkit codebase toward a fully native,
 dependency-light renderer: explicit DXC-built shaders (DXIL-only), a single
 productive D3D12 presentation path, and Silk.NET math throughout.
 
+## Features
+
+- Direct3D 12 renderer: forward and deferred shading, GPU tessellation
+- Screen-space ambient occlusion (SSAO), FXAA, shadow mapping
+- Transparency: weighted order-independent transparency (OIT) + depth peeling
+- Volume ray casting, GPU particle system, skeletal and morph animation
+- Hardware instancing, batched static geometry, octree hit testing
+- Transform manipulators, cross-section clipping, X-ray views
+- Custom shaders and render techniques (DXC-built DXIL, hot-loadable set)
+- Assimp-based model import/export (`SilkAssimp`)
+- WPF controls: `Viewport3DX`, camera controller, 40+ demos in the example browser
+
 ## Solution layout
 
 All projects live under `Source/` in `SilkToolkit.slnx`:
@@ -42,3 +54,18 @@ request runs the full gate on Windows via `.github/workflows/silk-tests.yml`.
 
 Active development happens on `silk-toolkit`. Upstream Helix Toolkit state
 is tracked on the `original` remote (`develop3`) for cherry-picking fixes.
+
+## Architecture sketch
+
+```text
+SceneNode graph (SilkCore/Model/Scene)
+  -> EffectsManager resolves techniques/passes per material
+  -> D3D12ScenePassCatalog selects geometry, shadow, SSAO, OIT passes
+  -> SilkD3D12SceneRenderer records draws into command lists
+  -> D3D12PresentationSurface presents via the flip-discard swap chain
+```
+
+Shaders live in `SilkToolkit.Native.ShaderBuilder` (HLSL) and are compiled
+to DXIL by DXC during the build, then embedded into `SilkCore`.
+Demos under `Source/Examples/SilkToolkit` (see its README) exercise one
+subsystem each; `DemoCore` hosts the shared automation harness.

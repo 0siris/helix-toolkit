@@ -42,8 +42,3 @@ request runs the full gate on Windows via `.github/workflows/silk-tests.yml`.
 
 Active development happens on `silk-toolkit`. Upstream Helix Toolkit state
 is tracked on the `original` remote (`develop3`) for cherry-picking fixes.
-
-## Knowledge bundle
-
-Agent-facing repository knowledge lives in `knowledge/` (see `AGENTS.md`);
-`graphify-out/` holds generated analysis output and must not be edited by hand.

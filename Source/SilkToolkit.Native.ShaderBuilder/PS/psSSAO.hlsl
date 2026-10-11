@@ -26,6 +26,7 @@ float4 main(SSAOPS_INPUT input) : SV_Target {
     float4 value = texSSAOMap.Sample(samplerSurface, input.Tex);
     float3 normal = normalize(value.rgb);
     float3 position = getPos(input.Tex, depth);
+    return float4(radius, 0, 0, 0);
 
     float3 randomVec = texSSAONoise.Sample(samplerNoise, input.Tex * noiseScale);
 

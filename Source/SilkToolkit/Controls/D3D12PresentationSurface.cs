@@ -394,6 +394,13 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             shadowParameters,
             ssaoMap,
             ssaoMap is null ? -1 : 31);
+        recorded += renderer.RenderVisible(currentContext,
+            opaqueNodes,
+            catalog.ResolveWireframe,
+            in transforms,
+            testFrustum,
+            ref frustum,
+            boneSkinningPassSelector: catalog.ResolveBoneSkinning);
         recorded += renderer.RenderVolumes(currentContext,
             volumeNodes,
             opaqueNodes,

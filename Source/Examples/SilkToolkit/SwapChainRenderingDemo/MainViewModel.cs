@@ -1,7 +1,6 @@
 using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
 using HelixToolkit.Wpf.SharpDX.Camera;
@@ -124,17 +123,14 @@ public class MainViewModel : BaseViewModel {
         UpDirection = new Vector3D(0, 1, 0)
     };
 
-    public FillMode FillMode { set; get; } = FillMode.Solid;
-
     public int NumberOfTriangles { set; get; }
     public int NumberOfVertices { set; get; }
 
     public bool ShowWireframe {
         set {
             if (SetValue(ref field, value)) {
-                FillMode = value
-                    ? FillMode.Wireframe
-                    : FillMode.Solid;
+                foreach (var model in LanderModels.OfType<MeshGeometryModel3D>())
+                    model.RenderWireframe = value;
             }
         }
         get;
@@ -225,7 +221,9 @@ public class MainViewModel : BaseViewModel {
                 .Wait();
             context.Post((_) => {
                     var model = new MeshGeometryModel3D() {
-                        Geometry = geometry
+                        Geometry = geometry,
+                        RenderWireframe = ShowWireframe,
+                        WireframeColor = Colors.Red
                     };
                     if (obj.Material is PhongMaterialCore p) {
                         model.Material = p.ConvertToPhongMaterial();

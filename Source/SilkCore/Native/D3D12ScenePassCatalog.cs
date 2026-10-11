@@ -119,6 +119,25 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     }
 
     /// <summary>
+    ///     Resolves the wireframe overlay pass for a mesh that requests it.
+    /// </summary>
+    /// <param name="node">The existing mesh scene node.</param>
+    /// <returns>The native wireframe pass, or <see langword="null" /> when no overlay is requested.</returns>
+    internal ShaderPass? ResolveWireframe(SceneNode node) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: { } geometryBuffer } geometryCore ||
+            geometryCore is not IMeshRenderParams { RenderWireframe: true })
+            return null;
+        var techniqueName = effectsManager is null
+            ? DefaultRenderTechniqueNames.Mesh
+            : node.ResolveD3D12TechniqueName(effectsManager);
+        if (techniqueName is null || !techniques.TryGetValue(techniqueName, out var technique) ||
+            technique.PassDescriptions?.Any(description => description.Name == DefaultPassNames.Wireframe) != true)
+            return null;
+        return Resolve(techniqueName, DefaultPassNames.Wireframe, geometryBuffer.Topology);
+    }
+
+    /// <summary>
     ///     Resolves the existing point-list stream-output precompute pass for a bone-skinned scene node.
     /// </summary>
     /// <param name="node">The existing scene node.</param>

@@ -39,6 +39,8 @@
             EnableDeferredRendering="False"
             EnableSsao="True"
             FxaaLevel="Low"
+            SsaoIntensity="4"
+            SsaoSamplingRadius="20"
             SubTitle="{Binding SubTitle}"
             TextBrush="Black"
             UseDefaultGestures="False">
@@ -99,10 +101,9 @@
             <element3D:MeshGeometryModel3D
                 x:Name="Floor"
                 CullMode="Back"
-                FillMode="{Binding FillMode}"
                 Geometry="{Binding Floor}"
                 Material="{Binding FloorMaterial}"
-                RenderWireframe="{Binding ElementName=carModel, Path=RenderWireframe}"
+                RenderWireframe="{Binding ShowWireframe}"
                 Transform="{Binding FloorTransform}"
                 WireframeColor="Red" />
             <element3D:LineGeometryModel3D Geometry="{Binding LineGeo}" Color="Blue" />
@@ -116,7 +117,7 @@
             <CheckBox
                 Margin="4"
                 Foreground="White"
-                IsChecked="{Binding ElementName=Floor, Path=RenderWireframe}">
+                IsChecked="{Binding ShowWireframe}">
                 Show Wireframe
             </CheckBox>
             <CheckBox
@@ -126,7 +127,7 @@
                 Enable SSAO
             </CheckBox>
             <Slider
-                Maximum="4"
+                Maximum="40"
                 Minimum="0.5"
                 Value="{Binding ElementName=View1, Path=SsaoSamplingRadius}" />
         </StackPanel>

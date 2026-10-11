@@ -212,10 +212,8 @@ public class TransformManipulator3D : GroupElement3D {
     }
 
     private void SceneNode_OnDetached(object? sender, EventArgs e) {
-        //if (target != null)
-        //{
-        //    target.SceneNode.OnTransformChanged -= SceneNode_OnTransformChanged;
-        //}
+        if (target != null)
+            target.SceneNode.TransformChanged -= SceneNode_OnTransformChanged;
     }
 
     private void SceneNode_OnAttached(object? sender, EventArgs e) {
@@ -244,19 +242,19 @@ public class TransformManipulator3D : GroupElement3D {
     /// <param name="elem3DTarget">The target.</param>
     private void OnTargetChanged(Model.Elements3D.AbstractElements3D.Element3D? elem3DTarget) {
         Debug.WriteLine("OnTargetChanged");
-        //if(target != null)
-        //{
-        //    target.SceneNode.OnTransformChanged -= SceneNode_OnTransformChanged;
-        //}
+        if (target != null)
+            target.SceneNode.TransformChanged -= SceneNode_OnTransformChanged;
+
         target = elem3DTarget;
         if (elem3DTarget == null)
             ResetTransforms();
-        else
-            //target.SceneNode.OnTransformChanged += SceneNode_OnTransformChanged;
-            SceneNode_OnTransformChanged(new TransformArgs(elem3DTarget.SceneNode.ModelMatrix));
+        else {
+            elem3DTarget.SceneNode.TransformChanged += SceneNode_OnTransformChanged;
+            SceneNode_OnTransformChanged(elem3DTarget.SceneNode, new TransformArgs(elem3DTarget.SceneNode.ModelMatrix));
+        }
     }
 
-    private void SceneNode_OnTransformChanged(TransformArgs e) {
+    private void SceneNode_OnTransformChanged(object? sender, TransformArgs e) {
         var m = e.Transform;
         m.Decompose(out var scale, out var rotation, out var translation);
         scaleMatrix = SilkMath.Scaling(scale);
@@ -275,14 +273,15 @@ public class TransformManipulator3D : GroupElement3D {
 
     private void OnUpdateTargetMatrix() {
         if (target == null) return;
+        OnUpdateSelfTransform();
         targetMatrix = SilkMath.Translation(-centerOffset) * scaleMatrix * rotationMatrix *
                        SilkMath.Translation(centerOffset) * SilkMath.Translation(translationVector);
         target.Transform = new Media3D.MatrixTransform3D(targetMatrix.ToMatrix3D());
     }
 
     private void OnUpdateSelfTransform() {
-        var m = SilkMath.Translation(centerOffset + translationVector);
-        m.M11 = m.M22 = m.M33 = (float) sizeScale;
+        var m = SilkMath.Scaling(new Vector3((float) sizeScale)) * rotationMatrix *
+                SilkMath.Translation(centerOffset + translationVector);
         ctrlGroup.Transform = new Media3D.MatrixTransform3D(m.ToMatrix3D());
     }
 
@@ -725,7 +724,6 @@ public class TransformManipulator3D : GroupElement3D {
                     break;
             }
 
-            OnUpdateSelfTransform();
             OnUpdateTargetMatrix();
         }
     }

@@ -298,6 +298,7 @@ public class DefaultEffectsManager : EffectsManager {
                         DefaultPsShaderDescriptions.PsMeshWireframe
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    RasterStateDescription = DefaultRasterDescriptions.RsWireframe,
                     DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
@@ -562,6 +563,7 @@ public class DefaultEffectsManager : EffectsManager {
                         DefaultPsShaderDescriptions.PsMeshWireframe
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    RasterStateDescription = DefaultRasterDescriptions.RsWireframe,
                     DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
@@ -851,6 +853,7 @@ public class DefaultEffectsManager : EffectsManager {
                         DefaultPsShaderDescriptions.PsMeshWireframe
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    RasterStateDescription = DefaultRasterDescriptions.RsWireframe,
                     DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite,
                     Topology = PrimitiveTopology.TriangleList
                 },
@@ -1505,6 +1508,7 @@ public class DefaultEffectsManager : EffectsManager {
                         DefaultPsShaderDescriptions.PsMeshWireframe
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    RasterStateDescription = DefaultRasterDescriptions.RsWireframe,
                     DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssLessEqualNoWrite
                 },
                 new ShaderPassDescription(DefaultPassNames.WireframeOitPass) {

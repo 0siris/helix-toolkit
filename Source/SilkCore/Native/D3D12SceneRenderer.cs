@@ -347,13 +347,14 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         var targetHeight = Math.Max(1u, height / (uint)scale);
         ssaoResources ??= new SilkD3D12SsaoResources(Device, resourceHeap, samplerHeap);
         ssaoResources.BeginGeometry(context, targetWidth, targetHeight);
-        _ = RenderVisible(context,
+        var ssaoGeometryDraws = RenderVisible(context,
             nodes,
             geometryPassSelector,
             in transforms,
             testFrustum,
             ref frustum,
             boneSkinningPassSelector: boneSkinningPassSelector);
+        if (ssaoGeometryDraws == 0) throw new InvalidOperationException("SSAO geometry pass recorded no draws.");
         return ssaoResources.Complete(context, ssaoPass, blurPass, in transforms, radius, scale);
     }
 

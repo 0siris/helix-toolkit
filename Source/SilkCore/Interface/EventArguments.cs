@@ -35,7 +35,7 @@ public sealed class TransformArgs : EventArgs {
     ///     Initializes a new instance of the <see cref="TransformArgs" /> class.
     /// </summary>
     /// <param name="transform">The transform.</param>
-    public TransformArgs(ref Matrix transform) => Transform = transform;
+    public TransformArgs(in Matrix transform) => Transform = transform;
 
     /// <summary>
     ///     Performs an implicit conversion from <see cref="TransformArgs" /> to <see cref="Matrix" />.

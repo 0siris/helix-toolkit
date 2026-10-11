@@ -226,6 +226,10 @@ public partial class Importer : IDisposable {
 
             var postProcess = configuration.AssimpPostProcessSteps;
             if (configuration.FlipWindingOrder) postProcess |= PostProcessSteps.FlipWindingOrder;
+            // OBJ faces are wrongly classified as degenerate by Assimp's FindDegenerates step, which
+            // drops valid geometry (holes in the loaded model), so it is disabled for this format.
+            if (string.Equals(fileName, ".obj", StringComparison.OrdinalIgnoreCase))
+                postProcess &= ~PostProcessSteps.FindDegenerates;
             var assimpScene = importer.ImportFile(filePath, postProcess);
 
             return BuildScene(assimpScene, out scene);
@@ -288,6 +292,10 @@ public partial class Importer : IDisposable {
             importer.Scale = configuration.GlobalScale;
             var postProcess = configuration.AssimpPostProcessSteps;
             if (configuration.FlipWindingOrder) postProcess |= PostProcessSteps.FlipWindingOrder;
+            // OBJ faces are wrongly classified as degenerate by Assimp's FindDegenerates step, which
+            // drops valid geometry (holes in the loaded model), so it is disabled for this format.
+            if (string.Equals(formatHint, ".obj", StringComparison.OrdinalIgnoreCase))
+                postProcess &= ~PostProcessSteps.FindDegenerates;
             var assimpScene = importer.ImportFileFromStream(fileStream, postProcess, formatHint);
             return BuildScene(assimpScene, out scene);
         } catch (Exception ex) {

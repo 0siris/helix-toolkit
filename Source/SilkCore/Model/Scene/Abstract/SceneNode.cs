@@ -224,7 +224,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
 
         NeedMatrixUpdate = false;
         OnTransformChanged(ref TotalModelMatrixInternal);
-        TransformChanged?.Invoke(this, new TransformArgs(ref TotalModelMatrixInternal));
+        TransformChanged?.Invoke(this, new TransformArgs(in TotalModelMatrixInternal));
     }
 
     /// <summary>

@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-11
+
+* **Backlog**: Added `/backlog/addtube-reimplementation.md` tracking the port of upstream #2251
+  (`MeshBuilder.AddTube` reimplementation) to Silk.NET math. GitHub Issues are disabled in this
+  repository, so the item (problem, upstream reference, scope, acceptance) lives in the knowledge
+  bundle for later pickup.
+
 ## 2026-09-10
 
 * **Update**: Migrated all 38 `ValidSphere` call sites to the `0.3.1-preview` API (`GuardNotNull()` →

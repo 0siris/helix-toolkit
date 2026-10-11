@@ -29,6 +29,7 @@ okf_version: "0.2"
 ## Backlog
 
 * [DX12 Migration Plan](/backlog/dx12-migration-plan.md) - Resumable phased Direct3D12 and DXC cutover plan.
+* [AddTube Reimplementation](/backlog/addtube-reimplementation.md) - Port of upstream #2251 to Silk.NET math.
 * [WPF Swap-Chain Canvas Plan](/backlog/wpf-swapchain-canvas-plan.md) - Rein WPF basierte IRenderCanvas-Implementierung als schaltbare Alternative zur WinForms-basierten Variante.
 
 ## References

@@ -223,7 +223,7 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
         bindings.BindGraphics(context);
         context.DrawInstanced(4);
         context.Transition(finalTarget, ResourceStates.PixelShaderResource);
-        return rawTarget;
+        return finalTarget;
     }
 
     /// <summary>

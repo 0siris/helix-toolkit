@@ -4142,7 +4142,6 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(Format.FormatR16Float, occlusion.Description.Format);
         var bytes = readback.Read(2, footprint.Offset + 4UL * footprint.Footprint.RowPitch + 8);
         var value = (float)BitConverter.UInt16BitsToHalf(BitConverter.ToUInt16(bytes));
-        Assert.Equal(-1, value);
         Assert.True(float.IsFinite(value));
         Assert.InRange(value, 0, 1.01f);
         renderer.Dispose();

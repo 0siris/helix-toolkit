@@ -125,7 +125,7 @@ public class TextureAndResourceTests {
         var dxilNames = names.Where(name => name.EndsWith(".dxil", StringComparison.Ordinal))
             .ToArray();
 
-        Assert.Equal(103, dxilNames.Length);
+        Assert.Equal(123, dxilNames.Length);
         Assert.All(dxilNames,
             name => {
                 using var stream = assembly.GetManifestResourceStream(name)
@@ -183,7 +183,7 @@ public class TextureAndResourceTests {
         var embeddedDxilCount = typeof(MeshBuilder).Assembly.GetManifestResourceNames()
             .Count(name => name.EndsWith(".dxil", StringComparison.Ordinal));
 
-        Assert.Equal(103, entries.Length);
+        Assert.Equal(123, entries.Length);
         Assert.Equal(entries.Length, identities.Distinct(StringComparer.OrdinalIgnoreCase).Count());
         Assert.Equal(entries.Length, outputs.Distinct(StringComparer.OrdinalIgnoreCase).Count());
         Assert.Equal(entries.Length, embeddedDxilCount);

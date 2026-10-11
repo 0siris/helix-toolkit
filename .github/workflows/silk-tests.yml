@@ -39,7 +39,7 @@ jobs:
 
           foreach ($test in $tests) {
             dotnet test $test.Path --configuration Release --no-build `
-              --filter 'Category!=Hardware' `
+              --filter 'Category!=Hardware&Category!=LargeModels' `
               --logger "trx;LogFileName=$($test.Name).trx" `
               --results-directory $results `
               '-p:CollectCoverage=true' `

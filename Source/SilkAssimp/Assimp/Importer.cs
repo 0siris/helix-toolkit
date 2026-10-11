@@ -5,8 +5,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Text;
 using System.Diagnostics.CodeAnalysis;
-using Assimp;
-using Assimp.Configs;
+using SharpAssimp;
+using SharpAssimp.Configs;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
@@ -212,14 +212,14 @@ public partial class Importer : IDisposable {
         Clear();
         scene = null;
         try {
-            if (!importer.IsImportFormatSupported(Path.GetExtension(filePath)))
+            if (!AssimpContext.IsImportFormatSupported(Path.GetExtension(filePath)))
                 return ErrorCode.FileTypeNotSupported | ErrorCode.Failed;
             if (!useExtern && Configuration.AssimpPropertyConfig != null)
                 foreach (var config in Configuration.AssimpPropertyConfig)
                     importer.SetConfig(config);
             importer.Scale = configuration.GlobalScale;
             var fileName = Path.GetExtension(filePath);
-            if (!importer.IsImportFormatSupported(fileName)) {
+            if (!AssimpContext.IsImportFormatSupported(fileName)) {
                 ErrorCode |= ErrorCode.FileTypeNotSupported;
                 return ErrorCode;
             }
@@ -284,7 +284,7 @@ public partial class Importer : IDisposable {
         Clear();
         scene = null;
         try {
-            if (!importer.IsImportFormatSupported(formatHint))
+            if (!AssimpContext.IsImportFormatSupported(formatHint))
                 return ErrorCode.FileTypeNotSupported | ErrorCode.Failed;
             if (!useExtern && Configuration.AssimpPropertyConfig != null)
                 foreach (var config in Configuration.AssimpPropertyConfig)
@@ -374,7 +374,7 @@ public partial class Importer : IDisposable {
         }
 
         var internalScene = ToHelixScene(assimpScene, Configuration.EnableParallelProcessing);
-        scene = new HelixToolkitScene(ConstructHelixScene(assimpScene.RootNode, internalScene));
+        scene = new HelixToolkitScene(ConstructHelixScene(assimpScene.RootNode!, internalScene));
         ErrorCode |= ProcessSceneNodes(scene.Root);
         if (ErrorCode.HasFlag(ErrorCode.Failed))
             return ErrorCode;

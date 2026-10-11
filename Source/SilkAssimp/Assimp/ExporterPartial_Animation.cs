@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using Assimp;
+using SharpAssimp;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
@@ -32,9 +32,9 @@ public partial class Exporter {
                 };
                 foreach (var kf in f.KeyFrames) {
                     var t = kf.Time * DefaultTicksPerSecond;
-                    ch.PositionKeys.Add(new VectorKey(t, kf.Translation.ToAssimpVector3D()));
-                    ch.ScalingKeys.Add(new VectorKey(t, kf.Scale.ToAssimpVector3D()));
-                    ch.RotationKeys.Add(new QuaternionKey(t, kf.Rotation.ToAssimpQuaternion()));
+                    ch.PositionKeys.Add(new VectorKey(t, kf.Translation.ToAssimpVector3D(), AnimationInterpolation.Linear));
+                    ch.ScalingKeys.Add(new VectorKey(t, kf.Scale.ToAssimpVector3D(), AnimationInterpolation.Linear));
+                    ch.RotationKeys.Add(new QuaternionKey(t, kf.Rotation.ToAssimpQuaternion(), AnimationInterpolation.Linear));
                 }
 
                 ani.NodeAnimationChannels.Add(ch);

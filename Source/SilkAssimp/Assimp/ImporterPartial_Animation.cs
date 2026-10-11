@@ -4,7 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Diagnostics;
-using Assimp;
+using SharpAssimp;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Logger;
 using HelixToolkit.SharpDX.Core.Model.Animations;
@@ -14,7 +14,7 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
-using Animation = Assimp.Animation;
+using Animation = SharpAssimp.Animation;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
@@ -46,9 +46,9 @@ public partial class Importer {
                                 rotCount,
                                 scaleCount);
             // Adds dummy key if it is empty
-            if (posCount == 0) channel.PositionKeys.Add(new VectorKey(0, new Vector3D()));
-            if (rotCount == 0) channel.RotationKeys.Add(new QuaternionKey(0, new global::Assimp.Quaternion()));
-            if (scaleCount == 0) channel.ScalingKeys.Add(new VectorKey(0, new Vector3D(1, 1, 1)));
+            if (posCount == 0) channel.PositionKeys.Add(new VectorKey(0, new System.Numerics.Vector3()));
+            if (rotCount == 0) channel.RotationKeys.Add(new QuaternionKey(0, new System.Numerics.Quaternion()));
+            if (scaleCount == 0) channel.ScalingKeys.Add(new VectorKey(0, new System.Numerics.Vector3(1, 1, 1)));
             int i = 0, j = 0, k = 0;
             double nextT1 = channel.PositionKeys[i].Time,
                    nextT2 = channel.RotationKeys[j].Time,

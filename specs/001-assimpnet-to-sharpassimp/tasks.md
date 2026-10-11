@@ -11,42 +11,42 @@
 
 ## Phase 1: Setup
 
-- [ ] T002 Record pre-migration import counts for the sample set (bunny.obj, scene.gltf, cube.stl, tetra_ascii.ply, Solus_The_Knight.fbx) in `specs/001-assimpnet-to-sharpassimp/baseline.md` as a table (file | meshes | vertices | materials)
+- [X] T002 Record pre-migration import counts for the sample set (bunny.obj, scene.gltf, cube.stl, tetra_ascii.ply, Solus_The_Knight.fbx) in `specs/001-assimpnet-to-sharpassimp/baseline.md` as a table (file | meshes | vertices | materials)
 
 ## Phase 2: Foundational (binding swap)
 
-- [ ] T003 Replace the `AssimpNet 5.0.0-beta1` reference with `SharpAssimp 6.0.12` in `Source/SilkAssimp/SilkAssimp.csproj`
-- [ ] T004 Port `using Assimp[.Configs/.Unmanaged]` to `SharpAssimp` namespaces in `Source/SilkAssimp/Assimp/Configurations.cs`
-- [ ] T005 [P] Verify `Source/SilkAssimp/SilkAssimp.csproj` restores cleanly (`dotnet restore`)
+- [X] T003 Replace the `AssimpNet 5.0.0-beta1` reference with `SharpAssimp 6.0.12` in `Source/SilkAssimp/SilkAssimp.csproj`
+- [X] T004 Port `using Assimp[.Configs/.Unmanaged]` to `SharpAssimp` namespaces in `Source/SilkAssimp/Assimp/Configurations.cs`
+- [X] T005 [P] Verify `Source/SilkAssimp/SilkAssimp.csproj` restores cleanly (`dotnet restore`)
 
 ## Phase 3: US1 – Import after migration (P1)
 
 Goal: all sample models import identically to baseline.
 Independent test: T009–T011 green.
 
-- [ ] T006 [US1] Port `Source/SilkAssimp/Assimp/Importer.cs` (`AssimpContext`, `PostProcessSteps`, `PropertyConfig`; keep the OBJ `FindDegenerates` exclusion)
-- [ ] T007 [US1] Port `Source/SilkAssimp/Assimp/ImporterPartial_Mesh.cs` (bones, morph-target attachments, `HasBones`/`HasMeshAnimationAttachments` APIs)
-- [ ] T008 [US1] Port `Source/SilkAssimp/Assimp/ImporterPartial_Material.cs` and `Source/SilkAssimp/Assimp/ImporterPartial_Animation.cs` (`TextureType` alias, `Animation` alias)
-- [ ] T009 [US1] Add import round-trip tests pinning baseline mesh/vertex/material counts in `Source/SilkAssimp.Tests/` (new file, `Category=Unit`, small fixtures incl. `Models/ply/tetra_*.ply`)
-- [ ] T010 [US1] Add Stanford opt-in theory (`Category=LargeModels`: bunny, armadillo, full dragon) in `Source/SilkAssimp.Tests/`
-- [ ] T011 [US1] Build `Source/SilkAssimp/SilkAssimp.csproj` with zero errors and run the US1 tests green
+- [X] T006 [US1] Port `Source/SilkAssimp/Assimp/Importer.cs` (`AssimpContext`, `PostProcessSteps`, `PropertyConfig`; keep the OBJ `FindDegenerates` exclusion)
+- [X] T007 [US1] Port `Source/SilkAssimp/Assimp/ImporterPartial_Mesh.cs` (bones, morph-target attachments, `HasBones`/`HasMeshAnimationAttachments` APIs)
+- [X] T008 [US1] Port `Source/SilkAssimp/Assimp/ImporterPartial_Material.cs` and `Source/SilkAssimp/Assimp/ImporterPartial_Animation.cs` (`TextureType` alias, `Animation` alias)
+- [X] T009 [US1] Add import round-trip tests pinning baseline mesh/vertex/material counts in `Source/SilkAssimp.Tests/` (new file, `Category=Unit`, small fixtures incl. `Models/ply/tetra_*.ply`)
+- [X] T010 [US1] Add Stanford opt-in theory (`Category=LargeModels`: bunny, armadillo, full dragon) in `Source/SilkAssimp.Tests/`
+- [X] T011 [US1] Build `Source/SilkAssimp/SilkAssimp.csproj` with zero errors and run the US1 tests green
 
 ## Phase 4: US2 – Export after migration (P2)
 
 Goal: export + re-import round-trips without loss.
 Independent test: T015 green.
 
-- [ ] T012 [US2] Port `Source/SilkAssimp/Assimp/Exporter.cs` (`AssimpContext`, winding-order flags)
-- [ ] T013 [US2] Port `Source/SilkAssimp/Assimp/ExporterPartial_Mesh.cs`, `Source/SilkAssimp/Assimp/ExporterPartial_Material.cs`, `Source/SilkAssimp/Assimp/ExporterPartial_Animation.cs`
-- [ ] T014 [US2] Port matrix/vector conversions (`A1..D4` → `M11..M44`, static `Transpose`) in `Source/SilkAssimp/Assimp/Extensions.cs`, qualifying `SharpAssimp.Vector3/Vector2` against engine global usings
-- [ ] T015 [US2] Add export round-trip test (export reference scene, re-import, compare counts) in `Source/SilkAssimp.Tests/` (extend the `CreateTriangleScene` pattern in `AssimpImportExportTests.cs`)
-- [ ] T019 [US2] Port the test project itself to SharpAssimp (`using Assimp` → `using SharpAssimp`, `Matrix4x4` 16-arg ctor, `Vector3D` in `Source/SilkAssimp.Tests/AssimpImportExportTests.cs` and `AssimpExtensionsTests.cs`)
+- [X] T012 [US2] Port `Source/SilkAssimp/Assimp/Exporter.cs` (`AssimpContext`, winding-order flags)
+- [X] T013 [US2] Port `Source/SilkAssimp/Assimp/ExporterPartial_Mesh.cs`, `Source/SilkAssimp/Assimp/ExporterPartial_Material.cs`, `Source/SilkAssimp/Assimp/ExporterPartial_Animation.cs`
+- [X] T014 [US2] Port matrix/vector conversions (`A1..D4` → `M11..M44`, static `Transpose`) in `Source/SilkAssimp/Assimp/Extensions.cs`, qualifying `SharpAssimp.Vector3/Vector2` against engine global usings
+- [X] T015 [US2] Add export round-trip test (export reference scene, re-import, compare counts) in `Source/SilkAssimp.Tests/` (extend the `CreateTriangleScene` pattern in `AssimpImportExportTests.cs`)
+- [X] T019 [US2] Port the test project itself to SharpAssimp (`using Assimp` → `using SharpAssimp`, `Matrix4x4` 16-arg ctor, `Vector3D` in `Source/SilkAssimp.Tests/AssimpImportExportTests.cs` and `AssimpExtensionsTests.cs`)
 
 ## Phase 5: Polish & cross-cutting
 
-- [ ] T016 Exclude `LargeModels` from the default gate filter in `.github/workflows/silk-tests.yml` and document the manual large run
-- [ ] T017 Full solution gate green (`Category!=Hardware&Category!=LargeModels`) plus manual `Category=LargeModels` run
-- [ ] T018 Verify no `AssimpNet` reference remains (`Select-String` over `Source/`) and record intentional deltas in the commit message per FR-006
+- [X] T016 Exclude `LargeModels` from the default gate filter in `.github/workflows/silk-tests.yml` and document the manual large run
+- [X] T017 Full solution gate green (`Category!=Hardware&Category!=LargeModels`) plus manual `Category=LargeModels` run
+- [X] T018 Verify no `AssimpNet` reference remains (`Select-String` over `Source/`) and record intentional deltas in the commit message per FR-006
 
 ## Parallel opportunities
 

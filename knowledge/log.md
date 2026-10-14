@@ -1,5 +1,15 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-14
+
+* **Update**: Release cached resources for disposed mesh, point/line, volume, particle and screen-capture cores
+  at the existing completed-fence frame boundary, preserving live owners and reusing descriptor ranges.
+* **Verification**: Bounded allocator/ownership regression and descriptor tests pass. Actual desktop treatment
+  replacement with archived geometry passes with 2032 GPU frames and zero render errors.
+* **Limits**: The non-hardware SilkCore gate has 315 passing tests and two failures in unchanged shader-count
+  assertions (103 expected, 123 embedded). Graphify regeneration is blocked by a missing LLM API key;
+  no generated artifacts were edited. Rider/ReSharper tools were unavailable, so verification used the CLI.
+
 ## 2026-09-10
 
 * **Update**: Migrated all 38 `ValidSphere` call sites to the `0.3.1-preview` API (`GuardNotNull()` →

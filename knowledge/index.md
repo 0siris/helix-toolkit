@@ -17,7 +17,7 @@ okf_version: "0.2"
 
 ## Projects
 
-* [SilkCore](/projects/silkcore.md) - Core renderer and shared runtime library.
+* [SilkCore](/projects/silkcore.md) - Core renderer, shared runtime library and fence-safe disposed-core cache cleanup.
 * [SilkToolkit](/projects/silktoolkit.md) - Windows/WPF-facing toolkit built on SilkCore.
 * [SilkAssimp](/projects/silkassimp.md) - Assimp-based model loading integration.
 * [ShaderBuilder](/projects/shaderbuilder.md) - HLSL shader build support project.

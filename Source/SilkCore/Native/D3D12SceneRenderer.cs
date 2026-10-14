@@ -172,6 +172,28 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         postProcessResources?.BeginFrame();
         scene2DRenderer.BeginFrame();
+        ReleaseDisposedResources(meshBindings);
+        ReleaseDisposedResources(pointLineBindings);
+        ReleaseDisposedResources(volumeBindings);
+        ReleaseDisposedResources(particleResources);
+        ReleaseDisposedResources(screenCaptureResources);
+    }
+
+
+    /// <summary>
+    ///     Releases cached resources belonging to disposed cores after the completed presentation fence.
+    /// </summary>
+    /// <typeparam name="TCore">The original render-core type.</typeparam>
+    /// <typeparam name="TResource">The owned native resource type.</typeparam>
+    /// <param name="cache">The per-core resource cache.</param>
+    private static void ReleaseDisposedResources<TCore, TResource>(Dictionary<TCore, TResource> cache)
+        where TCore : RenderCore
+        where TResource : IDisposable {
+        foreach (var core in cache.Keys.Where(core => core.IsDisposed).ToArray()) {
+            var resource = cache[core];
+            cache.Remove(core);
+            resource.Dispose();
+        }
     }
 
     /// <summary>

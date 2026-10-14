@@ -15,7 +15,11 @@ timestamp: 2026-07-08T00:00:00+02:00
 
 The project references `SilkToolkit.Native.ShaderBuilder` with private assets. It uses Silk.NET packages for Direct2D, Direct3D compiler support, Direct3D11, Direct3D12, DXGI, and maths support.
 
-The current runtime renderer remains DX11-based. The Direct3D12 work is isolated in `Native` helper types (`SilkD3D12DeviceFactory`, `SilkD3D12Device`, command queue/context/fence, and empty root signature creation) so DX12 pipeline work can proceed without destabilizing the existing DX11 render host.
+The Direct3D12 presentation path uses the existing scene render cores through native resource and binding adapters.
+Per-core mesh, point/line, volume, particle and screen-capture caches release entries for disposed cores at
+`D3D12SceneRenderer.BeginFrame()`, after the presentation host has completed the preceding GPU fence. Live cores
+retain their descriptor tables. This prevents repeated scene replacement from exhausting contiguous descriptor
+ranges; increasing heap capacity does not replace correct ownership cleanup.
 
 # Related Concepts
 

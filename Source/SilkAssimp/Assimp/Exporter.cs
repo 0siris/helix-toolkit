@@ -158,6 +158,12 @@ public partial class Exporter : IDisposable {
         return scene;
     }
 
+    /// <summary>
+    ///     Preserves each source node's local transform and mesh assignment in the exported hierarchy.
+    /// </summary>
+    /// <param name="current">The source group or geometry node.</param>
+    /// <param name="parent">The exported parent, or no parent for the scene root.</param>
+    /// <returns>The corresponding transformed Assimp node and its source children.</returns>
     private Node ConstructAssimpNode(SceneNode current, Node? parent) {
         var node = new Node(string.IsNullOrEmpty(current.Name)
             ? "Node"
@@ -166,10 +172,7 @@ public partial class Exporter : IDisposable {
         };
         if (current is GroupNodeBase group) {
             foreach (var s in group.Items)
-                if (s is GeometryNode geo) {
-                    var key = GetMaterialGeoKey(geo, out _, out _);
-                    if (MeshInfos.TryGetValue(key, out var meshInfo)) node.MeshIndices.Add(meshInfo.MeshIndex);
-                } else if (s is GroupNodeBase) {
+                if (s is GeometryNode or GroupNodeBase) {
                     node.Children.Add(ConstructAssimpNode(s, node));
                 } else {
                     Logger.Warn("Current node type does not support yet. Type: {Value0}", s.GetType()

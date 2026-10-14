@@ -2,6 +2,13 @@
 
 ## 2026-10-14
 
+* **Fix**: Preserve direct geometry-child transforms in exported Assimp nodes and assign contiguous indices to
+  actual geometry/material pairs instead of indexing the separate geometry cache. Skipped material-less geometry
+  and shared geometry with multiple materials no longer produce invalid native mesh references.
+* **Verification**: All 15 non-hardware SilkAssimp tests pass, including two targeted hierarchy/index regressions.
+  Actual archived-treatment STL/Collada export and scene replacement pass with 1842 native frames and zero errors.
+  Graphify regeneration was attempted again and remains blocked by the missing LLM API key.
+
 * **Update**: Release cached resources for disposed mesh, point/line, volume, particle and screen-capture cores
   at the existing completed-fence frame boundary, preserving live owners and reusing descriptor ranges.
 * **Verification**: Bounded allocator/ownership regression and descriptor tests pass. Actual desktop treatment

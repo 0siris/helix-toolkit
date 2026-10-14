@@ -10,7 +10,55 @@ using HxImporter = HelixToolkit.SharpDX.Core.Assimp.Importer;
 
 namespace SilkAssimp.Tests;
 
+/// <summary>Verifies actual Assimp scene conversion, hierarchy, geometry and interchange roundtrips.</summary>
 public class AssimpImportExportTests {
+    /// <summary>Skipped geometry and shared geometry with distinct materials cannot leave invalid exported mesh indices.</summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ExportedMeshIndicesRemainContiguousAfterSkippedGeometryTest() {
+        var builder = new HelixToolkit.SharpDX.Core.Geometry.MeshBuilder();
+        builder.AddTriangle(new(0, 0, 0), new(1, 0, 0), new(0, 1, 0));
+        using var root = new GroupNode();
+        using var skipped = new MeshNode { Name = "No Material", Geometry = builder.ToMeshGeometry3D() };
+        var shared = builder.ToMeshGeometry3D();
+        using var first = new MeshNode { Name = "First", Geometry = shared, Material = new PhongMaterialCore() };
+        using var second = new MeshNode { Name = "Second", Geometry = shared, Material = new PhongMaterialCore() };
+        root.AddChildNode(skipped);
+        root.AddChildNode(first);
+        root.AddChildNode(second);
+        using var exporter = new HxExporter();
+        var result = exporter.ToAssimpScene(root, out var scene);
+        Assert.Equal(ErrorCode.Succeed, result);
+        Assert.Equal(2, scene!.MeshCount);
+        var indices = scene.RootNode.Children.SelectMany(child => child.MeshIndices).ToArray();
+        Assert.Equal(new[] { 0, 1 }, indices);
+        Assert.Empty(scene.RootNode.Children[0].MeshIndices);
+    }
+    /// <summary>Direct mesh children retain their own local transforms below a nonidentity parent.</summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void DirectMeshChildRetainsTransformInExportedHierarchyTest() {
+        using var root = new GroupNode {
+            Name = "Parent", ModelMatrix = new(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 11, -2, 7, 1)
+        };
+        var builder = new HelixToolkit.SharpDX.Core.Geometry.MeshBuilder();
+        builder.AddTriangle(new(0, 0, 0), new(1, 0, 0), new(0, 1, 0));
+        using var mesh = new MeshNode {
+            Name = "Child", Geometry = builder.ToMeshGeometry3D(), Material = new PhongMaterialCore(),
+            ModelMatrix = new(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 3, 4, 5, 1)
+        };
+        root.AddChildNode(mesh);
+        using var exporter = new HxExporter();
+        var result = exporter.ToAssimpScene(root, out var exported);
+        Assert.Equal(ErrorCode.Succeed, result);
+        var child = Assert.Single(exported!.RootNode.Children);
+        Assert.Equal("Child", child.Name);
+        Assert.Single(child.MeshIndices);
+        Assert.Empty(exported.RootNode.MeshIndices);
+        Assert.Equal(mesh.ModelMatrix.ToAssimpMatrix(true), child.Transform);
+        Assert.Equal(root.ModelMatrix.ToAssimpMatrix(true), exported.RootNode.Transform);
+        Assert.Same(root, mesh.Parent);
+    }
     [Fact]
     [Trait("Category", "Unit")]
     public void EmptySceneProducesEmptyHelixRoot() {

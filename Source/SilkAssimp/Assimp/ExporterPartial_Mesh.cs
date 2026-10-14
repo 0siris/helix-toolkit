@@ -34,13 +34,18 @@ public partial class Exporter {
     /// </summary>
     /// <param name="geoNode">The geo node.</param>
     /// <returns></returns>
+    /// <summary>
+    ///     Registers valid geometry/material pairs using contiguous exported mesh indices.
+    /// </summary>
+    /// <param name="geoNode">The source geometry node.</param>
+    /// <returns>The existing or new mesh entry, or no entry when geometry or material is absent.</returns>
     private MeshInfo? OnCreateMeshInfo(GeometryNode geoNode) {
         if (geoNode is not MaterialGeometryNode { Material: not null } materialNode || geoNode.Geometry is not { } geometry)
             return null;
 
-        var key = GetMaterialGeoKey(geoNode, out var materialIndex, out var geoIndex);
+        var key = GetMaterialGeoKey(geoNode, out var materialIndex, out _);
         if (!MeshInfos.TryGetValue(key, out var info))
-            info = new MeshInfo(key, geometry, geoNode.Name, geoIndex, materialIndex);
+            info = new MeshInfo(key, geometry, geoNode.Name, MeshInfos.Count, materialIndex);
 
         if (info.Bones == null && materialNode is BoneSkinMeshNode boneNode)
             info.Bones = boneNode.Bones;

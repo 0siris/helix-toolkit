@@ -275,7 +275,7 @@ internal abstract class MouseGestureHandler {
     ///     The <see cref="System.Windows.Input.MouseEventArgs" /> instance containing the event data.
     /// </param>
     protected virtual void OnMouseDown(object sender, MouseEventArgs? e) {
-        Started(Mouse.GetPosition(Viewport));
+        Started(Viewport.GetMouseInputPosition(e));
 
         Controller.CursorHistory.Push(Viewport.Cursor);
         Viewport.Cursor = GetCursor();
@@ -293,7 +293,7 @@ internal abstract class MouseGestureHandler {
     protected virtual void OnMouseMove(object sender, MouseEventArgs e) {
         if (e.Handled)
             return;
-        Delta(Mouse.GetPosition(Viewport));
+        Delta(Viewport.GetMouseInputPosition(e));
     }
 
     /// <summary>
@@ -310,7 +310,7 @@ internal abstract class MouseGestureHandler {
         Viewport.MouseUp -= OnMouseUp;
         Viewport.ReleaseMouseCapture();
         Viewport.Cursor = Controller.CursorHistory.Count > 0 ? Controller.CursorHistory.Pop() : Cursors.Arrow;
-        Completed(Mouse.GetPosition(Viewport));
+        Completed(Viewport.GetMouseInputPosition(e));
         CheckCursorHistory();
     }
 

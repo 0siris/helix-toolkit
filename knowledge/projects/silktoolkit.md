@@ -23,3 +23,16 @@ The project uses Silk.NET Direct2D, Direct3D compiler, Direct3D11, Direct3D9, DX
 # Citations
 
 [1] [SilkToolkit.csproj](../../Source/SilkToolkit/SilkToolkit.csproj)
+
+## Native child input ownership
+
+The enabled interactive HwndSwapChainHost explicitly returns HTCLIENT; disabled/noninteractive surfaces return
+HTTRANSPARENT. Decoded wheel input is consumed once instead of reaching the WPF owner default procedure.
+Native mouse events enter the existing typed WPF InputManager preview/bubble route, retaining the viewport
+source during promotion and native DIP coordinates during camera/tool callbacks. The temporary source hook
+and position context restore in finally. Existing selection, gesture bindings, click counts and capture owners
+remain authoritative. Touch keeps its existing path; physical touch/SpaceMouse behavior is not certified.
+
+The58 ordinary toolkit tests include genuine queued HWND ownership and missing-callback red/green coverage.
+Actual Desktop wheel, selection and outside-release capture were inspected at175%; a separate demand-only
+VisibleUI test covers the widget-overlay/native boundary. Normal tests create no visible windows.

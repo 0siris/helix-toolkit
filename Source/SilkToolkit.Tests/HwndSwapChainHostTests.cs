@@ -117,7 +117,7 @@ public sealed class HwndSwapChainHostTests {
             Assert.False(host.ProcessMessage(0x0200, 0, PackPoint(12, -34)));
             Assert.False(host.ProcessMessage(0x0201, 0, PackPoint(12, -34)));
             Assert.False(host.ProcessMessage(0x0202, 0, PackPoint(12, -34)));
-            Assert.False(host.ProcessMessage(0x020A, (nint) (120 << 16), PackPoint(12, -34)));
+            Assert.True(host.ProcessMessage(0x020A, (nint) (120 << 16), PackPoint(12, -34)));
             Assert.False(host.ProcessMessage(0x02E0, 144, 0));
 
             Assert.Collection(events,
@@ -391,9 +391,16 @@ public sealed class HwndSwapChainHostTests {
             surface.WindowHost.ProcessMessage(0x0200, 0, PackPoint(30, 18));
             surface.WindowHost.ProcessMessage(0x0205, 0, PackPoint(30, 18));
 
-            Assert.Equal(3, pointerPositions.Count);
+            // Standard WPF camera capture may reevaluate the pointer once at the unchanged press position.
+            var mouseEventCount = pointerPositions.Count;
+            Assert.InRange(mouseEventCount, 3, 4);
             Assert.Equal(new Point(12 / surface.WindowHost.DpiScale, 12 / surface.WindowHost.DpiScale),
                 pointerPositions[0]);
+            if (mouseEventCount == 4)
+                Assert.Equal(pointerPositions[0], pointerPositions[1]);
+            var releasePoint = new Point(30 / surface.WindowHost.DpiScale, 18 / surface.WindowHost.DpiScale);
+            Assert.Equal(releasePoint, pointerPositions[^2]);
+            Assert.Equal(releasePoint, pointerPositions[^1]);
             Assert.NotEqual(originalLookDirection, viewport.Camera.LookDirection);
 
             viewport.ProcessD3D12Pointer(new HwndPointerEventArgs(HwndPointerDevice.Touch,
@@ -424,7 +431,7 @@ public sealed class HwndSwapChainHostTests {
                 9,
                 HwndPointerButton.None,
                 0), ModifierKeys.None);
-            Assert.Equal(6, pointerPositions.Count);
+            Assert.Equal(mouseEventCount + 3, pointerPositions.Count);
 
             source.RootVisual = null;
         });

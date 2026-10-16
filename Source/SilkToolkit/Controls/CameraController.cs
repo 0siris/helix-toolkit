@@ -1221,7 +1221,7 @@ public class CameraController {
     ///     The <see cref="System.Windows.Input.MouseWheelEventArgs" /> instance containing the event data.
     /// </param>
     public void OnMouseWheel(object sender, MouseWheelEventArgs e) {
-        if (ZoomByMouseWheel(e.Delta, e.GetPosition(Viewport))) e.Handled = true;
+        if (ZoomByMouseWheel(e.Delta, Viewport.GetMouseInputPosition(e))) e.Handled = true;
     }
 
     /// <summary>

@@ -329,3 +329,13 @@ Integrated independent TRS timeline/default/interpolation fixes, restored the mu
 and fixed signed noise lookup, completed-field normalization and concurrent permutation ownership. Fresh owning
 Assimp70 and noise29 cases pass. Shared documentation states source assumptions and acceptance limits.
 Graphify regenerated this composed batch: 979 files, 9,218 nodes, 16,366 edges and 2,640 communities, zero model tokens. The existing 17 partial parser results remain disclosed; no visible application or producer was launched.
+
+## 2026-10-17 — Native mouse route and restoring runtime references
+
+- Made the interactive native surface an actual hit-test recipient and consumed wheel default propagation.
+- Reused WPF InputManager preview/bubble, tool/camera bindings, click counts and capture with original DIP coordinates.
+- Toolkit58 headless, Desktop23 headless and one explicitly demanded VisibleUI boundary check pass; real Desktop
+  wheel/selection/outside release and popup click work at175%. Physical touch/SpaceMouse remain unverified.
+- Replaced same-version CodeDom/CSharp cache HintPaths with restoring PackageReferences; affected builds pass.
+- Graphify regenerated982 source files into9248 nodes/16457 edges/2616 communities, zero model tokens;
+  existing17 partially extracted files remain disclosed. Rider/ReSharper were unavailable; CLI fallback used.

@@ -40,3 +40,6 @@ SilkAssimp knowledge records actual primitive-face conversion, internal/external
 animation cleanup and independent PBR/texture-path fallback behavior, preserving child placement and mesh indices.
 
 SilkAssimp now also records independent animation channels and the restored source export timebase; SilkCore records periodic noise, final-field normalization and permutation publication.
+
+Toolkit input ownership now retains ordinary WPF mouse callbacks across the native child boundary; build
+knowledge records explicit same-version CodeDom/CSharp package restoration instead of cache-only HintPaths.

@@ -124,8 +124,12 @@ public sealed unsafe partial class HwndSwapChainHost : HwndHost {
     /// <param name="wParam">The native word parameter.</param>
     /// <param name="lParam">The native long parameter.</param>
     /// <param name="handled">Whether the message was handled.</param>
-    /// <returns>Zero.</returns>
+    /// <returns>The native client hit result, or zero for decoded pointer and DPI messages.</returns>
     private nint OnMessage(nint window, int message, nint wParam, nint lParam, ref bool handled) {
+        if (message == NativeMethods.WmNcHitTest) {
+            handled = true;
+            return IsHitTestVisible && IsEnabled ? NativeMethods.HtClient : NativeMethods.HtTransparent;
+        }
         handled = ProcessMessage(message, wParam, lParam);
         return 0;
     }
@@ -169,7 +173,7 @@ public sealed unsafe partial class HwndSwapChainHost : HwndHost {
                     (short) (((nuint) wParam >> 16) & 0xffff),
                     lParam,
                     true);
-                return false;
+                return true;
             case NativeMethods.WmTouch:
                 ProcessTouch(wParam, lParam);
                 return true;
@@ -260,6 +264,12 @@ public sealed unsafe partial class HwndSwapChainHost : HwndHost {
     ///     Contains the minimal Win32 child-window operations required by <see cref="HwndHost" />.
     /// </summary>
     private static partial class NativeMethods {
+        /// The native client-area hit-test message.
+        internal const int WmNcHitTest = 0x0084;
+        /// The pointer belongs to this native client surface.
+        internal const int HtClient = 1;
+        /// Native hit testing must continue behind a disabled or noninteractive surface.
+        internal const int HtTransparent = -1;
         internal const int WmMouseMove = 0x0200;
         internal const int WmLeftButtonDown = 0x0201;
         internal const int WmLeftButtonUp = 0x0202;

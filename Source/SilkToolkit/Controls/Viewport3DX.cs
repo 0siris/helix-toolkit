@@ -147,11 +147,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     private D3D12PresentationSurface? d3d12Surface;
 
     /// <summary>
-    ///     The existing camera gesture currently driven by the native Direct3D 12 child window.
-    /// </summary>
-    private MouseGestureHandler? d3d12PointerGesture;
-
-    /// <summary>
     ///     The first native touch contact routed to the existing viewport hit-test contract.
     /// </summary>
     private uint? d3d12TouchPointerId;
@@ -765,7 +760,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         base.OnPreviewMouseDown(e);
         if (touchDownDevice == null) {
             Focus();
-            MouseDownHitTest(e.GetPosition(this), e);
+            MouseDownHitTest(GetMouseInputPosition(e), e);
         }
     }
 
@@ -798,7 +793,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     protected override void OnMouseMove(MouseEventArgs e) {
         base.OnMouseMove(e);
         if (touchDownDevice == null) {
-            var pt = e.GetPosition(this);
+            var pt = GetMouseInputPosition(e);
             MouseMoveHitTest(pt, e);
             UpdateCurrentPosition(pt);
         }
@@ -849,7 +844,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <inheritdoc />
     protected override void OnMouseUp(MouseButtonEventArgs e) {
         base.OnMouseUp(e);
-        MouseUpHitTest(e.GetPosition(this), e);
+        MouseUpHitTest(GetMouseInputPosition(e), e);
     }
 
     protected override void OnMouseWheel(MouseWheelEventArgs e) {
@@ -872,6 +867,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <param name="modifiers">The current keyboard modifiers used to resolve existing mouse bindings.</param>
     internal void ProcessD3D12Pointer(HwndPointerEventArgs eventArgs, ModifierKeys modifiers) {
         eventArgs.AsGuardNotNull();
+        if (eventArgs.Device == HwndPointerDevice.Mouse) {
+            ProcessNativeMouseInput(eventArgs);
+            return;
+        }
         var point = new Point(eventArgs.X, eventArgs.Y);
         if (eventArgs.Device == HwndPointerDevice.Touch) {
             if (eventArgs.Action == HwndPointerAction.Pressed && d3d12TouchPointerId is null)
@@ -883,21 +882,13 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             case HwndPointerAction.Pressed:
                 Focus();
                 MouseDownHitTest(point);
-                if (eventArgs.Device == HwndPointerDevice.Mouse) {
-                    d3d12PointerGesture?.Completed(point);
-                    d3d12PointerGesture = ResolveD3D12PointerGesture(eventArgs.Button, modifiers);
-                    d3d12PointerGesture?.Started(point);
-                }
                 break;
             case HwndPointerAction.Move:
                 MouseMoveHitTest(point);
                 UpdateCurrentPosition(point);
-                d3d12PointerGesture?.Delta(point);
                 break;
             case HwndPointerAction.Released:
                 MouseUpHitTest(point);
-                d3d12PointerGesture?.Completed(point);
-                d3d12PointerGesture = null;
                 if (eventArgs.Device == HwndPointerDevice.Touch) d3d12TouchPointerId = null;
                 break;
             case HwndPointerAction.Wheel:

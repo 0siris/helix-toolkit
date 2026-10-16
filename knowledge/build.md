@@ -45,3 +45,10 @@ The root `global.json` pins SDK `10.0.0` and allows latest-major roll-forward. `
 [1] [global.json](../global.json)
 [2] [Source/Directory.Build.props](../Source/Directory.Build.props)
 [3] [Repository agent instructions](../AGENTS.md)
+
+## Explicit runtime compiler dependencies
+
+SilkCore and SilkToolkit declare System.CodeDom10.0.9 as restoring PackageReferences. SilkCore also declares
+Microsoft.CSharp4.7.0, matching the toolkit's existing version. The previous cache-only HintPaths could compile
+only after unrelated restores populated those packages. Current compiled dynamic-surface owners retain the
+same APIs; restoring their dependencies does not assert dynamic compilation runtime acceptance.

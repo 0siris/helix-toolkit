@@ -13,78 +13,85 @@ using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
-using Microsoft.Extensions.Logging;
 using Animation = Assimp.Animation;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
-/// <summary>
-/// </summary>
+/// <summary>Converts Assimp scenes, including node and morph animation channels, to Silk scene data.</summary>
 public partial class Importer {
     /// <summary>
-    ///     Processes the node animation.
+    ///     Samples independent TRS channels at every distinct source key time without changing the source channel.
     /// </summary>
-    /// <param name="channel">The channel.</param>
-    /// <param name="ticksPerSecond">The ticks per second.</param>
-    /// <param name="list">The list.</param>
-    /// <returns></returns>
+    /// <param name="channel">The channel with chronologically ordered component keys.</param>
+    /// <param name="ticksPerSecond">The source or configured fallback tick rate used to convert times to seconds.</param>
+    /// <param name="list">The resulting tightly sized keyframe list consumed by the node animation updater.</param>
+    /// <returns><see cref="ErrorCode.Succeed"/> after converting the channel.</returns>
+    /// <remarks>
+    ///     Missing components use zero translation, identity rotation, and unit scale. Existing components hold their
+    ///     endpoint values outside their own time range and interpolate inside it. The last key at a duplicate time wins.
+    ///     No artificial time-zero key is added, preserving the consumer's behavior before the first source key.
+    /// </remarks>
     protected virtual ErrorCode ProcessNodeAnimation(
         NodeAnimationChannel channel,
         double ticksPerSecond,
         out FastList<Keyframe> list
     ) {
-        var posCount = channel.HasPositionKeys ? channel.PositionKeyCount : 0;
-        var rotCount = channel.HasRotationKeys ? channel.RotationKeyCount : 0;
-        var scaleCount = channel.HasScalingKeys ? channel.ScalingKeyCount : 0;
-        var maxCount = Math.Max(posCount, Math.Max(rotCount, scaleCount));
-        var ret = new FastList<Keyframe>(maxCount);
-        if (posCount != rotCount || rotCount != scaleCount) {
-            if (Logger.IsEnabled(LogLevel.Trace))
-                Logger.Verbose("Animation Channel is non-uniform lengths. Position={Value0}; Rotation={Value1}; Scale={Value2};" +
-                                " Trying to automatically create uniform animation keys",
-                                posCount,
-                                rotCount,
-                                scaleCount);
-            // Adds dummy key if it is empty
-            if (posCount == 0) channel.PositionKeys.Add(new VectorKey(0, new Vector3D()));
-            if (rotCount == 0) channel.RotationKeys.Add(new QuaternionKey(0, new global::Assimp.Quaternion()));
-            if (scaleCount == 0) channel.ScalingKeys.Add(new VectorKey(0, new Vector3D(1, 1, 1)));
-            int i = 0, j = 0, k = 0;
-            double nextT1 = channel.PositionKeys[i].Time,
-                   nextT2 = channel.RotationKeys[j].Time,
-                   nextT3 = channel.ScalingKeys[k].Time;
-            var minT = Math.Min(nextT1, Math.Min(nextT2, nextT3));
-
-            for (var x = 0; x < maxCount && i < posCount && j < rotCount && k < scaleCount; ++x) {
-                ret.Add(new Keyframe {
-                    Time = (float)(minT / ticksPerSecond),
-                    Translation = channel.PositionKeys[i].Value.ToSharpDXVector3(),
-                    Rotation = channel.RotationKeys[j].Value.ToSharpDXQuaternion(),
-                    Scale = channel.ScalingKeys[k].Value.ToSharpDXVector3()
-                });
-                nextT1 = i + 1 < posCount
-                             ? channel.PositionKeys[i + 1].Time
-                             : double.MaxValue; // Set to max so index will not increase
-                nextT2 = j + 1 < rotCount ? channel.RotationKeys[j + 1].Time : double.MaxValue;
-                nextT3 = k + 1 < scaleCount ? channel.ScalingKeys[k + 1].Time : double.MaxValue;
-
-                minT = Math.Min(nextT1, Math.Min(nextT2, nextT3));
-                if (minT == nextT1) ++i;
-                if (minT == nextT2) ++j;
-                if (minT == nextT3) ++k;
-            }
-        } else {
-            for (var i = 0; i < posCount; ++i)
-                ret.Add(new Keyframe {
-                    Time = (float)(channel.PositionKeys[i].Time / ticksPerSecond),
-                    Translation = channel.PositionKeys[i].Value.ToSharpDXVector3(),
-                    Rotation = channel.RotationKeys[i].Value.ToSharpDXQuaternion(),
-                    Scale = channel.ScalingKeys[i].Value.ToSharpDXVector3()
-                });
-        }
+        var times = new SortedSet<double>(channel.PositionKeys.Select(key => key.Time));
+        times.UnionWith(channel.RotationKeys.Select(key => key.Time));
+        times.UnionWith(channel.ScalingKeys.Select(key => key.Time));
+        var ret = new FastList<Keyframe>(times.Count);
+        int positionIndex = 0, rotationIndex = 0, scaleIndex = 0;
+        foreach (var time in times)
+            ret.Add(new Keyframe {
+                Time = (float)(time / ticksPerSecond),
+                Translation = SampleVectorKeys(channel.PositionKeys, time, ref positionIndex, Vector3.Zero),
+                Rotation = SampleRotationKeys(channel.RotationKeys, time, ref rotationIndex),
+                Scale = SampleVectorKeys(channel.ScalingKeys, time, ref scaleIndex, Vector3.One)
+            });
 
         list = ret;
         return ErrorCode.Succeed;
+    }
+
+    /// <summary>
+    ///     Samples ordered vector keys using the existing Silk vector interpolation boundary.
+    /// </summary>
+    /// <param name="keys">The position or scaling keys.</param>
+    /// <param name="time">The source time in ticks, visited in ascending order.</param>
+    /// <param name="index">The current key index, advanced past shared or duplicate times.</param>
+    /// <param name="defaultValue">The value for an absent component.</param>
+    /// <returns>The interpolated vector or the nearest endpoint value.</returns>
+    private static Vector3 SampleVectorKeys(List<VectorKey> keys, double time, ref int index, Vector3 defaultValue) {
+        if (keys.Count == 0) return defaultValue;
+        while (index + 1 < keys.Count &&
+               (keys[index + 1].Time <= time || keys[index + 1].Time == keys[index].Time)) ++index;
+        var current = keys[index];
+        if (time <= current.Time || index == keys.Count - 1) return current.Value.ToSharpDXVector3();
+        var nextIndex = index + 1;
+        while (nextIndex + 1 < keys.Count && keys[nextIndex + 1].Time == keys[nextIndex].Time) ++nextIndex;
+        var next = keys[nextIndex];
+        var amount = (float)((time - current.Time) / (next.Time - current.Time));
+        return Silk.NET.Maths.Vector3D.Lerp(current.Value.ToSharpDXVector3(), next.Value.ToSharpDXVector3(), amount);
+    }
+
+    /// <summary>
+    ///     Samples ordered quaternion keys using the same spherical interpolation as the node updater.
+    /// </summary>
+    /// <param name="keys">The rotation keys.</param>
+    /// <param name="time">The source time in ticks, visited in ascending order.</param>
+    /// <param name="index">The current key index, advanced past shared or duplicate times.</param>
+    /// <returns>The interpolated rotation, nearest endpoint, or identity for an absent component.</returns>
+    private static Quaternion SampleRotationKeys(List<QuaternionKey> keys, double time, ref int index) {
+        if (keys.Count == 0) return Quaternion.Identity;
+        while (index + 1 < keys.Count &&
+               (keys[index + 1].Time <= time || keys[index + 1].Time == keys[index].Time)) ++index;
+        var current = keys[index];
+        if (time <= current.Time || index == keys.Count - 1) return current.Value.ToSharpDXQuaternion();
+        var nextIndex = index + 1;
+        while (nextIndex + 1 < keys.Count && keys[nextIndex + 1].Time == keys[nextIndex].Time) ++nextIndex;
+        var next = keys[nextIndex];
+        var amount = (float)((time - current.Time) / (next.Time - current.Time));
+        return Quaternion.Slerp(current.Value.ToSharpDXQuaternion(), next.Value.ToSharpDXQuaternion(), amount);
     }
 
     private ErrorCode LoadAnimations(HelixInternalScene scene) {

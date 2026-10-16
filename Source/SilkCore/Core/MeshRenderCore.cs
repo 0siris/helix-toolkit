@@ -17,6 +17,7 @@ using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
+/// Renders the original filled mesh and its optional ordinary wireframe overlay.
 public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicReflectable {
     protected ModelStruct ModelStruct = new() { World = Matrix.Identity };
 
@@ -58,12 +59,16 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
         bindings.AsGuardNotNull();
         OnUpdatePerModelStructD3D12();
         if (lights is not null) bindings.UpdateLights(lights);
-        bindings.Update(context, resources, in transforms, in ModelStruct, D3D12Material, environmentMap);
-        return base.TryRenderD3D12(context,
+        bindings.Update(context, resources, in transforms, in ModelStruct, D3D12Material, environmentMap, (GeometryBuffer as IGeometryBufferModel)?.Geometry, D3D12SceneNode);
+        var rendered = base.TryRenderD3D12(context,
             resources,
             pass,
             bindings.ResourceTableStart,
             bindings.SamplerTableStart);
+        if (rendered && RenderWireframe && pass.D3D12WireframePass is { } wireframe)
+            base.TryRenderD3D12(context, resources, wireframe,
+                bindings.ResourceTableStart, bindings.SamplerTableStart);
+        return rendered;
     }
 
     #region Properties
@@ -118,6 +123,9 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
     ///     Gets or sets the existing material core used by the Direct3D 12 path.
     /// </summary>
     internal MaterialCore? D3D12Material { get; set; }
+
+    /// Gets or sets the actual scene owner used by application material parameter binding.
+    internal HelixToolkit.SharpDX.Core.Model.Scene.Abstract.SceneNode? D3D12SceneNode { get; set; }
 
     /// <summary>
     ///     Gets the productive opaque DX12 pass name selected by the existing material.

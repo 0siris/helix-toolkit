@@ -15,6 +15,9 @@ namespace HelixToolkit.SharpDX.Core.Shaders;
 ///     Shader Pass
 /// </summary>
 public sealed class ShaderPass : DisposeObject {
+    /// Gets or sets the borrowed catalog-owned wireframe overlay for this native material pass.
+    internal ShaderPass? D3D12WireframePass { get; set; }
+
     public static readonly ShaderPass NullPass = new();
 
     /// <summary>
@@ -117,6 +120,9 @@ public sealed class ShaderPass : DisposeObject {
     ///     Gets whether this pass uses Direct3D 12 command recording.
     /// </summary>
     public bool IsD3D12 => d3D12PipelineState is not null;
+
+    /// Gets the native input-layout slot used by the instance matrix, when the pass declares one.
+    internal uint? D3D12InstanceBufferSlot { get; set; }
 
     /// <summary>
     ///     Gets the borrowed cache-owned Direct3D 12 pipeline state, if this is a Direct3D 12 pass.

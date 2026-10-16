@@ -197,11 +197,15 @@ public sealed class ShaderPassDescription {
                 RasterStateDescription,
                 DepthStencilStateDescription,
                 unchecked((uint) SampleMask)));
-        return ShaderPass.CreateD3D12(Name ?? throw new InvalidOperationException("Shader pass name is required."),
+        var pass = ShaderPass.CreateD3D12(Name ?? throw new InvalidOperationException("Shader pass name is required."),
             rootSignature,
             pipeline,
             topology: topology,
             stencilReference: StencilRef);
+        pass.D3D12InstanceBufferSlot = inputElements?
+            .Where(element => element.Classification == Silk.NET.Direct3D12.InputClassification.PerInstanceData)
+            .Select(element => (uint?)element.InputSlot).Min();
+        return pass;
     }
 
     /// <summary>

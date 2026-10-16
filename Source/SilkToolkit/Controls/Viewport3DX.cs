@@ -1605,36 +1605,53 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
     #region IDisposable Support
 
-    private bool disposedValue; // To detect redundant calls
+    /// Records the first disposal entry and prevents repeated or reentrant cleanup.
+    private bool disposedValue;
 
+    /// Gets whether disposal has started, including viewports whose resources belong to their parent window.
+    public bool IsDisposed => disposedValue;
+
+    /// Occurs once before managed cleanup, regardless of parent-window resource ownership.
+    public event EventHandler? Disposing;
+
+    /// <summary>Notifies lifetime consumers and preserves the existing parent-window resource ownership rules.</summary>
+    /// <param name="disposing">Whether managed resources are being released.</param>
+    /// <remarks>All listeners run and required cleanup executes even when a listener throws.</remarks>
     protected virtual void Dispose(bool disposing) {
-        if (!disposedValue) {
-            if (disposing) {
-                d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-                d3d12CompositionTarget.Dispose();
-                if (d3d12Surface is { } surface) surface.WindowHost.PointerInput -= D3D12PointerInput;
-                d3d12Surface?.Dispose();
-                d3d12Surface = null;
-                if (!BelongsToParentWindow) {
-                    if (hostPresenter?.Content is IDisposable d) {
-                        hostPresenter.Content = null;
-                        d.Dispose();
-                    }
-
-                    ClearValue(CameraProperty);
-                    EffectsManager = null;
-                    foreach (var item in Items) item.Dispose();
-                    viewCube?.Dispose();
-                    coordinateView?.Dispose();
-                    Items.Clear();
+        if (disposedValue) return;
+        disposedValue = true;
+        if (!disposing) return;
+        Exception? notificationFailure = null;
+        try {
+            if (Disposing is { } handlers)
+                foreach (EventHandler handler in handlers.GetInvocationList()) {
+                    try { handler(this, EventArgs.Empty); }
+                    catch (Exception exception) { notificationFailure ??= exception; }
                 }
-            }
-            // TODO: dispose managed state (managed objects).
-            // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-            // TODO: set large fields to null.
-
-            disposedValue = true;
         }
+        finally {
+            Disposing = null;
+            d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
+            d3d12CompositionTarget.Dispose();
+            if (d3d12Surface is { } surface) surface.WindowHost.PointerInput -= D3D12PointerInput;
+            d3d12Surface?.Dispose();
+            d3d12Surface = null;
+            if (!BelongsToParentWindow) {
+                if (hostPresenter?.Content is IDisposable d) {
+                    hostPresenter.Content = null;
+                    d.Dispose();
+                }
+
+                ClearValue(CameraProperty);
+                EffectsManager = null;
+                foreach (var item in Items) item.Dispose();
+                viewCube?.Dispose();
+                coordinateView?.Dispose();
+                Items.Clear();
+            }
+        }
+        if (notificationFailure is not null)
+            System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(notificationFailure).Throw();
     }
 
     // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
@@ -1644,6 +1661,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     // }
 
     // This code added to correctly implement the disposable pattern.
+    /// <summary>Releases this viewport once and notifies its lifetime consumers.</summary>
     public void Dispose() {
         // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         Dispose(true);

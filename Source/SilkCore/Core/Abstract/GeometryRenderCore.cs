@@ -112,6 +112,7 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <param name="instances">The instance vertex stream.</param>
     /// <param name="vertexBufferStartSlot">The first vertex input slot.</param>
     /// <param name="topology">The pass topology overriding the geometry topology.</param>
+    /// <param name="instanceBufferSlot">The pass-declared instance slot, or the first free geometry slot.</param>
     /// <returns>The first free vertex input slot after the mesh and instance streams.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static uint DrawIndexed<T>(
@@ -119,12 +120,14 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
         SilkD3D12DefaultMeshBuffers buffers,
         SilkD3D12ElementsBuffer<T> instances,
         uint vertexBufferStartSlot = 0,
-        PrimitiveTopology topology = PrimitiveTopology.Undefined
+        PrimitiveTopology topology = PrimitiveTopology.Undefined,
+        uint? instanceBufferSlot = null
     ) where T : unmanaged {
         context.AsGuardNotNull();
         buffers.AsGuardNotNull();
         instances.AsGuardNotNull();
-        var instanceSlot = buffers.Bind(context, vertexBufferStartSlot);
+        var nextSlot = buffers.Bind(context, vertexBufferStartSlot);
+        var instanceSlot = instanceBufferSlot ?? nextSlot;
         instances.Bind(context, instanceSlot);
         if (topology != PrimitiveTopology.Undefined) context.SetPrimitiveTopology(topology);
         context.DrawIndexedInstanced(buffers.IndexCount, instances.ElementCount);
@@ -229,7 +232,8 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
                 if (instanceBuffer is null)
                     DrawIndexed(context, meshBuffers, topology: pass.Topology);
                 else
-                    DrawIndexed(context, meshBuffers, instanceBuffer, topology: pass.Topology);
+                    DrawIndexed(context, meshBuffers, instanceBuffer, topology: pass.Topology,
+                        instanceBufferSlot: pass.D3D12InstanceBufferSlot);
                 return true;
             case DefaultLineGeometryBufferModel line:
                 var lineBuffers = resources.GetOrCreate(line);

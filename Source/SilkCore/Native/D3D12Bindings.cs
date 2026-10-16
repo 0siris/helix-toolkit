@@ -9,6 +9,7 @@ using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Lights;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.ShaderManager;
@@ -365,6 +366,9 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     /// </summary>
     private readonly SilkD3D12ConstantBuffer model;
 
+    /// Owns the application material constants at b2.
+    private SilkD3D12ConstantBuffer? customMaterial;
+
     /// <summary>
     ///     The b3 shared light constant buffer.
     /// </summary>
@@ -487,19 +491,30 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     /// <param name="modelData">The existing per-model structure.</param>
     /// <param name="material">The existing material core, or <see langword="null" /> for a pass-only draw.</param>
     /// <param name="environmentMap">The optional shared environment cube map.</param>
+    /// <param name="geometry">The actual source geometry for per-draw material constants.</param>
+    /// <param name="node">The actual scene owner for per-draw feature lookup.</param>
     internal void Update(
         SilkD3D12CommandContext context,
         SilkD3D12ResourceManager resources,
         in GlobalTransformStruct transforms,
         in ModelStruct modelData,
         MaterialCore? material,
-        TextureModel? environmentMap = null
+        TextureModel? environmentMap = null,
+        Geometry3D? geometry = null,
+        HelixToolkit.SharpDX.Core.Model.Scene.Abstract.SceneNode? node = null
     ) {
         context.AsGuardNotNull();
         resources.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         var materialData = D3D12MeshMaterialData.Create(in modelData, material);
         BindMaterialResources(context, resources, material, environmentMap);
+        if (material is ID3D12MeshMaterial custom) {
+            customMaterial ??= new SilkD3D12ConstantBuffer(device, bindings.ConstantBuffer(2), 256);
+            Span<byte> constants = stackalloc byte[256];
+            constants.Clear();
+            custom.WriteMaterialConstants(constants, geometry, node);
+            customMaterial.Write<byte>(constants);
+        }
         Update(in transforms, in materialData);
     }
 
@@ -675,6 +690,17 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
                 break;
         }
 
+        if (material is ID3D12MeshMaterial custom) {
+            ReadOnlySpan<int> materialRegisters = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14];
+            foreach (var register in materialRegisters) {
+                var texture = custom.GetTexture(register);
+                if (texture is null) device.CreateNullShaderResourceView(bindings.ShaderResource(register));
+                else BindTexture(context, resources, texture, register);
+            }
+            for (var register = 0; register < 4; register++)
+                device.CreateSampler(bindings.Sampler(register),
+                    custom.GetSampler(register) ?? DefaultSamplers.LinearSamplerWrapAni4);
+        }
         if (environmentMap is null) return;
         BindTexture(context, resources, environmentMap, 20);
         device.CreateSampler(bindings.Sampler(4), DefaultSamplers.EnvironmentSampler);
@@ -777,6 +803,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         boneSkinning?.Dispose();
         shadow.Dispose();
         effect.Dispose();
+        customMaterial?.Dispose();
         model.Dispose();
         globalTransforms.Dispose();
         lights.Dispose();
@@ -1143,6 +1170,13 @@ internal struct D3D12VolumeParams {
 /// </summary>
 internal sealed class SilkD3D12PointLineBindings : IDisposable {
     /// <summary>
+    ///     Binds GPU-produced collision segments at the source vertex shader's t0 register.
+    /// </summary>
+    /// <param name="segments">The GPU append output.</param>
+    /// <param name="capacity">The maximum segment count.</param>
+    internal void BindSegments(SilkD3D12Resource segments, uint capacity) =>
+        device.CreateStructuredBufferShaderResourceView(segments, bindings.ShaderResource(0), capacity, 28);
+    /// <summary>
     ///     The Direct3D 12 device used to populate material descriptors.
     /// </summary>
     private readonly SilkD3D12Device device;
@@ -1161,6 +1195,9 @@ internal sealed class SilkD3D12PointLineBindings : IDisposable {
     ///     The b4 point/line model and material buffer.
     /// </summary>
     private readonly SilkD3D12ConstantBuffer pointLine;
+
+    /// The source post-effect b6 constants for line, point and GPU collision passes.
+    private readonly SilkD3D12ConstantBuffer effect;
 
     /// <summary>
     ///     The zero buffer backing unused constant-buffer registers.
@@ -1183,6 +1220,7 @@ internal sealed class SilkD3D12PointLineBindings : IDisposable {
         bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
         SilkD3D12ConstantBuffer? createdGlobalTransforms = null;
         SilkD3D12ConstantBuffer? createdPointLine = null;
+        SilkD3D12ConstantBuffer? createdEffect = null;
         SilkD3D12Resource? createdFallbackConstants = null;
         try {
             createdGlobalTransforms = new SilkD3D12ConstantBuffer(device,
@@ -1191,14 +1229,17 @@ internal sealed class SilkD3D12PointLineBindings : IDisposable {
             createdPointLine = new SilkD3D12ConstantBuffer(device,
                 bindings.ConstantBuffer(4),
                 PointLineMaterialStruct.SizeInBytes);
+            createdEffect = new SilkD3D12ConstantBuffer(device, bindings.ConstantBuffer(6), BorderEffectStruct.SizeInBytes);
             createdFallbackConstants = device.CreateBuffer(256, HeapType.Upload);
             createdFallbackConstants.Write(new byte[256]);
-            bindings.InitializeFallbackDescriptors(device, createdFallbackConstants, 0, 4);
+            bindings.InitializeFallbackDescriptors(device, createdFallbackConstants, 0, 4, 6);
             globalTransforms = createdGlobalTransforms;
             pointLine = createdPointLine;
+            effect = createdEffect;
             fallbackConstants = createdFallbackConstants;
         } catch {
             createdFallbackConstants?.Dispose();
+            createdEffect?.Dispose();
             createdPointLine?.Dispose();
             createdGlobalTransforms?.Dispose();
             bindings.Dispose();
@@ -1270,10 +1311,17 @@ internal sealed class SilkD3D12PointLineBindings : IDisposable {
     }
 
     /// <summary>
+    ///     Uploads the selected original post-effect attributes for this recorded draw.
+    /// </summary>
+    /// <param name="value">The complete b6 constants.</param>
+    internal void UpdateEffect(in BorderEffectStruct value) => effect.Write(in value);
+
+    /// <summary>
     ///     Releases buffers before returning both descriptor ranges.
     /// </summary>
     public void Dispose() {
         if (IsDisposed) return;
+        effect.Dispose();
         pointLine.Dispose();
         globalTransforms.Dispose();
         fallbackConstants.Dispose();
@@ -1372,7 +1420,10 @@ internal static class D3D12MeshMaterialData {
     /// </summary>
     /// <param name="material">The existing material core.</param>
     /// <returns>The matching default pass name.</returns>
+    /// <exception cref="InvalidOperationException">No mesh material is assigned.</exception>
+    /// <exception cref="NotSupportedException">The material has no native binding contract.</exception>
     internal static string GetPassName(MaterialCore? material) => material switch {
+        ID3D12MeshMaterial => DefaultPassNames.Default,
         ViewCubeMaterialCore => DefaultPassNames.ViewCube,
         DiffuseMaterialCore => DefaultPassNames.Diffuse,
         PhongMaterialCore {EnableTessellation: true} => DefaultPassNames.MeshTriTessellation,
@@ -1394,6 +1445,7 @@ internal static class D3D12MeshMaterialData {
     /// <param name="model">The existing per-model fields.</param>
     /// <param name="material">The existing material core, or <see langword="null" /> for pass-only drawing.</param>
     /// <returns>The complete cbMesh payload.</returns>
+    /// <exception cref="NotSupportedException">The material has no native binding contract.</exception>
     internal static PhongPbrMaterialStruct Create(in ModelStruct model, MaterialCore? material) {
         var result = new PhongPbrMaterialStruct {
             Model = model,
@@ -1417,6 +1469,7 @@ internal static class D3D12MeshMaterialData {
                 ApplyPbr(ref result, pbr);
                 break;
             case ColorMaterialCore or NormalMaterialCore or PositionMaterialCore or NormalVectorMaterialCore:
+            case ID3D12MeshMaterial:
             case null:
                 break;
             case ColorStripeMaterialCore stripe:
@@ -1432,6 +1485,7 @@ internal static class D3D12MeshMaterialData {
             default:
                 throw new NotSupportedException($"DX12 mesh material '{material.GetType().Name}' is not supported.");
         }
+        if (material is ID3D12MeshMaterial custom) custom.ApplyMeshParameters(ref result);
         return result;
     }
 

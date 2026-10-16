@@ -7,6 +7,8 @@ using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Shaders;
 
+using HelixToolkit.SharpDX.Core.Interface;
+
 namespace HelixToolkit.SharpDX.Core.ShaderManager;
 
 /// <summary>
@@ -2016,6 +2018,29 @@ public class DefaultEffectsManager : EffectsManager {
         yield return renderBillboardInstancing;
         yield return renderMeshBlinnClipPlane;
         yield return renderParticle;
+        yield return new TechniqueDescription("MeshIntersect") {
+            PassDescriptions = renderLine.PassDescriptions!.Where(source => source.Name == DefaultPassNames.Default ||
+                source.Name == DefaultPassNames.EffectMeshXRayP1 || source.Name == DefaultPassNames.EffectMeshXRayP2)
+                .Select(source => new ShaderPassDescription(source.Name!) {
+                ShaderList = source.ShaderList!.Select(shader => shader.ShaderType == ShaderStage.Vertex
+                    ? new ShaderDescription("VsCollisionSegmentLine", ShaderStage.Vertex, new ShaderReflector(), "vsCollisionSegmentLine")
+                    : shader).ToList(),
+                Topology = PrimitiveTopology.LineList,
+                BlendStateDescription = source.BlendStateDescription,
+                DepthStencilStateDescription = source.DepthStencilStateDescription,
+                RasterStateDescription = source.RasterStateDescription ?? new RasterizerStateDescription {
+                    CullMode = CullMode.None, FillMode = FillMode.Solid,
+                    IsFrontCounterClockwise = true, IsDepthClipEnabled = true
+                },
+                StencilRef = source.StencilRef,
+                SampleMask = source.SampleMask
+            }).Concat([
+                new ShaderPassDescription("Compute") { ShaderList = [DefaultComputeShaderDescriptions.CsMeshIntersect] },
+                new ShaderPassDescription("ComputeSharedRenderBuffer") {
+                    ShaderList = [DefaultComputeShaderDescriptions.CsMeshIntersectSharedRenderBuffer]
+                }
+            ]).ToList()
+        };
         yield return renderSkybox;
         yield return meshOutlineBlurPostEffect;
         yield return meshBorderHighlightPostEffect;

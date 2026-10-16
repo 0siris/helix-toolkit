@@ -73,10 +73,14 @@ public partial class Exporter {
     }
 
     /// <summary>
-    ///     Called when [create assimp mesh] from <see cref="MeshInfo" />.
+    ///     Converts geometry using single-index point faces, line pairs or triangle triplets and existing attributes.
     /// </summary>
-    /// <param name="info">The information.</param>
-    /// <returns></returns>
+    /// <param name="info">The geometry, material identity and optional skinning information.</param>
+    /// <returns>The converted mesh with primitive-sized faces.</returns>
+    /// <exception cref="ArgumentException">Indices are incomplete or reference vertices outside the position buffer.</exception>
+    /// <remarks>
+    ///     Absent or empty point indices emit every position in order. Lines and triangles require explicit indices.
+    /// </remarks>
     protected virtual Mesh OnCreateAssimpMesh(MeshInfo info) {
         var assimpMesh =
             new Mesh(string.IsNullOrEmpty(info.Name)
@@ -85,11 +89,26 @@ public partial class Exporter {
         if (info.Mesh.Positions is {Count: > 0})
             assimpMesh.Vertices.AddRange(info.Mesh.Positions.Select(x => x.ToAssimpVector3D()));
 
-        if (info.Mesh.Indices is {Count: > 0})
-            for (var i = 0; i < info.Mesh.Indices.Count; i += 3)
-                assimpMesh.Faces.Add(new Face([
-                    info.Mesh.Indices[i], info.Mesh.Indices[i + 1], info.Mesh.Indices[i + 2]
-                ]));
+        var faceSize = info.Mesh switch {
+            PointGeometry3D => 1,
+            LineGeometry3D => 2,
+            MeshGeometry3D => 3,
+            _ => 0
+        };
+        if (faceSize > 0 && info.Mesh.Indices is { Count: > 0 } indices) {
+            if (indices.Count % faceSize != 0)
+                throw new ArgumentException("Indices must contain complete primitives", nameof(info));
+            foreach (var index in indices)
+                if (index < 0 || index >= assimpMesh.VertexCount)
+                    throw new ArgumentException("Indices must reference existing positions", nameof(info));
+            for (var i = 0; i < indices.Count; i += faceSize) {
+                var face = new Face();
+                for (var j = 0; j < faceSize; j++) face.Indices.Add(indices[i + j]);
+                assimpMesh.Faces.Add(face);
+            }
+        } else if (info.Mesh is PointGeometry3D) {
+            for (var i = 0; i < assimpMesh.VertexCount; i++) assimpMesh.Faces.Add(new Face([i]));
+        }
 
         if (info.Mesh.Colors is {Count: > 0})
             assimpMesh.VertexColorChannels[0] =

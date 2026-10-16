@@ -54,6 +54,9 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// </summary>
     private readonly SilkD3D12Descriptor[] renderTargetViews;
 
+    /// Replaced textures and RTV allocations kept alive until the completed host fence.
+    private readonly List<(SilkD3D12Resource Resource, SilkD3D12Descriptor View)> retired = [];
+
     /// <summary>
     ///     The current size-dependent ping-pong resources.
     /// </summary>
@@ -73,7 +76,7 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
         this.device = device;
         this.resourceHeap = resourceHeap;
         this.samplerHeap = samplerHeap;
-        renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 2);
+        renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 64);
         renderTargetViews = renderTargetHeap.AllocateRange(2);
     }
 
@@ -95,9 +98,15 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// <summary>
     ///     Reuses completed-frame binding slots without overwriting descriptors referenced by the open command list.
     /// </summary>
+    /// <exception cref="ObjectDisposedException">The post-process resource owner has been disposed.</exception>
     internal void BeginFrame() {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         bindingSlotIndex = 0;
+        foreach (var generation in retired) {
+            generation.Resource.Dispose();
+            generation.View.Dispose();
+        }
+        retired.Clear();
     }
 
     /// <summary>
@@ -192,10 +201,30 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     ) => Draw(context, pass, Target(sourceIndex), destination, in transforms, in effect);
 
     /// <summary>
+    ///     Draws an external source into a cleared target, optionally excluding the original stencil interior.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    /// <param name="pass">The original full-screen pass.</param>
+    /// <param name="source">The sampled source.</param>
+    /// <param name="index">The destination ping-pong target.</param>
+    /// <param name="width">The destination width.</param>
+    /// <param name="height">The destination height.</param>
+    /// <param name="transforms">The original global constants.</param>
+    /// <param name="effect">The selected effect constants.</param>
+    /// <param name="depthStencil">The optional isolated stencil view.</param>
+    internal void DrawSource(SilkD3D12CommandContext context, ShaderPass pass, SilkD3D12Resource source,
+        int index, uint width, uint height, in GlobalTransformStruct transforms, in BorderEffectStruct effect,
+        SilkD3D12Descriptor? depthStencil = null) {
+        BeginTarget(context, index, width, height, depthStencil);
+        Draw(context, pass, source, renderTargetViews[index], in transforms, in effect, depthStencil, width, height);
+    }
+
+    /// <summary>
     ///     Releases native resources and descriptor allocations.
     /// </summary>
     public void Dispose() {
         if (IsDisposed) return;
+        BeginFrame();
         foreach (var target in targets) target?.Dispose();
         foreach (var view in renderTargetViews) view.Dispose();
         renderTargetHeap.Dispose();
@@ -212,21 +241,27 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// <param name="destination">The destination RTV.</param>
     /// <param name="transforms">The current global constants.</param>
     /// <param name="effect">The b6 post-effect constants.</param>
+    /// <param name="depthStencil">The optional isolated outline stencil view.</param>
+    /// <param name="width">The destination width, or the source width when omitted.</param>
+    /// <param name="height">The destination height, or the source height when omitted.</param>
     private void Draw(
         SilkD3D12CommandContext context,
         ShaderPass pass,
         SilkD3D12Resource source,
         SilkD3D12Descriptor destination,
         in GlobalTransformStruct transforms,
-        in BorderEffectStruct effect
+        in BorderEffectStruct effect,
+        SilkD3D12Descriptor? depthStencil = null,
+        uint? width = null,
+        uint? height = null
     ) {
         var slot = NextBindingSlot();
         context.Transition(source, ResourceStates.PixelShaderResource);
         device.CreateShaderResourceView(source, slot.Bindings.ShaderResource(0));
         slot.GlobalTransforms.Write(in transforms);
         slot.EffectConstants.Write(in effect);
-        context.SetRenderTarget(destination);
-        context.SetViewport(checked((uint) source.Description.Width), source.Description.Height);
+        context.SetRenderTargets([destination], depthStencil);
+        context.SetViewport(width ?? checked((uint)source.Description.Width), height ?? source.Description.Height);
         pass.BindShader(context);
         slot.Bindings.BindGraphics(context);
         context.DrawInstanced(4);
@@ -257,6 +292,8 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// </summary>
     /// <param name="width">The new width.</param>
     /// <param name="height">The new height.</param>
+    /// <param name="format">The intermediate or presentation format.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A target dimension is zero.</exception>
     private void Resize(uint width, uint height, Format format = TargetFormat) {
         ArgumentOutOfRangeException.ThrowIfZero(width);
         ArgumentOutOfRangeException.ThrowIfZero(height);
@@ -268,15 +305,18 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
         try {
             for (var index = 0; index < replacements.Length; index++) {
                 replacements[index] = device.CreateRenderTargetTexture2D(width, height, format);
-                device.CreateRenderTargetView(replacements[index], renderTargetViews[index]);
             }
         } catch {
             foreach (var replacement in replacements) replacement?.Dispose();
             throw;
         }
         for (var index = 0; index < targets.Length; index++) {
-            targets[index]?.Dispose();
+            if (targets[index] is { } previous) {
+                retired.Add((previous, renderTargetViews[index]));
+                renderTargetViews[index] = renderTargetHeap.Allocate();
+            }
             targets[index] = replacements[index];
+            device.CreateRenderTargetView(replacements[index], renderTargetViews[index]);
         }
     }
 

@@ -12,6 +12,7 @@ using Format = Silk.NET.DXGI.Format;
 
 namespace SilkCore.Tests;
 
+/// <summary>Exercises the native graphics bootstrap and complete registered shader/technique contracts.</summary>
 public class GraphicsSmokeTests {
     /// <summary>
     ///     Verifies that unmanaged generic math vectors expose their native size without marshaling metadata.
@@ -171,14 +172,15 @@ public class GraphicsSmokeTests {
         Assert.NotEqual(0UL, sampler.GpuHandle.Ptr);
     }
 
+    /// <summary>Verifies all registered techniques, including native intersection passes, resolve embedded DXIL.</summary>
     [Fact]
     [Trait("Category", "Warp")]
     public void WarpLoadsEveryTechniqueAndPassFromDxil() {
         var techniques = DefaultEffectsManager.LoadTechniqueDescriptions().ToArray();
         var passes = techniques.SelectMany(technique => technique.PassDescriptions ?? []).ToArray();
 
-        Assert.Equal(24, techniques.Length);
-        Assert.Equal(199, passes.Length);
+        Assert.Equal(25, techniques.Length);
+        Assert.Equal(204, passes.Length);
         Assert.All(techniques, technique => Assert.False(string.IsNullOrWhiteSpace(technique.Name)));
         Assert.All(passes, pass => Assert.NotEmpty(pass.GetD3D12ShaderModules()));
     }

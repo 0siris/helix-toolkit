@@ -18,6 +18,7 @@ using HelixToolkit.SharpDX.Core.Shaders;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
+/// Renders filled and wireframe passes over the same GPU-skinned mesh streams.
 public class BoneSkinRenderCore : MeshRenderCore {
     private readonly BoneUploaderCore internalBoneBuffer = new();
     private readonly MorphTargetUploaderCore internalMtBuffer = new();
@@ -144,6 +145,12 @@ public class BoneSkinRenderCore : MeshRenderCore {
             var instanceSlot = buffers.BindSkinned(context, skinning.Output, skinning.OutputSizeInBytes);
             if (instances is not null) instances.Bind(context, instanceSlot);
             context.SetPrimitiveTopology(pass.Topology);
+            context.DrawIndexedInstanced(buffers.IndexCount, instances?.ElementCount ?? 1);
+        }
+        if (RenderWireframe && pass.D3D12WireframePass is { } wireframe) {
+            // Keep the actual precomputed vertex stream and instance bindings from the filled draw.
+            wireframe.BindShader(context);
+            context.SetGraphicsDescriptorTables(bindings.ResourceTableStart, bindings.SamplerTableStart);
             context.DrawIndexedInstanced(buffers.IndexCount, instances?.ElementCount ?? 1);
         }
         matricsChanged = false;

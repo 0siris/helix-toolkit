@@ -468,8 +468,8 @@ public class D3D12RuntimePrimitiveTests {
         var techniques = DefaultEffectsManager.LoadTechniqueDescriptions().ToArray();
         var passes = techniques.SelectMany(technique => technique.PassDescriptions ?? []).ToArray();
 
-        Assert.Equal(24, techniques.Length);
-        Assert.Equal(199, passes.Length);
+        Assert.Equal(25, techniques.Length);
+        Assert.Equal(204, passes.Length);
         Assert.All(passes, pass => {
             var modules = pass.GetD3D12ShaderModules();
             Assert.NotEmpty(modules);
@@ -1248,7 +1248,7 @@ public class D3D12RuntimePrimitiveTests {
         using var descriptor = resourceHeap.Allocate();
         using var structured = device.CreateBuffer(4 * sizeof(float), HeapType.Upload);
         using var output = device.CreateBuffer(256);
-        using var filledSize = device.CreateBuffer(sizeof(uint));
+        using var filledSize = device.CreateBuffer(sizeof(ulong));
 
         device.CreateStructuredBufferShaderResourceView(structured, descriptor, 4, sizeof(float));
         Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -1606,7 +1606,7 @@ public class D3D12RuntimePrimitiveTests {
                 }
             }
 
-        Assert.Equal(199, createdPasses);
+        Assert.Equal(204, createdPasses);
         Assert.InRange(cache.Count, 1, createdPasses);
         device.ThrowIfDeviceRemoved();
     }
@@ -3145,6 +3145,7 @@ public class D3D12RuntimePrimitiveTests {
         context.SetRenderTarget(renderTargetView);
         context.SetViewport(4, 4);
 
+        context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         Assert.True(core.TryRenderD3D12(context, resources, pass, bindings, in transforms));
         context.Transition(renderTarget, ResourceStates.CopySource);
         context.CopyTextureToBuffer(readback, renderTarget, in footprint);
@@ -3254,6 +3255,7 @@ public class D3D12RuntimePrimitiveTests {
         context.SetRenderTarget(renderTargetView);
         context.SetViewport(8, 8);
 
+        context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         Assert.True(core.TryRenderD3D12(context,
             resources,
             pass,
@@ -3366,6 +3368,7 @@ public class D3D12RuntimePrimitiveTests {
         context.SetRenderTarget(renderTargetView);
         context.SetViewport(4, 4);
 
+        context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         Assert.True(core.TryRenderD3D12(context, resources, pass, bindings, in transforms));
         context.Transition(renderTarget, ResourceStates.CopySource);
         context.CopyTextureToBuffer(readback, renderTarget, in footprint);
@@ -3482,6 +3485,7 @@ public class D3D12RuntimePrimitiveTests {
         context.SetRenderTarget(renderTargetView);
         context.SetViewport(4, 4);
 
+        context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         Assert.True(core.TryRenderD3D12(context, resources, pass, bindings, in transforms, lightData));
         context.Transition(renderTarget, ResourceStates.CopySource);
         context.CopyTextureToBuffer(readback, renderTarget, in footprint);
@@ -3580,6 +3584,7 @@ public class D3D12RuntimePrimitiveTests {
         context.SetRenderTarget(renderTargetView);
         context.SetViewport(16, 16);
 
+        context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         Assert.True(core.TryRenderD3D12(context, resources, pass, bindings, in transforms));
         context.Transition(renderTarget, ResourceStates.CopySource);
         context.CopyTextureToBuffer(readback, renderTarget, in footprint);
@@ -3656,6 +3661,7 @@ public class D3D12RuntimePrimitiveTests {
         context.SetRenderTarget(renderTargetView);
         context.SetViewport(16, 16);
 
+        context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         Assert.True(core.TryRenderD3D12(context, resources, pass, bindings, in transforms));
         context.Transition(renderTarget, ResourceStates.CopySource);
         context.CopyTextureToBuffer(readback, renderTarget, in footprint);
@@ -3921,6 +3927,7 @@ public class D3D12RuntimePrimitiveTests {
         using var depthView = depthHeap.Allocate();
         using var depth = device.CreateDepthStencilTexture2D(16, 16, Format.FormatD32FloatS8X24Uint);
         using var node = CreateDiffuseQuadNode(Vector4.One);
+        node.FrontCcw = false;
         var nodes = new FastList<SceneNode>(1) { node };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
@@ -3942,7 +3949,8 @@ public class D3D12RuntimePrimitiveTests {
         var footprint = device.GetCopyableFootprint(renderTarget, out var totalBytes);
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
         context.Reset();
-        context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 1, 1]);
+        // A black backdrop detects the translucent exterior halo without requiring dominant red.
+        context.ClearRenderTarget(renderTarget, renderTargetView, [0, 0, 0, 1]);
         context.ClearDepthStencil(depth, depthView);
 
         var recorded = renderer.RenderOutline(context,
@@ -3979,6 +3987,10 @@ public class D3D12RuntimePrimitiveTests {
             var offset = index / 16 * (int)footprint.Footprint.RowPitch + index % 16 * 4;
             return pixels[offset + 2] > pixels[offset];
         });
+        var center = 8 * (int)footprint.Footprint.RowPitch + 8 * 4;
+        byte[] expectedInterior = [0, 0, 0, 255];
+        var interior = pixels.AsSpan(center, 4).ToArray();
+        Assert.Equal(expectedInterior, interior);
         renderer.Dispose();
         Assert.Equal(0, resourceHeap.Count);
         Assert.Equal(0, samplerHeap.Count);
@@ -4007,6 +4019,7 @@ public class D3D12RuntimePrimitiveTests {
         using var depthView = depthHeap.Allocate();
         using var depth = device.CreateDepthStencilTexture2D(8, 8, Format.FormatD32FloatS8X24Uint);
         using var node = CreateDiffuseQuadNode(Vector4.One);
+        node.FrontCcw = false;
         var nodes = new FastList<SceneNode>(1) { node };
         var selectors = new Func<SceneNode, ShaderPass?>[] {
             current => catalog.ResolvePostEffectGeometry(current,

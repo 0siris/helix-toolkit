@@ -283,3 +283,49 @@
 * **Verification**: The solution builds with zero errors; 33 cutover contracts, 102 DX12 runtime checks, and all
   342 standard tests pass. Graphify refreshed 986 sources to 12,647 nodes, 21,496 edges, and 2,510 communities;
   the interactive hardware capture remains intentionally excluded.
+
+## 2026-10-15 — Native intersection generations and offline source graph
+
+- Added the genuine selected-pair/shared-buffer D3D12 compute, append and indirect line path using existing
+  renderer owners and fence-safe resource retirement. Headless WARP/complete SilkCore checks pass323.
+- Corrected two stale103-resource expectations to the already declared123 shader package, retaining exact
+  manifest/readability checks and requiring the consumed intersection resources.
+- The source graph builder now calls deterministic AST/build/cluster/report APIs directly, without an LLM
+  credential preflight or process pool. Fresh graph:960 prepared files,9,191 nodes,21,132 edges,465 communities,
+  zero model tokens;17 source files remain partially parsed. Generated files were rebuilt by the script.
+- Initial CLI failed without a backend key. A later standard32-worker run was explicitly stopped; the bounded
+  single-process run succeeded and cleaned its verified staging directory. No source was sent to an LLM.
+
+
+## 2026-10-16 — DXC include and metadata invalidation
+
+* Fixed the existing shader target's Common-only dependency list: local HLSL/HLSLI, imported project/target and
+  compiler/runtime inputs now invalidate output, including PS helper changes. A write-only-when-different stamp
+  tracks evaluated compile options, stage/entry/output metadata and include additions/removals.
+* Actual DXC fixture reproduces the old include-only miss and passes13 corrected controls with genuine skipped
+  compiler batches on unchanged builds. No generated product DXIL is manually edited; SM6 profiles/resources,
+  current entry aliases and the public runtime contract remain unchanged.
+* Updated ShaderBuilder concept/index/log. Rider MCP tools are unavailable in this session; affected verification
+  uses the CLI. Full shader semantics/GPU/visible/cold application acceptance remains explicitly separate.
+
+* **Graphify verification**: The repository code-only script completed after the target change:973 source files,
+  9,125 nodes,16,989 edges and2,489 communities, with0 LLM tokens. Its parser reports17 partially extracted
+  source files; this graph is navigation evidence, not complete C# syntax/API certification. Generated artifacts
+  were created only by the script; no generated output was manually edited.
+
+
+## 2026-10-16 — Assimp primitive export and material/resource boundaries
+
+* Corrected line/point face arity, index validation and internally scoped exporter context cleanup, with temporary
+  scene animation cleanup. External context ownership and prior hierarchy/material-index corrections remain.
+* Corrected independent metallic/roughness import and parent-directory texture-path joining. Native glTF and
+  primitive file/blob fixtures exercise actual AssimpNet5beta1; exact internal allocation counters remain unproved.
+* Current source graph was last regenerated after the shader-target change; regeneration follows the remaining
+  active animation/noise source batch. No generated graph artifact is edited by hand.
+
+## 2026-10-16 — Animation and noise integration
+
+Integrated independent TRS timeline/default/interpolation fixes, restored the mutable source export tick rate,
+and fixed signed noise lookup, completed-field normalization and concurrent permutation ownership. Fresh owning
+Assimp70 and noise29 cases pass. Shared documentation states source assumptions and acceptance limits.
+Graphify regenerated this composed batch: 979 files, 9,218 nodes, 16,366 edges and 2,640 communities, zero model tokens. The existing 17 partial parser results remain disclosed; no visible application or producer was launched.

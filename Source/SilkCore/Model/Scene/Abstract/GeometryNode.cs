@@ -15,6 +15,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
+/// Owns geometry, instances and rasterizer settings shared by the native and effects-manager attachment paths.
 public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInstancing, IBoundable,
                                      IApplyPostEffect {
     /// <summary>
@@ -71,10 +72,10 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     protected virtual IAttachableBufferModel OnCreateBufferModel(Guid modelGuid, Geometry3D? geometry) => EmptyGeometryBufferModel.Empty;
 
     /// <summary>
-    ///     Called when [raster state changed].
+    ///     Forwards current rasterizer settings to either attached renderer.
     /// </summary>
     protected virtual void OnRasterStateChanged() {
-        if (IsAttached && RenderCore is IGeometryRenderCore r)
+        if ((IsAttached || RenderCore.IsAttached) && RenderCore is IGeometryRenderCore r)
             r.RasterDescription = OnCreateRasterState != null ? OnCreateRasterState() : CreateRasterState();
     }
 
@@ -126,6 +127,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
         InstanceBuffer.Initialize();
         InstanceBuffer.Elements = Instances;
         core.InstanceBuffer = InstanceBuffer;
+        OnRasterStateChanged();
         return core.GeometryBuffer is not EmptyGeometryBufferModel;
     }
 

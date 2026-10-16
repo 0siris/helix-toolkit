@@ -8,7 +8,8 @@ using Assimp;
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
 public partial class Exporter {
-    public const double DefaultTicksPerSecond = 30;
+    /// <summary>The process-wide animation export rate in ticks per second, defaulting to thirty.</summary>
+    public static double DefaultTicksPerSecond = 30;
 
     private ErrorCode AddAnimationsToScene(Scene scene) {
         if (animations == null || animations.Count == 0) 

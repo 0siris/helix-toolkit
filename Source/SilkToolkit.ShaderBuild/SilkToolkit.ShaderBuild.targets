@@ -9,8 +9,10 @@
   <Target Name="PrepareDxcShaders"
           Condition="'$(DesignTimeBuild)' != 'true'">
     <ItemGroup>
-      <DxcAdditionalInput Include="$(MSBuildProjectDirectory)\Common\*.hlsl"
-                          Condition="Exists('$(MSBuildProjectDirectory)\Common')"/>
+      <!-- Conservatively track all local includes, including PS helpers and nested HLSLI files. -->
+      <DxcAdditionalInput Include="$(MSBuildProjectDirectory)\**\*.hlsl;$(MSBuildProjectDirectory)\**\*.hlsli;$(MSBuildProjectFullPath);$(MSBuildAllProjects);$(MSBuildThisFileFullPath);$(DxcToolPath)"/>
+      <DxcAdditionalInput Include="$([System.IO.Path]::GetDirectoryName('$(DxcToolPath)'))\dxcompiler.dll;$([System.IO.Path]::GetDirectoryName('$(DxcToolPath)'))\dxil.dll"
+                          Condition="'$(DxcToolPath)' != ''"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -25,6 +27,17 @@
         <ObjectFileOutput Condition="'%(DxcShader.ObjectFileOutput)' == ''">$(TargetDir)DX12\%(DxcShader.RelativeDir)%(DxcShader.ShaderName).%(DxcShader.EntryPointName).dxil</ObjectFileOutput>
       </DxcShader>
     </ItemGroup>
+
+    <!-- Persist evaluated options and item metadata so command-line changes also invalidate outputs.
+         WriteOnlyWhenDifferent keeps unchanged builds incremental; the input list detects added/removed includes. -->
+    <PropertyGroup>
+      <_DxcInputsFile>$(IntermediateOutputPath)$(MSBuildProjectFile).dxc.inputs</_DxcInputsFile>
+    </PropertyGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)" Condition="'$(IntermediateOutputPath)' != ''"/>
+    <WriteLinesToFile File="$(_DxcInputsFile)"
+                      Lines="$(DxcToolPath);$(DxcDebugArgs);@(DxcAdditionalInput);@(DxcShader->'%(FullPath)|%(EntryPointName)|%(ShaderProfile)|%(ObjectFileOutput)')"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true"/>
   </Target>
 
   <Target Name="CompileDxcShaders"
@@ -33,7 +46,7 @@
           Condition="'$(DesignTimeBuild)' != 'true'"/>
 
   <Target Name="RunDxcShaders"
-          Inputs="@(DxcShader);@(DxcAdditionalInput)"
+          Inputs="@(DxcShader);@(DxcAdditionalInput);$(_DxcInputsFile)"
           Outputs="%(DxcShader.ObjectFileOutput)"
           Condition="'@(DxcShader)' != '' and '$(DesignTimeBuild)' != 'true'">
     <Error Condition="'$(DxcToolPath)' == ''"

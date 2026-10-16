@@ -1305,9 +1305,12 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     /// </summary>
     /// <param name="device">The Direct3D 12 device.</param>
     /// <param name="texture">The source texture.</param>
-    /// <param name="subresource">The source subresource index.</param>
+    /// <param name="subresource">The source mip, array and plane subresource index, including stencil planes.</param>
     /// <param name="totalBytes">The required destination-buffer size.</param>
     /// <returns>The placed copy footprint.</returns>
+    /// <exception cref="ObjectDisposedException">The source texture has been disposed.</exception>
+    /// <exception cref="ArgumentException">The source resource is a buffer.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The subresource is outside the source texture.</exception>
     internal static PlacedSubresourceFootprint GetCopyableFootprint(
         this SilkD3D12Device device,
         SilkD3D12Resource texture,
@@ -1322,6 +1325,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         var subresourceCount = texture.Description.Dimension == ResourceDimension.Texture3D
             ? texture.Description.MipLevels
             : checked((uint) (texture.Description.DepthOrArraySize * texture.Description.MipLevels));
+        if (texture.Description.Format is Format.FormatD24UnormS8Uint or Format.FormatD32FloatS8X24Uint)
+            subresourceCount *= 2;
         if (subresource >= subresourceCount) throw new ArgumentOutOfRangeException(nameof(subresource));
 
         var description = texture.Description;
@@ -1725,7 +1730,11 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     /// <param name="destination">The readback destination buffer.</param>
     /// <param name="source">The source texture.</param>
     /// <param name="footprint">The destination copy footprint.</param>
-    /// <param name="sourceSubresource">The source subresource index.</param>
+    /// <param name="sourceSubresource">The source mip, array and plane index, including stencil planes.</param>
+    /// <exception cref="ObjectDisposedException">A source or destination resource has been disposed.</exception>
+    /// <exception cref="ArgumentException">The source or destination has an incompatible resource type.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The source subresource is outside the texture.</exception>
+    /// <exception cref="InvalidOperationException">A resource is in an incompatible copy state.</exception>
     internal static void CopyTextureToBuffer(
         this SilkD3D12CommandContext context,
         SilkD3D12Resource destination,
@@ -1745,6 +1754,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         var subresourceCount = source.Description.Dimension == ResourceDimension.Texture3D
             ? source.Description.MipLevels
             : checked((uint) (source.Description.DepthOrArraySize * source.Description.MipLevels));
+        if (source.Description.Format is Format.FormatD24UnormS8Uint or Format.FormatD32FloatS8X24Uint)
+            subresourceCount *= 2;
         if (sourceSubresource >= subresourceCount)
             throw new ArgumentOutOfRangeException(nameof(sourceSubresource));
         if (destination.State != ResourceStates.CopyDest)
@@ -1770,11 +1781,20 @@ public static unsafe class SilkD3D12RuntimeExtensions {
     /// </summary>
     /// <param name="queue">The command queue.</param>
     /// <param name="context">The closed command context.</param>
+    /// <remarks>
+    ///     WARP compiles first-use graphics pipelines inside this native call. Independent WARP queues share a gate
+    ///     because overlapping submissions can fault in that JIT. Recording, fence waits, GPU execution, and hardware
+    ///     submissions remain independent; the gate covers only the synchronous native submission call.
+    /// </remarks>
     public static void Execute(this SilkD3D12CommandQueue queue, SilkD3D12CommandContext context) {
         queue.AsGuardNotNull();
         context.AsGuardNotNull();
         var commandList = (ID3D12CommandList*) context.CommandList.Handle;
-        queue.NativeQueue.ExecuteCommandLists(1, &commandList);
+        if (queue.SubmissionSync is { } sync) {
+            lock (sync)
+                queue.NativeQueue.ExecuteCommandLists(1, &commandList);
+        } else
+            queue.NativeQueue.ExecuteCommandLists(1, &commandList);
     }
 
     /// <summary>

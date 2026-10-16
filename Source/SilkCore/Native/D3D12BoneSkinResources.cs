@@ -113,9 +113,9 @@ internal sealed class SilkD3D12BoneSkinResources : IDisposable {
             16);
         SilkD3D12Resource? createdReset = null;
         try {
-            createdReset = device.CreateBuffer(sizeof(uint), HeapType.Upload);
-            createdReset.Write(new byte[sizeof(uint)]);
-            var createdFilledSize = device.CreateBuffer(sizeof(uint));
+            createdReset = device.CreateBuffer(sizeof(ulong), HeapType.Upload);
+            createdReset.Write(new byte[sizeof(ulong)]);
+            var createdFilledSize = device.CreateBuffer(sizeof(ulong));
             filledSizeReset = createdReset;
             filledSize = createdFilledSize;
         } catch {
@@ -238,7 +238,7 @@ internal sealed class SilkD3D12BoneSkinResources : IDisposable {
         context.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.Transition(filledSize, ResourceStates.CopyDest);
-        context.CopyBuffer(filledSize, 0, filledSizeReset, 0, sizeof(uint));
+        context.CopyBuffer(filledSize, 0, filledSizeReset, 0, sizeof(ulong));
         context.Transition(Output, ResourceStates.StreamOut);
         context.Transition(filledSize, ResourceStates.StreamOut);
         context.SetStreamOutputTarget(Output, filledSize, OutputSizeInBytes);

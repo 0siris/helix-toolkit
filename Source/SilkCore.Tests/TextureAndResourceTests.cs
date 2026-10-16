@@ -8,7 +8,10 @@ using DxgiFormat = Silk.NET.DXGI.Format;
 
 namespace SilkCore.Tests;
 
+/// <summary>Checks texture metadata and the complete explicit shader package without native desktop windows.</summary>
 public class TextureAndResourceTests {
+    /// The complete explicit DXC shader set already declared by the current shader-builder source.
+    private const int ExpectedShaderCount = 123;
     /// <summary>
     ///     Verifies CPU images retain automatic mip-chain validation after removal of D3D11 texture wrappers.
     /// </summary>
@@ -117,6 +120,7 @@ public class TextureAndResourceTests {
         Assert.DoesNotContain(names, name => name.Contains('\\'));
     }
 
+    /// <summary>Reads every shader in the current declared package and requires its actual DXIL payload.</summary>
     [Fact]
     [Trait("Category", "Unit")]
     public void EveryEmbeddedShaderCanBeRead() {
@@ -125,7 +129,10 @@ public class TextureAndResourceTests {
         var dxilNames = names.Where(name => name.EndsWith(".dxil", StringComparison.Ordinal))
             .ToArray();
 
-        Assert.Equal(103, dxilNames.Length);
+        Assert.Equal(ExpectedShaderCount, dxilNames.Length);
+        Assert.Contains("SilkCore.Resources.DX12.CS.csMeshIntersect.main.dxil", dxilNames);
+        Assert.Contains("SilkCore.Resources.DX12.CS.csMeshIntersectSharedRenderBuffer.main.dxil", dxilNames);
+        Assert.Contains("SilkCore.Resources.DX12.VS.vsCollisionSegmentLine.main.dxil", dxilNames);
         Assert.All(dxilNames,
             name => {
                 using var stream = assembly.GetManifestResourceStream(name)
@@ -183,7 +190,7 @@ public class TextureAndResourceTests {
         var embeddedDxilCount = typeof(MeshBuilder).Assembly.GetManifestResourceNames()
             .Count(name => name.EndsWith(".dxil", StringComparison.Ordinal));
 
-        Assert.Equal(103, entries.Length);
+        Assert.Equal(ExpectedShaderCount, entries.Length);
         Assert.Equal(entries.Length, identities.Distinct(StringComparer.OrdinalIgnoreCase).Count());
         Assert.Equal(entries.Length, outputs.Distinct(StringComparer.OrdinalIgnoreCase).Count());
         Assert.Equal(entries.Length, embeddedDxilCount);

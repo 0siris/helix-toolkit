@@ -91,6 +91,9 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
     ) {
         device.AsGuardNotNull();
         var (defaults, textureCoordinates, colors, indices, topology) = Prepare(source, boneMatrices, morphTargets);
+        var extended = (source.EffectsManager as ID3D12MeshShaderProvider)?.GetVertexData(source.Geometry!) ?? [];
+        if (extended.Length != 0 && extended.Length != defaults.Length)
+            throw new ArgumentException("Extended mesh channels must contain one value per position", nameof(source));
         SilkD3D12Resource[]? vertexBuffers = null;
         SilkD3D12Resource? indexBuffer = null;
         try {
@@ -99,6 +102,8 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
                 CreateUploadBuffer(device, textureCoordinates.AsSpan()),
                 CreateUploadBuffer(device, colors.AsSpan())
             ];
+            if (extended.Length != 0)
+                vertexBuffers = [.. vertexBuffers, CreateUploadBuffer(device, extended.AsSpan())];
             indexBuffer = CreateUploadBuffer(device, indices.AsSpan());
             return new SilkD3D12DefaultMeshBuffers(vertexBuffers,
                 indexBuffer,
@@ -136,13 +141,20 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         var (defaults, textureCoordinates, colors, indices, topology) = Prepare(source, boneMatrices, morphTargets);
+        var extended = (source.EffectsManager as ID3D12MeshShaderProvider)?.GetVertexData(source.Geometry!) ?? [];
+        if (extended.Length != 0 && extended.Length != defaults.Length)
+            throw new ArgumentException("Extended mesh channels must contain one value per position", nameof(source));
         ValidateCapacity(vertexBuffers[0], defaults, "vertex");
         ValidateCapacity(vertexBuffers[1], textureCoordinates, "texture-coordinate");
         ValidateCapacity(vertexBuffers[2], colors, "color");
+        if ((extended.Length == 0) != (vertexBuffers.Length == 3))
+            throw new InvalidOperationException("The extended vertex stream layout changed");
+        if (extended.Length != 0) ValidateCapacity(vertexBuffers[3], extended, "extended");
         ValidateCapacity(IndexBuffer, indices, "index");
         vertexBuffers[0].Write(MemoryMarshal.AsBytes(defaults.AsSpan()));
         vertexBuffers[1].Write(MemoryMarshal.AsBytes(textureCoordinates.AsSpan()));
         vertexBuffers[2].Write(MemoryMarshal.AsBytes(colors.AsSpan()));
+        if (extended.Length != 0) vertexBuffers[3].Write(MemoryMarshal.AsBytes(extended.AsSpan()));
         IndexBuffer.Write(MemoryMarshal.AsBytes(indices.AsSpan()));
         IndexCount = checked((uint) indices.Length);
         Topology = topology;
@@ -191,6 +203,8 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
         context.SetVertexBuffer(vertexBufferStartSlot, vertexBuffers[0], DefaultVertex.SizeInBytes);
         context.SetVertexBuffer(vertexBufferStartSlot + 1, vertexBuffers[1], SilkMath.Vector2SizeInBytes);
         context.SetVertexBuffer(vertexBufferStartSlot + 2, vertexBuffers[2], SilkMath.Vector4SizeInBytes);
+        if (vertexBuffers.Length > 3)
+            context.SetVertexBuffer(vertexBufferStartSlot + 3, vertexBuffers[3], 32);
         context.SetIndexBuffer(IndexBuffer, Format.FormatR32Uint);
         context.SetPrimitiveTopology(Topology);
         return vertexBufferStartSlot + (uint) vertexBuffers.Length;
@@ -236,6 +250,8 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
         context.SetVertexBuffer(vertexBufferStartSlot + 2,
             vertexBuffers[2],
             SilkMath.Vector4SizeInBytes);
+        if (vertexBuffers.Length > 3)
+            context.SetVertexBuffer(vertexBufferStartSlot + 3, vertexBuffers[3], 32);
         context.SetIndexBuffer(IndexBuffer, Format.FormatR32Uint);
         context.SetPrimitiveTopology(Topology);
         return vertexBufferStartSlot + (uint) vertexBuffers.Length;

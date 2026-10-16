@@ -192,6 +192,11 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
     /// <param name="layer">The positive peeling layer index.</param>
     /// <param name="depthStencil">The presentation depth/stencil descriptor.</param>
     /// <returns>The previous layer's min/max texture for t100.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The layer index is less than one.</exception>
+    /// <remarks>
+    ///     Both ping-pong inputs use the full shader-read state. Pixel-only transitions reproduced repeated
+    ///     accumulation at hardware primitive boundaries after an input was recycled; full read transitions did not.
+    /// </remarks>
     internal SilkD3D12Resource BeginDepthPeelingLayer(
         SilkD3D12CommandContext context,
         int layer,
@@ -200,7 +205,7 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
         if (layer < 1) throw new ArgumentOutOfRangeException(nameof(layer));
         var current = 2 + layer % 2;
         var previous = 2 + 1 - layer % 2;
-        context.Transition(Target(previous), ResourceStates.PixelShaderResource);
+        context.Transition(Target(previous), ResourceStates.PixelShaderResource | ResourceStates.NonPixelShaderResource);
         context.Transition(Target(current), ResourceStates.RenderTarget);
         context.Transition(Target(4), ResourceStates.RenderTarget);
         context.Transition(Target(5), ResourceStates.RenderTarget);

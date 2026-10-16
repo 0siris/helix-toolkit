@@ -18,18 +18,31 @@ using D3DPrimitiveTopology = Silk.NET.Core.Native.D3DPrimitiveTopology;
 
 namespace HelixToolkit.SharpDX.Core.Native;
 
+/// Owns one native Direct3D 12 device reference and its resource-state tracker.
 public sealed unsafe class SilkD3D12Device : IDisposable {
     private SilkD3D12DevicePtr nativeDevice;
+
+    /// The optional shared gate for native WARP command submissions.
+    private readonly object? submissionSync;
 
     /// <summary>
     ///     Gets the shared resource-state tracker for resources created by this device.
     /// </summary>
     internal D3D12ResourceStateTracker ResourceStates { get; } = new();
 
-    internal SilkD3D12Device(SilkD3D12DevicePtr nativeDevice, SilkFeatureLevel featureLevel) {
+    /// <summary>
+    ///     Takes ownership of a native device reference and its optional submission gate.
+    /// </summary>
+    /// <param name="nativeDevice">The owned native device reference.</param>
+    /// <param name="featureLevel">The requested device feature level.</param>
+    /// <param name="submissionSync">The shared WARP submission gate, or <see langword="null" /> for hardware.</param>
+    /// <exception cref="ArgumentNullException">The native device reference is empty.</exception>
+    internal SilkD3D12Device(SilkD3D12DevicePtr nativeDevice, SilkFeatureLevel featureLevel,
+        object? submissionSync = null) {
         if (nativeDevice.Handle == null) throw new ArgumentNullException(nameof(nativeDevice));
 
         this.nativeDevice = nativeDevice;
+        this.submissionSync = submissionSync;
         FeatureLevel = featureLevel;
     }
 
@@ -53,6 +66,12 @@ public sealed unsafe class SilkD3D12Device : IDisposable {
 
     public bool IsDisposed { get; private set; }
 
+    /// <summary>
+    ///     Creates an independent command queue retaining this device's native submission policy.
+    /// </summary>
+    /// <param name="type">The native queue type.</param>
+    /// <returns>The owned command queue.</returns>
+    /// <exception cref="ObjectDisposedException">This device has been disposed.</exception>
     public SilkD3D12CommandQueue CreateCommandQueue(
         CommandListType type = CommandListType.Direct
     ) {
@@ -65,7 +84,7 @@ public sealed unsafe class SilkD3D12Device : IDisposable {
         };
 
         SilkMarshal.ThrowHResult(nativeDevice.CreateCommandQueue<ID3D12CommandQueue>(in desc, out var queue));
-        return new SilkD3D12CommandQueue(queue);
+        return new SilkD3D12CommandQueue(queue, submissionSync);
     }
 
     public SilkD3D12CommandContext CreateCommandContext(
@@ -150,13 +169,24 @@ public sealed unsafe class SilkD3D12Device : IDisposable {
     }
 }
 
+/// Owns one independent Direct3D 12 command queue and its optional WARP submission gate.
 public sealed unsafe class SilkD3D12CommandQueue : IDisposable {
     private SilkD3D12CommandQueuePtr nativeQueue;
 
-    internal SilkD3D12CommandQueue(SilkD3D12CommandQueuePtr nativeQueue) {
+    /// Gets the shared WARP submission gate, or <see langword="null" /> for hardware queues.
+    internal object? SubmissionSync { get; }
+
+    /// <summary>
+    ///     Takes ownership of a queue reference and retains its device's submission gate.
+    /// </summary>
+    /// <param name="nativeQueue">The owned native queue reference.</param>
+    /// <param name="submissionSync">The shared WARP submission gate, or <see langword="null" /> for hardware.</param>
+    /// <exception cref="ArgumentNullException">The native queue reference is empty.</exception>
+    internal SilkD3D12CommandQueue(SilkD3D12CommandQueuePtr nativeQueue, object? submissionSync = null) {
         if (nativeQueue.Handle == null) throw new ArgumentNullException(nameof(nativeQueue));
 
         this.nativeQueue = nativeQueue;
+        SubmissionSync = submissionSync;
     }
 
     public nint NativePointer => (nint)nativeQueue.Handle;
@@ -639,9 +669,14 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     ///     Binds one buffer and its required filled-size counter as a stream-output target.
     /// </summary>
     /// <param name="buffer">The stream-output buffer.</param>
-    /// <param name="filledSizeBuffer">The buffer containing the 32-bit filled-size counter.</param>
+    /// <param name="filledSizeBuffer">The buffer containing the 64-bit filled-size counter.</param>
     /// <param name="sizeInBytes">The exposed output range, or zero for the complete output buffer.</param>
-    /// <param name="filledSizeOffset">The aligned byte offset of the counter.</param>
+    /// <param name="filledSizeOffset">The eight-byte-aligned byte offset of the counter.</param>
+    /// <exception cref="ObjectDisposedException">The context or either buffer has been disposed.</exception>
+    /// <exception cref="ArgumentNullException">Either buffer is absent.</exception>
+    /// <exception cref="ArgumentException">Either resource is not a buffer.</exception>
+    /// <exception cref="InvalidOperationException">Either buffer is outside the stream-output state.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The output range or complete aligned counter does not fit.</exception>
     public void SetStreamOutputTarget(
         SilkD3D12Resource buffer,
         SilkD3D12Resource filledSizeBuffer,
@@ -663,8 +698,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
             throw new InvalidOperationException("The filled-size buffer must be in the stream-output state.");
         var size = sizeInBytes == 0 ? buffer.SizeInBytes : sizeInBytes;
         if (size > buffer.SizeInBytes) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-        if (filledSizeBuffer.SizeInBytes < sizeof(uint) || filledSizeOffset % sizeof(uint) != 0 ||
-            filledSizeOffset > filledSizeBuffer.SizeInBytes - sizeof(uint))
+        if (filledSizeBuffer.SizeInBytes < sizeof(ulong) || filledSizeOffset % sizeof(ulong) != 0 ||
+            filledSizeOffset > filledSizeBuffer.SizeInBytes - sizeof(ulong))
             throw new ArgumentOutOfRangeException(nameof(filledSizeOffset));
         var view = new StreamOutputBufferView {
             BufferLocation = buffer.GpuVirtualAddress,

@@ -14,6 +14,7 @@ using TextureType = Assimp.TextureType;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
+/// <summary>Imports Assimp scenes, geometry, materials, textures and animations into toolkit scene nodes.</summary>
 public partial class Importer {
     private readonly ConcurrentDictionary<string, TextureModel> textureDict = new();
 
@@ -96,10 +97,13 @@ public partial class Importer {
     }
 
     /// <summary>
-    ///     To the PBR material.
+    ///     Converts Assimp material properties and texture references into a PBR material.
     /// </summary>
-    /// <param name="material">The material.</param>
-    /// <returns></returns>
+    /// <param name="material">The source Assimp material.</param>
+    /// <returns>The PBR material with independent metallic and roughness factors.</returns>
+    /// <remarks>
+    ///     General material factor keys take precedence over the legacy glTF keys retained by toolkit scene export.
+    /// </remarks>
     protected virtual PbrMaterialCore OnCreatePBRMaterial(Material material) {
         var pbr = new PbrMaterialCore {
             AlbedoColor = material.HasColorDiffuse
@@ -112,13 +116,15 @@ public partial class Importer {
         if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor))
             pbr.AlbedoColor = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor)
                                       .GetColor4DValue().ToSharpDXColor4();
-        if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor))
-            pbr.MetallicFactor = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor)
-                                         .GetFloatValue();
+        var metallicFactor = material.GetNonTextureProperty("$mat.metallicFactor")
+                             ?? material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor);
+        if (metallicFactor != null)
+            pbr.MetallicFactor = metallicFactor.GetFloatValue();
         if (material.HasColorAmbient) pbr.AmbientOcclusionFactor = material.ColorAmbient.R;
-        if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor)) {
-            pbr.RoughnessFactor = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor)
-                                          .GetFloatValue();
+        var roughnessFactor = material.GetNonTextureProperty("$mat.roughnessFactor")
+                              ?? material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor);
+        if (roughnessFactor != null) {
+            pbr.RoughnessFactor = roughnessFactor.GetFloatValue();
         } else if (material is {HasColorSpecular: true, HasShininess: true}) {
             //Ref https://github.com/assimp/assimp/blob/master/code/glTF2Exporter.cpp
             var specularIntensity = material.ColorSpecular.R * 0.2125f
@@ -206,15 +212,17 @@ public partial class Importer {
     }
 
     /// <summary>
-    ///     To the helix material.
+    ///     Selects and converts the toolkit material from the source shading mode and import configuration.
     /// </summary>
-    /// <param name="material">The material.</param>
-    /// <returns></returns>
-    /// <exception cref="System.NotSupportedException">Shading Mode {material.ShadingMode}</exception>
+    /// <param name="material">The source Assimp material.</param>
+    /// <returns>The source material paired with its converted toolkit material.</returns>
+    /// <exception cref="InvalidOperationException">No toolkit material can be selected for the source.</exception>
     protected virtual KeyValuePair<Material, MaterialCore> OnCreateHelixMaterial(Material material) {
         MaterialCore? core = null;
         if (!material.HasShadingMode) {
-            if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor)
+            if (material.HasNonTextureProperty("$mat.metallicFactor")
+                || material.HasNonTextureProperty("$mat.roughnessFactor")
+                || material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor)
                 || material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor)
                 || material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor))
                 material.ShadingMode = ShadingMode.Fresnel;

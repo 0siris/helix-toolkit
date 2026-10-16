@@ -42,6 +42,9 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
     /// </summary>
     private readonly SilkD3D12GraphicsBindings bindings;
 
+    /// Retains the blur input independently of the normal input referenced by the preceding SSAO draw.
+    private readonly SilkD3D12GraphicsBindings blurBindings;
+
     /// <summary>
     ///     The b0 global constants.
     /// </summary>
@@ -120,6 +123,7 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
     ) {
         this.device = device;
         bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
+        blurBindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
         globalTransforms = new SilkD3D12ConstantBuffer(device,
             bindings.ConstantBuffer(0),
             GlobalTransformStruct.SizeInBytes);
@@ -129,8 +133,14 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
         fallbackConstants = device.CreateBuffer(256, HeapType.Upload);
         fallbackConstants.Write(new byte[256]);
         bindings.InitializeFallbackDescriptors(device, fallbackConstants, 0, 1);
+        blurBindings.InitializeFallbackDescriptors(device, fallbackConstants);
+        device.CreateConstantBufferView(globalTransforms.Resource, blurBindings.ConstantBuffer(0),
+            checked((uint)globalTransforms.Resource.SizeInBytes));
+        device.CreateConstantBufferView(parameters.Resource, blurBindings.ConstantBuffer(1),
+            checked((uint)parameters.Resource.SizeInBytes));
         device.CreateSampler(bindings.Sampler(0), DefaultSamplers.SsaoSamplerClamp);
         device.CreateSampler(bindings.Sampler(1), DefaultSamplers.SsaoNoise);
+        device.CreateSampler(blurBindings.Sampler(0), DefaultSamplers.SsaoSamplerClamp);
         renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 4);
         renderTargetViews = renderTargetHeap.AllocateRange(4);
         depthStencilHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
@@ -217,10 +227,10 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
 
         context.Transition(rawTarget, ResourceStates.PixelShaderResource);
         context.Transition(finalTarget, ResourceStates.RenderTarget);
-        device.CreateShaderResourceView(rawTarget, bindings.ShaderResource(31));
+        device.CreateShaderResourceView(rawTarget, blurBindings.ShaderResource(31));
         context.SetRenderTarget(renderTargetViews[2]);
         blurPass.BindShader(context);
-        bindings.BindGraphics(context);
+        blurBindings.BindGraphics(context);
         context.DrawInstanced(4);
         context.Transition(finalTarget, ResourceStates.PixelShaderResource);
         return finalTarget;
@@ -263,6 +273,7 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
         fallbackConstants.Dispose();
         parameters.Dispose();
         globalTransforms.Dispose();
+        blurBindings.Dispose();
         bindings.Dispose();
         IsDisposed = true;
     }

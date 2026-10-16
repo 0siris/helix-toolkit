@@ -17,10 +17,10 @@ okf_version: "0.2"
 
 ## Projects
 
-* [SilkCore](/projects/silkcore.md) - Core renderer, shared runtime library and fence-safe disposed-core cache cleanup.
+* [SilkCore](/projects/silkcore.md) - Core renderer, shared runtime library, native mesh-intersection compute/indirect drawing and fence-safe resource cleanup.
 * [SilkToolkit](/projects/silktoolkit.md) - Windows/WPF-facing toolkit built on SilkCore.
 * [SilkAssimp](/projects/silkassimp.md) - Assimp-based model loading, transformed child export and mesh-index ownership.
-* [ShaderBuilder](/projects/shaderbuilder.md) - HLSL shader build support project.
+* [ShaderBuilder](/projects/shaderbuilder.md) - HLSL shader build support, include/compiler/metadata invalidation and headless incremental regression.
 
 ## Testing
 
@@ -34,3 +34,9 @@ okf_version: "0.2"
 ## References
 
 * [OKF Specification](/references/okf-spec.md) - Local OKF v0.2 specification used for this bundle.
+
+
+SilkAssimp knowledge records actual primitive-face conversion, internal/external context ownership, temporary
+animation cleanup and independent PBR/texture-path fallback behavior, preserving child placement and mesh indices.
+
+SilkAssimp now also records independent animation channels and the restored source export timebase; SilkCore records periodic noise, final-field normalization and permutation publication.

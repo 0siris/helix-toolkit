@@ -1,5 +1,6 @@
 namespace HelixToolkit.SharpDX.Core;
 
+/// <summary>Resolves model texture references using model-relative and local directory fallback paths.</summary>
 public class DefaultTexturePathResolver : ITexturePathResolver {
     private const string ToUpperDictString = @"..\";
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
@@ -33,11 +34,12 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
     }
 
     /// <summary>
-    ///     Handles the texture path not found. Override to provide your own handling
+    ///     Tries stripped parent references, the model directory's parent, and the model directory's filename.
     /// </summary>
-    /// <param name="dir">The dir.</param>
-    /// <param name="texturePath">The texture path.</param>
-    /// <returns></returns>
+    /// <param name="dir">The model directory.</param>
+    /// <param name="texturePath">The unresolved texture reference.</param>
+    /// <returns>The existing fallback path, or an empty string when none exists.</returns>
+    /// <remarks>A directory without a parent retains itself as the parent fallback base.</remarks>
     protected virtual string HandleTexturePathNotFound(string dir, string texturePath) {
         //If file not found in texture path dir, try to find the file in the same dir as the model file
         if (texturePath.StartsWith(ToUpperDictString)) {
@@ -50,7 +52,7 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
         //If still not found, try to go one upper level and find
         var upper = Directory.GetParent(dir)?.FullName ?? dir;
         try {
-            upper = Path.GetFullPath(upper + texturePath);
+            upper = Path.GetFullPath(Path.Combine(upper, texturePath));
         } catch (NotSupportedException ex) {
             Logger.Warn(ex, "Texture path format is not supported");
         }

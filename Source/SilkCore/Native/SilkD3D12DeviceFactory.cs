@@ -17,6 +17,11 @@ namespace HelixToolkit.SharpDX.Core.Native;
 /// </summary>
 public static unsafe class SilkD3D12DeviceFactory {
     /// <summary>
+    ///     Prevents overlapping native submissions from entering the process-wide WARP shader JIT concurrently.
+    /// </summary>
+    private static readonly object WarpSubmissionSync = new();
+
+    /// <summary>
     ///     Keeps the Direct3D 12 native API loaded for the lifetime of created device vtables.
     /// </summary>
     // ponytail: D3D device vtables remain valid only while the native API library stays loaded.
@@ -66,7 +71,8 @@ public static unsafe class SilkD3D12DeviceFactory {
                 &deviceGuid,
                 (void**) &nativeDevice));
 
-            return new SilkD3D12Device(new SilkD3D12DevicePtr(nativeDevice), minimumFeatureLevel);
+            return new SilkD3D12Device(new SilkD3D12DevicePtr(nativeDevice), minimumFeatureLevel,
+                driverType == SilkDriverType.Warp ? WarpSubmissionSync : null);
         } finally {
             if (hardwareAdapter != null) hardwareAdapter->Release();
             adapter.Dispose();

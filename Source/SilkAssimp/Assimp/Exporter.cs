@@ -14,11 +14,13 @@ using Animation = HelixToolkit.SharpDX.Core.Model.Animations.Animation;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
+/// <summary>Converts scene geometry and exports it through Assimp while retaining caller-owned contexts.</summary>
 public partial class Exporter : IDisposable {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     protected readonly Dictionary<Geometry3D, int> GeometryCollection = [];
     protected readonly Dictionary<MaterialCore, int> MaterialCollection = [];
     protected readonly Dictionary<ulong, MeshInfo> MeshInfos = [];
+    /// Holds scene-level animations only for the duration of the scene export overload.
     private IList<Animation>? animations;
 
     private int materialIndexForNoName;
@@ -44,37 +46,36 @@ public partial class Exporter : IDisposable {
     public event EventHandler<Exception>? AssimpExceptionOccurred;
 
     /// <summary>
-    ///     Exports to file.
+    ///     Exports a scene to a file and clears temporary animation state even when conversion throws.
     /// </summary>
     /// <param name="filePath">The file path.</param>
     /// <param name="scene">The scene.</param>
     /// <param name="formatId">The format identifier. <see cref="SupportedFormats" /></param>
-    /// <returns></returns>
+    /// <returns>The export status, or <see cref="ErrorCode.Failed"/> when the scene is absent.</returns>
+    /// <remarks>Conversion exceptions propagate; native export exceptions use the existing failure event.</remarks>
     public ErrorCode ExportToFile(string filePath, HelixToolkitScene? scene, string formatId) {
         if (scene == null) return ErrorCode.Failed;
         animations = scene.Animations;
-        var code = ExportToFile(filePath, scene.Root, formatId);
-        animations = null;
-        return code;
+        try {
+            return ExportToFile(filePath, scene.Root, formatId);
+        } finally {
+            animations = null;
+        }
     }
 
     /// <summary>
-    ///     Exports to file.
+    ///     Exports a scene graph to a file, disposing an internally created context on every exit path.
     /// </summary>
     /// <param name="filePath">The file path.</param>
     /// <param name="root">The root.</param>
     /// <param name="formatId">The format identifier. <see cref="SupportedFormats" /></param>
-    /// <returns></returns>
+    /// <returns>The export status, including unsupported file extensions and native export failures.</returns>
+    /// <remarks>Caller-supplied contexts remain caller-owned. Conversion exceptions propagate unchanged.</remarks>
     public ErrorCode ExportToFile(string filePath, SceneNode root, string formatId) {
         Clear();
-        AssimpContext? exporter;
-        var useExtern = false;
-        if (Configuration.ExternalContext != null) {
-            exporter = Configuration.ExternalContext;
-            useExtern = true;
-        } else {
-            exporter = new AssimpContext();
-        }
+        var externalContext = Configuration.ExternalContext;
+        using var ownedContext = externalContext == null ? new AssimpContext() : null;
+        var exporter = externalContext ?? ownedContext!;
 
         if (!exporter.IsExportFormatSupported(Path.GetExtension(filePath)))
             return ErrorCode.Failed | ErrorCode.FileTypeNotSupported;
@@ -91,30 +92,24 @@ public partial class Exporter : IDisposable {
         } catch (Exception ex) {
             Logger.Error("{Exceptoin}",ex.Message);
             AssimpExceptionOccurred?.Invoke(this, ex);
-        } finally {
-            if (!useExtern) exporter.Dispose();
         }
 
         return ErrorCode.Failed;
     }
 
     /// <summary>
-    ///     Exports to BLOB.
+    ///     Exports a scene graph to managed blob data that survives disposal of an internally created context.
     /// </summary>
     /// <param name="root">The root.</param>
     /// <param name="formatId">The format identifier.</param>
     /// <param name="blob">The BLOB.</param>
-    /// <returns></returns>
+    /// <returns>The native export status.</returns>
+    /// <remarks>Caller-supplied contexts remain caller-owned. Conversion exceptions propagate unchanged.</remarks>
     public ErrorCode ExportToBlob(SceneNode root, string formatId, out ExportDataBlob? blob) {
         Clear();
-        AssimpContext? exporter;
-        var useExtern = false;
-        if (Configuration.ExternalContext != null) {
-            exporter = Configuration.ExternalContext;
-            useExtern = true;
-        } else {
-            exporter = new AssimpContext();
-        }
+        var externalContext = Configuration.ExternalContext;
+        using var ownedContext = externalContext == null ? new AssimpContext() : null;
+        var exporter = externalContext ?? ownedContext!;
 
         var scene = CreateScene(root);
         var postProcessing = configuration.PostProcessing;
@@ -126,8 +121,6 @@ public partial class Exporter : IDisposable {
         } catch (Exception ex) {
             Logger.Error("{Exception}", ex.Message);
             AssimpExceptionOccurred?.Invoke(this, ex);
-        } finally {
-            if (!useExtern) exporter.Dispose();
         }
 
         return ErrorCode.Failed;

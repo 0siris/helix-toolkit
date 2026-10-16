@@ -43,3 +43,6 @@ SilkAssimp now also records independent animation channels and the restored sour
 
 Toolkit input ownership now retains ordinary WPF mouse callbacks across the native child boundary; build
 knowledge records explicit same-version CodeDom/CSharp package restoration instead of cache-only HintPaths.
+
+SilkCore records source-faithful two-key overwrite/lookup and corrected association equality, with additive pair
+carriers preserving established tuple enumeration and removal signatures.

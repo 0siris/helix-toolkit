@@ -349,25 +349,123 @@ public struct BoundingBox : IEquatable<BoundingBox> {
     public bool Equals(BoundingBox other) => Minimum.Equals(other.Minimum) && Maximum.Equals(other.Maximum);
 }
 
-public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, T), V>> {
+/// <summary>
+///     Maps two ordered keys to a value, replacing an existing value when the same key pair is added.
+/// </summary>
+/// <typeparam name="K">The first key type.</typeparam>
+/// <typeparam name="T">The second key type.</typeparam>
+/// <typeparam name="V">The value type.</typeparam>
+/// <remarks>
+///     Default enumeration retains tuple key/value entries. Use <see cref="GetPairs"/> for detached source-style
+///     carriers without introducing a second generic enumerable interface or ambiguous LINQ calls.
+///     Keys and values use their default equality comparers. Instances are not thread-safe.
+/// </remarks>
+public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, T), V>>,
+    IEquatable<DoubleKeyDictionary<K, T, V>> {
+    /// Stores each complete key pair and its associated value.
     private readonly Dictionary<(K, T), V> dictionary = [];
 
+    /// Gets the stored values as a live view of the dictionary.
     public IEnumerable<V> Values => dictionary.Values;
 
+    /// <summary>
+    ///     Gets or sets the value associated with the two keys, inserting the pair when setting an absent entry.
+    /// </summary>
+    /// <param name="index1">The first key.</param>
+    /// <param name="index2">The second key.</param>
+    /// <exception cref="KeyNotFoundException">The getter cannot find the complete key pair.</exception>
+    public V this[K index1, T index2] {
+        get => dictionary[(index1, index2)];
+        set => Add(index1, index2, value);
+    }
+
+    /// <summary>
+    ///     Enumerates the established tuple key/value entries.
+    /// </summary>
+    /// <returns>An enumerator over the stored entries.</returns>
     public IEnumerator<KeyValuePair<(K, T), V>> GetEnumerator() => dictionary.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public void Add(K key1, T key2, V value) {
-        dictionary.Add((key1, key2), value);
+    /// <summary>
+    ///     Enumerates both keys and their associated value as detached, mutable source-style carriers.
+    /// </summary>
+    /// <returns>A lazy sequence that creates a fresh carrier for each entry on each enumeration.</returns>
+    /// <remarks>
+    ///     Changing a carrier does not change the dictionary. Values themselves are not cloned.
+    ///     The sequence follows the same entry order as <see cref="GetEnumerator"/>.
+    /// </remarks>
+    public IEnumerable<DoubleKeyPairValue<K, T, V>> GetPairs() {
+        foreach (var entry in dictionary)
+            yield return new DoubleKeyPairValue<K, T, V>(entry.Key.Item1, entry.Key.Item2, entry.Value);
     }
 
+    /// <summary>
+    ///     Inserts a key pair or replaces its associated value.
+    /// </summary>
+    /// <param name="key1">The first key.</param>
+    /// <param name="key2">The second key.</param>
+    /// <param name="value">The value to store.</param>
+    public void Add(K key1, T key2, V value) {
+        dictionary[(key1, key2)] = value;
+    }
+
+    /// <summary>
+    ///     Determines whether the complete key pair is present.
+    /// </summary>
+    /// <param name="index1">The first key.</param>
+    /// <param name="index2">The second key.</param>
+    /// <returns><see langword="true"/> if the pair is present; otherwise, <see langword="false"/>.</returns>
+    public bool ContainsKey(K index1, T index2) => dictionary.ContainsKey((index1, index2));
+
+    /// <summary>
+    ///     Removes the entry associated with the complete key pair.
+    /// </summary>
+    /// <param name="key1">The first key.</param>
+    /// <param name="key2">The second key.</param>
+    /// <returns><see langword="true"/> if an entry was removed; otherwise, <see langword="false"/>.</returns>
     public bool Remove(K key1, T key2) => dictionary.Remove((key1, key2));
 
+    /// <summary>
+    ///     Looks up the value associated with the complete key pair.
+    /// </summary>
+    /// <param name="key1">The first key.</param>
+    /// <param name="key2">The second key.</param>
+    /// <param name="value">The stored value when found; otherwise, the default value.</param>
+    /// <returns><see langword="true"/> if the pair is present; otherwise, <see langword="false"/>.</returns>
     public bool TryGetValue(K key1, T key2, [NotNullWhen(true)] out V? value)
         => dictionary.TryGetValue((key1, key2), out value);
 
+    /// Removes all entries from the dictionary.
     public void Clear() {
         dictionary.Clear();
+    }
+
+    /// <summary>
+    ///     Compares complete key-to-value associations independently of insertion order.
+    /// </summary>
+    /// <param name="other">The dictionary to compare, or <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if both dictionaries contain exactly the same mappings.</returns>
+    public bool Equals(DoubleKeyDictionary<K, T, V>? other) {
+        if (other is null || dictionary.Count != other.dictionary.Count)
+            return false;
+
+        foreach (var entry in dictionary) {
+            if (!other.dictionary.TryGetValue(entry.Key, out var value)
+                || !EqualityComparer<V>.Default.Equals(entry.Value, value))
+                return false;
+        }
+
+        return true;
+    }
+
+    public override bool Equals(object? obj) => obj is DoubleKeyDictionary<K, T, V> other && Equals(other);
+
+    public override int GetHashCode() {
+        var hash = 0;
+        foreach (var entry in dictionary)
+            hash ^= HashCode.Combine(entry.Key, entry.Value);
+
+        return hash;
     }
 }

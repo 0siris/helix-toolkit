@@ -339,3 +339,11 @@ Graphify regenerated this composed batch: 979 files, 9,218 nodes, 16,366 edges a
 - Replaced same-version CodeDom/CSharp cache HintPaths with restoring PackageReferences; affected builds pass.
 - Graphify regenerated982 source files into9248 nodes/16457 edges/2616 communities, zero model tokens;
   existing17 partially extracted files remain disclosed. Rider/ReSharper were unavailable; CLI fallback used.
+
+## 2026-10-17 — Source two-key dictionary correction
+
+- Restored pair-specific overwrite/indexer/ContainsKey and corrected the original swapped-value equality defect.
+- Added original public carriers through GetPairs while retaining existing tuple enumeration/LINQ/bool Remove.
+- Parent22 owning headless cases pass; exact three-path source/parent raw replays and unchanged-prefix proof retained.
+- Graphify regenerated984 files into9264 nodes/16366 edges/2696 communities with zero model tokens; existing17
+  partial parser files remain disclosed. No generated output was hand-edited; Rider/ReSharper were unavailable.

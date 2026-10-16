@@ -58,3 +58,13 @@ field extrema determine normalization. Constant fields are finite zeros; empty d
 Negative dimensions/counts, pixel overflow and nonfinite sampling products fail explicitly. Finite input
 coordinates reduce periodically before integer conversion.29 headless owning cases cover analytic samples,
 normalization, arithmetic boundaries and bounded concurrent reseeding. No native presentation is involved.
+
+# Double-key collection compatibility
+
+DoubleKeyDictionary now replaces values for Add/indexer on the same ordered pair and implements association-based
+structural equality with order-independent hashing. The original source compared keys and values independently,
+incorrectly treating swapped associations as equal. Current tuple enumeration/LINQ, bool Remove, null keys and
+lookup/clear APIs remain. Additive GetPairs yields fresh mutable public DoubleKeyPairValue carriers with actual
+keys/values; carrier mutation does not rewrite entries. Flat current enumeration order is retained deliberately.
+The22 owning headless cases pass, including16 dedicated overwrite/equality/carrier/API checks. This is collection
+behavior, not native/visible runtime acceptance; the existing TryGetValue nullable annotation warning remains.

@@ -202,9 +202,14 @@ public sealed class NativeMeshWireframeTests {
             var frontCulled = Render();
             node.CullMode = CullMode.Back;
             var backCulled = Render();
-            var frontHidesEdges = frontCulled.SequenceEqual(baseline);
-            Assert.Equal(frontHidesEdges ? green : baseline, backCulled);
-            Assert.Equal(frontHidesEdges ? baseline : green, frontCulled);
+            var clear = new byte[baseline.Length];
+            for (var pixel = 0; pixel < clear.Length; pixel += 4) {
+                clear[pixel + 2] = 255;
+                clear[pixel + 3] = 255;
+            }
+            var frontHidesMesh = frontCulled.SequenceEqual(clear);
+            Assert.Equal(frontHidesMesh ? green : clear, backCulled);
+            Assert.Equal(frontHidesMesh ? clear : green, frontCulled);
             node.CullMode = CullMode.None;
         }
         node.WireframeColor = new Vector4(0, 0, 1, 0.25f);

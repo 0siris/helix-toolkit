@@ -476,8 +476,10 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
             wireframe = Resolve(techniqueName, wireframeName, topology,
                 targetFormats: targetFormats, rasterOverride: raster);
         }
+        var materialRaster = node.RenderCore is MeshRenderCore materialMesh
+            ? materialMesh.RasterDescription : (RasterizerStateDescription?) null;
         return Resolve(techniqueName, passName, topology,
-            targetFormats: targetFormats, wireframePass: wireframe);
+            targetFormats: targetFormats, rasterOverride: materialRaster, wireframePass: wireframe);
     }
 
     /// <summary>
@@ -561,7 +563,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="Topology">The concrete draw topology.</param>
     /// <param name="TargetFormats">The ordered native color target formats.</param>
     /// <param name="DepthFormat">The native depth/stencil format.</param>
-    /// <param name="RasterOverride">The optional per-mesh wireframe rasterizer state.</param>
+    /// <param name="RasterOverride">The optional per-mesh material or wireframe rasterizer state.</param>
     /// <param name="WireframePass">The optional borrowed overlay identity.</param>
     /// <param name="StencilReference">The optional source stencil reference override.</param>
     private readonly record struct D3D12ScenePassKey(

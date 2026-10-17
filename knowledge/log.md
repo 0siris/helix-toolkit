@@ -2,6 +2,16 @@
 
 ## 2026-10-17
 
+* **Fix**: Filled material passes now use the owning mesh rasterizer state, including front-face convention,
+  culling, fill and depth bias, in opaque and both transparency paths. Cache keys retain each state independently.
+  This restores correct face-dependent custom shader lighting without changing shaders or material parameters.
+* **Verification**: Three actual WARP culling regressions fail before the fix; all 32 selected native raster,
+  wireframe, transparency, preparation, SSAO and post-effect tests pass. The overlay test now expects culling
+  to hide both filled geometry and edges. Hardware Gingiva readback independently confirms front-face lighting.
+* **Maintenance**: ReSharper inspected the containing MeshMeister solution; changed production statements have no
+  warnings. The source graph was regenerated (9,287 nodes, 16,657 edges); its 17 pre-existing parser limitations
+  remain separate from successful C# builds and tests. No visible window was opened.
+
 * **Fix**: Reference-counted pool disposal callbacks retain the inserted key, serialize dictionary mutation and
   remove only their own resource. An old detached resource no longer evicts a newer entry under the same key.
 * **Verification**: Two deterministic replacement regressions fail before the change; five pool regressions and

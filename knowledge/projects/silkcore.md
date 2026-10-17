@@ -35,6 +35,13 @@ ranges; increasing heap capacity does not replace correct ownership cleanup.
 
 # Native mesh intersections
 
+Filled mesh materials honor the owning `MeshRenderCore.RasterDescription` in opaque, weighted OIT and
+depth-peeling passes. Pass-cache identity includes this state. Wireframe overlays retain their own bias/fill
+override. Ignoring the filled mesh's front-face setting reverses `SV_IsFrontFace` for custom shaders even with
+culling disabled; ignoring its cull mode also leaves filled surfaces behind a correctly culled wire overlay.
+Headless WARP regressions toggle front-facing and culling on the same mesh, check fence-completed pixels in all
+three stages, restore prior state, and verify descriptor cleanup. Visible Desktop acceptance remains separate.
+
 MeshIntersectionRenderCore owns immutable mesh/candidate/pose generations at the toolkit boundary. The existing
 D3D12 scene renderer records selected-pair generic and actual shared-buffer compute passes, UAV append counters,
 GPU-produced indirect line arguments and normal/XRay material output through the existing device, heaps and

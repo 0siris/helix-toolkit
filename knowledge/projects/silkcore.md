@@ -44,7 +44,7 @@ generation. Shared-buffer mismatch/disposal selects the immutable generic input.
 
 Headless WARP checks read back genuine segments, pair IDs, indirect arguments and render targets; these are no
 physical adapter or visible-window acceptance. Core-line compatibility remains selectable in the application;
-the source GPU kernel excludes coplanar output. The current full SilkCore suite passes323 cases.
+the source GPU kernel excludes coplanar output. A previous full SilkCore suite passed323 cases.
 
 The explicit shader package has123 already declared resources. Strict manifest/count/readability checks include
 the selected-pair/shared-buffer compute and collision line shaders; no HLSL or generated DXIL was manually edited.
@@ -68,3 +68,15 @@ lookup/clear APIs remain. Additive GetPairs yields fresh mutable public DoubleKe
 keys/values; carrier mutation does not rewrite entries. Flat current enumeration order is retained deliberately.
 The22 owning headless cases pass, including16 dedicated overwrite/equality/carrier/API checks. This is collection
 behavior, not native/visible runtime acceptance; the existing TryGetValue nullable annotation warning remains.
+
+# Reference-counted pool entry ownership
+
+`ReferenceCountedDictionaryPool` associates a disposal callback with the exact inserted key and resource instance.
+The callback takes the same dictionary lock as acquisition, detachment and clearing, and removes an entry only
+while that entry still refers to the disposing resource. Releasing a resource after `TryDetach` cannot evict a
+replacement subsequently cached under the same key.
+
+The public API and automatic-disposal policy remain unchanged. Five CPU-only regressions cover replacement
+identity under both disposal policies, ordinary eviction and automatic return-to-pool reentrancy. Two replacement
+cases fail before the correction; all five and the existing texture/resource checks pass afterward (141 cases).
+These checks require neither a native device nor a window; no new GPU or presentation acceptance is implied.

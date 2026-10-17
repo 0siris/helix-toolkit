@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
+
 /// <summary>
 ///     Base implementation for reference counted dictionary.
 ///     <para></para>
@@ -17,9 +18,9 @@ namespace HelixToolkit.SharpDX.Core.Utilities;
 ///     Set autoDispose = true in constructor if you want to automatically dispose the object once not being used from
 ///     outside.
 /// </summary>
-/// <typeparam name="TKey"></typeparam>
-/// <typeparam name="TValue"></typeparam>
-/// <typeparam name="TArgument"></typeparam>
+/// <typeparam name="TKey">The stable key identifying a cached resource.</typeparam>
+/// <typeparam name="TValue">The reference-counted resource type.</typeparam>
+/// <typeparam name="TArgument">The resource creation argument type.</typeparam>
 public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : DisposeObject
     where TKey : notnull
     where TValue : DisposeObject {
@@ -42,10 +43,14 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
     /// <summary>
     ///     Try to create or get object from the pool. Reference is incremented before returning.
     /// </summary>
-    /// <param name="key"></param>
-    /// <param name="argument"></param>
-    /// <param name="objOut"></param>
-    /// <returns>success or failed</returns>
+    /// <param name="key">The requested key, optionally normalized by the creation callbacks.</param>
+    /// <param name="argument">The argument passed to the resource creation callbacks.</param>
+    /// <param name="objOut">The acquired live resource, or <see langword="null"/> when acquisition fails.</param>
+    /// <returns>Whether a live resource reference was acquired.</returns>
+    /// <remarks>
+    ///     Disposal removes only the same cached instance under the pool lock. A detached resource cannot evict a
+    ///     newer resource stored under its former key.
+    /// </remarks>
     public bool TryCreateOrGet(TKey key, TArgument argument, [NotNullWhen(true)] out TValue? objOut) {
         if (IsDisposed) {
             objOut = null;
@@ -69,7 +74,13 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
                     pool.Add(key, created);
                     objOut = created;
                     created.AddBackToPool = Item_AddBackToPool;
-                    created.Disposed += (_, _) => pool.Remove(key);
+                    var capturedKey = key;
+                    created.Disposed += (_, _) => {
+                        lock (pool)
+                            if (pool.TryGetValue(capturedKey, out var pooledValue)
+                                && ReferenceEquals(pooledValue, created))
+                                pool.Remove(capturedKey);
+                    };
                 } else {
                     objOut = existing;
                 }
@@ -78,7 +89,8 @@ public abstract class ReferenceCountedDictionaryPool<TKey, TValue, TArgument> : 
                     return false;
 
                 if (current.IncRef() <= 1 || current.IsDisposed) {
-                    Task.Delay(1).Wait();
+                    Task.Delay(1)
+                        .Wait();
                     continue;
                 }
             }

@@ -1,5 +1,14 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-17
+
+* **Fix**: Reference-counted pool disposal callbacks retain the inserted key, serialize dictionary mutation and
+  remove only their own resource. An old detached resource no longer evicts a newer entry under the same key.
+* **Verification**: Two deterministic replacement regressions fail before the change; five pool regressions and
+  the existing texture/resource selection pass afterward (141 CPU-only cases). Public signatures and automatic
+  disposal policies are preserved. Rider production-file formatting and semantic inspection use the actual
+  containing MeshMeister solution; the standalone Rider build endpoint is unavailable, so builds/tests use CLI.
+
 ## 2026-10-14
 
 * **Fix**: Preserve direct geometry-child transforms in exported Assimp nodes and assign contiguous indices to

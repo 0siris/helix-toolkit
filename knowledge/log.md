@@ -1,5 +1,24 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-18
+
+* **Fix**: Transient mesh, line and full-screen effect draws share renderer-owned descriptor heap pages, leaving
+  the ordinary scene budget intact. Each draw binds its actual heap pair, including intersection graphics after
+  compute. Original glow6, border and XRay retain immutable per-draw constants and completed-fence reuse.
+* **Fix**: Ordinary WPF composition polls one in-flight frame rather than waiting for its fence on the dispatcher.
+  Explicit captures remain synchronous; resize and effect-catalog replacement defer resource changes safely.
+  Completion notifications distinguish genuine completed empty frames from skipped ticks. Deferred resize errors
+  use the existing renderer error boundary, and detached lifetime notifications are discarded after draining.
+* **Verification**: Headless tests cover two-page selection pressure beside 100 ordinary meshes, native colors,
+  depth/stencil preservation, fresh intersection compute and a deliberately gated WARP queue. The dispatcher and
+  camera remain live while scene updates and binding reuse wait for completion. No visible window is opened.
+  All 426 non-Hardware SilkCore and 68 non-Hardware Toolkit cases pass. Parent Desktop integration passes 241
+  cases with one explicit visible case skipped. Affected builds, changed XML and whitespace checks pass.
+* **Maintenance**: ReSharper inspects the actual containing MeshMeister solution. The standalone Silk Rider context
+  is not open, so affected builds use CLI fallback. Existing style/analyzer warnings remain, including conflicting
+  inherited/private-field naming policies. The source graph was regenerated with 9,378 nodes and 16,974 edges;
+  its 17 existing parser limitations remain distinct from successful C# builds and tests.
+
 ## 2026-10-17
 
 * **Fix**: Filled material passes now use the owning mesh rasterizer state, including front-face convention,

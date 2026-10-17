@@ -26,6 +26,13 @@ The project uses Silk.NET Direct2D, Direct3D compiler, Direct3D11, Direct3D9, DX
 
 ## Native child input ownership
 
+Ordinary composition uses a single in-flight Direct3D 12 submission and polls completion rather than waiting on
+the WPF dispatcher after every frame. Reusable commands, render bindings and scene preparation remain gated by
+the completed fence. Camera updates continue during pending GPU work; the next accepted frame uses current state.
+Completed-frame notifications are distinct from skipped ticks and include valid zero-draw frames. Explicit capture
+still completes before readback. Effect-manager replacement, resize and disposal retain safe resource lifetimes;
+the finite stalled-frame timeout is preserved.
+
 The enabled interactive HwndSwapChainHost explicitly returns HTCLIENT; disabled/noninteractive surfaces return
 HTTRANSPARENT. Decoded wheel input is consumed once instead of reaching the WPF owner default procedure.
 Native mouse events enter the existing typed WPF InputManager preview/bubble route, retaining the viewport

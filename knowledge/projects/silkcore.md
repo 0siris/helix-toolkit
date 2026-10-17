@@ -21,6 +21,12 @@ Per-core mesh, point/line, volume, particle and screen-capture caches release en
 retain their descriptor tables. This prevents repeated scene replacement from exhausting contiguous descriptor
 ranges; increasing heap capacity does not replace correct ownership cleanup.
 
+Transient mesh, line and full-screen effect bindings use a shared renderer-owned paged heap pool. Each lazy
+page provides 16,384 CBV/SRV/UAV descriptors and 2,048 samplers, preserving immutable per-draw tables and constants
+without taking ordinary scene descriptor capacity. Draws bind their own heap pair; intersection graphics restore
+that pair after their compute stage. Existing draw slots reuse the high-water pages only after the completed
+presentation fence, and dispose before the pool. This preserves original glow, border and XRay pass behavior.
+
 # Related Concepts
 
 * [Current Solution](/architecture/current-solution.md)

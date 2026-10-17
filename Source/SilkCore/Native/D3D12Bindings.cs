@@ -154,6 +154,17 @@ internal sealed class SilkD3D12GraphicsBindings : IDisposable {
         GetDescriptor(samplers, shaderRegister, SamplerCount, 0, nameof(shaderRegister));
 
     /// <summary>
+    ///     Selects the heap pair containing these tables before a render core sets its root signature and handles.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    /// <exception cref="ObjectDisposedException">The descriptor tables have been disposed.</exception>
+    internal void BindHeaps(SilkD3D12CommandContext context) {
+        context.AsGuardNotNull();
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        context.SetDescriptorHeaps(resourceHeap, samplerHeap);
+    }
+
+    /// <summary>
     ///     Binds both heaps and tables after a graphics root signature has been set.
     /// </summary>
     /// <param name="context">The open Direct3D 12 command context.</param>
@@ -419,10 +430,24 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         SilkD3D12Device device,
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap
+    ) : this(device, resourceHeap, samplerHeap, null) { }
+
+    /// <summary>
+    ///     Initializes one default-mesh binding set using optional renderer-owned effect descriptor pages.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="resourceHeap">The ordinary shader-visible resource heap.</param>
+    /// <param name="samplerHeap">The ordinary shader-visible sampler heap.</param>
+    /// <param name="effectBindings">The effect page owner, or <see langword="null"/> for ordinary bindings.</param>
+    internal SilkD3D12MeshBindings(
+        SilkD3D12Device device,
+        SilkD3D12DescriptorHeap resourceHeap,
+        SilkD3D12DescriptorHeap samplerHeap,
+        D3D12EffectBindingPool? effectBindings
     ) {
         device.AsGuardNotNull();
         this.device = device;
-        bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
+        bindings = effectBindings?.Allocate() ?? new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
         SilkD3D12ConstantBuffer? createdGlobalTransforms = null;
         SilkD3D12ConstantBuffer? createdModel = null;
         SilkD3D12ConstantBuffer? createdLights = null;
@@ -471,6 +496,13 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     ///     Gets whether all buffers and descriptors have been released.
     /// </summary>
     internal bool IsDisposed { get; private set; }
+
+    /// <summary>
+    ///     Selects this draw's shader-visible heap pair before the render core binds its descriptor tables.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    internal void BindHeaps(SilkD3D12CommandContext context) => bindings.BindHeaps(context);
+
 
     /// <summary>
     ///     Uploads the b0 and b1 structures for the next draw.
@@ -1214,10 +1246,24 @@ internal sealed class SilkD3D12PointLineBindings : IDisposable {
         SilkD3D12Device device,
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap
+    ) : this(device, resourceHeap, samplerHeap, null) { }
+
+    /// <summary>
+    ///     Initializes one point/line binding set using optional renderer-owned effect descriptor pages.
+    /// </summary>
+    /// <param name="device">The Direct3D 12 device.</param>
+    /// <param name="resourceHeap">The ordinary shader-visible resource heap.</param>
+    /// <param name="samplerHeap">The ordinary shader-visible sampler heap.</param>
+    /// <param name="effectBindings">The effect page owner, or <see langword="null"/> for ordinary bindings.</param>
+    internal SilkD3D12PointLineBindings(
+        SilkD3D12Device device,
+        SilkD3D12DescriptorHeap resourceHeap,
+        SilkD3D12DescriptorHeap samplerHeap,
+        D3D12EffectBindingPool? effectBindings
     ) {
         device.AsGuardNotNull();
         this.device = device;
-        bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
+        bindings = effectBindings?.Allocate() ?? new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
         SilkD3D12ConstantBuffer? createdGlobalTransforms = null;
         SilkD3D12ConstantBuffer? createdPointLine = null;
         SilkD3D12ConstantBuffer? createdEffect = null;
@@ -1251,6 +1297,13 @@ internal sealed class SilkD3D12PointLineBindings : IDisposable {
     ///     Gets whether all point/line bindings have been disposed.
     /// </summary>
     internal bool IsDisposed { get; private set; }
+
+    /// <summary>
+    ///     Selects this draw's shader-visible heap pair before the render core binds its descriptor tables.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    internal void BindHeaps(SilkD3D12CommandContext context) => bindings.BindHeaps(context);
+
 
     /// <summary>
     ///     Gets the first descriptor in the resource table.

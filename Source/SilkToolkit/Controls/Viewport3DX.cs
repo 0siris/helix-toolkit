@@ -587,8 +587,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         base.OnApplyTemplate();
         if (IsInDesignMode && !EnableDesignModeRendering) return;
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        if (d3d12Surface is { } previousSurface)
+        if (d3d12Surface is { } previousSurface) {
             previousSurface.WindowHost.PointerInput -= D3D12PointerInput;
+            previousSurface.DeferredRenderException -= HandleRenderException;
+        }
         d3d12Surface?.Dispose();
         d3d12Surface = null;
         var presenter = GetTemplateChild("PART_Canvas") as ContentPresenter ??
@@ -606,6 +608,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             : D3D12DriverType;
         d3d12Surface = new D3D12PresentationSurface(driverType, effectsManager);
         d3d12Surface.WindowHost.PointerInput += D3D12PointerInput;
+        d3d12Surface.DeferredRenderException += HandleRenderException;
         presenter.Content = d3d12Surface;
         d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
 
@@ -1174,7 +1177,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     private void D3D12CompositionTargetRendering(object? sender, RenderingEventArgs eventArgs) {
         var surface = d3d12Surface;
         try {
-            _ = RenderD3D12Frame(eventArgs.RenderingTime);
+            _ = RenderD3D12Frame(eventArgs.RenderingTime, waitForCompletion: false);
         } catch (Exception exception) {
             d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
             HandleRenderException(surface, new RelayExceptionEventArgs(exception));
@@ -1182,16 +1185,21 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     /// <summary>
-    ///     Records one Direct3D 12 viewport frame when the opt-in surface is ready and visible.
+    ///     Updates the camera and records a frame only when its reusable GPU resources are available.
     /// </summary>
     /// <param name="renderingTime">The WPF rendering timestamp.</param>
+    /// <param name="captureFrame">Whether to synchronously read back the completed frame.</param>
+    /// <param name="waitForCompletion">Whether an explicit caller may wait for GPU completion.</param>
     /// <returns>The number of recorded scene draws, or zero when no frame is ready.</returns>
-    internal int RenderD3D12Frame(TimeSpan renderingTime, bool captureFrame = false) {
+    internal int RenderD3D12Frame(TimeSpan renderingTime, bool captureFrame = false, bool waitForCompletion = true) {
         var surface = d3d12Surface;
-        surface?.SetEffectsManager(EffectsManager);
         var camera = CameraCore;
         if (surface is not {IsInitialized: true} || camera is null || Visibility != Visibility.Visible) return 0;
         cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
+        if (!surface.CompletePendingFrame(waitForCompletion || captureFrame)) return 0;
+        RaiseCompletedD3D12Frames(surface);
+        if (!ReferenceEquals(d3d12Surface, surface) || surface.IsDisposed) return 0;
+        surface.SetEffectsManager(EffectsManager);
         var clearColor = BackgroundColor.ToColor4();
         var recorded = surface.RenderViewportOnce([clearColor.X, clearColor.Y, clearColor.Z, clearColor.W],
             Renderables,
@@ -1209,9 +1217,19 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             (float) SsaoIntensity,
             SsaoQuality,
             D2DRenderables,
-            captureFrame);
-        OnRendered?.Invoke(surface, EventArgs.Empty);
+            captureFrame,
+            waitForCompletion);
+        RaiseCompletedD3D12Frames(surface);
         return recorded;
+    }
+
+    /// <summary>Reports each completed frame once without treating skipped ticks or zero scene draws as completion.</summary>
+    /// <param name="surface">The presentation owner whose fence completion was observed.</param>
+    private void RaiseCompletedD3D12Frames(D3D12PresentationSurface surface) {
+        while (surface.TryTakeCompletedFrame()) {
+            OnRendered?.Invoke(surface, EventArgs.Empty);
+            if (!ReferenceEquals(d3d12Surface, surface) || surface.IsDisposed) return;
+        }
     }
 
     /// <summary>
@@ -1263,7 +1281,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
         if (hostPresenter is { } presenter) presenter.Content = null;
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        if (d3d12Surface is { } surface) surface.WindowHost.PointerInput -= D3D12PointerInput;
+        if (d3d12Surface is { } surface) {
+            surface.WindowHost.PointerInput -= D3D12PointerInput;
+            surface.DeferredRenderException -= HandleRenderException;
+        }
         d3d12Surface?.Dispose();
         d3d12Surface = null;
     }
@@ -1619,7 +1640,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             Disposing = null;
             d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
             d3d12CompositionTarget.Dispose();
-            if (d3d12Surface is { } surface) surface.WindowHost.PointerInput -= D3D12PointerInput;
+            if (d3d12Surface is { } surface) {
+                surface.WindowHost.PointerInput -= D3D12PointerInput;
+                surface.DeferredRenderException -= HandleRenderException;
+            }
             d3d12Surface?.Dispose();
             d3d12Surface = null;
             if (!BelongsToParentWindow) {

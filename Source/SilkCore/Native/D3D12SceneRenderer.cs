@@ -53,6 +53,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     private readonly SilkD3D12DescriptorHeap samplerHeap;
 
+    /// Shader-visible descriptor pages shared by all immutable transient effect draws in this renderer.
+    private readonly D3D12EffectBindingPool _effectBindings;
+
     /// <summary>
     ///     Host-lifetime native geometry and texture resources.
     /// </summary>
@@ -169,6 +172,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         samplerHeap.AsGuardNotNull();
         this.resourceHeap = resourceHeap;
         this.samplerHeap = samplerHeap;
+        _effectBindings = new D3D12EffectBindingPool(device);
         resources = new SilkD3D12ResourceManager(device, resourceHeap);
         scene2DRenderer = new D3D12Scene2DRenderer(device,
             resources,
@@ -209,6 +213,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     ///     Gets whether this renderer has released its bindings and shared resources.
     /// </summary>
     internal bool IsDisposed { get; private set; }
+
+    /// Gets the descriptor pages used by recorded effects for native capacity and lifetime verification.
+    internal D3D12EffectBindingPool EffectBindings => _effectBindings;
 
     /// <summary>
     ///     Prepares the active hierarchy before visibility pruning and native draw classification.
@@ -344,7 +351,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         uint height
     ) {
         if (level == FxaaLevel.None) return;
-        postProcessResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap);
+        postProcessResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
         var parameters = CreateFxaaParameters(level, width, height);
         postProcessResources.Capture(context, mainColor, width, height);
         postProcessResources.Draw(context, lumaPass, 0, 1, in transforms, in parameters);
@@ -387,7 +394,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         uint height
     ) {
         ArgumentOutOfRangeException.ThrowIfNegative(blurPasses);
-        postProcessResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap);
+        postProcessResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
         postProcessResources.Capture(context, mainColor, width, height);
         postProcessResources.Draw(context, extractPass, 0, 1, in transforms, in parameters);
         var source = 1;
@@ -661,7 +668,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         Func<SceneNode, ShaderPass?>? boneSkinningPassSelector = null
     ) {
         ArgumentOutOfRangeException.ThrowIfNegative(blurPasses);
-        outlineResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap);
+        outlineResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
         effectStencil ??= new D3D12PostEffectStencil(Device);
         if (stencilPass is null) {
             outlineCatalog ??= new D3D12ScenePassCatalog(Device, mainColor.Description.Format,
@@ -685,7 +692,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             for (var index = 0; index < blurPasses; index++) {
                 var blurParameters = parameters;
                 if (useBlurCore) {
-                    outlineBlurResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap);
+                    outlineBlurResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
                     blurParameters.ViewportScale = 2;
                     outlineBlurResources.DrawSource(context, verticalBlurPass, outlineResources.First, 0,
                         Math.Max(1u, width / 2), Math.Max(1u, height / 2), in transforms, in blurParameters);
@@ -851,6 +858,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 drawMeshBindings!.UpdateShadow(in parameters,
                     usesShadow ? shadowMap?.Resource : null);
             }
+            drawMeshBindings?.BindHeaps(context);
+            drawPointLineBindings?.BindHeaps(context);
             recorded += node.RenderCore switch {
                 BoneSkinRenderCore bone => bone.TryRenderD3D12(context,
                     resources,
@@ -1373,7 +1382,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <returns>The next completed-fence reusable mesh binding slot.</returns>
     private SilkD3D12MeshBindings NextEffectMeshBindings() {
         if (effectMeshIndex == effectMeshBindings.Count)
-            effectMeshBindings.Add(new SilkD3D12MeshBindings(Device, resourceHeap, samplerHeap));
+            effectMeshBindings.Add(new SilkD3D12MeshBindings(Device, resourceHeap, samplerHeap, _effectBindings));
         return effectMeshBindings[effectMeshIndex++];
     }
 
@@ -1383,7 +1392,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <returns>The next completed-fence reusable point/line binding slot.</returns>
     private SilkD3D12PointLineBindings NextEffectLineBindings() {
         if (effectLineIndex == effectLineBindings.Count)
-            effectLineBindings.Add(new SilkD3D12PointLineBindings(Device, resourceHeap, samplerHeap));
+            effectLineBindings.Add(new SilkD3D12PointLineBindings(Device, resourceHeap, samplerHeap, _effectBindings));
         return effectLineBindings[effectLineIndex++];
     }
 
@@ -1552,6 +1561,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         outlineCatalog?.Dispose();
         postProcessResources?.Dispose();
         postProcessResources = null;
+        _effectBindings.Dispose();
         ssaoResources?.Dispose();
         ssaoResources = null;
         scene2DRenderer.Dispose();

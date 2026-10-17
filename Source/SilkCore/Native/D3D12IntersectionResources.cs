@@ -119,7 +119,7 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
         }
     }
     /// <summary>
-    ///     Records the source kernels once, then draws the append output with GPU-generated instance count.
+    ///     Records the source kernels once, then restores the draw's heap pair for GPU-counted indirect output.
     /// </summary>
     /// <param name="context">The host's open command context.</param>
     /// <param name="pass">The source-compatible line or post-effect graphics pass.</param>
@@ -149,6 +149,7 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
         context.Transition(Segments, ResourceStates.NonPixelShaderResource);
         bindings.BindSegments(Segments, Capacity);
         pass.BindShader(context);
+        bindings.BindHeaps(context);
         context.SetGraphicsDescriptorTables(bindings.ResourceTableStart, bindings.SamplerTableStart);
         context.DrawInstancedIndirect(signature, Arguments);
         return true;

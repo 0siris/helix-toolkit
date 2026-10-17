@@ -34,6 +34,9 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// </summary>
     private readonly SilkD3D12DescriptorHeap samplerHeap;
 
+    /// The renderer-owned descriptor pages shared by transient geometry and full-screen effects.
+    private readonly D3D12EffectBindingPool? _effectBindings;
+
     /// <summary>
     ///     Stable per-draw tables retained until the current frame fence completes.
     /// </summary>
@@ -72,8 +75,23 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
         SilkD3D12Device device,
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap
+    ) : this(device, resourceHeap, samplerHeap, null) { }
+
+    /// <summary>
+    ///     Creates post-process resources whose immutable draw tables may use shared effect descriptor pages.
+    /// </summary>
+    /// <param name="device">The native device.</param>
+    /// <param name="resourceHeap">The ordinary shader-visible resource heap.</param>
+    /// <param name="samplerHeap">The ordinary shader-visible sampler heap.</param>
+    /// <param name="effectBindings">The shared effect page owner, or <see langword="null"/> for fixed heaps.</param>
+    internal SilkD3D12PostProcessResources(
+        SilkD3D12Device device,
+        SilkD3D12DescriptorHeap resourceHeap,
+        SilkD3D12DescriptorHeap samplerHeap,
+        D3D12EffectBindingPool? effectBindings
     ) {
         this.device = device;
+        _effectBindings = effectBindings;
         this.resourceHeap = resourceHeap;
         this.samplerHeap = samplerHeap;
         renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 64);
@@ -273,7 +291,8 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// <returns>The next frame-local binding slot.</returns>
     private BindingSlot NextBindingSlot() {
         if (bindingSlotIndex == bindingSlots.Count)
-            bindingSlots.Add(new BindingSlot(device, resourceHeap, samplerHeap));
+            bindingSlots.Add(new BindingSlot(device,
+                _effectBindings?.Allocate() ?? new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap)));
         return bindingSlots[bindingSlotIndex++];
     }
 
@@ -328,24 +347,31 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
         ///     Initializes one complete table and its b0/b6 constants.
         /// </summary>
         /// <param name="device">The native device.</param>
-        /// <param name="resourceHeap">The shared shader-visible resource heap.</param>
-        /// <param name="samplerHeap">The shared shader-visible sampler heap.</param>
-        internal BindingSlot(
-            SilkD3D12Device device,
-            SilkD3D12DescriptorHeap resourceHeap,
-            SilkD3D12DescriptorHeap samplerHeap
-        ) {
-            Bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
-            GlobalTransforms = new SilkD3D12ConstantBuffer(device,
-                Bindings.ConstantBuffer(0),
-                GlobalTransformStruct.SizeInBytes);
-            EffectConstants = new SilkD3D12ConstantBuffer(device,
-                Bindings.ConstantBuffer(6),
-                BorderEffectStruct.SizeInBytes);
-            FallbackConstants = device.CreateBuffer(256, HeapType.Upload);
-            FallbackConstants.Write(new byte[256]);
-            Bindings.InitializeFallbackDescriptors(device, FallbackConstants, 0, 6);
-            device.CreateSampler(Bindings.Sampler(0), Filter.MinMagMipLinear, TextureAddressMode.Clamp);
+        /// <param name="bindings">The owned, immutable descriptor tables for this draw.</param>
+        internal BindingSlot(SilkD3D12Device device, SilkD3D12GraphicsBindings bindings) {
+            Bindings = bindings;
+            SilkD3D12ConstantBuffer? createdGlobal = null;
+            SilkD3D12ConstantBuffer? createdEffect = null;
+            SilkD3D12Resource? createdFallback = null;
+            try {
+                createdGlobal = new SilkD3D12ConstantBuffer(device,
+                    Bindings.ConstantBuffer(0), GlobalTransformStruct.SizeInBytes);
+                createdEffect = new SilkD3D12ConstantBuffer(device,
+                    Bindings.ConstantBuffer(6), BorderEffectStruct.SizeInBytes);
+                createdFallback = device.CreateBuffer(256, HeapType.Upload);
+                createdFallback.Write(new byte[256]);
+                Bindings.InitializeFallbackDescriptors(device, createdFallback, 0, 6);
+                device.CreateSampler(Bindings.Sampler(0), Filter.MinMagMipLinear, TextureAddressMode.Clamp);
+                GlobalTransforms = createdGlobal;
+                EffectConstants = createdEffect;
+                FallbackConstants = createdFallback;
+            } catch {
+                createdFallback?.Dispose();
+                createdEffect?.Dispose();
+                createdGlobal?.Dispose();
+                Bindings.Dispose();
+                throw;
+            }
         }
 
         /// <summary>Gets the complete resource and sampler tables.</summary>

@@ -158,8 +158,6 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
         set => SetAffectsRender(ref field, value);
     } = 1;
 
-    private int numberOfBlurPass = 1;
-
     /// <summary>
     ///     Gets or sets the number of blur pass.
     /// </summary>
@@ -167,16 +165,14 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
     ///     The number of blur pass.
     /// </value>
     public int NumberOfBlurPass {
-        get => numberOfBlurPass;
-        set => SetAffectsRender(ref numberOfBlurPass, value);
-    }
-
-    private OutlineMode drawMode = OutlineMode.Merged;
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = 1;
 
     public OutlineMode DrawMode {
-        get => drawMode;
-        set => SetAffectsRender(ref drawMode, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = OutlineMode.Merged;
 
     #endregion
 }

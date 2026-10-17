@@ -166,7 +166,6 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     }
     private DispatcherOperation? octreeOpt;
     private bool enableOctreeOutput;
-    private IOctreeManager? manager;
 
     /// <summary>
     ///     Gets the manager.
@@ -176,10 +175,10 @@ public abstract class OctreeManagerBaseWrapper : FrameworkContentElement, IOctre
     /// </value>
     public IOctreeManager Manager {
         get {
-            if (manager is { } current) return current;
+            if (field is { } current) return current;
 
             var created = OnCreateManager();
-            manager = created;
+            field = created;
             created.OnOctreeCreated += (_, e) => {
                     if (octreeOpt is {Status: DispatcherOperationStatus.Pending}) octreeOpt.Abort();
                     if (enableOctreeOutput)

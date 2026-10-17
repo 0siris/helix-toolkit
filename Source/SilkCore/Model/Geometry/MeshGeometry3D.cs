@@ -37,8 +37,6 @@ public class MeshGeometry3D : Geometry3D {
     /// </summary>
     public static bool EnableSmallTriangleHitTestScaling = true;
 
-    private Vector2Collection? textureCoordinates;
-
     /// <summary>
     ///     Does not raise property changed event
     /// </summary>
@@ -50,9 +48,9 @@ public class MeshGeometry3D : Geometry3D {
     /// </summary>
     [DataMember]
     public Vector2Collection? TextureCoordinates {
-        get => textureCoordinates;
+        get;
         set {
-            if (Set(ref textureCoordinates, value, false))
+            if (Set(ref field, value, false))
                 RaisePropertyChanged(TextureCoordChangedArgs);
         }
     }

@@ -271,7 +271,7 @@ public class OffReader : IModelReader {
     /// </returns>
     private static string RemoveComments(string input) {
         var commentIndex = input.IndexOf('#');
-        if (commentIndex >= 0) return input.Substring(0, commentIndex);
+        if (commentIndex >= 0) return input[..commentIndex];
 
         return input;
     }

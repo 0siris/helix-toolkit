@@ -422,8 +422,8 @@ public class ObjReader : IModelReader {
             return;
         }
 
-        keyword = line.Substring(0, idx);
-        arguments = line.Substring(idx + 1);
+        keyword = line[..idx];
+        arguments = line[(idx + 1)..];
     }
 
     /// <summary>
@@ -1061,7 +1061,7 @@ public class ObjReader : IModelReader {
             if (path.Length > 1
                 && (path[0] == Path.DirectorySeparatorChar || path[0] == Path.AltDirectorySeparatorChar)
                 && path[1] != Path.DirectorySeparatorChar && path[1] != Path.AltDirectorySeparatorChar)
-                path = path.Substring(1);
+                path = path[1..];
 
             return Path.GetFullPath(Path.Combine(basePath ?? string.Empty, path));
         }

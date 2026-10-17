@@ -96,8 +96,6 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
 
     public HashSet<Guid> IgnoredGuid { get; } = [];
 
-    private bool enableReflector = true;
-
     /// <summary>
     ///     Gets or sets a value indicating whether [enable reflector].
     /// </summary>
@@ -105,16 +103,14 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
     ///     <c>true</c> if [enable reflector]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableReflector {
-        get => enableReflector;
-        set => SetAffectsRender(ref enableReflector, value);
-    }
-
-    private int faceSize = 256;
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = true;
 
     public int FaceSize {
-        get => faceSize;
-        set => SetAffectsRender(ref faceSize, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = 256;
 
     /// <summary>
     ///     Name of the default pass inside a technique.

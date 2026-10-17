@@ -120,11 +120,6 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     private HitTestResult? currentHit;
 
     /// <summary>
-    ///     The current two-dimensional model under the pointer.
-    /// </summary>
-    private Model.Elements2D.Abstract.Element2D? mouseOverModel2D;
-
-    /// <summary>
     ///     Current 2D model hit
     /// </summary>
     private HitTest2DResult? currentHit2D;
@@ -225,16 +220,16 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     public Model.Elements2D.Abstract.Element2D? MouseOverModel2D {
-        get => mouseOverModel2D;
+        get;
         private set {
-            if (mouseOverModel2D == value) return;
-            mouseOverModel2D?.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseLeave2DEvent,
-                mouseOverModel2D,
-                this));
-            mouseOverModel2D = value;
-            mouseOverModel2D?.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseEnter2DEvent,
-                mouseOverModel2D,
-                this));
+            if (field == value) return;
+            field?.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseLeave2DEvent,
+                                                   field,
+                                                   this));
+            field = value;
+            field?.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseEnter2DEvent,
+                                                   field,
+                                                   this));
         }
     }
 

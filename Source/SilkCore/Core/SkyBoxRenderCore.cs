@@ -102,8 +102,6 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
 
     #region Properties
 
-    private TextureModel? cubeTexture;
-
     /// <summary>
     ///     Gets or sets the cube texture.
     /// </summary>
@@ -111,8 +109,8 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
     ///     The cube texture.
     /// </value>
     public TextureModel? CubeTexture {
-        get => cubeTexture;
-        set => SetAffectsRender(ref cubeTexture, value);
+        get;
+        set => SetAffectsRender(ref field, value);
     }
 
     /// <summary>

@@ -107,8 +107,6 @@ public interface IScreenSpacedRenderParams {
 ///     </para>
 /// </summary>
 public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams {
-    private Vector3 absolutePosition;
-
     private bool isMainCameraPerspective;
 
     private ScreenSpacedMode mode = ScreenSpacedMode.RelativeScreenSpaced;
@@ -157,8 +155,8 @@ public class ScreenSpacedMeshRenderCore : RenderCore, IScreenSpacedRenderParams 
     }
 
     public Vector3 AbsolutePosition3D {
-        get => absolutePosition;
-        set => SetAffectsRender(ref absolutePosition, value);
+        get;
+        set => SetAffectsRender(ref field, value);
     }
 
     /// <summary>

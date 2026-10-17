@@ -33,8 +33,6 @@ public class BoneSkinRenderCore : MeshRenderCore {
     private IBoneSkinPreComputehBufferModel? preComputeBoneBuffer;
     private ShaderPass preComputeBoneSkinPass = ShaderPass.NullPass;
 
-    private BoneUploaderCore? sharedBoneBuffer;
-
     /// <summary>
     ///     Records the existing bone-skinned mesh through the productive Direct3D 12 mesh path.
     /// </summary>
@@ -176,10 +174,10 @@ public class BoneSkinRenderCore : MeshRenderCore {
     }
 
     public BoneUploaderCore? SharedBoneBuffer {
-        get => sharedBoneBuffer;
+        get;
         set {
-            var old = sharedBoneBuffer;
-            if (Set(ref sharedBoneBuffer, value)) {
+            var old = field;
+            if (Set(ref field, value)) {
                 old?.BoneChanged -= OnBoneChanged;
                 value?.BoneChanged += OnBoneChanged;
                 matricsChanged = true;

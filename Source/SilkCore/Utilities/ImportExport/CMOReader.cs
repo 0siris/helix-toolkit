@@ -454,7 +454,7 @@ public static class BinaryReaderExtensions {
         if (length > 0) {
             var result = Encoding.Unicode.GetString(br.ReadBytes(length * 2), 0, length * 2);
             // Remove the trailing \0
-            return result.Substring(0, result.Length - 1);
+            return result[..^1];
         }
 
         return null;

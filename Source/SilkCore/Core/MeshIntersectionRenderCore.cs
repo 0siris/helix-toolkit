@@ -62,13 +62,12 @@ public sealed class IntersectionMeshSnapshot {
     internal readonly Vector4[] Positions;
     /// The owned original triangle index stream.
     internal readonly int[] Indices;
-    /// The borrowed rendering owner, never disposed by intersection resources.
-    private readonly DefaultMeshGeometryBufferModel? renderBuffer;
+
     /// The borrowed scene owner whose native default mesh buffer can be created during attachment.
     private readonly MeshNode? renderNode;
     /// Gets the actual current native render-buffer owner without creating a second rendering allocation.
     internal DefaultMeshGeometryBufferModel? RenderBuffer => renderNode is { IsDisposed: false,
-        RenderCore: GeometryRenderCore { GeometryBuffer: DefaultMeshGeometryBufferModel buffer } } ? buffer : renderBuffer;
+        RenderCore: GeometryRenderCore { GeometryBuffer: DefaultMeshGeometryBufferModel buffer } } ? buffer : field;
     /// <summary>
     ///     Copies and validates original geometry without retaining mutable caller storage.
     /// </summary>
@@ -84,7 +83,7 @@ public sealed class IntersectionMeshSnapshot {
         if (Indices.Length % 3 != 0 || Indices.Any(index => index < 0 || index >= Positions.Length) ||
             Positions.Any(position => !float.IsFinite(position.X) || !float.IsFinite(position.Y) || !float.IsFinite(position.Z)))
             throw new ArgumentException("Intersection geometry must contain finite positions and complete valid triangles");
-        this.renderBuffer = renderBuffer;
+        this.RenderBuffer = renderBuffer;
         this.renderNode = renderNode;
     }
     /// Gets the original triangle count.

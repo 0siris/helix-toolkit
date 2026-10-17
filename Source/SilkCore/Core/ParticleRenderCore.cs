@@ -360,20 +360,13 @@ public class ParticleRenderCore : RenderCore {
 
     #endregion
 
-    private BlendStateDescription blendDesc = new() {
-        IndependentBlendEnable = false,
-        AlphaToCoverageEnable = false
-    };
-
     /// <summary>
     ///     Particle blend state description
     /// </summary>
     public BlendStateDescription BlendDescription {
-        get => blendDesc;
-        set => Set(ref blendDesc, value);
-    }
-
-    private Color4 blendFactor = Color.White;
+        get;
+        set => Set(ref field, value);
+    } = new() { IndependentBlendEnable = false, AlphaToCoverageEnable = false };
 
     /// <summary>
     ///     Gets or sets the blend factor used for blending.
@@ -382,11 +375,9 @@ public class ParticleRenderCore : RenderCore {
     ///     The blend factor.
     /// </value>
     public Color4 BlendFactor {
-        get => blendFactor;
-        set => SetAffectsRender(ref blendFactor, value);
-    }
-
-    private int sampleMask = -1;
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = Color.White;
 
     /// <summary>
     ///     Gets or sets the sample mask used for blending.
@@ -395,9 +386,9 @@ public class ParticleRenderCore : RenderCore {
     ///     The sample mask.
     /// </value>
     public int SampleMask {
-        get => sampleMask;
-        set => SetAffectsRender(ref sampleMask, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = -1;
 
     #region Shader Variable Names
 

@@ -16,11 +16,6 @@ namespace HelixToolkit.SharpDX.Core.Core.Abstract;
 /// <summary>
 /// </summary>
 public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
-    private RasterizerStateDescription rasterDescription = new() {
-        FillMode = FillMode.Solid,
-        CullMode = CullMode.None
-    };
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="GeometryRenderCore" /> class.
     /// </summary>
@@ -61,9 +56,9 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
     /// <summary>
     /// </summary>
     public RasterizerStateDescription RasterDescription {
-        get => rasterDescription;
-        set => SetAffectsRender(ref rasterDescription, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = new() { FillMode = FillMode.Solid, CullMode = CullMode.None };
 
     /// <summary>
     ///     Called when [geometry buffer changed].

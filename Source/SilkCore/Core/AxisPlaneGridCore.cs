@@ -18,9 +18,6 @@ using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public class AxisPlaneGridCore : RenderCore {
-    private bool autoSpacing = true;
-
-    private float autoSpacingChangeRate = 5;
     private ShaderPass? defaultShaderPass;
 
     private PlaneGridModelStruct modelStruct;
@@ -52,12 +49,12 @@ public class AxisPlaneGridCore : RenderCore {
     ///     <c>true</c> if [automatic spacing]; otherwise, <c>false</c>.
     /// </value>
     public bool AutoSpacing {
-        get => autoSpacing;
+        get;
         set {
-            if (SetAffectsRender(ref autoSpacing, value) && !value)
+            if (SetAffectsRender(ref field, value) && !value)
                 modelStruct.GridSpacing = GridSpacing;
         }
-    }
+    } = true;
 
     /// <summary>
     ///     Gets or sets the automatic spacing rate. Default is 5 for perspective camera. If using orthographic camera,
@@ -67,9 +64,9 @@ public class AxisPlaneGridCore : RenderCore {
     ///     The automatic spacing rate.
     /// </value>
     public float AutoSpacingRate {
-        get => autoSpacingChangeRate;
-        set => SetAffectsRender(ref autoSpacingChangeRate, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = 5;
 
     /// <summary>
     ///     Gets the acutal spacing.

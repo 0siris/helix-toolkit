@@ -135,8 +135,8 @@ public class StLReader : ModelReader {
             id = line.ToLowerInvariant();
             values = string.Empty;
         } else {
-            id = line.Substring(0, idx).ToLowerInvariant();
-            values = line.Substring(idx + 1);
+            id = line[..idx].ToLowerInvariant();
+            values = line[(idx + 1)..];
         }
     }
 

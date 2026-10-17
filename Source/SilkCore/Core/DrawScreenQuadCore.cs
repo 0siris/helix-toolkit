@@ -22,12 +22,9 @@ public class DrawScreenQuadCore : RenderCore {
     public ScreenQuadModelStruct ModelStruct;
 
     private ShaderPass pass = ShaderPass.NullPass;
-    private string passName = DefaultPassNames.Default;
 
-    private SamplerStateDescription samplerDescription = DefaultSamplers.LinearSamplerClampAni1;
     private int samplerSlot;
 
-    private TextureModel? texture;
     private int textureSlot;
 
     public DrawScreenQuadCore() : base(RenderType.Opaque) {
@@ -44,9 +41,9 @@ public class DrawScreenQuadCore : RenderCore {
     }
 
     public string PassName {
-        get => passName;
-        set => SetAffectsRender(ref passName, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = DefaultPassNames.Default;
 
     /// <summary>
     ///     Gets or sets the texture.
@@ -55,8 +52,8 @@ public class DrawScreenQuadCore : RenderCore {
     ///     The texture.
     /// </value>
     public TextureModel? Texture {
-        get => texture;
-        set => SetAffectsRender(ref texture, value);
+        get;
+        set => SetAffectsRender(ref field, value);
     }
 
     /// <summary>
@@ -66,8 +63,7 @@ public class DrawScreenQuadCore : RenderCore {
     ///     The sampler description.
     /// </value>
     public SamplerStateDescription SamplerDescription {
-        get => samplerDescription;
-        set => SetAffectsRender(ref samplerDescription, value);
-    }
-
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = DefaultSamplers.LinearSamplerClampAni1;
 }

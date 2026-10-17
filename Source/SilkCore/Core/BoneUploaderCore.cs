@@ -13,21 +13,20 @@ using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public sealed class BoneUploaderCore : RenderCore {
-    private Matrix[] boneMatrices = [];
     private bool matricesChanged = true;
 
     public BoneUploaderCore() : base(RenderType.None) { }
 
     [AllowNull]
     public Matrix[] BoneMatrices {
-        get => boneMatrices;
+        get;
         set {
-            if (SetAffectsRender(ref boneMatrices, value ?? [])) {
+            if (SetAffectsRender(ref field, value ?? [])) {
                 matricesChanged = true;
                 BoneChanged?.Invoke(this, EventArgs.Empty);
             }
         }
-    }
+    } = [];
 
     public StructuredBufferProxy? BoneSkinSb {
         get;

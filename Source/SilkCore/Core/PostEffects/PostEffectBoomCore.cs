@@ -127,8 +127,6 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
         }
     }
 
-    private int numberOfBlurPass = 1;
-
     /// <summary>
     ///     Gets or sets the number of blur pass.
     /// </summary>
@@ -136,9 +134,9 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
     ///     The number of blur pass.
     /// </value>
     public int NumberOfBlurPass {
-        get => numberOfBlurPass;
-        set => SetAffectsRender(ref numberOfBlurPass, value);
-    }
+        get;
+        set => SetAffectsRender(ref field, value);
+    } = 1;
 
     #endregion
 }

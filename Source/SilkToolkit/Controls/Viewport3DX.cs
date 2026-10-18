@@ -283,13 +283,22 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     Tries to invalidate the current render.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void InvalidateRender() { }
+    public void InvalidateRender() {
+        if (IsDisposed || Dispatcher.HasShutdownStarted) return;
+        if (!Dispatcher.CheckAccess()) {
+            Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)InvalidateRender);
+            return;
+        }
+        InvalidateVisual();
+        d3d12Surface?.InvalidateVisual();
+        d3d12Surface?.WindowHost.InvalidateVisual();
+    }
 
     /// <summary>
     ///     Invalidates the scene graph.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void InvalidateSceneGraph() { }
+    public void InvalidateSceneGraph() => InvalidateRender();
 
     /// <summary>
     /// </summary>
@@ -600,11 +609,11 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         var driverType = effectsManager?.EnableSoftwareRendering == true
             ? SilkDriverType.Warp
             : D3D12DriverType;
-        d3d12Surface = new D3D12PresentationSurface(driverType, effectsManager);
+        d3d12Surface = new D3D12PresentationSurface(driverType, effectsManager) { RenderHost = this };
         d3d12Surface.WindowHost.PointerInput += D3D12PointerInput;
         d3d12Surface.DeferredRenderException += HandleRenderException;
         presenter.Content = d3d12Surface;
-        d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
+        if (renderingEnabled) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
 
         coordinateView ??= Template.FindName(PartCoordinateView, this) as ScreenSpacedElement3D;
         if (coordinateView == null)
@@ -1099,7 +1108,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (ZoomExtentsWhenLoaded)
             Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() => { ZoomExtents(); }));
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
+        if (renderingEnabled) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
     }
 
     private void ParentWindow_Closed(object? sender, EventArgs e) {
@@ -1193,6 +1202,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (!surface.CompletePendingFrame(waitForCompletion || captureFrame)) return 0;
         RaiseCompletedD3D12Frames(surface);
         if (!ReferenceEquals(d3d12Surface, surface) || surface.IsDisposed) return 0;
+        surface.RenderHost = this;
         surface.SetEffectsManager(EffectsManager);
         var clearColor = BackgroundColor.ToColor4();
         var recorded = surface.RenderViewportOnce([clearColor.X, clearColor.Y, clearColor.Z, clearColor.W],
@@ -1223,6 +1233,9 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <param name="surface">The presentation owner whose fence completion was observed.</param>
     private void RaiseCompletedD3D12Frames(D3D12PresentationSurface surface) {
         while (surface.TryTakeCompletedFrame()) {
+            completedD3D12Frames++;
+            Rendered?.Invoke(this, EventArgs.Empty);
+            if (!ReferenceEquals(d3d12Surface, surface) || surface.IsDisposed) return;
             OnRendered?.Invoke(surface, EventArgs.Empty);
             if (!ReferenceEquals(d3d12Surface, surface) || surface.IsDisposed) return;
         }

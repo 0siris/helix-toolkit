@@ -29,6 +29,15 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 ///     Owns the pure-WPF HWND and the single-inflight, fence-safe Direct3D 12 presentation lifecycle.
 /// </summary>
 public sealed class D3D12PresentationSurface : Grid, IDisposable {
+    /// Gets or sets the actual viewport host without changing construction or rendering signatures.
+    internal IRenderHost? RenderHost { get; set; }
+
+    /// Gets the actual update context retained until replacement after fence completion or disposal.
+    internal RenderContext? RenderContext { get; private set; }
+
+    /// Gets the renderer-owned hierarchy, or null before native initialization.
+    internal FastList<KeyValuePair<int, SceneNode>>? PerFrameFlattenedScene => sceneRenderer?.PerFrameFlattenedScene;
+
     /// <summary>
     ///     The depth/stencil format shared by the presentation resource and graphics pipelines.
     /// </summary>
@@ -364,13 +373,20 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         screenSpacedNodes.Clear();
         TextureModel? environmentMap = null;
         ShadowMapNode? shadowNode = null;
-        using var updateContext = new RenderContext(camera, Math.Max(1, PixelWidth), Math.Max(1, PixelHeight),
-            (float)windowHost.DpiScale) {
-            EnableBoundingFrustum = testFrustum,
-            AutoUpdateOctree = autoUpdateOctree,
-            TimeStamp = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency)
-        };
-        var preparedNodes = renderer.PrepareScene(roots, updateContext, effectsManager);
+        var width = Math.Max(1, PixelWidth);
+        var height = Math.Max(1, PixelHeight);
+        var dpiScale = (float)windowHost.DpiScale;
+        if (RenderContext is not { } previous || !ReferenceEquals(previous.Camera, camera) ||
+            previous.ActualWidth != width || previous.ActualHeight != height || previous.DpiScale != dpiScale) {
+            RenderContext?.Dispose();
+            RenderContext = new RenderContext(camera, width, height, dpiScale);
+        }
+        var updateContext = RenderContext;
+        updateContext.RestoreGlobalTransform();
+        updateContext.EnableBoundingFrustum = testFrustum;
+        updateContext.AutoUpdateOctree = autoUpdateOctree;
+        updateContext.TimeStamp = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
+        var preparedNodes = renderer.PrepareScene(roots, updateContext, effectsManager, RenderHost);
         foreach (var node in preparedNodes.Where(node => FindScreenSpacedAncestor(node) is null))
             if (node is ScreenSpacedNode screenSpaced) {
                 screenSpacedNodes.Add(screenSpaced);
@@ -931,6 +947,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         _frameSubmission.DiscardCompletions();
         passCatalog?.Dispose();
         sceneRenderer?.Dispose();
+        RenderContext?.Dispose();
+        RenderContext = null;
         samplerHeap?.Dispose();
         resourceHeap?.Dispose();
         depthStencilBuffer?.Dispose();
@@ -1015,10 +1033,18 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <summary>
     ///     Coalesces WPF size and DPI changes into one background-priority native resize.
     /// </summary>
-    private void QueueResize() {
-        if (IsDisposed) return;
+    private void QueueResize() => Resize(ActualWidth, ActualHeight);
 
-        var size = D3D12PresentationSize.Calculate(ActualWidth, ActualHeight, windowHost.DpiScale);
+    /// <summary>
+    ///     Queues an explicit host size through the existing fence-safe physical resize queue.
+    /// </summary>
+    /// <param name="width">The device-independent width.</param>
+    /// <param name="height">The device-independent height.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A dimension is negative or nonfinite.</exception>
+    internal void Resize(double width, double height) {
+        Dispatcher.VerifyAccess();
+        if (IsDisposed) return;
+        var size = D3D12PresentationSize.Calculate(width, height, windowHost.DpiScale);
         if (!resizeQueue.Request(size.Width, size.Height)) return;
 
         resizeOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action) ApplyDeferredResize);

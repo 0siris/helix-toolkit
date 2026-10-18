@@ -1,0 +1,93 @@
+using System;
+using System.Collections.Generic;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+
+namespace HelixToolkit.Wpf.SharpDX;
+
+public partial class Viewport3DX : IRenderHost {
+    /// Gets the actual viewport frame owner.
+    public IRenderHost RenderHost => this;
+
+    IViewport3DX IRenderHost.Viewport {
+        get => this;
+        set {
+            if (!ReferenceEquals(value, this))
+                throw new NotSupportedException("A viewport render host cannot change its owning viewport");
+        }
+    }
+
+    /// Gets the actual native hierarchy; no scene is prepared before the first native frame.
+    public FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene =>
+        d3d12Surface?.PerFrameFlattenedScene ?? emptyFlattenedScene;
+
+    /// The empty pre-initialization result; it never owns or prepares scene nodes.
+    private readonly FastList<KeyValuePair<int, SceneNode>> emptyFlattenedScene = [];
+
+    /// Gets the retained actual native update context, or null before the first frame.
+    public RenderContext? RenderContext => d3d12Surface?.RenderContext;
+
+    float IRenderHost.DpiScale {
+        get => (float)(d3d12Surface?.WindowHost.DpiScale ?? DpiScale);
+        set {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
+            if (!float.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (d3d12Surface is { } surface && value != (float)surface.WindowHost.DpiScale)
+                throw new NotSupportedException("Native DPI is controlled by the actual WPF presentation owner");
+            DpiScale = value;
+            InvalidateRender();
+        }
+    }
+
+    /// Occurs only at the completed native frame notification point.
+    public event EventHandler? Rendered;
+
+    /// <summary>
+    ///     Updates and renders one real frame, waiting for GPU completion.
+    /// </summary>
+    /// <returns>Whether a real frame was submitted or completed, including zero-draw frames.</returns>
+    public bool UpdateAndRender() {
+        var surface = d3d12Surface;
+        var presented = surface?.PresentedFrames ?? 0;
+        var completed = completedD3D12Frames;
+        _ = RenderD3D12Frame(TimeSpan.FromSeconds((double)System.Diagnostics.Stopwatch.GetTimestamp() /
+            System.Diagnostics.Stopwatch.Frequency), waitForCompletion: true);
+        return completedD3D12Frames != completed || (surface is not null && surface.PresentedFrames != presented);
+    }
+
+    /// Counts completed frame notifications independently of draw counts and surface replacement.
+    private ulong completedD3D12Frames;
+
+    /// <summary>
+    ///     Queues the host size through the actual native physical resize queue.
+    /// </summary>
+    /// <param name="width">The device-independent width.</param>
+    /// <param name="height">The device-independent height.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A dimension is negative.</exception>
+    public void Resize(int width, int height) {
+        ArgumentOutOfRangeException.ThrowIfNegative(width);
+        ArgumentOutOfRangeException.ThrowIfNegative(height);
+        d3d12Surface?.Resize(width, height);
+        InvalidateRender();
+    }
+
+    /// Starts the existing WPF composition subscription, retaining one handler.
+    public void StartRendering() {
+        renderingEnabled = true;
+        d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
+        d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
+        InvalidateRender();
+    }
+
+    /// Stops the existing WPF composition subscription.
+    public void StopRendering() {
+        renderingEnabled = false;
+        d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
+    }
+
+    /// Whether the actual composition rendering subscription is enabled across template and load transitions.
+    private bool renderingEnabled = true;
+
+    /// Requests preparation of current per-frame renderables on the next real frame.
+    public void InvalidatePerFrameRenderables() => InvalidateRender();
+}

@@ -6,6 +6,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core;
 
+/// Traverses existing scene hierarchies using their established preorder and update predicates.
 public static class TreeTraverser {
     /// <summary>
     ///     Traverses up to the root
@@ -128,6 +129,34 @@ public static class TreeTraverser {
         IList<(int Key, SceneNode Value )> results,
         Stack<(int Key, IList<SceneNode> Value)>? stackCache = null
     ) {
+        PreorderDft(nodes, context, condition, (depth, node) => results.Add((depth, node)), stackCache);
+    }
+
+    /// <summary>
+    ///     Traverses the hierarchy in preorder using the original depth/node pair representation.
+    /// </summary>
+    /// <param name="nodes">The root nodes.</param>
+    /// <param name="context">The actual frame context.</param>
+    /// <param name="condition">The update and subtree inclusion callback.</param>
+    /// <param name="results">The destination depth/node pairs.</param>
+    /// <param name="stackCache">The optional traversal stack.</param>
+    public static void PreorderDft(this IList<SceneNode> nodes, RenderContext context,
+        Func<SceneNode, RenderContext, bool> condition, IList<KeyValuePair<int, SceneNode>> results,
+        Stack<(int Key, IList<SceneNode> Value)>? stackCache = null) =>
+        PreorderDft(nodes, context, condition,
+            (depth, node) => results.Add(new KeyValuePair<int, SceneNode>(depth, node)), stackCache);
+
+    /// <summary>
+    ///     Executes the single shared depth traversal for both public result representations.
+    /// </summary>
+    /// <param name="nodes">The root nodes.</param>
+    /// <param name="context">The actual frame context.</param>
+    /// <param name="condition">The update and subtree inclusion callback.</param>
+    /// <param name="add">Receives each included depth/node pair.</param>
+    /// <param name="stackCache">The optional traversal stack.</param>
+    private static void PreorderDft(IList<SceneNode> nodes, RenderContext context,
+        Func<SceneNode, RenderContext, bool> condition, Action<int, SceneNode> add,
+        Stack<(int Key, IList<SceneNode> Value)>? stackCache) {
         var stack = stackCache ?? new (20);
         var i = -1;
         var level = 0;
@@ -139,7 +168,7 @@ public static class TreeTraverser {
                 if (!condition(item, context)) 
                     continue;
                 
-                results.Add((level, item));
+                add(level, item);
                 var elements = item.ItemsInternal;
                 if (elements.Count == 0) 
                     continue;

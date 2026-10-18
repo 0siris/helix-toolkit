@@ -33,8 +33,12 @@ public enum InvalidateTypes {
 }
 
 /// <summary>
+///     Owns scene hierarchy state and the existing attachment, update and maintenance lifecycle.
 /// </summary>
 public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimationNode {
+    /// Gets or sets the actual native host assigned before attachment and frame updates.
+    public virtual IRenderHost? RenderHost { get; set; }
+
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SceneNode" /> class.
@@ -80,6 +84,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         if (IsAttached || effectsManager == null)
             return;
 
+        RenderHost ??= Parent?.RenderHost;
         EffectsManager = effectsManager;
         EffectTechnique = OnSetRenderTechnique is not null
                               ? OnSetRenderTechnique(effectsManager)
@@ -139,6 +144,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     ///     Detaches the element from the effectsManager and release all graphics resources. Override <see cref="OnDetach" />
     /// </summary>
     public void Detach() {
+        RenderHost = null;
         var wasAttached = IsAttached;
         var wasRenderCoreAttached = RenderCore.IsAttached;
         if (!wasAttached && !wasRenderCoreAttached)
@@ -189,6 +195,11 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="type"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void Invalidate(InvalidateTypes type) {
+        switch (type) {
+            case InvalidateTypes.Render: RenderHost?.InvalidateRender(); break;
+            case InvalidateTypes.SceneGraph: RenderHost?.InvalidateSceneGraph(); break;
+            case InvalidateTypes.PerFrameRenderables: RenderHost?.InvalidatePerFrameRenderables(); break;
+        }
         Invalidated?.Invoke(this, type);
         if (!parent.TryGetTarget(out var target))
             return;

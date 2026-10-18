@@ -219,6 +219,12 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     internal bool IsDisposed { get; private set; }
 
+    /// Gets the full hierarchy from actual native preparation, including hidden and attach-failed nodes.
+    internal FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene { get; } = [];
+
+    /// The host owning the most recent actual frame preparation.
+    private IRenderHost? renderHost;
+
     /// Gets the descriptor pages used by recorded effects for native capacity and lifetime verification.
     internal D3D12EffectBindingPool EffectBindings => _effectBindings;
 
@@ -231,6 +237,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <param name="roots">The original scene hierarchy roots.</param>
     /// <param name="context">The current frame context passed to each original update and maintenance hook.</param>
     /// <param name="effectsManager">The viewport manager for the original attachment hooks, when supplied.</param>
+    /// <param name="host">The actual viewport host, when rendering through a viewport.</param>
     /// <returns>Visible nodes in preorder, excluding every subtree beneath an invisible or disposed ancestor.</returns>
     /// <remarks>
     ///     All successful updates finish before maintenance begins. Hidden nodes and descendants retain maintenance;
@@ -238,25 +245,33 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </remarks>
     /// <exception cref="ObjectDisposedException">The renderer has been disposed.</exception>
     internal FastList<SceneNode> PrepareScene(IEnumerable<SceneNode> roots, RenderContext context,
-        IEffectsManager? effectsManager = null) {
+        IEffectsManager? effectsManager = null, IRenderHost? host = null) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         var snapshot = roots.ToArray();
         var updated = new FastList<SceneNode>();
-        foreach (var node in snapshot.PreorderDft(node => !node.IsDisposed)) {
+        foreach (var entry in PerFrameFlattenedScene)
+            if (ReferenceEquals(entry.Value.RenderHost, renderHost)) entry.Value.RenderHost = null;
+        PerFrameFlattenedScene.Clear();
+        renderHost = host;
+        snapshot.PreorderDft(context, (node, frameContext) => {
+            if (node.IsDisposed) return false;
+            node.RenderHost = host;
             if (effectsManager is not null) {
                 node.Attach(effectsManager);
-                if (!node.IsAttached) continue;
-            } else if (!node.RenderCore.IsAttached && !node.Attach()) continue;
+                if (!node.IsAttached) return true;
+            } else if (!node.RenderCore.IsAttached && !node.Attach()) return true;
             attachedNodes.Add(node);
-            node.Update(context);
+            node.Update(frameContext);
             updated.Add(node);
-        }
+            return true;
+        }, PerFrameFlattenedScene);
 
         foreach (var node in updated) {
             if (!node.IsDisposed && node.RenderCore.IsAttached)
                 node.UpdateNotRender(context);
         }
 
+        PerFrameFlattenedScene.RemoveAll(entry => entry.Value.IsDisposed);
         var prepared = new FastList<SceneNode>();
         foreach (var node in snapshot.PreorderDft(node =>
                                                       !node.IsDisposed && node.Visible && node.RenderCore.IsAttached))
@@ -1603,7 +1618,12 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             if (!ReferenceEquals(cache, pointLineBindings))
                 foreach (var binding in cache.Values) binding.Dispose();
         _peelingPointLineBindings.Clear();
-        foreach (var node in attachedNodes) node.Detach();
+        foreach (var node in attachedNodes)
+            if (node.RenderHost is null || ReferenceEquals(node.RenderHost, renderHost)) node.Detach();
+        foreach (var entry in PerFrameFlattenedScene)
+            if (ReferenceEquals(entry.Value.RenderHost, renderHost)) entry.Value.RenderHost = null;
+        PerFrameFlattenedScene.Clear();
+        renderHost = null;
         foreach (var intersection in intersectionResources.Values) intersection.Dispose();
         foreach (var retired in retiredIntersections) retired.Dispose();
         intersectionResources.Clear();

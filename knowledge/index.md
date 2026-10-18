@@ -62,3 +62,5 @@ SilkCore and SilkToolkit record the restored original host boundary backed by th
 fence-safe context and original/current WPF property bindings.
 
 The project concepts also cover application-owned native buffer serialization and original material pass selection.
+
+SilkToolkit also owns the shared bounded WPF viewport-widget overlay, retaining its historical public namespace.

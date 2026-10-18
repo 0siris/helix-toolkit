@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-18 — Shared viewport widget overlay
+
+* Moved the existing WPF/Win32 widget host into SilkToolkit with its public namespace and class body retained.
+* Added the required explicit System import; Desktop forwards its former public assembly identity.
+* Managed boundary test and all four unchanged native overlay tests pass. Original Helix binds eleven widget slots.
+* Updated project concept and index; no alternative renderer or preprocessor switch added.
+
 ## 2026-10-18 — Empty geometry startup pass regression
 
 * Reproduced the visible undefined-topology exception with an attached empty mesh and valid material.

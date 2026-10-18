@@ -79,3 +79,14 @@ and six native intersection cases. Full application and visible case acceptance 
 
 PhongMaterials.DefaultVRML preserves original source spelling and delegates to the existing independently mutable
 DefaultVrml factory. The palette/namespace filter now passes 14 headless cases.
+
+## Shared application widget overlays
+
+The existing ViewportWidgetOverlay helper moved from MeshDesktop into this assembly with its original
+MeshDesktop.UI.Controls namespace and unchanged class body. Only the explicit System import required by the
+library's disabled implicit usings was added. The Desktop assembly forwards the old public identity.
+The library depends only on WPF/Win32 for this helper and has no productive application/Core reference.
+
+Its bounded popup retains the original widget's logical inheritance, resource/name lookup, routed commands,
+owner clipping, DPI placement and modal enable state above the native D3D12 HWND. The managed boundary test
+and all four unchanged native overlay tests pass. This does not restore the removed DPFCanvas/D3DImage path.

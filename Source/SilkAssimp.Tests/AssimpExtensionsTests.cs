@@ -1,6 +1,7 @@
-using Assimp;
 using HelixToolkit.SharpDX.Core.Assimp;
+using SharpAssimp;
 using Silk.NET.Maths;
+using System.Numerics;
 using Xunit;
 
 namespace SilkAssimp.Tests;
@@ -30,7 +31,7 @@ public class AssimpExtensionsTests {
 
         Assert.Equal(5, converted.M12);
         Assert.Equal(2, converted.M21);
-        Assert.Equal(0.4f, color.A);
+        Assert.Equal(0.4f, color.W);
     }
 
     [Fact]

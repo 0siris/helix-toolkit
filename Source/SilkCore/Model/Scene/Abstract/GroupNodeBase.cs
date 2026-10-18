@@ -133,6 +133,7 @@ public abstract class GroupNodeBase : SceneNode {
 
         ItemsInternal.Clear();
         ItemHashSet.Clear();
+        if (IsAttached) InvalidateSceneGraph();
         Cleared?.Invoke(this, new OnChildNodeChangedArgs(null, Operation.Clear));
     }
 
@@ -147,6 +148,7 @@ public abstract class GroupNodeBase : SceneNode {
             if (detachChild) node.Detach();
             ItemsInternal.Remove(node);
             node.Parent = null;
+            if (IsAttached) InvalidateSceneGraph();
             ChildNodeRemoved?.Invoke(this, new OnChildNodeChangedArgs(node, Operation.Remove));
             return true;
         }

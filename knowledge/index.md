@@ -32,6 +32,7 @@ okf_version: "0.2"
 ## Backlog
 
 * [DX12 Migration Plan](/backlog/dx12-migration-plan.md) - Resumable phased Direct3D12 and DXC cutover plan.
+* [AddTube Reimplementation](/backlog/addtube-reimplementation.md) - Port of upstream #2251 to Silk.NET math.
 * [WPF Swap-Chain Canvas Plan](/backlog/wpf-swapchain-canvas-plan.md) - Rein WPF basierte IRenderCanvas-Implementierung als schaltbare Alternative zur WinForms-basierten Variante.
 
 ## References
@@ -51,3 +52,6 @@ SilkCore records source-faithful two-key overwrite/lookup and corrected associat
 carriers preserving established tuple enumeration and removal signatures.
 
 SilkCore also records paged ordinary/peeling descriptors, headless capacity/lifecycle regressions and opt-in PIX instrumentation.
+
+SilkAssimp records the SharpAssimp 6.0.12 upgrade with preserved animation/material ownership fixes;
+remote wireframe additions coexist with current profiling, completed-fence and empty-scene SSAO behavior.

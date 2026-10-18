@@ -9,11 +9,13 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Controls;
 using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using HelixToolkit.Wpf.SharpDX.Material;
 using HelixToolkit.Wpf.SharpDX.Model.Elements2D;
+using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 using HelixToolkit.Wpf.SharpDX.Model.Lights3D;
 using LoggerLib;
 using Xunit;
@@ -183,6 +185,37 @@ public sealed class WpfContractTests {
             Assert.False(node.Visible);
             Assert.True(node.RenderWireframe);
             Assert.Equal(Colors.Orange.ToColor4(), node.WireframeColor);
+        });
+    }
+
+    /// <summary>
+    ///     Verifies that a transform manipulator follows the selected target position and rotation.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Wpf")]
+    public Task TransformManipulatorFollowsTargetTransform() {
+        return StaThread.RunAsync(() => {
+            using var target = new MeshGeometryModel3D();
+            using var manipulator = new TransformManipulator3D {
+                CenterOffset = new Silk.NET.Maths.Vector3D<float>(1, 0, 0),
+                Target = target
+            };
+            var targetMatrix = SilkMath.RotationZ(MathF.PI / 2) *
+                               SilkMath.Translation(new Silk.NET.Maths.Vector3D<float>(2, 3, 4));
+
+            target.Transform = new MatrixTransform3D(targetMatrix.ToMatrix3D());
+            target.SceneNode.ComputeTransformMatrix();
+
+            var controls = Assert.IsType<GroupModel3D>(manipulator.Children[0]);
+            var actual = Assert.IsType<MatrixTransform3D>(controls.Transform)
+                .Matrix.ToMatrix();
+            Assert.Equal(targetMatrix.M11, actual.M11, 5);
+            Assert.Equal(targetMatrix.M12, actual.M12, 5);
+            Assert.Equal(targetMatrix.M21, actual.M21, 5);
+            Assert.Equal(targetMatrix.M22, actual.M22, 5);
+            Assert.Equal(2, actual.M41, 5);
+            Assert.Equal(4, actual.M42, 5);
+            Assert.Equal(4, actual.M43, 5);
         });
     }
 

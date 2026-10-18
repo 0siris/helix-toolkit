@@ -4,13 +4,13 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Collections.Concurrent;
-using Assimp;
-using Assimp.Unmanaged;
+using SharpAssimp;
+using SharpAssimp.Unmanaged;
 using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using TextureType = Assimp.TextureType;
+using TextureType = SharpAssimp.TextureType;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
@@ -86,7 +86,7 @@ public partial class Importer {
         }
 
         if (material.HasNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)) {
-            var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE).GetFloatArrayValue();
+            var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)?.GetFloatArrayValue();
             if (values is {Length: 5})
                 phong.UvTransform = new UvTransform(values[0],
                                                     new Vector2(values[1], values[2]),
@@ -115,20 +115,20 @@ public partial class Importer {
         };
         if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor))
             pbr.AlbedoColor = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor)
-                                      .GetColor4DValue().ToSharpDXColor4();
+                                      ?.GetVector4Value().ToSharpDXColor4() ?? new Color4(0, 0, 0, 1);
         var metallicFactor = material.GetNonTextureProperty("$mat.metallicFactor")
                              ?? material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor);
         if (metallicFactor != null)
             pbr.MetallicFactor = metallicFactor.GetFloatValue();
-        if (material.HasColorAmbient) pbr.AmbientOcclusionFactor = material.ColorAmbient.R;
+        if (material.HasColorAmbient) pbr.AmbientOcclusionFactor = material.ColorAmbient.X;
         var roughnessFactor = material.GetNonTextureProperty("$mat.roughnessFactor")
                               ?? material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor);
         if (roughnessFactor != null) {
             pbr.RoughnessFactor = roughnessFactor.GetFloatValue();
         } else if (material is {HasColorSpecular: true, HasShininess: true}) {
             //Ref https://github.com/assimp/assimp/blob/master/code/glTF2Exporter.cpp
-            var specularIntensity = material.ColorSpecular.R * 0.2125f
-                                    + material.ColorSpecular.G * 0.7154f + material.ColorSpecular.B * 0.0721f;
+            var specularIntensity = material.ColorSpecular.X * 0.2125f
+                                    + material.ColorSpecular.Y * 0.7154f + material.ColorSpecular.Z * 0.0721f;
             var normalizedShininess = (float)Math.Sqrt(material.Shininess / 1000);
             normalizedShininess = Math.Min(Math.Max(normalizedShininess, 0), 1f);
             normalizedShininess *= specularIntensity;
@@ -137,14 +137,14 @@ public partial class Importer {
 
         if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfPbrspecularglossiness)) {
             var hasGlossiness = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfPbrspecularglossiness)
-                                        .GetBooleanValue();
+                                        ?.GetBooleanValue() ?? false;
             if (hasGlossiness) {
                 if (material.HasNonTextureProperty(GltfMatKeys
                                                        .AiMatkeyGltfPbrspecularglossinessGlossinessFactor))
                     pbr.ReflectanceFactor = material
                                             .GetNonTextureProperty(GltfMatKeys
                                                                        .AiMatkeyGltfPbrspecularglossinessGlossinessFactor)
-                                            .GetFloatValue();
+                                            ?.GetFloatValue() ?? 0.0f;
                 else if (material.HasShininess) pbr.ReflectanceFactor = material.Shininess / 1000;
             }
         }
@@ -178,8 +178,8 @@ public partial class Importer {
             var t = material.GetProperty(GltfMatKeys.AiMatkeyGltfMetallicroughnessaoTexture,
                                          TextureType.Unknown,
                                          0);
-            pbr.RoughnessMetallicMap = LoadTexture(t.GetStringValue());
-            pbr.RoughnessMetallicMapFilePath = t.GetStringValue();
+            pbr.RoughnessMetallicMap = t is null ? null : LoadTexture(t.GetStringValue()!);
+            pbr.RoughnessMetallicMapFilePath = t is null ? string.Empty : t.GetStringValue()!;
         } else if (material.HasTextureSpecular) {
             pbr.RoughnessMetallicMap = LoadTexture(material.TextureSpecular.FilePath);
             pbr.RoughnessMetallicMapFilePath = material.TextureSpecular.FilePath;
@@ -201,7 +201,7 @@ public partial class Importer {
         }
 
         if (material.HasNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)) {
-            var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE).GetFloatArrayValue();
+            var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)?.GetFloatArrayValue();
             if (values is {Length: 5})
                 pbr.UvTransform = new UvTransform(values[0],
                                                   new Vector2(values[1], values[2]),
@@ -317,20 +317,20 @@ public partial class Importer {
         if (texture.HasCompressedData) {
             Logger.Info("Loading Embedded Compressed Texture. Format: {Value0}",
                                   texture.CompressedFormatHint);
-            if (!SupportedTextureFormatDict.Contains(texture.CompressedFormatHint.ToLowerInvariant())) {
+            if (!SupportedTextureFormatDict.Contains(texture.CompressedFormatHint?.ToLowerInvariant() ?? string.Empty)) {
                 Logger.Info("Compressed Texture Format not supported. Format: {Value0}",
                                       texture.CompressedFormatHint);
                 return null;
             }
 
-            var data = texture.CompressedData.ToArray();
+            var data = texture.CompressedData!.ToArray();
             var stream = new MemoryStream(data);
             return new TextureModel(stream);
         }
 
         if (texture.HasNonCompressedData) {
             Logger.Info("Loading Embedded NonCompressed Texture");
-            var rawData = texture.NonCompressedData
+            var rawData = texture.NonCompressedData!
                                  .Select(x => new Color4(x.R / 255f, x.G / 255f, x.B / 255f, x.A / 255f)).ToArray();
             return new TextureModel(rawData, texture.Width, texture.Height);
         }

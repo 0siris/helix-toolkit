@@ -556,6 +556,16 @@ public static class DefaultRasterDescriptions {
     };
 
     /// <summary>
+    ///     The wireframe rasterizer state.
+    /// </summary>
+    public static readonly RasterizerStateDescription RsWireframe = new() {
+        FillMode = FillMode.Wireframe,
+        CullMode = CullMode.None,
+        IsFrontCounterClockwise = true,
+        IsDepthClipEnabled = true
+    };
+
+    /// <summary>
     ///     The skybox RasterizerState
     /// </summary>
     public static readonly RasterizerStateDescription RsSkybox = new() {

@@ -1,5 +1,6 @@
 using System.Text;
-using Assimp;
+using SharpAssimp;
+using System.Numerics;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Utilities;

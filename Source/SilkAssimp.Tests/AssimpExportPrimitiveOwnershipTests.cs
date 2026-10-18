@@ -1,5 +1,6 @@
-﻿using Assimp;
-using Assimp.Unmanaged;
+using SharpAssimp;
+using System.Numerics;
+using SharpAssimp.Unmanaged;
 using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.SharpDX.Core.Model;
@@ -116,12 +117,12 @@ public class AssimpExportPrimitiveOwnershipTests {
         var mesh = scene.Meshes.Single();
         AssertFaces(mesh, PrimitiveType.Triangle, [[2, 0, 1]]);
         Assert.Equal("Skin", scene.Materials[mesh.MaterialIndex].Name);
-        Assert.Equal(new Vector3D(0, 3, 0), mesh.Vertices[2]);
-        Assert.Equal(new Vector3D(0, 0, 1), mesh.Normals[1]);
-        Assert.Equal(new Vector3D(1, 0, 0), mesh.Tangents[1]);
-        Assert.Equal(new Vector3D(0, 1, 0), mesh.BiTangents[1]);
-        Assert.Equal(new Vector3D(1, 0, 0), mesh.TextureCoordinateChannels[0][1]);
-        Assert.Equal(new Color4D(0, 0, 1, 1), mesh.VertexColorChannels[0][2]);
+        Assert.Equal(new Vector3(0, 3, 0), mesh.Vertices[2]);
+        Assert.Equal(new Vector3(0, 0, 1), mesh.Normals[1]);
+        Assert.Equal(new Vector3(1, 0, 0), mesh.Tangents[1]);
+        Assert.Equal(new Vector3(0, 1, 0), mesh.BiTangents[1]);
+        Assert.Equal(new Vector3(1, 0, 0), mesh.TextureCoordinateChannels[0][1]);
+        Assert.Equal(new Vector4(0, 0, 1, 1), mesh.VertexColorChannels[0][2]);
         var bone = Assert.Single(mesh.Bones);
         Assert.Equal("Joint", bone.Name);
         Assert.Equal(new[] { 0, 1, 2 }, bone.VertexWeights.Select(weight => weight.VertexID));
@@ -305,11 +306,11 @@ public class AssimpExportPrimitiveOwnershipTests {
         var first = mesh.Vertices[0];
         var second = mesh.Vertices[1];
         for (var current = placed; current != null; current = current.Parent) {
-            first = current.Transform * first;
-            second = current.Transform * second;
+            first = Vector3.Transform(first, Matrix4x4.Transpose(current.Transform));
+            second = Vector3.Transform(second, Matrix4x4.Transpose(current.Transform));
         }
-        Assert.Equal(new Vector3D(6, 1, 12), first);
-        Assert.Equal(new Vector3D(6, 3, 12), second);
+        Assert.Equal(new Vector3(6, 1, 12), first);
+        Assert.Equal(new Vector3(6, 3, 12), second);
         AssertFaces(mesh, PrimitiveType.Triangle, [[0, 1, 2]]);
     }
 
@@ -340,7 +341,7 @@ public class AssimpExportPrimitiveOwnershipTests {
             var nativeAnimation = Assert.Single(imported.Animations);
             var channel = Assert.Single(nativeAnimation.NodeAnimationChannels);
             Assert.Equal("Move", nativeAnimation.Name);
-            Assert.Equal(new Vector3D(3, 4, 5), channel.PositionKeys[1].Value);
+            Assert.Equal(new Vector3(3, 4, 5), channel.PositionKeys[1].Value);
             exporter.ToAssimpScene(root, out var reused);
             Assert.Empty(reused.Animations);
         } finally {

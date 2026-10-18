@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using Assimp;
+using SharpAssimp;
 using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Model;
@@ -160,7 +160,7 @@ public partial class Importer {
             hMesh.Normals = hMesh.CalculateNormals();
         if (mesh.HasVertexColors(0))
             hMesh.Colors =
-                [.. mesh.VertexColorChannels[0].Select(x => new Color4(x.R, x.G, x.B, x.A))];
+                [.. mesh.VertexColorChannels[0].Select(x => new Color4(x.X, x.Y, x.Z, x.W))];
         if (mesh.HasTextureCoords(0))
             hMesh.TextureCoordinates =
                 [.. mesh.TextureCoordinateChannels[0].Select(x => x.ToSharpDXVector2())];
@@ -261,7 +261,7 @@ public partial class Importer {
         var hMesh = new LineGeometry3D { Positions = hVertices, Indices = hIndices };
         if (mesh.HasVertexColors(0))
             hMesh.Colors =
-                [.. mesh.VertexColorChannels[0].Select(x => new Color4(x.R, x.G, x.B, x.A))];
+                [.. mesh.VertexColorChannels[0].Select(x => new Color4(x.X, x.Y, x.Z, x.W))];
         return hMesh;
     }
 

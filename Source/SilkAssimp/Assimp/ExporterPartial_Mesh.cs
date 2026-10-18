@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using Assimp;
+using SharpAssimp;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
@@ -128,7 +128,7 @@ public partial class Exporter {
                     [.. mesh.TextureCoordinates.Select(x => x.ToAssimpVector3D())];
             if (info.Bones is { } bones && mesh is BoneSkinnedMeshGeometry3D {VertexBoneIds: { } vertexBoneIds, Positions: { } positions} && vertexBoneIds.Count == positions.Count) {
                 foreach (var b in bones) {
-                    var bone = new global::Assimp.Bone {
+                    var bone = new global::SharpAssimp.Bone {
                         Name = b.Name,
                         OffsetMatrix = b.InvBindPose.ToAssimpMatrix(configuration.ToSourceMatrixColumnMajor)
                     };

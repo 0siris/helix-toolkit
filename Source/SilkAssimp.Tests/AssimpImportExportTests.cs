@@ -1,9 +1,10 @@
-using Assimp;
 using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Utilities;
+using SharpAssimp;
+using System.Numerics;
 using Xunit;
 using HxExporter = HelixToolkit.SharpDX.Core.Assimp.Exporter;
 using HxImporter = HelixToolkit.SharpDX.Core.Assimp.Importer;
@@ -111,9 +112,9 @@ public class AssimpImportExportTests {
         var channel = new NodeAnimationChannel {
             NodeName = "TriangleNode"
         };
-        channel.PositionKeys.Add(new VectorKey(0, new Vector3D()));
-        channel.RotationKeys.Add(new QuaternionKey(0, new Quaternion()));
-        channel.ScalingKeys.Add(new VectorKey(0, new Vector3D(1, 1, 1)));
+        channel.PositionKeys.Add(new VectorKey(0, new Vector3(), AnimationInterpolation.Linear));
+        channel.RotationKeys.Add(new QuaternionKey(0, new Quaternion(), AnimationInterpolation.Linear));
+        channel.ScalingKeys.Add(new VectorKey(0, new Vector3(1, 1, 1), AnimationInterpolation.Linear));
         var animation = new Animation {
             Name = "Move",
             DurationInTicks = 1,
@@ -307,11 +308,11 @@ public class AssimpImportExportTests {
             MaterialIndex = 0
         };
         mesh.Vertices.AddRange([
-            new Vector3D(0, 0, 0),
-            new Vector3D(1, 0, 0),
-            new Vector3D(0, 1, 0)
+            new Vector3(0, 0, 0),
+            new Vector3(1, 0, 0),
+            new Vector3(0, 1, 0)
         ]);
-        mesh.Normals.AddRange(Enumerable.Repeat(new Vector3D(0, 0, 1), 3));
+        mesh.Normals.AddRange(Enumerable.Repeat(new Vector3(0, 0, 1), 3));
         mesh.TextureCoordinateChannels[0] = [
             new(0, 0, 0),
             new(1, 0, 0),
@@ -322,7 +323,7 @@ public class AssimpImportExportTests {
         source.Materials.Add(new Material {
             Name = "Material",
             ShadingMode = ShadingMode.Blinn,
-            ColorDiffuse = new Color4D(0.25f, 0.5f, 0.75f, 1)
+            ColorDiffuse = new Vector4(0.25f, 0.5f, 0.75f, 1)
         });
         child.MeshIndices.Add(0);
         return source;
@@ -350,8 +351,8 @@ public class AssimpImportExportTests {
         triangleNode.Children.Add(new Node("BoneNode", triangleNode));
 
         var mesh = source.Meshes.Single();
-        mesh.Tangents.AddRange(Enumerable.Repeat(new Vector3D(1, 0, 0), 3));
-        mesh.BiTangents.AddRange(Enumerable.Repeat(new Vector3D(0, 1, 0), 3));
+        mesh.Tangents.AddRange(Enumerable.Repeat(new Vector3(1, 0, 0), 3));
+        mesh.BiTangents.AddRange(Enumerable.Repeat(new Vector3(0, 1, 0), 3));
         mesh.VertexColorChannels[0] = [
             new(1, 0, 0, 1),
             new(0, 1, 0, 1),
@@ -368,12 +369,12 @@ public class AssimpImportExportTests {
         var channel = new NodeAnimationChannel {
             NodeName = "BoneNode"
         };
-        channel.PositionKeys.Add(new VectorKey(0, new Vector3D(0, 0, 0)));
-        channel.PositionKeys.Add(new VectorKey(1, new Vector3D(1, 2, 3)));
-        channel.RotationKeys.Add(new QuaternionKey(0, new Quaternion(1, 0, 0, 0)));
-        channel.RotationKeys.Add(new QuaternionKey(1, new Quaternion(1, 0, 0, 0)));
-        channel.ScalingKeys.Add(new VectorKey(0, new Vector3D(1, 1, 1)));
-        channel.ScalingKeys.Add(new VectorKey(1, new Vector3D(1, 1, 1)));
+        channel.PositionKeys.Add(new VectorKey(0, new Vector3(0, 0, 0), AnimationInterpolation.Linear));
+        channel.PositionKeys.Add(new VectorKey(1, new Vector3(1, 2, 3), AnimationInterpolation.Linear));
+        channel.RotationKeys.Add(new QuaternionKey(0, new Quaternion(1, 0, 0, 0), AnimationInterpolation.Linear));
+        channel.RotationKeys.Add(new QuaternionKey(1, new Quaternion(1, 0, 0, 0), AnimationInterpolation.Linear));
+        channel.ScalingKeys.Add(new VectorKey(0, new Vector3(1, 1, 1), AnimationInterpolation.Linear));
+        channel.ScalingKeys.Add(new VectorKey(1, new Vector3(1, 1, 1), AnimationInterpolation.Linear));
         var animation = new Animation {
             Name = "BoneMove",
             DurationInTicks = 1,

@@ -4,7 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Diagnostics;
-using Assimp;
+using SharpAssimp;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Logger;
 using HelixToolkit.SharpDX.Core.Model.Animations;
@@ -13,7 +13,7 @@ using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
-using Animation = Assimp.Animation;
+using Animation = SharpAssimp.Animation;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 

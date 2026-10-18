@@ -83,4 +83,24 @@ public class MeshBuilderTests {
         Assert.Equal(24, (mesh.Positions ?? throw new InvalidOperationException()).Count);
         Assert.Equal(36, (mesh.Indices ?? throw new InvalidOperationException()).Count);
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void AddExtrudedGeometryAdvancesIndicesPerSegment() {
+        var builder = new MeshBuilder();
+        builder.AddExtrudedGeometry(
+            [
+                new Vector2D<float>(0, 0),
+                new Vector2D<float>(1, 0),
+                new Vector2D<float>(1, 1),
+                new Vector2D<float>(0, 1)
+            ],
+            new Vector3D<float>(1, 0, 0),
+            new Vector3D<float>(0, 0, 0),
+            new Vector3D<float>(0, 0, 1));
+
+        Assert.Equal(8, builder.Positions.Count);
+        Assert.Equal([1, 2, 0, 1, 3, 2, 3, 4, 2, 3, 5, 4, 5, 6, 4, 5, 7, 6, 7, 0, 6, 7, 1, 0],
+            builder.TriangleIndices ?? throw new InvalidOperationException());
+    }
 }

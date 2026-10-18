@@ -74,7 +74,12 @@ public static class ThreadBufferManager<T> where T : unmanaged {
             if (requestCount < MinimumElementCount)
                 scale = 2;
             else if (requestCount < MaximumElementCount) scale = 1.5f;
-            array = new T[(int)(requestCount * scale)];
+            // Compute the scaled size in double: converting requestCount to float loses
+            // precision above 2^24, and rounding down allocates a buffer smaller than
+            // requestCount (IndexOutOfRangeException in BuildVertexArray for meshes
+            // with more than 16,777,216 vertices). Math.Max guarantees the returned
+            // buffer always holds at least requestCount elements.
+            array = new T[Math.Max(requestCount, (int)(requestCount * (double)scale))];
             if (Logger.IsEnabled(LogLevel.Debug))
                 Logger.Debug("Created new thread buffer. Type: {Value0}; Size: {Value1} kB",
                              typeof(T),

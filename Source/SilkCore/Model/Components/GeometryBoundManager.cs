@@ -41,77 +41,71 @@ public sealed class GeometryBoundManager : IDisposable {
     private bool CheckGeometry() => Geometry?.Positions is { Count: > 0 };
 
     private void OnTransformChanged(object? sender, TransformArgs e) {
-        var oldBound = BoundsWithTransform;
-        BoundsWithTransform = Bounds.Transform(e);
-        RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
-        var oldSphere = BoundsSphereWithTransform;
-        BoundsSphereWithTransform = BoundsSphere.TransformBoundingSphere(e);
-        RaiseOnTransformBoundSphereChanged(BoundsSphereWithTransform, oldSphere);
+        UpdateBoundingBox(e.Transform);
+        UpdateBoundingSphere(e.Transform);
     }
 
     private void UpdateBoundingBox() {
+        if (elementCore.TryGetTarget(out var target))
+            UpdateBoundingBox(target.TotalModelMatrixInternal);
+    }
+
+    private void UpdateBoundingBox(in Matrix modelTransform) {
         var geometry = Geometry;
         if (!GeometryValid || geometry is null) {
             Bounds = DefaultBound;
             BoundsWithTransform = DefaultBound;
         } else {
-            if (!elementCore.TryGetTarget(out var target)) return;
-            BoundingBox oldBound;
-            if (Instances is not { Count: > 0 } instances) {
-                oldBound = Bounds;
-                Bounds = geometry.Bound;
-                RaiseOnBoundChanged(Bounds, oldBound);
-                oldBound = BoundsWithTransform;
-                BoundsWithTransform = Bounds.Transform(target.TotalModelMatrixInternal);
-                RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
+            var oldBound = Bounds;
+            var oldBoundWithTransform = BoundsWithTransform;
+            Bounds = geometry.Bound;
+            if (!HasInstances) {
+                BoundsWithTransform = Bounds.Transform(modelTransform);
             } else {
-                var bound = geometry.Bound.Transform(instances[0]);
-                foreach (var instance in instances) {
-                    var b = geometry.Bound.Transform(instance);
+                var originBound = Bounds.Transform(modelTransform);
+                var bound = originBound.Transform(Instances![0]);
+                for (var i = 1; i < Instances!.Count; ++i) {
+                    var b = originBound.Transform(Instances![i]);
                     BoundingBox.Merge(ref bound, ref b, out bound);
                 }
 
-                oldBound = Bounds;
-                Bounds = bound;
-                RaiseOnBoundChanged(Bounds, oldBound);
-                oldBound = BoundsWithTransform;
-                BoundsWithTransform = Bounds.Transform(target.TotalModelMatrixInternal);
-                RaiseOnTransformBoundChanged(BoundsWithTransform, oldBound);
+                BoundsWithTransform = bound;
             }
+
+            RaiseOnBoundChanged(Bounds, oldBound);
+            RaiseOnTransformBoundChanged(BoundsWithTransform, oldBoundWithTransform);
         }
     }
 
     private void UpdateBoundingSphere() {
+        if (elementCore.TryGetTarget(out var target))
+            UpdateBoundingSphere(target.TotalModelMatrixInternal);
+    }
+
+    private void UpdateBoundingSphere(in Matrix modelTransform) {
         var geometry = Geometry;
         if (!GeometryValid || geometry is null) {
             BoundsSphere = DefaultBoundSphere;
             BoundsSphereWithTransform = DefaultBoundSphere;
         } else {
-            if (!elementCore.TryGetTarget(out var target)) return;
-            BoundingSphere oldSphere;
-            if (Instances is not { Count: > 0 } instances) {
-                oldSphere = BoundsSphere;
-                BoundsSphere = geometry.BoundingSphere;
-                RaiseOnBoundSphereChanged(BoundsSphere, oldSphere);
-                oldSphere = BoundsSphereWithTransform;
-                BoundsSphereWithTransform =
-                    BoundsSphere.TransformBoundingSphere(target.TotalModelMatrixInternal);
-                RaiseOnTransformBoundSphereChanged(BoundsSphereWithTransform, oldSphere);
+            var oldSphere = BoundsSphere;
+            var oldSphereTransform = BoundsSphereWithTransform;
+            BoundsSphere = geometry.BoundingSphere;
+            if (!HasInstances) {
+                BoundsSphereWithTransform = BoundsSphere.TransformBoundingSphere(modelTransform);
             } else {
-                var boundSphere = geometry.BoundingSphere.TransformBoundingSphere(instances[0]);
-                foreach (var instance in instances) {
-                    var bs = geometry.BoundingSphere.TransformBoundingSphere(instance);
-                    BoundingSphereExtensions.Merge(ref boundSphere, ref bs, out boundSphere);
+                var boundSphere = BoundsSphere.TransformBoundingSphere(modelTransform);
+                var sphere = boundSphere.TransformBoundingSphere(Instances![0]);
+                for (var i = 1; i < Instances!.Count; ++i) {
+                    var bs = boundSphere.TransformBoundingSphere(Instances![i]);
+                    BoundingSphereExtensions.Merge(ref sphere, ref bs, out sphere);
                 }
 
-                oldSphere = BoundsSphere;
-                BoundsSphere = boundSphere;
-                RaiseOnBoundSphereChanged(BoundsSphere, oldSphere);
-                oldSphere = BoundsSphereWithTransform;
-                BoundsSphereWithTransform =
-                    BoundsSphere.TransformBoundingSphere(target.TotalModelMatrixInternal);
-                RaiseOnTransformBoundSphereChanged(BoundsSphereWithTransform, oldSphere);
+                BoundsSphereWithTransform = sphere;
             }
+
+            RaiseOnBoundSphereChanged(BoundsSphere, oldSphere);
+            RaiseOnTransformBoundSphereChanged(BoundsSphereWithTransform, oldSphereTransform);
         }
     }
 

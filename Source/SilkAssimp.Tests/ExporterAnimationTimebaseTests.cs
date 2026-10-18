@@ -1,4 +1,5 @@
-using Assimp;
+using SharpAssimp;
+using System.Numerics;
 using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.SharpDX.Core.Model.Animations;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
@@ -77,8 +78,8 @@ public sealed class ExporterAnimationTimebaseTests {
             Assert.Equal(expected, positionTimes);
             Assert.Equal(expected, rotationTimes);
             Assert.Equal(expected, scaleTimes);
-            Assert.Equal(new Vector3D(3, 5, 7), channel.PositionKeys[1].Value);
-            Assert.Equal(new Vector3D(4, 5, 6), channel.ScalingKeys[2].Value);
+            Assert.Equal(new Vector3(3, 5, 7), channel.PositionKeys[1].Value);
+            Assert.Equal(new Vector3(4, 5, 6), channel.ScalingKeys[2].Value);
             Assert.Equal(2d, channel.PositionKeys[2].Time / actual.TicksPerSecond);
             exporter.ToAssimpScene(root, out var reused);
             Assert.Empty(reused.Animations);

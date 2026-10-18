@@ -2370,6 +2370,26 @@ public class D3D12RuntimePrimitiveTests {
     }
 
     /// <summary>
+    ///     Verifies the DX12 catalog resolves the existing wireframe overlay only when a mesh requests it.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpResolvesRequestedWireframeOverlay() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var catalog = new D3D12ScenePassCatalog(device,
+            Format.FormatB8G8R8A8Unorm,
+            Format.FormatD32FloatS8X24Uint);
+        using var mesh = CreateColoredQuadNode(0, Vector4.One);
+        Assert.True(mesh.Attach());
+
+        Assert.Null(catalog.ResolveWireframe(mesh));
+        mesh.RenderWireframe = true;
+
+        var pass = Assert.IsType<ShaderPass>(catalog.ResolveWireframe(mesh));
+        Assert.Equal(DefaultPassNames.Wireframe, pass.Name);
+    }
+
+    /// <summary>
     ///     Verifies the particle CPU payload retains its exact layout, capacity limit, and insertion cadence.
     /// </summary>
     [Fact]
@@ -4094,6 +4114,7 @@ public class D3D12RuntimePrimitiveTests {
         using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
         using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
         using var node = CreateDiffuseQuadNode(new Vector4(1, 1, 1, 1));
+        node.IsTransparent = false;
         var nodes = new FastList<SceneNode>(1) { node };
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity,
@@ -4131,7 +4152,7 @@ public class D3D12RuntimePrimitiveTests {
         fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
 
         device.ThrowIfDeviceRemoved();
-        Assert.Equal(SilkD3D12SsaoResources.OcclusionFormat, occlusion.Description.Format);
+        Assert.Equal(Format.FormatR16Float, occlusion.Description.Format);
         var bytes = readback.Read(2, footprint.Offset + 4UL * footprint.Footprint.RowPitch + 8);
         var value = (float)BitConverter.UInt16BitsToHalf(BitConverter.ToUInt16(bytes));
         Assert.True(float.IsFinite(value));

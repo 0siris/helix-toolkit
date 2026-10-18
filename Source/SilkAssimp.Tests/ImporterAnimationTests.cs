@@ -1,4 +1,5 @@
-﻿using Assimp;
+using SharpAssimp;
+using System.Numerics;
 using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Animations;
@@ -20,8 +21,8 @@ public sealed class ImporterAnimationTests {
     public void PositionOnlyNonzeroTimesTest() {
         var channel = new NodeAnimationChannel { NodeName = "Animated" };
         channel.PositionKeys.AddRange([
-            new VectorKey(5, new Vector3D(2, 4, 6)),
-            new VectorKey(15, new Vector3D(10, 12, 14))
+            new VectorKey(5, new Vector3(2, 4, 6)),
+            new VectorKey(15, new Vector3(10, 12, 14))
         ]);
         using var importer = CreateImporter();
         var scene = CreateScene(channel, 10, 20);
@@ -57,13 +58,13 @@ public sealed class ImporterAnimationTests {
     public void UnequalDisjointTimelinesTest(bool parallel) {
         var channel = new NodeAnimationChannel { NodeName = "Animated" };
         channel.PositionKeys.AddRange([
-            new VectorKey(0, new Vector3D(0, 2, 4)),
-            new VectorKey(6, new Vector3D(12, 14, 16))
+            new VectorKey(0, new Vector3(0, 2, 4)),
+            new VectorKey(6, new Vector3(12, 14, 16))
         ]);
         channel.RotationKeys.AddRange([RotationKey(1, 0), RotationKey(3, 60), RotationKey(7, 180)]);
         channel.ScalingKeys.AddRange([
-            new VectorKey(2, new Vector3D(2, 3, 4)),
-            new VectorKey(4, new Vector3D(4, 5, 6))
+            new VectorKey(2, new Vector3(2, 3, 4)),
+            new VectorKey(4, new Vector3(4, 5, 6))
         ]);
         using var importer = CreateImporter(parallel);
         var animation = Import(importer, CreateScene(channel));
@@ -84,11 +85,11 @@ public sealed class ImporterAnimationTests {
     public void EqualCountsDifferentTimesTest() {
         var channel = new NodeAnimationChannel { NodeName = "Animated" };
         channel.PositionKeys.AddRange([
-            new VectorKey(0, new Vector3D(0, 2, 4)), new VectorKey(4, new Vector3D(8, 10, 12))
+            new VectorKey(0, new Vector3(0, 2, 4)), new VectorKey(4, new Vector3(8, 10, 12))
         ]);
         channel.RotationKeys.AddRange([RotationKey(1, 0), RotationKey(5, 120)]);
         channel.ScalingKeys.AddRange([
-            new VectorKey(2, new Vector3D(2, 3, 4)), new VectorKey(6, new Vector3D(6, 7, 8))
+            new VectorKey(2, new Vector3(2, 3, 4)), new VectorKey(6, new Vector3(6, 7, 8))
         ]);
         using var importer = CreateImporter();
         var animation = Import(importer, CreateScene(channel));
@@ -107,16 +108,16 @@ public sealed class ImporterAnimationTests {
     public void SharedDuplicateTimesTest() {
         var channel = new NodeAnimationChannel { NodeName = "Animated" };
         channel.PositionKeys.AddRange([
-            new VectorKey(0, new Vector3D(1, 2, 3)),
-            new VectorKey(0, new Vector3D(2, 3, 4)),
-            new VectorKey(2, new Vector3D(4, 5, 6)),
-            new VectorKey(2, new Vector3D(6, 7, 8))
+            new VectorKey(0, new Vector3(1, 2, 3)),
+            new VectorKey(0, new Vector3(2, 3, 4)),
+            new VectorKey(2, new Vector3(4, 5, 6)),
+            new VectorKey(2, new Vector3(6, 7, 8))
         ]);
         channel.RotationKeys.AddRange([RotationKey(0, 0), RotationKey(2, 60), RotationKey(2, 90)]);
         channel.ScalingKeys.AddRange([
-            new VectorKey(0, new Vector3D(2, 3, 4)),
-            new VectorKey(1, new Vector3D(3, 4, 5)),
-            new VectorKey(2, new Vector3D(4, 5, 6))
+            new VectorKey(0, new Vector3(2, 3, 4)),
+            new VectorKey(1, new Vector3(3, 4, 5)),
+            new VectorKey(2, new Vector3(4, 5, 6))
         ]);
         using var importer = CreateImporter();
         var animation = Import(importer, CreateScene(channel));
@@ -137,11 +138,11 @@ public sealed class ImporterAnimationTests {
     public void ConstantComponentsTest() {
         var channel = new NodeAnimationChannel { NodeName = "Animated" };
         channel.PositionKeys.AddRange([
-            new VectorKey(2, new Vector3D(2, 4, 6)), new VectorKey(4, new Vector3D(6, 8, 10))
+            new VectorKey(2, new Vector3(2, 4, 6)), new VectorKey(4, new Vector3(6, 8, 10))
         ]);
         channel.RotationKeys.AddRange([RotationKey(3, 15), RotationKey(3, 60)]);
-        channel.ScalingKeys.Add(new VectorKey(3, new Vector3D(1, 1, 1)));
-        channel.ScalingKeys.Add(new VectorKey(3, new Vector3D(2, 3, 4)));
+        channel.ScalingKeys.Add(new VectorKey(3, new Vector3(1, 1, 1)));
+        channel.ScalingKeys.Add(new VectorKey(3, new Vector3(2, 3, 4)));
         using var importer = CreateImporter();
         var animation = Import(importer, CreateScene(channel));
         var track = Assert.Single(animation.NodeAnimationCollection);
@@ -167,7 +168,7 @@ public sealed class ImporterAnimationTests {
             channel.RotationKeys.AddRange([RotationKey(0, 30), RotationKey(2, 90)]);
         else
             channel.ScalingKeys.AddRange([
-                new VectorKey(0, new Vector3D(2, 3, 4)), new VectorKey(2, new Vector3D(4, 5, 6))
+                new VectorKey(0, new Vector3(2, 3, 4)), new VectorKey(2, new Vector3(4, 5, 6))
             ]);
         using var importer = CreateImporter();
         var animation = Import(importer, CreateScene(channel));
@@ -194,7 +195,7 @@ public sealed class ImporterAnimationTests {
     public void ConfiguredTimebaseTest(double fileTicks, float configuredTicks, float expectedEnd) {
         var channel = new NodeAnimationChannel { NodeName = "Animated" };
         channel.PositionKeys.AddRange([
-            new VectorKey(0, new Vector3D(2, 4, 6)), new VectorKey(50, new Vector3D(10, 12, 14))
+            new VectorKey(0, new Vector3(2, 4, 6)), new VectorKey(50, new Vector3(10, 12, 14))
         ]);
         using var importer = CreateImporter();
         importer.Configuration.TickesPerSecond = configuredTicks;
@@ -212,15 +213,15 @@ public sealed class ImporterAnimationTests {
     public void BoneMorphGroupingTest() {
         var channel = new NodeAnimationChannel { NodeName = "Animated" };
         channel.PositionKeys.AddRange([
-            new VectorKey(0, new Vector3D(2, 4, 6)), new VectorKey(2, new Vector3D(10, 12, 14))
+            new VectorKey(0, new Vector3(2, 4, 6)), new VectorKey(2, new Vector3(10, 12, 14))
         ]);
         var source = CreateScene(channel, duration: 2);
         var mesh = source.Meshes[0];
-        var bone = new global::Assimp.Bone { Name = "Animated", OffsetMatrix = Matrix4x4.Identity };
+        var bone = new global::SharpAssimp.Bone { Name = "Animated", OffsetMatrix = Matrix4x4.Identity };
         bone.VertexWeights.Add(new VertexWeight(0, 1));
         mesh.Bones.Add(bone);
         var attachment = new MeshAnimationAttachment { Name = "Raised" };
-        attachment.Vertices.AddRange(mesh.Vertices.Select(v => new Vector3D(v.X, v.Y, v.Z + 1)));
+        attachment.Vertices.AddRange(mesh.Vertices.Select(v => new Vector3(v.X, v.Y, v.Z + 1)));
         mesh.MeshAnimationAttachments.Add(attachment);
         var morph = new MeshMorphAnimationChannel { Name = "Animated*0" };
         var first = new MeshMorphKey { Time = 0 };
@@ -276,12 +277,12 @@ public sealed class ImporterAnimationTests {
         };
         scene.RootNode.Children.Add(node);
         var mesh = new Mesh("Triangle", PrimitiveType.Triangle) { MaterialIndex = 0 };
-        mesh.Vertices.AddRange([new Vector3D(0, 0, 0), new Vector3D(1, 0, 0), new Vector3D(0, 1, 0)]);
+        mesh.Vertices.AddRange([new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0)]);
         mesh.Faces.Add(new Face([0, 1, 2]));
         scene.Meshes.Add(mesh);
         scene.Materials.Add(new Material { Name = "Plain", ShadingMode = ShadingMode.Blinn });
         node.MeshIndices.Add(0);
-        var animation = new global::Assimp.Animation {
+        var animation = new global::SharpAssimp.Animation {
             Name = "Motion", DurationInTicks = duration, TicksPerSecond = ticks
         };
         animation.NodeAnimationChannels.Add(channel);
@@ -313,8 +314,8 @@ public sealed class ImporterAnimationTests {
     /// <returns>The Assimp rotation key.</returns>
     private static QuaternionKey RotationKey(double time, double degrees) {
         var halfAngle = degrees * Math.PI / 360;
-        return new QuaternionKey(time, new global::Assimp.Quaternion((float) Math.Cos(halfAngle),
-            0, 0, (float) Math.Sin(halfAngle)));
+        return new QuaternionKey(time, new System.Numerics.Quaternion(0, 0, (float) Math.Sin(halfAngle),
+            (float) Math.Cos(halfAngle)));
     }
 
     /// <summary>

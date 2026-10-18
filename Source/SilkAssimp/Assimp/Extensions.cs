@@ -1,4 +1,5 @@
-﻿using Assimp;
+using SharpAssimp;
+using System.Numerics;
 using HelixToolkit.SharpDX.Core.Model;
 using Metadata = HelixToolkit.SharpDX.Core.Model.Metadata;
 using MetaDataType = HelixToolkit.SharpDX.Core.Model.MetaDataType;
@@ -15,38 +16,38 @@ public static class Extensions {
     /// <param name="isColumnMajor"></param>
     /// <returns></returns>
     public static Matrix ToSharpDXMatrix(this Matrix4x4 m, bool isColumnMajor) => isColumnMajor
-        ? new Matrix(m.A1,
-            m.B1,
-            m.C1,
-            m.D1,
-            m.A2,
-            m.B2,
-            m.C2,
-            m.D2,
-            m.A3,
-            m.B3,
-            m.C3,
-            m.D3,
-            m.A4,
-            m.B4,
-            m.C4,
-            m.D4)
-        : new Matrix(m.A1,
-            m.A2,
-            m.A3,
-            m.A4,
-            m.B1,
-            m.B2,
-            m.B3,
-            m.B4,
-            m.C1,
-            m.C2,
-            m.C3,
-            m.C4,
-            m.D1,
-            m.D2,
-            m.D3,
-            m.D4);
+        ? new Matrix(m.M11,
+            m.M21,
+            m.M31,
+            m.M41,
+            m.M12,
+            m.M22,
+            m.M32,
+            m.M42,
+            m.M13,
+            m.M23,
+            m.M33,
+            m.M43,
+            m.M14,
+            m.M24,
+            m.M34,
+            m.M44)
+        : new Matrix(m.M11,
+            m.M12,
+            m.M13,
+            m.M14,
+            m.M21,
+            m.M22,
+            m.M23,
+            m.M24,
+            m.M31,
+            m.M32,
+            m.M33,
+            m.M34,
+            m.M41,
+            m.M42,
+            m.M43,
+            m.M44);
 
     /// <summary>
     ///     To the assimp matrix. Already transposed after this function
@@ -71,7 +72,7 @@ public static class Extensions {
                                    m.M42,
                                    m.M43,
                                    m.M44);
-        if (toColumnMajor) matrix.Transpose();
+        if (toColumnMajor) matrix = Matrix4x4.Transpose(matrix);
         return matrix;
     }
 
@@ -80,49 +81,49 @@ public static class Extensions {
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector3 ToSharpDXVector3(this Vector3D v) => new(v.X, v.Y, v.Z);
+    public static Vector3 ToSharpDXVector3(this System.Numerics.Vector3 v) => new(v.X, v.Y, v.Z);
 
     /// <summary>
     ///     To the assimp vector3d.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector3D ToAssimpVector3D(this Vector3 v) => new(v.X, v.Y, v.Z);
+    public static System.Numerics.Vector3 ToAssimpVector3D(this Vector3 v) => new(v.X, v.Y, v.Z);
 
     /// <summary>
     ///     To the sharp dx vector2.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector2 ToSharpDXVector2(this Vector2D v) => new(v.X, v.Y);
+    public static Vector2 ToSharpDXVector2(this System.Numerics.Vector2 v) => new(v.X, v.Y);
 
     /// <summary>
     ///     To the assimp vector2d.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector2D ToAssimpVector2D(this Vector2 v) => new(v.X, v.Y);
+    public static System.Numerics.Vector2 ToAssimpVector2D(this Vector2 v) => new(v.X, v.Y);
 
     /// <summary>
     ///     To the assimp vector3d.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector3D ToAssimpVector3D(this Vector2 v) => new(v.X, v.Y, 0);
+    public static System.Numerics.Vector3 ToAssimpVector3D(this Vector2 v) => new(v.X, v.Y, 0);
 
     /// <summary>
     ///     To the sharp dx vector2.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Vector2 ToSharpDXVector2(this Vector3D v) => new(v.X, v.Y);
+    public static Vector2 ToSharpDXVector2(this System.Numerics.Vector3 v) => new(v.X, v.Y);
 
     /// <summary>
     ///     To the sharp dx color4.
     /// </summary>
     /// <param name="v">The v.</param>
     /// <returns></returns>
-    public static Color4 ToSharpDXColor4(this Color4D v) => new(v.R, v.G, v.B, v.A);
+    public static Color4 ToSharpDXColor4(this Vector4 v) => new(v.X, v.Y, v.Z, v.W);
 
     /// <summary>
     ///     To the assimp color4d.
@@ -130,21 +131,21 @@ public static class Extensions {
     /// <param name="v">The v.</param>
     /// <param name="alpha"></param>
     /// <returns></returns>
-    public static Color4D ToAssimpColor4D(this Color4 v, float alpha = 1f) => new(v.X, v.Y, v.Z, alpha);
+    public static Vector4 ToAssimpColor4D(this Color4 v, float alpha = 1f) => new(v.X, v.Y, v.Z, alpha);
 
     /// <summary>
     ///     To the sharp dx quaternion.
     /// </summary>
     /// <param name="q">The q.</param>
     /// <returns></returns>
-    public static Quaternion ToSharpDXQuaternion(this global::Assimp.Quaternion q) => new(q.X, q.Y, q.Z, q.W);
+    public static Quaternion ToSharpDXQuaternion(this System.Numerics.Quaternion q) => new(q.X, q.Y, q.Z, q.W);
 
     /// <summary>
     ///     To the assimp quaternion.
     /// </summary>
     /// <param name="q">The q.</param>
     /// <returns></returns>
-    public static global::Assimp.Quaternion ToAssimpQuaternion(this Quaternion q) => new(q.W, q.X, q.Y, q.Z);
+    public static System.Numerics.Quaternion ToAssimpQuaternion(this Quaternion q) => new(q.X, q.Y, q.Z, q.W);
 
     /// <summary>
     ///     To the Helix UVTransform.
@@ -161,21 +162,21 @@ public static class Extensions {
     /// <param name="type">The type.</param>
     /// <returns></returns>
     /// <exception cref="NotSupportedException">Type {type} is not supported.</exception>
-    public static MetaDataType ToHelixMetadataType(this global::Assimp.MetaDataType type) {
+    public static MetaDataType ToHelixMetadataType(this global::SharpAssimp.MetaDataType type) {
         switch (type) {
-            case global::Assimp.MetaDataType.Bool:
+            case global::SharpAssimp.MetaDataType.Bool:
                 return MetaDataType.Bool;
-            case global::Assimp.MetaDataType.Double:
+            case global::SharpAssimp.MetaDataType.Double:
                 return MetaDataType.Double;
-            case global::Assimp.MetaDataType.Float:
+            case global::SharpAssimp.MetaDataType.Float:
                 return MetaDataType.Float;
-            case global::Assimp.MetaDataType.Int32:
+            case global::SharpAssimp.MetaDataType.Int32:
                 return MetaDataType.Int32;
-            case global::Assimp.MetaDataType.String:
+            case global::SharpAssimp.MetaDataType.String:
                 return MetaDataType.String;
-            case global::Assimp.MetaDataType.UInt64:
+            case global::SharpAssimp.MetaDataType.UInt64:
                 return MetaDataType.UInt64;
-            case global::Assimp.MetaDataType.Vector3D:
+            case global::SharpAssimp.MetaDataType.Vector3:
                 return MetaDataType.Vector3D;
             default:
                 throw new NotSupportedException($"Type {type} is not supported.");
@@ -188,22 +189,22 @@ public static class Extensions {
     /// <param name="type">The type.</param>
     /// <returns></returns>
     /// <exception cref="NotSupportedException">Type {type} is not supported.</exception>
-    public static global::Assimp.MetaDataType ToAssimpMetadataType(this MetaDataType type) {
+    public static global::SharpAssimp.MetaDataType ToAssimpMetadataType(this MetaDataType type) {
         switch (type) {
             case MetaDataType.Bool:
-                return global::Assimp.MetaDataType.Bool;
+                return global::SharpAssimp.MetaDataType.Bool;
             case MetaDataType.Double:
-                return global::Assimp.MetaDataType.Double;
+                return global::SharpAssimp.MetaDataType.Double;
             case MetaDataType.Float:
-                return global::Assimp.MetaDataType.Float;
+                return global::SharpAssimp.MetaDataType.Float;
             case MetaDataType.Int32:
-                return global::Assimp.MetaDataType.Int32;
+                return global::SharpAssimp.MetaDataType.Int32;
             case MetaDataType.String:
-                return global::Assimp.MetaDataType.String;
+                return global::SharpAssimp.MetaDataType.String;
             case MetaDataType.UInt64:
-                return global::Assimp.MetaDataType.UInt64;
+                return global::SharpAssimp.MetaDataType.UInt64;
             case MetaDataType.Vector3D:
-                return global::Assimp.MetaDataType.Vector3D;
+                return global::SharpAssimp.MetaDataType.Vector3;
             default:
                 throw new NotSupportedException($"Type {type} is not supported.");
         }
@@ -215,7 +216,7 @@ public static class Extensions {
     /// <param name="m">The m.</param>
     /// <returns></returns>
     public static IEnumerable<KeyValuePair<string, Metadata.Entry>> ToHelixMetadata(
-        this global::Assimp.Metadata m
+        this global::SharpAssimp.Metadata m
     ) {
         foreach (var d in m)
             yield return new KeyValuePair<string, Metadata.Entry>(d.Key,
@@ -229,11 +230,11 @@ public static class Extensions {
     /// </summary>
     /// <param name="m">The m.</param>
     /// <returns></returns>
-    public static IEnumerable<KeyValuePair<string, global::Assimp.Metadata.Entry>> ToAssimpMetadata(
+    public static IEnumerable<KeyValuePair<string, global::SharpAssimp.Metadata.Entry>> ToAssimpMetadata(
         this Metadata m
     ) {
         foreach (var d in m)
-            yield return new KeyValuePair<string, global::Assimp.Metadata.Entry>(d.Key,
-                new global::Assimp.Metadata.Entry(d.Value.DataType.ToAssimpMetadataType(), d.Value.Data));
+            yield return new KeyValuePair<string, global::SharpAssimp.Metadata.Entry>(d.Key,
+                new global::SharpAssimp.Metadata.Entry(d.Value.DataType.ToAssimpMetadataType(), d.Value.Data));
     }
 }

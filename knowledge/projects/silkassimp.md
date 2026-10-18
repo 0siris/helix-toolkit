@@ -59,3 +59,11 @@ proves rates 24/30/60, component values/durations and subsequent animation-state
 Assimp suite passes70 cases, including the earlier primitive/context/material and imported animation changes.
 The configurable field is process-wide, matching the source; changes should be coordinated between exports.
 These checks do not establish animated decoder equivalence for every format or visible/GPU skinning.
+
+# SharpAssimp upgrade integration
+
+The integration of origin/silk-toolkit at 7344b9cf80de00feb6dfc102b41f5690619bc091 uses SharpAssimp 6.0.12
+and System.Numerics transfer values. Existing independent animation sampling, export timing, primitive/context
+ownership and independent metallic/roughness fixes are retained. Quaternion transfer order is XYZW.
+Existing regression fixtures are adapted to these boundary types without changing their assertions.
+Only compilation is checked during this implementation phase; native roundtrips and runtime acceptance remain deferred.

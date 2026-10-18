@@ -3,8 +3,9 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using Assimp;
-using Assimp.Unmanaged;
+using System.Numerics;
+using SharpAssimp;
+using SharpAssimp.Unmanaged;
 using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
@@ -115,7 +116,7 @@ public partial class Exporter {
                                                         pbr.RoughnessFactor));
         if (pbr.AmbientOcclusionFactor != 1)
             assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.COLOR_AMBIENT,
-                                                            new Color4D(pbr.AmbientOcclusionFactor)));
+                                                            new Vector4(pbr.AmbientOcclusionFactor)));
         if (pbr.ReflectanceFactor != 0) {
             assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfPbrspecularglossiness,
                                                             true));

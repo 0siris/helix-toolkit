@@ -1193,6 +1193,7 @@ public class MeshBuilder {
 
         var index0 = positions.Count;
         var np = 2 * points.Count;
+        var relativeIndex = 0;
         foreach (var p in points) {
             var v = xaxis * p.X + ydirection * p.Y;
             positions.Add(p0 + v);
@@ -1208,17 +1209,22 @@ public class MeshBuilder {
                 textureCoordinates.Add(new Point(1, 0));
             }
 
-            var i1 = index0 + 1;
-            var i2 = (index0 + 2) % np;
-            var i3 = (index0 + 2) % np + 1;
+            var i0 = index0 + relativeIndex;
+            var i1 = index0 + relativeIndex + 1;
+            // The modulo is only necessary on the following two lines to wrap
+            // the last quad around to the first quad.
+            var i2 = index0 + (relativeIndex + 2) % np;
+            var i3 = index0 + (relativeIndex + 3) % np;
 
             triangleIndices.Add(i1);
             triangleIndices.Add(i2);
-            triangleIndices.Add(index0);
+            triangleIndices.Add(i0);
 
             triangleIndices.Add(i1);
             triangleIndices.Add(i3);
             triangleIndices.Add(i2);
+
+            relativeIndex += 2;
         }
 
         ComputeNormals(positions, triangleIndices, out normals);

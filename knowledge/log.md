@@ -1,5 +1,13 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-18 — Remote branch integration
+
+* Merged origin/silk-toolkit at 7344b9cf, retaining local renderer and ownership fixes.
+* Adapted independent animation/PBR import and regression fixture types to SharpAssimp 6.0.12.
+* Preserved profiled opaque rendering alongside the remote wireframe overlay and valid empty SSAO scenes.
+* Desktop and affected import-test compilation are checked separately; test execution and native acceptance remain deferred.
+* Imported model fixtures remain byte-identical to upstream, including their existing trailing whitespace.
+
 ## 2026-10-18
 
 * **Fix**: Native preparation finishes hierarchy updates, calls existing non-render maintenance on living attached
@@ -67,6 +75,13 @@
 * **Limits**: The non-hardware SilkCore gate has 315 passing tests and two failures in unchanged shader-count
   assertions (103 expected, 123 embedded). Graphify regeneration is blocked by a missing LLM API key;
   no generated artifacts were edited. Rider/ReSharper tools were unavailable, so verification used the CLI.
+
+## 2026-10-11
+
+* **Backlog**: Added `/backlog/addtube-reimplementation.md` tracking the port of upstream #2251
+  (`MeshBuilder.AddTube` reimplementation) to Silk.NET math. GitHub Issues are disabled in this
+  repository, so the item (problem, upstream reference, scope, acceptance) lives in the knowledge
+  bundle for later pickup.
 
 ## 2026-09-10
 

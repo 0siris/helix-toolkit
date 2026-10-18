@@ -29,6 +29,17 @@ public struct Ray {
 
     public Vector3 GetPoint(float distance)
         => Position + Direction * distance;
+
+    /// <summary>
+    ///     Transforms the ray using the specified transformation matrix.
+    /// </summary>
+    /// <param name="matrix">The transformation matrix.</param>
+    /// <returns>The transformed ray.</returns>
+    public Ray Transform(in Matrix matrix) {
+        var position = SilkMath.TransformCoordinate(Position, matrix);
+        var direction = SilkMath.Normalize(SilkMath.TransformNormal(Direction, matrix));
+        return new Ray(position, direction);
+    }
 }
 
 public struct Plane {

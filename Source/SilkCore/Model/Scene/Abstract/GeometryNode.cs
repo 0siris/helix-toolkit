@@ -148,7 +148,19 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     ///     Creates the existing default CPU buffer model required by the productive DX12 resource manager.
     /// </summary>
     private void CreateD3D12GeometryBuffer() {
-        IAttachableBufferModel newBuffer = Geometry switch {
+        var newBuffer = OnCreateNativeBufferModel(Geometry);
+        RemoveAndDispose(ref bufferModelInternal);
+        bufferModelInternal = newBuffer;
+        if (RenderCore is IGeometryRenderCore core) core.GeometryBuffer = bufferModelInternal;
+    }
+
+    /// <summary>
+    ///     Creates the buffer model consumed by the existing native resource manager.
+    /// </summary>
+    /// <param name="geometry">The current geometry generation.</param>
+    /// <returns>The owned buffer model, or the shared empty buffer for unsupported geometry.</returns>
+    protected virtual IAttachableBufferModel OnCreateNativeBufferModel(Geometry3D? geometry)
+        => geometry switch {
             BoneSkinnedMeshGeometry3D boneGeometry => new BoneSkinPreComputeBufferModel(
                 new BoneSkinnedMeshBufferModel { Geometry = boneGeometry },
                 DefaultVertex.SizeInBytes),
@@ -158,10 +170,6 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
             MeshGeometry3D mesh => new DefaultMeshGeometryBufferModel { Geometry = mesh },
             _ => EmptyGeometryBufferModel.Empty
         };
-        RemoveAndDispose(ref bufferModelInternal);
-        bufferModelInternal = newBuffer;
-        if (RenderCore is IGeometryRenderCore core) core.GeometryBuffer = bufferModelInternal;
-    }
 
     /// <summary>
     ///     Called when [attached].

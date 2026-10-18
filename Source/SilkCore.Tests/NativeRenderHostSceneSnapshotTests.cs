@@ -1,4 +1,6 @@
 using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using Silk.NET.Direct3D12;
@@ -65,6 +67,41 @@ public sealed class NativeRenderHostSceneSnapshotTests {
         roots.PreorderDft(context, (_, _) => true, tuples);
         var expected = tuples.Select(pair => new KeyValuePair<int, SceneNode>(pair.Key, pair.Value)).ToArray();
         Assert.Equal(expected, pairs.ToArray());
+    }
+
+    /// Uses the application override in actual native attachment and releases replaced or detached buffers.
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void NativeGeometryUsesApplicationBufferOverride() {
+        using var fixture = new Preparation();
+        using var node = new NativeBufferMesh { Geometry = CreateTriangle() };
+        _ = fixture.Renderer.PrepareScene([node], fixture.Context);
+        var first = node.Buffer;
+        Assert.NotNull(first);
+        Assert.Same(first, ((IGeometryRenderCore)node.RenderCore).GeometryBuffer);
+        node.Geometry = CreateTriangle();
+        var replacement = node.Buffer;
+        Assert.NotSame(first, replacement);
+        Assert.True(first.IsDisposed);
+        Assert.Same(replacement, ((IGeometryRenderCore)node.RenderCore).GeometryBuffer);
+        node.Detach();
+        Assert.True(replacement!.IsDisposed);
+    }
+
+    /// <summary>Creates a valid source geometry for native buffer attachment.</summary>
+    /// <returns>The triangle geometry.</returns>
+    private static MeshGeometry3D CreateTriangle() => new() {
+        Positions = [new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)],
+        Indices = [0, 1, 2]
+    };
+
+    /// Exposes the actual application buffer factory without changing renderer ownership.
+    private sealed class NativeBufferMesh : MeshNode {
+        /// Gets the latest buffer generation returned to the native owner.
+        internal DefaultMeshGeometryBufferModel? Buffer { get; private set; }
+
+        protected override IAttachableBufferModel OnCreateNativeBufferModel(Geometry3D? geometry)
+            => Buffer = new DefaultMeshGeometryBufferModel { Geometry = geometry };
     }
 
     /// Fails only this parent's native attachment while retaining the original child hierarchy.

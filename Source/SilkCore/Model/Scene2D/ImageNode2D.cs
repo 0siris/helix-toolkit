@@ -10,8 +10,13 @@ using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
+/// <summary>
+///     Displays an encoded image and measures its decoded frame dimensions.
+/// </summary>
 public class ImageNode2D : SceneNode2D {
     private ImageRenderCore2D ImageCore => RenderCore as ImageRenderCore2D
         ?? throw new InvalidOperationException("Image render core is not initialized.");
@@ -45,13 +50,34 @@ public class ImageNode2D : SceneNode2D {
         ImageCore.Bitmap = stream is null ? null : OnLoadImage(context, stream);
     }
 
-    protected virtual Bitmap OnLoadImage(RenderContext2D context, Stream stream) => new(default);
+    /// <summary>
+    ///     Decodes the original first image frame as premultiplied BGRA pixels.
+    /// </summary>
+    /// <param name="context">The current Scene2D context.</param>
+    /// <param name="stream">The encoded image stream.</param>
+    /// <returns>The decoded bitmap with the actual frame dimensions.</returns>
+    protected virtual Bitmap OnLoadImage(RenderContext2D context, Stream stream) {
+        var position = stream.CanSeek ? stream.Position : 0;
+        try {
+            if (stream.CanSeek) stream.Position = 0;
+            var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat,
+                BitmapCacheOption.OnLoad);
+            var frame = decoder.Frames[0];
+            var converter = new FormatConvertedBitmap(frame, PixelFormats.Pbgra32, null, 0);
+            var pixels = new byte[checked(frame.PixelWidth * frame.PixelHeight * 4)];
+            converter.CopyPixels(pixels, checked(frame.PixelWidth * 4), 0);
+            return new Bitmap(new Size2F(frame.PixelWidth, frame.PixelHeight), pixels: pixels);
+        } finally {
+            if (stream.CanSeek) stream.Position = position;
+        }
+    }
 
     public override void Update(RenderContext2D context) {
         base.Update(context);
         if (BitmapChanged) {
             LoadBitmap(context, ImageStream);
             BitmapChanged = false;
+            InvalidateMeasure();
         }
     }
 
@@ -69,11 +95,11 @@ public class ImageNode2D : SceneNode2D {
             var aspectRatio = imageSize.Width / imageSize.Height;
             if (Width == 0) {
                 var height = Math.Min(availableSize.Height, Height) * DpiScale;
-                return new Size2F(height / aspectRatio, height);
+                return new Size2F(height * aspectRatio, height);
             }
 
             var width = Math.Min(availableSize.Width, Width) * DpiScale;
-            return new Size2F(width, width * aspectRatio);
+            return new Size2F(width, width / aspectRatio);
         }
 
         return new Size2F(Math.Max(0, Width * DpiScale), Math.Max(0, Height * DpiScale));

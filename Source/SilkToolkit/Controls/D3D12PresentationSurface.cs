@@ -322,6 +322,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <param name="roots2D">The optional Scene2D overlays drawn after post processing.</param>
     /// <param name="captureFrame">Whether to retain the completed frame for the existing capture consumer.</param>
     /// <param name="waitForCompletion">Whether explicit callers synchronously await completed GPU work.</param>
+    /// <param name="autoUpdateOctree">Whether existing hit-testable dirty geometry updates its octree.</param>
+    /// <param name="enableRenderOrder">Whether the original render-order keys sort the relevant draw lists.</param>
     /// <returns>The number of recorded draws.</returns>
     /// <exception cref="ObjectDisposedException">The presentation surface has been disposed.</exception>
     /// <exception cref="InvalidOperationException">A required native presentation owner is unavailable.</exception>
@@ -343,7 +345,9 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         SsaoQuality ssaoQuality = SsaoQuality.Low,
         IEnumerable<SceneNode2D>? roots2D = null,
         bool captureFrame = false,
-        bool waitForCompletion = true
+        bool waitForCompletion = true,
+        bool autoUpdateOctree = true,
+        bool enableRenderOrder = false
     ) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
@@ -370,9 +374,10 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         using var updateContext = new RenderContext(camera, Math.Max(1, PixelWidth), Math.Max(1, PixelHeight),
             (float)windowHost.DpiScale) {
             EnableBoundingFrustum = testFrustum,
+            AutoUpdateOctree = autoUpdateOctree,
             TimeStamp = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency)
         };
-        var preparedNodes = renderer.PrepareScene(roots, updateContext);
+        var preparedNodes = renderer.PrepareScene(roots, updateContext, effectsManager);
         foreach (var node in preparedNodes.Where(node => FindScreenSpacedAncestor(node) is null))
             if (node is ScreenSpacedNode screenSpaced) {
                 screenSpacedNodes.Add(screenSpaced);
@@ -405,6 +410,15 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                         break;
                 }
             }
+
+        if (enableRenderOrder) {
+            foreach (var node in opaqueNodes) node.UpdateRenderOrderKey();
+            opaqueNodes.Sort();
+            foreach (var node in postEffectNodes) node.UpdateRenderOrderKey();
+            postEffectNodes.Sort();
+            foreach (var node in particleNodes) node.UpdateRenderOrderKey();
+            particleNodes.Sort();
+        }
 
         SilkD3D12SceneRenderer.UpdateLights(lightNodes, lights);
 
@@ -596,14 +610,19 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                 in transforms,
                 currentSwapChain.Width,
                 currentSwapChain.Height);
-        if (roots2D is not null)
+        if (roots2D is not null) {
+            using var context2D = effectsManager is null ? null : new RenderContext2D(
+                effectsManager.DeviceContext2D, effectsManager, PixelWidth, PixelHeight,
+                (float)windowHost.DpiScale);
             recorded += renderer.Render2D(currentContext,
                 roots2D,
                 catalog.ResolveSprite2D(),
                 currentSwapChain.CurrentRenderTargetView,
                 currentSwapChain.Width,
                 currentSwapChain.Height,
-                (float) windowHost.DpiScale);
+                (float) windowHost.DpiScale,
+                context2D);
+        }
         SilkD3D12Resource? readback = null;
         PlacedSubresourceFootprint footprint = default;
         ulong totalBytes = 0;

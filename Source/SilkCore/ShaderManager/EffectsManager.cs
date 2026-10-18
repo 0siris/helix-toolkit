@@ -66,6 +66,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     public IGeometryBufferManager GeometryBufferManager =>
         geometryBufferManager.AsNotNull("Effects manager is not initialized.");
 
+    /// The original shared geometry buffer registry.
     private IGeometryBufferManager? geometryBufferManager;
 
     public IStructArrayPool StructArrayPool => structArrayPool.AsNotNull("Effects manager is not initialized.");
@@ -159,12 +160,17 @@ public class EffectsManager : DisposeObject, IEffectsManager {
             AdapterIndex = adapterIndex
         }) { }
 
+    /// <summary>
+    ///     Initializes the manager and its shared rendering resources.
+    /// </summary>
+    /// <param name="configuration">The adapter and software-rendering configuration.</param>
     public EffectsManager(EffectsManagerConfiguration configuration) {
         EnableSoftwareRendering = configuration.EnableSoftwareRendering;
         AdapterIndex = Math.Max(0, configuration.AdapterIndex);
         DriverType = EnableSoftwareRendering
             ? DriverType.Warp
             : DriverType.Hardware;
+        geometryBufferManager = new GeometryBufferManager(this);
         structArrayPool = new StructArrayPool();
         factory2D = new D2DFactory();
         device2D = new D2DDevice();
@@ -195,6 +201,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     public void Reinitialize() {
         if (!Initialized) {
+            geometryBufferManager = new GeometryBufferManager(this);
             Initialized = true;
             foreach (var tech in techniqueDescriptions.Values) {
                 var name = tech.Name.AsNotNull("Technique name must be initialized.");

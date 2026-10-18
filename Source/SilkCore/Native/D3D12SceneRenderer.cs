@@ -137,6 +137,11 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     private SilkD3D12PostProcessResources? postProcessResources;
 
+    /// The original half-resolution Bloom blur target.
+    private SilkD3D12PostProcessResources? bloomHalfResources;
+    /// The original quarter-resolution Bloom blur target.
+    private SilkD3D12PostProcessResources? bloomQuarterResources;
+
     /// Full-resolution outline mask and stencil-excluded result.
     private SilkD3D12PostProcessResources? outlineResources;
     /// Source glow's half-resolution vertical blur target.
@@ -229,18 +234,23 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     /// <param name="roots">The original scene hierarchy roots.</param>
     /// <param name="context">The current frame context passed to each original update and maintenance hook.</param>
+    /// <param name="effectsManager">The viewport manager for the original attachment hooks, when supplied.</param>
     /// <returns>Visible nodes in preorder, excluding every subtree beneath an invisible or disposed ancestor.</returns>
     /// <remarks>
     ///     All successful updates finish before maintenance begins. Hidden nodes and descendants retain maintenance;
     ///     nodes disposed or detached after updating are excluded from that phase.
     /// </remarks>
     /// <exception cref="ObjectDisposedException">The renderer has been disposed.</exception>
-    internal FastList<SceneNode> PrepareScene(IEnumerable<SceneNode> roots, RenderContext context) {
+    internal FastList<SceneNode> PrepareScene(IEnumerable<SceneNode> roots, RenderContext context,
+        IEffectsManager? effectsManager = null) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         var snapshot = roots.ToArray();
         var updated = new FastList<SceneNode>();
         foreach (var node in snapshot.PreorderDft(node => !node.IsDisposed)) {
-            if (!node.RenderCore.IsAttached && !node.Attach()) continue;
+            if (effectsManager is not null) {
+                node.Attach(effectsManager);
+                if (!node.IsAttached) continue;
+            } else if (!node.RenderCore.IsAttached && !node.Attach()) continue;
             attachedNodes.Add(node);
             node.Update(context);
             updated.Add(node);
@@ -264,6 +274,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     internal void BeginFrame() {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         postProcessResources?.BeginFrame();
+        bloomHalfResources?.BeginFrame();
+        bloomQuarterResources?.BeginFrame();
+        resources.ReleaseDisposedResources();
+        attachedNodes.RemoveWhere(node => node.IsDisposed || !node.RenderCore.IsAttached);
         outlineResources?.BeginFrame();
         outlineBlurResources?.BeginFrame();
         effectStencil?.BeginFrame();
@@ -327,6 +341,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <param name="width">The physical target width.</param>
     /// <param name="height">The physical target height.</param>
     /// <param name="dpiScale">The physical-pixel scale.</param>
+    /// <param name="layoutContext">The original Scene2D update context, when supplied by a viewport.</param>
     /// <returns>The number of recorded 2D draws.</returns>
     internal int Render2D(
         SilkD3D12CommandContext context,
@@ -335,10 +350,11 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         SilkD3D12Descriptor target,
         uint width,
         uint height,
-        float dpiScale
+        float dpiScale,
+        RenderContext2D? layoutContext = null
     ) {
         using var profile = D3D12Profiler.Begin(context, "Silk.Overlay2D");
-        scene2DRenderer.Prepare(roots, width, height, dpiScale);
+        scene2DRenderer.Prepare(roots, width, height, dpiScale, layoutContext);
         return scene2DRenderer.RenderPrepared(context, pass, target, width, height);
     }
 
@@ -419,17 +435,27 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         postProcessResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
         postProcessResources.Capture(context, mainColor, width, height);
         postProcessResources.Draw(context, extractPass, 0, 1, in transforms, in parameters);
-        var source = 1;
+        var blurParameters = parameters;
         for (var index = 0; index < blurPasses; index++) {
-            postProcessResources.Draw(context, verticalBlurPass, source, 1 - source, in transforms, in parameters);
-            source = 1 - source;
-            postProcessResources.Draw(context, horizontalBlurPass, source, 1 - source, in transforms, in parameters);
-            source = 1 - source;
+            bloomHalfResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
+            bloomQuarterResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
+            blurParameters.ViewportScale = 2;
+            bloomHalfResources.DrawSource(context, verticalBlurPass, postProcessResources.Second, 0,
+                Math.Max(1u, width / 2), Math.Max(1u, height / 2), in transforms, in blurParameters);
+            blurParameters.ViewportScale = 4;
+            bloomQuarterResources.DrawSource(context, verticalBlurPass, bloomHalfResources.First, 0,
+                Math.Max(1u, width / 4), Math.Max(1u, height / 4), in transforms, in blurParameters);
+            blurParameters.ViewportScale = 2;
+            bloomHalfResources.DrawSource(context, horizontalBlurPass, bloomQuarterResources.First, 0,
+                Math.Max(1u, width / 2), Math.Max(1u, height / 2), in transforms, in blurParameters);
+            blurParameters.ViewportScale = 1;
+            postProcessResources.DrawSource(context, horizontalBlurPass, bloomHalfResources.First, 1,
+                width, height, in transforms, in blurParameters);
         }
         context.Transition(mainColor, Silk.NET.Direct3D12.ResourceStates.RenderTarget);
         postProcessResources.DrawToPresentation(context,
             combinePass,
-            source,
+            1,
             mainRenderTarget,
             in transforms,
             in parameters);
@@ -1593,6 +1619,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         outlineBlurResources?.Dispose();
         outlineCatalog?.Dispose();
         postProcessResources?.Dispose();
+        bloomHalfResources?.Dispose();
+        bloomQuarterResources?.Dispose();
         postProcessResources = null;
         _effectBindings.Dispose();
         _sceneBindings.Dispose();

@@ -11,6 +11,7 @@ using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Shaders;
+using HelixToolkit.SharpDX.Core.Render;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
 
@@ -75,6 +76,9 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// </summary>
     private readonly List<D3D12Scene2DDraw> draws = [];
 
+    /// The Scene2D roots attached by this renderer through the original lifecycle.
+    private readonly HashSet<SceneNode2D> attachedRoots = [];
+
     /// <summary>
     ///     Next binding slot consumed in this frame.
     /// </summary>
@@ -125,8 +129,10 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="width">The physical viewport width.</param>
     /// <param name="height">The physical viewport height.</param>
     /// <param name="dpiScale">The physical-pixel scale used by text.</param>
+    /// <param name="layoutContext">The original update context, or null for already prepared native callers.</param>
     /// <returns>The number of prepared draws.</returns>
-    internal int Prepare(IEnumerable<SceneNode2D> roots, uint width, uint height, float dpiScale) {
+    internal int Prepare(IEnumerable<SceneNode2D> roots, uint width, uint height, float dpiScale,
+        RenderContext2D? layoutContext = null) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         roots.AsGuardNotNull();
         ArgumentOutOfRangeException.ThrowIfZero(width);
@@ -134,7 +140,23 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         if (!(dpiScale > 0) || !float.IsFinite(dpiScale)) throw new ArgumentOutOfRangeException(nameof(dpiScale));
         draws.Clear();
         var viewport = new RectangleF(0, 0, width, height);
-        foreach (var root in roots) Traverse(root, viewport, viewport, dpiScale);
+        var snapshot = roots.ToArray();
+        foreach (var root in attachedRoots.Where(root => root.IsDisposed || !snapshot.Contains(root)).ToArray()) {
+            root.Detach();
+            attachedRoots.Remove(root);
+        }
+        foreach (var root in snapshot) {
+            if (root.IsDisposed) continue;
+            if (layoutContext is not null) {
+                if (root.IsAttached && root.DpiScale != dpiScale) root.Detach();
+                root.Attach(dpiScale);
+                attachedRoots.Add(root);
+                root.Measure(new Size2F(width, height));
+                root.Arrange(viewport);
+                UpdateSceneGraph(root, layoutContext);
+            }
+            Traverse(root, viewport, viewport, dpiScale);
+        }
         return draws.Count;
     }
 
@@ -195,6 +217,8 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// </summary>
     public void Dispose() {
         if (IsDisposed) return;
+        foreach (var root in attachedRoots) root.Detach();
+        attachedRoots.Clear();
         foreach (var slot in bindingSlots) slot.Dispose();
         bindingSlots.Clear();
         images.Clear();
@@ -209,6 +233,18 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     internal bool IsDisposed { get; private set; }
 
     /// <summary>
+    ///     Runs the original Scene2D update traversal independently of drawing and clipping.
+    /// </summary>
+    /// <param name="node">The current node.</param>
+    /// <param name="context">The current Scene2D context.</param>
+    private static void UpdateSceneGraph(SceneNode2D node, RenderContext2D context) {
+        if (node.IsDisposed) return;
+        node.Update(context);
+        if (!node.IsRenderable) return;
+        foreach (var child in node.Items) UpdateSceneGraph(child, context);
+    }
+
+    /// <summary>
     ///     Traverses one node, inheriting and intersecting axis-aligned physical clipping.
     /// </summary>
     /// <param name="node">The current node.</param>
@@ -216,6 +252,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="viewport">The full viewport.</param>
     /// <param name="dpiScale">The physical text scale.</param>
     private void Traverse(SceneNode2D node, RectangleF inheritedClip, RectangleF viewport, float dpiScale) {
+        if (node.IsDisposed) return;
         if (node.Visibility != Visibility.Visible) return;
         node.UpdateTransform();
         var clip = inheritedClip;

@@ -1218,7 +1218,9 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             SsaoQuality,
             D2DRenderables,
             captureFrame,
-            waitForCompletion);
+            waitForCompletion,
+            EnableAutoOctreeUpdate,
+            EnableRenderOrder);
         RaiseCompletedD3D12Frames(surface);
         return recorded;
     }

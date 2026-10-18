@@ -9,6 +9,7 @@ using HelixToolkit.SharpDX.Core.Core.Buffers;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core.Utilities;
 using Silk.NET.Direct3D12;
 
 namespace HelixToolkit.SharpDX.Core.Native;
@@ -276,6 +277,19 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
             texture = SilkD3D12TextureModelResource.Create(device, context, textureHeap, textureModel);
             textures.Add(textureModel.Guid, texture);
             return texture;
+        }
+    }
+
+    /// <summary>
+    ///     Removes disposed geometry and released instance buffers after the preceding presentation fence.
+    /// </summary>
+    internal void ReleaseDisposedResources() {
+        lock (syncRoot) {
+            foreach (var source in geometries.Keys.Where(source => source is IDisposeObject { IsDisposed: true }).ToArray())
+                Remove(source);
+            foreach (var source in instances.Keys.Where(source => !source.Initialized
+                || source is IDisposeObject { IsDisposed: true }).ToArray())
+                Remove(source);
         }
     }
 

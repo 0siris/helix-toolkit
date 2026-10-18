@@ -55,6 +55,8 @@ public sealed unsafe class SilkD3D12DescriptorHeap : IDisposable {
         Type = type;
         DescriptorSize = descriptorSize;
         IsShaderVisible = shaderVisible;
+        if (D3D12Profiler.Enabled)
+            D3D12Profiler.NameObject(NativePointer, $"Silk.Descriptors.{type}.{capacity}");
     }
 
     /// <summary>
@@ -257,6 +259,8 @@ public sealed unsafe class SilkD3D12Resource : IDisposable {
         HeapType = heapType;
         this.stateTracker = stateTracker;
         stateTracker.Track(NativePointer, initialState);
+        if (D3D12Profiler.Enabled)
+            D3D12Profiler.NameObject(NativePointer, $"Silk.{description.Dimension}.{heapType}.{description.Width}x{description.Height}.{description.Format}");
     }
 
     /// <summary>

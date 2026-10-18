@@ -3,7 +3,7 @@ using Silk.NET.Direct3D12;
 namespace HelixToolkit.SharpDX.Core.Native;
 
 /// <summary>
-///     Owns shader-visible heap pages for immutable, per-draw effect tables without consuming scene descriptors.
+///     Owns shader-visible heap pages for complete scene or immutable effect tables without consuming shared descriptors.
 /// </summary>
 /// <remarks>
 ///     Draw owners retain and reuse their tables only after the host fence completes. This owner never resets a
@@ -27,7 +27,7 @@ internal sealed class D3D12EffectBindingPool : IDisposable {
     private readonly List<Page> _pages = [];
 
     /// <summary>
-    ///     Creates an empty descriptor page owner without allocating native heaps until the first effect draw.
+    ///     Creates an empty descriptor page owner without allocating native heaps until the first draw.
     /// </summary>
     /// <param name="device">The renderer's native device.</param>
     /// <exception cref="ArgumentNullException"><paramref name="device"/> is <see langword="null"/>.</exception>
@@ -40,10 +40,10 @@ internal sealed class D3D12EffectBindingPool : IDisposable {
     /// Gets the number of retained shader-visible heap pairs.
     internal int PageCount => _pages.Count;
 
-    /// Gets the number of resource descriptors still owned by effect draw tables.
+    /// Gets the number of resource descriptors still owned by draw tables.
     internal int ResourceDescriptorCount => _pages.Sum(page => page.Resources.Count);
 
-    /// Gets the number of sampler descriptors still owned by effect draw tables.
+    /// Gets the number of sampler descriptors still owned by draw tables.
     internal int SamplerDescriptorCount => _pages.Sum(page => page.Samplers.Count);
 
     /// Gets whether the native heap pages have been released.

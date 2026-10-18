@@ -31,6 +31,13 @@
     <PackageReference Include="Silk.NET.Maths" Version="2.23.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
     <PackageReference Include="ValidSphere" Version="*-*" />
+    <PackageReference Include="WinPixEventRuntime" Version="1.0.240308001"
+                      GeneratePathProperty="true" ExcludeAssets="build" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(PkgWinPixEventRuntime)/bin/x64/WinPixEventRuntime.dll"
+          Link="WinPixEventRuntime.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

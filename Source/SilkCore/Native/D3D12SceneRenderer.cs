@@ -56,6 +56,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// Shader-visible descriptor pages shared by all immutable transient effect draws in this renderer.
     private readonly D3D12EffectBindingPool _effectBindings;
 
+    /// Shader-visible pages for ordinary and peeling mesh/line tables, separate from transient effects.
+    private readonly D3D12EffectBindingPool _sceneBindings;
+
     /// <summary>
     ///     Host-lifetime native geometry and texture resources.
     /// </summary>
@@ -173,6 +176,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         this.resourceHeap = resourceHeap;
         this.samplerHeap = samplerHeap;
         _effectBindings = new D3D12EffectBindingPool(device);
+        _sceneBindings = new D3D12EffectBindingPool(device);
         resources = new SilkD3D12ResourceManager(device, resourceHeap);
         scene2DRenderer = new D3D12Scene2DRenderer(device,
             resources,
@@ -216,6 +220,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
 
     /// Gets the descriptor pages used by recorded effects for native capacity and lifetime verification.
     internal D3D12EffectBindingPool EffectBindings => _effectBindings;
+
+    /// Gets the paged scene-table owner for descriptor accounting and headless lifetime verification.
+    internal D3D12EffectBindingPool SceneBindings => _sceneBindings;
 
     /// <summary>
     ///     Updates the hierarchy, runs its existing non-render maintenance, then prunes native draw candidates.
@@ -330,6 +337,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         uint height,
         float dpiScale
     ) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.Overlay2D");
         scene2DRenderer.Prepare(roots, width, height, dpiScale);
         return scene2DRenderer.RenderPrepared(context, pass, target, width, height);
     }
@@ -362,6 +370,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         uint width,
         uint height
     ) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.FXAA");
         if (level == FxaaLevel.None) return;
         postProcessResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
         var parameters = CreateFxaaParameters(level, width, height);
@@ -405,6 +414,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         uint width,
         uint height
     ) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.Bloom");
         ArgumentOutOfRangeException.ThrowIfNegative(blurPasses);
         postProcessResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
         postProcessResources.Capture(context, mainColor, width, height);
@@ -478,6 +488,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         SsaoQuality quality,
         float radius
     ) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.SSAO");
         var scale = quality == SsaoQuality.High ? 1 : 2;
         var targetWidth = Math.Max(1u, width / (uint)scale);
         var targetHeight = Math.Max(1u, height / (uint)scale);
@@ -515,6 +526,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         bool testFrustum, ref BoundingFrustum frustum, SilkD3D12Resource mainColor,
         SilkD3D12Descriptor mainRenderTarget, SilkD3D12Resource sceneDepth,
         SilkD3D12Descriptor mainDepthStencil, uint width, uint height) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.SelectionEffects");
         var recorded = 0;
         foreach (var effectNode in effects)
             switch (effectNode) {
@@ -818,6 +830,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         BorderEffectStruct? effectParameters = null,
         string? effectName = null
     ) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.Scene.Draws");
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.AsGuardNotNull();
         candidates.AsGuardNotNull();
@@ -950,6 +963,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         Func<SceneNode, ShaderPass?> boneSkinningPassSelector,
         ShadowMapParamStruct? shadowParameters
     ) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.Transparency.Weighted");
         if (nodes.Count == 0) return 0;
         transparencyResources ??= new SilkD3D12TransparencyResources(Device, resourceHeap, samplerHeap);
         transparencyResources.BeginWeighted(context, width, height, mainDepthStencil);
@@ -1015,6 +1029,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         Func<SceneNode, ShaderPass?> boneSkinningPassSelector,
         ShadowMapParamStruct? shadowParameters
     ) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.Transparency.DepthPeeling");
         if (nodes.Count == 0) return 0;
         if (iterations < 1) throw new ArgumentOutOfRangeException(nameof(iterations));
         transparencyResources ??= new SilkD3D12TransparencyResources(Device, resourceHeap, samplerHeap);
@@ -1031,6 +1046,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             shadowParameters);
         var lastLayer = 0;
         for (var layer = 1; layer < iterations; layer++) {
+            using var layerProfile = D3D12Profiler.Begin(context, "Silk.DepthPeeling.Layer");
             var previousDepth = transparencyResources.BeginDepthPeelingLayer(context, layer, mainDepthStencil);
             recorded += RenderVisible(context,
                 nodes,
@@ -1077,6 +1093,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         in ShadowMapParamStruct parameters,
         ref BoundingFrustum frustum
     ) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.Shadows");
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.AsGuardNotNull();
         candidates.AsGuardNotNull();
@@ -1154,6 +1171,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         uint width,
         uint height
     ) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.Volumes");
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (volumes.Count == 0) return 0;
         volumeResources ??= new SilkD3D12VolumeResources(Device);
@@ -1218,6 +1236,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         bool testFrustum,
         ref BoundingFrustum frustum
     ) {
+        using var profile = D3D12Profiler.Begin(context, "Silk.Particles");
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         visibleNodes.Clear();
         SceneNodeFrustumSelector.AppendVisible(particles, visibleNodes, testFrustum, ref frustum);
@@ -1267,6 +1286,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         in ShadowMapParamStruct parameters
     ) {
         var bindings = GetBindings(mesh);
+        bindings.BindHeaps(context);
         bindings.UpdateShadow(in parameters, shadowMap?.Resource);
         return mesh.TryRenderD3D12(context, resources, pass, bindings, in transforms) ? 1 : 0;
     }
@@ -1290,6 +1310,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         in ShadowMapParamStruct parameters
     ) {
         var bindings = GetBindings(bone);
+        bindings.BindHeaps(context);
         bindings.UpdateShadow(in parameters, shadowMap?.Resource);
         return bone.TryRenderD3D12(context,
             resources,
@@ -1425,7 +1446,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             _peelingMeshBindings.Add(peelingTexture, cache);
         }
         if (cache.TryGetValue(core, out var bindings)) return bindings;
-        bindings = new SilkD3D12MeshBindings(Device, resourceHeap, samplerHeap);
+        bindings = new SilkD3D12MeshBindings(Device, resourceHeap, samplerHeap, _sceneBindings);
         cache.Add(core, bindings);
         return bindings;
     }
@@ -1474,7 +1495,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             _peelingPointLineBindings.Add(peelingTexture, cache);
         }
         if (cache.TryGetValue(core, out var bindings)) return bindings;
-        bindings = new SilkD3D12PointLineBindings(Device, resourceHeap, samplerHeap);
+        bindings = new SilkD3D12PointLineBindings(Device, resourceHeap, samplerHeap, _sceneBindings);
         cache.Add(core, bindings);
         return bindings;
     }
@@ -1574,6 +1595,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         postProcessResources?.Dispose();
         postProcessResources = null;
         _effectBindings.Dispose();
+        _sceneBindings.Dispose();
         ssaoResources?.Dispose();
         ssaoResources = null;
         scene2DRenderer.Dispose();

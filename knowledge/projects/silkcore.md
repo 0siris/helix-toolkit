@@ -105,3 +105,23 @@ The public API and automatic-disposal policy remain unchanged. Five CPU-only reg
 identity under both disposal policies, ordinary eviction and automatic return-to-pool reentrancy. Two replacement
 cases fail before the correction; all five and the existing texture/resource checks pass afterward (141 cases).
 These checks require neither a native device nor a window; no new GPU or presentation acceptance is implied.
+
+# Paged scene descriptors and external profiling
+
+Ordinary mesh and point/line bindings, including independent peeling-input caches, allocate complete tables from
+an instance of the existing D3D12EffectBindingPool. Scene pages are separate from transient effect pages and from
+the shared resource heap. One shared-root-signature table occupies 118 resource and 10 sampler descriptors;
+16,384/2,048-entry pages hold 138 tables. Heap pairs are bound per draw, including shadow mesh/bone draws and GPU
+intersection lines. Cleanup remains gated by the completed presentation fence. Disposal releases table leases
+before their pool pages; high-water pages are retained for reuse during the renderer lifetime.
+
+The pressure test adds 80 offscreen meshes to one physical translucent plane: 162 tables cross one production
+page. It checks stable pixels, opaque/peeling switches, resize, disposal, scene replacement and descriptor reuse.
+Existing multilayer composition tests retain analytic alpha/readback verification; ordinary and instanced planes
+continue to use the original geometry and shaders.
+
+Set SILK_D3D12_PROFILE=1 before starting a process to enable the official PIX runtime's named CPU/GPU regions,
+resource names and descriptor occupancy counters. WinPixEventRuntime 1.0.240308001 provides the x64 DLL copied
+into consumer output/publish directories. The default path emits no PIX calls, timers or extra GPU waits.
+Only internal helpers are added. No public diagnostics API or application diagnostics window is introduced.
+PIX capture tooling remains a separate installation; marker execution is not evidence of an actual capture.

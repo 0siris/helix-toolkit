@@ -290,6 +290,8 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
         try {
             for (var index = 0; index < replacements.Length; index++) {
                 replacements[index] = device.CreateRenderTargetTexture2D(width, height, formats[index]);
+                if (D3D12Profiler.Enabled)
+                    D3D12Profiler.NameObject(replacements[index]!.NativePointer, $"Silk.Transparency.Target{index}.{width}x{height}");
                 device.CreateRenderTargetView(replacements[index], renderTargetViews[index]);
             }
         } catch {

@@ -1,4 +1,4 @@
-﻿using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Material;
@@ -31,6 +31,12 @@ public sealed class NativeDepthPeelingDeterminismTests {
     [Trait("Category", "Warp")]
     public void WarpRepeatedPlaneTest(int iterations, bool instanced) =>
         Verify(SilkDriverType.Warp, iterations, instanced, false, false);
+
+    /// Checks scene paging beyond the production heap capacity, repeated draws, resize and disposal without a window.
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpDescriptorPressureTest() =>
+        Verify(SilkDriverType.Warp, 6, false, false, false, 80);
 
     /// <summary>
     ///     Checks unchanged hardware frames, including every boundary pixel, without presentation or a window.
@@ -94,15 +100,17 @@ public sealed class NativeDepthPeelingDeterminismTests {
     /// <param name="instanced">Whether a single plane uses two transformed instances.</param>
     /// <param name="multipleLayers">Whether six distinct depths must be consumed by three actual peeling passes.</param>
     /// <param name="reverse">Whether far layers are submitted first.</param>
-    private static void Verify(SilkDriverType driver, int iterations, bool instanced, bool multipleLayers, bool reverse) {
+    /// <param name="extraMeshes">The offscreen meshes forcing scene descriptors across a page boundary.</param>
+    private static void Verify(SilkDriverType driver, int iterations, bool instanced, bool multipleLayers, bool reverse,
+        int extraMeshes = 0) {
         using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, driver);
         using var queue = device.CreateCommandQueue();
         using var context = device.CreateCommandContext();
         using var fence = device.CreateFence();
         using var catalog = new D3D12ScenePassCatalog(device, Format.FormatR8G8B8A8Unorm,
             Format.FormatD32FloatS8X24Uint);
-        using var resources = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 4096, true);
-        using var samplers = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 512, true);
+        using var resources = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 16_384, true);
+        using var samplers = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 2_048, true);
         using var renderer = new SilkD3D12SceneRenderer(device, resources, samplers);
         using var targetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 2);
         using var targetView = targetHeap.Allocate();
@@ -152,6 +160,14 @@ public sealed class NativeDepthPeelingDeterminismTests {
             }
             return node;
         }).ToArray();
+        owners = [..owners, ..Enumerable.Range(0, extraMeshes).Select(_ => {
+            var offscreen = Matrix.Identity;
+            offscreen.M41 = 10;
+            return new MeshNode {
+                Geometry = geometry, ModelMatrix = offscreen, IsTransparent = true,
+                Material = new DiffuseMaterialCore { DiffuseColor = colors[0], EnableUnLit = true }
+            };
+        })];
         var nodes = new FastList<SceneNode>(owners.Length);
         foreach (var owner in reverse ? owners.Reverse() : owners) nodes.Add(owner);
         var transforms = new GlobalTransformStruct {
@@ -164,8 +180,9 @@ public sealed class NativeDepthPeelingDeterminismTests {
         ///     Records one complete frame and returns only bytes copied after its GPU fence completes.
         /// </summary>
         /// <param name="resized">Whether to replace the transparency targets with a separate 32-pixel target.</param>
+        /// <param name="transparent">Whether to use peeling rather than the ordinary mesh pass.</param>
         /// <returns>The complete RGBA target without row-pitch padding.</returns>
-        byte[] Render(bool resized = false) {
+        byte[] Render(bool resized = false, bool transparent = true) {
             var colorTarget = resized ? smallTarget : target;
             var colorView = resized ? smallTargetView : targetView;
             var depthTarget = resized ? smallDepth : depth;
@@ -183,12 +200,17 @@ public sealed class NativeDepthPeelingDeterminismTests {
             context.ClearDepthStencil(depthTarget, stencilView);
             context.SetRenderTargets(colorView, stencilView);
             context.SetViewport(size, size);
-            renderer.RenderDepthPeeling(context, nodes, catalog.ResolveDepthPeelingInitialization,
-                catalog.ResolveDepthPeeling, catalog.ResolveDepthPeelingComposition(), iterations, in frameTransforms,
-                false, ref frustum, colorTarget, colorView, stencilView, size, size, null, null,
-                catalog.ResolveBoneSkinning, null);
+            if (transparent) {
+                renderer.RenderDepthPeeling(context, nodes, catalog.ResolveDepthPeelingInitialization,
+                    catalog.ResolveDepthPeeling, catalog.ResolveDepthPeelingComposition(), iterations, in frameTransforms,
+                    false, ref frustum, colorTarget, colorView, stencilView, size, size, null, null,
+                    catalog.ResolveBoneSkinning, null);
+            } else {
+                renderer.RenderVisible(context, nodes, catalog.Resolve, in frameTransforms, false, ref frustum);
+            }
             context.Transition(colorTarget, ResourceStates.CopySource);
             context.CopyTextureToBuffer(buffer, colorTarget, in layout);
+            D3D12Profiler.ReportDescriptors(renderer.SceneBindings, renderer.EffectBindings, resources, samplers);
             context.Close();
             queue.Execute(context);
             fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(10));
@@ -209,9 +231,20 @@ public sealed class NativeDepthPeelingDeterminismTests {
             var samplerCount = samplers.Count;
             var tableSize = SilkD3D12GraphicsBindings.ConstantBufferCount +
                 SilkD3D12GraphicsBindings.ShaderResourceCount + SilkD3D12GraphicsBindings.UnorderedAccessCount;
-            var expectedTables = 1 + owners.Length * 2;
-            Assert.Equal(tableSize * expectedTables, descriptorCount);
-            Assert.Equal(SilkD3D12GraphicsBindings.SamplerCount * expectedTables, samplerCount);
+            var expectedTables = owners.Length * 2;
+            Assert.Equal(tableSize, descriptorCount);
+            Assert.Equal(SilkD3D12GraphicsBindings.SamplerCount, samplerCount);
+            Assert.Equal(tableSize * expectedTables, renderer.SceneBindings.ResourceDescriptorCount);
+            Assert.Equal(SilkD3D12GraphicsBindings.SamplerCount * expectedTables,
+                renderer.SceneBindings.SamplerDescriptorCount);
+            if (extraMeshes > 0) {
+                Assert.Equal(2, renderer.SceneBindings.PageCount);
+                for (var toggle = 0; toggle < 3; toggle++) {
+                    _ = Render(transparent: false);
+                    var translucent = Render();
+                    Assert.Equal(baseline, translucent);
+                }
+            }
             for (var repeat = 0; repeat < 20; repeat++) {
                 var unchanged = Render();
                 Assert.Equal(baseline, unchanged);
@@ -273,16 +306,37 @@ public sealed class NativeDepthPeelingDeterminismTests {
             Assert.Equal(baseline, afterRetirement);
             Assert.Equal(descriptorCount, resources.Count);
             Assert.Equal(samplerCount, samplers.Count);
+            Assert.Equal(tableSize * expectedTables, renderer.SceneBindings.ResourceDescriptorCount);
             foreach (var owner in owners) {
                 Assert.Same(geometry, owner.Geometry);
                 owner.Dispose();
             }
             renderer.BeginFrame();
+            Assert.Equal(0, renderer.SceneBindings.ResourceDescriptorCount);
+            Assert.Equal(0, renderer.SceneBindings.SamplerDescriptorCount);
             // Only the full-screen transparency table remains after all source mesh owners are disposed.
             var fullScreenDescriptors = SilkD3D12GraphicsBindings.ConstantBufferCount +
                 SilkD3D12GraphicsBindings.ShaderResourceCount + SilkD3D12GraphicsBindings.UnorderedAccessCount;
             Assert.Equal(fullScreenDescriptors, resources.Count);
             Assert.Equal(SilkD3D12GraphicsBindings.SamplerCount, samplers.Count);
+            if (extraMeshes > 0) {
+                var replacementTransform = Matrix.Identity;
+                replacementTransform.M43 = 0.125f;
+                using var replacement = new MeshNode {
+                    Geometry = geometry, IsTransparent = true, ModelMatrix = replacementTransform,
+                    Material = new DiffuseMaterialCore { DiffuseColor = colors[0], EnableUnLit = true }
+                };
+                nodes.Clear();
+                nodes.Add(replacement);
+                var replacementPixels = Render();
+                Assert.Equal(baseline, replacementPixels);
+                Assert.Equal(tableSize * 2, renderer.SceneBindings.ResourceDescriptorCount);
+                Assert.Equal(2, renderer.SceneBindings.PageCount);
+                replacement.Dispose();
+                renderer.BeginFrame();
+                Assert.Equal(0, renderer.SceneBindings.ResourceDescriptorCount);
+                Assert.Equal(0, renderer.SceneBindings.SamplerDescriptorCount);
+            }
             renderer.Dispose();
             Assert.Equal(0, resources.Count);
             Assert.Equal(0, samplers.Count);

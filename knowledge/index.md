@@ -49,3 +49,5 @@ knowledge records explicit same-version CodeDom/CSharp package restoration inste
 
 SilkCore records source-faithful two-key overwrite/lookup and corrected association equality, with additive pair
 carriers preserving established tuple enumeration and removal signatures.
+
+SilkCore also records paged ordinary/peeling descriptors, headless capacity/lifecycle regressions and opt-in PIX instrumentation.

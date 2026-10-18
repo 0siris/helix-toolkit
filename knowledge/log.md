@@ -398,3 +398,9 @@ Graphify regenerated this composed batch: 979 files, 9,218 nodes, 16,366 edges a
 - Parent22 owning headless cases pass; exact three-path source/parent raw replays and unchanged-prefix proof retained.
 - Graphify regenerated984 files into9264 nodes/16366 edges/2696 communities with zero model tokens; existing17
   partial parser files remain disclosed. No generated output was hand-edited; Rider/ReSharper were unavailable.
+
+## 2026-10-18 — Scene descriptor paging and external profiler markers
+
+- Reused the existing paged table allocator for ordinary mesh/point-line and immutable peeling bindings, preserving fence ownership.
+- Added opt-in official PIX command-list regions, native object names and actual scene/effect/shared descriptor counters.
+- Added a headless pressure regression reproducing the original heap-exhaustion exception; visible performance capture is separate.

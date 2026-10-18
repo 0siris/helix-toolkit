@@ -461,18 +461,22 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             currentContext.SetRenderTargets(currentSwapChain.CurrentRenderTargetView, currentDepthStencilView);
             currentContext.SetViewport(currentSwapChain.Width, currentSwapChain.Height);
         }
-        var recorded = renderer.RenderVisible(currentContext,
-            opaqueNodes,
-            catalog.Resolve,
-            in transforms,
-            testFrustum,
-            ref frustum,
-            lights,
-            environmentMap,
-            catalog.ResolveBoneSkinning,
-            shadowParameters,
-            ssaoMap,
-            ssaoMap is null ? -1 : 31);
+        int recorded;
+        {
+            using var opaqueProfile = D3D12Profiler.Begin(currentContext, "Silk.Opaque");
+            recorded = renderer.RenderVisible(currentContext,
+                opaqueNodes,
+                catalog.Resolve,
+                in transforms,
+                testFrustum,
+                ref frustum,
+                lights,
+                environmentMap,
+                catalog.ResolveBoneSkinning,
+                shadowParameters,
+                ssaoMap,
+                ssaoMap is null ? -1 : 31);
+        }
         recorded += renderer.RenderVolumes(currentContext,
             volumeNodes,
             opaqueNodes,
@@ -611,6 +615,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             currentContext.Transition(backBuffer, ResourceStates.CopySource);
             currentContext.CopyTextureToBuffer(readback, backBuffer, in footprint);
         }
+        D3D12Profiler.ReportDescriptors(renderer.SceneBindings, renderer.EffectBindings, resourceHeap!, samplerHeap!);
         EndFrame(currentContext, currentSwapChain, backBuffer, waitForCompletion || captureFrame);
         if (readback is not null) {
             using (readback) {

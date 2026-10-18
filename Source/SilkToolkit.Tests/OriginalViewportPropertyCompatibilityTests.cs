@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
+using System.Windows.Threading;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
 using Xunit;
@@ -43,7 +44,7 @@ public sealed class OriginalViewportPropertyCompatibilityTests {
     [Trait("Category", "Wpf")]
     public Task OriginalPropertyContractTest(string originalName, string currentName, object defaultValue,
         object firstValue, object secondValue, string literal) {
-        return StaThread.RunAsync(() => {
+        return StaThread.RunAsync(async () => {
             using var source = new Viewport3DX();
             var viewportType = typeof(Viewport3DX);
             var originalField = viewportType.GetField(originalName + "Property", BindingFlags.Public | BindingFlags.Static);
@@ -74,13 +75,16 @@ public sealed class OriginalViewportPropertyCompatibilityTests {
             Assert.Equal(defaultValue, currentProperty.GetValue(source));
 
             // Name-based WPF lookup must resolve the original name, rather than just a reflected CLR alias.
-            var markup = "<hx:Viewport3DX xmlns:hx=\"http://helix-toolkit.org/wpf/SharpDX\" " +
+            var markup = "<hx:Viewport3DX xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" " +
+                "xmlns:hx=\"http://helix-toolkit.org/wpf/SharpDX\" " +
                 originalName + "=\"{Binding " + originalName + ", Mode=TwoWay}\" />";
             using var target = (Viewport3DX)XamlReader.Parse(markup);
             target.DataContext = source;
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
             var expression = BindingOperations.GetBindingExpression(target, originalDp);
             Assert.NotNull(expression);
             originalProperty.SetValue(source, firstValue);
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
             Assert.Equal(firstValue, currentProperty.GetValue(source));
             Assert.Equal(firstValue, originalProperty.GetValue(target));
             Assert.Equal(firstValue, currentProperty.GetValue(target));
@@ -88,10 +92,12 @@ public sealed class OriginalViewportPropertyCompatibilityTests {
 
             // The retained current wrapper updates the same DP and therefore the original binding target.
             currentProperty.SetValue(source, secondValue);
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
             Assert.Equal(secondValue, originalProperty.GetValue(target));
             Assert.Equal(secondValue, currentProperty.GetValue(target));
             target.SetCurrentValue(currentDp, firstValue);
             expression.UpdateSource();
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
             Assert.Equal(firstValue, originalProperty.GetValue(source));
             Assert.Equal(firstValue, currentProperty.GetValue(source));
 
@@ -99,17 +105,36 @@ public sealed class OriginalViewportPropertyCompatibilityTests {
             BindingOperations.ClearBinding(target, originalDp);
             var currentExpression = BindingOperations.SetBinding(target, currentDp,
                 new Binding(originalName) { Source = source });
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
             currentProperty.SetValue(source, secondValue);
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
             Assert.Equal(secondValue, originalProperty.GetValue(target));
             Assert.Equal(secondValue, currentProperty.GetValue(target));
             Assert.Equal(BindingStatus.Active, currentExpression.Status);
 
             // Current CLR literal XAML continues to work through its retained setter.
-            var currentMarkup = "<hx:Viewport3DX xmlns:hx=\"http://helix-toolkit.org/wpf/SharpDX\" " +
+            var currentMarkup = "<hx:Viewport3DX xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" " +
+                "xmlns:hx=\"http://helix-toolkit.org/wpf/SharpDX\" " +
                 currentName + "=\"" + literal + "\" />";
             using var currentTarget = (Viewport3DX)XamlReader.Parse(currentMarkup);
             Assert.Equal(firstValue, originalProperty.GetValue(currentTarget));
             Assert.Equal(firstValue, currentProperty.GetValue(currentTarget));
+
+            // Existing XAML consumers also retain name-based bindings through their current member spelling.
+            var currentBindingMarkup =
+                "<hx:Viewport3DX xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" " +
+                "xmlns:hx=\"http://helix-toolkit.org/wpf/SharpDX\" " +
+                currentName + "=\"{Binding " + originalName + ", Mode=TwoWay}\" />";
+            using var currentBindingTarget = (Viewport3DX)XamlReader.Parse(currentBindingMarkup);
+            currentBindingTarget.DataContext = source;
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+            var currentNameExpression = BindingOperations.GetBindingExpression(currentBindingTarget, currentDp);
+            Assert.NotNull(currentNameExpression);
+            Assert.Equal(secondValue, currentProperty.GetValue(currentBindingTarget));
+            originalProperty.SetValue(source, firstValue);
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+            Assert.Equal(firstValue, currentProperty.GetValue(currentBindingTarget));
+            Assert.Equal(BindingStatus.Active, currentNameExpression.Status);
         });
     }
 }

@@ -1020,13 +1020,14 @@ public partial class Viewport3DX {
     /// <summary>
     ///     Set MSAA Level
     /// </summary>
-    public static readonly DependencyProperty MsaaProperty = DependencyProperty.Register("MSAA",
-        typeof(MSAALevel),
-        typeof(Viewport3DX),
-        new PropertyMetadata(MSAALevel.Disable));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) MsaaPropertyPair =
+        RegisterPropertyPair(nameof(Msaa), nameof(MSAA), typeof(MSAALevel), new PropertyMetadata(MSAALevel.Disable));
 
-    /// <summary>Identifies <see cref="MSAA"/> using the same property as <see cref="Msaa"/>.</summary>
-    public static readonly DependencyProperty MSAAProperty = MsaaProperty;
+    /// <summary>Identifies <see cref="Msaa"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty MsaaProperty = MsaaPropertyPair.Current;
+
+    /// <summary>Identifies <see cref="MSAA"/> synchronized with <see cref="Msaa"/>.</summary>
+    public static readonly DependencyProperty MSAAProperty = MsaaPropertyPair.Original;
 
     /// <summary>
     ///     The is move enabled property.
@@ -1171,85 +1172,90 @@ public partial class Viewport3DX {
     ///     Gets or sets a value indicating for Transparent objects render mode.
     ///     <see cref="MaterialGeometryModel3D.IsTransparent" />, <see cref="BillboardTextModel3D.IsTransparent" />
     /// </summary>
-    public static readonly DependencyProperty OitRenderModeProperty =
-        DependencyProperty.Register("OITRenderMode",
-                                    typeof(OITRenderType),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(OITRenderType.DepthPeeling));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) OitRenderModePropertyPair =
+        RegisterPropertyPair(nameof(OitRenderMode), nameof(OITRenderMode), typeof(OITRenderType),
+            new PropertyMetadata(OITRenderType.DepthPeeling));
+
+    /// <summary>Identifies <see cref="OitRenderMode"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty OitRenderModeProperty = OitRenderModePropertyPair.Current;
 
     /// <summary>
-    ///     Identifies <see cref="OITRenderMode"/> using the same property as <see cref="OitRenderMode"/>.
+    ///     Identifies <see cref="OITRenderMode"/> synchronized with <see cref="OitRenderMode"/>.
     /// </summary>
-    public static readonly DependencyProperty OITRenderModeProperty = OitRenderModeProperty;
+    public static readonly DependencyProperty OITRenderModeProperty = OitRenderModePropertyPair.Original;
 
     /// <summary>
     ///     The Order independent transparent rendering color weight power property
     /// </summary>
-    public static readonly DependencyProperty OitWeightPowerProperty =
-        DependencyProperty.Register("OITWeightPower",
-                                    typeof(double),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(3.0));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) OitWeightPowerPropertyPair =
+        RegisterPropertyPair(nameof(OitWeightPower), nameof(OITWeightPower), typeof(double), new PropertyMetadata(3.0));
+
+    /// <summary>Identifies <see cref="OitWeightPower"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty OitWeightPowerProperty = OitWeightPowerPropertyPair.Current;
 
     /// <summary>
-    ///     Identifies <see cref="OITWeightPower"/> using the same property as <see cref="OitWeightPower"/>.
+    ///     Identifies <see cref="OITWeightPower"/> synchronized with <see cref="OitWeightPower"/>.
     /// </summary>
-    public static readonly DependencyProperty OITWeightPowerProperty = OitWeightPowerProperty;
+    public static readonly DependencyProperty OITWeightPowerProperty = OitWeightPowerPropertyPair.Original;
 
 
     /// <summary>
     ///     The oit weight depth slope property
     /// </summary>
-    public static readonly DependencyProperty OitWeightDepthSlopeProperty =
-        DependencyProperty.Register("OITWeightDepthSlope",
-                                    typeof(double),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(1.0));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) OitWeightDepthSlopePropertyPair =
+        RegisterPropertyPair(nameof(OitWeightDepthSlope), nameof(OITWeightDepthSlope), typeof(double),
+            new PropertyMetadata(1.0));
+
+    /// <summary>Identifies <see cref="OitWeightDepthSlope"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty OitWeightDepthSlopeProperty = OitWeightDepthSlopePropertyPair.Current;
 
     /// <summary>
-    ///     Identifies <see cref="OITWeightDepthSlope"/> using the same property as <see cref="OitWeightDepthSlope"/>.
+    ///     Identifies <see cref="OITWeightDepthSlope"/> synchronized with <see cref="OitWeightDepthSlope"/>.
     /// </summary>
-    public static readonly DependencyProperty OITWeightDepthSlopeProperty = OitWeightDepthSlopeProperty;
+    public static readonly DependencyProperty OITWeightDepthSlopeProperty = OitWeightDepthSlopePropertyPair.Original;
 
     /// <summary>
     ///     The oit weight mode property
     ///     <para>Please refer to http://jcgt.org/published/0002/02/09/ </para>
     ///     <para>Linear0: eq7; Linear1: eq8; Linear2: eq9; NonLinear: eq10</para>
     /// </summary>
-    public static readonly DependencyProperty OitWeightModeProperty =
-        DependencyProperty.Register("OITWeightMode",
-                                    typeof(OITWeightMode),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(OITWeightMode.Linear1));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) OitWeightModePropertyPair =
+        RegisterPropertyPair(nameof(OitWeightMode), nameof(OITWeightMode), typeof(OITWeightMode),
+            new PropertyMetadata(OITWeightMode.Linear1));
+
+    /// <summary>Identifies <see cref="OitWeightMode"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty OitWeightModeProperty = OitWeightModePropertyPair.Current;
 
     /// <summary>
-    ///     Identifies <see cref="OITWeightMode"/> using the same property as <see cref="OitWeightMode"/>.
+    ///     Identifies <see cref="OITWeightMode"/> synchronized with <see cref="OitWeightMode"/>.
     /// </summary>
-    public static readonly DependencyProperty OITWeightModeProperty = OitWeightModeProperty;
+    public static readonly DependencyProperty OITWeightModeProperty = OitWeightModePropertyPair.Original;
 
     /// <summary>Identifies the depth-peeling iteration count.</summary>
-    public static readonly DependencyProperty OitDepthPeelingIterationProperty =
-        DependencyProperty.Register("OITDepthPeelingIteration",
-                                    typeof(int),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(4));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) OitDepthPeelingIterationPropertyPair =
+        RegisterPropertyPair(nameof(OitDepthPeelingIteration), nameof(OITDepthPeelingIteration), typeof(int),
+            new PropertyMetadata(4));
+
+    /// <summary>Identifies <see cref="OitDepthPeelingIteration"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty OitDepthPeelingIterationProperty = OitDepthPeelingIterationPropertyPair.Current;
 
     /// <summary>
-    ///     Identifies <see cref="OITDepthPeelingIteration"/> using the same property as <see cref="OitDepthPeelingIteration"/>.
+    ///     Identifies <see cref="OITDepthPeelingIteration"/> synchronized with <see cref="OitDepthPeelingIteration"/>.
     /// </summary>
-    public static readonly DependencyProperty OITDepthPeelingIterationProperty = OitDepthPeelingIterationProperty;
+    public static readonly DependencyProperty OITDepthPeelingIterationProperty = OitDepthPeelingIterationPropertyPair.Original;
 
     /// <summary>
     ///     The fxaa level property
     /// </summary>
-    public static readonly DependencyProperty FxaaLevelProperty =
-        DependencyProperty.Register("FXAALevel",
-                                    typeof(FXAALevel),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(FXAALevel.None));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) FxaaLevelPropertyPair =
+        RegisterPropertyPair(nameof(FxaaLevel), nameof(FXAALevel), typeof(FXAALevel),
+            new PropertyMetadata(FXAALevel.None));
 
-    /// <summary>Identifies <see cref="FXAALevel"/> using the same property as <see cref="FxaaLevel"/>.</summary>
-    public static readonly DependencyProperty FXAALevelProperty = FxaaLevelProperty;
+    /// <summary>Identifies <see cref="FxaaLevel"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty FxaaLevelProperty = FxaaLevelPropertyPair.Current;
+
+    /// <summary>Identifies <see cref="FXAALevel"/> synchronized with <see cref="FxaaLevel"/>.</summary>
+    public static readonly DependencyProperty FXAALevelProperty = FxaaLevelPropertyPair.Original;
 
 
     /// <summary>
@@ -1274,53 +1280,55 @@ public partial class Viewport3DX {
     /// <summary>
     ///     The enable ssao property
     /// </summary>
-    public static readonly DependencyProperty EnableSsaoProperty =
-        DependencyProperty.Register("EnableSSAO",
-                                    typeof(bool),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(false));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) EnableSsaoPropertyPair =
+        RegisterPropertyPair(nameof(EnableSsao), nameof(EnableSSAO), typeof(bool), new PropertyMetadata(false));
 
-    /// <summary>Identifies <see cref="EnableSSAO"/> using the same property as <see cref="EnableSsao"/>.</summary>
-    public static readonly DependencyProperty EnableSSAOProperty = EnableSsaoProperty;
+    /// <summary>Identifies <see cref="EnableSsao"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty EnableSsaoProperty = EnableSsaoPropertyPair.Current;
+
+    /// <summary>Identifies <see cref="EnableSSAO"/> synchronized with <see cref="EnableSsao"/>.</summary>
+    public static readonly DependencyProperty EnableSSAOProperty = EnableSsaoPropertyPair.Original;
 
 
     /// <summary>
     ///     The ssao sampling radius property
     /// </summary>
-    public static readonly DependencyProperty SsaoSamplingRadiusProperty =
-        DependencyProperty.Register("SSAOSamplingRadius",
-                                    typeof(double),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(0.5));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) SsaoSamplingRadiusPropertyPair =
+        RegisterPropertyPair(nameof(SsaoSamplingRadius), nameof(SSAOSamplingRadius), typeof(double),
+            new PropertyMetadata(0.5));
+
+    /// <summary>Identifies <see cref="SsaoSamplingRadius"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty SsaoSamplingRadiusProperty = SsaoSamplingRadiusPropertyPair.Current;
 
     /// <summary>
-    ///     Identifies <see cref="SSAOSamplingRadius"/> using the same property as <see cref="SsaoSamplingRadius"/>.
+    ///     Identifies <see cref="SSAOSamplingRadius"/> synchronized with <see cref="SsaoSamplingRadius"/>.
     /// </summary>
-    public static readonly DependencyProperty SSAOSamplingRadiusProperty = SsaoSamplingRadiusProperty;
+    public static readonly DependencyProperty SSAOSamplingRadiusProperty = SsaoSamplingRadiusPropertyPair.Original;
 
     /// <summary>Identifies the screen-space ambient occlusion intensity.</summary>
-    public static readonly DependencyProperty SsaoIntensityProperty =
-        DependencyProperty.Register("SSAOIntensity",
-                                    typeof(double),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(1.0));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) SsaoIntensityPropertyPair =
+        RegisterPropertyPair(nameof(SsaoIntensity), nameof(SSAOIntensity), typeof(double), new PropertyMetadata(1.0));
+
+    /// <summary>Identifies <see cref="SsaoIntensity"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty SsaoIntensityProperty = SsaoIntensityPropertyPair.Current;
 
     /// <summary>
-    ///     Identifies <see cref="SSAOIntensity"/> using the same property as <see cref="SsaoIntensity"/>.
+    ///     Identifies <see cref="SSAOIntensity"/> synchronized with <see cref="SsaoIntensity"/>.
     /// </summary>
-    public static readonly DependencyProperty SSAOIntensityProperty = SsaoIntensityProperty;
+    public static readonly DependencyProperty SSAOIntensityProperty = SsaoIntensityPropertyPair.Original;
 
     /// <summary>
     ///     The ssao quality property
     /// </summary>
-    public static readonly DependencyProperty SsaoQualityProperty =
-        DependencyProperty.Register("SSAOQuality",
-                                    typeof(SSAOQuality),
-                                    typeof(Viewport3DX),
-                                    new PropertyMetadata(SSAOQuality.Low));
+    private static readonly (DependencyProperty Current, DependencyProperty Original) SsaoQualityPropertyPair =
+        RegisterPropertyPair(nameof(SsaoQuality), nameof(SSAOQuality), typeof(SSAOQuality),
+            new PropertyMetadata(SSAOQuality.Low));
 
-    /// <summary>Identifies <see cref="SSAOQuality"/> using the same property as <see cref="SsaoQuality"/>.</summary>
-    public static readonly DependencyProperty SSAOQualityProperty = SsaoQualityProperty;
+    /// <summary>Identifies <see cref="SsaoQuality"/> under its retained WPF name.</summary>
+    public static readonly DependencyProperty SsaoQualityProperty = SsaoQualityPropertyPair.Current;
+
+    /// <summary>Identifies <see cref="SSAOQuality"/> synchronized with <see cref="SsaoQuality"/>.</summary>
+    public static readonly DependencyProperty SSAOQualityProperty = SsaoQualityPropertyPair.Original;
 
 
     /// <summary>

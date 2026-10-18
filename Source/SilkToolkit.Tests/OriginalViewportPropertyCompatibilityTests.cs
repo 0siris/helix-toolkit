@@ -31,7 +31,7 @@ public sealed class OriginalViewportPropertyCompatibilityTests {
         yield return ["SSAOQuality", "SsaoQuality", SSAOQuality.Low, SSAOQuality.High, SSAOQuality.Low, "High"];
     }
 
-    /// <summary>Preserves one DP, unchanged defaults, CLR access and original WPF XAML binding semantics.</summary>
+    /// <summary>Preserves both registered names, unchanged render values and two-way WPF binding semantics.</summary>
     /// <param name="originalName">The original Helix member spelling.</param>
     /// <param name="currentName">The retained current member spelling.</param>
     /// <param name="defaultValue">The unchanged existing render default.</param>
@@ -60,13 +60,17 @@ public sealed class OriginalViewportPropertyCompatibilityTests {
             var descriptor = DependencyPropertyDescriptor.FromName(originalName, viewportType, viewportType);
             var metadata = originalDp.GetMetadata(viewportType);
             var schemaMember = XamlReader.GetWpfSchemaContext().GetXamlType(viewportType).GetMember(originalName);
-            Assert.Same(currentDp, originalDp);
+            Assert.NotSame(currentDp, originalDp);
+            Assert.Equal(currentName, currentDp.Name);
             Assert.Equal(originalName, originalDp.Name);
             Assert.Equal(currentProperty.PropertyType, originalProperty.PropertyType);
             Assert.Equal(originalProperty.PropertyType, originalDp.PropertyType);
             Assert.Equal(viewportType, originalDp.OwnerType);
             Assert.Equal(defaultValue, metadata.DefaultValue);
-            Assert.Same(metadata, currentDp.GetMetadata(viewportType));
+            Assert.Equal(defaultValue, currentDp.GetMetadata(viewportType).DefaultValue);
+            var currentDescriptor = DependencyPropertyDescriptor.FromName(currentName, viewportType, viewportType);
+            Assert.NotNull(currentDescriptor);
+            Assert.Same(currentDp, currentDescriptor.DependencyProperty);
             Assert.NotNull(descriptor);
             Assert.Same(originalDp, descriptor.DependencyProperty);
             Assert.NotNull(schemaMember);
@@ -90,7 +94,7 @@ public sealed class OriginalViewportPropertyCompatibilityTests {
             Assert.Equal(firstValue, currentProperty.GetValue(target));
             Assert.Equal(BindingStatus.Active, expression.Status);
 
-            // The retained current wrapper updates the same DP and therefore the original binding target.
+            // The retained current wrapper synchronizes the original binding target.
             currentProperty.SetValue(source, secondValue);
             await Dispatcher.Yield(DispatcherPriority.ContextIdle);
             Assert.Equal(secondValue, originalProperty.GetValue(target));
@@ -135,6 +139,133 @@ public sealed class OriginalViewportPropertyCompatibilityTests {
             await Dispatcher.Yield(DispatcherPriority.ContextIdle);
             Assert.Equal(firstValue, currentProperty.GetValue(currentBindingTarget));
             Assert.Equal(BindingStatus.Active, currentNameExpression.Status);
+
+            // Exercise every source-name/target-name combination, preserving bindings on both target DPs.
+            foreach (var sourceName in new[] { originalName, currentName }) {
+                foreach (var targetName in new[] { originalName, currentName }) {
+                    using var bindingSource = new Viewport3DX();
+                    var targetDp = targetName == originalName ? originalDp : currentDp;
+                    var otherDp = targetName == originalName ? currentDp : originalDp;
+                    var bindingMarkup =
+                        "<hx:Viewport3DX xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" " +
+                        "xmlns:hx=\"http://helix-toolkit.org/wpf/SharpDX\" " +
+                        targetName + "=\"{Binding " + sourceName + ", Mode=TwoWay}\" />";
+                    using var boundTarget = (Viewport3DX)XamlReader.Parse(bindingMarkup);
+                    boundTarget.DataContext = bindingSource;
+                    await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+                    var targetBinding = BindingOperations.GetBindingExpression(boundTarget, targetDp);
+                    Assert.NotNull(targetBinding);
+                    var otherBinding = (BindingExpression)BindingOperations.SetBinding(boundTarget, otherDp,
+                        new Binding(sourceName) { Source = bindingSource, Mode = BindingMode.TwoWay });
+                    await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+                    bindingSource.SetCurrentValue(currentDp, firstValue);
+                    await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+                    Assert.Equal(firstValue, boundTarget.GetValue(originalDp));
+                    Assert.Equal(firstValue, boundTarget.GetValue(currentDp));
+                    boundTarget.SetCurrentValue(otherDp, secondValue);
+                    targetBinding.UpdateSource();
+                    otherBinding.UpdateSource();
+                    await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+                    Assert.Equal(secondValue, bindingSource.GetValue(originalDp));
+                    Assert.Equal(secondValue, bindingSource.GetValue(currentDp));
+                    Assert.Equal(secondValue, boundTarget.GetValue(originalDp));
+                    Assert.Equal(secondValue, boundTarget.GetValue(currentDp));
+                    Assert.Same(targetBinding, BindingOperations.GetBindingExpression(boundTarget, targetDp));
+                    Assert.Same(otherBinding, BindingOperations.GetBindingExpression(boundTarget, otherDp));
+                    Assert.Equal(BindingStatus.Active, targetBinding.Status);
+                    Assert.Equal(BindingStatus.Active, otherBinding.Status);
+                    bindingSource.SetCurrentValue(originalDp, firstValue);
+                    await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+                    Assert.Equal(firstValue, boundTarget.GetValue(originalDp));
+                    Assert.Equal(firstValue, boundTarget.GetValue(currentDp));
+                }
+            }
+
+            foreach (var name in new[] { originalName, currentName }) {
+                var styleMarkup =
+                    "<hx:Viewport3DX xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" " +
+                    "xmlns:hx=\"http://helix-toolkit.org/wpf/SharpDX\"><hx:Viewport3DX.Style>" +
+                    "<Style TargetType=\"{x:Type hx:Viewport3DX}\" " +
+                    "xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">" +
+                    "<Setter Property=\"" + name + "\" Value=\"" + literal + "\" />" +
+                    "</Style></hx:Viewport3DX.Style></hx:Viewport3DX>";
+                using var styled = (Viewport3DX)XamlReader.Parse(styleMarkup);
+                Assert.Equal(firstValue, styled.GetValue(originalDp));
+                Assert.Equal(firstValue, styled.GetValue(currentDp));
+            }
+
+            // Each logical change notifies both registered names once; repeating the value is silent.
+            using var observed = new CoercingViewport();
+            var originalChanges = 0;
+            var currentChanges = 0;
+            EventHandler originalChanged = (_, _) => originalChanges++;
+            EventHandler currentChanged = (_, _) => currentChanges++;
+            descriptor.AddValueChanged(observed, originalChanged);
+            currentDescriptor.AddValueChanged(observed, currentChanged);
+            try {
+                foreach (var changedDp in new[] { originalDp, currentDp }) {
+                    observed.SetCurrentValue(currentDp, secondValue);
+                    originalChanges = currentChanges = 0;
+                    observed.CurrentChanges = 0;
+                    observed.SetCurrentValue(changedDp, firstValue);
+                    observed.SetCurrentValue(changedDp, firstValue);
+                    Assert.Equal(firstValue, observed.GetValue(originalDp));
+                    Assert.Equal(firstValue, observed.GetValue(currentDp));
+                    Assert.Equal(1, originalChanges);
+                    Assert.Equal(1, currentChanges);
+                    Assert.Equal(1, observed.CurrentChanges);
+                }
+
+                // Current-side coercion remains authoritative when the original spelling is written.
+                observed.CoercedValue = firstValue;
+                observed.CurrentChanges = 0;
+                observed.SetCurrentValue(originalDp, secondValue);
+                Assert.Equal(firstValue, observed.GetValue(originalDp));
+                Assert.Equal(firstValue, observed.GetValue(currentDp));
+                Assert.Equal(0, observed.CurrentChanges);
+                observed.SetCurrentValue(currentDp, secondValue);
+                Assert.Equal(firstValue, observed.GetValue(originalDp));
+                Assert.Equal(firstValue, observed.GetValue(currentDp));
+                Assert.Equal(0, observed.CurrentChanges);
+            } finally {
+                descriptor.RemoveValueChanged(observed, originalChanged);
+                currentDescriptor.RemoveValueChanged(observed, currentChanged);
+            }
+
+            using var coerced = new CoercingViewport { CoercedValue = firstValue };
+            coerced.SetCurrentValue(originalDp, secondValue);
+            Assert.Equal(firstValue, coerced.GetValue(originalDp));
+            Assert.Equal(firstValue, coerced.GetValue(currentDp));
+            Assert.Equal(1, coerced.CurrentChanges);
+            coerced.SetCurrentValue(currentDp, secondValue);
+            Assert.Equal(firstValue, coerced.GetValue(originalDp));
+            Assert.Equal(firstValue, coerced.GetValue(currentDp));
+            Assert.Equal(1, coerced.CurrentChanges);
         });
+    }
+
+    /// <summary>Observes current metadata callbacks and applies derived current-side coercion without rendering.</summary>
+    private sealed class CoercingViewport : Viewport3DX {
+        /// <summary>Installs one observer and coercion callback on each retained current property.</summary>
+        static CoercingViewport() {
+            foreach (var propertyCase in PropertyCases()) {
+                var name = (string)propertyCase[1];
+                var field = typeof(Viewport3DX).GetField(name + "Property", BindingFlags.Public | BindingFlags.Static)!;
+                var property = (DependencyProperty)field.GetValue(null)!;
+                property.OverrideMetadata(typeof(CoercingViewport), new PropertyMetadata(
+                    property.DefaultMetadata.DefaultValue,
+                    (owner, _) => ((CoercingViewport)owner).CurrentChanges++,
+                    (owner, value) => ((CoercingViewport)owner).CoercedValue ?? value));
+            }
+        }
+
+        /// <summary>Initializes an untemplated, headless viewport.</summary>
+        public CoercingViewport() { }
+
+        /// <summary>Gets or sets the number of effective current-side metadata changes.</summary>
+        public int CurrentChanges { get; set; }
+
+        /// <summary>Gets or sets the authoritative coerced value, or <see langword="null"/> to retain the proposed value.</summary>
+        public object? CoercedValue { get; set; }
     }
 }

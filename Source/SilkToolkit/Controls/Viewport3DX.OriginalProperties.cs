@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using HelixToolkit.SharpDX.Core;
 
@@ -5,13 +6,39 @@ namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>Provides original Helix property spellings over the existing viewport render state.</summary>
 /// <remarks>
-///     WPF resolves dependency properties by registered name, so the existing registrations use the original names.
-///     Both public field spellings identify that single registration; current CLR wrappers remain available.
-///     Current callers can bind through the retained dependency-property fields. Name-based WPF lookup uses the
-///     original spelling, including XAML binding targets, style setters and dependency-property descriptors.
-///     Alias fields follow their registrations in the same partial file to avoid cross-file initialization ordering.
+///     Each spelling has its own registered WPF dependency property. Changes flow through the retained current
+///     property, preserving its render callback and both binding expressions with SetCurrentValue.
+///     Pair fields precede both public fields in the same partial file to keep static initialization ordered.
 /// </remarks>
 public partial class Viewport3DX {
+    /// <summary>Registers two WPF names synchronized through the existing current property metadata.</summary>
+    /// <param name="currentName">The retained current property name.</param>
+    /// <param name="originalName">The original Helix property name.</param>
+    /// <param name="propertyType">The shared property value type.</param>
+    /// <param name="metadata">The unchanged default, coercion and render-state callback for the current property.</param>
+    /// <returns>The distinct current and original registrations.</returns>
+    private static (DependencyProperty Current, DependencyProperty Original) RegisterPropertyPair(
+        string currentName, string originalName, Type propertyType, PropertyMetadata metadata) {
+        DependencyProperty original = null!;
+        var changed = metadata.PropertyChangedCallback;
+        metadata.PropertyChangedCallback = (owner, args) => {
+            if (!Equals(owner.GetValue(original), args.NewValue))
+                owner.SetCurrentValue(original, args.NewValue);
+            changed?.Invoke(owner, args);
+        };
+        var current = DependencyProperty.Register(currentName, propertyType, typeof(Viewport3DX), metadata);
+        original = DependencyProperty.Register(originalName, propertyType, typeof(Viewport3DX),
+            new PropertyMetadata(metadata.DefaultValue, (owner, args) => {
+                if (!Equals(owner.GetValue(current), args.NewValue))
+                    owner.SetCurrentValue(current, args.NewValue);
+                // Reflect the authoritative current value if its metadata coerced the requested original value.
+                var effectiveValue = owner.GetValue(current);
+                if (!Equals(owner.GetValue(original), effectiveValue))
+                    owner.SetCurrentValue(original, effectiveValue);
+            }, metadata.CoerceValueCallback));
+        return (current, original);
+    }
+
     /// <summary>Gets or sets the original Helix spelling of <see cref="Msaa"/>.</summary>
     public MSAALevel MSAA {
         get => (MSAALevel)GetValue(MSAAProperty);

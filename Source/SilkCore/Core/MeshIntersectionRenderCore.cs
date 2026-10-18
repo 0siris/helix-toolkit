@@ -139,8 +139,11 @@ public sealed class IntersectionDispatchInput {
 /// <summary>
 ///     Publishes immutable selected-pair work for the existing native renderer's compute/indirect-line owner.
 /// </summary>
-/// <remarks>Core computations and compatibility line geometry remain owned by the application, outside this UI-free toolkit.</remarks>
-public sealed class MeshIntersectionRenderCore : PointLineRenderCore {
+/// <remarks>
+///     Application subclasses retain this native dispatch owner. Core computations and compatibility line geometry
+///     remain owned by the application, outside this UI-free toolkit.
+/// </remarks>
+public class MeshIntersectionRenderCore : PointLineRenderCore {
     /// <summary>
     ///     Gets or sets whether native rendering uses the source transverse GPU kernel. Set to false to render
     ///     application-provided Core geometry, including coplanar cases outside the source kernel's scope.

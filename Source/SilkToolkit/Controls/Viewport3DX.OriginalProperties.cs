@@ -35,7 +35,10 @@ public partial class Viewport3DX {
                 var effectiveValue = owner.GetValue(current);
                 if (!Equals(owner.GetValue(original), effectiveValue))
                     owner.SetCurrentValue(original, effectiveValue);
-            }, metadata.CoerceValueCallback));
+            }, (owner, value) => {
+                var coerce = current.GetMetadata(owner.GetType()).CoerceValueCallback;
+                return coerce is null ? value : coerce(owner, value);
+            }));
         return (current, original);
     }
 

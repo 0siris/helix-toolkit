@@ -243,10 +243,13 @@ public sealed class MeshIntersectionGpuTests {
         ///     Creates the compute core while retaining the ordinary line node contract.
         /// </summary>
         /// <returns>The selected-pair intersection render core.</returns>
-        protected override HelixToolkit.SharpDX.Core.Core.RenderCore OnCreateRenderCore() => new MeshIntersectionRenderCore();
+        protected override HelixToolkit.SharpDX.Core.Core.RenderCore OnCreateRenderCore() => new ApplicationIntersectionCore();
         /// <summary>Creates valid bounds for scene selection; native output comes solely from compute.</summary>
         public GpuLineNode() {
             Geometry = new LineGeometry3D { Positions = new Vector3Collection([new Vector3(-1), new Vector3(1)]), Indices = new IntCollection([0, 1]) };
         }
     }
+
+    /// <summary>Exercises application inheritance through the existing native compute and indirect draw tests.</summary>
+    private sealed class ApplicationIntersectionCore : MeshIntersectionRenderCore { }
 }

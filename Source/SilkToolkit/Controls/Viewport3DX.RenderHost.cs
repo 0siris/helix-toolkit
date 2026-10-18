@@ -9,7 +9,8 @@ public partial class Viewport3DX : IRenderHost {
     /// Gets the actual viewport frame owner.
     public IRenderHost RenderHost => this;
 
-    IViewport3DX IRenderHost.Viewport {
+    /// Gets this host's actual viewport; assigning a foreign viewport is unsupported.
+    public IViewport3DX Viewport {
         get => this;
         set {
             if (!ReferenceEquals(value, this))

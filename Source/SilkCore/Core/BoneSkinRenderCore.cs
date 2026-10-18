@@ -132,7 +132,7 @@ public class BoneSkinRenderCore : MeshRenderCore {
         pass.BindShader(context);
         context.SetGraphicsDescriptorTables(bindings.ResourceTableStart, bindings.SamplerTableStart);
         var instances = InstanceBuffer is IElementsBufferModel<Matrix> matrixInstances
-            ? resources.GetOrCreate(matrixInstances)
+            ? resources.GetOrCreate(matrixInstances, this)
             : null;
         if (skinning is null) {
             if (instances is null)

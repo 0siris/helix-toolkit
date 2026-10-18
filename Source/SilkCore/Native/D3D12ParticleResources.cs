@@ -224,7 +224,7 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
         }
 
         var instanceBuffer = core.InstanceBuffer.HasElements
-            ? resources.GetOrCreate((IElementsBufferModel<Matrix>) core.InstanceBuffer)
+            ? resources.GetOrCreate((IElementsBufferModel<Matrix>) core.InstanceBuffer, core)
             : null;
         var drawArguments = new ParticleCountIndirectArgs {
             InstanceCount = instanceBuffer?.ElementCount ?? 1
@@ -303,14 +303,19 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
         SilkD3D12ResourceManager resources,
         ParticleRenderCore core
     ) {
-        if (core.ParticleTexture is { } textureModel) {
-            var texture = resources.GetOrCreate(context, textureModel);
+        bindings.HasCurrentTextureOwner = () => !core.IsDisposed && core.IsAttached;
+        var texture = bindings.GetTexture(context, resources, core.ParticleTexture, TextureRegister,
+            () => core.ParticleTexture);
+        if (texture is not null) {
             device.CreateShaderResourceView(texture.Resource, bindings.ShaderResource(TextureRegister));
         } else {
             device.CreateNullShaderResourceView(bindings.ShaderResource(TextureRegister));
         }
         device.CreateSampler(bindings.Sampler(SamplerRegister), core.SamplerDescription);
     }
+
+    /// Relinquishes textures whose particle owner was detached, disposed, or replaced its texture property.
+    internal void ReleaseDisposedTextures() => bindings.ReleaseDisposedTextures();
 
     /// <summary>
     ///     Returns one unmanaged structure as bytes for upload writes.

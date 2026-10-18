@@ -5,6 +5,8 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using HelixToolkit.SharpDX.Core.Core2D;
+using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using Silk.NET.Core;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D12;
@@ -53,6 +55,12 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// </summary>
     private readonly Dictionary<GlyphKey, D3D12GlyphAtlasEntry> entries = [];
 
+    /// The current layout registration and physical scale of each text owner.
+    private readonly Dictionary<SceneNode2D, (GlyphKey Key, float DpiScale)> owners = [];
+
+    /// The original empty atlas extent used when reclaiming obsolete text pixels.
+    private readonly int initialSize;
+
     /// <summary>
     ///     CPU-side tightly packed RGBA atlas pixels.
     /// </summary>
@@ -93,6 +101,9 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// </summary>
     private SilkD3D12Resource? upload;
 
+    /// Atlas allocations retained until the next completed presentation fence.
+    private readonly List<SilkD3D12Resource> retiredResources = [];
+
     /// <summary>
     ///     Whether CPU pixels differ from the current GPU texture.
     /// </summary>
@@ -102,8 +113,10 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     ///     Initializes an atlas with a power-of-two testable initial extent.
     /// </summary>
     /// <param name="initialSize">The positive initial width and height.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The initial extent is smaller than two pixels.</exception>
     internal D3D12GlyphAtlas(int initialSize = 128) {
         if (initialSize < 2) throw new ArgumentOutOfRangeException(nameof(initialSize));
+        this.initialSize = initialSize;
         width = initialSize;
         height = initialSize;
         pixels = new byte[checked(width * height * 4)];
@@ -149,7 +162,11 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <param name="maxHeight">The layout height.</param>
     /// <param name="alignment">The paragraph alignment.</param>
     /// <param name="flowDirection">The text reading direction.</param>
+    /// <param name="owner">The productive text node retaining this layout, when supplied.</param>
+    /// <param name="dpiScale">The physical scale used by the owner.</param>
     /// <returns>The stable atlas entry.</returns>
+    /// <exception cref="ObjectDisposedException">The atlas has been disposed.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The font size is not positive and finite.</exception>
     internal D3D12GlyphAtlasEntry GetOrCreate(
         string text,
         string fontFamily,
@@ -159,7 +176,9 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
         float maxWidth,
         float maxHeight,
         TextAlignment alignment,
-        FlowDirection flowDirection
+        FlowDirection flowDirection,
+        SceneNode2D? owner = null,
+        float dpiScale = 1
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         text.AsGuardNotNull();
@@ -174,6 +193,10 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
             NormalizeExtent(maxHeight),
             alignment,
             flowDirection);
+        if (owner is not null) {
+            if (owners.TryGetValue(owner, out var previous) && previous.Key != key && Release(owner)) Repack();
+            owners[owner] = (key, dpiScale);
+        }
         if (entries.TryGetValue(key, out var cached)) return cached;
 
         using var format = new TextFormat(factory, fontFamily, fontWeight, fontStyle, fontSize);
@@ -195,6 +218,68 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
             collector.GlyphCount);
         entries.Add(key, entry);
         return entry;
+    }
+
+    /// <summary>
+    ///     Releases layouts whose original text owner was detached, disposed, or changed its layout properties.
+    /// </summary>
+    /// <remarks>Call only from BeginFrame after the preceding presentation fence has completed.</remarks>
+    internal void ReleaseDisposedResources() {
+        foreach (var resource in retiredResources) resource.Dispose();
+        retiredResources.Clear();
+        var removed = false;
+        foreach (var (owner, registration) in owners.ToArray()) {
+            var key = registration.Key;
+            if (owner.IsDisposed || !owner.IsAttached || owner.RenderCore is not TextRenderCore2D core
+                || core.Text != key.Text || core.FontFamily != key.FontFamily
+                || core.FontWeight != key.FontWeight || core.FontStyle != key.FontStyle
+                || core.FontSize * registration.DpiScale != key.FontSize
+                || NormalizeExtent(core.MaxWidth) != key.MaxWidth || NormalizeExtent(core.MaxHeight) != key.MaxHeight
+                || core.TextAlignment != key.Alignment || core.FlowDirection != key.FlowDirection)
+                removed |= Release(owner);
+        }
+        if (removed) Repack();
+        if (dirty) {
+            upload?.Dispose();
+            texture?.Dispose();
+            upload = null;
+            texture = null;
+        }
+    }
+
+    /// <summary>
+    ///     Relinquishes the replaced layout and reclaims its pixels after its last owner releases it.
+    /// </summary>
+    /// <param name="owner">The original text owner.</param>
+    /// <returns>Whether obsolete pixels need to be reclaimed.</returns>
+    private bool Release(SceneNode2D owner) {
+        if (!owners.Remove(owner, out var registration)
+            || owners.Values.Any(value => value.Key == registration.Key)) return false;
+        return entries.Remove(registration.Key);
+    }
+
+    /// Reclaims obsolete text storage while retaining the shaped pixels and entry identities of live shared text.
+    private void Repack() {
+        var previousPixels = pixels;
+        var previousWidth = width;
+        width = initialSize;
+        height = initialSize;
+        pixels = new byte[checked(width * height * 4)];
+        cursorX = Padding + 1;
+        cursorY = Padding;
+        rowHeight = 1;
+        SetPixel(0, 0, 255);
+        foreach (var entry in entries.Values) {
+            var oldX = entry.X;
+            var oldY = entry.Y;
+            var position = Allocate(entry.Width, entry.Height);
+            entry.X = position.X;
+            entry.Y = position.Y;
+            for (var row = 0; row < entry.Height; row++)
+                previousPixels.AsSpan(((oldY + row) * previousWidth + oldX) * 4, entry.Width * 4)
+                    .CopyTo(pixels.AsSpan(((entry.Y + row) * width + entry.X) * 4));
+        }
+        dirty = true;
     }
 
     /// <summary>
@@ -222,8 +307,8 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
             throw;
         }
 
-        upload?.Dispose();
-        texture?.Dispose();
+        if (upload is not null) retiredResources.Add(upload);
+        if (texture is not null) retiredResources.Add(texture);
         upload = replacementUpload;
         texture = replacement;
         dirty = false;
@@ -237,7 +322,10 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
         upload?.Dispose();
         texture?.Dispose();
         factory.Dispose();
+        foreach (var resource in retiredResources) resource.Dispose();
+        retiredResources.Clear();
         entries.Clear();
+        owners.Clear();
         IsDisposed = true;
     }
 
@@ -674,7 +762,7 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
 /// </summary>
 internal sealed class D3D12GlyphAtlasEntry {
     /// <summary>
-    ///     Initializes one immutable atlas entry.
+    ///     Initializes one shaped text atlas entry.
     /// </summary>
     /// <param name="x">The atlas x coordinate.</param>
     /// <param name="y">The atlas y coordinate.</param>
@@ -699,11 +787,11 @@ internal sealed class D3D12GlyphAtlasEntry {
         GlyphCount = glyphCount;
     }
 
-    /// <summary>Gets the atlas x coordinate.</summary>
-    internal int X { get; }
+    /// <summary>Gets or sets the current atlas x coordinate after reclaiming obsolete text.</summary>
+    internal int X { get; set; }
 
-    /// <summary>Gets the atlas y coordinate.</summary>
-    internal int Y { get; }
+    /// <summary>Gets or sets the current atlas y coordinate after reclaiming obsolete text.</summary>
+    internal int Y { get; set; }
 
     /// <summary>Gets the raster width.</summary>
     internal int Width { get; }

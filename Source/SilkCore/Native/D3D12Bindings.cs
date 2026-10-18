@@ -5,6 +5,7 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core.Buffers;
 using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
@@ -22,6 +23,72 @@ namespace HelixToolkit.SharpDX.Core.Native;
 ///     Owns one contiguous pair of resource and sampler tables matching the shared root signature.
 /// </summary>
 internal sealed class SilkD3D12GraphicsBindings : IDisposable {
+    /// Texture registrations retained by the actual shader-resource slots.
+    private readonly SilkD3D12ResourceManager.TextureRegistration?[] textures =
+        new SilkD3D12ResourceManager.TextureRegistration?[ShaderResourceCount];
+
+    /// Slots used by the material currently updating this binding.
+    private readonly bool[] usedTextures = new bool[ShaderResourceCount];
+
+    /// Getters for texture properties whose replacement relinquishes the corresponding binding slot.
+    private readonly Func<TextureModel?>?[] textureSources = new Func<TextureModel?>?[ShaderResourceCount];
+
+    /// Gets or sets the predicate identifying the original material and render-core binding lifetime.
+    internal Func<bool>? HasCurrentTextureOwner { get; set; }
+
+    /// Relinquishes only registrations whose original owner or texture property has changed.
+    internal void ReleaseDisposedTextures() {
+        var hasOwner = HasCurrentTextureOwner?.Invoke() ?? true;
+        for (var index = 0; index < textures.Length; index++) {
+            if (!hasOwner || textures[index] is { } registration
+                && textureSources[index] is { } source && source()?.Guid != registration.Id)
+                ReleaseTexture(index);
+        }
+        if (!hasOwner) HasCurrentTextureOwner = null;
+    }
+
+    /// Begins a material update without releasing unchanged texture registrations.
+    internal void BeginTextureUpdate() => Array.Clear(usedTextures);
+
+    /// Relinquishes slots omitted by the replacement material.
+    internal void EndTextureUpdate() {
+        for (var index = 0; index < textures.Length; index++)
+            if (!usedTextures[index]) ReleaseTexture(index);
+    }
+
+    /// <summary>
+    ///     Registers or reuses the texture owned by one binding slot.
+    /// </summary>
+    /// <param name="context">The first-use upload context.</param>
+    /// <param name="manager">The shared resource manager.</param>
+    /// <param name="model">The current texture, or null to release the slot.</param>
+    /// <param name="register">The destination shader register.</param>
+    /// <param name="source">The current original texture property, when available.</param>
+    /// <returns>The registered texture, or null for an empty slot.</returns>
+    internal SilkD3D12TextureModelResource? GetTexture(SilkD3D12CommandContext context,
+        SilkD3D12ResourceManager manager, TextureModel? model, int register, Func<TextureModel?>? source = null) {
+        usedTextures[register] = true;
+        textureSources[register] = source;
+        var registration = textures[register];
+        if (model is not null && registration is not null && registration.Id == model.Guid
+            && registration.BelongsTo(manager)) return registration.Texture;
+        var replacement = model is null ? null : manager.Register(context, model);
+        ReleaseTexture(register);
+        textures[register] = replacement;
+        textureSources[register] = source;
+        return replacement?.Texture;
+    }
+
+    /// <summary>
+    ///     Relinquishes one slot without disposing resources still referenced by GPU commands.
+    /// </summary>
+    /// <param name="register">The shader register to release.</param>
+    internal void ReleaseTexture(int register) {
+        textures[register]?.Dispose();
+        textures[register] = null;
+        textureSources[register] = null;
+    }
+
     /// <summary>
     ///     The number of constant-buffer registers in one resource table.
     /// </summary>
@@ -214,6 +281,7 @@ internal sealed class SilkD3D12GraphicsBindings : IDisposable {
     /// </summary>
     public void Dispose() {
         if (IsDisposed) return;
+        for (var index = 0; index < textures.Length; index++) ReleaseTexture(index);
         foreach (var descriptor in resources) descriptor.Dispose();
         foreach (var descriptor in samplers) descriptor.Dispose();
         IsDisposed = true;
@@ -357,6 +425,26 @@ internal sealed class SilkD3D12ConstantBuffer : IDisposable {
 ///     Owns the root tables and b0/b1 buffers required by one in-flight default-mesh draw.
 /// </summary>
 internal sealed class SilkD3D12MeshBindings : IDisposable {
+    /// Gets or sets the render core retaining this binding, including reusable effect slots.
+    internal MeshRenderCore? Owner { get; set; }
+
+    /// Gets or sets the renderer's current environment texture property.
+    internal Func<TextureModel?>? EnvironmentSource { get; set; }
+
+    /// Relinquishes textures whose original binding owner or material property was replaced.
+    internal void ReleaseDisposedTextures() {
+        bindings.ReleaseDisposedTextures();
+        if (Owner is null) return;
+        if (Owner.IsDisposed || !Owner.IsAttached || Owner.D3D12Material is not ColorStripeMaterialCore stripe) {
+            ReleaseColorStripe(0);
+            ReleaseColorStripe(1);
+        } else {
+            if (!ReferenceEquals(stripe.ColorStripeX, stripeSources[0])) ReleaseColorStripe(0);
+            if (!ReferenceEquals(stripe.ColorStripeY, stripeSources[1])) ReleaseColorStripe(1);
+        }
+        if (Owner.IsDisposed || !Owner.IsAttached) Owner = null;
+    }
+
     /// <summary>
     ///     The Direct3D 12 device used to populate borrowed descriptors.
     /// </summary>
@@ -414,11 +502,6 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     ///     The synthetic 1D textures used by color-stripe materials.
     /// </summary>
     private readonly TextureModel?[] stripeTextures = new TextureModel?[2];
-
-    /// <summary>
-    ///     The resource manager currently owning the synthetic stripe textures.
-    /// </summary>
-    private SilkD3D12ResourceManager? stripeResources;
 
     /// <summary>
     ///     Initializes one default-mesh binding set.
@@ -539,6 +622,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         resources.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         var materialData = D3D12MeshMaterialData.Create(in modelData, material);
+        bindings.HasCurrentTextureOwner = () => Owner is null || !Owner.IsDisposed && Owner.IsAttached;
         BindMaterialResources(context, resources, material, environmentMap);
         if (material is ID3D12MeshMaterial custom) {
             customMaterial ??= new SilkD3D12ConstantBuffer(device, bindings.ConstantBuffer(2), 256);
@@ -688,29 +772,30 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         MaterialCore? material,
         TextureModel? environmentMap
     ) {
+        bindings.BeginTextureUpdate();
         switch (material) {
             case DiffuseMaterialCore diffuse:
-                BindTexture(context, resources, diffuse.DiffuseMap, 0);
+                BindTexture(context, resources, diffuse.DiffuseMap, 0, () => diffuse.DiffuseMap);
                 device.CreateSampler(bindings.Sampler(0), diffuse.DiffuseMapSampler);
                 break;
             case PhongMaterialCore phong:
-                BindTexture(context, resources, phong.DiffuseMap, 0);
-                BindTexture(context, resources, phong.NormalMap, 1);
-                BindTexture(context, resources, phong.DiffuseAlphaMap, 2);
-                BindTexture(context, resources, phong.SpecularColorMap, 3);
-                BindTexture(context, resources, phong.DisplacementMap, 4);
-                BindTexture(context, resources, phong.EmissiveMap, 5);
+                BindTexture(context, resources, phong.DiffuseMap, 0, () => phong.DiffuseMap);
+                BindTexture(context, resources, phong.NormalMap, 1, () => phong.NormalMap);
+                BindTexture(context, resources, phong.DiffuseAlphaMap, 2, () => phong.DiffuseAlphaMap);
+                BindTexture(context, resources, phong.SpecularColorMap, 3, () => phong.SpecularColorMap);
+                BindTexture(context, resources, phong.DisplacementMap, 4, () => phong.DisplacementMap);
+                BindTexture(context, resources, phong.EmissiveMap, 5, () => phong.EmissiveMap);
                 device.CreateSampler(bindings.Sampler(0), phong.DiffuseMapSampler);
                 device.CreateSampler(bindings.Sampler(3), phong.DisplacementMapSampler);
                 break;
             case PbrMaterialCore pbr:
-                BindTexture(context, resources, pbr.AlbedoMap, 0);
-                BindTexture(context, resources, pbr.NormalMap, 1);
-                BindTexture(context, resources, pbr.RoughnessMetallicMap, 2);
-                BindTexture(context, resources, pbr.AmbientOcculsionMap, 3);
-                BindTexture(context, resources, pbr.DisplacementMap, 4);
-                BindTexture(context, resources, pbr.EmissiveMap, 5);
-                BindTexture(context, resources, pbr.IrradianceMap, 21);
+                BindTexture(context, resources, pbr.AlbedoMap, 0, () => pbr.AlbedoMap);
+                BindTexture(context, resources, pbr.NormalMap, 1, () => pbr.NormalMap);
+                BindTexture(context, resources, pbr.RoughnessMetallicMap, 2, () => pbr.RoughnessMetallicMap);
+                BindTexture(context, resources, pbr.AmbientOcculsionMap, 3, () => pbr.AmbientOcculsionMap);
+                BindTexture(context, resources, pbr.DisplacementMap, 4, () => pbr.DisplacementMap);
+                BindTexture(context, resources, pbr.EmissiveMap, 5, () => pbr.EmissiveMap);
+                BindTexture(context, resources, pbr.IrradianceMap, 21, () => pbr.IrradianceMap);
                 device.CreateSampler(bindings.Sampler(0), pbr.SurfaceMapSampler);
                 device.CreateSampler(bindings.Sampler(1), pbr.IblSampler);
                 device.CreateSampler(bindings.Sampler(3), pbr.DisplacementMapSampler);
@@ -726,16 +811,16 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
             ReadOnlySpan<int> materialRegisters = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14];
             foreach (var register in materialRegisters) {
                 var texture = custom.GetTexture(register);
-                if (texture is null) device.CreateNullShaderResourceView(bindings.ShaderResource(register));
-                else BindTexture(context, resources, texture, register);
+                BindTexture(context, resources, texture, register, () => custom.GetTexture(register));
             }
             for (var register = 0; register < 4; register++)
                 device.CreateSampler(bindings.Sampler(register),
                     custom.GetSampler(register) ?? DefaultSamplers.LinearSamplerWrapAni4);
         }
-        if (environmentMap is null) return;
-        BindTexture(context, resources, environmentMap, 20);
-        device.CreateSampler(bindings.Sampler(4), DefaultSamplers.EnvironmentSampler);
+        BindTexture(context, resources, environmentMap, 20, EnvironmentSource);
+        if (environmentMap is not null)
+            device.CreateSampler(bindings.Sampler(4), DefaultSamplers.EnvironmentSampler);
+        bindings.EndTextureUpdate();
     }
 
     /// <summary>
@@ -745,17 +830,58 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     /// <param name="resources">The shared resource manager.</param>
     /// <param name="textureModel">The optional existing texture model.</param>
     /// <param name="shaderRegister">The destination t-register.</param>
+    /// <param name="source">The original texture property used to detect replacement while not drawing.</param>
     private void BindTexture(
         SilkD3D12CommandContext context,
         SilkD3D12ResourceManager resources,
         TextureModel? textureModel,
-        int shaderRegister
+        int shaderRegister,
+        Func<TextureModel?>? source = null
     ) {
-        if (textureModel is null) return;
-        var texture = resources.GetOrCreate(context, textureModel);
+        var texture = bindings.GetTexture(context, resources, textureModel, shaderRegister,
+            Owner is null ? source : () => GetMaterialTexture(shaderRegister));
+        if (texture is null) {
+            device.CreateNullShaderResourceView(bindings.ShaderResource(shaderRegister));
+            return;
+        }
         device.CreateShaderResourceView(texture.Resource,
             bindings.ShaderResource(shaderRegister),
             texture.IsCubeMap);
+    }
+
+    /// <summary>
+    ///     Reads the current owner's existing material channels without uploading or recreating valid registrations.
+    /// </summary>
+    /// <param name="register">The shader register whose source property is checked.</param>
+    /// <returns>The original material texture currently assigned to the register.</returns>
+    private TextureModel? GetMaterialTexture(int register) {
+        if (register == 20) return EnvironmentSource?.Invoke();
+        var material = Owner?.D3D12Material;
+        if (register is >= 0 and <= 9 or 14 && material is ID3D12MeshMaterial custom)
+            return custom.GetTexture(register);
+        return material switch {
+            DiffuseMaterialCore diffuse when register == 0 => diffuse.DiffuseMap,
+            PhongMaterialCore phong => register switch {
+                0 => phong.DiffuseMap,
+                1 => phong.NormalMap,
+                2 => phong.DiffuseAlphaMap,
+                3 => phong.SpecularColorMap,
+                4 => phong.DisplacementMap,
+                5 => phong.EmissiveMap,
+                _ => null
+            },
+            PbrMaterialCore pbr => register switch {
+                0 => pbr.AlbedoMap,
+                1 => pbr.NormalMap,
+                2 => pbr.RoughnessMetallicMap,
+                3 => pbr.AmbientOcculsionMap,
+                4 => pbr.DisplacementMap,
+                5 => pbr.EmissiveMap,
+                21 => pbr.IrradianceMap,
+                _ => null
+            },
+            _ => null
+        };
     }
 
     /// <summary>
@@ -773,7 +899,6 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         int index,
         int shaderRegister
     ) {
-        stripeResources = resources;
         if (!ReferenceEquals(stripeSources[index], colors)) {
             ReleaseColorStripe(index);
             stripeSources[index] = colors;
@@ -786,7 +911,10 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
             return;
         }
 
-        var texture = resources.GetOrCreate(context, textureModel);
+        var texture = bindings.GetTexture(context, resources, textureModel, shaderRegister,
+            () => Owner?.D3D12Material is ColorStripeMaterialCore stripe
+                && ReferenceEquals(index == 0 ? stripe.ColorStripeX : stripe.ColorStripeY, stripeSources[index])
+                ? stripeTextures[index] : null)!;
         device.CreateTexture1DShaderResourceView(texture.Resource, bindings.ShaderResource(shaderRegister));
     }
 
@@ -795,8 +923,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     /// </summary>
     /// <param name="index">The stripe cache index.</param>
     private void ReleaseColorStripe(int index) {
-        if (stripeTextures[index] is { } texture && stripeResources is { IsDisposed: false } manager)
-            manager.Remove(texture.Guid);
+        bindings.ReleaseTexture(index == 0 ? 12 : 13);
         stripeSources[index] = null;
         stripeTextures[index] = null;
     }
@@ -849,6 +976,11 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
 ///     Owns the shared root tables plus b0/b4 used by one existing volume render core.
 /// </summary>
 internal sealed class SilkD3D12VolumeBindings : IDisposable {
+    /// Gets or sets the original volume core retaining these texture bindings.
+    internal VolumeRenderCore? Owner { get; set; }
+
+    /// Relinquishes textures whose volume owner or original material data was replaced.
+    internal void ReleaseDisposedTextures() => bindings.ReleaseDisposedTextures();
     /// <summary>
     ///     The device used to write volume descriptors.
     /// </summary>
@@ -885,11 +1017,6 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
     private TextureModel? volumeModel;
 
     /// <summary>
-    ///     Whether the current volume texture model is owned by this binding set.
-    /// </summary>
-    private bool ownsVolumeModel;
-
-    /// <summary>
     ///     The source transfer-map array currently represented by the synthetic 1D texture.
     /// </summary>
     private Color4[]? transferSource;
@@ -898,11 +1025,6 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
     ///     The current synthetic transfer-map texture model.
     /// </summary>
     private TextureModel? transferModel;
-
-    /// <summary>
-    ///     The resource manager currently owning synthetic texture allocations.
-    /// </summary>
-    private SilkD3D12ResourceManager? resources;
 
     /// <summary>
     ///     Initializes one volume binding set.
@@ -970,9 +1092,21 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
         context.AsGuardNotNull();
         resources.AsGuardNotNull();
         backPositions.AsGuardNotNull();
-        this.resources = resources;
-        if (!TryGetVolumeModel(material, out var currentModel)) return false;
-        var texture = resources.GetOrCreate(context, currentModel);
+        bindings.HasCurrentTextureOwner = () => Owner is null || !Owner.IsDisposed && Owner.IsAttached;
+        if (!TryGetVolumeModel(material, out var currentModel)) {
+            ReleaseOwnedVolume();
+            ReleaseTransfer();
+            return false;
+        }
+        var texture = bindings.GetTexture(context, resources, currentModel, 0,
+            () => (Owner is null ? material : Owner.D3D12Material) switch {
+            VolumeTextureRawDataMaterialCore raw when ReferenceEquals(raw.VolumeTexture.VolumeTextures, volumeSource)
+                => volumeModel,
+            VolumeTextureDiffuseMaterialCore diffuse
+                when ReferenceEquals(diffuse.VolumeTexture.VolumeTextures, volumeSource) => volumeModel,
+            VolumeTextureDds3DMaterialCore dds => dds.VolumeTexture,
+            _ => null
+        })!;
         if (texture.Resource.Description.Dimension != ResourceDimension.Texture3D)
             throw new NotSupportedException("Volume materials require a three-dimensional texture.");
 
@@ -1022,7 +1156,6 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
     ) {
         object? source;
         TextureModel? candidate;
-        var ownsCandidate = false;
         switch (material) {
             case VolumeTextureRawDataMaterialCore raw when raw.VolumeTexture.VolumeTextures is { Length: > 0 } bytes:
                 source = bytes;
@@ -1032,7 +1165,6 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
                         raw.VolumeTexture.Width,
                         raw.VolumeTexture.Height,
                         raw.VolumeTexture.Depth);
-                ownsCandidate = true;
                 break;
             case VolumeTextureDiffuseMaterialCore diffuse
                 when diffuse.VolumeTexture.VolumeTextures is { Length: > 0 } gradients:
@@ -1043,7 +1175,6 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
                         diffuse.VolumeTexture.Width,
                         diffuse.VolumeTexture.Height,
                         diffuse.VolumeTexture.Depth);
-                ownsCandidate = true;
                 break;
             case VolumeTextureDds3DMaterialCore { VolumeTexture: { } dds }:
                 source = dds;
@@ -1058,7 +1189,6 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
             ReleaseOwnedVolume();
             volumeSource = source;
             volumeModel = candidate;
-            ownsVolumeModel = ownsCandidate;
         }
         model = volumeModel!;
         return true;
@@ -1086,7 +1216,9 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
             transferSource = transfer;
             transferModel = new TextureModel(transfer, transfer.Length);
         }
-        var texture = resources.GetOrCreate(context, transferModel!);
+        var texture = bindings.GetTexture(context, resources, transferModel!, 12,
+            () => ReferenceEquals((Owner is null ? material : Owner.D3D12Material as IVolumeTextureMaterial)?.TransferMap,
+                transferSource) ? transferModel : null)!;
         device.CreateTexture1DShaderResourceView(texture.Resource, bindings.ShaderResource(12));
     }
 
@@ -1094,19 +1226,16 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
     ///     Removes the currently owned synthetic volume texture from the shared manager.
     /// </summary>
     private void ReleaseOwnedVolume() {
-        if (ownsVolumeModel && volumeModel is not null && resources is { IsDisposed: false } manager)
-            manager.Remove(volumeModel.Guid);
+        bindings.ReleaseTexture(0);
         volumeSource = null;
         volumeModel = null;
-        ownsVolumeModel = false;
     }
 
     /// <summary>
     ///     Removes the synthetic transfer-map texture from the shared manager.
     /// </summary>
     private void ReleaseTransfer() {
-        if (transferModel is not null && resources is { IsDisposed: false } manager)
-            manager.Remove(transferModel.Guid);
+        bindings.ReleaseTexture(12);
         transferSource = null;
         transferModel = null;
     }
@@ -1201,6 +1330,14 @@ internal struct D3D12VolumeParams {
 ///     Owns root tables and b0/b4 buffers for one in-flight point, line, or billboard draw.
 /// </summary>
 internal sealed class SilkD3D12PointLineBindings : IDisposable {
+    /// Gets or sets the original point, line, or billboard core retaining these textures.
+    internal PointLineRenderCore? Owner { get; set; }
+
+    /// Relinquishes replaced or detached original point, line, and billboard texture registrations.
+    internal void ReleaseDisposedTextures() {
+        bindings.ReleaseDisposedTextures();
+        if (Owner is { IsDisposed: true } or { IsAttached: false }) Owner = null;
+    }
     /// <summary>
     ///     Binds GPU-produced collision segments at the source vertex shader's t0 register.
     /// </summary>
@@ -1348,9 +1485,13 @@ internal sealed class SilkD3D12PointLineBindings : IDisposable {
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         var data = D3D12PointLineMaterialData.Create(in model, material);
+        bindings.HasCurrentTextureOwner = () => Owner is null || !Owner.IsDisposed && Owner.IsAttached;
         var textureModel = material is LineMaterialCore line ? line.Texture : billboardTexture;
-        if (textureModel is not null) {
-            var texture = resources.GetOrCreate(context, textureModel);
+        var texture = bindings.GetTexture(context, resources, textureModel, 0, () =>
+            (Owner is null ? material : Owner.D3D12Material) is LineMaterialCore currentLine ? currentLine.Texture
+                : Owner?.GeometryBuffer is DefaultBillboardBufferModel { Geometry: BillboardBase billboard }
+                    ? billboard.Texture : Owner is null ? billboardTexture : null);
+        if (texture is not null) {
             device.CreateShaderResourceView(texture.Resource, bindings.ShaderResource(0), texture.IsCubeMap);
             var sampler = material switch {
                 LineMaterialCore lineMaterial => lineMaterial.SamplerDescription,

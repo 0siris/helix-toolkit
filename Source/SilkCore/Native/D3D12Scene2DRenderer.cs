@@ -71,6 +71,12 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// </summary>
     private readonly Dictionary<Stream, TextureModel> images = new(ReferenceEqualityComparer.Instance);
 
+    /// The current stream owned by each original image node.
+    private readonly Dictionary<ImageNode2D, Stream> imageOwners = [];
+
+    /// Native texture registrations retained by the original image nodes.
+    private readonly Dictionary<ImageNode2D, SilkD3D12ResourceManager.TextureRegistration> imageTextures = [];
+
     /// <summary>
     ///     Reused frame draw list in exact preorder.
     /// </summary>
@@ -120,6 +126,10 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         bindingSlotIndex = 0;
         draws.Clear();
+        atlas.ReleaseDisposedResources();
+        foreach (var owner in imageOwners.Keys.Where(owner => owner.IsDisposed || !owner.IsAttached
+            || !ReferenceEquals(owner.ImageStream, imageOwners[owner])).ToArray())
+            ReleaseImage(owner);
     }
 
     /// <summary>
@@ -184,9 +194,14 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         context.SetViewport(width, height);
         var recorded = 0;
         foreach (var draw in draws) {
-            var texture = draw.Image is { } image
-                ? resources.GetOrCreate(context, image).Resource
-                : atlas.Texture;
+            var texture = atlas.Texture;
+            if (draw.Image is { } image && draw.Node is ImageNode2D owner) {
+                if (!imageTextures.TryGetValue(owner, out var registration)) {
+                    registration = resources.Register(context, image);
+                    imageTextures.Add(owner, registration);
+                }
+                texture = registration.Texture.Resource;
+            }
             context.Transition(texture, ResourceStates.PixelShaderResource);
             UpdateAtlasUvs(draw);
             var slot = NextBindingSlot();
@@ -221,6 +236,9 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         attachedRoots.Clear();
         foreach (var slot in bindingSlots) slot.Dispose();
         bindingSlots.Clear();
+        foreach (var registration in imageTextures.Values) registration.Dispose();
+        imageTextures.Clear();
+        imageOwners.Clear();
         images.Clear();
         draws.Clear();
         atlas.Dispose();
@@ -342,7 +360,9 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             core.MaxWidth,
             core.MaxHeight,
             core.TextAlignment,
-            core.FlowDirection);
+            core.FlowDirection,
+            node,
+            dpiScale);
         if (entry.Width == 0 || entry.Height == 0) return;
         var bounds = new RectangleF(node.LayoutBound.Left + entry.OffsetX,
             node.LayoutBound.Top + entry.OffsetY,
@@ -356,6 +376,9 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// </summary>
     private void AddImage(ImageNode2D node, RectangleF clip) {
         if (node.ImageStream is not { } stream || node.Opacity <= 0) return;
+        if (imageOwners.TryGetValue(node, out var previous) && !ReferenceEquals(previous, stream))
+            ReleaseImage(node);
+        imageOwners[node] = stream;
         if (!images.TryGetValue(stream, out var image)) {
             image = TextureModel.Create(stream)
                     ?? throw new InvalidOperationException("The Scene2D image stream could not be loaded.");
@@ -367,6 +390,16 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             clip,
             null,
             image);
+    }
+
+    /// <summary>
+    ///     Releases the image node's current stream and native registration.
+    /// </summary>
+    /// <param name="owner">The original image owner.</param>
+    private void ReleaseImage(ImageNode2D owner) {
+        if (imageTextures.Remove(owner, out var registration)) registration.Dispose();
+        if (imageOwners.Remove(owner, out var stream) && !imageOwners.ContainsValue(stream))
+            images.Remove(stream);
     }
 
     /// <summary>

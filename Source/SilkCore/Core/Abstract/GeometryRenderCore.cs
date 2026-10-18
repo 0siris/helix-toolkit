@@ -216,7 +216,7 @@ public abstract class GeometryRenderCore : RenderCore, IGeometryRenderCore {
             throw new ArgumentException("Graphics resource and sampler tables must be supplied together.");
 
         var instanceBuffer = InstanceBuffer is IElementsBufferModel<Matrix> matrixInstances
-            ? resources.GetOrCreate(matrixInstances)
+            ? resources.GetOrCreate(matrixInstances, this)
             : null;
         pass.BindShader(context);
         if (resourceTable is not null && samplerTable is not null)

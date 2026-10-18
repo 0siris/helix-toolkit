@@ -28,6 +28,11 @@ namespace HelixToolkit.SharpDX.Core.Native;
 ///     Records visible existing geometry scene nodes through the productive Direct3D 12 render-core paths.
 /// </summary>
 internal sealed class SilkD3D12SceneRenderer : IDisposable {
+    /// The renderer's reference to the current shared environment texture.
+    private SilkD3D12ResourceManager.TextureRegistration? environmentTexture;
+
+    /// The current environment property shared with mesh and effect texture bindings.
+    private TextureModel? currentEnvironmentMap;
     /// Per-core immutable GPU intersection generations, owned by this render host.
     private readonly Dictionary<MeshIntersectionRenderCore, SilkD3D12IntersectionResources> intersectionResources = [];
     /// Replaced generations retained until the next completed host fence.
@@ -276,7 +281,6 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         postProcessResources?.BeginFrame();
         bloomHalfResources?.BeginFrame();
         bloomQuarterResources?.BeginFrame();
-        resources.ReleaseDisposedResources();
         attachedNodes.RemoveWhere(node => node.IsDisposed || !node.RenderCore.IsAttached);
         outlineResources?.BeginFrame();
         outlineBlurResources?.BeginFrame();
@@ -312,6 +316,16 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         }
         foreach (var retired in retiredIntersections) retired.Dispose();
         retiredIntersections.Clear();
+        foreach (var binding in meshBindings.Values.Concat(_peelingMeshBindings.Values.SelectMany(cache => cache.Values))
+            .Concat(effectMeshBindings).Distinct())
+            binding.ReleaseDisposedTextures();
+        foreach (var binding in pointLineBindings.Values
+            .Concat(_peelingPointLineBindings.Values.SelectMany(cache => cache.Values))
+            .Concat(effectLineBindings).Distinct())
+            binding.ReleaseDisposedTextures();
+        foreach (var binding in volumeBindings.Values) binding.ReleaseDisposedTextures();
+        foreach (var particle in particleResources.Values) particle.ReleaseDisposedTextures();
+        resources.ReleaseDisposedResources();
     }
 
 
@@ -887,6 +901,12 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 ? effectParameters.HasValue ? NextEffectLineBindings()
                     : GetBindings(pointLineCore, passTextureRegister == 100 ? passTexture : null)
                 : null;
+            if (drawMeshBindings is not null) {
+                drawMeshBindings.Owner = (MeshRenderCore)node.RenderCore;
+                drawMeshBindings.EnvironmentSource = () => currentEnvironmentMap;
+            }
+            if (drawPointLineBindings is not null)
+                drawPointLineBindings.Owner = (PointLineRenderCore)node.RenderCore;
             if (passTexture is not null) {
                 if (passTextureRegister < 0) throw new ArgumentOutOfRangeException(nameof(passTextureRegister));
                 drawMeshBindings?.BindPassTexture(passTexture, passTextureRegister);
@@ -1366,8 +1386,14 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         lights.AsGuardNotNull();
         lights.HasEnvironmentMap = false;
         lights.EnvironmentMapMipLevels = 0;
-        if (environmentMap is null) return null;
-        var texture = resources.GetOrCreate(context, environmentMap);
+        currentEnvironmentMap = environmentMap;
+        if (environmentTexture?.Id != environmentMap?.Guid) {
+            var replacement = environmentMap is null ? null : resources.Register(context, environmentMap);
+            environmentTexture?.Dispose();
+            environmentTexture = replacement;
+        }
+        if (environmentTexture is null) return null;
+        var texture = environmentTexture.Texture;
         if (!texture.IsCubeMap) return null;
         lights.HasEnvironmentMap = true;
         lights.EnvironmentMapMipLevels = texture.Resource.Description.MipLevels;
@@ -1533,7 +1559,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <returns>The core's host-lifetime bindings.</returns>
     private SilkD3D12VolumeBindings GetBindings(VolumeRenderCore core) {
         if (volumeBindings.TryGetValue(core, out var bindings)) return bindings;
-        bindings = new SilkD3D12VolumeBindings(Device, resourceHeap, samplerHeap);
+        bindings = new SilkD3D12VolumeBindings(Device, resourceHeap, samplerHeap) { Owner = core };
         volumeBindings.Add(core, bindings);
         return bindings;
     }
@@ -1577,6 +1603,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     public void Dispose() {
         if (IsDisposed) return;
+        environmentTexture?.Dispose();
         foreach (var cache in _peelingMeshBindings.Values)
             if (!ReferenceEquals(cache, meshBindings))
                 foreach (var binding in cache.Values) binding.Dispose();

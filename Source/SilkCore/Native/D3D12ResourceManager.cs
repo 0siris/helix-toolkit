@@ -5,6 +5,7 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using System.ComponentModel;
 using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Core.Buffers;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Geometry;
@@ -44,6 +45,15 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     ///     Texture resources keyed by the existing content identifier contract.
     /// </summary>
     private readonly Dictionary<Guid, SilkD3D12TextureModelResource> textures = [];
+
+    /// Counts the live binding registrations for each shared texture.
+    private readonly Dictionary<Guid, int> textureReferences = [];
+
+    /// Holds explicitly removed textures until the preceding presentation fence completes.
+    private readonly List<SilkD3D12TextureModelResource> retiredTextures = [];
+
+    /// Replaced instance allocations awaiting a completed presentation fence.
+    private readonly List<IDisposable> retiredInstances = [];
 
     /// <summary>
     ///     Synchronizes resource lookup, creation, and disposal.
@@ -232,19 +242,21 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     ///     Creates, updates, or reuses one matrix-instance vertex stream.
     /// </summary>
     /// <param name="source">The existing matrix-instance model.</param>
+    /// <param name="owner">The render core currently binding the stream, when available.</param>
     /// <returns>The current native stream, or <see langword="null" /> when the model is empty.</returns>
-    internal SilkD3D12ElementsBuffer<Matrix>? GetOrCreate(IElementsBufferModel<Matrix> source) {
+    internal SilkD3D12ElementsBuffer<Matrix>? GetOrCreate(IElementsBufferModel<Matrix> source,
+        RenderCore? owner = null) {
         source.AsGuardNotNull();
         lock (syncRoot) {
             ThrowIfDisposed();
             if (!source.HasElements) {
-                if (instances.Remove(source, out var emptyEntry)) emptyEntry.Dispose();
                 return null;
             }
             if (!instances.TryGetValue(source, out var entry)) {
                 entry = new InstanceEntry(source);
                 instances.Add(source, entry);
             }
+            if (owner is not null) entry.Owners.Add(owner);
             if (entry.Buffer is null) {
                 entry.Buffer = SilkD3D12ElementsBuffer<Matrix>.Create(device, source);
                 entry.ConsumeDirty();
@@ -252,7 +264,9 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
                 try {
                     entry.Buffer.Update(source);
                 } catch (InvalidOperationException) {
-                    entry.Buffer = entry.Buffer.Recreate(device, source);
+                    var replacement = SilkD3D12ElementsBuffer<Matrix>.Create(device, source);
+                    retiredInstances.Add(entry.Buffer);
+                    entry.Buffer = replacement;
                 }
             return entry.Buffer;
         }
@@ -281,15 +295,98 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     }
 
     /// <summary>
-    ///     Removes disposed geometry and released instance buffers after the preceding presentation fence.
+    ///     Removes unregistered textures, disposed geometry, and released instances after the presentation fence.
     /// </summary>
     internal void ReleaseDisposedResources() {
         lock (syncRoot) {
+            foreach (var texture in retiredTextures) texture.Dispose();
+            retiredTextures.Clear();
+            foreach (var id in textures.Keys.Where(id => !textureReferences.ContainsKey(id)).ToArray()) {
+                textures[id].Dispose();
+                textures.Remove(id);
+            }
             foreach (var source in geometries.Keys.Where(source => source is IDisposeObject { IsDisposed: true }).ToArray())
                 Remove(source);
-            foreach (var source in instances.Keys.Where(source => !source.Initialized
-                || source is IDisposeObject { IsDisposed: true }).ToArray())
-                Remove(source);
+            foreach (var source in instances.Keys.ToArray()) {
+                var entry = instances[source];
+                var hadOwners = entry.Owners.Count != 0;
+                entry.Owners.RemoveWhere(owner => owner.IsDisposed || !owner.IsAttached
+                    || !ReferenceEquals(source, owner switch {
+                        GeometryRenderCore geometry => geometry.InstanceBuffer,
+                        ParticleRenderCore particle => particle.InstanceBuffer,
+                        _ => null
+                    }));
+                if (!source.Initialized || !source.HasElements || source is IDisposeObject { IsDisposed: true }
+                    || hadOwners && entry.Owners.Count == 0)
+                    Remove(source);
+            }
+            foreach (var instance in retiredInstances) instance.Dispose();
+            retiredInstances.Clear();
+        }
+    }
+
+    /// <summary>
+    ///     Registers one binding reference to a shared texture, matching the original texture proxy ownership.
+    /// </summary>
+    /// <param name="context">The command context receiving first-use uploads.</param>
+    /// <param name="model">The existing texture model.</param>
+    /// <returns>The binding's disposable registration.</returns>
+    internal TextureRegistration Register(SilkD3D12CommandContext context, TextureModel model) {
+        lock (syncRoot) {
+            var texture = GetOrCreate(context, model);
+            textureReferences.TryGetValue(model.Guid, out var count);
+            textureReferences[model.Guid] = count + 1;
+            return new TextureRegistration(this, model.Guid, texture);
+        }
+    }
+
+    /// <summary>
+    ///     Relinquishes a binding reference without releasing resources used by recorded GPU commands.
+    /// </summary>
+    /// <param name="id">The shared texture identifier.</param>
+    private void Unregister(Guid id) {
+        lock (syncRoot) {
+            if (IsDisposed || !textureReferences.TryGetValue(id, out var count)) return;
+            if (count == 1) textureReferences.Remove(id);
+            else textureReferences[id] = count - 1;
+        }
+    }
+
+    /// Owns one reference to a native texture until its actual binding is replaced or disposed.
+    internal sealed class TextureRegistration : IDisposable {
+        /// The manager retaining the native allocation until a completed fence.
+        private SilkD3D12ResourceManager? manager;
+
+        /// <summary>
+        ///     Initializes one texture registration.
+        /// </summary>
+        /// <param name="manager">The owning resource manager.</param>
+        /// <param name="id">The shared texture identifier.</param>
+        /// <param name="texture">The shared native texture.</param>
+        internal TextureRegistration(SilkD3D12ResourceManager manager, Guid id,
+            SilkD3D12TextureModelResource texture) {
+            this.manager = manager;
+            Id = id;
+            Texture = texture;
+        }
+
+        /// Gets the shared content identifier.
+        internal Guid Id { get; }
+
+        /// Gets the registered native texture.
+        internal SilkD3D12TextureModelResource Texture { get; }
+
+        /// <summary>
+        ///     Checks whether this registration belongs to the supplied manager.
+        /// </summary>
+        /// <param name="owner">The manager to compare.</param>
+        /// <returns>Whether the registration belongs to that manager.</returns>
+        internal bool BelongsTo(SilkD3D12ResourceManager owner) => ReferenceEquals(manager, owner);
+
+        /// Relinquishes this reference; native disposal is deferred until the next completed frame fence.
+        public void Dispose() {
+            manager?.Unregister(Id);
+            manager = null;
         }
     }
 
@@ -309,7 +406,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     }
 
     /// <summary>
-    ///     Removes and disposes one matrix-instance allocation.
+    ///     Removes one matrix-instance allocation for release after the completed presentation fence.
     /// </summary>
     /// <param name="source">The existing matrix-instance model.</param>
     /// <returns>Whether a cached resource was removed.</returns>
@@ -318,21 +415,21 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
         lock (syncRoot) {
             ThrowIfDisposed();
             if (!instances.Remove(source, out var entry)) return false;
-            entry.Dispose();
+            retiredInstances.Add(entry);
             return true;
         }
     }
 
     /// <summary>
-    ///     Removes and disposes one texture allocation.
+    ///     Removes one unregistered texture allocation for release after the completed presentation fence.
     /// </summary>
     /// <param name="contentId">The texture content identifier.</param>
     /// <returns>Whether a cached resource was removed.</returns>
     internal bool Remove(Guid contentId) {
         lock (syncRoot) {
             ThrowIfDisposed();
-            if (!textures.Remove(contentId, out var texture)) return false;
-            texture.Dispose();
+            if (textureReferences.ContainsKey(contentId) || !textures.Remove(contentId, out var texture)) return false;
+            retiredTextures.Add(texture);
             return true;
         }
     }
@@ -346,7 +443,12 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
 
             foreach (var geometry in geometries.Values) geometry.Dispose();
             foreach (var instance in instances.Values) instance.Dispose();
+            foreach (var instance in retiredInstances) instance.Dispose();
+            retiredInstances.Clear();
             foreach (var texture in textures.Values) texture.Dispose();
+            foreach (var texture in retiredTextures) texture.Dispose();
+            retiredTextures.Clear();
+            textureReferences.Clear();
             geometries.Clear();
             instances.Clear();
             textures.Clear();
@@ -459,6 +561,9 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     ///     Tracks one matrix-instance model and its native allocation.
     /// </summary>
     private sealed class InstanceEntry : IDisposable {
+        /// The render cores currently retaining this shared instance stream.
+        internal HashSet<RenderCore> Owners { get; } = [];
+
         /// <summary>
         ///     The observed source model.
         /// </summary>
@@ -498,6 +603,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
         /// </summary>
         public void Dispose() {
             source.ElementChanged -= OnElementsChanged;
+            Owners.Clear();
             Buffer?.Dispose();
         }
 

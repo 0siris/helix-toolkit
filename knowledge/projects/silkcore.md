@@ -132,3 +132,10 @@ The visible Desktop startup exposed a recursive InvalidateRender/InvalidateVisua
 D3D12 cutover. Render invalidation now directly marks the node and ancestors dirty; visual invalidation delegates
 to it once. The continuous presentation loop consumes that state, without re-entering layout invalidation.
 Two device-free attached-panel regressions cover both entry points and the startup attachment path.
+
+## Original host scene boundary
+
+The native renderer publishes its actual prepared nondisposed hierarchy as preorder depth/node pairs, including
+hidden nodes and descendants of attachment failures. Draw pruning remains separate. SceneNode.RenderHost identifies
+the actual frame owner and clears on detach. Application intersection cores can derive from the existing native
+MeshIntersectionRenderCore and retain the same dispatch, indirect-draw and fence resource path.

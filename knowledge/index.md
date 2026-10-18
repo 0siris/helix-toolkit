@@ -57,3 +57,6 @@ SilkAssimp records the SharpAssimp 6.0.12 upgrade with preserved animation/mater
 remote wireframe additions coexist with current profiling, completed-fence and empty-scene SSAO behavior.
 
 SilkCore records bounded attached-2D invalidation and repaint propagation after the visible Desktop startup fix.
+
+SilkCore and SilkToolkit record the restored original host boundary backed by the actual native frame, retained
+fence-safe context and original/current WPF property bindings.

@@ -25,9 +25,9 @@ public sealed class NativeRenderHostSceneSnapshotTests {
         Assert.Equal([0, 1, 2, 0], depths);
         Assert.Equal<SceneNode>([root, failed, child, sibling], nodes);
         Assert.True(child.RenderCore.IsAttached);
-        Assert.DoesNotContain(root, draws);
-        Assert.DoesNotContain(child, draws);
-        Assert.Contains(sibling, draws);
+        Assert.DoesNotContain(draws, node => ReferenceEquals(node, root));
+        Assert.DoesNotContain(draws, node => ReferenceEquals(node, child));
+        Assert.Contains(draws, node => ReferenceEquals(node, sibling));
     }
 
     /// Clears frame ownership on renderer disposal and excludes nodes disposed before actual preparation.

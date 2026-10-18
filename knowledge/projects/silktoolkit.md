@@ -65,3 +65,14 @@ remain authoritative. Touch keeps its existing path; physical touch/SpaceMouse b
 The58 ordinary toolkit tests include genuine queued HWND ownership and missing-callback red/green coverage.
 Actual Desktop wheel, selection and outside-release capture were inspected at175%; a separate demand-only
 VisibleUI test covers the widget-overlay/native boundary. Normal tests create no visible windows.
+
+## Original viewport host and property names
+
+Viewport3DX implements the original IRenderHost boundary using its actual native presentation owner. RenderHost.Viewport
+is public for original WPF binding paths; PerFrameFlattenedScene and RenderContext come from completed preparation,
+not a second graph. The context survives skipped pending-fence frames and is released only at a safe replacement or
+disposal. Rendered fires at completed-frame notification, including valid empty frames. Original and current property
+names are registered and synchronized while preserving WPF bindings, coercion and one existing render callback.
+
+The headless compatibility run passes 29 namespace/property/host cases; the Core run passes three hierarchy cases
+and six native intersection cases. Full application and visible case acceptance remain separate.

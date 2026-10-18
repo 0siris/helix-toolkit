@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-18 — Original host contracts on the native frame
+
+* Exposed the actual viewport host, renderer-prepared hierarchy and fence-safe retained frame context.
+* Preserved original/current name-based WPF bindings and native intersection subclass reuse.
+* Headless checks: 29 Toolkit compatibility cases and nine Core hierarchy/GPU cases pass.
+* Updated project concepts and index; full application and visible acceptance remain open.
+
 ## 2026-10-18 — Restore original public CLR and XAML namespaces
 
 * Restored original toolkit type namespaces from the selected original Core/WPF/Assimp project imports.

@@ -218,23 +218,35 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     internal D3D12EffectBindingPool EffectBindings => _effectBindings;
 
     /// <summary>
-    ///     Prepares the active hierarchy before visibility pruning and native draw classification.
+    ///     Updates the hierarchy, runs its existing non-render maintenance, then prunes native draw candidates.
     /// </summary>
     /// <param name="roots">The original scene hierarchy roots.</param>
-    /// <param name="context">The current frame context passed to each original node's update hook.</param>
+    /// <param name="context">The current frame context passed to each original update and maintenance hook.</param>
     /// <returns>Visible nodes in preorder, excluding every subtree beneath an invisible or disposed ancestor.</returns>
+    /// <remarks>
+    ///     All successful updates finish before maintenance begins. Hidden nodes and descendants retain maintenance;
+    ///     nodes disposed or detached after updating are excluded from that phase.
+    /// </remarks>
     /// <exception cref="ObjectDisposedException">The renderer has been disposed.</exception>
     internal FastList<SceneNode> PrepareScene(IEnumerable<SceneNode> roots, RenderContext context) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         var snapshot = roots.ToArray();
+        var updated = new FastList<SceneNode>();
         foreach (var node in snapshot.PreorderDft(node => !node.IsDisposed)) {
             if (!node.RenderCore.IsAttached && !node.Attach()) continue;
             attachedNodes.Add(node);
             node.Update(context);
+            updated.Add(node);
         }
+
+        foreach (var node in updated) {
+            if (!node.IsDisposed && node.RenderCore.IsAttached)
+                node.UpdateNotRender(context);
+        }
+
         var prepared = new FastList<SceneNode>();
         foreach (var node in snapshot.PreorderDft(node =>
-                     !node.IsDisposed && node.Visible && node.RenderCore.IsAttached))
+                                                      !node.IsDisposed && node.Visible && node.RenderCore.IsAttached))
             prepared.Add(node);
         return prepared;
     }

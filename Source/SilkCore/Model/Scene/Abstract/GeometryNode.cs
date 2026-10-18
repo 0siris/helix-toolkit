@@ -4,6 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
+using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Core.Buffers;
 using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
@@ -119,7 +120,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <inheritdoc />
     internal override bool Attach() {
         if (RenderCore.IsAttached && bufferModelInternal is not null)
-            return bufferModelInternal is not EmptyGeometryBufferModel;
+            return HasGpuIntersectionInputs || bufferModelInternal is not EmptyGeometryBufferModel;
         if (!base.Attach() || !GeometryValid || RenderCore is not IGeometryRenderCore core)
             return false;
         CreateD3D12GeometryBuffer();
@@ -128,7 +129,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
         InstanceBuffer.Elements = Instances;
         core.InstanceBuffer = InstanceBuffer;
         OnRasterStateChanged();
-        return core.GeometryBuffer is not EmptyGeometryBufferModel;
+        return HasGpuIntersectionInputs || core.GeometryBuffer is not EmptyGeometryBufferModel;
     }
 
     /// <inheritdoc />
@@ -331,12 +332,16 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     private IAttachableBufferModel? bufferModelInternal;
 
     /// <summary>
-    ///     Gets a value indicating whether [geometry valid].
+    ///     Gets whether CPU geometry or immutable GPU intersection inputs are valid for native rendering.
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [geometry valid]; otherwise, <c>false</c>.
+    ///     <see langword="true"/> when CPU geometry or selected GPU work can render; otherwise, <see langword="false"/>.
     /// </value>
-    public bool GeometryValid => BoundManager.GeometryValid;
+    public bool GeometryValid => BoundManager.GeometryValid || HasGpuIntersectionInputs;
+
+    /// Gets whether immutable selected-pair compute inputs supply actual geometry without a CPU line buffer.
+    private bool HasGpuIntersectionInputs => RenderCore is MeshIntersectionRenderCore { UseGpu: true } intersection
+        && intersection.Inputs.Any(input => input.Candidates.Length > 0);
 
     /// <summary>
     ///     Gets or sets the bound manager.

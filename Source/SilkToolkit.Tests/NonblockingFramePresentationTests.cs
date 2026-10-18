@@ -24,7 +24,10 @@ namespace SilkToolkit.Tests;
 /// <summary>Exercises the real WARP presentation consumer with an intentionally stalled native queue and hidden HWND.</summary>
 [Collection(WpfCollection.Name)]
 public sealed class NonblockingFramePresentationTests {
-    /// <summary>Verifies a pending GPU frame leaves input/dispatcher work live and prevents scene/binding reuse.</summary>
+    /// <summary>
+    ///     Verifies a pending GPU frame leaves the dispatcher live and skips scene updates and octree maintenance.
+    /// </summary>
+    /// <returns>The hidden native queue and dispatcher verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
     public Task DelayedFenceKeepsDispatcherLiveAndRendersLatestCameraAfterCompletion() => StaThread.RunAsync(async () => {
@@ -43,6 +46,12 @@ public sealed class NonblockingFramePresentationTests {
         using var gate = new NativeQueueGate(surface);
         var submittedDraws = viewport.RenderD3D12Frame(TimeSpan.FromSeconds(2), waitForCompletion: false);
         var updateCount = node.UpdateCount;
+        var maintenanceCount = node.MaintenanceCount;
+        var geometry = Assert.IsType<MeshGeometry3D>(model.Geometry);
+        Assert.NotNull(geometry.Octree);
+        geometry.Positions = [..geometry.Positions!];
+        Assert.Null(geometry.Octree);
+        Assert.True(geometry.OctreeDirty);
         var submittedFrames = surface.PresentedFrames;
         var nativeFence = PrivateField<SilkD3D12Fence>(surface, "fence");
         Assert.True(submittedDraws > 0, $"The gated native frame recorded {submittedDraws} draws");
@@ -63,6 +72,9 @@ public sealed class NonblockingFramePresentationTests {
         Assert.True(elapsed.Elapsed < TimeSpan.FromSeconds(1),
             $"The pending-frame dispatcher round trip took {elapsed.Elapsed}");
         Assert.Equal(updateCount, node.UpdateCount);
+        Assert.Equal(maintenanceCount, node.MaintenanceCount);
+        Assert.Null(geometry.Octree);
+        Assert.True(geometry.OctreeDirty);
         Assert.Equal(submittedFrames, surface.PresentedFrames);
         Assert.Equal(1, notifications);
 
@@ -74,6 +86,9 @@ public sealed class NonblockingFramePresentationTests {
 
         Assert.Equal(expectedPosition, node.LastCameraPosition);
         Assert.True(node.UpdateCount > updateCount, "The completed capture did not prepare the actual scene again");
+        Assert.True(node.MaintenanceCount > maintenanceCount);
+        Assert.NotNull(geometry.Octree);
+        Assert.False(geometry.OctreeDirty);
         Assert.Equal(3, notifications);
         Assert.True(coloredPixel, "The completed native frame contained only the black clear color");
         _ = viewport.RenderD3D12Frame(TimeSpan.FromSeconds(4), waitForCompletion: false);
@@ -216,6 +231,8 @@ public sealed class NonblockingFramePresentationTests {
     private sealed class ObservedMeshNode : MeshNode {
         /// Gets the number of productive scene-update calls.
         internal int UpdateCount { get; private set; }
+        /// Gets the number of productive non-render maintenance calls.
+        internal int MaintenanceCount { get; private set; }
         /// Gets the camera position consumed by the last productive scene update.
         internal Vector3 LastCameraPosition { get; private set; }
 
@@ -223,6 +240,11 @@ public sealed class NonblockingFramePresentationTests {
             UpdateCount++;
             LastCameraPosition = context.Camera!.Position;
             base.Update(context);
+        }
+
+        public override void UpdateNotRender(RenderContext context) {
+            MaintenanceCount++;
+            base.UpdateNotRender(context);
         }
     }
 

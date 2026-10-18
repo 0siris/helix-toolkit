@@ -2,6 +2,19 @@
 
 ## 2026-10-18
 
+* **Fix**: Native preparation finishes hierarchy updates, calls existing non-render maintenance on living attached
+  nodes including hidden descendants, then selects visible draws. Existing geometry/group/instance/batch hooks
+  remain authoritative. Prepared hit-test octrees survive unchanged frames; non-hit-testable gingiva is excluded.
+  In-flight frame skips run neither scene updates nor maintenance.
+* **Fix**: Actual immutable selected-pair GPU inputs can attach and render without CPU line geometry. Applications
+  retain genuine input bounds; ordinary geometry validation remains unchanged. WARP readback covers contact,
+  independent poses, coarse false positives and additive XRay with indirect output.
+* **Verification**: Final ordinary gates pass 431 SilkCore and 70 Toolkit cases. Hidden queued right-drag checks
+  cover actual geometry/background camera movement before release, dispatcher liveness and outside release without
+  capture changes. Parent affected Desktop selection passes 232 cases, with one explicit visible case skipped.
+  ReSharper inspected the containing MeshMeister solution; the standalone Silk Rider context remains unavailable.
+  XML/whitespace checks pass; generated source graph has 9,411 nodes and 16,761 edges with 17 existing parser limits.
+
 * **Fix**: Transient mesh, line and full-screen effect draws share renderer-owned descriptor heap pages, leaving
   the ordinary scene budget intact. Each draw binds its actual heap pair, including intersection graphics after
   compute. Original glow6, border and XRay retain immutable per-draw constants and completed-fence reuse.

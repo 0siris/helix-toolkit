@@ -41,6 +41,18 @@ presentation fence, and dispose before the pool. This preserves original glow, b
 
 # Native mesh intersections
 
+Native scene preparation first updates the whole attached hierarchy, then calls the existing `UpdateNotRender`
+hooks on living attached nodes, and only afterward prunes visible draw candidates. Hidden branches keep their
+maintenance; nodes disposed or detached during the update phase do not receive maintenance. Existing geometry,
+group, instance and batch hooks remain authoritative. Hit-testable geometry prepares its octree before picking;
+unchanged geometry retains it. Non-hit-testable application gingiva never receives a render octree. Pending-frame
+fence skips perform neither updates nor maintenance, preserving resource reuse ownership.
+
+`GeometryNode` also accepts actual immutable selected-pair GPU intersection inputs without a CPU line buffer.
+Applications provide conservative bounds from their genuine mesh/pose inputs; no placeholder line geometry is
+required. Ordinary geometry validation is unchanged. Headless WARP readback covers GPU-only attachment, culling,
+indirect lines and additive XRay, while explicit Core-line compatibility remains available.
+
 Filled mesh materials honor the owning `MeshRenderCore.RasterDescription` in opaque, weighted OIT and
 depth-peeling passes. Pass-cache identity includes this state. Wireframe overlays retain their own bias/fill
 override. Ignoring the filled mesh's front-face setting reverses `SV_IsFrontFace` for custom shaders even with

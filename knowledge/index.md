@@ -17,9 +17,11 @@ okf_version: "0.2"
 
 ## Projects
 
-* [SilkCore](/projects/silkcore.md) - Core renderer, paged selection-effect descriptors, native mesh-intersection compute/indirect
+* [SilkCore](/projects/silkcore.md) - Core renderer, update/maintenance/visibility ordering, pre-pick octree preparation,
+  GPU-only intersection attachment, paged selection-effect descriptors, native mesh-intersection compute/indirect
   drawing, mesh material facing/culling, fence-safe resource cleanup and reference-counted pool entry ownership.
-* [SilkToolkit](/projects/silktoolkit.md) - Windows/WPF-facing toolkit, nonblocking frame completion and safe native lifetimes.
+* [SilkToolkit](/projects/silktoolkit.md) - Windows/WPF-facing toolkit, hidden native camera-input regressions,
+  nonblocking frame completion and safe native lifetimes.
 * [SilkAssimp](/projects/silkassimp.md) - Assimp-based model loading, transformed child export and mesh-index ownership.
 * [ShaderBuilder](/projects/shaderbuilder.md) - HLSL shader build support, include/compiler/metadata invalidation and headless incremental regression.
 

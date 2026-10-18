@@ -26,6 +26,12 @@ The project uses Silk.NET Direct2D, Direct3D compiler, Direct3D11, Direct3D9, DX
 
 ## Native child input ownership
 
+Queued native right-button input is tested through a hidden HWND, including ordinary mesh picking and background
+rotation before button release, dispatcher heartbeats and release outside the child. The existing capture/input
+route is preserved. Pre-pick scene maintenance now prepares the existing hit-test octree; no camera/capture
+workaround substitutes for that missing lifecycle phase. Pending presentation frames skip maintenance as well
+as scene updates until their fence completes. No visible-window acceptance is inferred from hidden input tests.
+
 Ordinary composition uses a single in-flight Direct3D 12 submission and polls completion rather than waiting on
 the WPF dispatcher after every frame. Reusable commands, render bindings and scene preparation remain gated by
 the completed fence. Camera updates continue during pending GPU work; the next accepted frame uses current state.

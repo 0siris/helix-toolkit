@@ -1020,10 +1020,13 @@ public partial class Viewport3DX {
     /// <summary>
     ///     Set MSAA Level
     /// </summary>
-    public static readonly DependencyProperty MsaaProperty = DependencyProperty.Register("Msaa",
+    public static readonly DependencyProperty MsaaProperty = DependencyProperty.Register("MSAA",
         typeof(MSAALevel),
         typeof(Viewport3DX),
         new PropertyMetadata(MSAALevel.Disable));
+
+    /// <summary>Identifies <see cref="MSAA"/> using the same property as <see cref="Msaa"/>.</summary>
+    public static readonly DependencyProperty MSAAProperty = MsaaProperty;
 
     /// <summary>
     ///     The is move enabled property.
@@ -1169,29 +1172,44 @@ public partial class Viewport3DX {
     ///     <see cref="MaterialGeometryModel3D.IsTransparent" />, <see cref="BillboardTextModel3D.IsTransparent" />
     /// </summary>
     public static readonly DependencyProperty OitRenderModeProperty =
-        DependencyProperty.Register("OitRenderMode",
+        DependencyProperty.Register("OITRenderMode",
                                     typeof(OITRenderType),
                                     typeof(Viewport3DX),
                                     new PropertyMetadata(OITRenderType.DepthPeeling));
 
     /// <summary>
+    ///     Identifies <see cref="OITRenderMode"/> using the same property as <see cref="OitRenderMode"/>.
+    /// </summary>
+    public static readonly DependencyProperty OITRenderModeProperty = OitRenderModeProperty;
+
+    /// <summary>
     ///     The Order independent transparent rendering color weight power property
     /// </summary>
     public static readonly DependencyProperty OitWeightPowerProperty =
-        DependencyProperty.Register("OitWeightPower",
+        DependencyProperty.Register("OITWeightPower",
                                     typeof(double),
                                     typeof(Viewport3DX),
                                     new PropertyMetadata(3.0));
+
+    /// <summary>
+    ///     Identifies <see cref="OITWeightPower"/> using the same property as <see cref="OitWeightPower"/>.
+    /// </summary>
+    public static readonly DependencyProperty OITWeightPowerProperty = OitWeightPowerProperty;
 
 
     /// <summary>
     ///     The oit weight depth slope property
     /// </summary>
     public static readonly DependencyProperty OitWeightDepthSlopeProperty =
-        DependencyProperty.Register("OitWeightDepthSlope",
+        DependencyProperty.Register("OITWeightDepthSlope",
                                     typeof(double),
                                     typeof(Viewport3DX),
                                     new PropertyMetadata(1.0));
+
+    /// <summary>
+    ///     Identifies <see cref="OITWeightDepthSlope"/> using the same property as <see cref="OitWeightDepthSlope"/>.
+    /// </summary>
+    public static readonly DependencyProperty OITWeightDepthSlopeProperty = OitWeightDepthSlopeProperty;
 
     /// <summary>
     ///     The oit weight mode property
@@ -1199,25 +1217,39 @@ public partial class Viewport3DX {
     ///     <para>Linear0: eq7; Linear1: eq8; Linear2: eq9; NonLinear: eq10</para>
     /// </summary>
     public static readonly DependencyProperty OitWeightModeProperty =
-        DependencyProperty.Register("OitWeightMode",
+        DependencyProperty.Register("OITWeightMode",
                                     typeof(OITWeightMode),
                                     typeof(Viewport3DX),
                                     new PropertyMetadata(OITWeightMode.Linear1));
 
+    /// <summary>
+    ///     Identifies <see cref="OITWeightMode"/> using the same property as <see cref="OitWeightMode"/>.
+    /// </summary>
+    public static readonly DependencyProperty OITWeightModeProperty = OitWeightModeProperty;
+
+    /// <summary>Identifies the depth-peeling iteration count.</summary>
     public static readonly DependencyProperty OitDepthPeelingIterationProperty =
-        DependencyProperty.Register("OitDepthPeelingIteration",
+        DependencyProperty.Register("OITDepthPeelingIteration",
                                     typeof(int),
                                     typeof(Viewport3DX),
                                     new PropertyMetadata(4));
 
     /// <summary>
+    ///     Identifies <see cref="OITDepthPeelingIteration"/> using the same property as <see cref="OitDepthPeelingIteration"/>.
+    /// </summary>
+    public static readonly DependencyProperty OITDepthPeelingIterationProperty = OitDepthPeelingIterationProperty;
+
+    /// <summary>
     ///     The fxaa level property
     /// </summary>
     public static readonly DependencyProperty FxaaLevelProperty =
-        DependencyProperty.Register("FxaaLevel",
+        DependencyProperty.Register("FXAALevel",
                                     typeof(FXAALevel),
                                     typeof(Viewport3DX),
                                     new PropertyMetadata(FXAALevel.None));
+
+    /// <summary>Identifies <see cref="FXAALevel"/> using the same property as <see cref="FxaaLevel"/>.</summary>
+    public static readonly DependencyProperty FXAALevelProperty = FxaaLevelProperty;
 
 
     /// <summary>
@@ -1243,35 +1275,52 @@ public partial class Viewport3DX {
     ///     The enable ssao property
     /// </summary>
     public static readonly DependencyProperty EnableSsaoProperty =
-        DependencyProperty.Register("EnableSsao",
+        DependencyProperty.Register("EnableSSAO",
                                     typeof(bool),
                                     typeof(Viewport3DX),
                                     new PropertyMetadata(false));
+
+    /// <summary>Identifies <see cref="EnableSSAO"/> using the same property as <see cref="EnableSsao"/>.</summary>
+    public static readonly DependencyProperty EnableSSAOProperty = EnableSsaoProperty;
 
 
     /// <summary>
     ///     The ssao sampling radius property
     /// </summary>
     public static readonly DependencyProperty SsaoSamplingRadiusProperty =
-        DependencyProperty.Register("SsaoSamplingRadius",
+        DependencyProperty.Register("SSAOSamplingRadius",
                                     typeof(double),
                                     typeof(Viewport3DX),
                                     new PropertyMetadata(0.5));
 
+    /// <summary>
+    ///     Identifies <see cref="SSAOSamplingRadius"/> using the same property as <see cref="SsaoSamplingRadius"/>.
+    /// </summary>
+    public static readonly DependencyProperty SSAOSamplingRadiusProperty = SsaoSamplingRadiusProperty;
+
+    /// <summary>Identifies the screen-space ambient occlusion intensity.</summary>
     public static readonly DependencyProperty SsaoIntensityProperty =
-        DependencyProperty.Register("SsaoIntensity",
+        DependencyProperty.Register("SSAOIntensity",
                                     typeof(double),
                                     typeof(Viewport3DX),
                                     new PropertyMetadata(1.0));
 
     /// <summary>
+    ///     Identifies <see cref="SSAOIntensity"/> using the same property as <see cref="SsaoIntensity"/>.
+    /// </summary>
+    public static readonly DependencyProperty SSAOIntensityProperty = SsaoIntensityProperty;
+
+    /// <summary>
     ///     The ssao quality property
     /// </summary>
     public static readonly DependencyProperty SsaoQualityProperty =
-        DependencyProperty.Register("SsaoQuality",
+        DependencyProperty.Register("SSAOQuality",
                                     typeof(SSAOQuality),
                                     typeof(Viewport3DX),
                                     new PropertyMetadata(SSAOQuality.Low));
+
+    /// <summary>Identifies <see cref="SSAOQuality"/> using the same property as <see cref="SsaoQuality"/>.</summary>
+    public static readonly DependencyProperty SSAOQualityProperty = SsaoQualityProperty;
 
 
     /// <summary>

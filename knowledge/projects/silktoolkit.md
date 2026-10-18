@@ -76,3 +76,6 @@ names are registered and synchronized while preserving WPF bindings, coercion an
 
 The headless compatibility run passes 29 namespace/property/host cases; the Core run passes three hierarchy cases
 and six native intersection cases. Full application and visible case acceptance remain separate.
+
+PhongMaterials.DefaultVRML preserves original source spelling and delegates to the existing independently mutable
+DefaultVrml factory. The palette/namespace filter now passes 14 headless cases.

@@ -139,3 +139,13 @@ The native renderer publishes its actual prepared nondisposed hierarchy as preor
 hidden nodes and descendants of attachment failures. Draw pruning remains separate. SceneNode.RenderHost identifies
 the actual frame owner and clears on detach. Application intersection cores can derive from the existing native
 MeshIntersectionRenderCore and retain the same dispatch, indirect-draw and fence resource path.
+
+Native geometry attachment honors protected application buffer and vertex-serialization overrides. The default
+serializer keeps its existing validation; original application overrides retain their own source channel policy.
+ID3D12MeshShaderProvider can preserve original per-material transparency pass selection; its default keeps native
+selection. The FOV alias shares the existing Fov field without changing frustum storage. HelixTests has friend
+access to genuine native readback contracts.
+
+EmptyGeometryBufferModel never creates a graphics pass. Attached placeholders remain in the actual scene and can
+render after geometry is assigned. The startup failure was reproduced before the fix; GPU-only intersection
+passes retain their explicit line topology and are not subject to the ordinary empty-buffer rejection.

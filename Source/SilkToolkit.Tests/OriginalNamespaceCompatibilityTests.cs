@@ -11,7 +11,9 @@ namespace HelixToolkit.SilkToolkit.Tests;
 
 /// <summary>Checks original public CLR and XAML names without creating a viewport or native device.</summary>
 public sealed class OriginalNamespaceCompatibilityTests {
-    /// <summary>Preserves representative original public type identities and native Silk ownership.</summary>
+    /// <summary>
+    ///     Preserves representative original public type identities and native Silk ownership.
+    /// </summary>
     /// <param name="type">The actual public type.</param>
     /// <param name="expectedName">The source-compatible fully qualified name.</param>
     [Theory]
@@ -26,7 +28,9 @@ public sealed class OriginalNamespaceCompatibilityTests {
     [InlineData(typeof(D3D12ScenePassCatalog), "HelixToolkit.SharpDX.Core.Native.D3D12ScenePassCatalog")]
     public void PublicTypeNameTest(Type type, string expectedName) => Assert.Equal(expectedName, type.FullName);
 
-    /// <summary>Resolves unchanged Helix XAML type names without running dependency-object constructors.</summary>
+    /// <summary>
+    ///     Resolves unchanged Helix XAML type names without running dependency-object constructors.
+    /// </summary>
     /// <param name="name">The original XAML type name.</param>
     /// <param name="expectedType">The corresponding restored toolkit type.</param>
     [Theory]
@@ -42,7 +46,9 @@ public sealed class OriginalNamespaceCompatibilityTests {
         Assert.Equal(expectedType, resolvedType.UnderlyingType);
     }
 
-    /// <summary>Retains the original palette member while preserving independently mutable factory results.</summary>
+    /// <summary>
+    ///     Retains the original palette member while preserving independently mutable factory results.
+    /// </summary>
     /// <returns>The headless WPF palette verification.</returns>
     [Fact]
     public Task OriginalVrmlPaletteNameTest() => global::SilkToolkit.Tests.StaThread.RunAsync(() => {

@@ -88,7 +88,9 @@ public sealed class NativeRenderHostSceneSnapshotTests {
         Assert.True(replacement!.IsDisposed);
     }
 
-    /// <summary>Creates a valid source geometry for native buffer attachment.</summary>
+    /// <summary>
+    ///     Creates a valid source geometry for native buffer attachment.
+    /// </summary>
     /// <returns>The triangle geometry.</returns>
     private static MeshGeometry3D CreateTriangle() => new() {
         Positions = [new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)],

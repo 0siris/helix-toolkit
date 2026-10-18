@@ -19,7 +19,9 @@ namespace SilkToolkit.Tests;
 /// Verifies original host contracts against real viewports, contexts and completed native frames.
 [Collection(WpfCollection.Name)]
 public sealed class NativeRenderHostCompatibilityTests {
-    /// <summary>Resolves the original host binding path without creating a window or native surface.</summary>
+    /// <summary>
+    ///     Resolves the original host binding path without creating a window or native surface.
+    /// </summary>
     /// <returns>The STA binding verification.</returns>
     [Fact]
     [Trait("Category", "Wpf")]
@@ -56,7 +58,36 @@ public sealed class NativeRenderHostCompatibilityTests {
         host.InvalidatePerFrameRenderables();
     });
 
-    /// <summary>Counts valid empty frames and retains the actual update context until a fence-safe replacement.</summary>
+    /// <summary>
+    ///     Retains an attached geometry placeholder in the real frame without publishing a render exception.
+    /// </summary>
+    /// <returns>The hidden native startup verification.</returns>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public Task EmptyMeshPlaceholderDoesNotBreakViewportStartup() => StaThread.RunAsync(() => {
+        using var window = CreateWindow();
+        using var surface = CreateSurface(window);
+        using var viewport = CreateViewport(surface);
+        using var effects = new DefaultEffectsManager();
+        viewport.EffectsManager = effects;
+        var placeholder = new MeshGeometryModel3D { Material = PhongMaterials.Red };
+        viewport.Items.Add(placeholder);
+        var rendered = viewport.UpdateAndRender();
+        Assert.True(rendered);
+        Assert.True(placeholder.SceneNode.IsAttached);
+        Assert.True(string.IsNullOrEmpty(viewport.MessageText));
+        Assert.Contains(viewport.PerFrameFlattenedScene, entry => ReferenceEquals(entry.Value, placeholder.SceneNode));
+        placeholder.Geometry = new global::HelixToolkit.SharpDX.Core.MeshGeometry3D {
+            Positions = [new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)], Indices = [0, 1, 2]
+        };
+        var draws = viewport.RenderD3D12Frame(TimeSpan.FromSeconds(1));
+        Assert.Equal(1, draws);
+        Assert.True(string.IsNullOrEmpty(viewport.MessageText));
+    });
+
+    /// <summary>
+    ///     Counts valid empty frames and retains the actual update context until a fence-safe replacement.
+    /// </summary>
     /// <returns>The hidden WARP verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
@@ -96,7 +127,9 @@ public sealed class NativeRenderHostCompatibilityTests {
         Assert.Empty(host.PerFrameFlattenedScene);
     });
 
-    /// <summary>Retains the exact snapshot and context while a real native queue fence prevents preparation.</summary>
+    /// <summary>
+    ///     Retains the exact snapshot and context while a real native queue fence prevents preparation.
+    /// </summary>
     /// <returns>The hidden native fence verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
@@ -143,7 +176,9 @@ public sealed class NativeRenderHostCompatibilityTests {
         Assert.Null(observed.RenderHost);
     });
 
-    /// <summary>Assigns the real owner before original recursive effects-manager attachment callbacks.</summary>
+    /// <summary>
+    ///     Assigns the real owner before original recursive effects-manager attachment callbacks.
+    /// </summary>
     /// <returns>The hidden original-attachment verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
@@ -167,7 +202,9 @@ public sealed class NativeRenderHostCompatibilityTests {
         Assert.Same(effects, observedChild.RenderHost!.EffectsManager);
     });
 
-    /// <summary>Keeps independent actual viewport hierarchies and contexts under independent native owners.</summary>
+    /// <summary>
+    ///     Keeps independent actual viewport hierarchies and contexts under independent native owners.
+    /// </summary>
     /// <returns>The hidden multiview verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
@@ -197,13 +234,17 @@ public sealed class NativeRenderHostCompatibilityTests {
         Assert.NotNull(second.RenderContext!.Camera);
     });
 
-    /// <summary>Creates a never-shown native parent without WS_VISIBLE.</summary>
+    /// <summary>
+    ///     Creates a never-shown native parent without WS_VISIBLE.
+    /// </summary>
     /// <returns>The hidden native owner.</returns>
     private static HwndSource CreateWindow() => new(new HwndSourceParameters(nameof(NativeRenderHostCompatibilityTests)) {
         Width = 48, Height = 32, WindowStyle = unchecked((int)0x80000000)
     });
 
-    /// <summary>Attaches a genuine WARP presentation surface under the hidden parent.</summary>
+    /// <summary>
+    ///     Attaches a genuine WARP presentation surface under the hidden parent.
+    /// </summary>
     /// <param name="window">The hidden parent.</param>
     /// <returns>The initialized product surface.</returns>
     private static D3D12PresentationSurface CreateSurface(HwndSource window) {
@@ -214,7 +255,9 @@ public sealed class NativeRenderHostCompatibilityTests {
         return surface;
     }
 
-    /// <summary>Uses the actual viewport frame consumer without automatic visible composition.</summary>
+    /// <summary>
+    ///     Uses the actual viewport frame consumer without automatic visible composition.
+    /// </summary>
     /// <param name="surface">The real hidden surface.</param>
     /// <returns>The actual viewport owner.</returns>
     private static Viewport3DX CreateViewport(D3D12PresentationSurface surface) {
@@ -253,7 +296,9 @@ public sealed class NativeRenderHostCompatibilityTests {
         protected override SceneNode OnCreateSceneNode() => new ObservedGroup();
     }
 
-    /// <summary>Reads the actual native owner for queue-fence regression control.</summary>
+    /// <summary>
+    ///     Reads the actual native owner for queue-fence regression control.
+    /// </summary>
     /// <typeparam name="T">The native owner type.</typeparam>
     /// <param name="owner">The product instance.</param>
     /// <param name="name">The existing field name.</param>
@@ -273,7 +318,9 @@ public sealed class NativeRenderHostCompatibilityTests {
         /// Records whether the queue gate has already been released.
         private bool _released;
 
-        /// <summary>Inserts an actual ID3D12CommandQueue::Wait before the next productive frame submission.</summary>
+        /// <summary>
+        ///     Inserts an actual ID3D12CommandQueue::Wait before the next productive frame submission.
+        /// </summary>
         /// <param name="surface">The real initialized product surface.</param>
         internal NativeQueueGate(D3D12PresentationSurface surface) {
             var device = PrivateField<SilkD3D12Device>(surface, "device");
@@ -302,7 +349,9 @@ public sealed class NativeRenderHostCompatibilityTests {
             _fence.Dispose();
         }
 
-        /// <summary>Reads an existing native COM method without requiring unsafe test project settings.</summary>
+        /// <summary>
+        ///     Reads an existing native COM method without requiring unsafe test project settings.
+        /// </summary>
         /// <typeparam name="T">The exact native entry-point delegate type.</typeparam>
         /// <param name="instance">The actual COM object pointer.</param>
         /// <param name="slot">The method's stable COM vtable slot.</param>
@@ -313,7 +362,9 @@ public sealed class NativeRenderHostCompatibilityTests {
             return Marshal.GetDelegateForFunctionPointer<T>(address);
         }
 
-        /// <summary>Calls the exact native queue-wait entry point.</summary>
+        /// <summary>
+        ///     Calls the exact native queue-wait entry point.
+        /// </summary>
         /// <param name="queue">The actual queue COM pointer.</param>
         /// <param name="fence">The actual gate fence COM pointer.</param>
         /// <param name="value">The value the queue must observe before continuing.</param>
@@ -321,7 +372,9 @@ public sealed class NativeRenderHostCompatibilityTests {
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate int WaitQueue(nint queue, nint fence, ulong value);
 
-        /// <summary>Calls the exact native CPU fence-signal entry point.</summary>
+        /// <summary>
+        ///     Calls the exact native CPU fence-signal entry point.
+        /// </summary>
         /// <param name="fence">The actual fence COM pointer.</param>
         /// <param name="value">The CPU completion value.</param>
         /// <returns>The native HRESULT.</returns>

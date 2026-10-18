@@ -4,14 +4,18 @@ using HelixToolkit.SharpDX.Core;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-/// <summary>Provides original Helix property spellings over the existing viewport render state.</summary>
+/// <summary>
+///     Provides original Helix property spellings over the existing viewport render state.
+/// </summary>
 /// <remarks>
 ///     Each spelling has its own registered WPF dependency property. Changes flow through the retained current
 ///     property, preserving its render callback and both binding expressions with SetCurrentValue.
 ///     Pair fields precede both public fields in the same partial file to keep static initialization ordered.
 /// </remarks>
 public partial class Viewport3DX {
-    /// <summary>Registers two WPF names synchronized through the existing current property metadata.</summary>
+    /// <summary>
+    ///     Registers two WPF names synchronized through the existing current property metadata.
+    /// </summary>
     /// <param name="currentName">The retained current property name.</param>
     /// <param name="originalName">The original Helix property name.</param>
     /// <param name="propertyType">The shared property value type.</param>

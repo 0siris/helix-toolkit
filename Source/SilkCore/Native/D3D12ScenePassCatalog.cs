@@ -108,7 +108,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
             return Resolve(DefaultRenderTechniqueNames.ScreenDuplication,
                 DefaultPassNames.Default,
                 PrimitiveTopology.TriangleStrip);
-        if (node.RenderCore is not GeometryRenderCore {GeometryBuffer: { } geometryBuffer}) return null;
+        if (node.RenderCore is not GeometryRenderCore {GeometryBuffer: not EmptyGeometryBufferModel and { } geometryBuffer}) return null;
         var (defaultTechniqueName, passName) = GetSelection(node);
         var techniqueName = effectsManager is null
             ? defaultTechniqueName
@@ -124,7 +124,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <returns>The native wireframe pass, or <see langword="null" /> when no overlay is requested.</returns>
     internal ShaderPass? ResolveWireframe(SceneNode node) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: { } geometryBuffer } geometryCore ||
+        if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometryBuffer } geometryCore ||
             geometryCore is not IMeshRenderParams { RenderWireframe: true })
             return null;
         var techniqueName = effectsManager is null
@@ -159,7 +159,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         node.AsGuardNotNull();
         if (node is not MeshNode ||
-            node.RenderCore is not GeometryRenderCore {GeometryBuffer: { } geometryBuffer})
+            node.RenderCore is not GeometryRenderCore {GeometryBuffer: not EmptyGeometryBufferModel and { } geometryBuffer})
             return null;
         return Resolve(DefaultRenderTechniqueNames.Mesh,
             DefaultPassNames.ShadowPass,
@@ -202,7 +202,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <returns>The native offscreen position pass, or <see langword="null" /> for unsupported nodes.</returns>
     internal ShaderPass? ResolveVolumePositions(SceneNode node) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (node is not MeshNode || node.RenderCore is not GeometryRenderCore { GeometryBuffer: { } geometry })
+        if (node is not MeshNode || node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometry })
             return null;
         return Resolve(DefaultRenderTechniqueNames.Mesh,
             DefaultPassNames.Positions,
@@ -271,7 +271,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="node">The opaque scene node.</param>
     /// <returns>The native SSAO geometry pass, or <see langword="null" /> when unsupported.</returns>
     internal ShaderPass? ResolveSsaoGeometry(SceneNode node) {
-        if (node is not MeshNode || node.RenderCore is not GeometryRenderCore { GeometryBuffer: { } geometry })
+        if (node is not MeshNode || node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometry })
             return null;
         return Resolve(DefaultRenderTechniqueNames.Mesh,
             DefaultPassNames.MeshSsaoPass,
@@ -351,7 +351,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
                 ? Resolve("MeshIntersect", passName, PrimitiveTopology.LineList, depthFormat: depthFormat,
                     stencilReference: stencilReference)
                 : null;
-        if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: { } geometry } core) return null;
+        if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometry } core) return null;
         var (techniqueName, _) = GetSelection(node);
         if (effectsManager is not null) techniqueName = ResolveTechniqueName(node);
         if (techniqueName is null || !techniques.TryGetValue(techniqueName, out var technique) ||
@@ -446,7 +446,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="initialize">Whether to select the depth-only initialization pass.</param>
     /// <returns>The selected native pass, or <see langword="null" /> when unsupported.</returns>
     private ShaderPass? ResolveTransparency(SceneNode node, bool depthPeeling, bool initialize) {
-        if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: { } geometry }) return null;
+        if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometry }) return null;
         var (technique, _) = GetSelection(node);
         if (effectsManager is not null) technique = ResolveTechniqueName(node);
         if (technique is null) return null;

@@ -13,7 +13,9 @@ namespace SilkToolkit.Tests;
 /// <summary>Checks original viewport property spellings without windows, templates or native rendering devices.</summary>
 [Collection(WpfCollection.Name)]
 public sealed class OriginalViewportPropertyCompatibilityTests {
-    /// <summary>Provides every spelling counterpart in the pinned original Viewport3DX.Properties.cs.</summary>
+    /// <summary>
+    ///     Provides every spelling counterpart in the pinned original Viewport3DX.Properties.cs.
+    /// </summary>
     /// <returns>Original/current names, unchanged defaults, two distinct values and a XAML literal.</returns>
     public static IEnumerable<object[]> PropertyCases() {
         yield return ["MSAA", "Msaa", MSAALevel.Disable, MSAALevel.Four, MSAALevel.Two, "Four"];
@@ -31,7 +33,9 @@ public sealed class OriginalViewportPropertyCompatibilityTests {
         yield return ["SSAOQuality", "SsaoQuality", SSAOQuality.Low, SSAOQuality.High, SSAOQuality.Low, "High"];
     }
 
-    /// <summary>Preserves both registered names, unchanged render values and two-way WPF binding semantics.</summary>
+    /// <summary>
+    ///     Preserves both registered names, unchanged render values and two-way WPF binding semantics.
+    /// </summary>
     /// <param name="originalName">The original Helix member spelling.</param>
     /// <param name="currentName">The retained current member spelling.</param>
     /// <param name="defaultValue">The unchanged existing render default.</param>

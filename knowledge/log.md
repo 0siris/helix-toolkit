@@ -1,5 +1,19 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-18 — Empty geometry startup pass regression
+
+* Reproduced the visible undefined-topology exception with an attached empty mesh and valid material.
+* Reject ordinary empty buffers before pass creation; retain attachment, scene maintenance and later real drawing.
+* Verified seven Core/GPU and six hidden viewport-host cases; visible Original startup repeated successfully.
+* Updated project knowledge; WPF widget overlay adoption remains a separate integration item.
+
+## 2026-10-18 — Application vertex and transparency boundaries
+
+* Added native application buffer/vertex overrides and optional source material pass selection.
+* Restored FOV and DefaultVRML source access without replacing existing storage or factories.
+* Verified 71 targeted Core/transparency cases and 14 namespace/palette cases; Original application readback pending.
+* Documented native test-friend access and updated project concepts/index.
+
 ## 2026-10-18 — Original host contracts on the native frame
 
 * Exposed the actual viewport host, renderer-prepared hierarchy and fence-safe retained frame context.

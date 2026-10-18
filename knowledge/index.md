@@ -60,3 +60,5 @@ SilkCore records bounded attached-2D invalidation and repaint propagation after 
 
 SilkCore and SilkToolkit record the restored original host boundary backed by the actual native frame, retained
 fence-safe context and original/current WPF property bindings.
+
+The project concepts also cover application-owned native buffer serialization and original material pass selection.

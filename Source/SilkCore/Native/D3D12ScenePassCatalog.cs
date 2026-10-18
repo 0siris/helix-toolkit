@@ -450,7 +450,8 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         var (technique, _) = GetSelection(node);
         if (effectsManager is not null) technique = ResolveTechniqueName(node);
         if (technique is null) return null;
-        var passName = GetTransparencyPassName(node, depthPeeling, initialize);
+        var passName = (effectsManager as ID3D12MeshShaderProvider)?.GetTransparencyPassName(
+            node, depthPeeling, initialize) ?? GetTransparencyPassName(node, depthPeeling, initialize);
         if (passName is null) return null;
         IReadOnlyList<Format> formats = initialize
             ? [SilkD3D12TransparencyResources.PeelingDepthFormat]

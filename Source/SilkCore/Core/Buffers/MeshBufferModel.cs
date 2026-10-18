@@ -94,6 +94,7 @@ public abstract class MeshGeometryBufferModel<TVertexStruct> : GeometryBufferMod
 }
 
 /// <summary>
+///     Owns default mesh streams and their native vertex serialization boundary.
 /// </summary>
 public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVertex> {
     /// <summary>
@@ -135,6 +136,14 @@ public class DefaultMeshGeometryBufferModel : MeshGeometryBufferModel<DefaultVer
                 return false;
         }
     }
+
+    /// <summary>
+    ///     Builds the existing native vertex stream using this buffer owner's channel policy.
+    /// </summary>
+    /// <param name="geometry">The current geometry generation.</param>
+    /// <returns>The position, normal, tangent and bitangent stream.</returns>
+    protected internal virtual DefaultVertex[] CreateNativeVertexArray(MeshGeometry3D geometry)
+        => BuildVertexArray(geometry);
 
     /// <summary>
     ///     Builds the vertex array.

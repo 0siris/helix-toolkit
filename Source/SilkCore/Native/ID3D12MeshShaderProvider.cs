@@ -21,6 +21,16 @@ public interface ID3D12MeshShaderProvider
     /// <param name="selectedTechnique">The technique selected by the existing node contract.</param>
     /// <returns>The registered technique used by the native renderer.</returns>
     string GetTechniqueName(SceneNode node, string selectedTechnique);
+
+    /// <summary>
+    ///     Preserves an application's original transparency pass selection when it differs from native defaults.
+    /// </summary>
+    /// <param name="node">The actual scene node.</param>
+    /// <param name="depthPeeling">Whether depth peeling is active.</param>
+    /// <param name="initialize">Whether the min/max initialization stage is active.</param>
+    /// <returns>The application pass, or <see langword="null"/> to retain the existing native selection.</returns>
+    string? GetTransparencyPassName(SceneNode node, bool depthPeeling, bool initialize) => null;
+
 }
 
 /// Contains the two float4 channels consumed by extended mesh vertex shaders in input slot three.

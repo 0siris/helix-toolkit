@@ -41,4 +41,15 @@ public sealed class OriginalNamespaceCompatibilityTests {
         Assert.NotNull(resolvedType);
         Assert.Equal(expectedType, resolvedType.UnderlyingType);
     }
+
+    /// <summary>Retains the original palette member while preserving independently mutable factory results.</summary>
+    /// <returns>The headless WPF palette verification.</returns>
+    [Fact]
+    public Task OriginalVrmlPaletteNameTest() => global::SilkToolkit.Tests.StaThread.RunAsync(() => {
+        var original = PhongMaterials.DefaultVRML;
+        var current = PhongMaterials.DefaultVrml;
+        Assert.Equal("DefaultVRML", original.Name);
+        Assert.Equal(current.DiffuseColor, original.DiffuseColor);
+        Assert.NotSame(original, current);
+    });
 }

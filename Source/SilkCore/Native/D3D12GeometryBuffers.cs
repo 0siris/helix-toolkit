@@ -315,7 +315,7 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
             if ((uint) indices[index] >= (uint) positions.Count)
                 throw new ArgumentException($"Index {index} refers to a vertex outside the mesh.", nameof(source));
 
-        var defaultBuffer = DefaultMeshGeometryBufferModel.BuildVertexArray(geometry);
+        var defaultBuffer = source.CreateNativeVertexArray(geometry);
         var defaults = defaultBuffer.Length == positions.Count
             ? defaultBuffer
             : defaultBuffer.AsSpan(0, positions.Count).ToArray();

@@ -53,6 +53,7 @@ public class PhongMaterialCollection : ObservableCollection<PhongMaterial> {
 }
 
 /// <summary>
+///     Creates independently mutable named Phong material presets.
 /// </summary>
 public static class PhongMaterials {
     static PhongMaterials() {
@@ -413,6 +414,9 @@ public static class PhongMaterials {
             EmissiveColor = ToColor(0.0, 0.0, 0.0, 0.0),
             SpecularShininess = 10f
         };
+
+    /// Gets a fresh original VRML default material using the existing palette factory.
+    public static PhongMaterial DefaultVRML => DefaultVrml;
 
     public static PhongMaterial DefaultVrml =>
         new() {

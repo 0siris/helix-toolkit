@@ -139,6 +139,18 @@ public sealed class D3D12CutoverContractTests {
         Assert.True(typeof(IGeometryBufferManager).IsAssignableFrom(registry));
     }
 
+    /// Preserves the original field-of-view spelling without adding storage to the native frustum layout.
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void OriginalFrustumFieldOfViewSharesNativeStorage() {
+        var camera = new global::HelixToolkit.SharpDX.Core.Native.FrustumCameraParams { FOV = .7f };
+        Assert.Equal(.7f, camera.Fov);
+        camera.Fov = .4f;
+        Assert.Equal(.4f, camera.FOV);
+        var size = System.Runtime.InteropServices.Marshal.SizeOf<global::HelixToolkit.SharpDX.Core.Native.FrustumCameraParams>();
+        Assert.Equal(52, size);
+    }
+
     /// <summary>
     ///     Verifies Silk.NET Direct3D 11 source references remain confined to Desktop Duplication.
     /// </summary>

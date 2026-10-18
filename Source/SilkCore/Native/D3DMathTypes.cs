@@ -35,7 +35,11 @@ public struct Bool4 {
     }
 }
 
+/// Stores the native frustum components while retaining original source member access.
 public struct FrustumCameraParams {
+    /// Gets or sets the original field-of-view spelling, sharing the existing native field and layout.
+    public float FOV { get => Fov; set => Fov = value; }
+
     public Vector3 Position;
     public Vector3 LookAtDir;
     public Vector3 UpDir;

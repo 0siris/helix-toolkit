@@ -1,12 +1,12 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core.Animations;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Animations;
 
-namespace HelixToolkit.SharpDX.Core.Extensions;
+namespace HelixToolkit.SharpDX.Core;
 
 public static class AnimationExtensions {
     public static Dictionary<string, IAnimationUpdater>

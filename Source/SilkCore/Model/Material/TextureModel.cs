@@ -7,7 +7,7 @@ using System.ComponentModel;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Model.Material;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 ///     Texture model contains <see cref="TextureInfoLoader" /> and a Guid to identify specific texture.

@@ -5,7 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Extensions;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>

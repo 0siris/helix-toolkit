@@ -13,6 +13,22 @@ timestamp: 2026-07-08T00:00:00+02:00
 
 # Dependencies
 
+## Original public namespace compatibility
+
+The public WPF types use their original HelixToolkit namespaces again. For example, `Viewport3DX`,
+`Material`, `PhongMaterial` and `PBRMaterial` are declared in `HelixToolkit.Wpf.SharpDX`.
+The existing `http://helix-toolkit.org/wpf/SharpDX` XML namespace resolves those types without consumer
+XAML changes. Assembly names remain SilkCore, SilkToolkit and SilkAssimp.
+
+Original Core type namespaces and acronym spellings are also restored, including `MSAALevel`,
+`FXAALevel`, `UVTransform` and `PBRMaterialCore`. Native Silk-specific types retain their namespaces.
+There are no compatibility wrapper type hierarchies or newly introduced preprocessor switches.
+Mixed source files use separate namespace blocks to retain both original and Silk-specific type ownership.
+
+`OriginalNamespaceCompatibilityTests` verifies representative CLR names and real XAML schema resolution
+without constructing viewports or native devices. This compatibility checkpoint does not assert complete
+original member compatibility or original application rendering acceptance.
+
 The project uses Silk.NET Direct2D, Direct3D compiler, Direct3D11, Direct3D9, DXGI, and maths packages. It also references `Cyotek.Drawing.BitmapFont`, `Microsoft.CSharp`, and `Microsoft.SourceLink.GitHub`.
 
 # Related Concepts

@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core.Interface;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IRenderMatrices.cs" company="Helix Toolkit">
 //   Copyright (c) 2018 Helix Toolkit contributors
@@ -11,7 +12,7 @@
 
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core;
 
 public interface IRenderMatrices {
     /// <summary>

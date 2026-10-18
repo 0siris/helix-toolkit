@@ -1,15 +1,16 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IRenderable.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HelixToolkit.SharpDX.Core.Model.Camera;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>

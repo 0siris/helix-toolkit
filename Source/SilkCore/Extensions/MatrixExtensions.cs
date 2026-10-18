@@ -4,7 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core.Extensions;
+namespace HelixToolkit.SharpDX.Core;
 
 public static class MatrixExtensions {
     /// <summary>

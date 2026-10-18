@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core.Model;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -5,9 +6,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.Serialization;
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.Wpf.SharpDX.Material;
+namespace HelixToolkit.Wpf.SharpDX;
 
 [DataContract]
 public abstract class Material : Freezable {

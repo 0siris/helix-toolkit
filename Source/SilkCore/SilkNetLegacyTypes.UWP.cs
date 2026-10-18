@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 

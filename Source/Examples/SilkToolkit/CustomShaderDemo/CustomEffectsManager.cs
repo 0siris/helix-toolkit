@@ -1,8 +1,8 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Shaders;
 using System;
 using System.IO;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 
 namespace CustomShaderDemo;
 
@@ -84,7 +84,7 @@ public class CustomEffectsManager : DefaultEffectsManager {
                 new ShaderPassDescription(DefaultPassNames.Wireframe) {
                     ShaderList = [
                         CustomVsShaderDescription.VsDataSampling,
-                        DefaultPsShaderDescriptions.PsMeshWireframe
+                        DefaultPSShaderDescriptions.PsMeshWireframe
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
                     DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
@@ -93,11 +93,11 @@ public class CustomEffectsManager : DefaultEffectsManager {
         };
         var noiseMesh = new TechniqueDescription(CustomShaderNames.NoiseMesh) {
             InputLayoutDescription =
-                new InputLayoutDescription(DefaultVsShaderByteCodes.VsMeshDefault, DefaultInputLayout.VsInput),
+                new InputLayoutDescription(DefaultVSShaderByteCodes.VsMeshDefault, DefaultInputLayout.VsInput),
             PassDescriptions = [
                 new ShaderPassDescription(DefaultPassNames.Default) {
                     ShaderList = [
-                        DefaultVsShaderDescriptions.VsMeshDefault,
+                        DefaultVSShaderDescriptions.VsMeshDefault,
                         CustomPsShaderDescription.PsNoiseMesh
                     ],
                     BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,
@@ -112,8 +112,8 @@ public class CustomEffectsManager : DefaultEffectsManager {
         var points = GetTechnique(DefaultRenderTechniqueNames.Points);
         points.AddPass(new ShaderPassDescription("CustomPointPass") {
             ShaderList = [
-                DefaultVsShaderDescriptions.VsPoint,
-                DefaultGsShaderDescriptions.GsPoint,
+                DefaultVSShaderDescriptions.VsPoint,
+                DefaultGSShaderDescriptions.GsPoint,
                 CustomPsShaderDescription.PsCustomPoint
             ],
             BlendStateDescription = DefaultBlendStateDescriptions.BsAlphaBlend,

@@ -1,6 +1,9 @@
+using HelixToolkit.SharpDX.Core.Helper;
 using System.Reflection;
 
-namespace HelixToolkit.SharpDX.Core.DefaultShaders;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core.Helper
+{
 /// <summary>
 /// </summary>
 public interface IShaderByteCodeReader {
@@ -20,7 +23,7 @@ public interface IShaderByteCodeReader {
 public sealed class HelixToolkitByteCodeReader : IShaderByteCodeReader {
     /// <inheritdoc />
     public byte[] ReadDxil(string stage, string name, string entryPoint = "main") {
-        var assembly = typeof(UwpShaderBytePool).GetTypeInfo().Assembly;
+        var assembly = typeof(UWPShaderBytePool).GetTypeInfo().Assembly;
         return ReadResource(assembly,
                             $"SilkCore.Resources.DX12.{stage}.{name}.{entryPoint}.dxil",
                             $"{stage}\\{name}.{entryPoint}.dxil");
@@ -36,10 +39,14 @@ public sealed class HelixToolkitByteCodeReader : IShaderByteCodeReader {
     }
 }
 
+}
+namespace HelixToolkit.SharpDX.Core.Helper
+{
+
 /// <summary>
 ///     Used to read shader bytecode
 /// </summary>
-public static class UwpShaderBytePool {
+public static class UWPShaderBytePool {
     public static Dictionary<string, byte[]> Dict = [];
     internal static readonly HelixToolkitByteCodeReader InternalByteCodeReader = new();
 
@@ -61,4 +68,6 @@ public static class UwpShaderBytePool {
             return byteCode;
         }
     }
+}
+
 }

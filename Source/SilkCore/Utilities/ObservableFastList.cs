@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2023 Helix Toolkit contributors
@@ -8,7 +9,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Model.Collection;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;
 public sealed class ObservableFastList<T> : INotifyCollectionChanged, INotifyPropertyChanged, IList<T> {

@@ -1,19 +1,14 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
-using HelixToolkit.Wpf.SharpDX.Camera;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
 
 namespace OrderIndependentTransparentRendering;
 
@@ -78,18 +73,18 @@ public class MainViewModel : BaseViewModel {
         get => oitDepthPeelModeEnabled;
     }
 
-    public OitRenderType OitRenderType {
+    public OITRenderType OitRenderType {
         set {
             if (SetValue(ref field, value)) {
                 switch (value) {
-                    case OitRenderType.None:
+                    case OITRenderType.None:
                         OitDepthPeelModeEnabled = OitWeightedModeEnabled = false;
                         break;
-                    case OitRenderType.DepthPeeling:
+                    case OITRenderType.DepthPeeling:
                         OitDepthPeelModeEnabled = true;
                         OitWeightedModeEnabled = false;
                         break;
-                    case OitRenderType.SinglePassWeighted:
+                    case OITRenderType.SinglePassWeighted:
                         oitDepthPeelModeEnabled = false;
                         OitWeightedModeEnabled = true;
                         break;
@@ -97,7 +92,7 @@ public class MainViewModel : BaseViewModel {
             }
         }
         get;
-    } = OitRenderType.DepthPeeling;
+    } = OITRenderType.DepthPeeling;
 
     private MaterialType materialType = MaterialType.BlinnPhong;
 
@@ -110,11 +105,11 @@ public class MainViewModel : BaseViewModel {
         get => materialType;
     }
 
-    public OitWeightMode[] OitWeights { get; } =
-        [OitWeightMode.Linear0, OitWeightMode.Linear1, OitWeightMode.Linear2, OitWeightMode.NonLinear];
+    public OITWeightMode[] OitWeights { get; } =
+        [OITWeightMode.Linear0, OITWeightMode.Linear1, OITWeightMode.Linear2, OITWeightMode.NonLinear];
 
-    public OitRenderType[] OitRenderTypes { get; } =
-        [OitRenderType.None, OitRenderType.DepthPeeling, OitRenderType.SinglePassWeighted];
+    public OITRenderType[] OitRenderTypes { get; } =
+        [OITRenderType.None, OITRenderType.DepthPeeling, OITRenderType.SinglePassWeighted];
 
     public MaterialType[] MaterialTypes { get; } = [MaterialType.BlinnPhong, MaterialType.Pbr, MaterialType.Diffuse];
 
@@ -308,7 +303,7 @@ public class MainViewModel : BaseViewModel {
             MaterialType.BlinnPhong => new PhongMaterial() {
                 DiffuseColor = diffuse
             },
-            MaterialType.Pbr => new PbrMaterial() {
+            MaterialType.Pbr => new PBRMaterial() {
                 AlbedoColor = diffuse,
                 MetallicFactor = 0.7f,
                 RoughnessFactor = 0.6f,

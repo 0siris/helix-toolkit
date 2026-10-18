@@ -1,6 +1,6 @@
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
 using System;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 
 namespace CustomShaderDemo;
 

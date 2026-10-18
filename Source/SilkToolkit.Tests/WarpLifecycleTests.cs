@@ -1,8 +1,7 @@
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Core.Buffers;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.Wpf.SharpDX.Element3D;
-using HelixToolkit.Wpf.SharpDX.Material;
 using Silk.NET.Maths;
 using Xunit;
 

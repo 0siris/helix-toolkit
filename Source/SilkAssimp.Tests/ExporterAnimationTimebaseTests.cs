@@ -1,12 +1,12 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Model;
 using SharpAssimp;
 using System.Numerics;
 using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model.Animations;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using Xunit;
-using HxAnimation = HelixToolkit.SharpDX.Core.Model.Animations.Animation;
+using HxAnimation = HelixToolkit.SharpDX.Core.Animations.Animation;
 using HxExporter = HelixToolkit.SharpDX.Core.Assimp.Exporter;
 
 namespace SilkAssimp.Tests;

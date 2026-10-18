@@ -1,4 +1,6 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2021 Helix Toolkit contributors
 // </copyright>
@@ -8,10 +10,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Camera;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using Point3D = System.Windows.Media.Media3D.Point3D;

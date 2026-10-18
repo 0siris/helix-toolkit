@@ -9,7 +9,7 @@ namespace DemoCore.Automation;
 using System.Windows;
 
 /// <summary>
-///     Standard demo shell: one <see cref="HelixToolkit.Wpf.SharpDX.Controls.Viewport3DX" /> with default lights,
+///     Standard demo shell: one <see cref="HelixToolkit.Wpf.SharpDX.Viewport3DX" /> with default lights,
 ///     automation wiring, and disposal. For new demos; existing windows are not rebuilt onto it.
 /// </summary>
 public partial class DemoWindow : Window {

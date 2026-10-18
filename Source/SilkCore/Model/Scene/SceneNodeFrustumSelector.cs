@@ -1,10 +1,9 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 

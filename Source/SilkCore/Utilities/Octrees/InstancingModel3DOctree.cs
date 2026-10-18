@@ -1,7 +1,5 @@
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 ///     Octree for instancing

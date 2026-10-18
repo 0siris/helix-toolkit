@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OctreeManager.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -8,9 +10,8 @@
 using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
+namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <summary>
 /// </summary>
 public abstract class OctreeManagerBase : ObservableObject, IOctreeManager {

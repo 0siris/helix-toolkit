@@ -1,25 +1,13 @@
+using HelixToolkit.SharpDX.Core.Cameras;
 using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Core.Abstract;
-using HelixToolkit.SharpDX.Core.Core.Buffers;
 using HelixToolkit.SharpDX.Core.Core2D;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Camera;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Lights;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
@@ -418,8 +406,8 @@ public class D3D12RuntimePrimitiveTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void EveryBuiltInShaderDescriptionResolvesDxilModule() {
-        var descriptions = typeof(DefaultVsShaderDescriptions).Assembly.GetTypes()
-            .Where(type => type.Namespace == typeof(DefaultVsShaderDescriptions).Namespace
+        var descriptions = typeof(DefaultVSShaderDescriptions).Assembly.GetTypes()
+            .Where(type => type.Namespace == typeof(DefaultVSShaderDescriptions).Namespace
                            && type.Name.EndsWith("ShaderDescriptions", StringComparison.Ordinal))
             .SelectMany(type => type.GetFields(System.Reflection.BindingFlags.Public
                                                 | System.Reflection.BindingFlags.Static))
@@ -1812,7 +1800,7 @@ public class D3D12RuntimePrimitiveTests {
         using var bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
         using var constantBuffer = new SilkD3D12ConstantBuffer(device,
             bindings.ConstantBuffer(1),
-            PhongPbrMaterialStruct.SizeInBytes);
+            PhongPBRMaterialStruct.SizeInBytes);
         var model = new ModelStruct {
             World = Matrix.Identity,
             HasInstances = 1,
@@ -1821,17 +1809,17 @@ public class D3D12RuntimePrimitiveTests {
         constantBuffer.Write(in model);
         var marker = 42u;
         constantBuffer.Write(in marker, ModelStruct.SizeInBytes);
-        using var readback = device.CreateBuffer((ulong)PhongPbrMaterialStruct.SizeInBytes, HeapType.Readback);
+        using var readback = device.CreateBuffer((ulong)PhongPBRMaterialStruct.SizeInBytes, HeapType.Readback);
         context.Reset();
         context.CopyBuffer(readback,
             0,
             constantBuffer.Resource,
             0,
-            (ulong)PhongPbrMaterialStruct.SizeInBytes);
+            (ulong)PhongPBRMaterialStruct.SizeInBytes);
         context.Close();
         queue.Execute(context);
         fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
-        var bytes = readback.Read(PhongPbrMaterialStruct.SizeInBytes);
+        var bytes = readback.Read(PhongPBRMaterialStruct.SizeInBytes);
 
         Assert.Equal(1f, MemoryMarshal.Cast<byte, float>(bytes)[0]);
         Assert.Equal(1, MemoryMarshal.Cast<byte, int>(bytes)[17]);
@@ -1839,7 +1827,7 @@ public class D3D12RuntimePrimitiveTests {
         Assert.All(bytes.AsSpan(ModelStruct.SizeInBytes + sizeof(uint)).ToArray(), value => Assert.Equal(0, value));
         Assert.Equal(512UL, constantBuffer.Resource.SizeInBytes);
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            constantBuffer.Write(in marker, PhongPbrMaterialStruct.SizeInBytes));
+            constantBuffer.Write(in marker, PhongPBRMaterialStruct.SizeInBytes));
         constantBuffer.Dispose();
         Assert.True(constantBuffer.IsDisposed);
         Assert.Throws<ObjectDisposedException>(() => constantBuffer.Write(in marker));
@@ -2034,7 +2022,7 @@ public class D3D12RuntimePrimitiveTests {
             EnableUnLit = true,
             EnableFlatShading = true,
             VertexColorBlendingFactor = 0.25f,
-            UvTransform = new UvTransform(0, 2, 3, 4, 5)
+            UvTransform = new UVTransform(0, 2, 3, 4, 5)
         };
         var phong = new PhongMaterialCore {
             DiffuseColor = new Vector4(0.2f, 0.3f, 0.4f, 1),
@@ -2053,7 +2041,7 @@ public class D3D12RuntimePrimitiveTests {
             SpecularShininess = 42,
             VertexColorBlendingFactor = 0.5f
         };
-        var pbr = new PbrMaterialCore {
+        var pbr = new PBRMaterialCore {
             AlbedoColor = new Vector4(0.8f, 0.7f, 0.6f, 1),
             EmissiveColor = new Vector4(0.1f, 0.2f, 0.3f, 1),
             AmbientOcclusionFactor = 0.2f,
@@ -2078,14 +2066,14 @@ public class D3D12RuntimePrimitiveTests {
         var phongData = D3D12MeshMaterialData.Create(in model, phong);
         var pbrData = D3D12MeshMaterialData.Create(in model, pbr);
 
-        Assert.Equal(PhongPbrMaterialStruct.SizeInBytes, Marshal.SizeOf<PhongPbrMaterialStruct>());
-        Assert.Equal(0, Marshal.OffsetOf<PhongPbrMaterialStruct>(nameof(PhongPbrMaterialStruct.Model)).ToInt32());
+        Assert.Equal(PhongPBRMaterialStruct.SizeInBytes, Marshal.SizeOf<PhongPBRMaterialStruct>());
+        Assert.Equal(0, Marshal.OffsetOf<PhongPBRMaterialStruct>(nameof(PhongPBRMaterialStruct.Model)).ToInt32());
         Assert.Equal(160,
-            Marshal.OffsetOf<PhongPbrMaterialStruct>(nameof(PhongPbrMaterialStruct.Diffuse)).ToInt32());
+            Marshal.OffsetOf<PhongPBRMaterialStruct>(nameof(PhongPBRMaterialStruct.Diffuse)).ToInt32());
         Assert.Equal(240,
-            Marshal.OffsetOf<PhongPbrMaterialStruct>(nameof(PhongPbrMaterialStruct.HasDiffuseMap)).ToInt32());
+            Marshal.OffsetOf<PhongPBRMaterialStruct>(nameof(PhongPBRMaterialStruct.HasDiffuseMap)).ToInt32());
         Assert.Equal(336,
-            Marshal.OffsetOf<PhongPbrMaterialStruct>(nameof(PhongPbrMaterialStruct.VertexColorBlendingAndPadding))
+            Marshal.OffsetOf<PhongPBRMaterialStruct>(nameof(PhongPBRMaterialStruct.VertexColorBlendingAndPadding))
                 .ToInt32());
         Assert.Equal(model.World, diffuseData.Model.World);
         Assert.Equal(diffuse.DiffuseColor, diffuseData.Diffuse);
@@ -2802,7 +2790,7 @@ public class D3D12RuntimePrimitiveTests {
         using var phong = CreateDiffuseQuadNode(Vector4.One);
         using var pbr = CreateDiffuseQuadNode(Vector4.One);
         phong.Material = new PhongMaterialCore();
-        pbr.Material = new PbrMaterialCore { EnableTessellation = true };
+        pbr.Material = new PBRMaterialCore { EnableTessellation = true };
 
         Assert.Equal(DefaultPassNames.DiffuseOit,
             D3D12ScenePassCatalog.GetTransparencyPassName(diffuse, false, false));
@@ -2851,7 +2839,7 @@ public class D3D12RuntimePrimitiveTests {
             EyePos = new Vector3(0, 0, 2),
             OITWeightPower = 3,
             OITWeightDepthSlope = 1,
-            OITWeightMode = (int)OitWeightMode.Linear1,
+            OITWeightMode = (int)OITWeightMode.Linear1,
             DpiScale = 1
         };
         var frustum = new BoundingFrustum(Matrix.Identity);
@@ -3427,7 +3415,7 @@ public class D3D12RuntimePrimitiveTests {
         var techniqueDescription = DefaultEffectsManager.LoadTechniqueDescriptions()
             .Single(description => description.Name == DefaultRenderTechniqueNames.Mesh);
         var material = usePbr
-            ? (MaterialCore)new PbrMaterialCore {
+            ? (MaterialCore)new PBRMaterialCore {
                 AlbedoColor = new Vector4(0, 0, 0, 1),
                 EmissiveColor = Vector4.Zero,
                 EnableTessellation = tessellate
@@ -3768,14 +3756,14 @@ public class D3D12RuntimePrimitiveTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void PostProcessCpuContractsAreDeterministic() {
-        var fxaa = SilkD3D12SceneRenderer.CreateFxaaParameters(FxaaLevel.High, 200, 100);
+        var fxaa = SilkD3D12SceneRenderer.CreateFxaaParameters(FXAALevel.High, 200, 100);
         Assert.Equal(0.005f, fxaa.Color.X);
         Assert.Equal(0.01f, fxaa.Color.Y);
         Assert.Equal(0.75f, fxaa.Param.M11);
         Assert.Equal(0.125f, fxaa.Param.M12);
         Assert.Equal(0.0625f, fxaa.Param.M13);
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            SilkD3D12SceneRenderer.CreateFxaaParameters(FxaaLevel.None, 1, 1));
+            SilkD3D12SceneRenderer.CreateFxaaParameters(FXAALevel.None, 1, 1));
 
         var first = SilkD3D12SsaoResources.CreateKernel();
         var second = SilkD3D12SsaoResources.CreateKernel();
@@ -3820,7 +3808,7 @@ public class D3D12RuntimePrimitiveTests {
         using var capturedReadback = device.CreateBuffer(totalBytes, HeapType.Readback);
         using var lumaReadback = device.CreateBuffer(totalBytes, HeapType.Readback);
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);
-        var parameters = SilkD3D12SceneRenderer.CreateFxaaParameters(FxaaLevel.High, 8, 8);
+        var parameters = SilkD3D12SceneRenderer.CreateFxaaParameters(FXAALevel.High, 8, 8);
         var lumaPass = catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectFxaa,
             DefaultPassNames.LumaPass);
         var fxaaPass = catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectFxaa,
@@ -4141,7 +4129,7 @@ public class D3D12RuntimePrimitiveTests {
             ref frustum,
             8,
             8,
-            SsaoQuality.High,
+            SSAOQuality.High,
             0.5f);
         var footprint = device.GetCopyableFootprint(occlusion, out var totalBytes);
         using var readback = device.CreateBuffer(totalBytes, HeapType.Readback);

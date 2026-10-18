@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
 //Flag.jpg image is created by Luis_molinero - Freepik.com
 
 using System.IO;
@@ -5,21 +7,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Cyotek.Drawing.BitmapFont;
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using Color = BillboardDemo.BillboardColors;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using D2DFontStyle = HelixToolkit.SharpDX.Core.Native.FontStyle;

@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ItemsModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -14,10 +15,9 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Represents a model that can be used to present a collection of items. supports generating child items by a
@@ -69,7 +69,7 @@ public class ItemsModel3D : CompositeModel3D {
                                       e.NewValue == null ? null : ((IOctreeManagerWrapper)e.NewValue).Manager;
                               }));
 
-    private readonly Dictionary<object, AbstractElements3D.Element3D> elementDict = [];
+    private readonly Dictionary<object, global::HelixToolkit.Wpf.SharpDX.Element3D> elementDict = [];
     private IEnumerable? itemsSourceInternal;
 
     public ItemsModel3D() {
@@ -137,7 +137,7 @@ public class ItemsModel3D : CompositeModel3D {
 
         if (ItemTemplate == null)
             foreach (var item in itemsSourceInternal)
-                if (item is AbstractElements3D.Element3D model) {
+                if (item is global::HelixToolkit.Wpf.SharpDX.Element3D model) {
                     elementDict.Add(item, model);
                     Children.Add(model);
                 } else {
@@ -145,7 +145,7 @@ public class ItemsModel3D : CompositeModel3D {
                 }
         else
             foreach (var item in itemsSourceInternal)
-                if (ItemTemplate.LoadContent() is AbstractElements3D.Element3D model) {
+                if (ItemTemplate.LoadContent() is global::HelixToolkit.Wpf.SharpDX.Element3D model) {
                     model.DataContext = item;
                     elementDict.Add(item, model);
                     Children.Add(model);
@@ -179,7 +179,7 @@ public class ItemsModel3D : CompositeModel3D {
                 if (ItemsSource != null) {
                     if (ItemTemplate == null)
                         foreach (var item in ItemsSource)
-                            if (item is AbstractElements3D.Element3D model) {
+                            if (item is global::HelixToolkit.Wpf.SharpDX.Element3D model) {
                                 elementDict.Add(item, model);
                                 Children.Add(model);
                             } else {
@@ -187,7 +187,7 @@ public class ItemsModel3D : CompositeModel3D {
                             }
                     else
                         foreach (var item in ItemsSource)
-                            if (ItemTemplate.LoadContent() is AbstractElements3D.Element3D model) {
+                            if (ItemTemplate.LoadContent() is global::HelixToolkit.Wpf.SharpDX.Element3D model) {
                                 model.DataContext = item;
                                 elementDict.Add(item, model);
                                 Children.Add(model);
@@ -202,7 +202,7 @@ public class ItemsModel3D : CompositeModel3D {
                 if (e.NewItems != null) {
                     if (ItemTemplate != null)
                         foreach (var item in e.NewItems)
-                            if (ItemTemplate.LoadContent() is AbstractElements3D.Element3D model) {
+                            if (ItemTemplate.LoadContent() is global::HelixToolkit.Wpf.SharpDX.Element3D model) {
                                 model.DataContext = item;
                                 elementDict.Add(item, model);
                                 Children.Add(model);
@@ -211,7 +211,7 @@ public class ItemsModel3D : CompositeModel3D {
                             }
                     else
                         foreach (var item in e.NewItems)
-                            if (item is AbstractElements3D.Element3D model) {
+                            if (item is global::HelixToolkit.Wpf.SharpDX.Element3D model) {
                                 elementDict.Add(item, model);
                                 Children.Add(model);
                             } else {

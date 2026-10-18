@@ -1,6 +1,7 @@
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>

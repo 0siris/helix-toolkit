@@ -1,13 +1,12 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.ComponentModel;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
 namespace HelixToolkit.SharpDX.Core.Model.Components;
 public sealed class GeometryBoundManager : IDisposable {

@@ -1,12 +1,12 @@
+using HelixToolkit.SharpDX.Core.Utilities;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core;
 public sealed class HitTestContext {
         /// <summary>
         ///     Initializes a new instance of the <see cref="HitTestContext" /> class.

@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core.Model;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ModelReader.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -7,9 +8,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.ImportExport;
+namespace HelixToolkit.SharpDX.Core;
 using Mesh3DGroup = List<Object3D>;
 
     /// <summary>

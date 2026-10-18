@@ -1,5 +1,5 @@
+using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using Xunit;
 
 namespace SilkToolkit.Tests;

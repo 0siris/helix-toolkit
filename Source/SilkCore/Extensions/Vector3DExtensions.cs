@@ -7,7 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Extensions;
+namespace HelixToolkit.SharpDX.Core;
 
 public static class VectorExtensions {
     [Pure]

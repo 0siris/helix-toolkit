@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="InteractionHandle3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -7,19 +9,10 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
 using HelixToolkit.Wpf.SharpDX.Model;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 
 namespace MouseDragDemo;
 

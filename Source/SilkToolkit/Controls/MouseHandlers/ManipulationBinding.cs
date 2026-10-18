@@ -12,7 +12,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Input;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Binds a <see cref="ManipulationGesture" /> to a <see cref="RoutedCommand" /> (or another <see cref="ICommand" />

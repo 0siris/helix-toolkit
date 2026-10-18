@@ -1,7 +1,6 @@
+using HelixToolkit.SharpDX.Core;
 using System.Runtime.InteropServices;
 using System.Text;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 using Silk.NET.Maths;
 using DxgiFormat = Silk.NET.DXGI.Format;

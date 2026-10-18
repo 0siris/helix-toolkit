@@ -1,6 +1,6 @@
-using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Cameras;
 
-namespace HelixToolkit.SharpDX.Core.Extensions;
+namespace HelixToolkit.SharpDX.Core;
 
 public static class CameraCoreExtensions {
     public static BoundingFrustum CreateFrustum(this CameraCore camera, float aspectRatio) => new(camera.CreateViewMatrix() * camera.CreateProjectionMatrix(aspectRatio));

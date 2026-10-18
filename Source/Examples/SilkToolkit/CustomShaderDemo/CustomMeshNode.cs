@@ -1,4 +1,5 @@
-using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Interface;
 
 namespace CustomShaderDemo;

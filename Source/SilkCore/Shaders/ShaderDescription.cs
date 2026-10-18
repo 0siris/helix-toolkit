@@ -1,13 +1,13 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Helper;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.Serialization;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;
 /// <summary>
@@ -99,7 +99,7 @@ public sealed class ShaderDescription {
         ShaderType = type;
         ByteCodeName = byteCodeName;
         ShaderReflector = reflector;
-        this.byteCodeReader = byteCodeReader ?? UwpShaderBytePool.InternalByteCodeReader;
+        this.byteCodeReader = byteCodeReader ?? UWPShaderBytePool.InternalByteCodeReader;
     }
 
     /// <summary>
@@ -140,8 +140,8 @@ public sealed class ShaderDescription {
         get {
             if (field == null && !string.IsNullOrEmpty(ByteCodeName)) {
                 var stage = GetD3D12Stage(ShaderType);
-                field = ReferenceEquals(byteCodeReader, UwpShaderBytePool.InternalByteCodeReader)
-                    ? UwpShaderBytePool.ReadDxil(stage,
+                field = ReferenceEquals(byteCodeReader, UWPShaderBytePool.InternalByteCodeReader)
+                    ? UWPShaderBytePool.ReadDxil(stage,
                         ByteCodeName,
                         D3D12ShaderManifest.ResolveEntryPoint(stage, ByteCodeName))
                     : byteCodeReader?.ReadDxil(stage, ByteCodeName, "main");
@@ -204,7 +204,7 @@ public sealed class ShaderDescription {
     ///     The uav mappings.
     /// </value>
     [IgnoreDataMember]
-    public UavMapping[]? UavMappings { get; private set; }
+    public UAVMapping[]? UavMappings { get; private set; }
 
     /// <summary>
     ///     Gets or sets the sampler mappings.

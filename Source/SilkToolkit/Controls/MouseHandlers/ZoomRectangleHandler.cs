@@ -13,7 +13,7 @@ using System.Windows;
 using System.Windows.Input;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Handles rectangle zooming.

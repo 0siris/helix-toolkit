@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -8,7 +10,7 @@ using System.Globalization;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Model.Camera;
+namespace HelixToolkit.SharpDX.Core.Cameras;
 public abstract class CameraCore : ObservableObject, ICamera {
     private float accumTime;
     private float aniTime;

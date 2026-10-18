@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Shaders;
 /*
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
@@ -5,15 +7,8 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Core.Buffers;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Lights;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
 
@@ -543,7 +538,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
                 GlobalTransformStruct.SizeInBytes);
             createdModel = new SilkD3D12ConstantBuffer(device,
                 bindings.ConstantBuffer(1),
-                PhongPbrMaterialStruct.SizeInBytes);
+                PhongPBRMaterialStruct.SizeInBytes);
             createdLights = new SilkD3D12ConstantBuffer(device,
                 bindings.ConstantBuffer(3),
                 LightsBufferModel.SizeInBytes);
@@ -616,7 +611,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
         MaterialCore? material,
         TextureModel? environmentMap = null,
         Geometry3D? geometry = null,
-        HelixToolkit.SharpDX.Core.Model.Scene.Abstract.SceneNode? node = null
+        HelixToolkit.SharpDX.Core.Model.Scene.SceneNode? node = null
     ) {
         context.AsGuardNotNull();
         resources.AsGuardNotNull();
@@ -753,7 +748,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
     /// </summary>
     /// <param name="transforms">The global camera and viewport transforms.</param>
     /// <param name="materialData">The complete mesh/model/material structure.</param>
-    private void Update(in GlobalTransformStruct transforms, in PhongPbrMaterialStruct materialData) {
+    private void Update(in GlobalTransformStruct transforms, in PhongPBRMaterialStruct materialData) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         globalTransforms.Write(in transforms);
         model.Write(in materialData);
@@ -788,7 +783,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
                 device.CreateSampler(bindings.Sampler(0), phong.DiffuseMapSampler);
                 device.CreateSampler(bindings.Sampler(3), phong.DisplacementMapSampler);
                 break;
-            case PbrMaterialCore pbr:
+            case PBRMaterialCore pbr:
                 BindTexture(context, resources, pbr.AlbedoMap, 0, () => pbr.AlbedoMap);
                 BindTexture(context, resources, pbr.NormalMap, 1, () => pbr.NormalMap);
                 BindTexture(context, resources, pbr.RoughnessMetallicMap, 2, () => pbr.RoughnessMetallicMap);
@@ -870,7 +865,7 @@ internal sealed class SilkD3D12MeshBindings : IDisposable {
                 5 => phong.EmissiveMap,
                 _ => null
             },
-            PbrMaterialCore pbr => register switch {
+            PBRMaterialCore pbr => register switch {
                 0 => pbr.AlbedoMap,
                 1 => pbr.NormalMap,
                 2 => pbr.RoughnessMetallicMap,
@@ -1104,7 +1099,7 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
                 => volumeModel,
             VolumeTextureDiffuseMaterialCore diffuse
                 when ReferenceEquals(diffuse.VolumeTexture.VolumeTextures, volumeSource) => volumeModel,
-            VolumeTextureDds3DMaterialCore dds => dds.VolumeTexture,
+            VolumeTextureDDS3DMaterialCore dds => dds.VolumeTexture,
             _ => null
         })!;
         if (texture.Resource.Description.Dimension != ResourceDimension.Texture3D)
@@ -1176,7 +1171,7 @@ internal sealed class SilkD3D12VolumeBindings : IDisposable {
                         diffuse.VolumeTexture.Height,
                         diffuse.VolumeTexture.Depth);
                 break;
-            case VolumeTextureDds3DMaterialCore { VolumeTexture: { } dds }:
+            case VolumeTextureDDS3DMaterialCore { VolumeTexture: { } dds }:
                 source = dds;
                 candidate = dds;
                 break;
@@ -1622,8 +1617,8 @@ internal static class D3D12MeshMaterialData {
         DiffuseMaterialCore => DefaultPassNames.Diffuse,
         PhongMaterialCore {EnableTessellation: true} => DefaultPassNames.MeshTriTessellation,
         PhongMaterialCore => DefaultPassNames.Default,
-        PbrMaterialCore {EnableTessellation: true} => DefaultPassNames.MeshPbrTriTessellation,
-        PbrMaterialCore => DefaultPassNames.Pbr,
+        PBRMaterialCore {EnableTessellation: true} => DefaultPassNames.MeshPbrTriTessellation,
+        PBRMaterialCore => DefaultPassNames.Pbr,
         NormalMaterialCore => DefaultPassNames.Normals,
         ColorMaterialCore => DefaultPassNames.Colors,
         PositionMaterialCore => DefaultPassNames.Positions,
@@ -1640,8 +1635,8 @@ internal static class D3D12MeshMaterialData {
     /// <param name="material">The existing material core, or <see langword="null" /> for pass-only drawing.</param>
     /// <returns>The complete cbMesh payload.</returns>
     /// <exception cref="NotSupportedException">The material has no native binding contract.</exception>
-    internal static PhongPbrMaterialStruct Create(in ModelStruct model, MaterialCore? material) {
-        var result = new PhongPbrMaterialStruct {
+    internal static PhongPBRMaterialStruct Create(in ModelStruct model, MaterialCore? material) {
+        var result = new PhongPBRMaterialStruct {
             Model = model,
             MinTessellationDistance = 1,
             MaxTessellationDistance = 100,
@@ -1659,7 +1654,7 @@ internal static class D3D12MeshMaterialData {
             case PhongMaterialCore phong:
                 ApplyPhong(ref result, phong);
                 break;
-            case PbrMaterialCore pbr:
+            case PBRMaterialCore pbr:
                 ApplyPbr(ref result, pbr);
                 break;
             case ColorMaterialCore or NormalMaterialCore or PositionMaterialCore or NormalVectorMaterialCore:
@@ -1688,7 +1683,7 @@ internal static class D3D12MeshMaterialData {
     /// </summary>
     /// <param name="result">The destination payload.</param>
     /// <param name="material">The source material.</param>
-    private static void ApplyDiffuse(ref PhongPbrMaterialStruct result, DiffuseMaterialCore material) {
+    private static void ApplyDiffuse(ref PhongPBRMaterialStruct result, DiffuseMaterialCore material) {
         result.Diffuse = material.DiffuseColor;
         result.HasDiffuseMap = Flag(material.RenderDiffuseMap && material.DiffuseMap is not null);
         result.HasNormalMap = Flag(material.EnableUnLit);
@@ -1702,7 +1697,7 @@ internal static class D3D12MeshMaterialData {
     /// </summary>
     /// <param name="result">The destination payload.</param>
     /// <param name="material">The source material.</param>
-    private static void ApplyPhong(ref PhongPbrMaterialStruct result, PhongMaterialCore material) {
+    private static void ApplyPhong(ref PhongPBRMaterialStruct result, PhongMaterialCore material) {
         result.MinTessellationDistance = material.MinTessellationDistance;
         result.MaxTessellationDistance = material.MaxTessellationDistance;
         result.MinDistanceTessellationFactor = material.MinDistanceTessellationFactor;
@@ -1733,7 +1728,7 @@ internal static class D3D12MeshMaterialData {
     /// </summary>
     /// <param name="result">The destination payload.</param>
     /// <param name="material">The source material.</param>
-    private static void ApplyPbr(ref PhongPbrMaterialStruct result, PbrMaterialCore material) {
+    private static void ApplyPbr(ref PhongPBRMaterialStruct result, PBRMaterialCore material) {
         result.MinTessellationDistance = material.MinTessellationDistance;
         result.MaxTessellationDistance = material.MaxTessellationDistance;
         result.MinDistanceTessellationFactor = material.MinDistanceTessellationFactor;
@@ -1768,7 +1763,7 @@ internal static class D3D12MeshMaterialData {
     /// </summary>
     /// <param name="result">The destination payload.</param>
     /// <param name="transform">The source transform.</param>
-    private static void ApplyUvTransform(ref PhongPbrMaterialStruct result, UvTransform transform) {
+    private static void ApplyUvTransform(ref PhongPBRMaterialStruct result, UVTransform transform) {
         Matrix matrix = transform;
         result.UvTransformRow1 = matrix.Column1;
         result.UvTransformRow2 = matrix.Column2;

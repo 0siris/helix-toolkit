@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX.Controls;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
@@ -5,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     The VisualTargetPresentationSource represents the root

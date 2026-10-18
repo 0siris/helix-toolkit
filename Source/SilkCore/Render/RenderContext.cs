@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Cameras;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RenderContext.cs" company="Helix Toolkit">
 //   Copyright (c) 2018 Helix Toolkit contributors
@@ -11,19 +13,16 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Camera;
-using HelixToolkit.SharpDX.Core.Model.Lights;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Render;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core
+{
 
-public enum OitRenderType {
+public enum OITRenderType {
     None,
 
     /// <summary>
@@ -37,12 +36,16 @@ public enum OitRenderType {
     DepthPeeling
 }
 
-public enum OitRenderStage {
+public enum OITRenderStage {
     None,
     SinglePassWeighted,
     DepthPeelingInitMinMaxZ,
     DepthPeeling
 }
+
+}
+namespace HelixToolkit.SharpDX.Core
+{
 
 /// <summary>
 ///     The render-context is currently generated per frame
@@ -118,7 +121,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     <c>None</c> It is not using oit pass <c>false</c>.
     /// </value>
-    public OitRenderStage OitRenderStage = OitRenderStage.None;
+    public OITRenderStage OitRenderStage = OITRenderStage.None;
 
     private ContextSharedResource? sharedResource;
 
@@ -148,7 +151,7 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
         sharedResource = new ContextSharedResource();
         OitWeightPower = 3;
         OitWeightDepthSlope = 1;
-        OitWeightMode = OitWeightMode.Linear2;
+        OitWeightMode = OITWeightMode.Linear2;
         Camera = camera;
     }
 
@@ -237,8 +240,8 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
     /// <value>
     ///     The oit weight mode.
     /// </value>
-    public OitWeightMode OitWeightMode {
-        get => (OitWeightMode)globalTransform.OITWeightMode;
+    public OITWeightMode OitWeightMode {
+        get => (OITWeightMode)globalTransform.OITWeightMode;
         set => globalTransform.OITWeightMode = (int)value;
     }
 
@@ -452,4 +455,6 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
         RemoveAndDispose(ref sharedResource);
         base.OnDispose(disposeManagedResources);
     }
+}
+
 }

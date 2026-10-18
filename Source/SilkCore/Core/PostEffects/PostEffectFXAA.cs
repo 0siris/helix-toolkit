@@ -1,22 +1,18 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Core.Components;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Core.PostEffects;
+namespace HelixToolkit.SharpDX.Core.Core;
 
-public sealed class PostEffectFxaa : RenderCore, IPostEffect {
+public sealed class PostEffectFXAA : RenderCore, IPostEffect {
 
     [System.Diagnostics.CodeAnalysis.AllowNull]
     private ShaderPass fxaaPass;
@@ -28,7 +24,7 @@ public sealed class PostEffectFxaa : RenderCore, IPostEffect {
 
     private int textureSlot;
 
-    public PostEffectFxaa() : base(RenderType.GlobalEffect) {
+    public PostEffectFXAA() : base(RenderType.GlobalEffect) {
     }
 
     /// <summary>
@@ -37,10 +33,10 @@ public sealed class PostEffectFxaa : RenderCore, IPostEffect {
     /// <value>
     ///     The fxaa level.
     /// </value>
-    public FxaaLevel FxaaLevel {
+    public FXAALevel FxaaLevel {
         get;
         set => SetAffectsCanRenderFlag(ref field, value);
-    } = FxaaLevel.None;
+    } = FXAALevel.None;
 
     public string EffectName {
         get;
@@ -48,7 +44,7 @@ public sealed class PostEffectFxaa : RenderCore, IPostEffect {
     } = DefaultRenderTechniqueNames.PostEffectFxaa;
 
     protected override bool OnUpdateCanRenderFlag()
-        => IsAttached && !string.IsNullOrEmpty(EffectName) && FxaaLevel != FxaaLevel.None;
+        => IsAttached && !string.IsNullOrEmpty(EffectName) && FxaaLevel != FXAALevel.None;
 
     private void OnUpdatePerModelStruct(RenderContext context) {
         modelStruct.Color = new Color4(1 / context.ActualWidth,
@@ -56,22 +52,22 @@ public sealed class PostEffectFxaa : RenderCore, IPostEffect {
                                        modelStruct.Color.GetBlue(),
                                        modelStruct.Color.GetAlpha());
         switch (FxaaLevel) {
-            case FxaaLevel.Low:
+            case FXAALevel.Low:
                 modelStruct.Param.M11 = 0.25f;   //fxaaQualitySubpix
                 modelStruct.Param.M12 = 0.250f;  // FxaaFloat fxaaQualityEdgeThreshold,
                 modelStruct.Param.M13 = 0.0833f; // FxaaFloat fxaaQualityEdgeThresholdMin,
                 break;
-            case FxaaLevel.Medium:
+            case FXAALevel.Medium:
                 modelStruct.Param.M11 = 0.50f;
                 modelStruct.Param.M12 = 0.166f;
                 modelStruct.Param.M13 = 0.0625f;
                 break;
-            case FxaaLevel.High:
+            case FXAALevel.High:
                 modelStruct.Param.M11 = 0.75f;
                 modelStruct.Param.M12 = 0.125f;
                 modelStruct.Param.M13 = 0.0625f;
                 break;
-            case FxaaLevel.Ultra:
+            case FXAALevel.Ultra:
                 modelStruct.Param.M11 = 1.00f;
                 modelStruct.Param.M12 = 0.063f;
                 modelStruct.Param.M13 = 0.0312f;

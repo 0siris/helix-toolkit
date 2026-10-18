@@ -1,4 +1,4 @@
-namespace HelixToolkit.SharpDX.Core.Extensions;
+namespace HelixToolkit.SharpDX.Core;
 
 public static class RayExtensions {
     public static bool Intersects(this Ray ray, ref BoundingBox box) => Intersects(ref box, ref ray);

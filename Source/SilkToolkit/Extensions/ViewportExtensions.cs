@@ -1,3 +1,6 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ViewportExtensions.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -17,15 +20,13 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HitTestResult = HelixToolkit.SharpDX.Core.Utilities.HitTestResult;
-using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.Camera.PerspectiveCamera;
-using ProjectionCamera = HelixToolkit.Wpf.SharpDX.Camera.ProjectionCamera;
+using HitTestResult = HelixToolkit.SharpDX.Core.HitTestResult;
+using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.PerspectiveCamera;
+using ProjectionCamera = HelixToolkit.Wpf.SharpDX.ProjectionCamera;
 
-namespace HelixToolkit.Wpf.SharpDX.Extensions;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Provides extension methods for <see cref="Viewport3DX" />.
@@ -114,7 +115,7 @@ public static class ViewportExtensions {
     /// <param name="action">
     ///     The action.
     /// </param>
-    public static void Traverse<T>(this Viewport3DX viewport, Action<T, Transform3D> action) where T : Model.Elements3D.AbstractElements3D.Element3D {
+    public static void Traverse<T>(this Viewport3DX viewport, Action<T, Transform3D> action) where T : Element3D {
         viewport.Renderables.PreorderDft(node => {
             if (node.WrapperSource is T {Transform: { } transform} element)
                 action(element, transform);
@@ -128,7 +129,7 @@ public static class ViewportExtensions {
     /// <typeparam name="T"></typeparam>
     /// <param name="viewport">The viewport.</param>
     /// <param name="function">The function. Return true to continue traverse, otherwise stop at current node</param>
-    public static void Traverse<T>(this Viewport3DX viewport, Func<T, bool> function) where T : Model.Elements3D.AbstractElements3D.Element3D {
+    public static void Traverse<T>(this Viewport3DX viewport, Func<T, bool> function) where T : Element3D {
         viewport.Renderables.PreorderDft(node => {
             if (node.WrapperSource is T element) 
                 return function(element);
@@ -148,7 +149,7 @@ public static class ViewportExtensions {
     /// <param name="action">
     ///     The action.
     /// </param>
-    public static void Traverse<T>(this Model.Elements3D.AbstractElements3D.Element3D element, Action<T, Transform3D> action) where T : Model.Elements3D.AbstractElements3D.Element3D {
+    public static void Traverse<T>(this Element3D element, Action<T, Transform3D> action) where T : Element3D {
         element.Traverse(action);
     }
 
@@ -193,13 +194,13 @@ public static class ViewportExtensions {
         Point position,
         out Point3D point,
         out Vector3D normal,
-        out Model.Elements3D.AbstractElements3D.Element3D? model,
+        out Element3D? model,
         out SceneNode? node
     ) {
         var succ = viewport.FindNearest(position.ToVector2(), out var p, out var n, out var m);
         point = p.ToPoint3D();
         normal = n.ToVector3D();
-        if (m is Model.Elements3D.AbstractElements3D.Element3D ele) {
+        if (m is Element3D ele) {
             model = ele;
             node = ele.SceneNode;
         } else if (m is SceneNode nd) {

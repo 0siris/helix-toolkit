@@ -1,14 +1,13 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Core.Abstract;
-using HelixToolkit.SharpDX.Core.Core.PostEffects;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 
-namespace HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
+namespace HelixToolkit.SharpDX.Core.Model.Scene;
 
 /// <summary>
 /// </summary>

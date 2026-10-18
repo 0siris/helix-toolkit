@@ -1,4 +1,5 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core.Model;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StLReader.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -10,10 +11,8 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.ImportExport;
+namespace HelixToolkit.SharpDX.Core;
 
 using FileFormatException = Exception;
 using Mesh3DGroup = List<Object3D>;

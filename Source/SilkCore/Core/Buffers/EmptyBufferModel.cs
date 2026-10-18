@@ -1,14 +1,14 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Utilities;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Core.Buffers;
+namespace HelixToolkit.SharpDX.Core.Core;
 
 /// <summary>
 /// </summary>

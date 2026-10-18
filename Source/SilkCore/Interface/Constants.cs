@@ -1,18 +1,21 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Core2D;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Core.Abstract;
-using HelixToolkit.SharpDX.Core.Core2D.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core.Interface
+{
 
 // Marker structs used for static function overloading
 
@@ -23,6 +26,10 @@ public interface IShaderType {
 public interface IShaderResourceType : IShaderType;
 public interface ISamplerShaderType : IShaderType;
 public interface IUnorderedAccessShaderType : IShaderType;
+
+}
+namespace HelixToolkit.SharpDX.Core
+{
 
 public readonly struct VertexShaderType :
     IShaderResourceType,
@@ -145,4 +152,6 @@ public static class Constants {
                 return ShaderStage.None;
         }
     }
+}
+
 }

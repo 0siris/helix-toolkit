@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 using SharpAssimp;
 using System.Numerics;
 using HelixToolkit.SharpDX.Core.Model;
@@ -152,7 +153,7 @@ public static class Extensions {
     /// </summary>
     /// <param name="transform">The transform.</param>
     /// <returns></returns>
-    public static UvTransform ToHelixUvTransform(this UVTransform transform) => new(transform.Rotation,
+    public static UVTransform ToHelixUvTransform(this SharpAssimp.UVTransform transform) => new(transform.Rotation,
         transform.Scaling.ToSharpDXVector2(),
         transform.Translation.ToSharpDXVector2());
 

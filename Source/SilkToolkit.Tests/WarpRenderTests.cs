@@ -1,6 +1,6 @@
+using HelixToolkit.SharpDX.Core.Cameras;
 using System.Windows.Interop;
 using System.Windows.Threading;
-using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.Wpf.SharpDX.Controls;
 using Xunit;

@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX.Extensions;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Matrix3DExtensions.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -13,7 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Media3D;
 
-namespace HelixToolkit.Wpf.SharpDX.Extensions;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public static class Matrix3DExtensions {
     //private static MathNet.Numerics.Algorithms.LinearAlgebra.Mkl.MklLinearAlgebraProvider mklSolver = new MathNet.Numerics.Algorithms.LinearAlgebra.Mkl.MklLinearAlgebraProvider();

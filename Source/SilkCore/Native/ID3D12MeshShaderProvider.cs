@@ -1,6 +1,6 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using System.Runtime.InteropServices;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
 namespace HelixToolkit.SharpDX.Core.Native;
 

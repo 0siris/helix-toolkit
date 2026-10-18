@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 using System.Collections;
 
 namespace HelixToolkit.UWP;
@@ -74,7 +75,7 @@ public sealed class DoubleKeyDictionaryTests {
         dynamic sourceView = dictionary;
         IEnumerable pairs = sourceView.GetPairs();
         var entries = pairs.Cast<dynamic>().ToArray();
-        var carrierType = dictionary.GetType().Assembly.GetType("HelixToolkit.UWP.DoubleKeyPairValue`3");
+        var carrierType = dictionary.GetType().Assembly.GetType("HelixToolkit.SharpDX.Core.DoubleKeyPairValue`3");
         Assert.NotNull(carrierType);
         var expectedType = carrierType.MakeGenericType(typeof(string), typeof(int), typeof(string));
 
@@ -108,7 +109,7 @@ public sealed class DoubleKeyDictionaryTests {
         var indexer = type.GetProperty("Item", [typeof(string), typeof(int)]);
         var containsKey = type.GetMethod("ContainsKey", [typeof(string), typeof(int)]);
         var pairs = type.GetMethod("GetPairs", Type.EmptyTypes);
-        var carrier = type.Assembly.GetType("HelixToolkit.UWP.DoubleKeyPairValue`3");
+        var carrier = type.Assembly.GetType("HelixToolkit.SharpDX.Core.DoubleKeyPairValue`3");
 
         Assert.True(equality);
         Assert.NotNull(indexer);

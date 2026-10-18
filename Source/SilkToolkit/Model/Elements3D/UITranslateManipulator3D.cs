@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="UITranslateManipulator3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -10,14 +12,10 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 using MatrixTransform3D = MatrixTransform3D;
 using TranslateTransform3D = TranslateTransform3D;
@@ -25,14 +23,14 @@ using TranslateTransform3D = TranslateTransform3D;
 /// <summary>
 ///     A translate manipulator.
 /// </summary>
-public class UiTranslateManipulator3D : UiManipulator3D {
+public class UITranslateManipulator3D : UIManipulator3D {
     /// <summary>
     ///     The diameter property.
     /// </summary>
     public static readonly DependencyProperty DiameterProperty =
         DependencyProperty.Register("Diameter",
                                     typeof(double),
-                                    typeof(UiTranslateManipulator3D),
+                                    typeof(UITranslateManipulator3D),
                                     new PropertyMetadata(0.2, ModelChanged));
 
     /// <summary>
@@ -41,7 +39,7 @@ public class UiTranslateManipulator3D : UiManipulator3D {
     public static readonly DependencyProperty DirectionProperty =
         DependencyProperty.Register("Direction",
                                     typeof(Vector3),
-                                    typeof(UiTranslateManipulator3D),
+                                    typeof(UITranslateManipulator3D),
                                     new PropertyMetadata(new Vector3(0, 0, 1), ModelChanged));
 
     /// <summary>
@@ -50,13 +48,13 @@ public class UiTranslateManipulator3D : UiManipulator3D {
     public static readonly DependencyProperty LengthProperty =
         DependencyProperty.Register("Length",
                                     typeof(double),
-                                    typeof(UiTranslateManipulator3D),
+                                    typeof(UITranslateManipulator3D),
                                     new PropertyMetadata(1.0, ModelChanged));
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="UiManipulator3D" /> class.
     /// </summary>
-    public UiTranslateManipulator3D() {
+    public UITranslateManipulator3D() {
         Material = PhongMaterials.Red;
         Transform = new TranslateTransform3D();
     }

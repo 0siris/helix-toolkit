@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX.Model;
 /*
 The MIT License (MIT)
 Copyright (c) 2021 Helix Toolkit contributors
@@ -5,11 +6,8 @@ Copyright (c) 2021 Helix Toolkit contributors
 
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Provides a way to render child elements always on top of other elements

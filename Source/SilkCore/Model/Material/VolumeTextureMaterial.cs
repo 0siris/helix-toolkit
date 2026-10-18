@@ -1,15 +1,17 @@
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Shaders;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Model.Material;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core.Model
+{
 public struct VolumeTextureParams {
     public byte[] VolumeTextures { get; }
     public int Width { get; }
@@ -181,12 +183,20 @@ public abstract class VolumeTextureMaterialCoreBase<T> : MaterialCore, IVolumeTe
     } = true;
 }
 
+}
+namespace HelixToolkit.SharpDX.Core.Model
+{
+
 /// <summary>
 ///     Default Volume Texture Material. Supports 3D DDS memory stream as
 ///     <see cref="VolumeTextureMaterialCoreBase{T}.VolumeTexture" />
 /// </summary>
-public sealed class VolumeTextureDds3DMaterialCore : VolumeTextureMaterialCoreBase<TextureModel> {
+public sealed class VolumeTextureDDS3DMaterialCore : VolumeTextureMaterialCoreBase<TextureModel> {
 }
+
+}
+namespace HelixToolkit.SharpDX.Core.Model
+{
 
 /// <summary>
 ///     Used to use raw data as Volume 3D texture.
@@ -229,4 +239,6 @@ public sealed class VolumeTextureRawDataMaterialCore : VolumeTextureMaterialCore
 public sealed class
     VolumeTextureDiffuseMaterialCore : VolumeTextureMaterialCoreBase<VolumeTextureGradientParams> {
     protected override string DefaultPassName => DefaultPassNames.Diffuse;
+}
+
 }

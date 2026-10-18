@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -7,7 +8,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core.DefaultShaders;
+namespace HelixToolkit.SharpDX.Core.Shaders;
 /// <summary>
 /// </summary>
 public static class DefaultDomainShaders {

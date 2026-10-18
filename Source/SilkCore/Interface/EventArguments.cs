@@ -1,8 +1,7 @@
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>

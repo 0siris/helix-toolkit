@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
 using System;
 using System.Drawing.Imaging;
 using System.IO;
@@ -5,15 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
 using Color = System.Windows.Media.Color;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
@@ -259,11 +254,11 @@ public class MainViewModel : BaseViewModel {
                 }
             } else {
                 context.Send((_) => {
-                    ModelMaterial.UvTransform = new UvTransform(0,
+                    ModelMaterial.UvTransform = new UVTransform(0,
                         Vector2.One,
                         ModelMaterial.UvTransform.Translation +
                         new Vector2(0.005f, -0.01f));
-                    InnerModelMaterial.UvTransform = new UvTransform(0,
+                    InnerModelMaterial.UvTransform = new UVTransform(0,
                         Vector2.One,
                         InnerModelMaterial.UvTransform.Translation +
                         new Vector2(-0.01f, 0.005f));

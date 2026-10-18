@@ -1,12 +1,12 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Diagnostics.CodeAnalysis;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 
 namespace TemplateDemo;
 

@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
@@ -5,7 +6,6 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Shaders;
 using Silk.NET.Direct3D12;
 

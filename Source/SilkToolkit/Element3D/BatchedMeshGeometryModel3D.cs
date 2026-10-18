@@ -1,3 +1,7 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.Wpf.SharpDX.Model;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -7,19 +11,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using PlatformColor = System.Windows.Media.Color;
 using PlatformColors = System.Windows.Media.Colors;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Static mesh batching. Supports multiple <see cref="BatchedMaterials" />. All geometries are merged into single
@@ -29,7 +29,7 @@ namespace HelixToolkit.Wpf.SharpDX.Element3D;
 ///         texture binding.
 ///     </para>
 /// </summary>
-public class BatchedMeshGeometryModel3D : Model.Elements3D.AbstractElements3D.Element3D, IHitable, IThrowingShadow, IApplyPostEffect {
+public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, IApplyPostEffect {
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         if (node is BatchedMeshNode n) {
             n.DepthBias = DepthBias;
@@ -72,21 +72,21 @@ public class BatchedMeshGeometryModel3D : Model.Elements3D.AbstractElements3D.El
                                                                  : [.. ((IList<BatchedMeshGeometryConfig>)e.NewValue)];
                                                          }));
 
-    public IList<Material.Material> BatchedMaterials {
-        get => (IList<Material.Material>)GetValue(BatchedMaterialsProperty);
+    public IList<Material> BatchedMaterials {
+        get => (IList<Material>)GetValue(BatchedMaterialsProperty);
         set => SetValue(BatchedMaterialsProperty, value);
     }
 
     public static readonly DependencyProperty BatchedMaterialsProperty =
         DependencyProperty.Register("BatchedMaterials",
-                                    typeof(IList<Material.Material>),
+                                    typeof(IList<Material>),
                                     typeof(BatchedMeshGeometryModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
                                                              ((d as BatchedMeshGeometryModel3D).SceneNode as
                                                               BatchedMeshNode).Materials = e.NewValue == null
                                                                  ? null
-                                                                 : ((IList<Material.Material>)e.NewValue)
+                                                                 : ((IList<Material>)e.NewValue)
                                                                    .Select(x => x.Core)
                                                                    .OfType<PhongMaterialCore>()
                                                                    .ToArray();
@@ -98,7 +98,7 @@ public class BatchedMeshGeometryModel3D : Model.Elements3D.AbstractElements3D.El
                                     typeof(BatchedMeshGeometryModel3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             if ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode is IThrowingShadow t)
+                                                             if ((d as Element3D).SceneNode is IThrowingShadow t)
                                                                  t.IsThrowingShadow = (bool)e.NewValue;
                                                          }));
 
@@ -217,12 +217,12 @@ public class BatchedMeshGeometryModel3D : Model.Elements3D.AbstractElements3D.El
     /// </summary>
     public static readonly DependencyProperty MaterialProperty =
         DependencyProperty.Register("Material",
-                                    typeof(Material.Material),
+                                    typeof(Material),
                                     typeof(BatchedMeshGeometryModel3D),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
                                                              ((d as Element3DCore).SceneNode as BatchedMeshNode)
-                                                                 .Material = e.NewValue as Material.Material;
+                                                                 .Material = e.NewValue as Material;
                                                          }));
 
     /// <summary>
@@ -416,8 +416,8 @@ public class BatchedMeshGeometryModel3D : Model.Elements3D.AbstractElements3D.El
 
     /// <summary>
     /// </summary>
-    public Material.Material Material {
-        get => (Material.Material)GetValue(MaterialProperty);
+    public Material Material {
+        get => (Material)GetValue(MaterialProperty);
         set => SetValue(MaterialProperty, value);
     }
 

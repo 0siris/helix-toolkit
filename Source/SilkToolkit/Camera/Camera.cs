@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core.Cameras;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -6,10 +7,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Diagnostics;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 
-namespace HelixToolkit.Wpf.SharpDX.Camera;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// </summary>

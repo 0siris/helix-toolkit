@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SceneTree.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -7,7 +9,6 @@
 namespace DemoCore.Automation;
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 

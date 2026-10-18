@@ -1,4 +1,5 @@
-﻿using HelixToolkit.SharpDX.Core.Utilities;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace SilkCore.Tests.Utilities;
 

@@ -1,4 +1,6 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX.Extensions;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Geometry3DExtensions.cs" company="Helix Toolkit">
 //   Copyright (c) 2017 Helix Toolkit contributors
 // </copyright>
@@ -8,10 +10,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.Wpf.SharpDX.Extensions;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Contains extension methods for geometry.

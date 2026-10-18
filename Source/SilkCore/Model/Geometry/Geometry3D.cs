@@ -1,20 +1,18 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core.Model;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
-namespace HelixToolkit.SharpDX.Core.Model.Geometry;
+namespace HelixToolkit.SharpDX.Core;
 
 
 [DataContract]
-public abstract class Geometry3D : ObservableObject, IGuid {
+public abstract class Geometry3D : ObservableObject, IGUID {
     public const string VertexBuffer = "VertexBuffer";
     public const string TriangleBuffer = "TriangleBuffer";
     private static readonly PropertyChangedEventArgs VertexBufferPropChanged = new(VertexBuffer);

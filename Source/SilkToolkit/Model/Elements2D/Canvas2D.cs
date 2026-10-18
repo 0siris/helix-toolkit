@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX.Core2D;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="GroupElement3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -6,10 +7,8 @@
 
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
-using HelixToolkit.Wpf.SharpDX.Element2D;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 /// <summary>
 ///     Supports both ItemsSource binding and Xaml children. Binds with ObservableElement2DCollection
 /// </summary>

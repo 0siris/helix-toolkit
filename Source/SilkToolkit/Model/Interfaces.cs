@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX.Model;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Interfaces.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -13,7 +15,7 @@ using System.Windows;
 using System.Windows.Media.Media3D;
 using HelixToolkit.SharpDX.Core.Interface;
 
-namespace HelixToolkit.Wpf.SharpDX.Model;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public interface ITraversable {
     IList<ITraversable> Items { get; }

@@ -1,9 +1,10 @@
+using HelixToolkit.Wpf.SharpDX.Controls;
 using System;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     The VisualWrapper simply integrates a raw Visual child into a tree

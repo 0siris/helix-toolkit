@@ -11,10 +11,9 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
 using Color = HelixToolkit.SharpDX.Core.Color;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Materials;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public class PhongMaterialCollection : ObservableCollection<PhongMaterial> {
     public PhongMaterialCollection() {

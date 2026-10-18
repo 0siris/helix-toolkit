@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -5,14 +7,13 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 
 #pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
 
-namespace HelixToolkit.Wpf.SharpDX.Material;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public class PointMaterial : Material {
     public PointMaterial() { }

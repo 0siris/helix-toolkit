@@ -1,12 +1,11 @@
+using HelixToolkit.SharpDX.Core;
 using System;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using Media = System.Windows.Media;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public class OctreeLineGeometryModel3D : CompositeModel3D {
     public static readonly DependencyProperty OctreeProperty

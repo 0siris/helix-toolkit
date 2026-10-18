@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -6,14 +7,13 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Core.Components;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Core.Abstract;
+namespace HelixToolkit.SharpDX.Core.Core;
 
 /// <summary>
 /// </summary>
-public abstract class RenderCore : DisposeObject, IGuid, IThrowingShadow {
+public abstract class RenderCore : DisposeObject, IGUID, IThrowingShadow {
     private readonly List<CoreComponent> components = [];
 
     public event EventHandler<EventArgs>? InvalidateRender;

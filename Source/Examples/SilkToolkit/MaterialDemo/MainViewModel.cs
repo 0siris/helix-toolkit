@@ -1,16 +1,10 @@
-﻿using System.Windows.Input;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.Wpf.SharpDX;
+using System.Windows.Input;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
-using HelixToolkit.Wpf.SharpDX.Camera;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Point3D = System.Windows.Media.Media3D.Point3D;
@@ -179,7 +173,7 @@ public class MainViewModel : BaseViewModel {
                         s.Material = phong;
                         diffuseMaterial.DiffuseColor = p.DiffuseColor;
                         diffuseMaterial.DiffuseMap = p.DiffuseMap;
-                        pbrMaterial = new PbrMaterial() {
+                        pbrMaterial = new PBRMaterial() {
                             AlbedoColor = p.DiffuseColor,
                             AlbedoMap = p.DiffuseMap,
                             NormalMap = p.NormalMap,

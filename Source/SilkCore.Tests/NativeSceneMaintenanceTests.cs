@@ -1,13 +1,8 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Camera;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees;
 using Silk.NET.Direct3D12;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;

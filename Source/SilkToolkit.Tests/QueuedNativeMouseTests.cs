@@ -1,16 +1,15 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
-using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Xunit;
-using MeshGeometry3D = HelixToolkit.SharpDX.Core.Model.Geometry.MeshGeometry3D;
+using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace SilkToolkit.Tests;
@@ -35,7 +34,7 @@ public sealed class QueuedNativeMouseTests {
         using var viewport = new Viewport3DX {
             Width = 160, Height = 120, D3D12DriverType = SilkDriverType.Warp,
             ShowViewCube = false, ShowCoordinateSystem = false,
-            Camera = new HelixToolkit.Wpf.SharpDX.Camera.OrthographicCamera {
+            Camera = new HelixToolkit.Wpf.SharpDX.OrthographicCamera {
                 Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5),
                 UpDirection = new Vector3D(0, 1, 0), Width = 4
             }
@@ -51,7 +50,7 @@ public sealed class QueuedNativeMouseTests {
             Indices = new IntCollection([0, 2, 1])
         };
         var tooth = new MeshGeometryModel3D {
-            Geometry = geometry, Material = HelixToolkit.Wpf.SharpDX.Material.DiffuseMaterials.Red
+            Geometry = geometry, Material = HelixToolkit.Wpf.SharpDX.DiffuseMaterials.Red
         };
         var gumGeometry = new MeshGeometry3D {
             Positions = new Vector3Collection([new(-1, -1, -1), new(1, -1, -1), new(0, 1, -1)]),
@@ -59,7 +58,7 @@ public sealed class QueuedNativeMouseTests {
         };
         var gum = new MeshGeometryModel3D {
             Geometry = gumGeometry, IsHitTestVisible = false,
-            Material = HelixToolkit.Wpf.SharpDX.Material.DiffuseMaterials.Red
+            Material = HelixToolkit.Wpf.SharpDX.DiffuseMaterials.Red
         };
         viewport.Items.Add(tooth);
         viewport.Items.Add(gum);

@@ -7,7 +7,7 @@ using System.Globalization;
 using System.Text;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Model.Collection;
+namespace HelixToolkit.SharpDX.Core;
 
 public sealed class Vector3Collection : FastList<Vector3> {
     public Vector3Collection() { }

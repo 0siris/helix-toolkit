@@ -1,4 +1,5 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -8,7 +9,6 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 
 namespace ExampleBrowser.Workitems.Workitem10053;
 

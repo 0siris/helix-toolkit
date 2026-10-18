@@ -1,4 +1,5 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -8,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+namespace HelixToolkit.SharpDX.Core.Model.Scene;
 
 /// <summary>
 /// </summary>

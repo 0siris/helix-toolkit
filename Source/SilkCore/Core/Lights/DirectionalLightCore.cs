@@ -1,14 +1,14 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Lights;
 
-namespace HelixToolkit.SharpDX.Core.Core.Lights;
+namespace HelixToolkit.SharpDX.Core.Core;
 
 public class DirectionalLightCore : LightCoreBase {
     private Vector3 direction;

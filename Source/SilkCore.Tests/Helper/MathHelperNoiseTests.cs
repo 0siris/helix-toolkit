@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using HelixToolkit.SharpDX.Core;
+using System.Reflection;
 using Silk.NET.Maths;
 
 namespace HelixToolkit.SharpDX.Core.Helper;
@@ -28,12 +29,12 @@ public sealed class MathHelperNoiseTests {
     [InlineData(0.125f, 0.375f)]
     [InlineData(12.25f, 7.375f)]
     public void NoiseGradientOracleTest(float x, float y) {
-        Noise2D.Reseed();
+        Noise2d.Reseed();
         var permutation = ReadTable<int>("_permutation");
         var gradients = ReadTable<Vector2D<float>>("Gradients");
         var expected = EvaluateGradientSum(x, y, permutation, gradients);
 
-        var actual = Noise2D.Noise(x, y);
+        var actual = Noise2d.Noise(x, y);
 
         Assert.InRange(Math.Abs(actual - expected), 0, 0.000002);
         Assert.InRange(actual, -1f, 1f);
@@ -45,12 +46,12 @@ public sealed class MathHelperNoiseTests {
     [Fact]
     public void NoisePeriodAndContinuityTest() {
         for (var cell = -4; cell <= 4; cell++) {
-            var atLattice = Noise2D.Noise(cell, -cell);
-            var left = Noise2D.Noise(cell - 0.0001f, 0.375f);
-            var right = Noise2D.Noise(cell + 0.0001f, 0.375f);
-            var sample = Noise2D.Noise(cell + 0.125f, -0.375f);
-            var horizontalPeriod = Noise2D.Noise(cell + 256.125f, -0.375f);
-            var verticalPeriod = Noise2D.Noise(cell + 0.125f, 255.625f);
+            var atLattice = Noise2d.Noise(cell, -cell);
+            var left = Noise2d.Noise(cell - 0.0001f, 0.375f);
+            var right = Noise2d.Noise(cell + 0.0001f, 0.375f);
+            var sample = Noise2d.Noise(cell + 0.125f, -0.375f);
+            var horizontalPeriod = Noise2d.Noise(cell + 256.125f, -0.375f);
+            var verticalPeriod = Noise2d.Noise(cell + 0.125f, 255.625f);
 
             Assert.Equal(0f, atLattice);
             Assert.InRange(Math.Abs(left - right), 0f, 0.001f);
@@ -177,14 +178,14 @@ public sealed class MathHelperNoiseTests {
     [Fact]
     public void NoiseFloatingRangeTest() {
         foreach (var value in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity }) {
-            var horizontalError = Assert.Throws<ArgumentOutOfRangeException>(() => Noise2D.Noise(value, 0));
-            var verticalError = Assert.Throws<ArgumentOutOfRangeException>(() => Noise2D.Noise(0, value));
+            var horizontalError = Assert.Throws<ArgumentOutOfRangeException>(() => Noise2d.Noise(value, 0));
+            var verticalError = Assert.Throws<ArgumentOutOfRangeException>(() => Noise2d.Noise(0, value));
 
             Assert.Equal("x", horizontalError.ParamName);
             Assert.Equal("y", verticalError.ParamName);
         }
         foreach (var value in new[] { float.MaxValue, float.MinValue, 2147483648f, -2147483648f }) {
-            var actual = Noise2D.Noise(value, value);
+            var actual = Noise2d.Noise(value, value);
             Assert.Equal(0f, actual);
         }
     }
@@ -195,16 +196,16 @@ public sealed class MathHelperNoiseTests {
     /// <returns>A task completing after the bounded reader and publisher finish.</returns>
     [Fact]
     public async Task NoiseConcurrentReseedTest() {
-        var tables = new List<int[]> { Noise2D.ReseedAndCapture() };
+        var tables = new List<int[]> { Noise2d.ReseedAndCapture() };
         var gradients = ReadTable<Vector2D<float>>("Gradients");
         var samples = new float[4096];
         var publisher = Task.Run(() => {
             for (var i = 0; i < 128; i++)
-                tables.Add(Noise2D.ReseedAndCapture());
+                tables.Add(Noise2d.ReseedAndCapture());
         }, TestContext.Current.CancellationToken);
         var reader = Task.Run(() => {
             for (var i = 0; i < samples.Length; i++)
-                samples[i] = Noise2D.Noise(-1.25f, 2.375f);
+                samples[i] = Noise2d.Noise(-1.25f, 2.375f);
         }, TestContext.Current.CancellationToken);
         await Task.WhenAll(publisher, reader);
         var allowed = tables.Select(table => EvaluateGradientSum(-1.25, 2.375, table, gradients)).ToArray();
@@ -222,9 +223,9 @@ public sealed class MathHelperNoiseTests {
         }
 
         var captured = tables[0];
-        var before = Noise2D.Noise(-0.125f, 0.375f, captured);
-        Noise2D.Reseed();
-        var after = Noise2D.Noise(-0.125f, 0.375f, captured);
+        var before = Noise2d.Noise(-0.125f, 0.375f, captured);
+        Noise2d.Reseed();
+        var after = Noise2d.Noise(-0.125f, 0.375f, captured);
         Assert.Equal(before, after);
     }
 
@@ -248,7 +249,7 @@ public sealed class MathHelperNoiseTests {
         }, TestContext.Current.CancellationToken)).ToArray();
         var publisher = Task.Run(() => {
             for (var i = 0; i < 128; i++)
-                Noise2D.Reseed();
+                Noise2d.Reseed();
         }, TestContext.Current.CancellationToken);
         await Task.WhenAll(workers.Append(publisher));
     }
@@ -260,7 +261,7 @@ public sealed class MathHelperNoiseTests {
     /// <param name="name">The private table field name.</param>
     /// <returns>A copy of the current table.</returns>
     private static T[] ReadTable<T>(string name) {
-        var field = typeof(Noise2D).GetField(name, BindingFlags.NonPublic | BindingFlags.Static)!;
+        var field = typeof(Noise2d).GetField(name, BindingFlags.NonPublic | BindingFlags.Static)!;
         return (T[])((T[])field.GetValue(null)!).Clone();
     }
 

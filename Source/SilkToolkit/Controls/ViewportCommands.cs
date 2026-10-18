@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX.Controls;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ViewportCommands.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -6,7 +7,7 @@
 
 using System.Windows.Input;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public static class ViewportCommands {
     public static RoutedCommand Zoom { get; } = new();

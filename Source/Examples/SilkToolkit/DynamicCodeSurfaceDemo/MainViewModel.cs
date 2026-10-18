@@ -1,9 +1,7 @@
-﻿using System.IO;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+using System.IO;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Camera;
-using HelixToolkit.Wpf.SharpDX.Material;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace DynamicCodeSurfaceDemo;

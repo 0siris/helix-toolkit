@@ -1,18 +1,16 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX.Model;
 // <copyright file="CoordinateSystemModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2017 Helix Toolkit contributors
 //   Author: Lunci Hua
 // </copyright>
 
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Media3D = System.Windows.Media.Media3D;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     <para>Viewbox replacement for Viewport using swapchain rendering.</para>

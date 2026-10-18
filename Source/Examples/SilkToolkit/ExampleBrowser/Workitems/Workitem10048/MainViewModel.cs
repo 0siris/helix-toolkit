@@ -1,4 +1,6 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -7,9 +9,7 @@
 using System.Windows;
 using System.Windows.Media.Media3D;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 
 namespace ExampleBrowser.Workitems.Workitem10048;
 

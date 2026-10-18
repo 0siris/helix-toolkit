@@ -1,9 +1,10 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core.Utilities;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>

@@ -1,8 +1,8 @@
 using System.Windows.Media.Media3D;
 using DemoCore.Automation;
 using Xunit;
-using OrthographicCamera = HelixToolkit.Wpf.SharpDX.Camera.OrthographicCamera;
-using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.Camera.PerspectiveCamera;
+using OrthographicCamera = HelixToolkit.Wpf.SharpDX.OrthographicCamera;
+using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.PerspectiveCamera;
 
 namespace SilkToolkit.Tests;
 

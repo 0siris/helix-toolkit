@@ -1,3 +1,6 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DemoAutomationHost.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -13,12 +16,9 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.Wpf.SharpDX.Controls;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Rect3D = System.Windows.Media.Media3D.Rect3D;
 
 /// <summary>
@@ -265,7 +265,7 @@ public sealed class DemoAutomationHost : IAsyncDisposable {
             DemoName,
             viewport.ActualWidth,
             viewport.ActualHeight,
-            viewport.Camera is HelixToolkit.Wpf.SharpDX.Camera.OrthographicCamera
+            viewport.Camera is HelixToolkit.Wpf.SharpDX.OrthographicCamera
                 ? CameraState.Orthographic
                 : CameraState.Perspective,
             viewport.GetTotalNumberOfTriangles(),

@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -5,15 +7,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// </summary>

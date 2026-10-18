@@ -1,8 +1,8 @@
+using HelixToolkit.Wpf.SharpDX;
 using System.Diagnostics;
 using System.Windows;
 using DemoCore.Automation;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace CustomViewCubeDemo;

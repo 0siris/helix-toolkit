@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IDemoSceneHost.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -6,9 +8,7 @@
 
 namespace DemoCore.Automation;
 
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 
 /// <summary>
 ///     Scene-root adapter owned by the demo. Demos without a group node pass no host.

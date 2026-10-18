@@ -1,16 +1,19 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Interface;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core
+{
 
 /// <summary>
 /// </summary>
-public interface IGuid {
+public interface IGUID {
     /// <summary>
     ///     Gets the unique identifier.
     /// </summary>
@@ -19,6 +22,10 @@ public interface IGuid {
     /// </value>
     Guid Guid { get; }
 }
+
+}
+namespace HelixToolkit.SharpDX.Core
+{
 
 /// <summary>
 /// </summary>
@@ -187,4 +194,6 @@ public interface IInstancing {
     ///     The instance buffer.
     /// </value>
     IElementsBufferModel<Matrix> InstanceBuffer { get; }
+}
+
 }

@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX.Controls;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Viewport3DX.Properties.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -13,22 +15,16 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Camera;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.Wpf.SharpDX.Element3D;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
-using static HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D.Element3D;
-using ProjectionCamera = HelixToolkit.Wpf.SharpDX.Camera.ProjectionCamera;
+using static HelixToolkit.Wpf.SharpDX.Element3D;
+using ProjectionCamera = HelixToolkit.Wpf.SharpDX.ProjectionCamera;
 using WpfBrush = System.Windows.Media.Brush;
 using WpfColor = System.Windows.Media.Color;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning control and scene graph.
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Provides the dependency properties for Viewport3DX.
@@ -85,7 +81,7 @@ public partial class Viewport3DX {
     ///     The camera property
     /// </summary>
     public static readonly DependencyProperty CameraProperty = DependencyProperty.Register("Camera",
-        typeof(Camera.Camera),
+        typeof(Camera),
         typeof(Viewport3DX),
         new PropertyMetadata(null, (s, e) => { (s as Viewport3DX).CameraPropertyChanged(e); }));
 
@@ -1025,9 +1021,9 @@ public partial class Viewport3DX {
     ///     Set MSAA Level
     /// </summary>
     public static readonly DependencyProperty MsaaProperty = DependencyProperty.Register("Msaa",
-        typeof(MsaaLevel),
+        typeof(MSAALevel),
         typeof(Viewport3DX),
-        new PropertyMetadata(MsaaLevel.Disable));
+        new PropertyMetadata(MSAALevel.Disable));
 
     /// <summary>
     ///     The is move enabled property.
@@ -1138,14 +1134,14 @@ public partial class Viewport3DX {
     /// </summary>
     public static readonly DependencyProperty Content2DProperty
         = DependencyProperty.Register("Content2D",
-                                      typeof(Model.Elements2D.Abstract.Element2D),
+                                      typeof(Elements2D.Element2D),
                                       typeof(Viewport3DX),
                                       new PropertyMetadata(null,
                                                            (d, e) => {
-                                                               if (e.OldValue is Model.Elements2D.Abstract.Element2D elementOld)
+                                                               if (e.OldValue is Elements2D.Element2D elementOld)
                                                                    (d as Viewport3DX).Overlay2D.Children.Remove(
                                                                        elementOld);
-                                                               if (e.NewValue is Model.Elements2D.Abstract.Element2D elementNew)
+                                                               if (e.NewValue is Elements2D.Element2D elementNew)
                                                                    (d as Viewport3DX).Overlay2D.Children
                                                                        .Add(elementNew);
                                                            }));
@@ -1174,9 +1170,9 @@ public partial class Viewport3DX {
     /// </summary>
     public static readonly DependencyProperty OitRenderModeProperty =
         DependencyProperty.Register("OitRenderMode",
-                                    typeof(OitRenderType),
+                                    typeof(OITRenderType),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(OitRenderType.DepthPeeling));
+                                    new PropertyMetadata(OITRenderType.DepthPeeling));
 
     /// <summary>
     ///     The Order independent transparent rendering color weight power property
@@ -1204,9 +1200,9 @@ public partial class Viewport3DX {
     /// </summary>
     public static readonly DependencyProperty OitWeightModeProperty =
         DependencyProperty.Register("OitWeightMode",
-                                    typeof(OitWeightMode),
+                                    typeof(OITWeightMode),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(OitWeightMode.Linear1));
+                                    new PropertyMetadata(OITWeightMode.Linear1));
 
     public static readonly DependencyProperty OitDepthPeelingIterationProperty =
         DependencyProperty.Register("OitDepthPeelingIteration",
@@ -1219,9 +1215,9 @@ public partial class Viewport3DX {
     /// </summary>
     public static readonly DependencyProperty FxaaLevelProperty =
         DependencyProperty.Register("FxaaLevel",
-                                    typeof(FxaaLevel),
+                                    typeof(FXAALevel),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(FxaaLevel.None));
+                                    new PropertyMetadata(FXAALevel.None));
 
 
     /// <summary>
@@ -1273,9 +1269,9 @@ public partial class Viewport3DX {
     /// </summary>
     public static readonly DependencyProperty SsaoQualityProperty =
         DependencyProperty.Register("SsaoQuality",
-                                    typeof(SsaoQuality),
+                                    typeof(SSAOQuality),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(SsaoQuality.Low));
+                                    new PropertyMetadata(SSAOQuality.Low));
 
 
     /// <summary>
@@ -1319,8 +1315,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The camera.
     /// </value>
-    public Camera.Camera Camera {
-        get => (Camera.Camera?)GetValue(CameraProperty) ?? (Orthographic ? orthographicCamera : perspectiveCamera);
+    public Camera Camera {
+        get => (Camera?)GetValue(CameraProperty) ?? (Orthographic ? orthographicCamera : perspectiveCamera);
 
         set => SetValue(CameraProperty, value);
     }
@@ -2298,8 +2294,8 @@ public partial class Viewport3DX {
     /// <summary>
     ///     Set MSAA level. If set to Two/Four/Eight, the actual level is set to minimum between Maximum and Two/Four/Eight
     /// </summary>
-    public MsaaLevel Msaa {
-        get => (MsaaLevel)GetValue(MsaaProperty);
+    public MSAALevel Msaa {
+        get => (MSAALevel)GetValue(MsaaProperty);
         set => SetValue(MsaaProperty, value);
     }
     /// <summary>
@@ -2386,8 +2382,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The content2 d.
     /// </value>
-    public Model.Elements2D.Abstract.Element2D? Content2D {
-        get => (Model.Elements2D.Abstract.Element2D?)GetValue(Content2DProperty);
+    public Elements2D.Element2D? Content2D {
+        get => (Elements2D.Element2D?)GetValue(Content2DProperty);
         set => SetValue(Content2DProperty, value);
     }
 
@@ -2438,8 +2434,8 @@ public partial class Viewport3DX {
     ///     Gets or sets a value indicating the render mode for Transparent objects.
     ///     <see cref="MaterialGeometryModel3D.IsTransparent" />, <see cref="BillboardTextModel3D.IsTransparent" />
     /// </summary>
-    public OitRenderType OitRenderMode {
-        get => (OitRenderType)GetValue(OitRenderModeProperty);
+    public OITRenderType OitRenderMode {
+        get => (OITRenderType)GetValue(OitRenderModeProperty);
         set => SetValue(OitRenderModeProperty, value);
     }
 
@@ -2479,8 +2475,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The oit weight mode.
     /// </value>
-    public OitWeightMode OitWeightMode {
-        get => (OitWeightMode)GetValue(OitWeightModeProperty);
+    public OITWeightMode OitWeightMode {
+        get => (OITWeightMode)GetValue(OitWeightModeProperty);
         set => SetValue(OitWeightModeProperty, value);
     }
 
@@ -2495,8 +2491,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The enable fxaa.
     /// </value>
-    public FxaaLevel FxaaLevel {
-        get => (FxaaLevel)GetValue(FxaaLevelProperty);
+    public FXAALevel FxaaLevel {
+        get => (FXAALevel)GetValue(FxaaLevelProperty);
         set => SetValue(FxaaLevelProperty, value);
     }
 
@@ -2565,8 +2561,8 @@ public partial class Viewport3DX {
     /// <value>
     ///     The ssao quality.
     /// </value>
-    public SsaoQuality SsaoQuality {
-        get => (SsaoQuality)GetValue(SsaoQualityProperty);
+    public SSAOQuality SsaoQuality {
+        get => (SSAOQuality)GetValue(SsaoQualityProperty);
         set => SetValue(SsaoQualityProperty, value);
     }
 

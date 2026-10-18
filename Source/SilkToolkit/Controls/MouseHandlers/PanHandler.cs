@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="PanHandler.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -9,10 +10,9 @@
 
 using System.Windows;
 using System.Windows.Input;
-using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Handles panning.

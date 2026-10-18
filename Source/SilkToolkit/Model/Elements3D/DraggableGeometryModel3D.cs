@@ -11,11 +11,9 @@
 using System.Windows;
 using System.Windows.Media.Media3D;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Example class how to implement mouse dragging for objects.
@@ -40,7 +38,7 @@ public class DraggableGeometryModel3D : MeshGeometryModel3D, ISelectable {
                                     typeof(DraggableGeometryModel3D),
                                     new PropertyMetadata(true));
 
-    protected Camera.Camera? Camera;
+    protected Camera? Camera;
     protected bool IsCaptured;
     protected Point3D LastHitPos;
     protected Viewport3DX? Viewport;

@@ -1,17 +1,16 @@
+using HelixToolkit.SharpDX.Core.Shaders;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
 #pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
 
-namespace HelixToolkit.Wpf.SharpDX.Material;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public class DiffuseMaterial : Material {
     /// <summary>
@@ -57,12 +56,12 @@ public class DiffuseMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty UvTransformProperty =
         DependencyProperty.Register("UvTransform",
-            typeof(UvTransform),
+            typeof(UVTransform),
             typeof(DiffuseMaterial),
-            new PropertyMetadata(UvTransform.Identity,
+            new PropertyMetadata(UVTransform.Identity,
                 (d, e) => {
                     ((d as Material).Core as DiffuseMaterialCore).UvTransform =
-                        (UvTransform) e.NewValue;
+                        (UVTransform) e.NewValue;
                 }));
 
     /// <summary>
@@ -146,8 +145,8 @@ public class DiffuseMaterial : Material {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UvTransform UvTransform {
-        get => (UvTransform) GetValue(UvTransformProperty);
+    public UVTransform UvTransform {
+        get => (UVTransform) GetValue(UvTransformProperty);
         set => SetValue(UvTransformProperty, value);
     }
 

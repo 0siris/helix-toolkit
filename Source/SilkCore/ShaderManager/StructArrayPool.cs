@@ -1,10 +1,9 @@
 using System.Diagnostics;
 using HelixToolkit.SharpDX.Core.Logger;
-using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core.ShaderManager;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 ///     A array buffer defined by its struct size.

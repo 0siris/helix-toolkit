@@ -1,13 +1,12 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUG
 
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.Octrees.StaticOctrees;
+namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <summary>
 ///     Static octree for points
 /// </summary>

@@ -1,11 +1,7 @@
+using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -59,7 +55,7 @@ public sealed class NativeSsaoPlaneTests {
             var occlusion = renderer.RenderSsao(context, nodes, catalog.ResolveSsaoGeometry,
                 catalog.ResolvePostProcess(DefaultRenderTechniqueNames.Ssao, DefaultPassNames.Default),
                 catalog.ResolvePostProcess(DefaultRenderTechniqueNames.Ssao, DefaultPassNames.EffectBlurHorizontal),
-                catalog.ResolveBoneSkinning, in transforms, false, ref frustum, 32, 32, SsaoQuality.High, 0.25f);
+                catalog.ResolveBoneSkinning, in transforms, false, ref frustum, 32, 32, SSAOQuality.High, 0.25f);
             var footprint = device.GetCopyableFootprint(occlusion, out var byteCount);
             using var readback = device.CreateBuffer(byteCount, HeapType.Readback);
             context.Transition(occlusion, ResourceStates.CopySource);

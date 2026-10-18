@@ -1,13 +1,13 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Core2D.Abstract;
+namespace HelixToolkit.SharpDX.Core.Core2D;
 /// <summary>
 /// </summary>
 public abstract class RenderCore2D : DisposeObject {

@@ -7,9 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HelixToolkit.SharpDX.Core.Geometry;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.ImportExport;
+namespace HelixToolkit.SharpDX.Core;
 
 using Mesh3DGroup = List<Object3D>;
 

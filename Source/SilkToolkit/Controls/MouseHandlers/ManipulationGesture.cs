@@ -11,7 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Defines a touch input gesture that can be used to invoke a command.

@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core.Model;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ObjReader.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -9,13 +10,8 @@
 
 using System.Globalization;
 using System.IO.Compression;
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.ImportExport;
+namespace HelixToolkit.SharpDX.Core;
 
 using FileFormatException = Exception;
 using ObjColor = Color4;

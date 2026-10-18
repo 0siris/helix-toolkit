@@ -1,12 +1,13 @@
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX.Utilities;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.Wpf.SharpDX.Controls;
 
-namespace HelixToolkit.Wpf.SharpDX.Utilities;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Interface for 3D exporters.

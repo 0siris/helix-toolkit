@@ -1,10 +1,10 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX.Model;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// </summary>

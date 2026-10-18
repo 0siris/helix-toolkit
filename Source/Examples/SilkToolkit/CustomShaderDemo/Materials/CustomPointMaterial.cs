@@ -1,7 +1,7 @@
-﻿using System.Windows;
-using HelixToolkit.SharpDX.Core.Model.Material;
+﻿using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.Wpf.SharpDX;
+using System.Windows;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
 
 namespace CustomShaderDemo.Materials;
 

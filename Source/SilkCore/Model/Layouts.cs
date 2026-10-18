@@ -1,11 +1,15 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.InteropServices;
 
-namespace HelixToolkit.SharpDX.Core.Model;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core
+{
 #pragma warning disable 1591
 /// <summary>
 /// </summary>
@@ -302,11 +306,15 @@ public struct ModelStruct {
     public const string WireframeColorStr = "wireframeColor";
 }
 
+}
+namespace HelixToolkit.SharpDX.Core
+{
+
 /// <summary>
 ///     Used combine with <see cref="ModelStruct" />
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct PhongPbrMaterialStruct {
+public struct PhongPBRMaterialStruct {
     public const int SizeInBytes = 4 * (4 + 4 * 5 + 4 + 4 + 4 + 4 * 3 + 4) + ModelStruct.SizeInBytes;
 
     public const string MinTessDistanceStr = "minTessDistance"; //float
@@ -481,6 +489,10 @@ public struct PhongPbrMaterialStruct {
     /// </summary>
     public Vector4 VertexColorBlendingAndPadding;
 }
+
+}
+namespace HelixToolkit.SharpDX.Core
+{
 
 /// <summary>
 ///     Used combine with <see cref="PointLineMaterialStruct" />
@@ -677,8 +689,12 @@ public struct CubeFaceCamerasStruct {
     public const int SizeInBytes = CubeFaceCamera.SizeInBytes * 6;
 }
 
+}
+namespace HelixToolkit.SharpDX.Core
+{
+
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-internal struct SsaoParamStruct {
+internal struct SSAOParamStruct {
     //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
     //public Vector4[] Kernels;
     public Vector2 NoiseScale;
@@ -687,6 +703,10 @@ internal struct SsaoParamStruct {
     public Matrix InvProjection;
     public const int SizeInBytes = 4 * (4 * 32 + 4 + 4 * 4);
 }
+
+}
+namespace HelixToolkit.SharpDX.Core
+{
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct ScreenQuadModelStruct {
@@ -740,10 +760,14 @@ public struct MorphTargetVertex {
     public Vector3 deltaTangent;
 }
 
+}
+namespace HelixToolkit.SharpDX.Core
+{
+
 /// <summary>
 ///     2D UV Transform
 /// </summary>
-public struct UvTransform {
+public struct UVTransform {
     /// <summary>
     ///     The rotation by radian
     /// </summary>
@@ -772,7 +796,7 @@ public struct UvTransform {
     ///     Initializes a new instance of the <see cref="UvTransform" /> struct.
     /// </summary>
     /// <param name="rotation">The rotation.</param>
-    public UvTransform(float rotation) {
+    public UVTransform(float rotation) {
         Rotation = rotation;
         Scaling = Vector2.One;
         Translation = Vector2.Zero;
@@ -782,7 +806,7 @@ public struct UvTransform {
     ///     Initializes a new instance of the <see cref="UvTransform" /> struct.
     /// </summary>
     /// <param name="translation">The translation.</param>
-    public UvTransform(Vector2 translation) {
+    public UVTransform(Vector2 translation) {
         Rotation = 0;
         Scaling = Vector2.One;
         Translation = translation;
@@ -794,7 +818,7 @@ public struct UvTransform {
     /// <param name="rotation">The rotation.</param>
     /// <param name="scaling">The scaling.</param>
     /// <param name="translation">The translation.</param>
-    public UvTransform(float rotation, Vector2 scaling, Vector2 translation) {
+    public UVTransform(float rotation, Vector2 scaling, Vector2 translation) {
         Rotation = rotation;
         Scaling = scaling;
         Translation = translation;
@@ -808,7 +832,7 @@ public struct UvTransform {
     /// <param name="scalingY">The scaling y.</param>
     /// <param name="translationX">The translation x.</param>
     /// <param name="translationY">The translation y.</param>
-    public UvTransform(
+    public UVTransform(
         float rotation,
         float scalingX = 1,
         float scalingY = 1,
@@ -827,7 +851,7 @@ public struct UvTransform {
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator Matrix(UvTransform uvTransform) {
+    public static implicit operator Matrix(UVTransform uvTransform) {
         var cos = (float)Math.Cos(uvTransform.Rotation);
         var sine = (float)Math.Sin(uvTransform.Rotation);
         return new Matrix(cos * uvTransform.Scaling.X,
@@ -855,15 +879,19 @@ public struct UvTransform {
     /// <returns>
     ///     The result of the conversion.
     /// </returns>
-    public static implicit operator UvTransform(Matrix matrix) {
+    public static implicit operator UVTransform(Matrix matrix) {
         matrix.Decompose(out var s, out var r, out var t);
-        return new UvTransform(SilkMath.QuaternionAngle(r), new Vector2(s.X, s.Y), new Vector2(t.X, t.Y));
+        return new UVTransform(SilkMath.QuaternionAngle(r), new Vector2(s.X, s.Y), new Vector2(t.X, t.Y));
     }
 
-    public static readonly UvTransform Identity = new(0, Vector2.One, Vector2.Zero);
+    public static readonly UVTransform Identity = new(0, Vector2.One, Vector2.Zero);
 
     public float[] ToArray() => [Rotation, Scaling.X, Scaling.Y, Translation.X, Translation.Y];
 }
+
+}
+namespace HelixToolkit.SharpDX.Core
+{
 
 /// <summary>
 /// </summary>
@@ -890,5 +918,8 @@ public struct ScreenDuplicationModelStruct {
 
     public const int SizeInBytes = 4 * 4 * 12;
 }
+
+}
+
 
 #pragma warning restore 1591

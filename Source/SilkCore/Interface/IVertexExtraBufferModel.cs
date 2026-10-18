@@ -1,15 +1,16 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Utilities;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>
-public interface IVertexExtraBufferModel : IGuid, IDisposable {
+public interface IVertexExtraBufferModel : IGUID, IDisposable {
     /// <summary>
     ///     Gets a value indicating whether this <see cref="IVertexExtraBufferModel" /> is initialized.
     /// </summary>

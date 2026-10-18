@@ -1,15 +1,15 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Shaders;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Windows;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 using Color = HelixToolkit.SharpDX.Core.Color;
 
 #pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
 
-namespace HelixToolkit.Wpf.SharpDX.Material;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Implements a phong-material with its all properties
@@ -401,12 +401,12 @@ public class PhongMaterial : Material {
     /// </summary>
     public static readonly DependencyProperty UvTransformProperty =
         DependencyProperty.Register("UvTransform",
-            typeof(UvTransform),
+            typeof(UVTransform),
             typeof(PhongMaterial),
-            new PropertyMetadata(UvTransform.Identity,
+            new PropertyMetadata(UVTransform.Identity,
                 (d, e) => {
                     ((d as Material).Core as PhongMaterialCore).UvTransform =
-                        (UvTransform) e.NewValue;
+                        (UVTransform) e.NewValue;
                 }));
 
     public static readonly DependencyProperty EnableFlatShadingProperty =
@@ -733,8 +733,8 @@ public class PhongMaterial : Material {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UvTransform UvTransform {
-        get => (UvTransform) GetValue(UvTransformProperty);
+    public UVTransform UvTransform {
+        get => (UVTransform) GetValue(UvTransformProperty);
         set => SetValue(UvTransformProperty, value);
     }
 

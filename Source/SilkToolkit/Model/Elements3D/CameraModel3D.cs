@@ -1,21 +1,18 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Cameras;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Camera;
-using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Color = HelixToolkit.SharpDX.Core.Color;
-using DiffuseMaterial = HelixToolkit.Wpf.SharpDX.Material.DiffuseMaterial;
-using ProjectionCamera = HelixToolkit.Wpf.SharpDX.Camera.ProjectionCamera;
+using DiffuseMaterial = HelixToolkit.Wpf.SharpDX.DiffuseMaterial;
+using ProjectionCamera = HelixToolkit.Wpf.SharpDX.ProjectionCamera;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public class CameraModel3D : CompositeModel3D {
     public static readonly DependencyProperty CameraProperty =

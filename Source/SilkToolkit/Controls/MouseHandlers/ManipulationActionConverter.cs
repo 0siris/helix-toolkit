@@ -11,7 +11,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Converts a <see cref="ManipulationAction" /> object to and from other types.

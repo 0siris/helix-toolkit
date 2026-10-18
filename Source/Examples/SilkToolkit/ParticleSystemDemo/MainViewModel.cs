@@ -1,12 +1,9 @@
-﻿using System.IO;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+using System.IO;
 using System.Windows;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Camera;
-using HelixToolkit.Wpf.SharpDX.Material;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Media = System.Windows.Media;

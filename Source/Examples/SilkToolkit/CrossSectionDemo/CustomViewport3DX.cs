@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX;
 using System.Windows;
 using System.Windows.Input;
 using ValidSphere;

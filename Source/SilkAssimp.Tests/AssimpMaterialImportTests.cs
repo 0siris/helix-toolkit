@@ -1,7 +1,7 @@
+using HelixToolkit.SharpDX.Core.Model;
 using System.Text;
 using SharpAssimp;
 using System.Numerics;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Xunit;
@@ -39,7 +39,7 @@ public sealed class AssimpMaterialImportTests {
         using var root = imported.Root;
         var meshes = root.Traverse().OfType<MeshNode>().ToArray();
         var mesh = Assert.Single(meshes);
-        var pbr = Assert.IsType<PbrMaterialCore>(mesh.Material);
+        var pbr = Assert.IsType<PBRMaterialCore>(mesh.Material);
         Assert.Equal(hasMetallic ? 0.2f : 0f, pbr.MetallicFactor, 5);
         Assert.Equal(0.8f, pbr.RoughnessFactor, 5);
     }
@@ -86,7 +86,7 @@ public sealed class AssimpMaterialImportTests {
         using var root = imported.Root;
         var meshes = root.Traverse().OfType<MeshNode>().ToArray();
         var mesh = Assert.Single(meshes);
-        var pbr = Assert.IsType<PbrMaterialCore>(mesh.Material);
+        var pbr = Assert.IsType<PBRMaterialCore>(mesh.Material);
         Assert.Equal(hasMetallic ? 0.2f : 1f, pbr.MetallicFactor, 5);
         Assert.Equal(0.8f, pbr.RoughnessFactor, 5);
     }

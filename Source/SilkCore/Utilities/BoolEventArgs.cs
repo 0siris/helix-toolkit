@@ -1,4 +1,5 @@
-﻿namespace HelixToolkit.SharpDX.Core.Utilities;
+﻿using HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>

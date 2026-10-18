@@ -1,13 +1,9 @@
-using HelixToolkit.SharpDX.Core.Core.Abstract;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Camera;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Render;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -67,7 +63,7 @@ public sealed class NativeScenePreparationTests {
             View = Matrix.Identity, Projection = Matrix.Identity, ViewProjection = Matrix.Identity,
             Viewport = new Vector4(32, 32, 1f / 32, 1f / 32),
             Resolution = new Vector4(32, 32, 1f / 32, 1f / 32), EyePos = new Vector3(0, 0, 2),
-            OITWeightPower = 3, OITWeightDepthSlope = 1, OITWeightMode = (int)OitWeightMode.Linear1, DpiScale = 1
+            OITWeightPower = 3, OITWeightDepthSlope = 1, OITWeightMode = (int)OITWeightMode.Linear1, DpiScale = 1
         };
         var footprint = device.GetCopyableFootprint(target, out var bytes);
         using var readback = device.CreateBuffer(bytes, HeapType.Readback);

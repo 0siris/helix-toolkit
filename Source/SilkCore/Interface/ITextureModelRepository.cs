@@ -1,11 +1,11 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core.Interface;
+/*
 The MIT License (MIT)
 Copyright (c) 2021 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 ///     Used to cache texture models. Reuse existing texture model to avoid duplicate texture loading.

@@ -1,9 +1,10 @@
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Media3D;
 using Media = System.Windows.Media;
 using Point = System.Windows.Point;
 
-namespace HelixToolkit.Wpf.SharpDX.Extensions;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public static class Media3DExtension {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

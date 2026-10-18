@@ -1,8 +1,7 @@
-using HelixToolkit.SharpDX.Core.Core.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Material;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -116,7 +115,7 @@ public sealed class D3D12CutoverContractTests {
     [InlineData("HelixToolkit.SharpDX.Core.ShaderManager.IBufferPool")]
     [InlineData("HelixToolkit.SharpDX.Core.ShaderManager.ConstantBufferPool")]
     [InlineData("HelixToolkit.SharpDX.Core.Render.DeviceContextPool")]
-    [InlineData("HelixToolkit.SharpDX.Core.Core.Buffers.GeometryBufferManager")]
+    [InlineData("HelixToolkit.SharpDX.Core.Core.GeometryBufferManager")]
     [InlineData("HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics.GraphicsResource")]
     [InlineData("HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics.Texture")]
     [InlineData("HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics.Texture1D")]
@@ -209,7 +208,7 @@ public sealed class D3D12CutoverContractTests {
         /// <summary>
         ///     Initializes the lifecycle test core.
         /// </summary>
-        internal LifecycleRenderCore() : base(HelixToolkit.SharpDX.Core.Interface.RenderType.None) { }
+        internal LifecycleRenderCore() : base(HelixToolkit.SharpDX.Core.RenderType.None) { }
 
         /// <summary>
         ///     Gets the successful attach-call count.

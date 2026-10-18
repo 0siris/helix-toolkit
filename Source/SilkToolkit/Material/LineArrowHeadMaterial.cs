@@ -1,13 +1,13 @@
+using HelixToolkit.SharpDX.Core.Model;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 
-namespace HelixToolkit.Wpf.SharpDX.Material;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public class LineArrowHeadMaterial : LineMaterial {
     public static readonly DependencyProperty ArrowSizeProperty =

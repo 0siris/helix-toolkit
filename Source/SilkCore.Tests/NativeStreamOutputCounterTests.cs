@@ -1,12 +1,8 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Shaders;
 using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Core.Buffers;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;

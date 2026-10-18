@@ -1,7 +1,6 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
 namespace HelixToolkit.SharpDX.Core.Native;
 
@@ -21,7 +20,7 @@ public interface ID3D12MeshMaterial
     ///     Applies the shared b1 material fields without replacing the caller's model transform.
     /// </summary>
     /// <param name="material">The initialized shared mesh payload.</param>
-    void ApplyMeshParameters(ref PhongPbrMaterialStruct material);
+    void ApplyMeshParameters(ref PhongPBRMaterialStruct material);
 
     /// <summary>
     ///     Writes the complete application b2 payload, including deterministic padding, for the current geometry.

@@ -5,7 +5,6 @@ Copyright(c) 2018 Helix Toolkit contributors
 
 
 using System.Reflection;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 #if !WINDOWS_UWP
 using Microsoft.CSharp;
 using System.CodeDom.Compiler;

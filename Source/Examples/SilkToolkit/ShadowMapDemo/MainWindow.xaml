@@ -7,11 +7,11 @@
     xmlns:local="clr-namespace:ShadowMapDemo"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
-    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
-    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
-    xmlns:light3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Light3D;assembly=SilkToolkit"
-    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
-    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+    xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+    xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+    xmlns:light3D="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
     Title="{Binding Title}"
     Width="900"
     Height="800"
@@ -82,7 +82,7 @@
                 LightCamera="{Binding Camera1}"
                 Resolution="{Binding ShadowMapResolution}" IsSceneDynamic="True" />
             <elements3D:CameraModel3D x:Name="LightCamera" Camera="{Binding Camera1}" />
-            <elements3D:UiCompositeManipulator3D
+            <elements3D:UICompositeManipulator3D
                 CanRotateX="true"
                 CanRotateY="true"
                 CanRotateZ="true"

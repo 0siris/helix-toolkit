@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
@@ -5,13 +6,9 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Core2D;
-using HelixToolkit.SharpDX.Core.Core2D.Abstract;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core.Render;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
 

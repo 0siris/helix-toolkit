@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="UIRotateManipulator3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -12,26 +14,23 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 using MatrixTransform3D = MatrixTransform3D;
 
 /// <summary>
 ///     A translate manipulator.
 /// </summary>
-public class UiRotateManipulator3D : UiManipulator3D {
+public class UIRotateManipulator3D : UIManipulator3D {
     /// <summary>
     ///     The axis property.
     /// </summary>
     public static readonly DependencyProperty AxisProperty = DependencyProperty.Register("Axis",
         typeof(Vector3),
-        typeof(UiRotateManipulator3D),
+        typeof(UIRotateManipulator3D),
         new PropertyMetadata(new Vector3(0, 0, 1), ModelChanged));
 
     /// <summary>
@@ -40,7 +39,7 @@ public class UiRotateManipulator3D : UiManipulator3D {
     public static readonly DependencyProperty OuterDiameterProperty = DependencyProperty.Register(
         "OuterDiameter",
         typeof(double),
-        typeof(UiRotateManipulator3D),
+        typeof(UIRotateManipulator3D),
         new PropertyMetadata(1.5, ModelChanged));
 
     /// <summary>
@@ -49,7 +48,7 @@ public class UiRotateManipulator3D : UiManipulator3D {
     public static readonly DependencyProperty InnerDiameterProperty = DependencyProperty.Register(
         "InnerDiameter",
         typeof(double),
-        typeof(UiRotateManipulator3D),
+        typeof(UIRotateManipulator3D),
         new PropertyMetadata(1.0, ModelChanged));
 
     /// <summary>
@@ -58,7 +57,7 @@ public class UiRotateManipulator3D : UiManipulator3D {
     public static readonly DependencyProperty LengthProperty = DependencyProperty.Register(
         "Length",
         typeof(double),
-        typeof(UiRotateManipulator3D),
+        typeof(UIRotateManipulator3D),
         new PropertyMetadata(0.1, ModelChanged));
 
     /// <summary>
@@ -67,13 +66,13 @@ public class UiRotateManipulator3D : UiManipulator3D {
     public static readonly DependencyProperty PivotProperty = DependencyProperty.Register(
         "Pivot",
         typeof(Vector3),
-        typeof(UiRotateManipulator3D),
+        typeof(UIRotateManipulator3D),
         new PropertyMetadata(new Vector3(0, 0, 0)));
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="UiManipulator3D" /> class.
     /// </summary>
-    public UiRotateManipulator3D() {
+    public UIRotateManipulator3D() {
         Transform = new RotateTransform3D();
     }
 

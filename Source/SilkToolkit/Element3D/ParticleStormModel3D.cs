@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX.Model;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ParticleStormModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2017 Helix Toolkit contributors
@@ -13,12 +15,9 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using static HelixToolkit.SharpDX.Core.Core.ParticleRenderCore;
 using Media = System.Windows.Media;
@@ -27,9 +26,9 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
-public class ParticleStormModel3D : Model.Elements3D.AbstractElements3D.Element3D {
+public class ParticleStormModel3D : Element3D {
     #region Dependency Properties
 
     public static DependencyProperty ParticleCountProperty = DependencyProperty.Register("ParticleCount",

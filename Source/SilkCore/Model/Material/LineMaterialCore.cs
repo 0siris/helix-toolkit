@@ -1,14 +1,16 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Shaders;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.Serialization;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Model.Material;
+namespace HelixToolkit.SharpDX.Core.Model;
 [DataContract]
 public class LineMaterialCore : MaterialCore, ILineRenderParams {
 

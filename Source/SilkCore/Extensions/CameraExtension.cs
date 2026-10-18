@@ -1,8 +1,8 @@
-using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core.Cameras;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Interface;
 
-namespace HelixToolkit.SharpDX.Core.Extensions;
+namespace HelixToolkit.SharpDX.Core;
 
 public static class CameraExtension {
     /// <summary>

@@ -1,12 +1,11 @@
+using HelixToolkit.SharpDX.Core.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Core.Abstract;
-using HelixToolkit.SharpDX.Core.Core.Lights;
 
-namespace HelixToolkit.SharpDX.Core.Model.Scene.Lights;
+namespace HelixToolkit.SharpDX.Core.Model.Scene;
 /// <summary>
 /// </summary>
 public class PointLightNode : LightNode {

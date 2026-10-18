@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX.Controls;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RectangleAdorner.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -15,7 +16,7 @@ using WpfColor = System.Windows.Media.Color;
 using WpfDashStyle = System.Windows.Media.DashStyle;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     An adorner showing a rectangle with a crosshair in the middle. This is shown when zooming a rectangle.

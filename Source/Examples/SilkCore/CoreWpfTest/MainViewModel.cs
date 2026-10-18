@@ -1,3 +1,7 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -10,12 +14,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Microsoft.Win32;
 
@@ -49,7 +48,7 @@ public class MainViewModel : ObservableObject {
         set {
             if (Set(ref field, value) && scene?.Root is { } root) {
                 foreach (var node in root.Traverse()) {
-                    if (node is MaterialGeometryNode {Material: PbrMaterialCore material}) {
+                    if (node is MaterialGeometryNode {Material: PBRMaterialCore material}) {
                         material.RenderEnvironmentMap = value;
                     }
                 }
@@ -166,7 +165,7 @@ public class MainViewModel : ObservableObject {
                         GroupModel.Clear();
                         foreach (var node in loadedScene.Root.Traverse()) {
                             if (node is MaterialGeometryNode m) {
-                                if (m.Material is PbrMaterialCore pbr) {
+                                if (m.Material is PBRMaterialCore pbr) {
                                     pbr.RenderEnvironmentMap = RenderEnvironmentMap;
                                 } else if (m.Material is PhongMaterialCore phong) {
                                     phong.RenderEnvironmentMap = RenderEnvironmentMap;
@@ -254,7 +253,7 @@ public class MainViewModel : ObservableObject {
             if (node is MeshNode m) {
                 if (m.Material is PhongMaterialCore phong) {
                     phong.EnableFlatShading = show;
-                } else if (m.Material is PbrMaterialCore pbr) {
+                } else if (m.Material is PBRMaterialCore pbr) {
                     pbr.EnableFlatShading = show;
                 }
             }

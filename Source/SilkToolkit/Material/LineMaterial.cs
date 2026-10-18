@@ -1,17 +1,18 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Shaders;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Windows;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Media = System.Windows.Media;
 
 #pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
 
-namespace HelixToolkit.Wpf.SharpDX.Material;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public class LineMaterial : Material {
     public LineMaterial() { }

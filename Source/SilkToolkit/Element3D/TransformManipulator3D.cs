@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -9,27 +10,17 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D.PostEffects;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 using Color = HelixToolkit.SharpDX.Core.Color;
 using Media = System.Windows.Media;
 using Media3D = System.Windows.Media.Media3D;
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public class TransformManipulator3D : GroupElement3D {
     private static readonly Geometry3D TranslationXGeometry;
@@ -240,7 +231,7 @@ public class TransformManipulator3D : GroupElement3D {
     ///     Called when [target changed]. Use target boundingbox center as Manipulator center
     /// </summary>
     /// <param name="elem3DTarget">The target.</param>
-    private void OnTargetChanged(Model.Elements3D.AbstractElements3D.Element3D? elem3DTarget) {
+    private void OnTargetChanged(Element3D? elem3DTarget) {
         Debug.WriteLine("OnTargetChanged");
         if (target != null)
             target.SceneNode.TransformChanged -= SceneNode_OnTransformChanged;
@@ -349,20 +340,20 @@ public class TransformManipulator3D : GroupElement3D {
 
     #region Dependency Properties
 
-    public Model.Elements3D.AbstractElements3D.Element3D? Target {
-        get => (Model.Elements3D.AbstractElements3D.Element3D?) GetValue(TargetProperty);
+    public Element3D? Target {
+        get => (Element3D?) GetValue(TargetProperty);
         set => SetValue(TargetProperty, value);
     }
 
 
     public static readonly DependencyProperty TargetProperty =
         DependencyProperty.Register("Target",
-            typeof(Model.Elements3D.AbstractElements3D.Element3D),
+            typeof(Element3D),
             typeof(TransformManipulator3D),
             new PropertyMetadata(null,
                 (d, e) => {
                     ((TransformManipulator3D) d).OnTargetChanged(
-                        (Model.Elements3D.AbstractElements3D.Element3D?) e.NewValue);
+                        (Element3D?) e.NewValue);
                 }));
 
 
@@ -642,14 +633,14 @@ public class TransformManipulator3D : GroupElement3D {
     private readonly GroupModel3D scaleGroup;
     private readonly GroupModel3D ctrlGroup;
 
-    private readonly Model.Elements3D.AbstractElements3D.Element3D xrayEffect;
+    private readonly Element3D xrayEffect;
     private Vector3 centerOffset = Vector3.Zero;
     private Vector3 translationVector = Vector3.Zero;
     private Matrix rotationMatrix = Matrix.Identity;
     private Matrix scaleMatrix = Matrix.Identity;
     private Matrix targetMatrix = Matrix.Identity;
 
-    private Model.Elements3D.AbstractElements3D.Element3D? target;
+    private Element3D? target;
     private Viewport3DX? currentViewport;
     private Vector3 lastHitPosWs;
     private Vector3 normal;
@@ -667,7 +658,7 @@ public class TransformManipulator3D : GroupElement3D {
     private void Translation_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
         var hitResult = e.HitTestResult;
-        if (hitResult?.ModelHit is not Model.Elements3D.AbstractElements3D.Element3D elem) {
+        if (hitResult?.ModelHit is not Element3D elem) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;
@@ -735,7 +726,7 @@ public class TransformManipulator3D : GroupElement3D {
     private void Rotation_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
         var hitResult = e.HitTestResult;
-        if (hitResult?.ModelHit is not Model.Elements3D.AbstractElements3D.Element3D elem) {
+        if (hitResult?.ModelHit is not Element3D elem) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;
@@ -821,7 +812,7 @@ public class TransformManipulator3D : GroupElement3D {
     private void Scaling_Mouse3DDown(object? sender, MouseDown3DEventArgs e) {
         if (target == null || !CanBeginTransform(e)) return;
         var hitResult = e.HitTestResult;
-        if (hitResult?.ModelHit is not Model.Elements3D.AbstractElements3D.Element3D elem) {
+        if (hitResult?.ModelHit is not Element3D elem) {
             manipulationType = ManipulationType.None;
             isCaptured = false;
             return;

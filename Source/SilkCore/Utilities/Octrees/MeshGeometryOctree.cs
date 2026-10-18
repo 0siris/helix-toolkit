@@ -1,7 +1,5 @@
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 ///     MeshGeometryOctree slices mesh geometry by triangles into octree. Objects are KeyValuePair of each triangle index

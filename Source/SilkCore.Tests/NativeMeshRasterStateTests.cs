@@ -1,10 +1,7 @@
+using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -58,7 +55,7 @@ public sealed class NativeMeshRasterStateTests {
             View = Matrix.Identity, Projection = Matrix.Identity, ViewProjection = Matrix.Identity,
             Viewport = new Vector4(16, 16, 1f / 16, 1f / 16),
             Resolution = new Vector4(16, 16, 1f / 16, 1f / 16), EyePos = new Vector3(0, 0, 2),
-            OITWeightPower = 3, OITWeightDepthSlope = 1, OITWeightMode = (int)OitWeightMode.Linear1, DpiScale = 1
+            OITWeightPower = 3, OITWeightDepthSlope = 1, OITWeightMode = (int)OITWeightMode.Linear1, DpiScale = 1
         };
         var counterclockwise = Render();
         node.FrontCcw = false;

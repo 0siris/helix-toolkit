@@ -7,7 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace HelixToolkit.SharpDX.Core.Geometry;
+namespace HelixToolkit.Wpf;
 
 using Int32Collection = List<int>;
 using Point = Vector2;

@@ -37,7 +37,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace Wpf3DTools;
 
 /// <summary>
 ///     Trackball is a utility class which observes the mouse events

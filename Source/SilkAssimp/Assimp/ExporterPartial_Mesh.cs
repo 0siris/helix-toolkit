@@ -1,13 +1,12 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using SharpAssimp;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using Bone = HelixToolkit.SharpDX.Core.Model.Animations.Bone;
+using Bone = HelixToolkit.SharpDX.Core.Animations.Bone;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 

@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
@@ -5,8 +6,6 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -139,7 +138,7 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
             GlobalTransformStruct.SizeInBytes);
         parameters = new SilkD3D12ConstantBuffer(device,
             bindings.ConstantBuffer(1),
-            SsaoParamStruct.SizeInBytes);
+            SSAOParamStruct.SizeInBytes);
         fallbackConstants = device.CreateBuffer(256, HeapType.Upload);
         fallbackConstants.Write(new byte[256]);
         bindings.InitializeFallbackDescriptors(device, fallbackConstants, 0, 1);
@@ -233,7 +232,7 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
         device.CreateShaderResourceView(normalTarget, bindings.ShaderResource(31));
         device.CreateShaderResourceView(noise, bindings.ShaderResource(32));
         device.CreateShaderResourceView(depthTarget, bindings.ShaderResource(33), Format.FormatR32Float);
-        var ssao = new SsaoParamStruct {
+        var ssao = new SSAOParamStruct {
             NoiseScale = new Vector2(normalTarget.Description.Width / 4f, normalTarget.Description.Height / 4f),
             TextureScale = textureScale,
             Radius = radius,

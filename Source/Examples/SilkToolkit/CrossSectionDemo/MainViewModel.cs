@@ -1,13 +1,6 @@
-using HelixToolkit.SharpDX.Core.Geometry;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
-using HelixToolkit.Wpf.SharpDX.Camera;
-using HelixToolkit.Wpf.SharpDX.Element3D;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
-using HelixToolkit.Wpf.SharpDX.Material;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 
 namespace CrossSectionDemo;
 

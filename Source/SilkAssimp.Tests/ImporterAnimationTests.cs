@@ -1,12 +1,10 @@
+using HelixToolkit.SharpDX.Core.Animations;
 using SharpAssimp;
 using System.Numerics;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Animations;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using Xunit;
-using HxAnimation = HelixToolkit.SharpDX.Core.Model.Animations.Animation;
+using HxAnimation = HelixToolkit.SharpDX.Core.Animations.Animation;
 using HxImporter = HelixToolkit.SharpDX.Core.Assimp.Importer;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
 using Rotation = Silk.NET.Maths.Quaternion<float>;

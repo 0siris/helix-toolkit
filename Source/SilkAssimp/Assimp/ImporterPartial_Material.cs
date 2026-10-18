@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Shaders;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -6,9 +8,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Collections.Concurrent;
 using SharpAssimp;
 using SharpAssimp.Unmanaged;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
 using TextureType = SharpAssimp.TextureType;
 
@@ -88,7 +88,7 @@ public partial class Importer {
         if (material.HasNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)) {
             var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)?.GetFloatArrayValue();
             if (values is {Length: 5})
-                phong.UvTransform = new UvTransform(values[0],
+                phong.UvTransform = new UVTransform(values[0],
                                                     new Vector2(values[1], values[2]),
                                                     new Vector2(values[3], values[4]));
         }
@@ -104,8 +104,8 @@ public partial class Importer {
     /// <remarks>
     ///     General material factor keys take precedence over the legacy glTF keys retained by toolkit scene export.
     /// </remarks>
-    protected virtual PbrMaterialCore OnCreatePBRMaterial(Material material) {
-        var pbr = new PbrMaterialCore {
+    protected virtual PBRMaterialCore OnCreatePBRMaterial(Material material) {
+        var pbr = new PBRMaterialCore {
             AlbedoColor = material.HasColorDiffuse
                               ? material.ColorDiffuse.ToSharpDXColor4()
                               : new Color4(0, 0, 0, 1),
@@ -113,16 +113,16 @@ public partial class Importer {
                                 ? material.ColorEmissive.ToSharpDXColor4()
                                 : new Color4(0, 0, 0, 1)
         };
-        if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor))
-            pbr.AlbedoColor = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor)
+        if (material.HasNonTextureProperty(GLTFMatKeys.AiMatkeyGltfBasecolorFactor))
+            pbr.AlbedoColor = material.GetNonTextureProperty(GLTFMatKeys.AiMatkeyGltfBasecolorFactor)
                                       ?.GetVector4Value().ToSharpDXColor4() ?? new Color4(0, 0, 0, 1);
         var metallicFactor = material.GetNonTextureProperty("$mat.metallicFactor")
-                             ?? material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor);
+                             ?? material.GetNonTextureProperty(GLTFMatKeys.AiMatkeyGltfMetallicFactor);
         if (metallicFactor != null)
             pbr.MetallicFactor = metallicFactor.GetFloatValue();
         if (material.HasColorAmbient) pbr.AmbientOcclusionFactor = material.ColorAmbient.X;
         var roughnessFactor = material.GetNonTextureProperty("$mat.roughnessFactor")
-                              ?? material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor);
+                              ?? material.GetNonTextureProperty(GLTFMatKeys.AiMatkeyGltfRoughnessFactor);
         if (roughnessFactor != null) {
             pbr.RoughnessFactor = roughnessFactor.GetFloatValue();
         } else if (material is {HasColorSpecular: true, HasShininess: true}) {
@@ -135,14 +135,14 @@ public partial class Importer {
             pbr.RoughnessFactor = 1 - normalizedShininess;
         }
 
-        if (material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfPbrspecularglossiness)) {
-            var hasGlossiness = material.GetNonTextureProperty(GltfMatKeys.AiMatkeyGltfPbrspecularglossiness)
+        if (material.HasNonTextureProperty(GLTFMatKeys.AiMatkeyGltfPbrspecularglossiness)) {
+            var hasGlossiness = material.GetNonTextureProperty(GLTFMatKeys.AiMatkeyGltfPbrspecularglossiness)
                                         ?.GetBooleanValue() ?? false;
             if (hasGlossiness) {
-                if (material.HasNonTextureProperty(GltfMatKeys
+                if (material.HasNonTextureProperty(GLTFMatKeys
                                                        .AiMatkeyGltfPbrspecularglossinessGlossinessFactor))
                     pbr.ReflectanceFactor = material
-                                            .GetNonTextureProperty(GltfMatKeys
+                                            .GetNonTextureProperty(GLTFMatKeys
                                                                        .AiMatkeyGltfPbrspecularglossinessGlossinessFactor)
                                             ?.GetFloatValue() ?? 0.0f;
                 else if (material.HasShininess) pbr.ReflectanceFactor = material.Shininess / 1000;
@@ -172,10 +172,10 @@ public partial class Importer {
             pbr.NormalMapFilePath = material.TextureHeight.FilePath;
         }
 
-        if (material.HasProperty(GltfMatKeys.AiMatkeyGltfMetallicroughnessaoTexture,
+        if (material.HasProperty(GLTFMatKeys.AiMatkeyGltfMetallicroughnessaoTexture,
                                  TextureType.Unknown,
                                  0)) {
-            var t = material.GetProperty(GltfMatKeys.AiMatkeyGltfMetallicroughnessaoTexture,
+            var t = material.GetProperty(GLTFMatKeys.AiMatkeyGltfMetallicroughnessaoTexture,
                                          TextureType.Unknown,
                                          0);
             pbr.RoughnessMetallicMap = t is null ? null : LoadTexture(t.GetStringValue()!);
@@ -203,7 +203,7 @@ public partial class Importer {
         if (material.HasNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)) {
             var values = material.GetNonTextureProperty(AiMatKeys.UVTRANSFORM_BASE)?.GetFloatArrayValue();
             if (values is {Length: 5})
-                pbr.UvTransform = new UvTransform(values[0],
+                pbr.UvTransform = new UVTransform(values[0],
                                                   new Vector2(values[1], values[2]),
                                                   new Vector2(values[3], values[4]));
         }
@@ -222,9 +222,9 @@ public partial class Importer {
         if (!material.HasShadingMode) {
             if (material.HasNonTextureProperty("$mat.metallicFactor")
                 || material.HasNonTextureProperty("$mat.roughnessFactor")
-                || material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor)
-                || material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor)
-                || material.HasNonTextureProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor))
+                || material.HasNonTextureProperty(GLTFMatKeys.AiMatkeyGltfMetallicFactor)
+                || material.HasNonTextureProperty(GLTFMatKeys.AiMatkeyGltfRoughnessFactor)
+                || material.HasNonTextureProperty(GLTFMatKeys.AiMatkeyGltfBasecolorFactor))
                 material.ShadingMode = ShadingMode.Fresnel;
             else if (material.HasColorSpecular || material.HasColorDiffuse || material.HasTextureDiffuse)
                 material.ShadingMode = ShadingMode.Blinn;

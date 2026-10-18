@@ -1,11 +1,8 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.Wpf.SharpDX;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Camera;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
@@ -42,10 +39,10 @@ public class MainWindowViewModel : DemoCore.BaseViewModel {
         PhongMaterial =
             new GenericMeshMaterialCore(effectsManager[DefaultRenderTechniqueNames.Mesh][DefaultPassNames.Default],
                 "cbMesh");
-        PhongMaterial.SetProperty(PhongPbrMaterialStruct.DiffuseStr, Color.Red.ToColor4());
-        PhongMaterial.SetProperty(PhongPbrMaterialStruct.ReflectStr, Color.Black.ToColor4());
-        PhongMaterial.SetProperty(PhongPbrMaterialStruct.UvTransformR1Str, new Vector4(1, 0, 0, 0));
-        PhongMaterial.SetProperty(PhongPbrMaterialStruct.UvTransformR2Str, new Vector4(0, 1, 0, 0));
+        PhongMaterial.SetProperty(PhongPBRMaterialStruct.DiffuseStr, Color.Red.ToColor4());
+        PhongMaterial.SetProperty(PhongPBRMaterialStruct.ReflectStr, Color.Black.ToColor4());
+        PhongMaterial.SetProperty(PhongPBRMaterialStruct.UvTransformR1Str, new Vector4(1, 0, 0, 0));
+        PhongMaterial.SetProperty(PhongPBRMaterialStruct.UvTransformR2Str, new Vector4(0, 1, 0, 0));
     }
 
     private void InitializeScene() {

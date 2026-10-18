@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CompositeModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -12,16 +13,14 @@ using System.Windows;
 using System.Windows.Markup;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Represents a composite Model3D.
 /// </summary>
 [ContentProperty("Children")]
-public class CompositeModel3D : AbstractElements3D.Element3D, IHitable, ISelectable, IMouse3D {
+public class CompositeModel3D : global::HelixToolkit.Wpf.SharpDX.Element3D, IHitable, ISelectable, IMouse3D {
     public static readonly DependencyProperty IsSelectedProperty =
         DependencyProperty.Register("IsSelected", typeof(bool), typeof(CompositeModel3D), new PropertyMetadata(false));
 
@@ -96,7 +95,7 @@ public class CompositeModel3D : AbstractElements3D.Element3D, IHitable, ISelecta
             case NotifyCollectionChangedAction.Remove:
             case NotifyCollectionChangedAction.Replace:
                 if (e.OldItems != null)
-                    foreach (AbstractElements3D.Element3D item in e.OldItems) {
+                    foreach (global::HelixToolkit.Wpf.SharpDX.Element3D item in e.OldItems) {
                         if (item.Parent == this) RemoveLogicalChild(item);
                         if (item.SceneNode is { } childNode)
                             node.RemoveChildNode(childNode);
@@ -105,7 +104,7 @@ public class CompositeModel3D : AbstractElements3D.Element3D, IHitable, ISelecta
                 break;
             case NotifyCollectionChangedAction.Reset:
                 if (e.OldItems != null)
-                    foreach (AbstractElements3D.Element3D item in e.OldItems)
+                    foreach (global::HelixToolkit.Wpf.SharpDX.Element3D item in e.OldItems)
                         if (item.Parent == this)
                             RemoveLogicalChild(item);
 
@@ -127,7 +126,7 @@ public class CompositeModel3D : AbstractElements3D.Element3D, IHitable, ISelecta
                 if (e.NewItems is null)
                     break;
 
-                foreach (AbstractElements3D.Element3D item in e.NewItems) {
+                foreach (global::HelixToolkit.Wpf.SharpDX.Element3D item in e.NewItems) {
                     if (item.Parent == null) AddLogicalChild(item);
                     if (item.SceneNode is { } childNode)
                         node.AddChildNode(childNode);

@@ -1,15 +1,15 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Utilities;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core;
 
-public interface IAttachableBufferModel : IGuid, IDisposable {
+public interface IAttachableBufferModel : IGUID, IDisposable {
     /// <summary>
     ///     Gets or sets the topology.
     /// </summary>

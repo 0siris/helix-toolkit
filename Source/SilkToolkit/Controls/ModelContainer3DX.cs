@@ -1,11 +1,12 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX.Controls;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// Contains a scene-node collection shared by multiple Direct3D 12 viewports.
@@ -38,6 +39,6 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
 
     /// <inheritdoc />
     public IEnumerable<SceneNode> Renderables => Items
-        .OfType<Model.Elements3D.AbstractElements3D.Element3D>()
+        .OfType<Element3D>()
         .Select(element => element.SceneNode);
 }

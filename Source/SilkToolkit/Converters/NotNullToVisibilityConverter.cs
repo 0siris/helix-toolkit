@@ -1,4 +1,5 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.Wpf.SharpDX.Converters;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="NotNullToVisibilityConverter.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -12,7 +13,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace HelixToolkit.Wpf.SharpDX.Converters;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     A not-null reference to Visibility value converter.

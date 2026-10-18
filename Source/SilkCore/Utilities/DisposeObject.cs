@@ -1,4 +1,6 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Utilities;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -7,7 +9,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core.Utilities
+{
 
 public interface IDisposeObject: IDisposable
 {
@@ -47,6 +51,10 @@ public interface IDisposeObject: IDisposable
     /// </summary>
     void Dispose(bool disposing);
 }
+
+}
+namespace HelixToolkit.SharpDX.Core
+{
 
 /// <summary>
 ///     Base class to handle disposable.
@@ -178,4 +186,6 @@ public abstract class DisposeObject : IDisposable, IDisposeObject {
     }
 
     #endregion
+}
+
 }

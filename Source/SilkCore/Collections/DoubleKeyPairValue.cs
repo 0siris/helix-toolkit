@@ -1,4 +1,5 @@
-namespace HelixToolkit.UWP;
+using HelixToolkit.UWP;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 ///     Carries two ordered keys and their associated value independently of a dictionary entry.

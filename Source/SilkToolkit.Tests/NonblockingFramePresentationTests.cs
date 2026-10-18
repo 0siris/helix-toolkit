@@ -1,3 +1,6 @@
+using Color = System.Windows.Media.Color;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -6,17 +9,11 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
-using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
-using HelixToolkit.Wpf.SharpDX.Model.Lights3D;
 using Xunit;
-using MeshGeometry3D = HelixToolkit.SharpDX.Core.Model.Geometry.MeshGeometry3D;
+using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace SilkToolkit.Tests;
@@ -183,7 +180,7 @@ public sealed class NonblockingFramePresentationTests {
     private static Viewport3DX CreateViewport(D3D12PresentationSurface surface) {
         var viewport = new Viewport3DX {
             BackgroundColor = Colors.Black,
-            Camera = new HelixToolkit.Wpf.SharpDX.Camera.OrthographicCamera {
+            Camera = new HelixToolkit.Wpf.SharpDX.OrthographicCamera {
                 Position = new Point3D(0, 0, 5),
                 LookDirection = new Vector3D(0, 0, -5),
                 UpDirection = new Vector3D(0, 1, 0),
@@ -199,7 +196,7 @@ public sealed class NonblockingFramePresentationTests {
     /// <summary>Creates genuine triangle geometry whose productive scene-update calls can be observed.</summary>
     /// <returns>The renderable triangle model.</returns>
     private static ObservedMeshModel CreateModel() => new() {
-        Material = HelixToolkit.Wpf.SharpDX.Material.DiffuseMaterials.Red,
+        Material = HelixToolkit.Wpf.SharpDX.DiffuseMaterials.Red,
         Geometry = new MeshGeometry3D {
             Positions = new Vector3Collection([new(-0.5f, 0.5f, 0), new(0.5f, 0.5f, 0), new(0, -0.5f, 0)]),
             Normals = new Vector3Collection([Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitZ]),

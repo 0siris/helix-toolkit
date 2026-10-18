@@ -1,15 +1,15 @@
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Shaders;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Windows;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 using Color = HelixToolkit.SharpDX.Core.Color;
 
 #pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
 
-namespace HelixToolkit.Wpf.SharpDX.Material;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// </summary>

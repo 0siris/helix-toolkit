@@ -1,15 +1,9 @@
 using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Core.Buffers;
-using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
@@ -249,7 +243,7 @@ public sealed class MeshIntersectionGpuTests {
         ///     Creates the compute core while retaining the ordinary line node contract.
         /// </summary>
         /// <returns>The selected-pair intersection render core.</returns>
-        protected override HelixToolkit.SharpDX.Core.Core.Abstract.RenderCore OnCreateRenderCore() => new MeshIntersectionRenderCore();
+        protected override HelixToolkit.SharpDX.Core.Core.RenderCore OnCreateRenderCore() => new MeshIntersectionRenderCore();
         /// <summary>Creates valid bounds for scene selection; native output comes solely from compute.</summary>
         public GpuLineNode() {
             Geometry = new LineGeometry3D { Positions = new Vector3Collection([new Vector3(-1), new Vector3(1)]), Indices = new IntCollection([0, 1]) };

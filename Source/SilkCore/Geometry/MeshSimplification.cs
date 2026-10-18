@@ -9,10 +9,8 @@
 /////////////////////////////////////////////
 
 using System.Diagnostics;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.SharpDX.Core.Geometry;
+namespace HelixToolkit.SharpDX.Core;
 
 using Int32Collection = IntCollection;
 using Point3D = Color3;

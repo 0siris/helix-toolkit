@@ -1,4 +1,5 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 Reference: https://graphicsrunner.blogspot.com/search/label/Volume%20Rendering
@@ -6,20 +7,11 @@ Reference: https://graphicsrunner.blogspot.com/search/label/Volume%20Rendering
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using HelixToolkit.SharpDX.Core.Core.Abstract;
-using HelixToolkit.SharpDX.Core.Core.Buffers;
 using HelixToolkit.SharpDX.Core.Core.Components;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
@@ -44,7 +36,7 @@ public sealed class VolumeRenderCore : RenderCore {
     /// </summary>
     internal string D3D12MaterialPassName => D3D12Material switch {
         VolumeTextureDiffuseMaterialCore => DefaultPassNames.Diffuse,
-        VolumeTextureRawDataMaterialCore or VolumeTextureDds3DMaterialCore => DefaultPassNames.Default,
+        VolumeTextureRawDataMaterialCore or VolumeTextureDDS3DMaterialCore => DefaultPassNames.Default,
         null => throw new InvalidOperationException("A DX12 volume material is required for pass selection."),
         _ => throw new NotSupportedException($"DX12 volume material '{D3D12Material.GetType().Name}' is not supported.")
     };

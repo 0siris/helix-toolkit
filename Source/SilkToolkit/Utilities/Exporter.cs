@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX.Utilities;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -8,11 +9,9 @@ using System.IO;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
 using HelixToolkit.Wpf.SharpDX.Controls;
 
-namespace HelixToolkit.Wpf.SharpDX.Utilities;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     An abstract base class providing common functionality for exporters.
@@ -106,7 +105,7 @@ public abstract class Exporter : IExporter, IDisposable {
     /// </param>
     private static void Traverse<T>(SceneNode model, Action<T, Transform3D> action) where T : SceneNode {
         if (model is T node
-            && model.WrapperSource is Model.Elements3D.AbstractElements3D.Element3D { Transform: { } transform })
+            && model.WrapperSource is Element3D { Transform: { } transform })
             action(node, transform);
 
         foreach (var element in model.Items) Traverse(element, action);
@@ -179,7 +178,7 @@ public abstract class Exporter : IExporter, IDisposable {
     /// <param name="camera">
     ///     The camera.
     /// </param>
-    protected virtual void ExportCamera(Camera.Camera camera) { }
+    protected virtual void ExportCamera(Camera camera) { }
 
     /// <summary>
     ///     Exports the light.

@@ -1,3 +1,6 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Core2D;
 #if DEBUG
 //#define DEBUGMOUSEEVENT
 #endif
@@ -7,13 +10,12 @@ using System.Windows.Input;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element2D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Media = System.Windows.Media;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning element and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D.Abstract;
+namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 public abstract class Element2D : Element2DCore, ITransformable2D, IHitable2D {
     public Element2D() {
         MouseEnter2D += Element2D_MouseEnter2D;

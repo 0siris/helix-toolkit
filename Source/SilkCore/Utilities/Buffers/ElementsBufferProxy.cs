@@ -4,7 +4,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core.Utilities.Buffers;
+namespace HelixToolkit.SharpDX.Core.Utilities;
 
 /// <summary>
 /// </summary>

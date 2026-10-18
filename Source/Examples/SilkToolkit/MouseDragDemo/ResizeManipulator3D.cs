@@ -1,4 +1,5 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.Wpf.SharpDX;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ResizeManipulator3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -7,11 +8,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 
 namespace MouseDragDemo;
 
@@ -22,7 +19,7 @@ using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyChanged
 {
-    private UiTranslateManipulator3D translateXl,
+    private UITranslateManipulator3D translateXl,
         translateYl,
         translateZl,
         translateXr,
@@ -103,32 +100,32 @@ public class ResizeManipulator3D : GroupElement3D //, IHitable, INotifyPropertyC
         var red = PhongMaterials.Red;
         red.ReflectiveColor = Colors.Black.ToColor4();
         //red.SpecularShininess = 0f;
-        translateXr = new UiTranslateManipulator3D {
+        translateXr = new UITranslateManipulator3D {
             Direction = new Vector3(+1, 0, 0),
             IsThrowingShadow = false,
             Material = red,
         };
-        translateYr = new UiTranslateManipulator3D {
+        translateYr = new UITranslateManipulator3D {
             Direction = new Vector3(0, +1, 0),
             IsThrowingShadow = false,
             Material = PhongMaterials.Green
         };
-        translateZr = new UiTranslateManipulator3D {
+        translateZr = new UITranslateManipulator3D {
             Direction = new Vector3(0, 0, +1),
             IsThrowingShadow = false,
             Material = PhongMaterials.Blue
         };
-        translateXl = new UiTranslateManipulator3D {
+        translateXl = new UITranslateManipulator3D {
             Direction = new Vector3(-1, 0, 0),
             IsThrowingShadow = false,
             Material = red
         };
-        translateYl = new UiTranslateManipulator3D {
+        translateYl = new UITranslateManipulator3D {
             Direction = new Vector3(0, -1, 0),
             IsThrowingShadow = false,
             Material = PhongMaterials.Green
         };
-        translateZl = new UiTranslateManipulator3D {
+        translateZl = new UITranslateManipulator3D {
             Direction = new Vector3(0, 0, -1),
             IsThrowingShadow = false,
             Material = PhongMaterials.Blue

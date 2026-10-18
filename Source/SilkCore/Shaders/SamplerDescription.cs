@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 using System.Runtime.Serialization;
 using HelixToolkit.SharpDX.Core.Interface;
 

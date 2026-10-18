@@ -1,11 +1,9 @@
-using HelixToolkit.SharpDX.Core.Extensions;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Core.Batching;
+namespace HelixToolkit.SharpDX.Core.Core;
 
 public class DefaultStaticMeshBatchingBuffer : StaticGeometryBatchingBufferBase<BatchedMeshGeometryConfig, BatchedMeshVertex> {
     public PhongMaterialCore[]? Materials {

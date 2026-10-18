@@ -1,4 +1,7 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
@@ -6,8 +9,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Numerics;
 using SharpAssimp;
 using SharpAssimp.Unmanaged;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
@@ -102,26 +103,26 @@ public partial class Exporter {
     /// </summary>
     /// <param name="pbr">The PBR.</param>
     /// <param name="assimpMaterial">The assimp material.</param>
-    protected virtual void AddProperties(PbrMaterialCore pbr, Material assimpMaterial) {
+    protected virtual void AddProperties(PBRMaterialCore pbr, Material assimpMaterial) {
         assimpMaterial.ShadingMode = ShadingMode.Fresnel;
         assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.COLOR_DIFFUSE_BASE,
                                                         pbr.AlbedoColor.ToAssimpColor4D()));
-        assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfBasecolorFactor,
+        assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AiMatkeyGltfBasecolorFactor,
                                                         pbr.AlbedoColor.ToAssimpColor4D()));
         assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.COLOR_EMISSIVE_BASE,
                                                         pbr.EmissiveColor.ToAssimpColor4D()));
-        assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfMetallicFactor,
+        assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AiMatkeyGltfMetallicFactor,
                                                         pbr.MetallicFactor));
-        assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfRoughnessFactor,
+        assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AiMatkeyGltfRoughnessFactor,
                                                         pbr.RoughnessFactor));
         if (pbr.AmbientOcclusionFactor != 1)
             assimpMaterial.AddProperty(new MaterialProperty(AiMatKeys.COLOR_AMBIENT,
                                                             new Vector4(pbr.AmbientOcclusionFactor)));
         if (pbr.ReflectanceFactor != 0) {
-            assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfPbrspecularglossiness,
+            assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AiMatkeyGltfPbrspecularglossiness,
                                                             true));
             assimpMaterial.AddProperty(new MaterialProperty(
-                                           GltfMatKeys.AiMatkeyGltfPbrspecularglossinessGlossinessFactor,
+                                           GLTFMatKeys.AiMatkeyGltfPbrspecularglossinessGlossinessFactor,
                                            pbr.ReflectanceFactor));
         }
 
@@ -145,7 +146,7 @@ public partial class Exporter {
         }
 
         if (pbr.RoughnessMetallicMap != null && !string.IsNullOrEmpty(pbr.RoughnessMetallicMapFilePath))
-            assimpMaterial.AddProperty(new MaterialProperty(GltfMatKeys.AiMatkeyGltfMetallicroughnessaoTexture,
+            assimpMaterial.AddProperty(new MaterialProperty(GLTFMatKeys.AiMatkeyGltfMetallicroughnessaoTexture,
                                                             pbr.RoughnessMetallicMapFilePath,
                                                             TextureType.Unknown,
                                                             0));
@@ -198,7 +199,7 @@ public partial class Exporter {
         };
         if (material is PhongMaterialCore phong)
             AddProperties(phong, assimpMaterial);
-        else if (material is PbrMaterialCore pbr)
+        else if (material is PBRMaterialCore pbr)
             AddProperties(pbr, assimpMaterial);
         else if (material is DiffuseMaterialCore diffuse)
             AddProperties(diffuse, assimpMaterial);

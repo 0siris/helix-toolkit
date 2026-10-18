@@ -1,32 +1,31 @@
 using System.Windows;
 using System.Windows.Markup;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 [ContentProperty("Content")]
-public class Element3DPresenter : AbstractElements3D.Element3D {
+public class Element3DPresenter : global::HelixToolkit.Wpf.SharpDX.Element3D {
     /// <summary>
     ///     The content property
     /// </summary>
     public static readonly DependencyProperty ContentProperty =
         DependencyProperty.Register("Content",
-                                    typeof(AbstractElements3D.Element3D),
+                                    typeof(global::HelixToolkit.Wpf.SharpDX.Element3D),
                                     typeof(Element3DPresenter),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
                                                               var model = (Element3DPresenter)d;
                                                              if (e.OldValue != null) {
                                                                  model.RemoveLogicalChild(e.OldValue);
-                                                                 if (e.OldValue is AbstractElements3D.Element3D ele)
+                                                                 if (e.OldValue is global::HelixToolkit.Wpf.SharpDX.Element3D ele)
                                                                       ((GroupNode)model.SceneNode).RemoveChildNode(
                                                                          ele.SceneNode);
                                                              }
 
                                                              if (e.NewValue != null) {
                                                                  model.AddLogicalChild(e.NewValue);
-                                                                 if (e.NewValue is AbstractElements3D.Element3D ele)
+                                                                 if (e.NewValue is global::HelixToolkit.Wpf.SharpDX.Element3D ele)
                                                                       ((GroupNode)model.SceneNode).AddChildNode(
                                                                          ele.SceneNode);
                                                              }
@@ -42,8 +41,8 @@ public class Element3DPresenter : AbstractElements3D.Element3D {
     /// <value>
     ///     The content.
     /// </value>
-    public AbstractElements3D.Element3D? Content {
-        get => (AbstractElements3D.Element3D?)GetValue(ContentProperty);
+    public global::HelixToolkit.Wpf.SharpDX.Element3D? Content {
+        get => (global::HelixToolkit.Wpf.SharpDX.Element3D?)GetValue(ContentProperty);
         set => SetValue(ContentProperty, value);
     }
 

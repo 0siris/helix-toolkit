@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
-namespace HelixToolkit.SharpDX.Core.Model.Collection;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 ///     Similar to <see cref="List{T}" />, with direct access to underlying array.

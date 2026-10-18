@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -17,7 +18,7 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
 
     public Dictionary<string, TextureMapping> TextureMappings { get; } = [];
 
-    public Dictionary<string, UavMapping> UavMappings { get; } = [];
+    public Dictionary<string, UAVMapping> UavMappings { get; } = [];
 
     public Dictionary<string, SamplerMapping> SamplerMappings { get; } = [];
 
@@ -83,40 +84,40 @@ public sealed unsafe class ShaderReflector : IShaderReflector {
                             break;
                         case ShaderInputType.UnorderedAccessViewAppendStructured:
                             UavMappings.Add(name,
-                                            new UavDescription(name,
+                                            new UAVDescription(name,
                                                                stage,
                                                                UnorderedAccessViewType.AppendStructured)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
                         case ShaderInputType.UnorderedAccessViewConsumeStructured:
                             UavMappings.Add(name,
-                                            new UavDescription(name,
+                                            new UAVDescription(name,
                                                                stage,
                                                                UnorderedAccessViewType.ConsumeStructured)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
                         case ShaderInputType.UnorderedAccessViewRwByteAddress:
                             UavMappings.Add(name,
-                                            new UavDescription(name,
+                                            new UAVDescription(name,
                                                                stage,
                                                                UnorderedAccessViewType.RwByteAddress)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
                         case ShaderInputType.UnorderedAccessViewRwStructuredWithCounter:
                             UavMappings.Add(name,
-                                            new UavDescription(name,
+                                            new UAVDescription(name,
                                                                stage,
                                                                UnorderedAccessViewType.RwStructuredWithCounter)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
                         case ShaderInputType.UnorderedAccessViewRwTyped:
                             UavMappings.Add(name,
-                                            new UavDescription(name, stage, UnorderedAccessViewType.RwTyped)
+                                            new UAVDescription(name, stage, UnorderedAccessViewType.RwTyped)
                                                 .CreateMapping((int)resourceDesc.BindPoint));
                             break;
                         case ShaderInputType.UnorderedAccessViewRwStructured:
                             UavMappings.Add(name,
-                                            new UavDescription(name,
+                                            new UAVDescription(name,
                                                                stage,
                                                                UnorderedAccessViewType.RwStructured)
                                                 .CreateMapping((int)resourceDesc.BindPoint));

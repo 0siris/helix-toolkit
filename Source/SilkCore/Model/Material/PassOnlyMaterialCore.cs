@@ -4,9 +4,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 
-namespace HelixToolkit.SharpDX.Core.Model.Material;
+namespace HelixToolkit.SharpDX.Core.Model;
 /// <summary>
 ///     Vertex Normal Material
 /// </summary>

@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX.Model;
 // <copyright file="CrossSectionMeshGeometryModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2017 Helix Toolkit contributors
 // </copyright>
@@ -5,14 +7,12 @@
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Media = System.Windows.Media;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Defines the <see cref="CrossSectionMeshGeometryModel3D" />

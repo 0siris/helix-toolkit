@@ -1,13 +1,13 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
-namespace HelixToolkit.SharpDX.Core.Model.Animations;
+namespace HelixToolkit.SharpDX.Core.Animations;
 public struct Bone {
     public string Name;
     public SceneNode? ParentNode; // Used for scene graph based node animation

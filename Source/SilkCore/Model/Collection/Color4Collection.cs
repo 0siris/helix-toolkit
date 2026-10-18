@@ -5,10 +5,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Globalization;
 using System.Text;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Model.Collection;
+namespace HelixToolkit.SharpDX.Core;
 
 public sealed class Color4Collection : FastList<Color4> {
     public Color4Collection() { }

@@ -5,7 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.CompilerServices;
 
-namespace HelixToolkit.SharpDX.Core.Extensions;
+namespace HelixToolkit.SharpDX.Core;
 
 public static class BoundingFrustumExtensions {
     /// <summary>

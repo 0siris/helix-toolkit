@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -5,16 +6,12 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 
 using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Core.Buffers;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Components;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+namespace HelixToolkit.SharpDX.Core.Model.Scene;
 
 /// Owns geometry, instances and rasterizer settings shared by the native and effects-manager attachment paths.
 public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInstancing, IBoundable,

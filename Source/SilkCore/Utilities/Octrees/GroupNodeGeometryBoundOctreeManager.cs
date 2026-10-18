@@ -1,10 +1,11 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Logger;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
+namespace HelixToolkit.SharpDX.Core.Utilities;
 
 /// <summary>
 ///     Use to create geometryModel3D octree for groups. Each ItemsModel3D must has its own manager, do not share between

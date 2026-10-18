@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+﻿using HelixToolkit.Wpf.SharpDX;
+using System.Windows;
 using DemoCore.Automation;
 
 namespace GroupElementTester;

@@ -1,17 +1,13 @@
+using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.Wpf.SharpDX;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Camera;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using HelixToolkit.SharpDX.Core.Native;
 using Xunit;
 using Point = System.Windows.Point;
@@ -352,7 +348,7 @@ public sealed class HwndSwapChainHostTests {
             viewport.Resources.MergedDictionaries.Add(theme);
             viewport.Style = Assert.IsType<Style>(theme[typeof(Viewport3DX)]);
             viewport.Items.Add(new MeshGeometryModel3D {
-                Material = HelixToolkit.Wpf.SharpDX.Material.DiffuseMaterials.Red,
+                Material = HelixToolkit.Wpf.SharpDX.DiffuseMaterials.Red,
                 Geometry = new MeshGeometry3D {
                     Positions = new Vector3Collection([
                         new Vector3(-0.5f, 0.5f, 0),

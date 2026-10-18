@@ -1,16 +1,13 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
 /*
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Core.Abstract;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using Silk.NET.DXGI;
 
@@ -529,10 +526,10 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
             return mesh.D3D12Material switch {
                 ID3D12MeshMaterial => depthPeeling ? DefaultPassNames.OitDepthPeeling : DefaultPassNames.OitPass,
                 DiffuseMaterialCore => depthPeeling ? DefaultPassNames.DiffuseOitdp : DefaultPassNames.DiffuseOit,
-                PbrMaterialCore { EnableTessellation: true } => depthPeeling
+                PBRMaterialCore { EnableTessellation: true } => depthPeeling
                     ? DefaultPassNames.MeshPbrTriTessellationOitdp
                     : DefaultPassNames.MeshPbrTriTessellationOit,
-                PbrMaterialCore => depthPeeling ? DefaultPassNames.PbroitdpPass : DefaultPassNames.PbroitPass,
+                PBRMaterialCore => depthPeeling ? DefaultPassNames.PbroitdpPass : DefaultPassNames.PbroitPass,
                 PhongMaterialCore { EnableTessellation: true } => depthPeeling
                     ? DefaultPassNames.MeshTriTessellationOitdp
                     : DefaultPassNames.MeshTriTessellationOit,

@@ -2,9 +2,8 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D.Abstract;
+namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 public abstract class Clickable2D : Border2D {
     public static long DoubleClickThreshold = 300;
 

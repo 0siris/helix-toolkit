@@ -1,4 +1,5 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.Wpf.SharpDX.Controls;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DrawingContextExtensions.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -12,7 +13,7 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace HelixToolkit.Wpf.SharpDX;
 
 using WpfBrush = System.Windows.Media.Brush;
 using WpfPathGeometry = PathGeometry;

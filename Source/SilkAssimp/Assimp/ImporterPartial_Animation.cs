@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Animations;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -7,11 +9,7 @@ using System.Diagnostics;
 using SharpAssimp;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Logger;
-using HelixToolkit.SharpDX.Core.Model.Animations;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Animation = SharpAssimp.Animation;
 
@@ -134,7 +132,7 @@ public partial class Importer {
         if (scene.AssimpScene.HasAnimations) {
             var hasBoneSkinnedMesh = scene.Meshes.Any(x => x.Mesh is BoneSkinnedMeshGeometry3D);
             
-            var animationList = new List<Model.Animations.Animation>(scene.AssimpScene.AnimationCount);
+            var animationList = new List<global::HelixToolkit.SharpDX.Core.Animations.Animation>(scene.AssimpScene.AnimationCount);
             if (Configuration.EnableParallelProcessing)
                 Parallel.ForEach(scene.AssimpScene.Animations,
                                  ani => {
@@ -169,14 +167,14 @@ public partial class Importer {
         Animation ani,
         Dictionary<string, SceneNode> dict,
         bool searchBoneSkinMeshNode,
-        out Model.Animations.Animation hxAni
+        out global::HelixToolkit.SharpDX.Core.Animations.Animation hxAni
     ) {
         if (ani.TicksPerSecond == 0) {
             Logger.Warn("Animation TicksPerSecond is 0. Set to {Value0}", configuration.TickesPerSecond);
             ani.TicksPerSecond = configuration.TickesPerSecond;
         }
 
-        hxAni = new Model.Animations.Animation(AnimationType.Node) {
+        hxAni = new global::HelixToolkit.SharpDX.Core.Animations.Animation(AnimationType.Node) {
             StartTime = 0,
             EndTime = (float)(ani.DurationInTicks / ani.TicksPerSecond),
             Name = ani.Name,
@@ -214,7 +212,7 @@ public partial class Importer {
         Animation ani,
         Dictionary<string, SceneNode> dict,
         bool searchBoneSkinMeshNode,
-        out List<Model.Animations.Animation> hxAnis
+        out List<global::HelixToolkit.SharpDX.Core.Animations.Animation> hxAnis
     ) {
         if (ani.TicksPerSecond == 0) {
             Logger.Warn("Animation TicksPerSecond is 0. Set to {Value0}", configuration.TickesPerSecond);
@@ -224,7 +222,7 @@ public partial class Importer {
         hxAnis = [];
         if (ani.MeshMorphAnimationChannelCount > 0) {
             foreach (var aniChannel in ani.MeshMorphAnimationChannels) {
-                var hxAni = new Model.Animations.Animation(AnimationType.MorphTarget) {
+                var hxAni = new global::HelixToolkit.SharpDX.Core.Animations.Animation(AnimationType.MorphTarget) {
                     StartTime = 0,
                     EndTime = (float)(ani.DurationInTicks / ani.TicksPerSecond),
                     Name = ani.Name ?? string.Empty,
@@ -261,7 +259,7 @@ public partial class Importer {
         return ErrorCode.Failed;
     }
 
-    private void FindBoneSkinMeshes(Model.Animations.Animation animation) {
+    private void FindBoneSkinMeshes(global::HelixToolkit.SharpDX.Core.Animations.Animation animation) {
         if (animation.NodeAnimationCollection is { Count: > 0 }) {
             // Search all the bone skinned meshes from the common animation node root
             var node = animation.NodeAnimationCollection[0].Node;

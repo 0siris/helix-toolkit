@@ -1,12 +1,12 @@
+using HelixToolkit.SharpDX.Core.Cameras;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Model.Camera;
 
-namespace HelixToolkit.Wpf.SharpDX.Camera;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public interface IPerspectiveCameraModel {
     double FieldOfView { get; set; }

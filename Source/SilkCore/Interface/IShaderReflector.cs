@@ -1,7 +1,9 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core.Shaders;
 public interface IShaderReflector {
     FeatureLevel FeatureLevel { get; }
 
@@ -9,7 +11,7 @@ public interface IShaderReflector {
 
     Dictionary<string, TextureMapping> TextureMappings { get; }
 
-    Dictionary<string, UavMapping> UavMappings { get; }
+    Dictionary<string, UAVMapping> UavMappings { get; }
 
     Dictionary<string, SamplerMapping> SamplerMappings { get; }
 

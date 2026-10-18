@@ -1,9 +1,7 @@
-﻿using System.Windows.Media.Animation;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+using System.Windows.Media.Animation;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 

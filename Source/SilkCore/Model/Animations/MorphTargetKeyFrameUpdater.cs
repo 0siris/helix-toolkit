@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -5,10 +6,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Diagnostics;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 
-namespace HelixToolkit.SharpDX.Core.Model.Animations;
+namespace HelixToolkit.SharpDX.Core.Animations;
 public class MorphTargetKeyFrameUpdater : IAnimationUpdater {
     private readonly FastList<MorphTargetKeyframe>[] kfs;
 

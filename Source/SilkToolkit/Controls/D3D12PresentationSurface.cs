@@ -1,3 +1,6 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
 /*
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
@@ -12,19 +15,9 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Camera;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Lights;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
-using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Silk.NET.Direct3D12;
@@ -333,16 +326,16 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         CameraCore camera,
         bool testFrustum,
         bool enableShadows = true,
-        OitRenderType oitRenderType = OitRenderType.None,
+        OITRenderType oitRenderType = OITRenderType.None,
         int oitDepthPeelingIterations = 4,
         float oitWeightPower = 3,
         float oitWeightDepthSlope = 1,
-        OitWeightMode oitWeightMode = OitWeightMode.Linear1,
-        FxaaLevel fxaaLevel = FxaaLevel.None,
+        OITWeightMode oitWeightMode = OITWeightMode.Linear1,
+        FXAALevel fxaaLevel = FXAALevel.None,
         bool enableSsao = false,
         float ssaoRadius = 0.5f,
         float ssaoIntensity = 1,
-        SsaoQuality ssaoQuality = SsaoQuality.Low,
+        SSAOQuality ssaoQuality = SSAOQuality.Low,
         IEnumerable<SceneNode2D>? roots2D = null,
         bool captureFrame = false,
         bool waitForCompletion = true,
@@ -521,7 +514,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             testFrustum,
             ref frustum);
         recorded += oitRenderType switch {
-            OitRenderType.SinglePassWeighted => renderer.RenderWeightedTransparency(currentContext,
+            OITRenderType.SinglePassWeighted => renderer.RenderWeightedTransparency(currentContext,
                 transparentNodes,
                 catalog.ResolveWeightedTransparency,
                 catalog.ResolveWeightedComposition(),
@@ -536,7 +529,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                 environmentMap,
                 catalog.ResolveBoneSkinning,
                 shadowParameters),
-            OitRenderType.DepthPeeling => renderer.RenderDepthPeeling(currentContext,
+            OITRenderType.DepthPeeling => renderer.RenderDepthPeeling(currentContext,
                 transparentNodes,
                 catalog.ResolveDepthPeelingInitialization,
                 catalog.ResolveDepthPeeling,
@@ -607,7 +600,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             currentDepthStencilView,
             lights,
             environmentMap);
-        if (fxaaLevel != FxaaLevel.None)
+        if (fxaaLevel != FXAALevel.None)
             renderer.RenderFxaa(currentContext,
                 backBuffer,
                 currentSwapChain.CurrentRenderTargetView,

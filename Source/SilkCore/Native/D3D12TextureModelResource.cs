@@ -1,10 +1,10 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
 using System.Runtime.InteropServices;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;

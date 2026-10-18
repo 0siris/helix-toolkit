@@ -2,12 +2,13 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:hx="clr-namespace:HelixToolkit.Wpf.SharpDX"
-    xmlns:hxControl="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls"
-    xmlns:converters="clr-namespace:HelixToolkit.Wpf.SharpDX.Converters"
-    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D"
-    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D"
-    xmlns:elements2D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements2D"
-    xmlns:hx2D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D">
+    xmlns:hxControl="clr-namespace:HelixToolkit.Wpf.SharpDX"
+    xmlns:nativeControls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls"
+    xmlns:converters="clr-namespace:HelixToolkit.Wpf.SharpDX"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX"
+    xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX"
+    xmlns:elements2D="clr-namespace:HelixToolkit.Wpf.SharpDX.Elements2D"
+    xmlns:hx2D="clr-namespace:HelixToolkit.Wpf.SharpDX.Elements2D">
 
     <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter" />
@@ -27,7 +28,7 @@
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             DataContext="{TemplateBinding DataContext}" />
-                        <hxControl:HelixItemsControl x:Name="PART_Items">
+                        <nativeControls:HelixItemsControl x:Name="PART_Items">
                             <elements3D:ViewBoxModel3D
                                 x:Name="PART_ViewCube"
                                 EnableEdgeClick="{TemplateBinding IsViewCubeEdgeClicksEnabled}"
@@ -81,7 +82,7 @@
                                     Visibility="{TemplateBinding SubTitle,
                                                                  Converter={StaticResource NotNullToVisibilityConverter}}" />
                             </elements2D:StackPanel2D>
-                        </hxControl:HelixItemsControl>
+                        </nativeControls:HelixItemsControl>
                         <!--  Message TextBox  -->
                         <TextBox
                             Margin="6"

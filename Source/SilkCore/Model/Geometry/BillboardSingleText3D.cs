@@ -3,14 +3,13 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Thickness = HelixToolkit.SharpDX.Core.Model.Scene2D.Thickness;
 
 
-namespace HelixToolkit.SharpDX.Core.Model.Geometry;
+namespace HelixToolkit.SharpDX.Core;
 
 
 /// <summary>

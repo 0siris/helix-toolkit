@@ -1,7 +1,8 @@
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using System.IO;
 using System.Windows.Media.Imaging;
 
-namespace HelixToolkit.Wpf.SharpDX.Extensions;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public static class BitmapExtension {
     /*

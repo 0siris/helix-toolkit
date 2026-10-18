@@ -1,4 +1,4 @@
-using HelixToolkit.SharpDX.Core.Core.Buffers;
+using HelixToolkit.SharpDX.Core.Core;
 
 namespace SilkCore.Tests;
 

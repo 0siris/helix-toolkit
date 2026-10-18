@@ -1,14 +1,14 @@
-﻿// <copyright file="CrossSectionMeshGeometryModel3D.cs" company="Helix Toolkit">
+﻿using HelixToolkit.SharpDX.Core;
+// <copyright file="CrossSectionMeshGeometryModel3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2018 Helix Toolkit contributors
 // </copyright>
 
 
 using System.Collections.Generic;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Do a depth prepass before rendering.
@@ -18,7 +18,7 @@ namespace HelixToolkit.Wpf.SharpDX.Element3D;
 ///         performance.
 ///     </para>
 /// </summary>
-public sealed class DepthPrepassElement3D : Model.Elements3D.AbstractElements3D.Element3D {
+public sealed class DepthPrepassElement3D : Element3D {
     /// <summary>
     ///     Called when [create scene node].
     /// </summary>

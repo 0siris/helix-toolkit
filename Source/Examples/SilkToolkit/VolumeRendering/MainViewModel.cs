@@ -1,16 +1,10 @@
-﻿using System.IO;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.Wpf.SharpDX;
+using System.IO;
 using System.Windows.Input;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
-using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Colors = System.Windows.Media.Colors;
 using Matrix = Silk.NET.Maths.Matrix4X4<float>;
@@ -152,7 +146,7 @@ public class MainViewModel : BaseViewModel {
     }
 
     private Tuple<Material, Media3D.Transform3D> LoadNoise() {
-        var m = new VolumeTextureDds3DMaterial {
+        var m = new VolumeTextureDDS3DMaterial {
             Texture = TextureModel.Create("NoiseVolume.dds")
                       ?? throw new InvalidOperationException("The volume texture could not be loaded."),
             Color = new Color4(1, 1, 1, 0.01f)

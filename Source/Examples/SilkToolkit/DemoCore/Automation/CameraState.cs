@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CameraState.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -7,11 +8,10 @@
 namespace DemoCore.Automation;
 
 using System.Windows.Media.Media3D;
-using HelixToolkit.Wpf.SharpDX.Camera;
-using Camera = HelixToolkit.Wpf.SharpDX.Camera.Camera;
-using ProjectionCamera = HelixToolkit.Wpf.SharpDX.Camera.ProjectionCamera;
-using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.Camera.PerspectiveCamera;
-using OrthographicCamera = HelixToolkit.Wpf.SharpDX.Camera.OrthographicCamera;
+using Camera = HelixToolkit.Wpf.SharpDX.Camera;
+using ProjectionCamera = HelixToolkit.Wpf.SharpDX.ProjectionCamera;
+using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.PerspectiveCamera;
+using OrthographicCamera = HelixToolkit.Wpf.SharpDX.OrthographicCamera;
 
 /// <summary>
 ///     JSON-serialisierbarer Kamerazustand für REST und MCP. Null-Felder bedeuten "behalten".

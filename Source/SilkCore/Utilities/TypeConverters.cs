@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core.Utilities;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -5,9 +6,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.ComponentModel;
 using System.Globalization;
-using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.SharpDX.Core.Utilities;
+namespace HelixToolkit.SharpDX.Core;
 
 public sealed class StreamToTextureModelConverter : TypeConverter {
     public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)

@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Animations;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -148,26 +150,28 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Runtime.InteropServices;
 using System.Text;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Animations;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.ImportExport;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core
+{
 using PhongMaterial = PhongMaterialCore;
 
-public class AnimationHierarchy : IGuid {
+public class AnimationHierarchy : IGUID {
     public Dictionary<string, Animation> Animations = [];
     public List<Bone> Bones = [];
     public List<Object3D> Meshes = [];
     public Guid Guid { get; } = Guid.NewGuid();
 }
 
+}
+namespace HelixToolkit.SharpDX.Core
+{
+using PhongMaterial = PhongMaterialCore;
 
-public class CmoReader : IModelReader {
+
+public class CMOReader : IModelReader {
     public const int MaxBoneInfluences = 4; // 4 bone influences are supported
     public const int MaxTextures = 8;       // 8 unique textures are supported.
 
@@ -227,7 +231,7 @@ public class CmoReader : IModelReader {
             var uvTransform = reader.ReadStructure<Matrix>();
             if (uvTransform == default) uvTransform = Matrix.Identity;
             uvTransform.Decompose(out var s, out var r, out var tra);
-            material.UvTransform = new UvTransform(SilkMath.QuaternionAngle(r),
+            material.UvTransform = new UVTransform(SilkMath.QuaternionAngle(r),
                                                    new Vector2(s.X, s.Y),
                                                    new Vector2(tra.X, tra.Y));
             reader.ReadCMO_wchar(); // Not used
@@ -441,6 +445,11 @@ public class CmoReader : IModelReader {
     }
 }
 
+}
+namespace HelixToolkit.SharpDX.Core
+{
+using PhongMaterial = PhongMaterialCore;
+
 public static class BinaryReaderExtensions {
         /// <summary>
         ///     Loads a string from the CMO file (WCHAR prefixed with uint length)
@@ -503,4 +512,6 @@ public static class BinaryReaderExtensions {
         handle.Free();
         return stuff;
     }
+}
+
 }

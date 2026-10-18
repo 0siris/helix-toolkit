@@ -1,4 +1,4 @@
-namespace HelixToolkit.SharpDX.Core.Geometry;
+namespace HelixToolkit.SharpDX.Core;
 
 using Matrix3D = Matrix;
 using Point = Vector2;

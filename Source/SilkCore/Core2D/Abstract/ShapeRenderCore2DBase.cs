@@ -6,7 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Core2D.Abstract;
+namespace HelixToolkit.SharpDX.Core.Core2D;
 
 public abstract class ShapeRenderCore2DBase : RenderCore2DBase {
     private Brush? fillBrush;

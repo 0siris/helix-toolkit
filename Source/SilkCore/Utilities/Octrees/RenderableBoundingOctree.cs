@@ -1,9 +1,8 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
+namespace HelixToolkit.SharpDX.Core.Utilities;
 
 public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     /// <summary>

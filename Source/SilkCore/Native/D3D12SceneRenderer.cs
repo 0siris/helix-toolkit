@@ -1,25 +1,16 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
 /*
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Core.Abstract;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Lights;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
-using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using Silk.NET.DXGI;
-using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
 using HelixToolkit.SharpDX.Core.Shaders;
 
 namespace HelixToolkit.SharpDX.Core.Native;
@@ -395,13 +386,13 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         SilkD3D12Descriptor mainRenderTarget,
         ShaderPass lumaPass,
         ShaderPass fxaaPass,
-        FxaaLevel level,
+        FXAALevel level,
         in GlobalTransformStruct transforms,
         uint width,
         uint height
     ) {
         using var profile = D3D12Profiler.Begin(context, "Silk.FXAA");
-        if (level == FxaaLevel.None) return;
+        if (level == FXAALevel.None) return;
         postProcessResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
         var parameters = CreateFxaaParameters(level, width, height);
         postProcessResources.Capture(context, mainColor, width, height);
@@ -482,15 +473,15 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <param name="width">The non-zero target width.</param>
     /// <param name="height">The non-zero target height.</param>
     /// <returns>The complete FXAA constants.</returns>
-    internal static BorderEffectStruct CreateFxaaParameters(FxaaLevel level, uint width, uint height) {
+    internal static BorderEffectStruct CreateFxaaParameters(FXAALevel level, uint width, uint height) {
         ArgumentOutOfRangeException.ThrowIfZero(width);
         ArgumentOutOfRangeException.ThrowIfZero(height);
         var result = new BorderEffectStruct { Color = new Color4(1f / width, 1f / height, 0, 0) };
         (result.Param.M11, result.Param.M12, result.Param.M13) = level switch {
-            FxaaLevel.Low => (0.25f, 0.250f, 0.0833f),
-            FxaaLevel.Medium => (0.50f, 0.166f, 0.0625f),
-            FxaaLevel.High => (0.75f, 0.125f, 0.0625f),
-            FxaaLevel.Ultra => (1.00f, 0.063f, 0.0312f),
+            FXAALevel.Low => (0.25f, 0.250f, 0.0833f),
+            FXAALevel.Medium => (0.50f, 0.166f, 0.0625f),
+            FXAALevel.High => (0.75f, 0.125f, 0.0625f),
+            FXAALevel.Ultra => (1.00f, 0.063f, 0.0312f),
             _ => throw new ArgumentOutOfRangeException(nameof(level))
         };
         return result;
@@ -525,11 +516,11 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         ref BoundingFrustum frustum,
         uint width,
         uint height,
-        SsaoQuality quality,
+        SSAOQuality quality,
         float radius
     ) {
         using var profile = D3D12Profiler.Begin(context, "Silk.SSAO");
-        var scale = quality == SsaoQuality.High ? 1 : 2;
+        var scale = quality == SSAOQuality.High ? 1 : 2;
         var targetWidth = Math.Max(1u, width / (uint)scale);
         var targetHeight = Math.Max(1u, height / (uint)scale);
         ssaoResources ??= new SilkD3D12SsaoResources(Device, resourceHeap, samplerHeap);
@@ -924,7 +915,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             if (node.RenderCore is MeshRenderCore shadowedMesh) {
                 var usesShadow = shadowParameters.HasValue && shadowedMesh.D3D12Material is
                     ID3D12MeshMaterial { RenderShadowMap: true } or
-                    PhongMaterialCore { RenderShadowMap: true } or PbrMaterialCore { RenderShadowMap: true };
+                    PhongMaterialCore { RenderShadowMap: true } or PBRMaterialCore { RenderShadowMap: true };
                 var parameters = usesShadow ? shadowParameters.GetValueOrDefault() : default;
                 drawMeshBindings!.UpdateShadow(in parameters,
                     usesShadow ? shadowMap?.Resource : null);

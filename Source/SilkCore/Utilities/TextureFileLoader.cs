@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2021 Helix Toolkit contributors
@@ -5,7 +6,6 @@ Copyright (c) 2021 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Logger;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Utilities;

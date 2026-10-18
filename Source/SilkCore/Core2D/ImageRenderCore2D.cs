@@ -1,12 +1,11 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 //#define DEBUGBOUNDS
 
-using HelixToolkit.SharpDX.Core.Core2D.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
 
 namespace HelixToolkit.SharpDX.Core.Core2D;
 public class ImageRenderCore2D : RenderCore2DBase {

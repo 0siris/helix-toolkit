@@ -1,14 +1,13 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
+namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 public partial class SceneNode2D {
 #pragma warning disable
 

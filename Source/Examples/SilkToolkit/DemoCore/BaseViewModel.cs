@@ -1,4 +1,6 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BaseViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
@@ -8,7 +10,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.Wpf.SharpDX.Camera;
 
 namespace DemoCore;
 

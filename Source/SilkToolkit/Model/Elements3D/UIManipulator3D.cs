@@ -1,3 +1,6 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.Wpf.SharpDX.Model;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="UIManipulator3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -12,29 +15,25 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 using Transform3D = Transform3D;
 
 /// <summary>
 ///     An abstract base class for manipulators.
 /// </summary>
-public abstract class UiManipulator3D : MeshGeometryModel3D {
+public abstract class UIManipulator3D : MeshGeometryModel3D {
     /// <summary>
     ///     The target transform property.
     ///     Bind the Tranform of the Target to this Property
     /// </summary>
     public static readonly DependencyProperty TargetTransformProperty = DependencyProperty.Register("TargetTransform",
         typeof(Transform3D),
-        typeof(UiManipulator3D),
+        typeof(UIManipulator3D),
         new FrameworkPropertyMetadata(null,
                                       FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                                       (d, _) => {
@@ -48,7 +47,7 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     public static readonly DependencyProperty OffsetProperty = DependencyProperty.Register(
         "Offset",
         typeof(Vector3),
-        typeof(UiManipulator3D),
+        typeof(UIManipulator3D),
         new PropertyMetadata(new Vector3(0, 0, 0), ModelChanged));
 
     /// <summary>
@@ -56,14 +55,14 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     /// </summary>
     public static readonly DependencyProperty ValueProperty = DependencyProperty.Register("Value",
         typeof(double),
-        typeof(UiManipulator3D),
+        typeof(UIManipulator3D),
         new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, ValueChanged));
 
     protected new bool IsMouseCaptured;
     protected Vector3 LastHitPosWs, CameraNormal;
     protected Viewport3DX? Viewport;
 
-    public UiManipulator3D() {
+    public UIManipulator3D() {
         OnSceneNodeCreated += UIManipulator3D_OnSceneNodeCreated;
     }
 
@@ -126,7 +125,7 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     ///     The <see cref="System.Windows.DependencyPropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
     private static void ValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        if (d is UiManipulator3D m) {
+        if (d is UIManipulator3D m) {
             m.OnValueChanged(e);
             m.InvalidateRender();
         }
@@ -137,7 +136,7 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     /// <param name="d"></param>
     /// <param name="e"></param>
     private static void OffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        if (d is UiManipulator3D m) {
+        if (d is UIManipulator3D m) {
             m.OnOffetChanged(e);
             m.InvalidateRender();
         }
@@ -149,7 +148,7 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     /// <param name="source">
     ///     Source Visual3D which receives the manipulator transforms.
     /// </param>
-    public void Bind(AbstractElements3D.Element3D source) {
+    public void Bind(global::HelixToolkit.Wpf.SharpDX.Element3D source) {
         BindingOperations.SetBinding(this, TargetTransformProperty, new Binding("Transform") { Source = source });
         BindingOperations.SetBinding(this, TransformProperty, new Binding("Transform") { Source = source });
     }
@@ -248,7 +247,7 @@ public abstract class UiManipulator3D : MeshGeometryModel3D {
     ///     The <see cref="System.Windows.DependencyPropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
     protected static void ModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        if (d is UiManipulator3D {IsAttached: true} m) {
+        if (d is UIManipulator3D {IsAttached: true} m) {
             m.OnModelChanged();
             m.InvalidateRender();
         }

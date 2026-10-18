@@ -1,10 +1,10 @@
+using HelixToolkit.SharpDX.Core.Helper;
 /*
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
 using System.Security.Cryptography;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
@@ -90,7 +90,7 @@ public sealed class D3D12ShaderModule {
         return new D3D12ShaderModule(stage,
             name,
             resolvedEntryPoint,
-            UwpShaderBytePool.ReadDxil(stage, name, resolvedEntryPoint));
+            UWPShaderBytePool.ReadDxil(stage, name, resolvedEntryPoint));
     }
 }
 

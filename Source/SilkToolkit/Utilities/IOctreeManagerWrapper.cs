@@ -1,7 +1,8 @@
-﻿using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX.Utilities;
+using HelixToolkit.SharpDX.Core.Interface;
 
-namespace HelixToolkit.Wpf.SharpDX.Utilities;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// </summary>

@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MeshBuilder.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -8,11 +9,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Diagnostics;
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.SharpDX.Core.Geometry;
+namespace HelixToolkit.SharpDX.Core;
 
 using DoubleOrSingle = float;
 using Int32Collection = IntCollection;

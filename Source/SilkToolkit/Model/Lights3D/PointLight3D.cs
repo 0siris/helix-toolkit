@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX.Model;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="PointLight3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -6,12 +8,9 @@
 
 using System.Windows;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Scene.Lights;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Lights3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public class PointLight3D : Light3D {
     public static readonly DependencyProperty AttenuationProperty =

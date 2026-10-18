@@ -1,4 +1,4 @@
-﻿using HelixToolkit.SharpDX.Core.Geometry;
+﻿using HelixToolkit.SharpDX.Core;
 
 namespace SimpleDemo;
 

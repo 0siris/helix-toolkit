@@ -1,10 +1,9 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
 using DemoCore.Automation;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 
 namespace PolygonTriangulationDemo;
 

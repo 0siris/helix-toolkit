@@ -1,7 +1,7 @@
+using HelixToolkit.SharpDX.Core;
 using System.Runtime.InteropServices;
 using System.Text;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
@@ -218,7 +218,7 @@ public class D3D12TextureModelTests {
         var nonCubeLoader = new TrackingTextureLoader(new TextureInfo(nonCubeStream, false));
         var model = new TextureModel(Guid.NewGuid(), loader);
         var nonCubeModel = new TextureModel(Guid.NewGuid(), nonCubeLoader);
-        var lights = new HelixToolkit.SharpDX.Core.Model.Lights.LightsBufferModel();
+        var lights = new HelixToolkit.SharpDX.Core.Model.LightsBufferModel();
 
         context.Reset();
         Assert.Same(model, renderer.PrepareEnvironment(context, lights, model));

@@ -1,9 +1,8 @@
+using HelixToolkit.Wpf.SharpDX.Core2D;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
-using HelixToolkit.Wpf.SharpDX.Element2D;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 /// <summary>
 ///     Position content using relative position.
 ///     <para>

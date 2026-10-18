@@ -10,10 +10,8 @@
 using System.Diagnostics;
 using System.Text;
 using HelixToolkit.SharpDX.Core.Helper;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.SharpDX.Core.Geometry;
+namespace HelixToolkit.SharpDX.Core;
 
 using DoubleOrSingle = float;
 using Int32Collection = IntCollection;

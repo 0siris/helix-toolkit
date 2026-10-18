@@ -7,7 +7,7 @@ using System.Globalization;
 using System.Text;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.SharpDX.Core.Model.Collection;
+namespace HelixToolkit.SharpDX.Core;
 
 public sealed class IntCollection : FastList<int> {
     public IntCollection() { }

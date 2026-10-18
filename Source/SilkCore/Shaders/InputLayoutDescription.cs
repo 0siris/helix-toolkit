@@ -1,10 +1,10 @@
+using HelixToolkit.SharpDX.Core.Helper;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Runtime.Serialization;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Shaders;
@@ -17,7 +17,7 @@ public sealed class InputLayoutDescription {
     /// </summary>
     public static readonly InputLayoutDescription EmptyInputLayout = new();
 
-    private readonly IShaderByteCodeReader byteCodeReader = UwpShaderBytePool.InternalByteCodeReader;
+    private readonly IShaderByteCodeReader byteCodeReader = UWPShaderBytePool.InternalByteCodeReader;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="InputLayoutDescription" /> class.
@@ -43,7 +43,7 @@ public sealed class InputLayoutDescription {
     ) {
         ShaderByteCodeName = byteCodeName;
         InputElements = elements;
-        this.byteCodeReader = byteCodeReader ?? UwpShaderBytePool.InternalByteCodeReader;
+        this.byteCodeReader = byteCodeReader ?? UWPShaderBytePool.InternalByteCodeReader;
     }
 
     /// <summary>
@@ -62,8 +62,8 @@ public sealed class InputLayoutDescription {
         get {
             if (field == null && ShaderByteCodeName is { } name) {
                 var entryPoint = D3D12ShaderManifest.ResolveEntryPoint("VS", name);
-                field = ReferenceEquals(byteCodeReader, UwpShaderBytePool.InternalByteCodeReader)
-                    ? UwpShaderBytePool.ReadDxil("VS", name, entryPoint)
+                field = ReferenceEquals(byteCodeReader, UWPShaderBytePool.InternalByteCodeReader)
+                    ? UWPShaderBytePool.ReadDxil("VS", name, entryPoint)
                     : byteCodeReader.ReadDxil("VS", name, entryPoint);
             }
             return field;

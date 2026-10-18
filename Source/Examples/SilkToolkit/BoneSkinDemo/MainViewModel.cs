@@ -1,3 +1,7 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX;
 /*
 Model: Sphere Bot Rusty Version. Author: 3DHaupt. Source : https://sketchfab.com/models/d18753fe3e494ddbbc52a8a2e58be7a4
 Model: Character. Source : https://github.com/spazzarama/Direct3D-Rendering-Cookbook
@@ -7,12 +11,7 @@ using System.Diagnostics;
 using DemoCore;
 using HelixToolkit.SharpDX.Core.Assimp;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 using Media3D = System.Windows.Media.Media3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;

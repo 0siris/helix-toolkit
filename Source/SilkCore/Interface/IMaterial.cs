@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core.Interface;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -5,7 +6,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.ComponentModel;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>

@@ -1,5 +1,16 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-18 — Restore original public CLR and XAML namespaces
+
+* Restored original toolkit type namespaces from the selected original Core/WPF/Assimp project imports.
+* Restored original acronym spelling for 32 types; native Silk-only types and Silk assembly names remain.
+* Updated source consumers, examples, global imports and templates mechanically; no wrapper type hierarchy
+  or new preprocessor switches were introduced. No renderer algorithm or shader body was replaced.
+* Thirteen headless CLR/XAML schema compatibility cases pass. MeshDesktop builds against the restored types.
+* All three toolkit test projects compile. Assimp has 76 passing cases and two native glTF-key assertions that
+  fail before any toolkit importer is called; those prerequisite failures are recorded separately.
+* Original application member compatibility and rendering acceptance continue as a separate integration stage.
+
 ## 2026-10-18 — Attached 2D startup invalidation
 
 * A visible Desktop startup reproduced a stack overflow in mutually recursive render/visual invalidation.

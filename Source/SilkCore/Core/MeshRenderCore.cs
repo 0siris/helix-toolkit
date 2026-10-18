@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -5,15 +6,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 
 using System.Diagnostics.CodeAnalysis;
-using HelixToolkit.SharpDX.Core.Core.Abstract;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Lights;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Shaders;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 
@@ -125,7 +121,7 @@ public class MeshRenderCore : GeometryRenderCore, IMeshRenderParams, IDynamicRef
     internal MaterialCore? D3D12Material { get; set; }
 
     /// Gets or sets the actual scene owner used by application material parameter binding.
-    internal HelixToolkit.SharpDX.Core.Model.Scene.Abstract.SceneNode? D3D12SceneNode { get; set; }
+    internal HelixToolkit.SharpDX.Core.Model.Scene.SceneNode? D3D12SceneNode { get; set; }
 
     /// <summary>
     ///     Gets the productive opaque DX12 pass name selected by the existing material.

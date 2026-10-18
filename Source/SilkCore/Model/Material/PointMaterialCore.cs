@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -6,7 +8,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Interface;
 
-namespace HelixToolkit.SharpDX.Core.Model.Material;
+namespace HelixToolkit.SharpDX.Core.Model;
 public class PointMaterialCore : MaterialCore, IPointRenderParams {
     public bool EnableDistanceFading {
         get;

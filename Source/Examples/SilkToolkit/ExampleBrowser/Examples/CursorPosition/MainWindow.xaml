@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
         xmlns:cursorPosition="clr-namespace:ExampleBrowser.Examples.CursorPosition"
-        xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
-        xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
-        xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
+        xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+        xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+        xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
         Title="CursorPositionDemo" Height="480" Width="640">
     <Window.DataContext>
         <cursorPosition:MainViewModel />

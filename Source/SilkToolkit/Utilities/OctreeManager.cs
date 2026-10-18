@@ -1,3 +1,6 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.Wpf.SharpDX.Utilities;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OctreeManager.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -9,9 +12,8 @@ using System;
 using System.Windows;
 using System.Windows.Threading;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
-namespace HelixToolkit.Wpf.SharpDX.Utilities;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// </summary>

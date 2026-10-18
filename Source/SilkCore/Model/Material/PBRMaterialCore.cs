@@ -1,14 +1,16 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Shaders;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Model.Material;
-public class PbrMaterialCore : MaterialCore {
+namespace HelixToolkit.SharpDX.Core.Model;
+public class PBRMaterialCore : MaterialCore {
     /// <summary>
     ///     Gets or sets the color of the albedo.
     /// </summary>
@@ -330,10 +332,10 @@ public class PbrMaterialCore : MaterialCore {
     /// <value>
     ///     The uv transform.
     /// </value>
-    public UvTransform UvTransform {
+    public UVTransform UvTransform {
         get;
         set => Set(ref field, value);
-    } = UvTransform.Identity;
+    } = UVTransform.Identity;
 
     /// <summary>
     ///     Gets or sets the surface map sampler.

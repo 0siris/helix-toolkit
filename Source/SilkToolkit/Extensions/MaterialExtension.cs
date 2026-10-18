@@ -1,9 +1,10 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.Wpf.SharpDX.Extensions;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.Wpf.SharpDX.Material;
 
-namespace HelixToolkit.Wpf.SharpDX.Extensions;
+namespace HelixToolkit.Wpf.SharpDX;
 public static class MaterialExtension {
     [return: NotNullIfNotNull(nameof(core))]
     public static PhongMaterial? ConvertToPhongMaterial(this PhongMaterialCore? core) => core == null
@@ -43,9 +44,9 @@ public static class MaterialExtension {
         };
 
     [return: NotNullIfNotNull(nameof(core))]
-    public static PbrMaterial? ConvertToPbrMaterial(this PbrMaterialCore? core) => core == null
+    public static PBRMaterial? ConvertToPbrMaterial(this PBRMaterialCore? core) => core == null
         ? null
-        : new PbrMaterial {
+        : new PBRMaterial {
             AlbedoColor = core.AlbedoColor,
             MetallicFactor = core.MetallicFactor,
             RoughnessFactor = core.RoughnessFactor,
@@ -86,10 +87,10 @@ public static class MaterialExtension {
             MinTessellationDistance = core.MinTessellationDistance
         };
 
-    public static Material.Material ConvertToMaterial(this MaterialCore core) {
+    public static Material ConvertToMaterial(this MaterialCore core) {
         if (core is PhongMaterialCore p) return p.ConvertToPhongMaterial();
 
-        if (core is PbrMaterialCore pbr) return pbr.ConvertToPbrMaterial();
+        if (core is PBRMaterialCore pbr) return pbr.ConvertToPbrMaterial();
 
         throw new NotSupportedException("Current material core to material conversion has not been supported yet.");
     }

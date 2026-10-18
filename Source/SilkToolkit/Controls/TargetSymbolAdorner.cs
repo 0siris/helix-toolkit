@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX.Controls;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TargetSymbolAdorner.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -13,7 +14,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using WpfSolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     A Target symbol adorner. This is shown in the HelixViewport3D when manipulating the camera with the mouse.

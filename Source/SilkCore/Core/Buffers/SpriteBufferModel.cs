@@ -1,12 +1,12 @@
-﻿using HelixToolkit.SharpDX.Core.Interface;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Core.Buffers;
+namespace HelixToolkit.SharpDX.Core.Core;
 
-public sealed class Sprite2DBufferModel : DisposeObject, IGuid, IAttachableBufferModel {
+public sealed class Sprite2DBufferModel : DisposeObject, IGUID, IAttachableBufferModel {
     [System.Diagnostics.CodeAnalysis.AllowNull]
     private IElementsBufferProxy indexBuffer = new DynamicBufferProxy(sizeof(int), BindFlags.IndexBuffer);
     public int SpriteCount;

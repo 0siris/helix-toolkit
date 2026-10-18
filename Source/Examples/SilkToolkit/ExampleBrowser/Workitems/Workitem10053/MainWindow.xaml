@@ -7,11 +7,11 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
         xmlns:workitem10053="clr-namespace:ExampleBrowser.Workitems.Workitem10053"
-        xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls;assembly=SilkToolkit"
-        xmlns:mouseHandlers="clr-namespace:HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;assembly=SilkToolkit"
-        xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Lights3D;assembly=SilkToolkit"
-        xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Element3D;assembly=SilkToolkit"
-        xmlns:materials="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Materials;assembly=SilkToolkit"
+        xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+        xmlns:mouseHandlers="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+        xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+        xmlns:element3D="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
+        xmlns:materials="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
         mc:Ignorable="d"
         Title="SharpDX in WPF (Workitem 10053)" Height="500" Width="800">
     <Window.DataContext>

@@ -1,19 +1,17 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX.Model;
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Scene.PostEffects;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D.PostEffects;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 /// </summary>
 /// <seealso cref="Element3D" />
-public class PostEffectMeshXRay : Model.Elements3D.AbstractElements3D.Element3D {
+public class PostEffectMeshXRay : Element3D {
     protected override SceneNode OnCreateSceneNode() => new NodePostEffectXRay();
 
     /// <summary>

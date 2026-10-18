@@ -1,18 +1,13 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Camera;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Material;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 
 namespace LightingDemo;
 
@@ -142,15 +137,15 @@ public class MainViewModel : BaseViewModel {
         get => ModelMaterial.EmissiveColor.ToColor();
     }
 
-    public MsaaLevel Msaa { set; get; } = MsaaLevel.Disable;
+    public MSAALevel Msaa { set; get; } = MSAALevel.Disable;
 
-    public MsaaLevel[] MsaAs { get; } =
-        [MsaaLevel.Disable, MsaaLevel.Two, MsaaLevel.Four, MsaaLevel.Eight, MsaaLevel.Maximum];
+    public MSAALevel[] MsaAs { get; } =
+        [MSAALevel.Disable, MSAALevel.Two, MSAALevel.Four, MSAALevel.Eight, MSAALevel.Maximum];
 
-    public FxaaLevel Fxaa { set; get; } = FxaaLevel.None;
+    public FXAALevel Fxaa { set; get; } = FXAALevel.None;
 
-    public FxaaLevel[] FxaAs { get; } =
-        [FxaaLevel.None, FxaaLevel.Low, FxaaLevel.Medium, FxaaLevel.High, FxaaLevel.Ultra];
+    public FXAALevel[] FxaAs { get; } =
+        [FXAALevel.None, FXAALevel.Low, FXAALevel.Medium, FXAALevel.High, FXAALevel.Ultra];
 
     public Camera Camera2 { get; } = new PerspectiveCamera {
         Position = new Point3D(8, 9, 7),

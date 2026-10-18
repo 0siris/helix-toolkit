@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -6,10 +7,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.Buffers;
+namespace HelixToolkit.SharpDX.Core.Utilities;
 /// <summary>
 /// </summary>
-public class BitmapProxy : DisposeObject, IGuid {
+public class BitmapProxy : DisposeObject, IGUID {
     [System.Diagnostics.CodeAnalysis.AllowNull]
     private D2DBitmap bitmap;
 

@@ -1,14 +1,14 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.UWP;
 
-namespace HelixToolkit.SharpDX.Core.Core.Buffers;
+namespace HelixToolkit.SharpDX.Core.Core;
 
 /// <summary>
 ///     Shares reference-counted geometry buffers by buffer type and geometry identifier.

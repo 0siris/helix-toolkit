@@ -1,8 +1,6 @@
+using HelixToolkit.SharpDX.Core;
 using System.Runtime.InteropServices;
-using HelixToolkit.SharpDX.Core.Core.Buffers;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Core.Abstract;
 
 namespace HelixToolkit.SharpDX.Core.Core;
 /// <summary>Identifies an original triangle pair and the caller's correlation ID in the source 16-byte layout.</summary>

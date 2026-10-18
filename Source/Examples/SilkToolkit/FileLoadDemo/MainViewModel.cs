@@ -1,3 +1,7 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Animations;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.Wpf.SharpDX;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MainViewModel.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -5,14 +9,9 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.Wpf.SharpDX.Camera;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using AnimationExtensions = HelixToolkit.SharpDX.Core.Extensions.AnimationExtensions;
-using SceneNodeExtensions = HelixToolkit.SharpDX.Core.Extensions.SceneNodeExtensions;
+using AnimationExtensions = HelixToolkit.SharpDX.Core.AnimationExtensions;
+using SceneNodeExtensions = HelixToolkit.SharpDX.Core.SceneNodeExtensions;
 
 namespace FileLoadDemo;
 
@@ -60,7 +59,7 @@ public class MainViewModel : BaseViewModel {
         set {
             if (SetValue(ref field, value) && scene?.Root is { } root) {
                 foreach (var node in root.Traverse()) {
-                    if (node is MaterialGeometryNode {Material: PbrMaterialCore material}) {
+                    if (node is MaterialGeometryNode {Material: PBRMaterialCore material}) {
                         material.RenderEnvironmentMap = value;
                     }
                 }
@@ -283,7 +282,7 @@ public class MainViewModel : BaseViewModel {
                         foreach (var node in loadedScene.Root.Traverse()) {
                             if (node is MaterialGeometryNode m) {
                                 //m.Geometry.SetAsTransient();
-                                if (m.Material is PbrMaterialCore pbr) {
+                                if (m.Material is PBRMaterialCore pbr) {
                                     pbr.RenderEnvironmentMap = RenderEnvironmentMap;
                                 } else if (m.Material is PhongMaterialCore phong) {
                                     phong.RenderEnvironmentMap = RenderEnvironmentMap;
@@ -391,7 +390,7 @@ public class MainViewModel : BaseViewModel {
             if (node is MeshNode m) {
                 if (m.Material is PhongMaterialCore phong) {
                     phong.EnableFlatShading = show;
-                } else if (m.Material is PbrMaterialCore pbr) {
+                } else if (m.Material is PBRMaterialCore pbr) {
                     pbr.EnableFlatShading = show;
                 }
             }

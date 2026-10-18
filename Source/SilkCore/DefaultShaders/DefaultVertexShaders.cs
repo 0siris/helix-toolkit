@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -7,10 +8,12 @@ using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Shaders;
 
-namespace HelixToolkit.SharpDX.Core.DefaultShaders;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core.Shaders
+{
 /// <summary>
 /// </summary>
-public static class DefaultVsShaderByteCodes {
+public static class DefaultVSShaderByteCodes {
     /// <summary>
     /// </summary>
     public static string VsMeshDefault { get; } = "vsMeshDefault";
@@ -143,6 +146,10 @@ public static class DefaultVsShaderByteCodes {
     public static string VsScreenDupCursor { get; } = "vsScreenDupCursor";
 #endif
 }
+
+}
+namespace HelixToolkit.SharpDX.Core.Shaders
+{
 
 
 /// <summary>
@@ -506,29 +513,33 @@ public static class DefaultInputLayout {
     ];
 }
 
+}
+namespace HelixToolkit.SharpDX.Core.Shaders
+{
+
 /// <summary>
 /// </summary>
-public static class DefaultVsShaderDescriptions {
+public static class DefaultVSShaderDescriptions {
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsMeshDefault = new(nameof(VsMeshDefault),
                                                                  ShaderStage.Vertex,
                                                                  new ShaderReflector(),
-                                                                 DefaultVsShaderByteCodes.VsMeshDefault);
+                                                                 DefaultVSShaderByteCodes.VsMeshDefault);
 
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsMeshBatched = new(nameof(VsMeshBatched),
                                                                  ShaderStage.Vertex,
                                                                  new ShaderReflector(),
-                                                                 DefaultVsShaderByteCodes.VsMeshBatched);
+                                                                 DefaultVSShaderByteCodes.VsMeshBatched);
 
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsMeshTessellation = new(nameof(VsMeshTessellation),
                                                                       ShaderStage.Vertex,
                                                                       new ShaderReflector(),
-                                                                      DefaultVsShaderByteCodes
+                                                                      DefaultVSShaderByteCodes
                                                                           .VsMeshTessellation);
 
     /// <summary>
@@ -536,7 +547,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsMeshShadow = new(nameof(VsMeshShadow),
                                                                 ShaderStage.Vertex,
                                                                 new ShaderReflector(),
-                                                                DefaultVsShaderByteCodes.VsMeshShadow);
+                                                                DefaultVSShaderByteCodes.VsMeshShadow);
 
     /// <summary>
     ///     The vs mesh ssao
@@ -544,14 +555,14 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsMeshSsao = new(nameof(VsMeshSsao),
                                                               ShaderStage.Vertex,
                                                               new ShaderReflector(),
-                                                              DefaultVsShaderByteCodes.VsMeshSsao);
+                                                              DefaultVSShaderByteCodes.VsMeshSsao);
 
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsMeshBatchedShadow = new(nameof(VsMeshBatchedShadow),
                                                                        ShaderStage.Vertex,
                                                                        new ShaderReflector(),
-                                                                       DefaultVsShaderByteCodes
+                                                                       DefaultVSShaderByteCodes
                                                                            .VsMeshBatchedShadow);
 
     /// <summary>
@@ -559,7 +570,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsMeshBatchedSsao = new(nameof(VsMeshBatchedSsao),
                                                                      ShaderStage.Vertex,
                                                                      new ShaderReflector(),
-                                                                     DefaultVsShaderByteCodes
+                                                                     DefaultVSShaderByteCodes
                                                                          .VsMeshBatchedSsao);
 
     /// <summary>
@@ -567,7 +578,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsMeshInstancing = new(nameof(VsMeshInstancing),
                                                                     ShaderStage.Vertex,
                                                                     new ShaderReflector(),
-                                                                    DefaultVsShaderByteCodes.VsMeshInstancing);
+                                                                    DefaultVSShaderByteCodes.VsMeshInstancing);
 
     /// <summary>
     /// </summary>
@@ -575,7 +586,7 @@ public static class DefaultVsShaderDescriptions {
         nameof(VsMeshInstancingTessellation),
         ShaderStage.Vertex,
         new ShaderReflector(),
-        DefaultVsShaderByteCodes.VsMeshInstancingTessellation);
+        DefaultVSShaderByteCodes.VsMeshInstancingTessellation);
 
     /// <summary>
     ///     The vs mesh bone skinned basic
@@ -583,49 +594,49 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsMeshBoneSkinnedBasic = new(nameof(VsMeshBoneSkinnedBasic),
         ShaderStage.Vertex,
         new ShaderReflector(),
-        DefaultVsShaderByteCodes.VsMeshBoneSkinningBasic);
+        DefaultVSShaderByteCodes.VsMeshBoneSkinningBasic);
 
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsPoint = new(nameof(VsPoint),
                                                            ShaderStage.Vertex,
                                                            new ShaderReflector(),
-                                                           DefaultVsShaderByteCodes.VsPoint);
+                                                           DefaultVSShaderByteCodes.VsPoint);
 
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsPointShadow = new(nameof(VsPointShadow),
                                                                  ShaderStage.Vertex,
                                                                  new ShaderReflector(),
-                                                                 DefaultVsShaderByteCodes.VsPointShadow);
+                                                                 DefaultVSShaderByteCodes.VsPointShadow);
 
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsBillboardText = new(nameof(VsBillboardText),
                                                                    ShaderStage.Vertex,
                                                                    new ShaderReflector(),
-                                                                   DefaultVsShaderByteCodes.VsBillboard);
+                                                                   DefaultVSShaderByteCodes.VsBillboard);
 
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsBillboardInstancing = new(nameof(VsBillboardInstancing),
         ShaderStage.Vertex,
         new ShaderReflector(),
-        DefaultVsShaderByteCodes.VsBillboardInstancing);
+        DefaultVSShaderByteCodes.VsBillboardInstancing);
 
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsMeshClipPlane = new(nameof(VsMeshClipPlane),
                                                                    ShaderStage.Vertex,
                                                                    new ShaderReflector(),
-                                                                   DefaultVsShaderByteCodes.VsMeshClipPlane);
+                                                                   DefaultVSShaderByteCodes.VsMeshClipPlane);
 
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsFullScreenQuad = new(nameof(VsFullScreenQuad),
                                                                     ShaderStage.Vertex,
                                                                     new ShaderReflector(),
-                                                                    DefaultVsShaderByteCodes
+                                                                    DefaultVSShaderByteCodes
                                                                         .VsMeshClipPlaneQuad);
 
     /// <summary>
@@ -633,14 +644,14 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsParticle = new(nameof(VsParticle),
                                                               ShaderStage.Vertex,
                                                               new ShaderReflector(),
-                                                              DefaultVsShaderByteCodes.VsParticle);
+                                                              DefaultVSShaderByteCodes.VsParticle);
 
     /// <summary>
     /// </summary>
     public static readonly ShaderDescription VsSkybox = new(nameof(VsSkybox),
                                                             ShaderStage.Vertex,
                                                             new ShaderReflector(),
-                                                            DefaultVsShaderByteCodes.VsSkybox);
+                                                            DefaultVSShaderByteCodes.VsSkybox);
 
     /// <summary>
     ///     The vs mesh wireframe
@@ -648,7 +659,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsMeshWireframe = new(nameof(VsMeshWireframe),
                                                                    ShaderStage.Vertex,
                                                                    new ShaderReflector(),
-                                                                   DefaultVsShaderByteCodes.VsMeshWireframe);
+                                                                   DefaultVSShaderByteCodes.VsMeshWireframe);
 
     /// <summary>
     ///     The vs mesh depth
@@ -656,7 +667,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsMeshDepth = new(nameof(VsMeshDepth),
                                                                ShaderStage.Vertex,
                                                                new ShaderReflector(),
-                                                               DefaultVsShaderByteCodes.VsMeshDepth);
+                                                               DefaultVSShaderByteCodes.VsMeshDepth);
 
     /// <summary>
     ///     The vs mesh batched wireframe
@@ -664,7 +675,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsMeshBatchedWireframe = new(nameof(VsMeshBatchedWireframe),
         ShaderStage.Vertex,
         new ShaderReflector(),
-        DefaultVsShaderByteCodes.VsMeshBatchedWireframe);
+        DefaultVSShaderByteCodes.VsMeshBatchedWireframe);
 
     /// <summary>
     ///     The vs mesh outline pass1
@@ -672,7 +683,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsMeshOutlinePass1 = new(nameof(VsMeshOutlinePass1),
                                                                       ShaderStage.Vertex,
                                                                       new ShaderReflector(),
-                                                                      DefaultVsShaderByteCodes.VsMeshOutlineP1);
+                                                                      DefaultVSShaderByteCodes.VsMeshOutlineP1);
 
     /// <summary>
     ///     The vs mesh outline pass1
@@ -680,7 +691,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsMeshOutlineScreenQuad = new(nameof(VsMeshOutlineScreenQuad),
         ShaderStage.Vertex,
         new ShaderReflector(),
-        DefaultVsShaderByteCodes.VsMeshOutlineScreenQuad);
+        DefaultVSShaderByteCodes.VsMeshOutlineScreenQuad);
 
     /// <summary>
     ///     The vs plane grid
@@ -688,7 +699,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsPlaneGrid = new(nameof(VsPlaneGrid),
                                                                ShaderStage.Vertex,
                                                                new ShaderReflector(),
-                                                               DefaultVsShaderByteCodes.VsPlaneGrid);
+                                                               DefaultVSShaderByteCodes.VsPlaneGrid);
 
     /// <summary>
     ///     The vs screen quad
@@ -696,7 +707,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsScreenQuad = new(nameof(VsScreenQuad),
                                                                 ShaderStage.Vertex,
                                                                 new ShaderReflector(),
-                                                                DefaultVsShaderByteCodes.VsScreenQuad);
+                                                                DefaultVSShaderByteCodes.VsScreenQuad);
 
     /// <summary>
     ///     The vs sprite
@@ -704,7 +715,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsSprite2D = new(nameof(VsSprite2D),
                                                               ShaderStage.Vertex,
                                                               new ShaderReflector(),
-                                                              DefaultVsShaderByteCodes.VsSprite2D);
+                                                              DefaultVSShaderByteCodes.VsSprite2D);
 
     /// <summary>
     ///     The vs volume3d
@@ -712,7 +723,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsVolume3D = new(nameof(VsVolume3D),
                                                               ShaderStage.Vertex,
                                                               new ShaderReflector(),
-                                                              DefaultVsShaderByteCodes.VsVolume3D);
+                                                              DefaultVSShaderByteCodes.VsVolume3D);
 
     /// <summary>
     ///     The vsssao
@@ -720,7 +731,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription Vsssao = new(nameof(Vsssao),
                                                           ShaderStage.Vertex,
                                                           new ShaderReflector(),
-                                                          DefaultVsShaderByteCodes.Vsssao);
+                                                          DefaultVSShaderByteCodes.Vsssao);
 
 #if !WINDOWS_UWP
     /// <summary>
@@ -729,7 +740,7 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsScreenDup = new(nameof(VsScreenDup),
                                                                ShaderStage.Vertex,
                                                                new ShaderReflector(),
-                                                               DefaultVsShaderByteCodes.VsScreenDup);
+                                                               DefaultVSShaderByteCodes.VsScreenDup);
 
     /// <summary>
     ///     The vs screen dup mouse cursor
@@ -737,8 +748,10 @@ public static class DefaultVsShaderDescriptions {
     public static readonly ShaderDescription VsScreenDupCursor = new(nameof(VsScreenDupCursor),
                                                                      ShaderStage.Vertex,
                                                                      new ShaderReflector(),
-                                                                     DefaultVsShaderByteCodes
+                                                                     DefaultVSShaderByteCodes
                                                                          .VsScreenDupCursor);
 
 #endif
+}
+
 }

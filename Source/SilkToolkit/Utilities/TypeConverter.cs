@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TypeConverter.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -9,7 +10,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Model.Collection;
 using HelixToolkit.SharpDX.Core.Utilities;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Color = System.Windows.Media.Color;

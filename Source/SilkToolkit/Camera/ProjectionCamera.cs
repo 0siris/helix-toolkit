@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core.Cameras;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -5,12 +6,11 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 using System.Windows;
 using System.Windows.Media.Media3D;
-using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning camera and core.
 
-namespace HelixToolkit.Wpf.SharpDX.Camera;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public interface IProjectionCameraModel : ICameraModel {
     double FarPlaneDistance { get; set; }

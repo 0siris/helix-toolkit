@@ -5,7 +5,7 @@ Copyright (c) 2018 Helix Toolkit contributors
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 
-public static class GltfMatKeys {
+public static class GLTFMatKeys {
     /// <summary>
     ///     The ai matkey GLTF basecolor factor for PBR material
     /// </summary>

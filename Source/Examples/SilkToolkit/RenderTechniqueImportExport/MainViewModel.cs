@@ -1,12 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf.SharpDX;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using DemoCore;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.ShaderManager;
-using HelixToolkit.SharpDX.Core.Utilities.ImportExport;
-using HelixToolkit.Wpf.SharpDX.Material;
-using HelixToolkit.Wpf.SharpDX.Model.Materials;
 using Microsoft.Win32;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 

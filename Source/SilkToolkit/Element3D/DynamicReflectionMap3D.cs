@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core.Core;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -6,12 +7,10 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 public class DynamicReflectionMap3D : GroupModel3D {
     /// <summary>
@@ -23,7 +22,7 @@ public class DynamicReflectionMap3D : GroupModel3D {
                                     typeof(DynamicReflectionMap3D),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as IDynamicReflector)
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
                                                                  .EnableReflector = (bool)e.NewValue;
                                                          }));
 
@@ -36,7 +35,7 @@ public class DynamicReflectionMap3D : GroupModel3D {
                                     typeof(DynamicReflectionMap3D),
                                     new PropertyMetadata(256,
                                                          (d, e) => {
-                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as IDynamicReflector)
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
                                                                  .FaceSize = (int)e.NewValue;
                                                          }));
 
@@ -49,7 +48,7 @@ public class DynamicReflectionMap3D : GroupModel3D {
                                     typeof(DynamicReflectionMap3D),
                                     new PropertyMetadata(100.0,
                                                          (d, e) => {
-                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as IDynamicReflector)
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
                                                                  .FarField = (float)(double)e.NewValue;
                                                          }));
 
@@ -62,7 +61,7 @@ public class DynamicReflectionMap3D : GroupModel3D {
                                     typeof(DynamicReflectionMap3D),
                                     new PropertyMetadata(0.1,
                                                          (d, e) => {
-                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as IDynamicReflector)
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
                                                                  .NearField = (float)(double)e.NewValue;
                                                          }));
 
@@ -75,7 +74,7 @@ public class DynamicReflectionMap3D : GroupModel3D {
                                     typeof(DynamicReflectionMap3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as IDynamicReflector)
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
                                                                  .IsLeftHanded = (bool)e.NewValue;
                                                          }));
 
@@ -85,7 +84,7 @@ public class DynamicReflectionMap3D : GroupModel3D {
                                     typeof(DynamicReflectionMap3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode as IDynamicReflector)
+                                                             ((d as Element3D).SceneNode as IDynamicReflector)
                                                                  .IsDynamicScene = (bool)e.NewValue;
                                                          }));
 

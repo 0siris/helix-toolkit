@@ -1,14 +1,14 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IOctreeManager.cs" company="Helix Toolkit">
 //   Copyright (c) 2018 Helix Toolkit contributors
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 /// </summary>

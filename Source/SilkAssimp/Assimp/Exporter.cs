@@ -1,3 +1,6 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -6,11 +9,8 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Text;
 using System.Diagnostics.CodeAnalysis;
 using SharpAssimp;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
-using Animation = HelixToolkit.SharpDX.Core.Model.Animations.Animation;
+using Animation = HelixToolkit.SharpDX.Core.Animations.Animation;
 
 namespace HelixToolkit.SharpDX.Core.Assimp;
 

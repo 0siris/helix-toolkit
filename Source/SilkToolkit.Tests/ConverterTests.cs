@@ -1,3 +1,4 @@
+using HelixToolkit.Wpf.SharpDX;
 using System.Globalization;
 using System.Windows;
 using HelixToolkit.Wpf.SharpDX.Converters;

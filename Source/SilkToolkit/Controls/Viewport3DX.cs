@@ -1,3 +1,8 @@
+using HelixToolkit.SharpDX.Core.Cameras;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Model.Scene2D;
+using HelixToolkit.Wpf.SharpDX.Controls;
+using HelixToolkit.Wpf.SharpDX.Elements2D;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Viewport3DX.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -24,27 +29,16 @@ using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Camera;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
-using HelixToolkit.SharpDX.Core.Render;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.Wpf.SharpDX.Camera;
-using HelixToolkit.Wpf.SharpDX.Controls.MouseHandlers;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Extensions;
-using HelixToolkit.Wpf.SharpDX.Model.Elements2D;
-using HelixToolkit.Wpf.SharpDX.Model.Elements2D.Abstract;
-using HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
-using HitTestResult = HelixToolkit.SharpDX.Core.Utilities.HitTestResult;
-using IViewportExtensions = HelixToolkit.SharpDX.Core.Extensions.IViewportExtensions;
-using OrthographicCamera = HelixToolkit.Wpf.SharpDX.Camera.OrthographicCamera;
-using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.Camera.PerspectiveCamera;
+using HitTestResult = HelixToolkit.SharpDX.Core.HitTestResult;
+using IViewportExtensions = HelixToolkit.SharpDX.Core.IViewportExtensions;
+using OrthographicCamera = HelixToolkit.Wpf.SharpDX.OrthographicCamera;
+using PerspectiveCamera = HelixToolkit.Wpf.SharpDX.PerspectiveCamera;
 using Visibility = System.Windows.Visibility;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Provides a Viewport control.
@@ -97,12 +91,12 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <summary>
     ///     The orthographic camera.
     /// </summary>
-    private readonly Camera.Camera orthographicCamera;
+    private readonly Camera orthographicCamera;
 
     /// <summary>
     ///     The perspective camera.
     /// </summary>
-    private readonly Camera.Camera perspectiveCamera;
+    private readonly Camera perspectiveCamera;
 
     /// <summary>
     ///     Coalesces WPF composition callbacks for the Direct3D 12 presentation path.
@@ -219,15 +213,15 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         Unloaded += ControlUnloaded;
     }
 
-    public Model.Elements2D.Abstract.Element2D? MouseOverModel2D {
+    public Elements2D.Element2D? MouseOverModel2D {
         get;
         private set {
             if (field == value) return;
-            field?.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseLeave2DEvent,
+            field?.RaiseEvent(new Mouse2DEventArgs(Elements2D.Element2D.MouseLeave2DEvent,
                                                    field,
                                                    this));
             field = value;
-            field?.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseEnter2DEvent,
+            field?.RaiseEvent(new Mouse2DEventArgs(Elements2D.Element2D.MouseEnter2DEvent,
                                                    field,
                                                    this));
         }
@@ -365,7 +359,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (e.OldItems != null)
             foreach (var item in e.OldItems) {
                 partItemsControl?.Items.Remove(item);
-                if (item is Model.Elements3D.AbstractElements3D.Element3D element) {
+                if (item is Element3D element) {
                     element.SceneNode.Detach();
                 }
             }
@@ -629,7 +623,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         RemoveLogicalChild(Overlay2D);
         AddLogicalChild(Overlay2D);
         var titleView = Template.FindName(PartTitleView, this);
-        if (titleView is Model.Elements2D.Abstract.Element2D element) Overlay2D.Children.Add(element);
+        if (titleView is Elements2D.Element2D element) Overlay2D.Children.Add(element);
         Overlay2D.Children.Add(viewCube.MoverCanvas);
         Overlay2D.Children.Add(coordinateView.MoverCanvas);
         if (Content2D != null) Overlay2D.Children.Add(Content2D);
@@ -1042,7 +1036,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             return;
 
         CameraController.ActualCamera.CameraInternal.PropertyChanged -= CameraInternal_PropertyChanged;
-        CameraController.ActualCamera = e.NewValue as Camera.Camera ??
+        CameraController.ActualCamera = e.NewValue as Camera ??
                                         (Orthographic
                                             ? orthographicCamera
                                             : perspectiveCamera);
@@ -1431,8 +1425,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </param>
     private void MouseDownHitTest(Point pt, InputEventArgs? originalInputEventArgs = null) {
         if (Overlay2D.HitTest(pt.ToVector2(), out currentHit2D)
-            && currentHit2D is {ModelHit: Model.Elements2D.Abstract.Element2D e} hit2D) {
-            e.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseDown2DEvent,
+            && currentHit2D is {ModelHit: Elements2D.Element2D e} hit2D) {
+            e.RaiseEvent(new Mouse2DEventArgs(Elements2D.Element2D.MouseDown2DEvent,
                 hit2D.ModelHit,
                 hit2D,
                 pt,
@@ -1457,7 +1451,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
             currentHit = hits.FirstOrDefault(x => x.IsValid);
             if (currentHit != null) {
-                if (currentHit.ModelHit is Model.Elements3D.AbstractElements3D.Element3D ele) {
+                if (currentHit.ModelHit is Element3D ele) {
                     ele.RaiseEvent(new MouseDown3DEventArgs(currentHit.ModelHit,
                         currentHit,
                         pt,
@@ -1512,9 +1506,9 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </param>
     private void MouseMoveHitTest(Point pt, InputEventArgs? originalInputEventArgs = null) {
         if (Overlay2D.HitTest(pt.ToVector2(), out var hit2D)
-            && hit2D is {ModelHit: Model.Elements2D.Abstract.Element2D e} actualHit2D) {
+            && hit2D is {ModelHit: Elements2D.Element2D e} actualHit2D) {
             MouseOverModel2D = e;
-            e.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseMove2DEvent,
+            e.RaiseEvent(new Mouse2DEventArgs(Elements2D.Element2D.MouseMove2DEvent,
                 actualHit2D.ModelHit,
                 actualHit2D,
                 pt,
@@ -1528,7 +1522,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         MouseOverModel2D = null;
         if (enableMouseButtonHitTest) {
             if (currentHit != null) {
-                if (currentHit.ModelHit is Model.Elements3D.AbstractElements3D.Element3D ele) {
+                if (currentHit.ModelHit is Element3D ele) {
                     ele.RaiseEvent(new MouseMove3DEventArgs(currentHit.ModelHit,
                         currentHit,
                         pt,
@@ -1558,8 +1552,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </param>
     private void MouseUpHitTest(Point pt, InputEventArgs? originalInputEventArgs = null) {
         if (currentHit2D != null) {
-            if (currentHit2D.ModelHit is Model.Elements2D.Abstract.Element2D element)
-                element.RaiseEvent(new Mouse2DEventArgs(Model.Elements2D.Abstract.Element2D.MouseUp2DEvent,
+            if (currentHit2D.ModelHit is Elements2D.Element2D element)
+                element.RaiseEvent(new Mouse2DEventArgs(Elements2D.Element2D.MouseUp2DEvent,
                     currentHit2D.ModelHit,
                     currentHit2D,
                     pt,
@@ -1570,7 +1564,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
         if (enableMouseButtonHitTest) {
             if (currentHit != null) {
-                if (currentHit.ModelHit is Model.Elements3D.AbstractElements3D.Element3D ele) {
+                if (currentHit.ModelHit is Element3D ele) {
                     ele.RaiseEvent(new MouseUp3DEventArgs(currentHit.ModelHit,
                         currentHit,
                         pt,

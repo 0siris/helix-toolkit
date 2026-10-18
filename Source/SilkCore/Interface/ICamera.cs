@@ -1,10 +1,11 @@
-﻿/*
+﻿using HelixToolkit.SharpDX.Core.Interface;
+/*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 ///     Camera interface

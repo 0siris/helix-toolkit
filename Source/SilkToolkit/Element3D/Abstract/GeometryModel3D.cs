@@ -1,3 +1,7 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX.Model;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -8,18 +12,16 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Native;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning model and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Provides a base class for a scene model which contains geometry
 /// </summary>
-public abstract class GeometryModel3D : Model.Elements3D.AbstractElements3D.Element3D, IHitable, IThrowingShadow, IApplyPostEffect {
+public abstract class GeometryModel3D : Element3D, IHitable, IThrowingShadow, IApplyPostEffect {
     protected override void AssignDefaultValuesToSceneNode(SceneNode node) {
         if (node is GeometryNode n) {
             n.DepthBias = DepthBias;
@@ -57,7 +59,7 @@ public abstract class GeometryModel3D : Model.Elements3D.AbstractElements3D.Elem
                                     typeof(GeometryModel3D),
                                     new PropertyMetadata(false,
                                                          (d, e) => {
-                                                             if ((d as Model.Elements3D.AbstractElements3D.Element3D).SceneNode is IThrowingShadow t)
+                                                             if ((d as Element3D).SceneNode is IThrowingShadow t)
                                                                  t.IsThrowingShadow = (bool)e.NewValue;
                                                          }));
 

@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 // <copyright file="ScreenSpaceMeshGeometry3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2017 Helix Toolkit contributors
 //   Author: Lunci Hua
@@ -6,12 +7,9 @@
 using System;
 using System.Windows;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
-using HelixToolkit.SharpDX.Core.Render;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using Thickness = System.Windows.Thickness;
@@ -48,7 +46,7 @@ public abstract class ScreenSpacePositionMoverBase : Panel2D {
                                     typeof(ScreenSpacePositionMover),
                                     new PropertyMetadata(true,
                                                          (d, e) => {
-                                                          ((Node2DMoverBase)((Elements2D.Abstract.Element2D)d).SceneNode)
+                                                          ((Node2DMoverBase)((global::HelixToolkit.Wpf.SharpDX.Elements2D.Element2D)d).SceneNode)
                                                                  .EnableMover = (bool)e.NewValue;
                                                          }));
 

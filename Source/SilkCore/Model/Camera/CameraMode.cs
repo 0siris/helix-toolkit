@@ -3,7 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-namespace HelixToolkit.SharpDX.Core.Model.Camera;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 ///     Camera movement modes.

@@ -1,7 +1,4 @@
 using HelixToolkit.SharpDX.Core;
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using Silk.NET.Maths;
 
 namespace SilkCore.Tests;

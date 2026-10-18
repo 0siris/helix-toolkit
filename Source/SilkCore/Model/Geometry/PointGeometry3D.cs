@@ -3,12 +3,9 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees.StaticOctrees;
 
-namespace HelixToolkit.SharpDX.Core.Model.Geometry;
+namespace HelixToolkit.SharpDX.Core;
 
 public class PointGeometry3D : Geometry3D {
     public IEnumerable<Point> Points {

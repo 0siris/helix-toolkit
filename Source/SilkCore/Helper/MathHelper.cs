@@ -1,7 +1,10 @@
-﻿using HelixToolkit.SharpDX.Core.Geometry;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Helper;
 using DoubleOrSingle = float;
 
-namespace HelixToolkit.SharpDX.Core.Helper;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core
+{
 
 /// <summary>
 ///     Generates normalized maps from the source two-dimensional gradient noise field.
@@ -35,7 +38,7 @@ public static class MathHelper {
         }
 
         var data = new DoubleOrSingle[count];
-        var permutation = Noise2D.ReseedAndCapture();
+        var permutation = Noise2d.ReseedAndCapture();
         if (count == 0 || octaves == 0) {
             result = data;
             return;
@@ -50,7 +53,7 @@ public static class MathHelper {
                          offset => {
                              var i = offset % width;
                              var j = offset / width;
-                             var noise = Noise2D.Noise(i * frequency / width, j * frequency / height, permutation);
+                             var noise = Noise2d.Noise(i * frequency / width, j * frequency / height, permutation);
                              data[offset] += noise * amplitude;
                          });
 
@@ -75,12 +78,16 @@ public static class MathHelper {
     }
 }
 
+}
+namespace HelixToolkit.SharpDX.Core
+{
+
 /// <summary>
 ///     implements improved Perlin noise in 2D.
 ///     Transcribed from http://www.siafoo.net/snippet/144?nolinenos#perlin2003
 ///     From StackOverflow: https://stackoverflow.com/questions/8659351/2d-perlin-noise
 /// </summary>
-public static class Noise2D {
+public static class Noise2d {
     /// <summary>
     ///     Supplies table randomness, locked during permutation creation after static initialization.
     /// </summary>
@@ -99,7 +106,7 @@ public static class Noise2D {
     /// <summary>
     ///     Initializes the first permutation and immutable gradient table.
     /// </summary>
-    static Noise2D() {
+    static Noise2d() {
         CalculatePermutation(out _permutation);
         CalculateGradients(out Gradients);
     }
@@ -221,4 +228,6 @@ public static class Noise2D {
 
         return Math.Max(Math.Min(total, 1f), -1f);
     }
+}
+
 }

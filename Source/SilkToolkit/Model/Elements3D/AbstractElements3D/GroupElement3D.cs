@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="GroupElement3D.cs" company="Helix Toolkit">
 //   Copyright (c) 2014 Helix Toolkit contributors
@@ -11,14 +12,11 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Markup;
 using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
-using HelixToolkit.SharpDX.Core.Utilities.Octrees;
-using HelixToolkit.Wpf.SharpDX.Element3D;
 using HelixToolkit.Wpf.SharpDX.Utilities;
 
 #pragma warning disable CS8601, CS8602, CS8604 // WPF dependency-property callbacks provide the owning element and scene node.
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements3D.AbstractElements3D;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>
 ///     Supports both ItemsSource binding and Xaml children. Binds with ObservableElement3DCollection

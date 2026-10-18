@@ -1,14 +1,13 @@
+using HelixToolkit.SharpDX.Core;
 //#define OutputBuildTime
 
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
-using HelixToolkit.SharpDX.Core.Utilities.Buffers;
 
-namespace HelixToolkit.SharpDX.Core.Core.Batching;
+namespace HelixToolkit.SharpDX.Core.Core;
 
 public interface IBatchedGeometry {
     Geometry3D Geometry { get; }

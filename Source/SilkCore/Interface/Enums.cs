@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Interface;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -6,7 +8,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
-namespace HelixToolkit.SharpDX.Core.Interface;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.SharpDX.Core
+{
 
 /// <summary>
 ///     Used for render ordering. Order is the same as render type defined.
@@ -23,9 +27,13 @@ public enum RenderType {
     ScreenSpaced
 }
 
+}
+namespace HelixToolkit.SharpDX.Core
+{
+
 /// <summary>
 /// </summary>
-public enum MsaaLevel {
+public enum MSAALevel {
     Disable = 0,
     Maximum = 1,
     Two = 2,
@@ -35,13 +43,17 @@ public enum MsaaLevel {
 
 /// <summary>
 /// </summary>
-public enum FxaaLevel {
+public enum FXAALevel {
     None = 0,
     Low = 1,
     Medium = 2,
     High = 3,
     Ultra = 4
 }
+
+}
+namespace HelixToolkit.SharpDX.Core
+{
 
 /// <summary>
 /// </summary>
@@ -103,6 +115,10 @@ public enum RenderDetail {
     Camera = 8
 }
 
+}
+namespace HelixToolkit.SharpDX.Core
+{
+
 /// <summary>
 ///     OIT weight mode.
 ///     <para>Please refer to http://jcgt.org/published/0002/02/09/ </para>
@@ -111,12 +127,16 @@ public enum RenderDetail {
 /// <value>
 ///     The oit weight mode.
 /// </value>
-public enum OitWeightMode {
+public enum OITWeightMode {
     Linear0 = 0,
     Linear1 = 1,
     Linear2 = 2,
     NonLinear = 3
 }
+
+}
+namespace HelixToolkit.SharpDX.Core
+{
 
 /// <summary>
 /// </summary>
@@ -179,10 +199,18 @@ public enum OffScreenTextureType {
     DepthStencil
 }
 
-public enum SsaoQuality {
+}
+namespace HelixToolkit.SharpDX.Core
+{
+
+public enum SSAOQuality {
     High,
     Low
 }
+
+}
+namespace HelixToolkit.SharpDX.Core
+{
 
 public enum ScreenSpacedMode {
     RelativeScreenSpaced,
@@ -193,4 +221,6 @@ public enum ScreenSpacedCameraType {
     Auto,
     Perspective,
     Orthographic
+}
+
 }

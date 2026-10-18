@@ -1,3 +1,4 @@
+using HelixToolkit.SharpDX.Core;
 /*
 The MIT License(MIT)
 Copyright(c) 2018 Helix Toolkit contributors
@@ -5,11 +6,9 @@ Copyright(c) 2018 Helix Toolkit contributors
 
 
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Geometry;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 
-namespace HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
+namespace HelixToolkit.SharpDX.Core.Model.Scene;
 public abstract class ParametricSurface3DNode : MeshNode {
     private CancellationTokenSource? cancelToken = new();
 

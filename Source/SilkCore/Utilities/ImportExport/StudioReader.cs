@@ -1,11 +1,8 @@
+using HelixToolkit.SharpDX.Core.Model;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using HelixToolkit.SharpDX.Core.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.ImportExport;
+namespace HelixToolkit.SharpDX.Core;
 using FileFormatException = Exception;
 using Object3DGroup = List<Object3D>;
 using PhongMaterial = PhongMaterialCore;

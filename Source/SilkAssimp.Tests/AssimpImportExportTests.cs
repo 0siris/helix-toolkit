@@ -1,6 +1,6 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Assimp;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Utilities;
 using SharpAssimp;
@@ -17,7 +17,7 @@ public class AssimpImportExportTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void ExportedMeshIndicesRemainContiguousAfterSkippedGeometryTest() {
-        var builder = new HelixToolkit.SharpDX.Core.Geometry.MeshBuilder();
+        var builder = new HelixToolkit.SharpDX.Core.MeshBuilder();
         builder.AddTriangle(new(0, 0, 0), new(1, 0, 0), new(0, 1, 0));
         using var root = new GroupNode();
         using var skipped = new MeshNode { Name = "No Material", Geometry = builder.ToMeshGeometry3D() };
@@ -42,7 +42,7 @@ public class AssimpImportExportTests {
         using var root = new GroupNode {
             Name = "Parent", ModelMatrix = new(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 11, -2, 7, 1)
         };
-        var builder = new HelixToolkit.SharpDX.Core.Geometry.MeshBuilder();
+        var builder = new HelixToolkit.SharpDX.Core.MeshBuilder();
         builder.AddTriangle(new(0, 0, 0), new(1, 0, 0), new(0, 1, 0));
         using var mesh = new MeshNode {
             Name = "Child", Geometry = builder.ToMeshGeometry3D(), Material = new PhongMaterialCore(),
@@ -80,7 +80,7 @@ public class AssimpImportExportTests {
 
     [Theory]
     [InlineData(MaterialType.BlinnPhong, typeof(PhongMaterialCore))]
-    [InlineData(MaterialType.Pbr, typeof(PbrMaterialCore))]
+    [InlineData(MaterialType.Pbr, typeof(PBRMaterialCore))]
     [InlineData(MaterialType.Diffuse, typeof(DiffuseMaterialCore))]
     [Trait("Category", "Unit")]
     public void InMemoryTriangleImportsRequestedMaterial(MaterialType materialType, Type expectedType) {

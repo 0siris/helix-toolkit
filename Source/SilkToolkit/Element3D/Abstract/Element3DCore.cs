@@ -1,3 +1,5 @@
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
@@ -6,10 +8,9 @@ Copyright (c) 2018 Helix Toolkit contributors
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using HelixToolkit.SharpDX.Core.Model.Scene.Abstract;
 using HelixToolkit.SharpDX.Core.Utilities;
 
-namespace HelixToolkit.Wpf.SharpDX.Element3D.Abstract;
+namespace HelixToolkit.Wpf.SharpDX.Model;
 /// <summary>
 ///     External Wrapper core to be used for different platform
 /// </summary>

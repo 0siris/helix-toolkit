@@ -1,15 +1,19 @@
+using HelixToolkit.Wpf.SharpDX;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Model;
+using HelixToolkit.SharpDX.Core.Shaders;
 /*
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
 using System.Windows;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
-using HelixToolkit.SharpDX.Core.Model.Material;
 
 #pragma warning disable CS8601, CS8602 // WPF invokes dependency-property callbacks with the owning material and initialized core.
 
-namespace HelixToolkit.Wpf.SharpDX.Material;
+// Original types retain their source namespaces; Silk-only types keep their existing namespaces.
+namespace HelixToolkit.Wpf.SharpDX
+{
 
 public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMaterial {
     public static readonly DependencyProperty SamplerProperty =
@@ -19,7 +23,7 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
                                     new PropertyMetadata(DefaultSamplers.VolumeSampler,
                                                          (d, e) => {
                                                              ((d as VolumeTextureMaterialBase).Core as
-                                                              VolumeTextureDds3DMaterialCore).Sampler =
+                                                              VolumeTextureDDS3DMaterialCore).Sampler =
                                                                  (SamplerStateDescription)e.NewValue;
                                                          }));
 
@@ -198,25 +202,29 @@ public abstract class VolumeTextureMaterialBase : Material, IVolumeTextureMateri
     }
 }
 
+}
+namespace HelixToolkit.Wpf.SharpDX
+{
+
 /// <summary>
 ///     Default Volume Texture Material. Supports 3D DDS memory stream as
 ///     <see cref="VolumeTextureMaterialCoreBase{T}.VolumeTexture" />
 /// </summary>
-public sealed class VolumeTextureDds3DMaterial : VolumeTextureMaterialBase {
+public sealed class VolumeTextureDDS3DMaterial : VolumeTextureMaterialBase {
     public static readonly DependencyProperty TextureProperty =
         DependencyProperty.Register("Texture",
                                     typeof(TextureModel),
-                                    typeof(VolumeTextureDds3DMaterial),
+                                    typeof(VolumeTextureDDS3DMaterial),
                                     new PropertyMetadata(null,
                                                          (d, e) => {
-                                                             ((d as VolumeTextureDds3DMaterial).Core as
-                                                              VolumeTextureDds3DMaterialCore).VolumeTexture =
+                                                             ((d as VolumeTextureDDS3DMaterial).Core as
+                                                              VolumeTextureDDS3DMaterialCore).VolumeTexture =
                                                                  (TextureModel)e.NewValue;
                                                          }));
 
-    public VolumeTextureDds3DMaterial() { }
+    public VolumeTextureDDS3DMaterial() { }
 
-    public VolumeTextureDds3DMaterial(VolumeTextureDds3DMaterialCore core) : base(core) {
+    public VolumeTextureDDS3DMaterial(VolumeTextureDDS3DMaterialCore core) : base(core) {
         Texture = core.VolumeTexture;
     }
 
@@ -231,7 +239,7 @@ public sealed class VolumeTextureDds3DMaterial : VolumeTextureMaterialBase {
         set => SetValue(TextureProperty, value);
     }
 
-    protected override MaterialCore OnCreateCore() => new VolumeTextureDds3DMaterialCore {
+    protected override MaterialCore OnCreateCore() => new VolumeTextureDDS3DMaterialCore {
         Name = Name,
         VolumeTexture = Texture,
         SampleDistance = SampleDistance,
@@ -244,7 +252,7 @@ public sealed class VolumeTextureDds3DMaterial : VolumeTextureMaterialBase {
         EnablePlaneAlignment = EnablePlaneAlignment
     };
 
-    protected override Freezable CreateInstanceCore() => new VolumeTextureDds3DMaterial {
+    protected override Freezable CreateInstanceCore() => new VolumeTextureDDS3DMaterial {
         Name = Name,
         Texture = Texture,
         SampleDistance = SampleDistance,
@@ -257,6 +265,10 @@ public sealed class VolumeTextureDds3DMaterial : VolumeTextureMaterialBase {
         EnablePlaneAlignment = EnablePlaneAlignment
     };
 }
+
+}
+namespace HelixToolkit.Wpf.SharpDX
+{
 
 /// <summary>
 ///     Used to use raw data as Volume 3D texture.
@@ -384,4 +396,6 @@ public sealed class VolumeTextureDiffuseMaterial : VolumeTextureMaterialBase {
         IterationOffset = IterationOffset,
         EnablePlaneAlignment = EnablePlaneAlignment
     };
+}
+
 }

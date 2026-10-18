@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Logger;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core.Core.Buffers;
+namespace HelixToolkit.SharpDX.Core.Core;
 
 public static class ThreadBufferManagerConfig {
     /// <summary>

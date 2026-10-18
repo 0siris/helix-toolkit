@@ -1,12 +1,10 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Logger;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
 using Microsoft.Extensions.Logging;
 
-namespace HelixToolkit.SharpDX.Core.Utilities.Octrees;
+namespace HelixToolkit.SharpDX.Core;
 
 /// <summary>
 ///     Base class template implementation for <see cref="IDynamicOctree" />

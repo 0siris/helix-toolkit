@@ -1,8 +1,9 @@
+using HelixToolkit.Wpf.SharpDX.Controls;
 using System;
 using System.Windows;
 using System.Windows.Input;
 
-namespace HelixToolkit.Wpf.SharpDX.Controls;
+namespace HelixToolkit.Wpf.SharpDX;
 
 /// <summary>Adapts native child-window mouse input to the viewport's existing WPF input contracts.</summary>
 public partial class Viewport3DX {

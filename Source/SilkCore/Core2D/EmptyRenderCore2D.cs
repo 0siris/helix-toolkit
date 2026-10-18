@@ -1,5 +1,4 @@
-using HelixToolkit.SharpDX.Core.Core2D.Abstract;
-using HelixToolkit.SharpDX.Core.Render;
+using HelixToolkit.SharpDX.Core;
 
 namespace HelixToolkit.SharpDX.Core.Core2D;
 /// <summary>

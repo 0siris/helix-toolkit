@@ -3,6 +3,8 @@ The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
 
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.DefaultShaders;
 using HelixToolkit.SharpDX.Core.Extensions;
 using HelixToolkit.SharpDX.Core.Model;
@@ -61,7 +63,7 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
     private readonly SilkD3D12Resource fallbackConstants;
 
     /// <summary>
-    ///     The private RTV heap for normal, raw, blurred, and noise targets.
+    ///     The private RTV heap for normal, raw and blurred targets.
     /// </summary>
     private readonly SilkD3D12DescriptorHeap renderTargetHeap;
 
@@ -81,9 +83,9 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
     private readonly SilkD3D12Descriptor depthStencilView;
 
     /// <summary>
-    ///     The deterministic hemisphere sample kernel.
+    ///     The original randomized hemisphere sample kernel.
     /// </summary>
-    private readonly Vector4[] kernel = CreateKernel();
+    private readonly Vector4[] kernel;
 
     /// <summary>
     ///     The size-dependent normal target.
@@ -106,12 +108,20 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
     private SilkD3D12Resource? depth;
 
     /// <summary>
-    ///     The deterministic one-pixel rotation-noise texture.
+    ///     The original four-by-four XY rotation-noise texture.
     /// </summary>
     private readonly SilkD3D12Resource noise;
 
+    /// Retains the initial noise upload until the resource owner is safely released.
+    private readonly SilkD3D12Resource noiseUpload;
+    /// Describes the padded Direct3D 12 upload rows for the original noise image.
+    private readonly PlacedSubresourceFootprint noiseFootprint;
+    /// Tracks whether the immutable original noise image has been recorded for upload.
+    private bool noiseUploaded;
+
+
     /// <summary>
-    ///     Creates stable descriptor owners and the deterministic noise resource.
+    ///     Creates stable descriptor owners and the original randomized sample and noise resources.
     /// </summary>
     /// <param name="device">The native device.</param>
     /// <param name="resourceHeap">The shared resource heap.</param>
@@ -141,12 +151,21 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
         device.CreateSampler(bindings.Sampler(0), DefaultSamplers.SsaoSamplerClamp);
         device.CreateSampler(bindings.Sampler(1), DefaultSamplers.SsaoNoise);
         device.CreateSampler(blurBindings.Sampler(0), DefaultSamplers.SsaoSamplerClamp);
-        renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 4);
-        renderTargetViews = renderTargetHeap.AllocateRange(4);
+        renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 3);
+        renderTargetViews = renderTargetHeap.AllocateRange(3);
         depthStencilHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
         depthStencilView = depthStencilHeap.Allocate();
-        noise = device.CreateRenderTargetTexture2D(1, 1, Format.FormatR32G32B32A32Float);
-        device.CreateRenderTargetView(noise, renderTargetViews[3]);
+        var random = new Random((int)Stopwatch.GetTimestamp());
+        kernel = CreateKernel(random);
+        var noiseValues = new Vector4[4 * 4];
+        for (var index = 0; index < noiseValues.Length; index++) {
+            var x = random.NextFloat(-1, 1);
+            var y = random.NextFloat(-1, 1);
+            noiseValues[index] = new Vector4(SilkMath.Normalize(new Vector3(x, y, 0)), 0);
+        }
+        noise = device.CreateTexture2D(4, 4, Format.FormatR32G32B32A32Float);
+        noiseUpload = device.CreateTextureUploadBuffer(noise,
+            MemoryMarshal.AsBytes(noiseValues.AsSpan()), 4 * 16, out noiseFootprint);
     }
 
     /// <summary>
@@ -187,6 +206,8 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
     /// <param name="radius">The view-space sample radius.</param>
     /// <param name="textureScale">The quality-dependent texture scale.</param>
     /// <returns>The completed occlusion texture.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The radius or texture scale is invalid.</exception>
+    /// <exception cref="InvalidOperationException">The geometry targets have not been initialized.</exception>
     internal SilkD3D12Resource Complete(
         SilkD3D12CommandContext context,
         ShaderPass ssaoPass,
@@ -201,9 +222,11 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
         var rawTarget = rawOcclusion ?? throw new InvalidOperationException("SSAO resources are not initialized.");
         var finalTarget = Occlusion;
         var depthTarget = depth ?? throw new InvalidOperationException("SSAO resources are not initialized.");
-        context.Transition(noise, ResourceStates.RenderTarget);
-        context.ClearRenderTarget(noise, renderTargetViews[3], [1, 0, 0, 0]);
-        context.Transition(noise, ResourceStates.PixelShaderResource);
+        if (!noiseUploaded) {
+            context.CopyBufferToTexture(noise, noiseUpload, in noiseFootprint);
+            context.Transition(noise, ResourceStates.PixelShaderResource);
+            noiseUploaded = true;
+        }
         context.Transition(normalTarget, ResourceStates.PixelShaderResource);
         context.Transition(depthTarget, ResourceStates.PixelShaderResource);
         context.Transition(rawTarget, ResourceStates.RenderTarget);
@@ -211,7 +234,7 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
         device.CreateShaderResourceView(noise, bindings.ShaderResource(32));
         device.CreateShaderResourceView(depthTarget, bindings.ShaderResource(33), Format.FormatR32Float);
         var ssao = new SsaoParamStruct {
-            NoiseScale = new Vector2(normalTarget.Description.Width, normalTarget.Description.Height),
+            NoiseScale = new Vector2(normalTarget.Description.Width / 4f, normalTarget.Description.Height / 4f),
             TextureScale = textureScale,
             Radius = radius,
             InvProjection = transforms.Projection.Inverted()
@@ -236,22 +259,28 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
         return finalTarget;
     }
 
-    /// <summary>
-    ///     Creates the deterministic hemisphere sample kernel used by every host.
-    /// </summary>
-    /// <returns>Exactly 32 normalized and progressively scaled samples.</returns>
-    internal static Vector4[] CreateKernel() {
+    /// <summary>Creates the original randomized hemisphere kernel.</summary>
+    /// <returns>The original thirty-two progressively scaled samples above the fifteen-degree threshold.</returns>
+    internal static Vector4[] CreateKernel() => CreateKernel(new Random((int)Stopwatch.GetTimestamp()));
+
+    /// <summary>Uses the original random sequence, rejection cone and i/32 scaling rule.</summary>
+    /// <param name="random">The random source shared with the four-by-four noise generation.</param>
+    /// <returns>The original thirty-two samples in generation order.</returns>
+    private static Vector4[] CreateKernel(Random random) {
         var result = new Vector4[KernelSize];
-        const float goldenAngle = 2.39996323f;
+        var threshold = Math.Cos(Math.PI / 2 - Math.PI / 12);
         for (var index = 0; index < result.Length; index++) {
-            var unit = (index + 0.5f) / result.Length;
-            var radius = MathF.Sqrt(unit);
-            var angle = index * goldenAngle;
-            var direction = SilkMath.Normalize(new Vector3(MathF.Cos(angle) * radius,
-                MathF.Sin(angle) * radius,
-                MathF.Sqrt(1 - unit)));
-            var scale = 0.1f + 0.9f * index / (result.Length - 1f);
-            result[index] = new Vector4(direction * scale, 0);
+            while (true) {
+                var x = random.NextFloat(-1, 1);
+                var y = random.NextFloat(-1, 1);
+                var z = random.NextFloat(1e-3f, 1);
+                var direction = SilkMath.Normalize(new Vector3(x, y, z));
+                if (SilkMath.Dot(direction, Vector3.UnitZ) < threshold) continue;
+                var scale = index / 32f;
+                scale = 0.1f + 0.9f * scale;
+                result[index] = new Vector4(direction * scale, 0);
+                break;
+            }
         }
         return result;
     }
@@ -266,6 +295,7 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
         rawOcclusion?.Dispose();
         normals?.Dispose();
         noise.Dispose();
+        noiseUpload.Dispose();
         depthStencilView.Dispose();
         depthStencilHeap.Dispose();
         foreach (var view in renderTargetViews) view.Dispose();

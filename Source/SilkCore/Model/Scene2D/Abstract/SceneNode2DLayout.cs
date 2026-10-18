@@ -216,16 +216,10 @@ public partial class SceneNode2D {
         if (IsAttached) InvalidateRender();
     }
 
-    public void InvalidateVisual() {
-        IsVisualDirty = true;
-        TraverseUp(this,
-                   p => {
-                       if (p.IsVisualDirty) return false;
-                       p.IsVisualDirty = true;
-                       return true;
-                   });
-        if (IsAttached) InvalidateRender();
-    }
+    /// <summary>
+    ///     Marks this node and its ancestors for repaint without re-entering render invalidation.
+    /// </summary>
+    public void InvalidateVisual() => InvalidateRender();
 
     public void InvalidateTransform() {
         IsTransformDirty = true;

@@ -1,5 +1,11 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-18 — Attached 2D startup invalidation
+
+* A visible Desktop startup reproduced a stack overflow in mutually recursive render/visual invalidation.
+* Dirty-state propagation now terminates without re-entering layout; both attached-panel regression cases pass.
+* Desktop rebuild succeeds; visible startup is repeated separately from treatment loading.
+
 ## 2026-10-18 — Remote branch integration
 
 * Merged origin/silk-toolkit at 7344b9cf, retaining local renderer and ownership fixes.

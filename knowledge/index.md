@@ -55,3 +55,5 @@ SilkCore also records paged ordinary/peeling descriptors, headless capacity/life
 
 SilkAssimp records the SharpAssimp 6.0.12 upgrade with preserved animation/material ownership fixes;
 remote wireframe additions coexist with current profiling, completed-fence and empty-scene SSAO behavior.
+
+SilkCore records bounded attached-2D invalidation and repaint propagation after the visible Desktop startup fix.

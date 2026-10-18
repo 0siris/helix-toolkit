@@ -321,9 +321,18 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     }
 
     /// <summary>
-    ///     Invalidates the render.
+    ///     Marks this node and its ancestors for repaint by the continuous native presentation loop.
     /// </summary>
-    public void InvalidateRender() => InvalidateVisual();
+    /// <remarks>Render invalidation must not call back into layout invalidation.</remarks>
+    public void InvalidateRender() {
+        IsVisualDirty = true;
+        TraverseUp(this,
+                   ancestor => {
+                       if (ancestor.IsVisualDirty) return false;
+                       ancestor.IsVisualDirty = true;
+                       return true;
+                   });
+    }
 
     protected override void OnDispose(bool disposeManagedResources) {
         renderCore?.Dispose();

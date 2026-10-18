@@ -125,3 +125,10 @@ resource names and descriptor occupancy counters. WinPixEventRuntime 1.0.2403080
 into consumer output/publish directories. The default path emits no PIX calls, timers or extra GPU waits.
 Only internal helpers are added. No public diagnostics API or application diagnostics window is introduced.
 PIX capture tooling remains a separate installation; marker execution is not evidence of an actual capture.
+
+## Attached 2D invalidation
+
+The visible Desktop startup exposed a recursive InvalidateRender/InvalidateVisual cycle introduced during the
+D3D12 cutover. Render invalidation now directly marks the node and ancestors dirty; visual invalidation delegates
+to it once. The continuous presentation loop consumes that state, without re-entering layout invalidation.
+Two device-free attached-panel regressions cover both entry points and the startup attachment path.

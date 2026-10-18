@@ -115,7 +115,6 @@ public sealed class D3D12CutoverContractTests {
     [InlineData("HelixToolkit.SharpDX.Core.ShaderManager.IBufferPool")]
     [InlineData("HelixToolkit.SharpDX.Core.ShaderManager.ConstantBufferPool")]
     [InlineData("HelixToolkit.SharpDX.Core.Render.DeviceContextPool")]
-    [InlineData("HelixToolkit.SharpDX.Core.Core.GeometryBufferManager")]
     [InlineData("HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics.GraphicsResource")]
     [InlineData("HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics.Texture")]
     [InlineData("HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics.Texture1D")]
@@ -126,6 +125,18 @@ public sealed class D3D12CutoverContractTests {
     [Trait("Category", "Unit")]
     public void LegacyRenderHostTypesAreAbsent(string typeName) {
         Assert.Null(typeof(MeshNode).Assembly.GetType(typeName, false, false));
+    }
+
+    /// <summary>
+    ///     Keeps the existing shared-buffer owner available under its restored original public name.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void OriginalSharedBufferRegistryRetainsItsPublicIdentity() {
+        var registry = typeof(MeshNode).Assembly.GetType(
+            "HelixToolkit.SharpDX.Core.Core.GeometryBufferManager", throwOnError: true);
+        Assert.Same(typeof(GeometryBufferManager), registry);
+        Assert.True(typeof(IGeometryBufferManager).IsAssignableFrom(registry));
     }
 
     /// <summary>

@@ -375,28 +375,29 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     public Task StopFromNodeUpdateDiscardsAutomaticCommandsAndRetainsDemand() => StaThread.RunAsync(async () => {
-        await using var driver = new FrameDriver();
-        await driver.WarmAsync();
-        var before = driver.Counts;
-        driver.Viewport.StartRendering();
-        driver.Node.StopOnNextUpdate = driver.Viewport;
-        driver.Viewport.InvalidateRender();
-        var automaticTick = typeof(D3D12WpfPresentation)
-            .GetMethod("OnRendering", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<EventHandler<RenderingEventArgs>>(driver.Owner);
-        automaticTick(driver.Canvas, CreateRenderingArgs(TimeSpan.FromSeconds(2)));
-        Assert.Equal(before.Submitted, driver.Owner.SubmittedFrames);
-        Assert.Equal(before.Completed, driver.Owner.CompletedFrames);
-        Assert.Equal(before.Copied, driver.Owner.CopiedFrames);
-        Assert.Equal(before.Published, driver.Owner.PublishedFrames);
-        Assert.Equal(before.Updates + 1, driver.Node.UpdateCount);
-        Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-        Assert.False(driver.Node.IsDisposed);
-        await driver.DrainAsync();
-        Assert.Equal(before.Submitted + 1, driver.Owner.SubmittedFrames);
-        Assert.Equal(before.Published + 1, driver.Owner.PublishedFrames);
-        AssertDominantMeshPixel(driver.Snapshot(), driver.Canvas.PixelWidth, driver.Canvas.PixelHeight, red: true);
-    });
+            await using var driver = new FrameDriver();
+            await driver.WarmAsync();
+            var before = driver.Counts;
+            driver.Viewport.StartRendering();
+            driver.Node.StopOnNextUpdate = driver.Viewport;
+            driver.Viewport.InvalidateRender();
+            var automaticTick = typeof(D3D12WpfPresentation)
+                .GetMethod("OnRendering", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .CreateDelegate<EventHandler<RenderingEventArgs>>(driver.Owner);
+            automaticTick(driver.Canvas, CreateRenderingArgs(TimeSpan.FromSeconds(2)));
+            Assert.Equal(before.Submitted, driver.Owner.SubmittedFrames);
+            Assert.Equal(before.Completed, driver.Owner.CompletedFrames);
+            Assert.Equal(before.Copied, driver.Owner.CopiedFrames);
+            Assert.Equal(before.Published, driver.Owner.PublishedFrames);
+            Assert.Equal(before.Updates + 1, driver.Node.UpdateCount);
+            Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+            Assert.False(driver.Node.IsDisposed);
+            await driver.DrainAsync();
+            Assert.Equal(before.Submitted + 1, driver.Owner.SubmittedFrames);
+            Assert.Equal(before.Published + 1, driver.Owner.PublishedFrames);
+            AssertDominantMeshPixel(driver.Snapshot(), driver.Canvas.PixelWidth, driver.Canvas.PixelHeight, red: true);
+        }
+    );
 
     /// <summary>Retries genuine zero-duration WPF lock failures without replacing the ready frame or bound surface.</summary>
     /// <returns>The actual lock contention, retained transport and single-publication verification.</returns>
@@ -970,8 +971,10 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
     /// <param name="timestamp">The distinct automatic frame timestamp.</param>
     /// <returns>The real WPF rendering arguments used only by the lifecycle test.</returns>
     private static RenderingEventArgs CreateRenderingArgs(TimeSpan timestamp) =>
-        (RenderingEventArgs)Activator.CreateInstance(typeof(RenderingEventArgs),
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, [timestamp], null)!;
+        (RenderingEventArgs) Activator.CreateInstance(
+            typeof(RenderingEventArgs),
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, [timestamp], null
+        )!;
 
     /// <summary>Retries only test-owned asynchronous work, preserving dispatcher responsiveness and a finite deadline.</summary>
     /// <param name="completed">The actual nonblocking completion attempt.</param>

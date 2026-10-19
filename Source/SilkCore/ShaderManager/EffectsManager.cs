@@ -169,14 +169,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
         DriverType = EnableSoftwareRendering
             ? DriverType.Warp
             : DriverType.Hardware;
-        geometryBufferManager = new GeometryBufferManager(this);
-        structArrayPool = new StructArrayPool();
-        factory2D = new D2DFactory();
-        device2D = new D2DDevice();
-        deviceContext2D = new D2DDeviceContext(device2D) { Factory = factory2D };
-        wicImgFactory = new WicImagingFactory();
-        directWriteFactory = new DirectWriteFactory();
-        Initialized = true;
+        InitializeResources();
     }
 
     /// <summary>
@@ -200,8 +193,21 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     public void Reinitialize() {
         if (!Initialized) {
+            InitializeResources();
+            Reinitialized?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>Creates a complete resource generation before publishing initialization or notifying consumers.</summary>
+    private void InitializeResources() {
+        try {
             geometryBufferManager = new GeometryBufferManager(this);
-            Initialized = true;
+            structArrayPool = new StructArrayPool();
+            factory2D = new D2DFactory();
+            device2D = new D2DDevice();
+            deviceContext2D = new D2DDeviceContext(device2D) { Factory = factory2D };
+            wicImgFactory = new WicImagingFactory();
+            directWriteFactory = new DirectWriteFactory();
             foreach (var tech in techniqueDescriptions.Values) {
                 var name = tech.Name.AsNotNull("Technique name must be initialized.");
                 techniqueDict.Add(name,
@@ -211,7 +217,11 @@ public class EffectsManager : DisposeObject, IEffectsManager {
                         true));
             }
 
-            Reinitialized?.Invoke(this, EventArgs.Empty);
+            Initialized = true;
+        } catch {
+            techniqueDict.Clear();
+            DisposeSharedResources();
+            throw;
         }
     }
 
@@ -301,6 +311,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
 #endif
     }
 
+    /// <summary>Notifies consumers before releasing techniques and the current shared resource generation.</summary>
     private void DisposeResources() {
         DisposingResources?.Invoke(this, EventArgs.Empty);
         foreach (var technique in techniqueDict.Values.ToArray())
@@ -310,6 +321,14 @@ public class EffectsManager : DisposeObject, IEffectsManager {
             }
 
         techniqueDict.Clear();
+        DisposeSharedResources();
+#if DEBUGMEMORY
+            ReportResources();
+#endif
+    }
+
+    /// <summary>Releases complete or partially initialized shared resources without disposing their manager.</summary>
+    private void DisposeSharedResources() {
         RemoveAndDispose(ref geometryBufferManager);
         RemoveAndDispose(ref directWriteFactory);
         RemoveAndDispose(ref deviceContext2D);
@@ -318,9 +337,6 @@ public class EffectsManager : DisposeObject, IEffectsManager {
         RemoveAndDispose(ref wicImgFactory);
         RemoveAndDispose(ref structArrayPool);
         Initialized = false;
-#if DEBUGMEMORY
-            ReportResources();
-#endif
     }
 
 #if DEBUGMEMORY

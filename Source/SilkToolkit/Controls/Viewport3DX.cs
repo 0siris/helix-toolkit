@@ -1236,6 +1236,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     /// <returns>The captured frame.</returns>
     internal D3D12CapturedFrame CaptureD3D12Frame() {
+        if (wpfPresentation is { } composited) return composited.CaptureFrame();
         _ = RenderD3D12Frame(TimeSpan.Zero, true);
         return d3d12Surface?.LastCapturedFrame
             ?? throw new InvalidOperationException("The Direct3D 12 presentation surface is unavailable.");
@@ -1625,6 +1626,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <remarks>All listeners run and required cleanup executes even when a listener throws.</remarks>
     protected virtual void Dispose(bool disposing) {
         if (disposedValue) return;
+        if (disposing) wpfPresentation?.PrepareForDisposal();
         disposedValue = true;
         if (!disposing) return;
         Exception? notificationFailure = null;
@@ -1645,6 +1647,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             }
             d3d12Surface?.Dispose();
             d3d12Surface = null;
+            wpfPresentation?.Dispose();
+            wpfPresentation = null;
             if (!BelongsToParentWindow) {
                 if (hostPresenter?.Content is IDisposable d) {
                     hostPresenter.Content = null;

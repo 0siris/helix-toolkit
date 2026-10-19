@@ -75,6 +75,8 @@ public partial class Viewport3DX {
     /// <param name="waitForCompletion">Whether an explicit caller may drain the pending GPU frame.</param>
     /// <returns>The recorded scene draw count; zero also represents idle, busy, or empty scene work.</returns>
     internal int RenderD3D12Frame(TimeSpan renderingTime, bool captureFrame = false, bool waitForCompletion = true) {
+        if (wpfPresentation is { } composited)
+            return composited.RenderFrame(renderingTime, captureFrame, waitForCompletion);
         var surface = d3d12Surface;
         var camera = CameraCore;
         if (surface is not { IsInitialized: true } || camera is null || Visibility != Visibility.Visible) return 0;

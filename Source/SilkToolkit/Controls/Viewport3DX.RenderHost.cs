@@ -21,19 +21,21 @@ public partial class Viewport3DX : IRenderHost {
 
     /// Gets the actual native hierarchy; no scene is prepared before the first native frame.
     public FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene =>
-        d3d12Surface?.PerFrameFlattenedScene ?? emptyFlattenedScene;
+        wpfPresentation?.PerFrameFlattenedScene ?? d3d12Surface?.PerFrameFlattenedScene ?? emptyFlattenedScene;
 
     /// The empty pre-initialization result; it never owns or prepares scene nodes.
     private readonly FastList<KeyValuePair<int, SceneNode>> emptyFlattenedScene = [];
 
     /// Gets the retained actual native update context, or null before the first frame.
-    public RenderContext? RenderContext => d3d12Surface?.RenderContext;
+    public RenderContext? RenderContext => wpfPresentation?.RenderContext ?? d3d12Surface?.RenderContext;
 
     float IRenderHost.DpiScale {
-        get => (float)(d3d12Surface?.WindowHost.DpiScale ?? DpiScale);
+        get => wpfPresentation?.Canvas.EffectiveDpiScale ?? (float)(d3d12Surface?.WindowHost.DpiScale ?? DpiScale);
         set {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
             if (!float.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (wpfPresentation is { } composited && value != composited.Canvas.EffectiveDpiScale)
+                throw new NotSupportedException("Composited DPI is controlled by the actual WPF canvas");
             if (d3d12Surface is { } surface && value != (float)surface.WindowHost.DpiScale)
                 throw new NotSupportedException("Native DPI is controlled by the actual WPF presentation owner");
             DpiScale = value;
@@ -49,6 +51,13 @@ public partial class Viewport3DX : IRenderHost {
     /// </summary>
     /// <returns>Whether a real frame was submitted or completed, including zero-draw frames.</returns>
     public bool UpdateAndRender() {
+        if (wpfPresentation is { } composited) {
+            var submitted = composited.SubmittedFrames;
+            var completedCount = completedD3D12Frames;
+            _ = composited.RenderFrame(TimeSpan.FromSeconds((double)System.Diagnostics.Stopwatch.GetTimestamp() /
+                System.Diagnostics.Stopwatch.Frequency), waitForCompletion: true);
+            return composited.SubmittedFrames != submitted || completedD3D12Frames != completedCount;
+        }
         var surface = d3d12Surface;
         var presented = surface?.PresentedFrames ?? 0;
         var completed = completedD3D12Frames;
@@ -70,6 +79,10 @@ public partial class Viewport3DX : IRenderHost {
         ArgumentOutOfRangeException.ThrowIfNegative(width);
         ArgumentOutOfRangeException.ThrowIfNegative(height);
         d3d12Surface?.Resize(width, height);
+        if (wpfPresentation is { } composited) {
+            composited.Canvas.Width = width;
+            composited.Canvas.Height = height;
+        }
         InvalidateRender();
     }
 
@@ -77,7 +90,7 @@ public partial class Viewport3DX : IRenderHost {
     public void StartRendering() {
         renderingEnabled = true;
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
+        if (wpfPresentation is null) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
         InvalidateRender();
     }
 

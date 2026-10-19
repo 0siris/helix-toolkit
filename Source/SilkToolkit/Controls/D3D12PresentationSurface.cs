@@ -354,13 +354,20 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <param name="rowPitch">The padded native row size.</param>
     /// <param name="width">The frame width.</param>
     /// <param name="height">The frame height.</param>
+    /// <param name="sourceFormat">The channel order of the readback allocation.</param>
+    /// <param name="premultiplied">Whether RGB must be normalized from premultiplied to straight color.</param>
     /// <returns>The tightly packed WPF frame.</returns>
     internal static D3D12CapturedFrame CreateCapturedFrame(byte[] padded,
         ulong offset,
         uint rowPitch,
         uint width,
-        uint height) {
+        uint height,
+        Silk.NET.DXGI.Format sourceFormat = Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm,
+        bool premultiplied = false) {
         padded.AsGuardNotNull();
+        if (sourceFormat is not (Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm or
+            Silk.NET.DXGI.Format.FormatB8G8R8A8Unorm))
+            throw new ArgumentException("Capture requires an RGBA8 or BGRA8 allocation.", nameof(sourceFormat));
         var rowBytes = checked((int) width * 4);
         var pixels = new byte[checked(rowBytes * (int) height)];
         for (var row = 0; row < height; row++) {
@@ -368,8 +375,15 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             var destinationOffset = checked((int) row * rowBytes);
             padded.AsSpan(sourceOffset, rowBytes).CopyTo(pixels.AsSpan(destinationOffset, rowBytes));
         }
-        for (var index = 0; index < pixels.Length; index += 4)
-            (pixels[index], pixels[index + 2]) = (pixels[index + 2], pixels[index]);
+        for (var index = 0; index < pixels.Length; index += 4) {
+            if (sourceFormat == Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm)
+                (pixels[index], pixels[index + 2]) = (pixels[index + 2], pixels[index]);
+            if (!premultiplied) continue;
+            var alpha = pixels[index + 3];
+            for (var channel = 0; channel < 3; channel++)
+                pixels[index + channel] = alpha == 0 ? (byte)0 :
+                    (byte)Math.Min(255, (pixels[index + channel] * 255 + alpha / 2) / alpha);
+        }
         return new D3D12CapturedFrame(width, height, pixels);
     }
 
@@ -616,7 +630,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
 }
 
 /// <summary>
-///     Contains one tightly packed BGRA viewport frame for WPF bitmap encoding.
+///     Contains one tightly packed straight BGRA viewport frame for WPF bitmap encoding.
 /// </summary>
 /// <param name="Width">The frame width.</param>
 /// <param name="Height">The frame height.</param>

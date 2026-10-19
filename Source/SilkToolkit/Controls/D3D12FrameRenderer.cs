@@ -35,6 +35,9 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     /// <summary>The color format fixed for this renderer's graphics pipelines.</summary>
     private readonly Format colorFormat;
 
+    /// <summary>The immutable color and coverage contract used by this presentation lifetime.</summary>
+    private readonly D3D12ColorOutputMode outputMode;
+
     /// <summary>The borrowed manager used by original scene attachment and Scene2D hooks.</summary>
     private IEffectsManager? effectsManager;
 
@@ -209,17 +212,20 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     /// <param name="device">The borrowed device, retained by the caller through GPU completion and disposal.</param>
     /// <param name="colorFormat">The color format used by all borrowed targets and graphics pipelines.</param>
     /// <param name="effectsManager">The optional borrowed scene effects manager.</param>
-    internal D3D12FrameRenderer(SilkD3D12Device device, Format colorFormat, IEffectsManager? effectsManager = null) {
+    /// <param name="outputMode">The immutable compositing contract; legacy callers retain existing behavior.</param>
+    internal D3D12FrameRenderer(SilkD3D12Device device, Format colorFormat, IEffectsManager? effectsManager = null,
+        D3D12ColorOutputMode outputMode = D3D12ColorOutputMode.Legacy) {
         device.AsGuardNotNull();
         if (colorFormat == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(colorFormat));
         this.device = device;
         this.colorFormat = colorFormat;
+        this.outputMode = outputMode;
         try {
             depthStencilHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
             depthStencilView = depthStencilHeap.Allocate();
             resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 16_384, true);
             samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 2_048, true);
-            sceneRenderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
+            sceneRenderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap, colorFormat, outputMode);
             SetEffectsManager(effectsManager);
         } catch {
             Dispose();
@@ -234,7 +240,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         if (passCatalog is not null && ReferenceEquals(effectsManager, value)) return;
         var replacement = new D3D12ScenePassCatalog(
             device, colorFormat, DepthStencilFormat,
-            (value as EffectsManager)?.TechniqueDescriptions, value
+            (value as EffectsManager)?.TechniqueDescriptions, value, outputMode
         );
         var previous = passCatalog;
         passCatalog = replacement;
@@ -272,7 +278,14 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         if (clearColor.Length != 4) throw new ArgumentException("Four RGBA components are required.", nameof(clearColor));
         Resize(target.Width, target.Height);
         context.Transition(target.ColorResource, ResourceStates.RenderTarget);
-        context.ClearRenderTarget(target.ColorResource, target.RenderTargetView, clearColor);
+        if (outputMode == D3D12ColorOutputMode.Premultiplied) {
+            var alpha = clearColor[3];
+            ReadOnlySpan<float> premultiplied = [clearColor[0] * alpha, clearColor[1] * alpha,
+                clearColor[2] * alpha, alpha];
+            context.ClearRenderTarget(target.ColorResource, target.RenderTargetView, premultiplied);
+        } else {
+            context.ClearRenderTarget(target.ColorResource, target.RenderTargetView, clearColor);
+        }
         context.ClearDepthStencil(depthStencilBuffer!, depthStencilView!);
         context.SetRenderTargets(target.RenderTargetView, depthStencilView!);
         context.SetViewport(target.Width, target.Height);

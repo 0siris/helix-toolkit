@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Windows;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
@@ -9,6 +10,29 @@ namespace SilkToolkit.Tests;
 /// <summary>Checks real viewport subscriptions and shared notification membership without native initialization.</summary>
 [Collection(WpfCollection.Name)]
 public sealed class ManagerResourceLifecycleTests {
+    /// <summary>Keeps manager handlers detached when completion delivery disposes a retiring viewport.</summary>
+    /// <returns>The managed dispatcher verification of reentrant retirement.</returns>
+    [Fact]
+    public Task CompletionDisposalDoesNotRestoreManagerSubscriptions() => StaThread.RunAsync(() => {
+            using var first = new DefaultEffectsManager();
+            using var second = new DefaultEffectsManager();
+            using var viewport = new Viewport3DX { EnableSwapChainRendering = true, EffectsManager = first };
+            using var surface = new D3D12PresentationSurface { RenderHost = viewport };
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            typeof(Viewport3DX).GetField("d3d12Surface", flags)!.SetValue(viewport, surface);
+            var submission = (D3D12FrameSubmission) typeof(D3D12PresentationSurface)
+                .GetField("_frameSubmission", flags)!.GetValue(surface)!;
+            submission.Submit(1, TimeSpan.Zero);
+            Assert.True(submission.TryComplete(1, TimeSpan.Zero));
+            viewport.Rendered += (_, _) => viewport.Dispose();
+            viewport.EffectsManager = second;
+            Assert.True(viewport.IsDisposed);
+            Assert.Null(typeof(Viewport3DX).GetField("subscribedEffectsManager", flags)!.GetValue(viewport));
+            Assert.True(first.Initialized);
+            Assert.True(second.Initialized);
+        }
+    );
+
     /// <summary>Transfers invalidation subscriptions and keeps both externally supplied managers alive.</summary>
     /// <returns>The dispatcher-owned lifecycle verification.</returns>
     [Fact]

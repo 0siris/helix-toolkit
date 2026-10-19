@@ -245,6 +245,8 @@ public partial class Viewport3DX {
 
     /// <summary>Schedules at most one deferred resource transition; settled frames take only a field check.</summary>
     internal void ScheduleManagerLifecycle() {
+        if (!IsDisposed && !IsPreparingPresentationFrame)
+            registeredModelContainer?.SchedulePendingEffectsManagerSynchronization();
         if (!managerResourcesResetPending || IsDisposed || Dispatcher.HasShutdownStarted ||
             managerLifecycleOperation is { Status: DispatcherOperationStatus.Pending or DispatcherOperationStatus.Executing })
             return;

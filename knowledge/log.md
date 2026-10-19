@@ -1,5 +1,16 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-19 — WPF composition Phase 4 started
+
+- User approved Phase 4 with parallel delegated tasks. Resolved the WPF-specific Spec-Kit context under
+  `specs/002-wpf-composition-phase4`; the unrelated Assimp feature pointer remains unchanged.
+- Integrated the public default-false backend, successful-initialization selection lock, DPI policy, shared
+  renderer attachment leases and borrowed-manager resource epochs. The first integrated Rider build passed.
+- Independent reviews identified shared removal invalidation, bounded retirement retry, nested dispatcher
+  rescheduling and reentrant manager/capture findings. Corrections and serial runtime verification are in progress;
+  the initial dedicated run passed 32/35 cases and exposed binding-coercion and layout-fixture corrections.
+- Phase 5 remains outside this implementation authorization.
+
 ## 2026-10-19 — WPF composition Phase 3 verified
 
 - Integrated the productive borrowed-device GPU bridge, passive canvas and serial-aware presentation owner.

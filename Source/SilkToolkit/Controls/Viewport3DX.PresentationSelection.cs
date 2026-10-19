@@ -15,18 +15,24 @@ public partial class Viewport3DX {
     /// <summary>Identifies the initial backend choice; false selects WPF composition.</summary>
     public static readonly DependencyProperty EnableSwapChainRenderingProperty = DependencyProperty.Register(
         nameof(EnableSwapChainRendering), typeof(bool), typeof(Viewport3DX),
-        new PropertyMetadata(false, PresentationBackendChanged, CoercePresentationBackend));
+        new PropertyMetadata(false, PresentationBackendChanged, CoercePresentationBackend)
+    );
 
     /// <summary>Identifies whether physical render dimensions follow monitor DPI, independently of DIP input.</summary>
     public static readonly DependencyProperty EnableDpiScaleProperty = DependencyProperty.Register(
         nameof(EnableDpiScale), typeof(bool), typeof(Viewport3DX),
-        new PropertyMetadata(true, EnableDpiScaleChanged));
+        new PropertyMetadata(true, EnableDpiScaleChanged)
+    );
 
     /// <summary>Gets or sets the backend before native initialization; true selects continuous HWND presentation.</summary>
     /// <exception cref="InvalidOperationException">A different backend has already initialized successfully.</exception>
     public bool EnableSwapChainRendering {
         get => (bool) GetValue(EnableSwapChainRenderingProperty);
-        set => SetValue(EnableSwapChainRenderingProperty, value);
+        set {
+            if (selectedSwapChainRendering is { } selected && selected != value)
+                throw new InvalidOperationException("The presentation backend cannot change after successful native initialization.");
+            SetValue(EnableSwapChainRenderingProperty, value);
+        }
     }
 
     /// <summary>Gets or sets whether rendering uses physical monitor resolution while input remains in DIPs.</summary>
@@ -35,18 +41,17 @@ public partial class Viewport3DX {
         set => SetValue(EnableDpiScaleProperty, value);
     }
 
-    /// <summary>Rejects a backend change before WPF commits the effective dependency-property value.</summary>
+    /// <summary>Preserves the initialized backend for all dependency-property and binding value sources.</summary>
     /// <param name="owner">The viewport receiving the request.</param>
     /// <param name="value">The requested backend.</param>
     /// <returns>The unchanged compatible backend choice.</returns>
-    /// <exception cref="InvalidOperationException">The selected presentation backend cannot change.</exception>
     private static object CoercePresentationBackend(DependencyObject owner, object value) {
         var viewport = (Viewport3DX) owner;
         ObjectDisposedException.ThrowIf(viewport.IsDisposed && (bool) value != viewport.EnableSwapChainRendering, viewport);
         if (viewport.wpfPresentation is { Generation: > 0 } || viewport.d3d12Surface?.IsInitialized == true)
             viewport.MarkPresentationInitialized();
         if (viewport.selectedSwapChainRendering is { } selected && selected != (bool) value)
-            throw new InvalidOperationException("The presentation backend cannot change after successful native initialization.");
+            return selected;
         if ((bool) value != viewport.EnableSwapChainRendering)
             viewport.RetirePresentation();
         return value;
@@ -92,12 +97,14 @@ public partial class Viewport3DX {
             composited.Canvas.PresentationChanged -= CanvasPresentationChanged;
             wpfPresentation = null;
         }
+
         if (d3d12Surface is { } surface) {
             surface.Dispose();
             surface.WindowHost.PointerInput -= D3D12PointerInput;
             surface.DeferredRenderException -= HandleRenderException;
             d3d12Surface = null;
         }
+
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
         if (hostPresenter is { } presenter) presenter.Content = null;
     }
@@ -150,24 +157,24 @@ public partial class Viewport3DX {
     /// <summary>Registers only image-producing state; diagnostics and cursor/status updates do not wake the scene.</summary>
     /// <returns>The image properties whose effective value changes request a frame.</returns>
     private static HashSet<DependencyProperty> CreateImagePropertySet() => [
-            BackgroundColorProperty, RenderTechniqueProperty, CameraProperty, OrthographicProperty,
-            IsShadowMappingEnabledProperty, MsaaProperty, FxaaLevelProperty, EnableRenderFrustumProperty,
-            EnableDeferredRenderingProperty, EnableSharedModelModeProperty, SharedModelContainerProperty,
-            Content2DProperty, EnableD2DRenderingProperty, EnableAutoOctreeUpdateProperty, EnableRenderOrderProperty,
-            OitRenderModeProperty, OitWeightPowerProperty, OitWeightDepthSlopeProperty, OitWeightModeProperty,
-            OitDepthPeelingIterationProperty, EnableSsaoProperty, SsaoSamplingRadiusProperty, SsaoIntensityProperty,
-            SsaoQualityProperty, ModelUpDirectionProperty, ShowViewCubeProperty, ViewCubeTextureProperty,
-            ViewCubeHorizontalPositionProperty, ViewCubeVerticalPositionProperty, ViewCubeSizeProperty,
-            IsViewCubeEdgeClicksEnabledProperty, IsViewCubeMoverEnabledProperty, ShowCoordinateSystemProperty,
-            CoordinateSystemHorizontalPositionProperty, CoordinateSystemVerticalPositionProperty,
-            CoordinateSystemSizeProperty, CoordinateSystemLabelForegroundProperty, CoordinateSystemLabelXProperty,
-            CoordinateSystemLabelYProperty, CoordinateSystemLabelZProperty, CoordinateSystemAxisXColorProperty,
-            CoordinateSystemAxisYColorProperty, CoordinateSystemAxisZColorProperty, IsCoordinateSystemMoverEnabledProperty,
-            ShowFrameRateProperty, ShowFrameDetailsProperty, ShowTriangleCountInfoProperty, ShowCameraInfoProperty,
-            ShowCameraTargetProperty, InfoBackgroundProperty, InfoForegroundProperty, TitleProperty,
-            TitleSizeProperty, TitleBackgroundProperty, TitleFontFamilyProperty, SubTitleProperty,
-            SubTitleSizeProperty, TextBrushProperty
-        ];
+        BackgroundColorProperty, RenderTechniqueProperty, CameraProperty, OrthographicProperty,
+        IsShadowMappingEnabledProperty, MsaaProperty, FxaaLevelProperty, EnableRenderFrustumProperty,
+        EnableDeferredRenderingProperty, EnableSharedModelModeProperty, SharedModelContainerProperty,
+        Content2DProperty, EnableD2DRenderingProperty, EnableAutoOctreeUpdateProperty, EnableRenderOrderProperty,
+        OitRenderModeProperty, OitWeightPowerProperty, OitWeightDepthSlopeProperty, OitWeightModeProperty,
+        OitDepthPeelingIterationProperty, EnableSsaoProperty, SsaoSamplingRadiusProperty, SsaoIntensityProperty,
+        SsaoQualityProperty, ModelUpDirectionProperty, ShowViewCubeProperty, ViewCubeTextureProperty,
+        ViewCubeHorizontalPositionProperty, ViewCubeVerticalPositionProperty, ViewCubeSizeProperty,
+        IsViewCubeEdgeClicksEnabledProperty, IsViewCubeMoverEnabledProperty, ShowCoordinateSystemProperty,
+        CoordinateSystemHorizontalPositionProperty, CoordinateSystemVerticalPositionProperty,
+        CoordinateSystemSizeProperty, CoordinateSystemLabelForegroundProperty, CoordinateSystemLabelXProperty,
+        CoordinateSystemLabelYProperty, CoordinateSystemLabelZProperty, CoordinateSystemAxisXColorProperty,
+        CoordinateSystemAxisYColorProperty, CoordinateSystemAxisZColorProperty, IsCoordinateSystemMoverEnabledProperty,
+        ShowFrameRateProperty, ShowFrameDetailsProperty, ShowTriangleCountInfoProperty, ShowCameraInfoProperty,
+        ShowCameraTargetProperty, InfoBackgroundProperty, InfoForegroundProperty, TitleProperty,
+        TitleSizeProperty, TitleBackgroundProperty, TitleFontFamilyProperty, SubTitleProperty,
+        SubTitleSizeProperty, TextBrushProperty
+    ];
 
     /// <summary>Wakes only image-producing state; original aliases flow through their synchronized current property.</summary>
     /// <param name="args">The effective image-property transition.</param>

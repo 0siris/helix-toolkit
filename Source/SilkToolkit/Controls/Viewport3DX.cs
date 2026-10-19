@@ -1251,9 +1251,15 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (!CanRenderWithEffectsManager)
             throw new InvalidOperationException("The effects-manager resource transition has not completed.");
         if (wpfPresentation is { } composited) return composited.CaptureFrame();
-        _ = RenderD3D12Frame(TimeSpan.Zero, true);
-        return d3d12Surface?.LastCapturedFrame
+        var surface = d3d12Surface
             ?? throw new InvalidOperationException("The Direct3D 12 presentation surface is unavailable.");
+        var previousPresentedFrames = surface.PresentedFrames;
+        var previousPixels = surface.LastCapturedFrame?.Pixels;
+        _ = RenderD3D12Frame(TimeSpan.Zero, true);
+        if (ReferenceEquals(d3d12Surface, surface) && surface.PresentedFrames != previousPresentedFrames &&
+            surface.LastCapturedFrame is { } captured && !ReferenceEquals(previousPixels, captured.Pixels))
+            return captured;
+        throw new InvalidOperationException("The Direct3D 12 capture frame was not submitted and completed.");
     }
 
     /// <summary>

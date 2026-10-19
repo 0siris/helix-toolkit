@@ -24,8 +24,10 @@ public sealed class NativeMeshRecordingAllocationTests(ITestOutputHelper output)
         using var queue = device.CreateCommandQueue();
         using var context = device.CreateCommandContext();
         using var fence = device.CreateFence();
-        using var catalog = new D3D12ScenePassCatalog(device, Format.FormatR8G8B8A8Unorm,
-            Format.FormatD32FloatS8X24Uint);
+        using var catalog = new D3D12ScenePassCatalog(
+            device, Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32FloatS8X24Uint
+        );
         using var resources = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 1024, true);
         using var samplers = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 128, true);
         using var renderer = new SilkD3D12SceneRenderer(device, resources, samplers);
@@ -37,16 +39,22 @@ public sealed class NativeMeshRecordingAllocationTests(ITestOutputHelper output)
         using var depth = device.CreateDepthStencilTexture2D(16, 16, Format.FormatD32FloatS8X24Uint);
         device.CreateRenderTargetView(target, targetView);
         device.CreateDepthStencilView(depth, depthView);
-        var texture = textured ? new TextureModel([Vector4.One], 1, 1) : null;
+        var texture = textured
+            ? new TextureModel([Vector4.One], 1, 1)
+            : null;
         using var diffuse = CreateMesh(new DiffuseMaterialCore { DiffuseMap = texture });
         using var phong = CreateMesh(new PhongMaterialCore { DiffuseMap = texture });
         using var pbr = CreateMesh(new PBRMaterialCore { AlbedoMap = texture });
         var nodes = new FastList<SceneNode> { diffuse, phong, pbr };
         Func<SceneNode, ShaderPass?> selectPass = catalog.Resolve;
         var transforms = new GlobalTransformStruct {
-            View = Matrix.Identity, Projection = Matrix.Identity, ViewProjection = Matrix.Identity,
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
             Viewport = new Vector4(16, 16, 1f / 16, 1f / 16),
-            Resolution = new Vector4(16, 16, 1f / 16, 1f / 16), EyePos = new Vector3(0, 0, 2), DpiScale = 1
+            Resolution = new Vector4(16, 16, 1f / 16, 1f / 16),
+            EyePos = new Vector3(0, 0, 2),
+            DpiScale = 1
         };
         for (var index = 0; index < 128; index++) {
             Assert.Equal(nodes.Count, Record());

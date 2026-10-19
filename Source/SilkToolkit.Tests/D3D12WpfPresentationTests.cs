@@ -333,7 +333,8 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
     [InlineData(true)]
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
-    public Task StoppedRenderingFinishesAcceptedTransportWithoutSubmittingNewDemand(bool stopFromCompletion) => StaThread.RunAsync(async () => {
+    public Task StoppedRenderingFinishesAcceptedTransportWithoutSubmittingNewDemand(bool stopFromCompletion) => StaThread.RunAsync(async ()
+            => {
             await using var driver = new FrameDriver();
             await driver.WarmAsync();
             var before = driver.Counts;

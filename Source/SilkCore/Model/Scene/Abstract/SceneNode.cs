@@ -42,6 +42,12 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <summary>Retains renderer identity and its active host independently of the most recent frame's host.</summary>
     private List<KeyValuePair<object, IRenderHost?>>? nativeAttachments;
 
+    /// <summary>Gets the permission callback scoped to the current attachment, if any.</summary>
+    protected Func<bool>? AttachmentPermission { get; private set; }
+
+    /// <summary>Gets whether the current attachment may continue after a user callback.</summary>
+    protected bool CanContinueAttachment => AttachmentPermission?.Invoke() ?? true;
+
     /// <summary>Retains or refreshes one renderer's native attachment without creating a per-frame lease object.</summary>
     /// <param name="owner">The native renderer that releases this attachment after GPU completion.</param>
     /// <param name="host">The renderer's active host, or null for an offscreen consumer.</param>
@@ -151,35 +157,51 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     ///     </para>
     /// </summary>
     /// <param name="effectsManager">The effectsManager.</param>
-    public void Attach(IEffectsManager? effectsManager) {
-        if (IsAttached && effectsManager != EffectsManager)
-            throw new InvalidOperationException("EffectsManager instances must be the same during attaching.");
+    public void Attach(IEffectsManager? effectsManager) => Attach(effectsManager, null);
 
-        if (IsAttached || effectsManager == null)
-            return;
+    /// <summary>Attaches while checking retained renderer permission across reentrant user callbacks.</summary>
+    /// <param name="effectsManager">The manager supplying attachment resources.</param>
+    /// <param name="canContinue">The retained permission callback, or null for legacy attachment behavior.</param>
+    internal void Attach(IEffectsManager? effectsManager, Func<bool>? canContinue) {
+        var previousPermission = AttachmentPermission;
+        AttachmentPermission = canContinue;
+        try {
+            if (!CanContinueAttachment) return;
+            if (IsAttached && effectsManager != EffectsManager)
+                throw new InvalidOperationException("EffectsManager instances must be the same during attaching.");
 
-        RenderHost ??= Parent?.RenderHost;
-        EffectsManager = effectsManager;
-        EffectTechnique = OnSetRenderTechnique is not null
-                              ? OnSetRenderTechnique(effectsManager)
-                              : OnCreateRenderTechnique(effectsManager);
-
-        if (EffectTechnique is null) {
-            var techniqueName = EffectsManager.RenderTechniques.FirstOrDefault();
-            if (string.IsNullOrEmpty(techniqueName))
+            if (IsAttached || effectsManager == null)
                 return;
 
-            EffectTechnique = EffectsManager[techniqueName];
-        }
+            RenderHost ??= Parent?.RenderHost;
+            EffectsManager = effectsManager;
+            EffectTechnique = OnSetRenderTechnique is not null
+                                  ? OnSetRenderTechnique(effectsManager)
+                                  : OnCreateRenderTechnique(effectsManager);
+            if (!CanContinueAttachment) return;
 
-        IsAttached = OnAttach(effectsManager);
-        if (IsAttached) {
-            NeedMatrixUpdate = true;
-            OnAttached();
-            Attached?.Invoke(this, EventArgs.Empty);
-        }
+            if (EffectTechnique is null) {
+                var techniqueName = EffectsManager.RenderTechniques.FirstOrDefault();
+                if (string.IsNullOrEmpty(techniqueName))
+                    return;
 
-        InvalidateSceneGraph();
+                EffectTechnique = EffectsManager[techniqueName];
+            }
+
+            if (!CanContinueAttachment) return;
+            IsAttached = OnAttach(effectsManager);
+            if (!CanContinueAttachment) return;
+            if (IsAttached) {
+                NeedMatrixUpdate = true;
+                OnAttached();
+                if (!CanContinueAttachment) return;
+                Attached?.Invoke(this, EventArgs.Empty);
+            }
+
+            if (CanContinueAttachment) InvalidateSceneGraph();
+        } finally {
+            AttachmentPermission = previousPermission;
+        }
     }
 
     /// <summary>
@@ -189,7 +211,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <returns>Return true if attached</returns>
     protected virtual bool OnAttach(IEffectsManager effectsManager) {
         RenderCore.Attach();
-        AssignDefaultValuesToCore(RenderCore);
+        if (CanContinueAttachment) AssignDefaultValuesToCore(RenderCore);
         return RenderCore.IsAttached;
     }
 

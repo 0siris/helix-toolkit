@@ -103,8 +103,11 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// </returns>
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
+            if (!CanContinueAttachment) return true;
             CreateGeometryBuffer();
+            if (!CanContinueAttachment) return true;
             BoundManager.Geometry = Geometry;
+            if (!CanContinueAttachment) return true;
             InstanceBuffer.Initialize();
             InstanceBuffer.Elements = Instances;
             if (RenderCore is IGeometryRenderCore r) r.InstanceBuffer = InstanceBuffer;

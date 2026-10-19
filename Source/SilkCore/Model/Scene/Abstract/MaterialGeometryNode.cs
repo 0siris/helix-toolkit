@@ -19,6 +19,9 @@ public abstract class MaterialGeometryNode : GeometryNode {
     /// <summary>The material whose property notifications are currently observed.</summary>
     private MaterialCore? observedMaterial;
 
+    /// <summary>Suppresses material subscriptions throughout nested detachment and disposal callbacks.</summary>
+    private int materialObservationSuppressionDepth;
+
     /// <summary>The retained callback used throughout attachment and material replacement.</summary>
     private readonly PropertyChangedEventHandler materialPropertyChanged;
 
@@ -60,6 +63,7 @@ public abstract class MaterialGeometryNode : GeometryNode {
     /// <summary>Updates material observation without changing subscriptions on repeated native attachment.</summary>
     /// <param name="value">The active material, or null to stop observing.</param>
     private void ObserveMaterial(MaterialCore? value) {
+        if (materialObservationSuppressionDepth != 0) value = null;
         if (ReferenceEquals(observedMaterial, value)) return;
         if (observedMaterial is not null) observedMaterial.PropertyChanged -= materialPropertyChanged;
         observedMaterial = value;
@@ -87,20 +91,38 @@ public abstract class MaterialGeometryNode : GeometryNode {
 
     /// <inheritdoc />
     protected override void OnDetachD3D12() {
-        ObserveMaterial(null);
-        base.OnDetachD3D12();
+        materialObservationSuppressionDepth++;
+        try {
+            ObserveMaterial(null);
+            base.OnDetachD3D12();
+        } finally {
+            ObserveMaterial(null);
+            materialObservationSuppressionDepth--;
+        }
     }
 
     /// <inheritdoc />
     protected override void OnDetach() {
-        ObserveMaterial(null);
-        base.OnDetach();
+        materialObservationSuppressionDepth++;
+        try {
+            ObserveMaterial(null);
+            base.OnDetach();
+        } finally {
+            ObserveMaterial(null);
+            materialObservationSuppressionDepth--;
+        }
     }
 
     /// <inheritdoc />
     protected override void OnDispose(bool disposeManagedResources) {
-        ObserveMaterial(null);
-        base.OnDispose(disposeManagedResources);
+        materialObservationSuppressionDepth++;
+        try {
+            ObserveMaterial(null);
+            base.OnDispose(disposeManagedResources);
+        } finally {
+            ObserveMaterial(null);
+            materialObservationSuppressionDepth--;
+        }
     }
 
     /// <inheritdoc />

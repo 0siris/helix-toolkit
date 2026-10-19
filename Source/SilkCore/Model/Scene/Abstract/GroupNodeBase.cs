@@ -73,7 +73,7 @@ public abstract class GroupNodeBase : SceneNode {
             if (node.Parent != null && node.Parent != this)
                 throw new ArgumentException("SceneNode already attach to a different node");
             node.Parent = this;
-            if (IsAttached) node.Attach(EffectsManager);
+            if (IsAttached) node.Attach(EffectsManager, AttachmentPermission);
             InvalidateSceneGraph();
 
             ChildNodeAdded?.Invoke(this, new OnChildNodeChangedArgs(node, Operation.Add));
@@ -104,7 +104,7 @@ public abstract class GroupNodeBase : SceneNode {
         ItemHashSet.Add(node.Guid, node);
         ItemsInternal.Insert(index, node);
         node.Parent = this;
-        if (IsAttached) node.Attach(EffectsManager);
+        if (IsAttached) node.Attach(EffectsManager, AttachmentPermission);
         InvalidateSceneGraph();
 
         ChildNodeAdded?.Invoke(this, new OnChildNodeChangedArgs(node, Operation.Add));
@@ -177,7 +177,8 @@ public abstract class GroupNodeBase : SceneNode {
     /// <returns>Whether this group attached successfully.</returns>
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
-            for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Attach(effectsManager);
+            for (var i = 0; i < ItemsInternal.Count && CanContinueAttachment; ++i)
+                ItemsInternal[i].Attach(effectsManager, AttachmentPermission);
             return true;
         }
 

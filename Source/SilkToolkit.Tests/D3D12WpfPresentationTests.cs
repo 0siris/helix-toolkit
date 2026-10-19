@@ -215,7 +215,7 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
                     $"{(double) allocated / frames:F2} bytes/frame."
                 );
                 driver.AssertAdvanced(before, frames);
-                Assert.InRange(allocated, 0L, 2048L * frames);
+                Assert.InRange(allocated, 0L, 512L * frames);
                 AssertPixel(driver.Snapshot(), driver.Canvas.PixelWidth, 8, 8, 0, 128, 0, 128, 8);
             } finally {
                 overlay.Children.Remove(rectangle);
@@ -911,7 +911,7 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
             Assert.False(owner.HasPendingTransport);
             Assert.False(viewport.RenderDemand.HasRenderDemand);
             Assert.True(draws >= frames);
-            Assert.InRange(allocated, 0L, 1024L * frames);
+            Assert.InRange(allocated, 0L, 256L * frames);
             AssertDominantMeshPixel(driver.Snapshot(), driver.Canvas.PixelWidth, driver.Canvas.PixelHeight, red: true);
             var captured = owner.CaptureFrame();
             AssertDominantMeshPixel(captured.Pixels, captured.Width, captured.Height, red: true);

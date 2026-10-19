@@ -73,7 +73,7 @@ public sealed class NativeMeshRecordingAllocationTests(ITestOutputHelper output)
 
         Assert.Equal(iterations * nodes.Count, recorded);
         output.WriteLine($"Mesh recording (textured={textured}): {allocated} bytes / {iterations} frames / {recorded} draws.");
-        Assert.InRange(allocated, 0, 256L * iterations);
+        Assert.InRange(allocated, 0, 128L * iterations);
 
         /// <summary>Records actual mesh commands and frame cleanup; all delegates are retained outside this pass.</summary>
         /// <returns>The renderer's actual successfully recorded mesh draw count.</returns>

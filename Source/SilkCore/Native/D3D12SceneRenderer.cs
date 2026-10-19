@@ -24,6 +24,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
 
     /// The current environment property shared with mesh and effect texture bindings.
     private TextureModel? currentEnvironmentMap;
+
+    /// <summary>Reuses the environment lookup delegate shared by all mesh bindings.</summary>
+    private readonly Func<TextureModel?> environmentSource;
     /// Per-core immutable GPU intersection generations, owned by this render host.
     private readonly Dictionary<MeshIntersectionRenderCore, SilkD3D12IntersectionResources> intersectionResources = [];
     /// Replaced generations retained until the next completed host fence.
@@ -191,6 +194,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         samplerHeap.AsGuardNotNull();
         this.resourceHeap = resourceHeap;
         this.samplerHeap = samplerHeap;
+        environmentSource = GetCurrentEnvironmentMap;
         _effectBindings = new D3D12EffectBindingPool(device);
         _sceneBindings = new D3D12EffectBindingPool(device);
         resources = new SilkD3D12ResourceManager(device, resourceHeap);
@@ -205,6 +209,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     ///     Gets the Direct3D 12 device used to allocate per-core bindings.
     /// </summary>
     private SilkD3D12Device Device { get; }
+
+    /// <summary>Reads the current environment without allocating a new per-draw closure.</summary>
+    /// <returns>The current environment texture model.</returns>
+    private TextureModel? GetCurrentEnvironmentMap() => currentEnvironmentMap;
 
     /// <summary>
     ///     Gets the number of nodes selected by the most recent camera-frustum pass.
@@ -938,10 +946,6 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         candidates.AsGuardNotNull();
         passSelector.AsGuardNotNull();
         visibleNodes.Clear();
-        preparationRoots.Clear();
-        updatedNodes.Clear();
-        preparedNodes.Clear();
-        preparationStack.Clear();
         SceneNodeFrustumSelector.AppendVisible(candidates, visibleNodes, testFrustum, ref frustum);
         context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         var effectiveEnvironmentMap = lights is null
@@ -969,7 +973,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 : null;
             if (drawMeshBindings is not null) {
                 drawMeshBindings.Owner = (MeshRenderCore)node.RenderCore;
-                drawMeshBindings.EnvironmentSource = () => currentEnvironmentMap;
+                drawMeshBindings.EnvironmentSource = environmentSource;
             }
             if (drawPointLineBindings is not null)
                 drawPointLineBindings.Owner = (PointLineRenderCore)node.RenderCore;
@@ -1702,6 +1706,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         particleResources.Clear();
         screenCaptureResources.Clear();
         visibleNodes.Clear();
+        preparationRoots.Clear();
+        updatedNodes.Clear();
+        preparedNodes.Clear();
+        preparationStack.Clear();
         shadowMap?.Dispose();
         shadowMap = null;
         volumeResources?.Dispose();

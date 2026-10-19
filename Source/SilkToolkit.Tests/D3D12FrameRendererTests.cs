@@ -20,6 +20,27 @@ namespace SilkToolkit.Tests;
 /// <summary>Exercises the productive shared recorder against caller-owned offscreen WARP color textures.</summary>
 [Collection(WpfCollection.Name)]
 public sealed class D3D12FrameRendererTests {
+    /// <summary>Draws the preparer's own retained candidates without an intermediate classification copy.</summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpRendersDirectPreparationCandidates() {
+        using var frame = new OffscreenFrame();
+        using var mesh = CreateGreenQuad();
+        var camera = CreateCamera();
+        using var update = new RenderContext(camera, 32, 24);
+        var candidates = frame.Renderer.SceneRenderer.PrepareScene([mesh], update);
+        var target = frame.Target;
+        var transforms = D3D12FrameRenderer.CreateViewportTransforms(camera, target.Width, target.Height, 1, 0,
+            out var frustum);
+        frame.Context.Reset();
+        var draws = frame.Renderer.RecordSceneFrame(frame.Context, in target, [0, 0, 1, 1],
+            candidates, in transforms, false, ref frustum);
+        var pixels = frame.Readback(in target);
+        Assert.Equal(1, draws);
+        Assert.Same(mesh, Assert.Single(candidates));
+        AssertPixel(pixels, target.Width, target.Width / 2, target.Height / 2, 0, 255, 0);
+    }
+
     /// <summary>Records the default viewport pass sequence and reads every pixel without a presentation host.</summary>
     [Fact]
     [Trait("Category", "Warp")]
@@ -345,7 +366,7 @@ public sealed class D3D12FrameRendererTests {
             var footprint = Device.GetCopyableFootprint(target.ColorResource, out var bytes);
             using var readback = Device.CreateBuffer(bytes, HeapType.Readback);
             Context.Transition(target.ColorResource, ResourceStates.CopySource);
-            Context.CopyTextureToBuffer(readback, target.ColorResource, in footprint);
+            Context.CopyTextureToBuffer(readback,target.ColorResource, in footprint);
             Context.Close();
             queue.Execute(Context);
             fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));

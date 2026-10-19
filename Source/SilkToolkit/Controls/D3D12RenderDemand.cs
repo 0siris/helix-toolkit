@@ -67,24 +67,34 @@ internal sealed class D3D12RenderDemand {
     /// wakes an idle scene nor changes an existing budget or reservation; the next nonempty request uses it.
     /// </remarks>
     internal int MinimumUpdateCount {
-        get { lock (_gate) return _minimumUpdateCount; }
-        set { lock (_gate) _minimumUpdateCount = Math.Max(0, value); }
+        get {
+            lock (_gate) return _minimumUpdateCount;
+        }
+        set {
+            lock (_gate) _minimumUpdateCount = Math.Max(0, value);
+        }
     }
 
     /// <summary>Gets whether unreserved frames remain, including requests received during an active frame.</summary>
     /// <remarks>This does not report a frame already reserved or still pending on the GPU.</remarks>
     internal bool HasRenderDemand {
-        get { lock (_gate) return _remainingFrames > 0; }
+        get {
+            lock (_gate) return _remainingFrames > 0;
+        }
     }
 
     /// <summary>Gets whether publication work remains to be claimed, even with a clean scene.</summary>
     internal bool HasPublicationDemand {
-        get { lock (_gate) return _publicationRequested; }
+        get {
+            lock (_gate) return _publicationRequested;
+        }
     }
 
     /// <summary>Gets whether presentation recovery remains to be claimed, even with a clean scene.</summary>
     internal bool HasRecoveryDemand {
-        get { lock (_gate) return _recoveryRequested; }
+        get {
+            lock (_gate) return _recoveryRequested;
+        }
     }
 
     /// <summary>Coalesces preparation flags and resets the following frame budget without consuming a frame.</summary>
@@ -128,6 +138,7 @@ internal sealed class D3D12RenderDemand {
                 _invalidation |= _reservedInvalidation;
                 if (!_reservationSuperseded) _remainingFrames++;
             }
+
             _reservedInvalidation = D3D12RenderInvalidation.None;
             _frameActive = false;
         }

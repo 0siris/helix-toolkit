@@ -170,19 +170,19 @@ internal sealed class D3D12FrameRenderer : IDisposable {
 
     /// <summary>Gets the native scene owner used by every recording entry point.</summary>
     internal SilkD3D12SceneRenderer SceneRenderer => sceneRenderer
-        ?? throw new ObjectDisposedException(nameof(D3D12FrameRenderer));
+                                                     ?? throw new ObjectDisposedException(nameof(D3D12FrameRenderer));
 
     /// <summary>Gets the actual current pipeline catalog.</summary>
     internal D3D12ScenePassCatalog PassCatalog => passCatalog
-        ?? throw new ObjectDisposedException(nameof(D3D12FrameRenderer));
+                                                  ?? throw new ObjectDisposedException(nameof(D3D12FrameRenderer));
 
     /// <summary>Gets the actual shader-visible resource heap.</summary>
     internal SilkD3D12DescriptorHeap ResourceHeap => resourceHeap
-        ?? throw new ObjectDisposedException(nameof(D3D12FrameRenderer));
+                                                     ?? throw new ObjectDisposedException(nameof(D3D12FrameRenderer));
 
     /// <summary>Gets the actual shader-visible sampler heap.</summary>
     internal SilkD3D12DescriptorHeap SamplerHeap => samplerHeap
-        ?? throw new ObjectDisposedException(nameof(D3D12FrameRenderer));
+                                                    ?? throw new ObjectDisposedException(nameof(D3D12FrameRenderer));
 
     /// <summary>Gets the actual depth/stencil descriptor heap.</summary>
     internal SilkD3D12DescriptorHeap? DepthStencilHeap => depthStencilHeap;
@@ -232,8 +232,10 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     internal void SetEffectsManager(IEffectsManager? value) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (passCatalog is not null && ReferenceEquals(effectsManager, value)) return;
-        var replacement = new D3D12ScenePassCatalog(device, colorFormat, DepthStencilFormat,
-            (value as EffectsManager)?.TechniqueDescriptions, value);
+        var replacement = new D3D12ScenePassCatalog(
+            device, colorFormat, DepthStencilFormat,
+            (value as EffectsManager)?.TechniqueDescriptions, value
+        );
         var previous = passCatalog;
         passCatalog = replacement;
         effectsManager = value;
@@ -260,8 +262,11 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     /// <param name="context">The caller-owned open command context.</param>
     /// <param name="target">The borrowed physical color target.</param>
     /// <param name="clearColor">Four RGBA clear components.</param>
-    internal void RecordClearFrame(SilkD3D12CommandContext context, in D3D12FrameTarget target,
-        ReadOnlySpan<float> clearColor) {
+    internal void RecordClearFrame(
+        SilkD3D12CommandContext context,
+        in D3D12FrameTarget target,
+        ReadOnlySpan<float> clearColor
+    ) {
         ValidateTarget(in target);
         context.AsGuardNotNull();
         if (clearColor.Length != 4) throw new ArgumentException("Four RGBA components are required.", nameof(clearColor));
@@ -283,13 +288,22 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     /// <param name="frustum">The current camera frustum.</param>
     /// <param name="lights">The optional light payload.</param>
     /// <returns>The number of recorded native draws.</returns>
-    internal int RecordSceneFrame(SilkD3D12CommandContext context, in D3D12FrameTarget target,
-        ReadOnlySpan<float> clearColor, FastList<SceneNode> candidates, in GlobalTransformStruct transforms,
-        bool testFrustum, ref BoundingFrustum frustum, LightsBufferModel? lights = null) {
+    internal int RecordSceneFrame(
+        SilkD3D12CommandContext context,
+        in D3D12FrameTarget target,
+        ReadOnlySpan<float> clearColor,
+        FastList<SceneNode> candidates,
+        in GlobalTransformStruct transforms,
+        bool testFrustum,
+        ref BoundingFrustum frustum,
+        LightsBufferModel? lights = null
+    ) {
         RecordClearFrame(context, in target, clearColor);
         SceneRenderer.BeginFrame();
-        return SceneRenderer.RenderVisible(context, candidates, resolvePass, in transforms,
-            testFrustum, ref frustum, lights, boneSkinningPassSelector: resolveBoneSkinningPass);
+        return SceneRenderer.RenderVisible(
+            context, candidates, resolvePass, in transforms,
+            testFrustum, ref frustum, lights, boneSkinningPassSelector: resolveBoneSkinningPass
+        );
     }
 
     /// <summary>
@@ -369,11 +383,12 @@ internal sealed class D3D12FrameRenderer : IDisposable {
             RenderContext?.Dispose();
             RenderContext = new RenderContext(camera, width, height, dpiScale);
         }
+
         var updateContext = RenderContext;
         updateContext.RestoreGlobalTransform();
         updateContext.EnableBoundingFrustum = testFrustum;
         updateContext.AutoUpdateOctree = autoUpdateOctree;
-        updateContext.TimeStamp = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
+        updateContext.TimeStamp = TimeSpan.FromSeconds((double) Stopwatch.GetTimestamp() / Stopwatch.Frequency);
         var preparedNodes = renderer.PrepareScene(roots, updateContext, effectsManager, renderHost);
         foreach (var node in preparedNodes) {
             if (FindScreenSpacedAncestor(node) is not null) continue;
@@ -421,16 +436,20 @@ internal sealed class D3D12FrameRenderer : IDisposable {
 
         SilkD3D12SceneRenderer.UpdateLights(lightNodes, lights);
 
-        var transforms = CreateViewportTransforms(camera,
+        var transforms = CreateViewportTransforms(
+            camera,
             target.Width,
             target.Height,
             dpiScale,
             (float) Stopwatch.GetTimestamp() / Stopwatch.Frequency,
-            out var frustum);
+            out var frustum
+        );
         transforms.OITWeightPower = oitWeightPower;
         transforms.OITWeightDepthSlope = oitWeightDepthSlope;
         transforms.OITWeightMode = (int) oitWeightMode;
-        transforms.SSAOEnabled = enableSsao ? 1u : 0u;
+        transforms.SSAOEnabled = enableSsao
+            ? 1u
+            : 0u;
         transforms.SSAOBias = 1e-3f;
         transforms.SSAOIntensity = ssaoIntensity;
         RecordClearFrame(currentContext, in target, clearColor);
@@ -438,28 +457,34 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         renderer.BeginFrame();
         ShadowMapParamStruct? shadowParameters = null;
         if (enableShadows && shadowNode is not null &&
-            shadowNode.TryCreateD3D12Parameters(lightNodes,
+            shadowNode.TryCreateD3D12Parameters(
+                lightNodes,
                 opaqueNodes,
                 out var currentShadowParameters,
-                out var shadowFrustum)) {
-            renderer.RenderShadows(currentContext,
+                out var shadowFrustum
+            )) {
+            renderer.RenderShadows(
+                currentContext,
                 opaqueNodes,
                 resolveShadowPass,
                 resolveBoneSkinningPass,
                 in transforms,
                 in currentShadowParameters,
-                ref shadowFrustum);
+                ref shadowFrustum
+            );
             var shadowDepthStencilView = depthStencilView
-                ?? throw new InvalidOperationException("The depth/stencil view is unavailable.");
+                                         ?? throw new InvalidOperationException("The depth/stencil view is unavailable.");
             currentContext.SetRenderTargets(target.RenderTargetView, shadowDepthStencilView);
             currentContext.SetViewport(target.Width, target.Height);
             shadowParameters = currentShadowParameters;
         }
+
         var currentDepthStencilView = depthStencilView
-            ?? throw new InvalidOperationException("The depth/stencil view is unavailable.");
+                                      ?? throw new InvalidOperationException("The depth/stencil view is unavailable.");
         SilkD3D12Resource? ssaoMap = null;
         if (enableSsao && opaqueNodes.Count > 0) {
-            ssaoMap = renderer.RenderSsao(currentContext,
+            ssaoMap = renderer.RenderSsao(
+                currentContext,
                 opaqueNodes,
                 resolveSsaoGeometryPass,
                 catalog.ResolvePostProcess(DefaultRenderTechniqueNames.Ssao, DefaultPassNames.Default),
@@ -471,14 +496,17 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 target.Width,
                 target.Height,
                 ssaoQuality,
-                ssaoRadius);
+                ssaoRadius
+            );
             currentContext.SetRenderTargets(target.RenderTargetView, currentDepthStencilView);
             currentContext.SetViewport(target.Width, target.Height);
         }
+
         int recorded;
         {
             using var opaqueProfile = D3D12Profiler.Begin(currentContext, "Silk.Opaque");
-            recorded = renderer.RenderVisible(currentContext,
+            recorded = renderer.RenderVisible(
+                currentContext,
                 opaqueNodes,
                 resolvePass,
                 in transforms,
@@ -489,16 +517,22 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 resolveBoneSkinningPass,
                 shadowParameters,
                 ssaoMap,
-                ssaoMap is null ? -1 : 31);
+                ssaoMap is null
+                    ? -1
+                    : 31
+            );
         }
-        recorded += renderer.RenderVisible(currentContext,
+        recorded += renderer.RenderVisible(
+            currentContext,
             opaqueNodes,
             resolveWireframePass,
             in transforms,
             testFrustum,
             ref frustum,
-            boneSkinningPassSelector: resolveBoneSkinningPass);
-        recorded += renderer.RenderVolumes(currentContext,
+            boneSkinningPassSelector: resolveBoneSkinningPass
+        );
+        recorded += renderer.RenderVolumes(
+            currentContext,
             volumeNodes,
             opaqueNodes,
             resolveVolumeBackPass,
@@ -511,17 +545,21 @@ internal sealed class D3D12FrameRenderer : IDisposable {
             target.RenderTargetView,
             currentDepthStencilView,
             target.Width,
-            target.Height);
-        recorded += renderer.RenderParticles(currentContext,
+            target.Height
+        );
+        recorded += renderer.RenderParticles(
+            currentContext,
             particleNodes,
             resolveParticleUpdatePass,
             resolveParticleInsertPass,
             resolveParticlePass,
             in transforms,
             testFrustum,
-            ref frustum);
+            ref frustum
+        );
         recorded += oitRenderType switch {
-            OITRenderType.SinglePassWeighted => renderer.RenderWeightedTransparency(currentContext,
+            OITRenderType.SinglePassWeighted => renderer.RenderWeightedTransparency(
+                currentContext,
                 transparentNodes,
                 resolveWeightedTransparencyPass,
                 catalog.ResolveWeightedComposition(),
@@ -535,8 +573,10 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 lights,
                 environmentMap,
                 resolveBoneSkinningPass,
-                shadowParameters),
-            OITRenderType.DepthPeeling => renderer.RenderDepthPeeling(currentContext,
+                shadowParameters
+            ),
+            OITRenderType.DepthPeeling => renderer.RenderDepthPeeling(
+                currentContext,
                 transparentNodes,
                 resolveDepthPeelingInitializationPass,
                 resolveDepthPeelingPass,
@@ -553,8 +593,10 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 lights,
                 environmentMap,
                 resolveBoneSkinningPass,
-                shadowParameters),
-            _ => renderer.RenderVisible(currentContext,
+                shadowParameters
+            ),
+            _ => renderer.RenderVisible(
+                currentContext,
                 transparentNodes,
                 resolvePass,
                 in transforms,
@@ -563,7 +605,8 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 lights,
                 environmentMap,
                 resolveBoneSkinningPass,
-                shadowParameters)
+                shadowParameters
+            )
         };
         foreach (var effectNode in globalEffectNodes)
             if (effectNode is NodePostEffectBloom bloom) {
@@ -576,29 +619,43 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                         M14 = bloom.BloomCombineIntensity
                     }
                 };
-                renderer.RenderBloom(currentContext,
+                renderer.RenderBloom(
+                    currentContext,
                     backBuffer,
                     target.RenderTargetView,
-                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
-                        DefaultPassNames.ScreenQuad),
-                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
-                        DefaultPassNames.EffectBlurVertical),
-                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
-                        DefaultPassNames.EffectBlurHorizontal),
-                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
-                        DefaultPassNames.MeshOutline),
+                    catalog.ResolvePostProcess(
+                        DefaultRenderTechniqueNames.PostEffectBloom,
+                        DefaultPassNames.ScreenQuad
+                    ),
+                    catalog.ResolvePostProcess(
+                        DefaultRenderTechniqueNames.PostEffectBloom,
+                        DefaultPassNames.EffectBlurVertical
+                    ),
+                    catalog.ResolvePostProcess(
+                        DefaultRenderTechniqueNames.PostEffectBloom,
+                        DefaultPassNames.EffectBlurHorizontal
+                    ),
+                    catalog.ResolvePostProcess(
+                        DefaultRenderTechniqueNames.PostEffectBloom,
+                        DefaultPassNames.MeshOutline
+                    ),
                     in bloomParameters,
                     bloom.NumberOfBlurPass,
                     in transforms,
                     target.Width,
-                    target.Height);
+                    target.Height
+                );
             }
-        recorded += renderer.RenderPostEffects(currentContext, postEffectCandidates, postEffectNodes,
+
+        recorded += renderer.RenderPostEffects(
+            currentContext, postEffectCandidates, postEffectNodes,
             catalog, in transforms, testFrustum, ref frustum, backBuffer,
             target.RenderTargetView,
             depthStencilBuffer ?? throw new InvalidOperationException("The depth/stencil resource is unavailable"),
-            currentDepthStencilView, target.Width, target.Height);
-        recorded += RenderScreenSpaced(currentContext,
+            currentDepthStencilView, target.Width, target.Height
+        );
+        recorded += RenderScreenSpaced(
+            currentContext,
             renderer,
             camera,
             in transforms,
@@ -606,9 +663,11 @@ internal sealed class D3D12FrameRenderer : IDisposable {
             dpiScale,
             currentDepthStencilView,
             lights,
-            environmentMap);
+            environmentMap
+        );
         if (fxaaLevel != FXAALevel.None)
-            renderer.RenderFxaa(currentContext,
+            renderer.RenderFxaa(
+                currentContext,
                 backBuffer,
                 target.RenderTargetView,
                 catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectFxaa, DefaultPassNames.LumaPass),
@@ -616,18 +675,21 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 fxaaLevel,
                 in transforms,
                 target.Width,
-                target.Height);
+                target.Height
+            );
         if (roots2D is not null) {
             var context2D = GetRenderContext2D(in target, dpiScale);
             try {
-                recorded += renderer.Render2D(currentContext,
+                recorded += renderer.Render2D(
+                    currentContext,
                     roots2D,
                     catalog.ResolveSprite2D(),
                     target.RenderTargetView,
                     target.Width,
                     target.Height,
                     dpiScale,
-                    context2D);
+                    context2D
+                );
             } catch {
                 // Original update hooks can leave mutable context stacks unbalanced when they throw.
                 // A failed context must never be reused by the next frame.
@@ -640,9 +702,11 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                         context2D.Dispose();
                     }
                 }
+
                 throw;
             }
         }
+
         D3D12Profiler.ReportDescriptors(renderer.SceneBindings, renderer.EffectBindings, ResourceHeap, SamplerHeap);
         return recorded;
     }
@@ -658,7 +722,8 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     /// <param name="lights">The shared light payload.</param>
     /// <param name="environmentMap">The optional scene environment map.</param>
     /// <returns>The number of recorded screen-spaced draws.</returns>
-    private int RenderScreenSpaced(SilkD3D12CommandContext context,
+    private int RenderScreenSpaced(
+        SilkD3D12CommandContext context,
         SilkD3D12SceneRenderer renderer,
         CameraCore camera,
         in GlobalTransformStruct mainTransform,
@@ -666,19 +731,22 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         float dpiScale,
         SilkD3D12Descriptor currentDepthStencilView,
         LightsBufferModel lights,
-        TextureModel? environmentMap) {
+        TextureModel? environmentMap
+    ) {
         var currentDepthStencilBuffer = depthStencilBuffer
-            ?? throw new InvalidOperationException("The depth/stencil buffer is unavailable.");
+                                        ?? throw new InvalidOperationException("The depth/stencil buffer is unavailable.");
         var recorded = 0;
         foreach (var root in screenSpacedNodes) {
             if (root.RenderCore is not ScreenSpacedMeshRenderCore screenCore ||
-                !screenCore.TryCreateD3D12Transform(camera,
+                !screenCore.TryCreateD3D12Transform(
+                    camera,
                     in mainTransform,
                     target.Width,
                     target.Height,
                     dpiScale,
                     out var screenTransform,
-                    out var viewport))
+                    out var viewport
+                ))
                 continue;
 
             screenSpacedOpaqueNodes.Clear();
@@ -687,16 +755,21 @@ internal sealed class D3D12FrameRenderer : IDisposable {
 
             var scissorLeft = Math.Max(0, (int) viewport.X);
             var scissorTop = Math.Max(0, (int) viewport.Y);
-            var scissorRight = Math.Min((int) target.Width,
-                (int) Math.Ceiling(viewport.X + viewport.Width));
-            var scissorBottom = Math.Min((int) target.Height,
-                (int) Math.Ceiling(viewport.Y + viewport.Height));
+            var scissorRight = Math.Min(
+                (int) target.Width,
+                (int) Math.Ceiling(viewport.X + viewport.Width)
+            );
+            var scissorBottom = Math.Min(
+                (int) target.Height,
+                (int) Math.Ceiling(viewport.Y + viewport.Height)
+            );
             if (scissorRight <= scissorLeft || scissorBottom <= scissorTop) continue;
             context.ClearDepthStencil(currentDepthStencilBuffer, currentDepthStencilView);
             context.SetViewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
             context.SetScissorRectangle(scissorLeft, scissorTop, scissorRight, scissorBottom);
             var screenFrustum = new BoundingFrustum(screenTransform.ViewProjection);
-            recorded += renderer.RenderVisible(context,
+            recorded += renderer.RenderVisible(
+                context,
                 screenSpacedOpaqueNodes,
                 resolvePass,
                 in screenTransform,
@@ -704,8 +777,10 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 ref screenFrustum,
                 lights,
                 environmentMap,
-                resolveBoneSkinningPass);
-            recorded += renderer.RenderVisible(context,
+                resolveBoneSkinningPass
+            );
+            recorded += renderer.RenderVisible(
+                context,
                 screenSpacedTransparentNodes,
                 resolvePass,
                 in screenTransform,
@@ -713,8 +788,10 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 ref screenFrustum,
                 lights,
                 environmentMap,
-                resolveBoneSkinningPass);
+                resolveBoneSkinningPass
+            );
         }
+
         context.SetViewport(target.Width, target.Height);
         return recorded;
     }
@@ -753,9 +830,12 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         if (RenderContext2D is not { } previous || previous.ActualWidth != target.Width ||
             previous.ActualHeight != target.Height || previous.DpiScale != dpiScale) {
             RenderContext2D?.Dispose();
-            RenderContext2D = new RenderContext2D(effectsManager.DeviceContext2D, effectsManager,
-                target.Width, target.Height, dpiScale);
+            RenderContext2D = new RenderContext2D(
+                effectsManager.DeviceContext2D, effectsManager,
+                target.Width, target.Height, dpiScale
+            );
         }
+
         return RenderContext2D;
     }
 
@@ -776,8 +856,10 @@ internal sealed class D3D12FrameRenderer : IDisposable {
             description.Height != target.Height || description.SampleDesc.Count != 1 ||
             (description.Flags & ResourceFlags.AllowRenderTarget) == 0 ||
             target.RenderTargetView.Type != DescriptorHeapType.Rtv)
-            throw new ArgumentException("The target must describe its actual single-sample render texture and RTV.",
-                nameof(target));
+            throw new ArgumentException(
+                "The target must describe its actual single-sample render texture and RTV.",
+                nameof(target)
+            );
     }
 
     /// <summary>Replaces depth resources only after the caller has completed preceding GPU work.</summary>
@@ -796,6 +878,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
             replacement.Dispose();
             throw;
         }
+
         depthStencilBuffer?.Dispose();
         depthStencilBuffer = replacement;
     }
@@ -854,10 +937,12 @@ internal sealed class D3D12FrameRenderer : IDisposable {
             View = view,
             Projection = projection,
             ViewProjection = viewProjection,
-            Frustum = new Vector4(cameraParameters.Fov,
+            Frustum = new Vector4(
+                cameraParameters.Fov,
                 cameraParameters.AspectRatio,
                 cameraParameters.ZNear,
-                cameraParameters.ZFar),
+                cameraParameters.ZFar
+            ),
             Viewport = new Vector4(width, height, 1f / width, 1f / height),
             Resolution = new Vector4(width, height, 1f / width, 1f / height),
             EyePos = cameraParameters.Position,
@@ -866,5 +951,4 @@ internal sealed class D3D12FrameRenderer : IDisposable {
             DpiScale = dpiScale
         };
     }
-
 }

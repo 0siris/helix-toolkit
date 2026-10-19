@@ -22,6 +22,7 @@ public sealed class NativeFrameAllocationTests(ITestOutputHelper output) {
             fixture.Renderer.BeginFrame();
             fixture.Renderer.PrepareScene(roots, fixture.Context);
         }
+
         const int iterations = 1000;
         var initialUpdates = root.Updates;
         var before = GC.GetAllocatedBytesForCurrentThread();
@@ -29,6 +30,7 @@ public sealed class NativeFrameAllocationTests(ITestOutputHelper output) {
             fixture.Renderer.BeginFrame();
             fixture.Renderer.PrepareScene(roots, fixture.Context);
         }
+
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Equal(iterations, root.Updates - initialUpdates);
         Assert.Equal(root.Updates, child.Updates);
@@ -74,7 +76,10 @@ public sealed class NativeFrameAllocationTests(ITestOutputHelper output) {
         Assert.Throws<InvalidOperationException>(() => fixture.Renderer.PrepareScene(roots, fixture.Context));
         root.AfterUpdate = null;
         fixture.Renderer.PrepareScene(roots, fixture.Context);
-        Assert.Same(root, Assert.Single(fixture.Renderer.PerFrameFlattenedScene).Value);
+        Assert.Same(
+            root, Assert.Single(fixture.Renderer.PerFrameFlattenedScene)
+                .Value
+        );
     }
 
     /// <summary>Observes genuine node updates without allocating in the measured pass.</summary>

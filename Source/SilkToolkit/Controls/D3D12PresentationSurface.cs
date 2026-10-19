@@ -16,6 +16,7 @@ using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Interface;
+using HelixToolkit.SharpDX.Core.Utilities;
 using Silk.NET.Direct3D12;
 
 namespace HelixToolkit.Wpf.SharpDX.Controls;

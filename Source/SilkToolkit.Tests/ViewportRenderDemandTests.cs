@@ -34,67 +34,69 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
     [InlineData(-4, 0, 1)]
     [Trait("Category", "Warp")]
     public Task EmptyFramesConsumeThePublicBudget(int requested, int coerced, int frames) => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver(drawMesh: false);
-        Assert.Equal(6, driver.Viewport.MinimumUpdateCount);
-        Assert.Equal(6UL, driver.Drain());
-        driver.Viewport.MinimumUpdateCount = requested;
-        Assert.Equal(coerced, driver.Viewport.MinimumUpdateCount);
-        Assert.Equal(coerced, driver.Viewport.RenderDemand.MinimumUpdateCount);
-        Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
-        var presented = driver.Surface.PresentedFrames;
-        var updates = driver.Node.UpdateCount;
-        var rendered = driver.RenderedCount;
-        var onRendered = driver.OnRenderedCount;
+            using var driver = new FrameDriver(drawMesh: false);
+            Assert.Equal(6, driver.Viewport.MinimumUpdateCount);
+            Assert.Equal(6UL, driver.Drain());
+            driver.Viewport.MinimumUpdateCount = requested;
+            Assert.Equal(coerced, driver.Viewport.MinimumUpdateCount);
+            Assert.Equal(coerced, driver.Viewport.RenderDemand.MinimumUpdateCount);
+            Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+            var presented = driver.Surface.PresentedFrames;
+            var updates = driver.Node.UpdateCount;
+            var rendered = driver.RenderedCount;
+            var onRendered = driver.OnRenderedCount;
 
-        driver.Viewport.InvalidateRender();
-        for (var index = 0; index < frames; index++) {
-            Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+            driver.Viewport.InvalidateRender();
+            for (var index = 0; index < frames; index++) {
+                Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+                Assert.Equal(0, driver.Viewport.RenderD3D12Frame(FrameTime));
+                Assert.Equal(presented + (ulong) index + 1, driver.Surface.PresentedFrames);
+            }
+
+            Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+            Assert.Equal(updates + frames, driver.Node.UpdateCount);
+            Assert.Equal(rendered + frames, driver.RenderedCount);
+            Assert.Equal(onRendered + frames, driver.OnRenderedCount);
+            var context = driver.Viewport.RenderContext;
+            var timestamp = context!.TimeStamp;
             Assert.Equal(0, driver.Viewport.RenderD3D12Frame(FrameTime));
-            Assert.Equal(presented + (ulong)index + 1, driver.Surface.PresentedFrames);
+            Assert.Equal(presented + (ulong) frames, driver.Surface.PresentedFrames);
+            Assert.Equal(updates + frames, driver.Node.UpdateCount);
+            Assert.Equal(rendered + frames, driver.RenderedCount);
+            Assert.Equal(onRendered + frames, driver.OnRenderedCount);
+            Assert.Same(context, driver.Viewport.RenderContext);
+            Assert.Equal(timestamp, context.TimeStamp);
         }
-
-        Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
-        Assert.Equal(updates + frames, driver.Node.UpdateCount);
-        Assert.Equal(rendered + frames, driver.RenderedCount);
-        Assert.Equal(onRendered + frames, driver.OnRenderedCount);
-        var context = driver.Viewport.RenderContext;
-        var timestamp = context!.TimeStamp;
-        Assert.Equal(0, driver.Viewport.RenderD3D12Frame(FrameTime));
-        Assert.Equal(presented + (ulong)frames, driver.Surface.PresentedFrames);
-        Assert.Equal(updates + frames, driver.Node.UpdateCount);
-        Assert.Equal(rendered + frames, driver.RenderedCount);
-        Assert.Equal(onRendered + frames, driver.OnRenderedCount);
-        Assert.Same(context, driver.Viewport.RenderContext);
-        Assert.Equal(timestamp, context.TimeStamp);
-    });
+    );
 
     /// <summary>Applies runtime property changes to the next request without changing an existing budget or waking idle.</summary>
     /// <returns>The hidden STA verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
     public Task RuntimeBudgetChangesAffectOnlySubsequentInvalidations() => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver(drawMesh: false);
-        driver.Drain();
-        driver.Viewport.InvalidateRender();
-        _ = driver.Viewport.RenderD3D12Frame(FrameTime);
-        driver.Viewport.MinimumUpdateCount = 1;
-        Assert.Equal(5UL, driver.Drain());
-        driver.Viewport.InvalidateRender();
-        Assert.Equal(1UL, driver.Drain());
+            using var driver = new FrameDriver(drawMesh: false);
+            driver.Drain();
+            driver.Viewport.InvalidateRender();
+            _ = driver.Viewport.RenderD3D12Frame(FrameTime);
+            driver.Viewport.MinimumUpdateCount = 1;
+            Assert.Equal(5UL, driver.Drain());
+            driver.Viewport.InvalidateRender();
+            Assert.Equal(1UL, driver.Drain());
 
-        driver.Viewport.MinimumUpdateCount = -7;
-        Assert.Equal(0, driver.Viewport.MinimumUpdateCount);
-        Assert.Equal(0, driver.Viewport.RenderDemand.MinimumUpdateCount);
-        Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
-        Assert.Equal(0UL, driver.Drain());
-        driver.Viewport.InvalidateRender();
-        Assert.Equal(1UL, driver.Drain());
+            driver.Viewport.MinimumUpdateCount = -7;
+            Assert.Equal(0, driver.Viewport.MinimumUpdateCount);
+            Assert.Equal(0, driver.Viewport.RenderDemand.MinimumUpdateCount);
+            Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+            Assert.Equal(0UL, driver.Drain());
+            driver.Viewport.InvalidateRender();
+            Assert.Equal(1UL, driver.Drain());
 
-        driver.Viewport.MinimumUpdateCount = 6;
-        Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
-        driver.Viewport.InvalidateRender();
-        Assert.Equal(6UL, driver.Drain());
-    });
+            driver.Viewport.MinimumUpdateCount = 6;
+            Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+            driver.Viewport.InvalidateRender();
+            Assert.Equal(6UL, driver.Drain());
+        }
+    );
 
     /// <summary>Connects each public invalidation entry point to its distinct preparation reasons and a real frame.</summary>
     /// <param name="kind">Selects render, renderables, or scene-graph invalidation.</param>
@@ -105,55 +107,57 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
     [InlineData(2)]
     [Trait("Category", "Warp")]
     public Task PublicInvalidationsRetainDistinctPreparationReasons(int kind) => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver();
-        driver.Drain();
-        driver.Viewport.MinimumUpdateCount = 1;
-        var expected = D3D12RenderInvalidation.Render;
-        switch (kind) {
-            case 0:
-                driver.Viewport.InvalidateRender();
-                break;
-            case 1:
-                driver.Viewport.InvalidatePerFrameRenderables();
-                expected |= D3D12RenderInvalidation.PerFrameRenderables;
-                break;
-            default:
-                driver.Viewport.InvalidateSceneGraph();
-                expected |= D3D12RenderInvalidation.PerFrameRenderables | D3D12RenderInvalidation.SceneGraph;
-                break;
-        }
+            using var driver = new FrameDriver();
+            driver.Drain();
+            driver.Viewport.MinimumUpdateCount = 1;
+            var expected = D3D12RenderInvalidation.Render;
+            switch (kind) {
+                case 0:
+                    driver.Viewport.InvalidateRender();
+                    break;
+                case 1:
+                    driver.Viewport.InvalidatePerFrameRenderables();
+                    expected |= D3D12RenderInvalidation.PerFrameRenderables;
+                    break;
+                default:
+                    driver.Viewport.InvalidateSceneGraph();
+                    expected |= D3D12RenderInvalidation.PerFrameRenderables | D3D12RenderInvalidation.SceneGraph;
+                    break;
+            }
 
-        Assert.True(driver.Viewport.RenderDemand.TryBeginFrame(out var reasons));
-        Assert.Equal(expected, reasons);
-        driver.Viewport.RenderDemand.CompleteFrame(submitted: false);
-        var updates = driver.Node.UpdateCount;
-        Assert.Equal(1UL, driver.Drain());
-        Assert.Equal(updates + 1, driver.Node.UpdateCount);
-    });
+            Assert.True(driver.Viewport.RenderDemand.TryBeginFrame(out var reasons));
+            Assert.Equal(expected, reasons);
+            driver.Viewport.RenderDemand.CompleteFrame(submitted: false);
+            var updates = driver.Node.UpdateCount;
+            Assert.Equal(1UL, driver.Drain());
+            Assert.Equal(updates + 1, driver.Node.UpdateCount);
+        }
+    );
 
     /// <summary>Preserves an invalidation raised inside the actual mesh update after reserving the older request.</summary>
     /// <returns>The hidden STA verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
     public Task InvalidationInsideNodeUpdateRequestsOneFollowingFrame() => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver();
-        driver.Drain();
-        driver.Viewport.MinimumUpdateCount = 1;
-        var presented = driver.Surface.PresentedFrames;
-        var updates = driver.Node.UpdateCount;
-        driver.Node.InvalidateOnNextUpdate = driver.Viewport;
+            using var driver = new FrameDriver();
+            driver.Drain();
+            driver.Viewport.MinimumUpdateCount = 1;
+            var presented = driver.Surface.PresentedFrames;
+            var updates = driver.Node.UpdateCount;
+            driver.Node.InvalidateOnNextUpdate = driver.Viewport;
 
-        driver.Viewport.InvalidateRender();
-        _ = driver.Viewport.RenderD3D12Frame(FrameTime);
+            driver.Viewport.InvalidateRender();
+            _ = driver.Viewport.RenderD3D12Frame(FrameTime);
 
-        Assert.Equal(presented + 1, driver.Surface.PresentedFrames);
-        Assert.Equal(updates + 1, driver.Node.UpdateCount);
-        Assert.Null(driver.Node.InvalidateOnNextUpdate);
-        Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-        Assert.Equal(1UL, driver.Drain());
-        Assert.Equal(presented + 2, driver.Surface.PresentedFrames);
-        Assert.Equal(updates + 2, driver.Node.UpdateCount);
-    });
+            Assert.Equal(presented + 1, driver.Surface.PresentedFrames);
+            Assert.Equal(updates + 1, driver.Node.UpdateCount);
+            Assert.Null(driver.Node.InvalidateOnNextUpdate);
+            Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+            Assert.Equal(1UL, driver.Drain());
+            Assert.Equal(presented + 2, driver.Surface.PresentedFrames);
+            Assert.Equal(updates + 2, driver.Node.UpdateCount);
+        }
+    );
 
     /// <summary>Preserves one request from either completion event without duplicate notifications or extra frames.</summary>
     /// <param name="useOnRendered">Whether to request from OnRendered rather than the original host Rendered event.</param>
@@ -163,27 +167,28 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
     [InlineData(true)]
     [Trait("Category", "Warp")]
     public Task CompletionInvalidationRequestsExactlyOneFollowingFrame(bool useOnRendered) => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver();
-        driver.Drain();
-        driver.Viewport.MinimumUpdateCount = 1;
-        var rendered = driver.RenderedCount;
-        var onRendered = driver.OnRenderedCount;
-        driver.InvalidateFromRendered = !useOnRendered;
-        driver.InvalidateFromOnRendered = useOnRendered;
+            using var driver = new FrameDriver();
+            driver.Drain();
+            driver.Viewport.MinimumUpdateCount = 1;
+            var rendered = driver.RenderedCount;
+            var onRendered = driver.OnRenderedCount;
+            driver.InvalidateFromRendered = !useOnRendered;
+            driver.InvalidateFromOnRendered = useOnRendered;
 
-        driver.Viewport.InvalidateRender();
-        _ = driver.Viewport.RenderD3D12Frame(FrameTime);
+            driver.Viewport.InvalidateRender();
+            _ = driver.Viewport.RenderD3D12Frame(FrameTime);
 
-        Assert.Equal(rendered + 1, driver.RenderedCount);
-        Assert.Equal(onRendered + 1, driver.OnRenderedCount);
-        Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-        Assert.Equal(1UL, driver.Drain());
-        Assert.Equal(rendered + 2, driver.RenderedCount);
-        Assert.Equal(onRendered + 2, driver.OnRenderedCount);
-        Assert.Equal(0, driver.Viewport.RenderD3D12Frame(FrameTime));
-        Assert.Equal(rendered + 2, driver.RenderedCount);
-        Assert.Equal(onRendered + 2, driver.OnRenderedCount);
-    });
+            Assert.Equal(rendered + 1, driver.RenderedCount);
+            Assert.Equal(onRendered + 1, driver.OnRenderedCount);
+            Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+            Assert.Equal(1UL, driver.Drain());
+            Assert.Equal(rendered + 2, driver.RenderedCount);
+            Assert.Equal(onRendered + 2, driver.OnRenderedCount);
+            Assert.Equal(0, driver.Viewport.RenderD3D12Frame(FrameTime));
+            Assert.Equal(rendered + 2, driver.RenderedCount);
+            Assert.Equal(onRendered + 2, driver.OnRenderedCount);
+        }
+    );
 
     /// <summary>Rejects nested recording during synchronous and previously pending completion callbacks without losing work.</summary>
     /// <param name="pendingCompletion">Whether the callback is raised while draining an older asynchronous submission.</param>
@@ -193,200 +198,210 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
     [InlineData(true)]
     [Trait("Category", "Warp")]
     public Task ReentrantCompletionReturnsZeroAndRetainsTheFollowingFrame(bool pendingCompletion) => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver();
-        driver.Drain();
-        driver.Viewport.MinimumUpdateCount = 1;
-        var presented = driver.Surface.PresentedFrames;
-        var updates = driver.Node.UpdateCount;
-        var rendered = driver.RenderedCount;
-        var onRendered = driver.OnRenderedCount;
-        driver.ReenterFromRendered = true;
-        using var gate = pendingCompletion ? new NativeQueueGate(driver.Surface) : null;
+            using var driver = new FrameDriver();
+            driver.Drain();
+            driver.Viewport.MinimumUpdateCount = 1;
+            var presented = driver.Surface.PresentedFrames;
+            var updates = driver.Node.UpdateCount;
+            var rendered = driver.RenderedCount;
+            var onRendered = driver.OnRenderedCount;
+            driver.ReenterFromRendered = true;
+            using var gate = pendingCompletion
+                ? new NativeQueueGate(driver.Surface)
+                : null;
 
-        driver.Viewport.InvalidateRender();
-        _ = driver.Viewport.RenderD3D12Frame(FrameTime, waitForCompletion: !pendingCompletion);
-        if (pendingCompletion) {
-            Assert.Equal(rendered, driver.RenderedCount);
-            gate!.Release();
-            _ = driver.Viewport.RenderD3D12Frame(FrameTime);
-        } else {
-            Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-            Assert.Equal(1UL, driver.Drain());
+            driver.Viewport.InvalidateRender();
+            _ = driver.Viewport.RenderD3D12Frame(FrameTime, waitForCompletion: !pendingCompletion);
+            if (pendingCompletion) {
+                Assert.Equal(rendered, driver.RenderedCount);
+                gate!.Release();
+                _ = driver.Viewport.RenderD3D12Frame(FrameTime);
+            } else {
+                Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+                Assert.Equal(1UL, driver.Drain());
+            }
+
+            Assert.Equal(1, driver.ReentrantCalls);
+            Assert.Equal(0, driver.ReentrantDraws);
+            Assert.Equal(0, driver.UpdatesDuringReentry);
+            Assert.Equal(0UL, driver.SubmissionsDuringReentry);
+            Assert.Equal(presented + 2, driver.Surface.PresentedFrames);
+            Assert.Equal(updates + 2, driver.Node.UpdateCount);
+            Assert.Equal(rendered + 2, driver.RenderedCount);
+            Assert.Equal(onRendered + 2, driver.OnRenderedCount);
+            Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
         }
-
-        Assert.Equal(1, driver.ReentrantCalls);
-        Assert.Equal(0, driver.ReentrantDraws);
-        Assert.Equal(0, driver.UpdatesDuringReentry);
-        Assert.Equal(0UL, driver.SubmissionsDuringReentry);
-        Assert.Equal(presented + 2, driver.Surface.PresentedFrames);
-        Assert.Equal(updates + 2, driver.Node.UpdateCount);
-        Assert.Equal(rendered + 2, driver.RenderedCount);
-        Assert.Equal(onRendered + 2, driver.OnRenderedCount);
-        Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
-    });
+    );
 
     /// <summary>Skips demand consumption and node preparation while the real GPU queue is gated, then renders the new request.</summary>
     /// <returns>The hidden STA verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
     public Task BusyGpuCallsPreservePendingInvalidationWithoutPreparingNodes() => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver();
-        driver.Drain();
-        driver.Viewport.MinimumUpdateCount = 1;
-        var rendered = driver.RenderedCount;
-        var onRendered = driver.OnRenderedCount;
-        using var gate = new NativeQueueGate(driver.Surface);
-        driver.Viewport.InvalidateRender();
-        var draws = driver.Viewport.RenderD3D12Frame(FrameTime, waitForCompletion: false);
-        var presented = driver.Surface.PresentedFrames;
-        var updates = driver.Node.UpdateCount;
-        var maintenance = driver.Node.MaintenanceCount;
-        var fence = PrivateField<SilkD3D12Fence>(driver.Surface, "fence");
-        Assert.True(draws > 0);
-        Assert.True(fence.CompletedValue < fence.CurrentValue);
-        Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
-        driver.Viewport.InvalidateSceneGraph();
+            using var driver = new FrameDriver();
+            driver.Drain();
+            driver.Viewport.MinimumUpdateCount = 1;
+            var rendered = driver.RenderedCount;
+            var onRendered = driver.OnRenderedCount;
+            using var gate = new NativeQueueGate(driver.Surface);
+            driver.Viewport.InvalidateRender();
+            var draws = driver.Viewport.RenderD3D12Frame(FrameTime, waitForCompletion: false);
+            var presented = driver.Surface.PresentedFrames;
+            var updates = driver.Node.UpdateCount;
+            var maintenance = driver.Node.MaintenanceCount;
+            var fence = PrivateField<SilkD3D12Fence>(driver.Surface, "fence");
+            Assert.True(draws > 0);
+            Assert.True(fence.CompletedValue < fence.CurrentValue);
+            Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+            driver.Viewport.InvalidateSceneGraph();
 
-        for (var index = 0; index < 8; index++) {
-            Assert.Equal(0, driver.Viewport.RenderD3D12Frame(FrameTime, waitForCompletion: false));
-            Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+            for (var index = 0; index < 8; index++) {
+                Assert.Equal(0, driver.Viewport.RenderD3D12Frame(FrameTime, waitForCompletion: false));
+                Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+            }
+
+            Assert.Equal(presented, driver.Surface.PresentedFrames);
+            Assert.Equal(updates, driver.Node.UpdateCount);
+            Assert.Equal(maintenance, driver.Node.MaintenanceCount);
+            Assert.Equal(rendered, driver.RenderedCount);
+            Assert.Equal(onRendered, driver.OnRenderedCount);
+            gate.Release();
+            Assert.Equal(1UL, driver.Drain());
+            Assert.Equal(updates + 1, driver.Node.UpdateCount);
+            Assert.Equal(maintenance + 1, driver.Node.MaintenanceCount);
+            Assert.Equal(rendered + 2, driver.RenderedCount);
+            Assert.Equal(onRendered + 2, driver.OnRenderedCount);
         }
-
-        Assert.Equal(presented, driver.Surface.PresentedFrames);
-        Assert.Equal(updates, driver.Node.UpdateCount);
-        Assert.Equal(maintenance, driver.Node.MaintenanceCount);
-        Assert.Equal(rendered, driver.RenderedCount);
-        Assert.Equal(onRendered, driver.OnRenderedCount);
-        gate.Release();
-        Assert.Equal(1UL, driver.Drain());
-        Assert.Equal(updates + 1, driver.Node.UpdateCount);
-        Assert.Equal(maintenance + 1, driver.Node.MaintenanceCount);
-        Assert.Equal(rendered + 2, driver.RenderedCount);
-        Assert.Equal(onRendered + 2, driver.OnRenderedCount);
-    });
+    );
 
     /// <summary>Records worker requests before any queued dispatcher visual notification can run and coalesces their budget.</summary>
     /// <returns>The hidden STA verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
     public Task WorkerBurstRecordsDemandBeforeDispatcherQueueIsPumped() => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver();
-        driver.Drain();
-        var presented = driver.Surface.PresentedFrames;
-        var updates = driver.Node.UpdateCount;
-        var worker = Task.Run(() => {
-            for (var index = 0; index < 128; index++) {
-                driver.Viewport.InvalidateRender();
-                driver.Viewport.InvalidatePerFrameRenderables();
-                driver.Viewport.InvalidateSceneGraph();
-            }
-        });
-        Assert.True(worker.Wait(TimeSpan.FromSeconds(5)), "Worker invalidation blocked on the unpumped STA dispatcher.");
-        worker.GetAwaiter().GetResult();
+            using var driver = new FrameDriver();
+            driver.Drain();
+            var presented = driver.Surface.PresentedFrames;
+            var updates = driver.Node.UpdateCount;
+            var worker = Task.Run(() => {
+                    for (var index = 0; index < 128; index++) {
+                        driver.Viewport.InvalidateRender();
+                        driver.Viewport.InvalidatePerFrameRenderables();
+                        driver.Viewport.InvalidateSceneGraph();
+                    }
+                }
+            );
+            Assert.True(worker.Wait(TimeSpan.FromSeconds(5)), "Worker invalidation blocked on the unpumped STA dispatcher.");
+            worker.GetAwaiter()
+                .GetResult();
 
-        Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-        Assert.Equal(presented, driver.Surface.PresentedFrames);
-        Assert.Equal(updates, driver.Node.UpdateCount);
-        Assert.Equal(6UL, driver.Drain());
-        Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, static () => { });
-        Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
-        Assert.Equal(0, driver.Viewport.RenderD3D12Frame(FrameTime));
-        Assert.Equal(presented + 6, driver.Surface.PresentedFrames);
-        Assert.Equal(updates + 6, driver.Node.UpdateCount);
-    });
+            Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+            Assert.Equal(presented, driver.Surface.PresentedFrames);
+            Assert.Equal(updates, driver.Node.UpdateCount);
+            Assert.Equal(6UL, driver.Drain());
+            Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, static () => { });
+            Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+            Assert.Equal(0, driver.Viewport.RenderD3D12Frame(FrameTime));
+            Assert.Equal(presented + 6, driver.Surface.PresentedFrames);
+            Assert.Equal(updates + 6, driver.Node.UpdateCount);
+        }
+    );
 
     /// <summary>Forces a physical capture submission from idle and validates real colored GPU pixels.</summary>
     /// <returns>The hidden STA verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
     public Task ExplicitCaptureWhileIdleSubmitsAndReadsANewFrame() => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver();
-        driver.Drain();
-        driver.Viewport.MinimumUpdateCount = 1;
-        var presented = driver.Surface.PresentedFrames;
-        var updates = driver.Node.UpdateCount;
-        var rendered = driver.RenderedCount;
-        var onRendered = driver.OnRenderedCount;
+            using var driver = new FrameDriver();
+            driver.Drain();
+            driver.Viewport.MinimumUpdateCount = 1;
+            var presented = driver.Surface.PresentedFrames;
+            var updates = driver.Node.UpdateCount;
+            var rendered = driver.RenderedCount;
+            var onRendered = driver.OnRenderedCount;
 
-        var frame = driver.Viewport.CaptureD3D12Frame();
+            var frame = driver.Viewport.CaptureD3D12Frame();
 
-        Assert.Equal(presented + 1, driver.Surface.PresentedFrames);
-        Assert.Equal(updates + 1, driver.Node.UpdateCount);
-        Assert.Equal(rendered + 1, driver.RenderedCount);
-        Assert.Equal(onRendered + 1, driver.OnRenderedCount);
-        Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
-        AssertImage(frame, driver.Surface);
-    });
+            Assert.Equal(presented + 1, driver.Surface.PresentedFrames);
+            Assert.Equal(updates + 1, driver.Node.UpdateCount);
+            Assert.Equal(rendered + 1, driver.RenderedCount);
+            Assert.Equal(onRendered + 1, driver.OnRenderedCount);
+            Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+            AssertImage(frame, driver.Surface);
+        }
+    );
 
     /// <summary>Measures one thousand actual idle viewport calls on the same warmed STA without preparation or allocations.</summary>
     /// <returns>The hidden STA allocation verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
     public Task WarmedIdleViewportCallsAllocateZeroBytesAndSubmitNothing() => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver();
-        driver.Drain();
-        for (var index = 0; index < 1000; index++)
-            _ = driver.Viewport.RenderD3D12Frame(FrameTime);
-        var presented = driver.Surface.PresentedFrames;
-        var updates = driver.Node.UpdateCount;
-        var maintenance = driver.Node.MaintenanceCount;
-        var rendered = driver.RenderedCount;
-        var onRendered = driver.OnRenderedCount;
-        var context = driver.Viewport.RenderContext;
-        var timestamp = context!.TimeStamp;
-        _ = GC.GetAllocatedBytesForCurrentThread();
+            using var driver = new FrameDriver();
+            driver.Drain();
+            for (var index = 0; index < 1000; index++)
+                _ = driver.Viewport.RenderD3D12Frame(FrameTime);
+            var presented = driver.Surface.PresentedFrames;
+            var updates = driver.Node.UpdateCount;
+            var maintenance = driver.Node.MaintenanceCount;
+            var rendered = driver.RenderedCount;
+            var onRendered = driver.OnRenderedCount;
+            var context = driver.Viewport.RenderContext;
+            var timestamp = context!.TimeStamp;
+            _ = GC.GetAllocatedBytesForCurrentThread();
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var index = 0; index < 1000; index++)
-            _ = driver.Viewport.RenderD3D12Frame(FrameTime);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            var before = GC.GetAllocatedBytesForCurrentThread();
+            for (var index = 0; index < 1000; index++)
+                _ = driver.Viewport.RenderD3D12Frame(FrameTime);
+            var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
 
-        output.WriteLine($"Idle viewport: {allocated} bytes for 1000 actual STA calls.");
-        Assert.Equal(0L, allocated);
-        Assert.Equal(presented, driver.Surface.PresentedFrames);
-        Assert.Equal(updates, driver.Node.UpdateCount);
-        Assert.Equal(maintenance, driver.Node.MaintenanceCount);
-        Assert.Equal(rendered, driver.RenderedCount);
-        Assert.Equal(onRendered, driver.OnRenderedCount);
-        Assert.Same(context, driver.Viewport.RenderContext);
-        Assert.Equal(timestamp, context.TimeStamp);
-        Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
-    });
+            output.WriteLine($"Idle viewport: {allocated} bytes for 1000 actual STA calls.");
+            Assert.Equal(0L, allocated);
+            Assert.Equal(presented, driver.Surface.PresentedFrames);
+            Assert.Equal(updates, driver.Node.UpdateCount);
+            Assert.Equal(maintenance, driver.Node.MaintenanceCount);
+            Assert.Equal(rendered, driver.RenderedCount);
+            Assert.Equal(onRendered, driver.OnRenderedCount);
+            Assert.Same(context, driver.Viewport.RenderContext);
+            Assert.Equal(timestamp, context.TimeStamp);
+            Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+        }
+    );
 
     /// <summary>Measures real continuous HWND mesh frames after warm-up, retaining an initial bounded allocation ceiling.</summary>
     /// <returns>The hidden STA allocation and capture verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
     public Task WarmedDefaultHwndFramesSubmitAndReportManagedAllocations() => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver(renderOnDemand: false);
-        Assert.False(driver.Viewport.RenderOnDemand);
-        for (var index = 0; index < 64; index++)
-            _ = driver.Viewport.RenderD3D12Frame(FrameTime);
-        const int frames = 128;
-        var presented = driver.Surface.PresentedFrames;
-        var updates = driver.Node.UpdateCount;
-        var maintenance = driver.Node.MaintenanceCount;
-        var rendered = driver.RenderedCount;
-        var onRendered = driver.OnRenderedCount;
-        var viewport = driver.Viewport;
-        var draws = 0;
-        _ = GC.GetAllocatedBytesForCurrentThread();
+            using var driver = new FrameDriver(renderOnDemand: false);
+            Assert.False(driver.Viewport.RenderOnDemand);
+            for (var index = 0; index < 64; index++)
+                _ = driver.Viewport.RenderD3D12Frame(FrameTime);
+            const int frames = 128;
+            var presented = driver.Surface.PresentedFrames;
+            var updates = driver.Node.UpdateCount;
+            var maintenance = driver.Node.MaintenanceCount;
+            var rendered = driver.RenderedCount;
+            var onRendered = driver.OnRenderedCount;
+            var viewport = driver.Viewport;
+            var draws = 0;
+            _ = GC.GetAllocatedBytesForCurrentThread();
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var index = 0; index < frames; index++)
-            draws += viewport.RenderD3D12Frame(FrameTime);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            var before = GC.GetAllocatedBytesForCurrentThread();
+            for (var index = 0; index < frames; index++)
+                draws += viewport.RenderD3D12Frame(FrameTime);
+            var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
 
-        output.WriteLine($"Active HWND mesh: {allocated} bytes / {frames} frames = {(double)allocated / frames:F2} bytes/frame.");
-        Assert.Equal(presented + frames, driver.Surface.PresentedFrames);
-        Assert.Equal(updates + frames, driver.Node.UpdateCount);
-        Assert.Equal(maintenance + frames, driver.Node.MaintenanceCount);
-        Assert.Equal(rendered + frames, driver.RenderedCount);
-        Assert.Equal(onRendered + frames, driver.OnRenderedCount);
-        Assert.True(draws >= frames);
-        Assert.InRange(allocated, 0L, 4096L * frames);
-        AssertImage(viewport.CaptureD3D12Frame(), driver.Surface);
-    });
+            output.WriteLine($"Active HWND mesh: {allocated} bytes / {frames} frames = {(double) allocated / frames:F2} bytes/frame.");
+            Assert.Equal(presented + frames, driver.Surface.PresentedFrames);
+            Assert.Equal(updates + frames, driver.Node.UpdateCount);
+            Assert.Equal(maintenance + frames, driver.Node.MaintenanceCount);
+            Assert.Equal(rendered + frames, driver.RenderedCount);
+            Assert.Equal(onRendered + frames, driver.OnRenderedCount);
+            Assert.True(draws >= frames);
+            Assert.InRange(allocated, 0L, 4096L * frames);
+            AssertImage(viewport.CaptureD3D12Frame(), driver.Surface);
+        }
+    );
 
     /// <summary>Checks tightly packed native BGRA pixels contain the red mesh rather than only the black clear color.</summary>
     /// <param name="frame">The explicitly captured native frame, outside allocation measurements.</param>
@@ -394,7 +409,7 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
     private static void AssertImage(D3D12CapturedFrame frame, D3D12PresentationSurface surface) {
         Assert.Equal(surface.PixelWidth, frame.Width);
         Assert.Equal(surface.PixelHeight, frame.Height);
-        Assert.Equal(checked((int)(frame.Width * frame.Height * 4)), frame.Pixels.Length);
+        Assert.Equal(checked((int) (frame.Width * frame.Height * 4)), frame.Pixels.Length);
         var redPixel = false;
         for (var offset = 0; offset < frame.Pixels.Length; offset += 4)
             if (frame.Pixels[offset + 2] > frame.Pixels[offset] && frame.Pixels[offset + 2] > 16 &&
@@ -402,6 +417,7 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
                 redPixel = true;
                 break;
             }
+
         Assert.True(redPixel, "The actual GPU capture did not contain the red triangle over the black background.");
     }
 
@@ -411,7 +427,8 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
     /// <param name="name">The stable private ownership field name.</param>
     /// <returns>The actual field value.</returns>
     private static T PrivateField<T>(object owner, string name) =>
-        (T)owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!;
+        (T) owner.GetType()
+            .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!;
 
     /// <summary>Owns a hidden WARP surface and actual viewport without installing an automatic composition loop.</summary>
     private sealed class FrameDriver : IDisposable {
@@ -422,11 +439,11 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
         /// <param name="drawMesh">Whether to draw the triangle; false observes an attached hidden node in zero-draw frames.</param>
         /// <param name="renderOnDemand">Whether to enable the internal demand consumer.</param>
         internal FrameDriver(bool drawMesh = true, bool renderOnDemand = true) {
-            window = new HwndSource(new HwndSourceParameters(nameof(ViewportRenderDemandTests)) {
-                Width = 48,
-                Height = 32,
-                WindowStyle = unchecked((int)0x80000000)
-            });
+            window = new HwndSource(
+                new HwndSourceParameters(nameof(ViewportRenderDemandTests)) {
+                    Width = 48, Height = 32, WindowStyle = unchecked((int) 0x80000000)
+                }
+            );
             Surface = new D3D12PresentationSurface(SilkDriverType.Warp) { Width = 48, Height = 32 };
             window.RootVisual = Surface;
             Surface.UpdateLayout();
@@ -436,10 +453,7 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
                 BackgroundColor = Colors.Black,
                 FxaaLevel = FXAALevel.None,
                 Camera = new HelixToolkit.Wpf.SharpDX.OrthographicCamera {
-                    Position = new Point3D(0, 0, 5),
-                    LookDirection = new Vector3D(0, 0, -5),
-                    UpDirection = new Vector3D(0, 1, 0),
-                    Width = 3
+                    Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5), UpDirection = new Vector3D(0, 1, 0), Width = 3
                 }
             };
             Assert.False(Viewport.RenderOnDemand);
@@ -460,8 +474,9 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
                 Viewport.Items.Add(new AmbientLight3D { Color = Color.FromRgb(0x51, 0x51, 0x51) });
                 Viewport.Items.Add(new DirectionalLight3D { Color = Colors.LightGray, Direction = new Vector3D(0, 0, -1) });
             }
+
             Viewport.Items.Add(model);
-            Node = (ObservedMeshNode)model.SceneNode;
+            Node = (ObservedMeshNode) model.SceneNode;
             Viewport.Rendered += HandleRendered;
             Viewport.OnRendered += HandleOnRendered;
         }
@@ -521,6 +536,7 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
                 InvalidateFromRendered = false;
                 Viewport.InvalidateRender();
             }
+
             if (!ReenterFromRendered) return;
             ReenterFromRendered = false;
             var updates = Node.UpdateCount;

@@ -14,4 +14,5 @@ internal readonly record struct D3D12FrameTarget(
     SilkD3D12Descriptor RenderTargetView,
     uint Width,
     uint Height,
-    Format Format);
+    Format Format
+);

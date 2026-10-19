@@ -89,8 +89,10 @@ public sealed class D3D12RenderDemandTests {
         demand.CompleteFrame(submitted: false);
 
         Assert.True(demand.TryBeginFrame(out var invalidation));
-        Assert.Equal(D3D12RenderInvalidation.Render | D3D12RenderInvalidation.SceneGraph |
-            D3D12RenderInvalidation.PerFrameRenderables, invalidation);
+        Assert.Equal(
+            D3D12RenderInvalidation.Render | D3D12RenderInvalidation.SceneGraph |
+            D3D12RenderInvalidation.PerFrameRenderables, invalidation
+        );
         demand.CompleteFrame(submitted: true);
         Assert.False(demand.HasRenderDemand);
     }
@@ -108,11 +110,11 @@ public sealed class D3D12RenderDemandTests {
     public void CoalescedRequestsRetainEveryPreparationBit(int first, int second) {
         var demand = new D3D12RenderDemand();
         _ = SubmitRemainingFrames(demand);
-        demand.Request((D3D12RenderInvalidation)first);
-        demand.Request((D3D12RenderInvalidation)second);
+        demand.Request((D3D12RenderInvalidation) first);
+        demand.Request((D3D12RenderInvalidation) second);
 
         Assert.True(demand.TryBeginFrame(out var invalidation));
-        Assert.Equal((D3D12RenderInvalidation)(first | second) | D3D12RenderInvalidation.Render, invalidation);
+        Assert.Equal((D3D12RenderInvalidation) (first | second) | D3D12RenderInvalidation.Render, invalidation);
         demand.CompleteFrame(submitted: true);
         Assert.Equal(5, SubmitRemainingFrames(demand));
     }
@@ -166,8 +168,10 @@ public sealed class D3D12RenderDemandTests {
         demand.Request(D3D12RenderInvalidation.PerFrameRenderables);
         demand.Request(D3D12RenderInvalidation.SceneGraph);
         Assert.True(demand.TryBeginFrame(out var afterGpu));
-        Assert.Equal(D3D12RenderInvalidation.Render | D3D12RenderInvalidation.PerFrameRenderables |
-            D3D12RenderInvalidation.SceneGraph, afterGpu);
+        Assert.Equal(
+            D3D12RenderInvalidation.Render | D3D12RenderInvalidation.PerFrameRenderables |
+            D3D12RenderInvalidation.SceneGraph, afterGpu
+        );
         demand.CompleteFrame(submitted: true);
 
         // A completion listener can invalidate after the reservation has already been committed.
@@ -209,6 +213,7 @@ public sealed class D3D12RenderDemandTests {
             Assert.False(demand.TryBeginFrame(out var invalidation));
             Assert.Equal(D3D12RenderInvalidation.None, invalidation);
         }
+
         demand.CompleteFrame(submitted: true);
         demand.CompleteFrame(submitted: true);
         demand.CompleteFrame(submitted: false);
@@ -281,18 +286,22 @@ public sealed class D3D12RenderDemandTests {
     public void ConcurrentRequestsDuringReservationRetainAllBitsWithoutBudgetInflation(bool submitted) {
         var demand = new D3D12RenderDemand();
         Assert.True(demand.TryBeginFrame(out _));
-        Parallel.For(0, 4, worker => {
-            for (var request = 0; request < 1_000; request++) {
-                demand.Request((D3D12RenderInvalidation)(1 << (worker % 3)));
-                demand.RequestPublication();
-                demand.RequestRecovery();
+        Parallel.For(
+            0, 4, worker => {
+                for (var request = 0; request < 1_000; request++) {
+                    demand.Request((D3D12RenderInvalidation) (1 << (worker % 3)));
+                    demand.RequestPublication();
+                    demand.RequestRecovery();
+                }
             }
-        });
+        );
         demand.CompleteFrame(submitted);
 
         Assert.True(demand.TryBeginFrame(out var invalidation));
-        Assert.Equal(D3D12RenderInvalidation.Render | D3D12RenderInvalidation.PerFrameRenderables |
-            D3D12RenderInvalidation.SceneGraph, invalidation);
+        Assert.Equal(
+            D3D12RenderInvalidation.Render | D3D12RenderInvalidation.PerFrameRenderables |
+            D3D12RenderInvalidation.SceneGraph, invalidation
+        );
         demand.CompleteFrame(submitted: true);
         Assert.Equal(5, SubmitRemainingFrames(demand));
         Assert.True(demand.TryTakePublicationRequest());
@@ -306,14 +315,16 @@ public sealed class D3D12RenderDemandTests {
     public void ConcurrentBeginAttemptsAcquireOnlyOneReservation() {
         var demand = new D3D12RenderDemand();
         var acquired = 0;
-        Parallel.For(0, 32, _ => {
-            if (demand.TryBeginFrame(out var invalidation)) {
-                Assert.Equal(D3D12RenderInvalidation.Render | D3D12RenderInvalidation.SceneGraph, invalidation);
-                Interlocked.Increment(ref acquired);
-            } else {
-                Assert.Equal(D3D12RenderInvalidation.None, invalidation);
+        Parallel.For(
+            0, 32, _ => {
+                if (demand.TryBeginFrame(out var invalidation)) {
+                    Assert.Equal(D3D12RenderInvalidation.Render | D3D12RenderInvalidation.SceneGraph, invalidation);
+                    Interlocked.Increment(ref acquired);
+                } else {
+                    Assert.Equal(D3D12RenderInvalidation.None, invalidation);
+                }
             }
-        });
+        );
 
         Assert.Equal(1, acquired);
         demand.CompleteFrame(submitted: true);
@@ -336,7 +347,11 @@ public sealed class D3D12RenderDemandTests {
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
 
         Assert.Equal(0L, allocated);
-        Assert.Equal(active ? 8_192 * 6 : 8_192, observations);
+        Assert.Equal(
+            active
+                ? 8_192 * 6
+                : 8_192, observations
+        );
         Assert.False(demand.HasRenderDemand);
     }
 
@@ -350,6 +365,7 @@ public sealed class D3D12RenderDemandTests {
             demand.CompleteFrame(submitted: true);
             submitted++;
         }
+
         return submitted;
     }
 
@@ -378,12 +394,14 @@ public sealed class D3D12RenderDemandTests {
                 demand.RequestRecovery();
                 if (demand.TryTakePublicationRequest() && demand.TryTakeRecoveryRequest()) observations++;
             }
+
             if (!demand.HasRenderDemand && !demand.HasPublicationDemand && !demand.HasRecoveryDemand &&
                 !demand.TryBeginFrame(out _) && !demand.TryTakePublicationRequest() &&
                 !demand.TryTakeRecoveryRequest() && demand.MinimumUpdateCount >= 0) observations++;
             demand.Request(D3D12RenderInvalidation.None);
             demand.CompleteFrame(submitted: false);
         }
+
         return observations;
     }
 }

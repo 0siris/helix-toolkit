@@ -10,6 +10,7 @@ using Visibility = System.Windows.Visibility;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
+/// <summary>Coordinates demand and nonblocking frame consumption for the actual viewport host.</summary>
 public partial class Viewport3DX {
     /// <summary>Retains scene demand independently of GPU completion and presentation recovery.</summary>
     private readonly D3D12RenderDemand renderDemand = new();
@@ -60,13 +61,13 @@ public partial class Viewport3DX {
     /// <param name="owner">The viewport receiving the new setting.</param>
     /// <param name="args">The coerced frame-budget change.</param>
     private static void MinimumUpdateCountChanged(DependencyObject owner, DependencyPropertyChangedEventArgs args) =>
-        ((Viewport3DX)owner).renderDemand.MinimumUpdateCount = (int)args.NewValue;
+        ((Viewport3DX) owner).renderDemand.MinimumUpdateCount = (int) args.NewValue;
 
     /// <summary>Retains the historical nonnegative public frame-budget setting.</summary>
     /// <param name="owner">The viewport whose metadata is being evaluated.</param>
     /// <param name="value">The requested frame budget.</param>
     /// <returns>The requested budget clamped to zero.</returns>
-    private static object CoerceMinimumUpdateCount(DependencyObject owner, object value) => Math.Max(0, (int)value);
+    private static object CoerceMinimumUpdateCount(DependencyObject owner, object value) => Math.Max(0, (int) value);
 
     /// <summary>Updates lightweight camera state and records only when frame ownership and demand permit it.</summary>
     /// <param name="renderingTime">The WPF rendering timestamp.</param>
@@ -81,6 +82,7 @@ public partial class Viewport3DX {
             renderDemand.Request(D3D12RenderInvalidation.Render);
             return 0;
         }
+
         isD3D12FrameUpdating = true;
         var reserved = false;
         var beforeSubmission = surface.PresentedFrames;
@@ -91,6 +93,7 @@ public partial class Viewport3DX {
                 if (onDemand) cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
                 return 0;
             }
+
             RaiseCompletedD3D12Frames(surface);
             if (!ReferenceEquals(d3d12Surface, surface) || surface.IsDisposed) return 0;
             beforeSubmission = surface.PresentedFrames;
@@ -98,7 +101,9 @@ public partial class Viewport3DX {
                 if (captureFrame) renderDemand.Request(D3D12RenderInvalidation.Render);
                 reserved = renderDemand.TryBeginFrame(out _);
             }
+
             if (onDemand) cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
+            if (!ReferenceEquals(d3d12Surface, surface) || surface.IsDisposed || IsDisposed) return 0;
             if (onDemand && !reserved && !renderDemand.TryBeginFrame(out _)) return 0;
             reserved |= onDemand;
             var recorded = RecordD3D12ViewportFrame(surface, camera, captureFrame, waitForCompletion);
@@ -120,11 +125,13 @@ public partial class Viewport3DX {
         if (EnableSharedModelMode && SharedModelContainerInternal is { } shared) {
             if (shared is ModelContainer3DX container) {
                 for (var index = 0; index < container.Items.Count; index++)
-                    if (container.Items[index] is Element3D element) frameRoots.Add(element.SceneNode);
+                    if (container.Items[index] is Element3D element)
+                        frameRoots.Add(element.SceneNode);
             } else {
                 foreach (var root in shared.Renderables) frameRoots.Add(root);
             }
         }
+
         if (viewCube is { } cube) frameRoots.Add(cube.SceneNode);
         if (coordinateView is { } coordinate) frameRoots.Add(coordinate.SceneNode);
         frameRoots2D.Add(Overlay2D.SceneNode);

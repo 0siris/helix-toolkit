@@ -102,7 +102,7 @@ public sealed class NonblockingFramePresentationTests {
         using var replacementEffects = new DefaultEffectsManager();
         viewport.Items.Add(CreateModel());
         _ = viewport.RenderD3D12Frame(TimeSpan.FromSeconds(1));
-        var originalCatalog = PrivateField<object>(surface, "passCatalog");
+        var originalCatalog = surface.FrameRenderer!.PassCatalog;
         var originalWidth = surface.PixelWidth;
         using var gate = new NativeQueueGate(surface);
         _ = viewport.RenderD3D12Frame(TimeSpan.FromSeconds(2), waitForCompletion: false);
@@ -115,19 +115,17 @@ public sealed class NonblockingFramePresentationTests {
         Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, () => { });
 
         Assert.Equal(originalWidth, surface.PixelWidth);
-        Assert.Same(originalCatalog, PrivateField<object>(surface, "passCatalog"));
-        var disposedBeforeCompletion = (bool)originalCatalog.GetType().GetProperty("IsDisposed",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(originalCatalog)!;
+        Assert.Same(originalCatalog, surface.FrameRenderer!.PassCatalog);
+        var disposedBeforeCompletion = originalCatalog.IsDisposed;
         Assert.False(disposedBeforeCompletion);
 
         gate.Release();
         var frame = viewport.CaptureD3D12Frame();
         var expected = D3D12PresentationSize.Calculate(80, 60, surface.WindowHost.DpiScale);
-        var disposedAfterCompletion = (bool)originalCatalog.GetType().GetProperty("IsDisposed",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(originalCatalog)!;
+        var disposedAfterCompletion = originalCatalog.IsDisposed;
 
         Assert.Equal(expected, (frame.Width, frame.Height));
-        Assert.NotSame(originalCatalog, PrivateField<object>(surface, "passCatalog"));
+        Assert.NotSame(originalCatalog, surface.FrameRenderer!.PassCatalog);
         Assert.True(disposedAfterCompletion);
     });
 

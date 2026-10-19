@@ -13,8 +13,8 @@ immutable WPF-bound slots, explicit detach and bounded teardown. Keep initializa
 
 ## Ownership and execution
 
-- Integrator: central `Viewport3DX*`, public properties/template wiring, manager lifecycle, DPI/2D integration,
-  visible acceptance and all runtime tooling. Only the integrator builds/runs tests/GPU/Graphify, serially.
+- Integrator: final ownership of central `Viewport3DX*`, manager lifecycle, DPI/2D integration,
+  visible acceptance and all runtime tooling. T004 delegates exclusive presentation/property edits to one child; the integrator edits those files only after merging that package. T005a delegates the native surface exclusively while manager integration uses separate files. Only the integrator builds/runs tests/GPU/Graphify, serially.
 - Shared-scene child: `ModelContainer3DX`, minimal Core attachment/lifetime changes and dedicated tests. Coordinate
   any required Viewport hooks before integration; do not edit central Viewport files.
 - Original-contract investigator: read-only mapping of original property/lifecycle/input behavior for the integrator.

@@ -41,10 +41,19 @@ public partial class Viewport3DX {
 
     /// <summary>Gets whether the current manager and shared-scene transaction allow new scene preparation.</summary>
     private bool CanRenderWithEffectsManager => !effectsResourcesUnavailable && !managerResourcesResetPending &&
-        !(EnableSharedModelMode && SharedModelContainerInternal is ModelContainer3DX { IsSynchronizingEffectsManager: true });
+                                                !(EnableSharedModelMode && SharedModelContainerInternal is ModelContainer3DX {
+                                                    IsSynchronizingEffectsManager: true
+                                                });
 
     /// <summary>Gets whether an HWND recording may still be submitted after application callbacks return.</summary>
-    internal bool CanSubmitNativeScene => !IsDisposed && !nativeViewportDisposalRequested && CanRenderWithEffectsManager;
+    internal bool CanSubmitNativeScene => !IsDisposed && !nativeViewportDisposalRequested && CanRenderWithEffectsManager &&
+                                          d3d12Surface is not { IsRetirementPending: true };
+
+    /// <summary>Delivers a frame completed by unload retirement while the actual viewport remains alive.</summary>
+    /// <param name="surface">The retained native owner whose drain completed.</param>
+    internal void ObserveNativeRetirement(D3D12PresentationSurface surface) {
+        if (!IsDisposed && ReferenceEquals(d3d12Surface, surface)) RaiseCompletedD3D12Frames(surface);
+    }
 
     /// <summary>Refreshes shared membership before borrowing any scene and services only pending lifecycle work.</summary>
     internal void PrepareHostFrameContracts() {
@@ -90,7 +99,8 @@ public partial class Viewport3DX {
     /// <param name="active">Whether this viewport is loaded or explicitly preparing an actual frame.</param>
     private void UpdateSharedSceneSubscription(bool active) {
         var selected = active && !IsDisposed && EnableSharedModelMode
-            ? SharedModelContainerInternal as ModelContainer3DX : null;
+            ? SharedModelContainerInternal as ModelContainer3DX
+            : null;
         if (ReferenceEquals(selected, registeredModelContainer)) return;
         registeredModelContainer?.UnregisterConsumer(this);
         registeredModelContainer = selected;
@@ -167,6 +177,7 @@ public partial class Viewport3DX {
             previous.DisposingResources -= EffectsManagerDisposingResources;
             previous.Reinitialized -= EffectsManagerReinitialized;
         }
+
         subscribedEffectsManager = manager;
         effectsResourcesUnavailable = manager is EffectsManager { Initialized: false };
         if (manager is null) return;
@@ -200,8 +211,10 @@ public partial class Viewport3DX {
     private void DispatchManagerResourceChange(object? sender, bool available) {
         if (IsDisposed || Dispatcher.HasShutdownStarted || !ReferenceEquals(sender, subscribedEffectsManager)) return;
         if (!Dispatcher.CheckAccess()) {
-            Dispatcher.Invoke(() => ApplyManagerResourceChange(sender, available), DispatcherPriority.Send,
-                CancellationToken.None, TimeSpan.FromSeconds(5));
+            Dispatcher.Invoke(
+                () => ApplyManagerResourceChange(sender, available), DispatcherPriority.Send,
+                CancellationToken.None, TimeSpan.FromSeconds(5)
+            );
         } else {
             ApplyManagerResourceChange(sender, available);
         }
@@ -218,6 +231,7 @@ public partial class Viewport3DX {
             wpfPresentation?.DrainSubmittedWorkForManagerDisposal();
             _ = d3d12Surface?.CompletePendingFrame(true);
         }
+
         registeredModelContainer?.RequestSharedResourceRetirement();
         InvalidateSceneGraph();
         if (IsPreparingPresentationFrame) {

@@ -56,6 +56,9 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
     /// <summary>The optional texture-property callback reused after initialization.</summary>
     private readonly Func<TextureModel?> textureSource;
 
+    /// <summary>The owner-liveness predicate restored after each detach/reattach cleanup cycle.</summary>
+    private readonly Func<bool> textureOwnerSource;
+
     /// <summary>The b0 upload constant buffer.</summary>
     private readonly SilkD3D12ConstantBuffer globalTransforms;
 
@@ -113,7 +116,8 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
         this.device = device;
         Capacity = capacity;
         bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
-        bindings.HasCurrentTextureOwner = HasCurrentTextureOwner;
+        textureOwnerSource = HasCurrentTextureOwner;
+        bindings.HasCurrentTextureOwner = textureOwnerSource;
         textureSource = GetCurrentTexture;
         var fallback = device.CreateBuffer(256, HeapType.Upload);
         try {
@@ -313,6 +317,7 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
         ParticleRenderCore core
     ) {
         textureOwner = core;
+        bindings.HasCurrentTextureOwner = textureOwnerSource;
         var texture = bindings.GetTexture(context, resources, core.ParticleTexture, TextureRegister,
             textureSource);
         if (texture is not null) {

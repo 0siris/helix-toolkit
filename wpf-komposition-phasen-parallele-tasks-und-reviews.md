@@ -91,15 +91,23 @@
 
 ## Phase 3 – Drei Implementierungspakete parallel
 
-**Gemeinsame Basis:** Freigegebener Commit aus Phase 2.
+**Gemeinsame Basis:** Phase-2-Commit `6f36703f3` und der anschließend geprüfte P3.0-Vertragscommit. Die Freigabe für P3.0 startet die Implementierungspakete noch nicht.
 
-- **P3.1 · A · Produktive GPU-Brücke:** Adapterzuordnung, Ressourcenwechsel, GPU-Abschluss, Handle-Lebensdauer und native Fehlerpfade ausbauen. Besitz: native Interop-Dateien und eigene Tests.
-- **P3.2 · B · Ausgabe und dynamische Quellen:** BGRA-Ausgabe und konsistentes vormultipliziertes Alpha herstellen; insbesondere FXAAs bisheriges `c.a = 1` behandeln. `ContinuousRenderNode`, Partikel und Desktop-Capture an weitere Renderanforderungen anschließen. Besitz: betroffene Core-/Shaderdateien und eigene Tests.
-- **P3.3 · C · WPF-Canvas:** `DPFCanvas` und ImageSource mit Layout, `Stretch.Fill`, DPI, Sichtbarkeit, Resize, Frontbuffer-Verlust und sicherer Veröffentlichung implementieren. Besitz: Canvas-/ImageSource-Dateien und eigene Tests.
-- **P3.4 · I · Integration:** Projekt-/Shaderregistrierungen ergänzen; Builds und fokussierte Prüfungen seriell ausführen.
+- **P3.0 · I · Anschlussverträge vor Parallelstart:** [Verbindlichen Architekturvertrag](knowledge/architecture/wpf-composition-contracts.md) festlegen und unabhängig prüfen: genau ein D3D12-Besitzer, geliehenes gemeinsames Ziel, explizite Einreichungsserials, Render-/Kopie-/Publikationszustände, Pixel-/Alpha-/Zwischenformatvertrag, Recovery-Generationen und Szenenlebensdauer, Scene2D-Wecksignal und Heap-Gates. Dokumentationsschritt ohne produktive Quelländerungen.
+- **P3.0-Abnahme:** F14–F20 sind konkreten Besitzern und Prüffällen zugeordnet; keine parallelen Schreiber besitzen dieselbe Datei. Bei Signaturänderungen übernimmt I den gemeinsamen Vertragscommit vor abhängigen Implementierungen. Danach Haltepunkt vor P3.1–P3.4.
+
+- **P3.1 · A · Produktive GPU-Brücke:** Tatsächliches D3D12-Gerät des Präsentationsbesitzers leihen; gemeinsame Quelle/RTV als `D3D12FrameTarget` und zwei D3D9-Zielslots besitzen. LUID-Zuordnung, ein kanonischer Ressourcenwrapper, Zustandsregistrierung, Handle-Lebensdauer und native Fehlerpfade. Keine eigene zweite D3D12-Queue oder Renderlogik. Besitz: native Interop-Dateien, eng erforderliche Core-Factory für Sharing/Adoption und eigene Tests.
+- **P3.2 · B · Ausgabe und dynamische Quellen:** WPF-Profil mit vormultipliziertem BGRA und konsistenten Blend-/Effekt-/Zwischenformaten herstellen. Luma darf Coverage-Alpha nicht verlieren; FXAA, Scene2D und Capture getrennt prüfen. Feste RGBA-Postprocess-Ziele und Pass-Keys auf Formatverträglichkeit prüfen. `ContinuousRenderNode`, Partikel, Desktop-Capture und Scene2D-Invalidierung an Folgeanforderungen/Host-Benachrichtigung anschließen. Vermeidbare Allokationen in berührten Pass-Cache-Abfragen beseitigen. Besitz: betroffene Core-/Shaderdateien außer A zugeordneter Sharing-Factory und eigene Tests.
+- **P3.3 · C · WPF-Canvas:** `DPFCanvas` und ImageSource mit Layout, `Stretch.Fill`, DPI, Sichtbarkeit, Resize, Frontbuffer-Verlust und sicherer Veröffentlichung implementieren. Fertigen Slot bei fehlgeschlagenem Lock behalten; keine neue Szene/Kopie für Publikationswiederholung. Tatsächliche Bindung auch bei Teilfehlern verfolgen; generationengebundene Callbacks und Unload-Bereinigung. Besitz: Canvas-/ImageSource-Dateien und eigene Tests.
+- **P3.4 · I · Integration:** Ein Präsentationsbesitzer für Gerät/Queue/Context/Fence und gemeinsamen Renderer; explizite Einreichung statt HWND-`PresentedFrames` als Budgetnachweis. Einmalige GPU-Abschlussereignisse, Recovery, Capture-Normalisierung, Scene2D-Host-Abonnement und gemeinsame Renderer-/Target-Anpassungen integrieren. Besitz: zentrale Viewport-/Host-/FrameRenderer-/Target-Dateien, Projekte/Shaderregistrierungen und Dokumentation. Builds und fokussierte Prüfungen seriell ausführen.
+
+**Parallel:** P3.1–P3.3 erst nach geprüftem Vertragscommit und Freigabe; P3.4 integriert seriell. C dupliziert weder Szenenlogik noch Viewport-Renderloop. Gemeinsam benötigte Signaturen werden über I koordiniert.
 
 **Zusätzliche Verträge:**
 
+- Ein gemeinsames Quellbild, zwei wechselnde Ziele und höchstens ein Frame im Transport: `Idle → Rendering → Copying → ReadyToPublish → Idle`. Neue Invalidierungen bleiben im Koordinator; keine Frameobjekt-Warteschlange.
+- Budget nur bei akzeptierter GPU-Einreichung verbrauchen; GPU-Abschluss, Kopierabschluss und WPF-Veröffentlichung getrennt zählen. D3D11-Lesezugriff und unveröffentlichte/gebundene Slots verhindern Wiederverwendung.
+- Recovery/Polling/Publikation bleiben bei leerem Szenenbudget erreichbar. Normale Ticks warten nicht auf GPU/Query und erzeugen keine Task-/Token-Objekte oder Callback-Bursts.
 - WPF veröffentlicht ausschließlich neue, vollständig fertige Bilder. Eine erforderliche Wiederanbindung nach Frontbuffer-Verlust ist davon getrennt.
 - Das in Phase 1 geprüfte Wechseln unveränderlicher Präsentationsoberflächen auch für Software-Snapshots/Fallback beibehalten; keinen über Dispatcher-Callbacks laufenden Schreibzugriff auf die gebundene Oberfläche einführen.
 - Frontbuffer-Rückkehr, Reload und Resize können eine Wiederherstellung auch bei sauberer Szene anfordern.
@@ -185,6 +193,16 @@ Die folgenden Befunde stammen aus der statischen Prüfung des Originals `c59fcc4
 - **F11 · Lifecycle und Eingabe brauchen konkrete Regressionen:** Wiederanlauf einer sauberen Szene, Unload/Dispose, Overlay-/ViewCube-Priorität, Touch-Promotion, eigene Viewports und Adorner ausdrücklich absichern. Bereits vorhandene korrekte Eingaberouten wiederverwenden. **Tasks:** P3.3, P4.6, P4.7, P5.3.
 - **F12 · Capture- und WPF-Pixelverträge unterscheiden sich:** Die bisherige R/B-Vertauschung nicht blind auf bereits BGRA-/vormultiplizierte Interop-Ausgabe anwenden. **Tasks:** P3.2, P4.4.
 - **F13 · Bestehende Paritätsgrenzen separat ausweisen:** MSAA ist derzeit ohne produktive Wirkung; `RenderBitmap(width, height)` skaliert aktuell das vorhandene Bild statt in der Zielauflösung neu zu rendern. Beides wird nicht durch den Präsentationsumbau stillschweigend als gelöst bezeichnet. **Tasks:** P0.4, P5.4.
+
+Die folgenden Architektur-Findings stammen aus dem Review von `6f36703f3`. Sie sind Anschlussverträge für P3/P4 und keine neu nachgewiesenen Phase-2-Regressionen. Der [P3.0-Vertrag](knowledge/architecture/wpf-composition-contracts.md) definiert Besitz, Ablauf und Abnahme.
+
+- **F14 · Produktive Brücke hat noch keinen gemeinsamen Gerätebesitz:** Probe besitzt eigenes Gerät/Quelle; produktiv genau ein D3D12-Präsentationsbesitzer, Brücke leiht dieses Gerät und besitzt Quelle/Slots. **Tasks:** P3.0, P3.1 (A), P3.4 (I). **Nachweis:** tatsächliches gemeinsames Gerät/Ziel, LUID und ein Wrapper/Zustandstracker je Allokation.
+- **F15 · Einreichung/Kopie/Publikation brauchen getrennte Identität:** HWND-`PresentedFrames` ist kein WPF-Einreichungsnachweis. Explizite Serial und Transportzustände; WPF-Lock-Wiederholung erzeugt keine neuen Render-/Kopieframes. **Tasks:** P3.0, P3.1 (A), P3.3 (C), P3.4 (I), P4.4. **Nachweis:** echte GPU-/Kopier-Stalls, Lock-Fehlschlag, Slot-Unveränderlichkeit und einmalige Ereignisse.
+- **F16 · Alpha geht bereits im Luma-Pass verloren:** Nicht nur FXAAs finales Alpha korrigieren. WPF-Profil mit konsistenten Coverage-/Blend-/Scene2D-Verträgen und expliziter Capture-Normalisierung. **Tasks:** P3.0, P3.2 (B), P3.4 (I), P4.4. **Nachweis:** Alpha 0/0.5/1, überlappende transparente Geometrie, FXAA an/aus, Scene2D und getrennte Capture-Pixel.
+- **F17 · Transport-Recovery berührt Szenen-Attachment:** Rebind, Resize, Unload, Gerätewechsel und Dispose trennen; Generationen schützen vor alten Callbacks. Anwendungsszene/externen Manager erhalten und fremde Verbraucher nicht detachieren. **Tasks:** P3.0, P3.3 (C), P3.4 (I), P4.2/P4.3, P5.3. **Nachweis:** Rebind ohne Neurendern, Reload und veraltete Callbacks; mehrere Verbraucher erst mit P4 freigeben.
+- **F18 · Scene2D-Dirty-Flags wecken keinen ruhenden Host:** Core-Benachrichtigung und abonnierte Verbraucher explizit verbinden; kein Dauerloop als Ersatz. **Tasks:** P3.0, P3.2 (B), P3.4 (I), P4.3/P4.6. **Nachweis:** Scene2D-Änderung nach leerem Budget führt zu neuem Bild und anschließender Ruhe.
+- **F19 · Probe-Testtreiber und Pass-Cache sind keine Null-Allokationsvorlage:** Produktive Polls mit retained state und gecachten Callbacks; vermeidbare Kosten vor Pass-Cache-Treffern in berührten Pfaden beheben. **Tasks:** P3.0, P3.2 (B), P3.3 (C), P3.4 (I), P5.5. **Nachweis:** getrennte Warm-Messungen für Idle, echte Meshframes, Kopie/Publikation/Lock-Retry sowie aktive Scene2D/Effekte.
+- **F20 · Postprocess-Zwischenziele sind fest RGBA:** `SilkD3D12PostProcessResources.TargetFormat` und zugehörige Pass-/Kopierpfade auf BGRA-Verträglichkeit prüfen. Kein ungeprüfter CopyResource zwischen inkompatiblen Formatfamilien. **Tasks:** P3.0, P3.2 (B), P3.4 (I), P5.2. **Nachweis:** passende Ressourcen-/PSO-Formate für FXAA, Bloom, Outline und weitere betroffene Pässe.
 
 Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
 

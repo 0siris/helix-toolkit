@@ -14,6 +14,7 @@ okf_version: "0.2"
 ## Architecture
 
 * [Current Solution](/architecture/current-solution.md) - `Source/SilkToolkit.slnx` and the main project graph.
+* [WPF Composition Contracts](/architecture/wpf-composition-contracts.md) - P3.0 ownership, transport, pixels, recovery and parallel integration boundaries.
 
 ## Projects
 

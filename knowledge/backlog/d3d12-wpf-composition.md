@@ -22,9 +22,9 @@ sources:
 # Scope
 
 The [implementation plan](../../wpf-komposition-phasen-parallele-tasks-und-reviews.md) defines six phases,
-parallel task ownership, thirteen historical review findings and an explicit approval boundary after each phase.
-Phase 1 is an isolated hardware interoperability proof. Production Viewport selection and renderer extraction
-belong to later phases.
+parallel task ownership, thirteen historical findings, seven architecture integration findings and an explicit
+approval boundary after each phase. Phase 1 is an isolated hardware interoperability proof; Phase 2 extracts
+the common recorder. Production Viewport selection remains later work.
 
 The intended default is `EnableSwapChainRendering = false`, restoring WPF composition. Explicit `true`
 retains native HWND presentation. The future WPF path renders and publishes only on demand; an isolated
@@ -235,6 +235,20 @@ Phase 3 remains unstarted pending explicit user approval. Production WPF publica
 recovery and continuous-source scheduling remain P3 work; public default-false selection, complete property
 invalidations, shared-scene lifetime and input/DPI integration remain mapped to P4. The global eight-failure
 baseline remains open independently of the successful Phase 2 regressions.
+
+# P3.0 architecture contracts
+
+The user authorized the proposed contract step after the independent architecture review of `6f36703f3`.
+The [architecture decision](/architecture/wpf-composition-contracts.md) now defines one D3D12 presentation
+owner, borrowed bridge targets, explicit submission serials and strict one-frame transport backpressure.
+Submission, GPU completion, D3D11 copy and WPF publication remain independent milestones; publication retries
+do not create scene demand. It also fixes the WPF pixel/capture contract, coverage preservation through luma/
+FXAA/Scene2D, generation-safe recovery, attachment boundaries and notification/allocation acceptance cases.
+
+The plan maps F14–F20 to P3.1–P3.4 and remaining P4/P5 integration. F20 records the additional fixed-RGBA
+postprocess-target issue found during contract preparation. These are requirements, not claims that production
+WPF integration is already implemented. This documentation-only step does not authorize P3.1–P3.4, change the
+public default, or supersede the eight-failure baseline. It requires no source build/test/Graphify rerun.
 
 # References
 

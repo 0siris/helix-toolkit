@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-19 — WPF composition P3.0 architecture contracts
+
+- Recorded one D3D12 presentation owner and borrowed bridge/renderer boundaries before parallel implementation.
+- Defined frame serials, strict render/copy/publication backpressure, alpha/capture/format contracts, generation-safe
+  recovery, scene ownership and Scene2D notifications. Mapped architecture findings F14–F20 to tasks and checks.
+- Kept P3.1–P3.4 behind the implementation gate; no source or runtime behavior changed.
+
 ## 2026-10-19 — WPF composition Phase 2 verified
 
 - Integrated the shared native frame recorder and bounded demand coordinator through the actual HWND viewport.

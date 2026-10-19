@@ -19,6 +19,11 @@ sources:
   - resource: ../../Source/SilkCore/Native/D3D12PostProcessResources.cs
   - resource: ../../Source/SilkToolkit.Native.ShaderBuilder/PS/psLuma.hlsl
   - resource: ../../Source/SilkToolkit.Native.ShaderBuilder/PS/psFXAA.hlsl
+  - resource: ../../Source/SilkToolkit/Controls/Viewport3DX.ManagerLifecycle.cs
+  - resource: ../../Source/SilkToolkit/Controls/Viewport3DX.PresentationSelection.cs
+  - resource: ../../Source/SilkToolkit/Controls/ModelContainer3DX.cs
+  - resource: ../../Source/SilkCore/Model/Scene/Abstract/SceneNode.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12PresentationSurface.cs
 ---
 
 # Decision and scope

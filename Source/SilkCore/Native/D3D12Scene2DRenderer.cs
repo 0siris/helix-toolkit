@@ -468,7 +468,8 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         var uv = entry is null ? new RectangleF(0, 0, 1, 1) : default;
         Span<SpriteStruct> vertices = stackalloc SpriteStruct[4];
         FillQuadVertices(vertices, bounds, node.TotalModelMatrix, color, uv);
-        StoreDraw(node, vertices, [0, 1, 2, 0, 2, 3], ToScissor(clip), image, entry);
+        ReadOnlySpan<uint> indices = stackalloc uint[6] { 0, 1, 2, 0, 2, 3 };
+        StoreDraw(node, vertices, indices, ToScissor(clip), image, entry);
     }
 
     /// <summary>

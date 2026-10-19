@@ -269,6 +269,7 @@ public sealed class NativeRenderSourceNotificationTests {
             $"Scene2D / 1000 frames: cleanup={cleanupAllocated}, preparation={preparationAllocated}, " +
             $"cleanup plus preparation without layout={withoutLayoutAllocated}.");
         Assert.Equal(0, allocated);
+        Assert.Equal(0, withoutLayoutAllocated);
         Assert.Equal(6_000, preparedDraws);
         Assert.Equal(drawStorage.Length, renderer.Draws.Count);
         for (var index = 0; index < drawStorage.Length; index++) {

@@ -118,6 +118,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
     /// <summary>Stops new submissions during an explicit, retryable teardown.</summary>
     private bool stopping;
+
     /// <summary>Records successful drain, image unlock/detachment and bridge retirement for disposal retry.</summary>
     private bool disposalPrepared;
 
@@ -171,6 +172,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
     /// <summary>Gets the canonical straight-BGRA capture produced only by an explicit request.</summary>
     internal D3D12CapturedFrame? LastCapturedFrame { get; private set; }
+
     /// <summary>Gets the accepted serial whose explicit readback completed, or zero after a new capture attempt.</summary>
     internal ulong CapturedSerial { get; private set; }
 
@@ -238,8 +240,12 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="waitForCompletion">Whether an explicit caller permits bounded native waits.</param>
     /// <param name="renderScene">Whether this caller permits new scene submissions after servicing accepted transport.</param>
     /// <returns>The actual scene draw count, or zero when idle, suspended, or transport-owned.</returns>
-    internal int RenderFrame(TimeSpan renderingTime, bool captureFrame = false, bool waitForCompletion = false,
-        bool renderScene = true) {
+    internal int RenderFrame(
+        TimeSpan renderingTime,
+        bool captureFrame = false,
+        bool waitForCompletion = false,
+        bool renderScene = true
+    ) {
         canvas.Dispatcher.VerifyAccess();
         if (IsDisposed || stopping) return 0;
         if (updating) {
@@ -271,6 +277,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 LastCapturedFrame = null;
                 CapturedSerial = 0;
             }
+
             var currentCommands = commands!;
             var target = bridge!.Target;
             currentCommands.Reset();
@@ -397,6 +404,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                     );
                     CapturedSerial = transportSerial;
                 }
+
                 captureReadback.Dispose();
                 captureReadback = null;
             }

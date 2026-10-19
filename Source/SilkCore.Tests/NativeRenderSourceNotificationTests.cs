@@ -32,6 +32,7 @@ public sealed class NativeRenderSourceNotificationTests {
             child.InvalidateTransform();
             child.InvalidateAll();
         }
+
         counter.Requests = 0;
         var before = GC.GetAllocatedBytesForCurrentThread();
         for (var index = 0; index < 1_000; index++) {
@@ -41,6 +42,7 @@ public sealed class NativeRenderSourceNotificationTests {
             child.InvalidateTransform();
             child.InvalidateAll();
         }
+
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Equal(5_000, counter.Requests);
         Assert.Equal(0, allocated);
@@ -115,7 +117,11 @@ public sealed class NativeRenderSourceNotificationTests {
         Assert.True(node.IsRenderable);
         Assert.Equal(detach, node.Visible);
         Assert.Equal(!detach, node.RenderCore.IsAttached);
-        Assert.Equal(detach ? 0 : 1, host.Requests);
+        Assert.Equal(
+            detach
+                ? 0
+                : 1, host.Requests
+        );
         Assert.Equal(0, host.PerFrameRenderableRequests);
         host.Requests = 0;
         node.Update(update);
@@ -142,8 +148,10 @@ public sealed class NativeRenderSourceNotificationTests {
         using var resources = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
         using var samplers = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
         using var renderer = new SilkD3D12SceneRenderer(device, resources, samplers);
-        using var catalog = new D3D12ScenePassCatalog(device, Format.FormatR8G8B8A8Unorm,
-            Format.FormatD32FloatS8X24Uint);
+        using var catalog = new D3D12ScenePassCatalog(
+            device, Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32FloatS8X24Uint
+        );
         using var update = new RenderContext(new PerspectiveCameraCore(), 16, 16);
         var host = new CountingHost();
         var source = new TimeoutSource { ResetNext = true };
@@ -160,12 +168,13 @@ public sealed class NativeRenderSourceNotificationTests {
             context.Close();
             Assert.Equal(1, host.Requests);
         }
-        Assert.True(((ScreenCloneRenderCore)node.RenderCore).IsCaptureStarted);
+
+        Assert.True(((ScreenCloneRenderCore) node.RenderCore).IsCaptureStarted);
         node.Visible = false;
         host.Requests = 0;
         renderer.BeginFrame();
         Assert.Empty(renderer.PrepareScene(roots, update, host: host));
-        Assert.False(((ScreenCloneRenderCore)node.RenderCore).IsCaptureStarted);
+        Assert.False(((ScreenCloneRenderCore) node.RenderCore).IsCaptureStarted);
         Assert.Equal(0, host.Requests);
         Assert.Equal(1, host.PerFrameRenderableRequests);
         renderer.BeginFrame();
@@ -186,21 +195,38 @@ public sealed class NativeRenderSourceNotificationTests {
         using var samplers = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
         using var manager = new SilkD3D12ResourceManager(device, resources);
         using var renderer = new D3D12Scene2DRenderer(device, manager, resources, samplers);
-        using var catalog = new D3D12ScenePassCatalog(device, Format.FormatB8G8R8A8Unorm,
-            Format.FormatD32FloatS8X24Uint, outputMode: D3D12ColorOutputMode.Premultiplied);
+        using var catalog = new D3D12ScenePassCatalog(
+            device, Format.FormatB8G8R8A8Unorm,
+            Format.FormatD32FloatS8X24Uint, outputMode: D3D12ColorOutputMode.Premultiplied
+        );
         using var d2d = new D2DDeviceContext();
         using var brush = new SolidColorBrush(d2d, new Silk.NET.Maths.Vector4D<float>(1, 0, 0, 0.5f));
         using var effects = new EffectsManager();
         using var layout = new RenderContext2D(d2d, effects, 16, 16);
         using var rectangle = new RectangleNode2D {
-            Fill = brush, Stroke = brush, StrokeThickness = 1, Width = 14, Height = 14, ClipToBound = true
+            Fill = brush,
+            Stroke = brush,
+            StrokeThickness = 1,
+            Width = 14,
+            Height = 14,
+            ClipToBound = true
         };
         using var ellipse = new EllipseNode2D {
-            Fill = brush, Stroke = brush, StrokeThickness = 1, Width = 14, Height = 14, ClipToBound = true
+            Fill = brush,
+            Stroke = brush,
+            StrokeThickness = 1,
+            Width = 14,
+            Height = 14,
+            ClipToBound = true
         };
         using var border = new BorderNode2D {
-            Background = brush, BorderBrush = brush, BorderThickness = new Thickness(1), CornerRadius = 3,
-            Width = 14, Height = 14, ClipToBound = true
+            Background = brush,
+            BorderBrush = brush,
+            BorderThickness = new Thickness(1),
+            CornerRadius = 3,
+            Width = 14,
+            Height = 14,
+            ClipToBound = true
         };
         SceneNode2D[] roots = [rectangle, ellipse, border];
         for (var index = 0; index < 64; index++) {
@@ -208,10 +234,13 @@ public sealed class NativeRenderSourceNotificationTests {
             renderer.Prepare(roots, 16, 16, 1, layout);
             catalog.ResolveSprite2D();
         }
+
         Assert.Equal(6, renderer.Draws.Count);
         var drawStorage = renderer.Draws.ToArray();
-        var vertexStorage = drawStorage.Select(draw => draw.Vertices).ToArray();
-        var indexStorage = drawStorage.Select(draw => draw.Indices).ToArray();
+        var vertexStorage = drawStorage.Select(draw => draw.Vertices)
+            .ToArray();
+        var indexStorage = drawStorage.Select(draw => draw.Indices)
+            .ToArray();
         var before = GC.GetAllocatedBytesForCurrentThread();
         for (var index = 0; index < 1_000; index++) catalog.ResolveSprite2D();
         var passAllocated = GC.GetAllocatedBytesForCurrentThread() - before;
@@ -222,6 +251,7 @@ public sealed class NativeRenderSourceNotificationTests {
             renderer.BeginFrame();
             preparedDraws += renderer.Prepare(roots, 16, 16, 1, layout);
         }
+
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Equal(0, allocated);
         Assert.Equal(6_000, preparedDraws);
@@ -273,6 +303,7 @@ public sealed class NativeRenderSourceNotificationTests {
                 ResetNext = false;
                 throw new ScreenCaptureResetException();
             }
+
             return false;
         }
 
@@ -307,7 +338,10 @@ public sealed class NativeRenderSourceNotificationTests {
         public IEffectsManager? EffectsManager { get; set; }
 
         /// <inheritdoc />
-        public event EventHandler? Rendered { add { } remove { } }
+        public event EventHandler? Rendered {
+            add { }
+            remove { }
+        }
 
         /// <inheritdoc />
         public bool UpdateAndRender() => false;

@@ -29,6 +29,7 @@ okf_version: "0.2"
 ## Testing
 
 * [Silk Test Strategy](/testing/silk-tests.md) - xUnit v3 projects, categories, local commands, and non-blocking coverage reporting.
+* [WPF Composition Phase 4](/testing/wpf-composition-phase4.md) - Public presentation integration, original-contract reviews and serial acceptance evidence.
 
 ## Backlog
 

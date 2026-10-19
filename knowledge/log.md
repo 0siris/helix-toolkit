@@ -10,6 +10,8 @@
   rescheduling and reentrant manager/capture findings. Corrections and serial runtime verification are in progress;
   the initial dedicated run passed 32/35 cases and exposed binding-coercion and layout-fixture corrections.
 - Phase 5 remains outside this implementation authorization.
+- Added the [Phase 4 verification report](/testing/wpf-composition-phase4.md) with actual visible composition
+  measurements, review findings and the pending final gates; extended the phase plan with F26–F32.
 
 ## 2026-10-19 — WPF composition Phase 3 verified
 

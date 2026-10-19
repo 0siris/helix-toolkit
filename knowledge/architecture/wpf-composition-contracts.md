@@ -278,3 +278,43 @@ reader even when it uses the same bytecode name. Application modules and shared 
 The variant still reads the agreed b0
 profile bits; no public constant-buffer layout, technique, pass or constructor contract changes. The complete
 DXC inventory grows from 123 to 136 modules and is verified by the existing resource/manifest tests.
+
+## Phase 4 public host integration
+
+`Viewport3DX.EnableSwapChainRendering` defaults to `false` and the shipped template creates the passive
+`DPFCanvas` and productive WPF owner. Explicit `true` selects the existing continuous HWND presentation.
+The first successful native generation permanently fixes this selection, including across unload or template
+replacement. Merely creating a template or failing native initialization does not fix it. The CLR setter rejects
+an incompatible selection; dependency-property coercion preserves the selected value for bindings and direct
+property-system routes. Throwing from binding coercion is insufficient because WPF can suppress that exception.
+
+`EnableDpiScale` defaults to `true`. Public `DpiScale` controls render resolution and the host reports the effective
+scale; disabling scaling uses one pixel per DIP. Canvas/native dimensions round upward from double precision.
+WPF layout, input and picking remain in DIPs, and native pointer decoding retains the physical window DPI.
+Image-producing properties and original aliases request bounded scene work; diagnostic output does not.
+
+The host borrows its effects manager and subscribes to invalidation, resource disposal and reinitialization.
+Ordinary identity replacement waits through nonblocking fence/copy checks and a retained pending barrier.
+Explicit capture can drain that barrier within the existing bounded wait. Resource-disposal events synchronously
+drain already submitted GPU work before the manager may free its resources. An active CPU recording retains its
+owners until unwinding, and a cached permission delegate stops subsequent node preparation/maintenance and draw
+recording when a callback changes the manager or presentation lifetime. Reinitialization must restore the entire
+manager resource set, including Scene2D factories/context and the struct-array pool, before notifying consumers.
+
+Each native renderer retains its own attachment lease on every borrowed scene node. Only the final lease
+detaches the node; the node's host falls back to another live lease. Shared containers distinguish notification
+membership from native resource ownership: an unloaded consumer stops receiving notifications while its retained
+renderer still participates in a later resource-retirement barrier. Successful retirement releases that membership;
+failed bounded retirement retains both ownership and the barrier. Root revisions preserve actual changes during
+notification suspension without creating a new frame merely for an unchanged reload.
+
+Manager fanout retires all old resource owners before assigning a replacement to active consumers. Rare pending
+GPU/lock retries use retained 100 ms timers; timers stop after success or while waiting for an active frame's
+exit hook. Settled frames and nested dispatcher pumps do not allocate or repost retry operations. Material
+parameter observation follows actual attachment lifetime and forwards changes through the original root
+invalidation path to every consumer.
+
+Disabling Scene2D removes it from drawing/capture and new input hit tests, clears hover and cancels a retained
+2D press. The independently controlled view cube and ordinary WPF controls remain available. A hidden cube
+cannot consume picking. These host changes preserve the established overlay, cube and scene input priority.
+Runtime evidence and the remaining phase boundary are recorded in the implementation report.

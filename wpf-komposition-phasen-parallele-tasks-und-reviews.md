@@ -212,6 +212,16 @@ Die folgenden Architektur-Findings stammen aus dem Review von `6f36703f3`. Sie s
 - **F24 · Heap-Nachweis braucht echte häufige Pfade:** Delegates, Polygon-Enumeratoren, Clip-Arrays und Metadatenzugriffe bei konstanten Spans gesondert prüfen. Framework-Kosten beim fehlgeschlagenen WPF-Lock getrennt messen. **Tasks:** P3.2, P3.4, P5.5. **Nachweis:** echte Draw-/Publikationszähler, ruhende und aktive Messungen sowie Scene2D mit Layout und Clipping.
 - **F25 · Allokationszähler kann durch Hintergrund-GC verfälscht werden:** Der dokumentierte .NET-10-Befund `dotnet/runtime#134724` passt zu sporadischen Zusatzbytes im parallelen Testlauf. Nur den Core-Testhost mit nicht gleichzeitigem GC qualifizieren, effektive Einstellung und positive Allokationskontrolle prüfen; Null-Byte-Grenzen beibehalten. **Tasks:** P3.4, P5.5. **Grenze:** Zuordnung des ursprünglichen Intervalls bleibt eine begründete Vermutung; keine Änderung der Produkt-GC-Einstellungen.
 
+### Zusätzliche Findings aus P4-Integration und unabhängigen Reviews
+
+- **F26 · Eine Ausnahme in Binding-Coercion sperrt den Wert nicht zuverlässig:** Den gewählten Backendwert nach erfolgreicher nativer Initialisierung durch Coercion erhalten; der CLR-Setter darf die unzulässige Änderung ablehnen. Initialisierung ohne Gerät und fehlgeschlagene Geräteanlage sperren nicht. **Tasks:** P4.1, P4.6.
+- **F27 · Materialparameter wecken keine ruhende Szene:** Änderungen innerhalb desselben Materials über eine wiederverwendete, an die tatsächliche Attachment-Lebensdauer gebundene Benachrichtigung an alle Verbraucher weitergeben. Reentrantes Detach/Dispose darf keinen neuen Material-Abonnenten hinterlassen. **Tasks:** P4.2, P4.6.
+- **F28 · Manager-Reinitialisierung stellt nur Geometrie wieder her:** Den gesamten freigegebenen Ressourcensatz einschließlich Scene2D-Kontext, Factories und Struct-Pool vor `Reinitialized` neu anlegen. **Tasks:** P4.3, P4.4.
+- **F29 · Unload beendet Benachrichtigungen vor der nativen Lebensdauer:** Separate Ressourcen-Mitgliedschaft bis zur erfolgreichen Rendererfreigabe behalten. Auch ausgeladene WPF-Verbraucher müssen vor Managerwechseln sicher stillgelegt werden; unverändertes Reload bindet ohne neue Szenen-/Kopierframes an. Identitätswechsel prüfen GPU/Kopie nicht blockierend, Ressourcenfreigabe drainiert synchron. **Tasks:** P4.2–P4.4, P5.3.
+- **F30 · Ressourcen können innerhalb von Attach-/Update-Rückrufen verschwinden:** Dieselbe wiederverwendete Berechtigungsprüfung durch Technik-Auswahl, rekursives Attachment, 3D-Maintenance und Scene2D-Attachment/Layout/Update führen; danach keine ungültigen Ressourcen lesen oder Befehle einreichen. **Tasks:** P4.3, P4.4, P4.6.
+- **F31 · Unsichtbare Elemente konsumieren weiterhin Eingabe:** Abgeschaltetes Scene2D auch aus Hit-Tests entfernen und Hover/Press bereinigen; ein ausgeblendeter ViewCube darf Szenenpicking nicht abfangen. **Tasks:** P4.3, P4.6.
+- **F32 · Neue Verbraucher verpassen einen laufenden Dispose-Rückruf:** Ressourcenverfügbarkeit vor den Benachrichtigungen veröffentlichen und bei Anmeldung sowie Frame-Eintritt prüfen. Den historischen öffentlichen `Initialized`-Wert während der Benachrichtigung erhalten. **Tasks:** P4.3, P4.4.
+
 Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
 
 - `c59fcc424:Source/HelixToolkit.SharpDX.Shared/Render/RenderHost/RenderHostBase.cs`: Zeilen 244–253 für EffectsManager-Ereignisse, 708–779 für Invalidierung und Framebudget.
@@ -288,6 +298,17 @@ Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
   dieselben 17 partiellen Parser-Ergebnisse. Staging entfernt, erzeugte Daten nicht von Hand geändert.
 - **Haltepunkt erreicht: Phase 4 und der öffentliche Backend-Schalter mit Default `false` starten erst nach
   ausdrücklicher Freigabe.**
+
+### Stand 2026-10-19 · Phase 4 in Ausführung
+
+- Ausdrücklich mit `$speckit-implement phase 4` freigegeben; parallele Tasks in isolierten Worktrees.
+  Der zugehörige [Taskstand](specs/002-wpf-composition-phase4/tasks.md) verändert den fremden Assimp-Featurekontext nicht.
+- Öffentlicher Default `false`, DPI, Host-/Manager-Integration und gemeinsame Renderer-Leases sind integriert.
+  Die Findings F26–F32 schließen weitere Original-/Lebensdauerlücken; ihre gezielten Prüfungen und das Abschlussgate laufen.
+- Sichtbare Abnahme bestanden: echter OS-Buttonklick über D3D12, ZIndex, Clipping, VisualBrush, Blur und Adorner.
+  Sieben Render-/Abschluss-/Kopier-/Publikationsframes bleiben während dieser WPF-Operationen unverändert.
+- Laufzeitergebnisse, Reviewantworten und Grenzen im [P4-Prüfbericht](knowledge/testing/wpf-composition-phase4.md).
+- Phase 5 bleibt bis zur erneuten Freigabe angehalten.
 
 Jeder Phasenbericht enthält:
 

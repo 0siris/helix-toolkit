@@ -31,7 +31,7 @@ Baseline: `619feb80d`; 729/737 standard cases passing, eight known failures. See
 
 ## Serial acceptance and phase gate
 
-- [ ] T009 P4.7: Verify visible WPF controls over real D3D12 output, ZIndex, clipping, VisualBrush, Blur and Adorner;
+- [X] T009 P4.7: Verify visible WPF controls over real D3D12 output, ZIndex, clipping, VisualBrush, Blur and Adorner;
   preserve `ViewportWidgetOverlay` and record evidence/limits.
 - [ ] T010 Run independent integration/original-contract/heap reviews; resolve findings and re-review deltas.
 - [ ] T011 Format changed files, inspect diagnostics, build and run standard plus targeted/hardware/heap checks

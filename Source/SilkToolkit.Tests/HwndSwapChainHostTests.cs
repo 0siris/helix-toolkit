@@ -36,7 +36,8 @@ public sealed class HwndSwapChainHostTests {
         };
 
         Assert.All(removedTypes, typeName => Assert.Null(assembly.GetType(typeName, false, false)));
-        var canvas = Assert.NotNull(assembly.GetType("HelixToolkit.Wpf.SharpDX.Controls.DPFCanvas", false, false));
+        var canvas = assembly.GetType("HelixToolkit.Wpf.SharpDX.Controls.DPFCanvas", false, false);
+        Assert.NotNull(canvas);
         Assert.False(canvas.IsVisible);
         Assert.Null(typeof(Viewport3DX).GetProperty("EnableSwapChainRendering"));
     }

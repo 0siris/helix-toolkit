@@ -22,10 +22,10 @@ namespace SilkToolkit.Tests;
 [Collection(WpfCollection.Name)]
 public sealed class HwndSwapChainHostTests {
     /// <summary>
-    ///     Verifies removed D3D11 controls and the public selection switch stay absent while P3's canvas is internal.
+    ///     Verifies removed D3D11 controls stay absent while the public backend selection is restored.
     /// </summary>
     [Fact]
-    public void LegacyPresentationApiIsAbsent() {
+    public void LegacyPresentationControlsStayAbsentAndBackendSelectionIsPublic() {
         var assembly = typeof(Viewport3DX).Assembly;
         var removedTypes = new[] {
             "HelixToolkit.Wpf.SharpDX.Controls.DPFSurfaceSwapChain",
@@ -39,7 +39,11 @@ public sealed class HwndSwapChainHostTests {
         var canvas = assembly.GetType("HelixToolkit.Wpf.SharpDX.Controls.DPFCanvas", false, false);
         Assert.NotNull(canvas);
         Assert.False(canvas.IsVisible);
-        Assert.Null(typeof(Viewport3DX).GetProperty("EnableSwapChainRendering"));
+        var selection = typeof(Viewport3DX).GetProperty(nameof(Viewport3DX.EnableSwapChainRendering));
+        Assert.NotNull(selection);
+        Assert.Equal(typeof(bool), selection.PropertyType);
+        Assert.True(selection.CanRead);
+        Assert.True(selection.CanWrite);
     }
 
     /// <summary>
@@ -133,13 +137,43 @@ public sealed class HwndSwapChainHostTests {
         });
     }
 
+    /// <summary>Converts physical mouse positions to signed DIP coordinates after a real native DPI message.</summary>
+    /// <returns>The managed native-message decoding verification.</returns>
+    [Fact]
+    public Task NativeDpiChangePreservesSignedDipMousePositions() => StaThread.RunAsync(() => {
+        using var host = new HwndSwapChainHost();
+        var pointers = new List<HwndPointerEventArgs>();
+        host.PointerInput += (_, args) => pointers.Add(args);
+        Assert.False(host.ProcessMessage(0x02E0, 192, 0));
+        Assert.False(host.ProcessMessage(0x0201, 0, PackPoint(25, 29)));
+        Assert.False(host.ProcessMessage(0x0200, 0, PackPoint(-5, 37)));
+        Assert.False(host.ProcessMessage(0x0202, 0, PackPoint(-5, 37)));
+        Assert.Equal(2, host.DpiScale);
+        Assert.Collection(pointers,
+            args => {
+                Assert.Equal(HwndPointerAction.Pressed, args.Action);
+                Assert.Equal(12.5, args.X);
+                Assert.Equal(14.5, args.Y);
+            },
+            args => {
+                Assert.Equal(HwndPointerAction.Move, args.Action);
+                Assert.Equal(-2.5, args.X);
+                Assert.Equal(18.5, args.Y);
+            },
+            args => {
+                Assert.Equal(HwndPointerAction.Released, args.Action);
+                Assert.Equal(-2.5, args.X);
+                Assert.Equal(18.5, args.Y);
+            });
+    });
+
     /// <summary>
     ///     Verifies native presses reuse the viewport's existing configurable camera gesture handlers.
     /// </summary>
     [Fact]
     public Task NativePointerResolvesExistingCameraGestureBindings() {
         return StaThread.RunAsync(() => {
-            using var viewport = new Viewport3DX();
+            using var viewport = new Viewport3DX { EnableSwapChainRendering = true };
 
             Assert.Same(viewport.CameraController.RotateHandler,
                 viewport.ResolveD3D12PointerGesture(HwndPointerButton.Right, ModifierKeys.None));
@@ -340,6 +374,7 @@ public sealed class HwndSwapChainHostTests {
                 WindowStyle = unchecked((int) 0x80000000)
             });
             using var viewport = new Viewport3DX {
+                EnableSwapChainRendering = true,
                 Width = 48,
                 Height = 32,
                 D3D12DriverType = SilkDriverType.Warp
@@ -373,9 +408,21 @@ public sealed class HwndSwapChainHostTests {
             Assert.True(surface.PresentedFrames >= 1);
 
             var originalPosition = viewport.Camera.Position;
+            var previewWheels = 0;
+            var bubbleWheels = 0;
+            viewport.PreviewMouseWheel += (_, args) => {
+                Assert.Equal(120, args.Delta);
+                previewWheels++;
+            };
+            viewport.AddHandler(Mouse.MouseWheelEvent, new MouseWheelEventHandler((_, args) => {
+                Assert.Equal(120, args.Delta);
+                bubbleWheels++;
+            }), handledEventsToo: true);
             surface.WindowHost.ProcessMessage(0x020A, (nint) (120 << 16), PackPoint(12, 12));
             Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(2)) >= 1);
             Assert.NotEqual(originalPosition, viewport.Camera.Position);
+            Assert.Equal(1, previewWheels);
+            Assert.Equal(1, bubbleWheels);
 
             var pointerPositions = new List<Point>();
             viewport.MouseDown3D += (_, eventArgs) =>

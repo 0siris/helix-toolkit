@@ -37,6 +37,7 @@
             EnableAutoOctreeUpdate="True"
             EnableD2DRendering="False"
             EnableDeferredRendering="False"
+            EnableSwapChainRendering="True"
             EnableSsao="True"
             FxaaLevel="Low"
             SsaoIntensity="4"

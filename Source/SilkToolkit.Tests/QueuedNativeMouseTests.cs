@@ -32,6 +32,7 @@ public sealed class QueuedNativeMouseTests {
             Width = 160, Height = 120, WindowStyle = unchecked((int)0x80000000)
         });
         using var viewport = new Viewport3DX {
+            EnableSwapChainRendering = true,
             Width = 160, Height = 120, D3D12DriverType = SilkDriverType.Warp,
             ShowViewCube = false, ShowCoordinateSystem = false,
             Camera = new HelixToolkit.Wpf.SharpDX.OrthographicCamera {

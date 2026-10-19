@@ -21,6 +21,205 @@ namespace SilkToolkit.Tests;
 /// <summary>Exercises the real WARP presentation consumer with an intentionally stalled native queue and hidden HWND.</summary>
 [Collection(WpfCollection.Name)]
 public sealed class NonblockingFramePresentationTests {
+    /// <summary>Retains actual borrowed native resources through reentrant unload or disposal during scene recording.</summary>
+    /// <param name="disposeSurface">Whether to dispose the native surface instead of unloading it.</param>
+    /// <param name="disposeViewport">Whether to dispose the owning viewport instead of unloading its surface.</param>
+    /// <returns>The hidden WARP recording and dispatcher verification.</returns>
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [Trait("Category", "Warp")]
+    public Task RecordingRetirementWaitsForBorrowedResourcesAndCancelsSubmission(
+        bool disposeSurface, bool disposeViewport) => StaThread.RunAsync(() => {
+        using var window = CreateWindow();
+        using var surface = CreateSurface(window);
+        using var viewport = CreateViewport(surface);
+        surface.RenderHost = viewport;
+        viewport.BelongsToParentWindow = false;
+        var model = CreateModel();
+        viewport.Items.Add(model);
+        var node = (ObservedMeshNode)model.SceneNode;
+        var rendered = 0;
+        var onRendered = 0;
+        var disposing = 0;
+        viewport.Rendered += (_, _) => rendered++;
+        viewport.OnRendered += (_, _) => onRendered++;
+        viewport.Disposing += (_, _) => disposing++;
+        Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(1)) > 0);
+        Assert.Equal(1, rendered);
+        Assert.Equal(1, onRendered);
+
+        var renderer = surface.FrameRenderer!;
+        var context = surface.RenderContext!;
+        var commands = PrivateField<SilkD3D12CommandContext>(surface, "commandContext");
+        var swapChain = PrivateField<SilkD3D12SwapChain>(surface, "swapChain");
+        var backBuffer = swapChain.CurrentBackBuffer;
+        var device = PrivateField<SilkD3D12Device>(surface, "device");
+        var fence = PrivateField<SilkD3D12Fence>(surface, "fence");
+        var submission = PrivateField<D3D12FrameSubmission>(surface, "_frameSubmission");
+        var presented = surface.PresentedFrames;
+        var signaled = fence.CurrentValue;
+        var handle = surface.WindowHost.NativeHandle;
+        var callbacks = 0;
+        node.DuringNextUpdate = actualContext => {
+            callbacks++;
+            Assert.Same(context, actualContext);
+            if (disposeViewport) viewport.Dispose();
+            else if (disposeSurface) surface.Dispose();
+            else window.RootVisual = null;
+
+            PumpDispatcher();
+            Assert.False(viewport.IsDisposed);
+            Assert.False(surface.IsDisposed);
+            Assert.False(node.IsDisposed);
+            Assert.False(viewport.CanSubmitNativeScene);
+            if (disposeSurface || disposeViewport) Assert.Equal(handle, surface.WindowHost.NativeHandle);
+            Assert.Equal(0, disposing);
+            Assert.Same(renderer, surface.FrameRenderer);
+            Assert.False(renderer.IsDisposed);
+            Assert.Same(context, surface.RenderContext);
+            Assert.NotNull(actualContext.Camera);
+            Assert.False(commands.IsDisposed);
+            Assert.False(swapChain.IsDisposed);
+            Assert.False(backBuffer.IsDisposed);
+            Assert.False(device.IsDisposed);
+            Assert.False(fence.IsDisposed);
+            Assert.True(PrivateField<bool>(surface, "commandsOpen"));
+            Assert.Equal(0, viewport.RenderD3D12Frame(TimeSpan.FromSeconds(2), waitForCompletion: false));
+            Assert.Equal(presented, surface.PresentedFrames);
+            Assert.Equal(signaled, fence.CurrentValue);
+        };
+
+        Assert.Equal(0, viewport.RenderD3D12Frame(TimeSpan.FromSeconds(2)));
+        Assert.Equal(1, callbacks);
+        Assert.Equal(presented, surface.PresentedFrames);
+        Assert.Equal(signaled, fence.CurrentValue);
+        Assert.False(submission.IsPending);
+        Assert.False(PrivateField<bool>(surface, "commandsOpen"));
+        Assert.False(renderer.IsDisposed);
+        Assert.Equal(1, rendered);
+        Assert.Equal(1, onRendered);
+        var retirement = Stopwatch.StartNew();
+        PumpDispatcher();
+        Assert.True(retirement.Elapsed < TimeSpan.FromSeconds(5),
+            $"Deferred native retirement exceeded its bounded drain: {retirement.Elapsed}.");
+        Assert.True(renderer.IsDisposed);
+        Assert.True(commands.IsDisposed);
+        Assert.True(swapChain.IsDisposed);
+        Assert.True(backBuffer.IsDisposed);
+        Assert.True(device.IsDisposed);
+        Assert.True(fence.IsDisposed);
+        Assert.Null(context.Camera);
+        Assert.False(surface.IsInitialized);
+        Assert.False(surface.TryTakeCompletedFrame());
+        Assert.Equal(1, rendered);
+        Assert.Equal(1, onRendered);
+
+        if (disposeSurface || disposeViewport) {
+            Assert.True(surface.IsDisposed);
+            Assert.False(surface.WindowHost.IsHandleCreated);
+            Assert.Equal(disposeViewport, viewport.IsDisposed);
+            Assert.Equal(disposeViewport, node.IsDisposed);
+            Assert.Equal(disposeViewport ? 1 : 0, disposing);
+            viewport.Dispose();
+            surface.Dispose();
+            Assert.Equal(1, disposing);
+            Assert.True(node.IsDisposed);
+        } else {
+            Assert.False(surface.IsDisposed);
+            Assert.False(surface.IsRetirementPending);
+            window.RootVisual = surface;
+            surface.UpdateLayout();
+            PumpDispatcher();
+            Assert.True(surface.IsInitialized);
+            Assert.NotSame(renderer, surface.FrameRenderer);
+            Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(3)) > 0);
+            Assert.Same(node, model.SceneNode);
+            Assert.NotNull(surface.RenderContext!.Camera);
+            Assert.Equal(presented + 1, surface.PresentedFrames);
+            Assert.Equal(2, rendered);
+            Assert.Equal(2, onRendered);
+            Assert.False(surface.TryTakeCompletedFrame());
+        }
+    });
+
+    /// <summary>Drains a genuinely blocked GPU submission on unload before freeing resources or claiming completion.</summary>
+    /// <returns>The hidden WARP queue-retirement verification.</returns>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public Task UnloadRetainsPendingGpuResourcesAndDeliversCompletionOnce() => StaThread.RunAsync(() => {
+        using var window = CreateWindow();
+        using var surface = CreateSurface(window);
+        using var viewport = CreateViewport(surface);
+        surface.RenderHost = viewport;
+        viewport.Items.Add(CreateModel());
+        var rendered = 0;
+        var onRendered = 0;
+        viewport.Rendered += (_, _) => rendered++;
+        viewport.OnRendered += (_, _) => onRendered++;
+        Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(1)) > 0);
+        using var gate = new NativeQueueGate(surface);
+        Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(2), waitForCompletion: false) > 0);
+        var renderer = surface.FrameRenderer!;
+        var context = surface.RenderContext!;
+        var commands = PrivateField<SilkD3D12CommandContext>(surface, "commandContext");
+        var swapChain = PrivateField<SilkD3D12SwapChain>(surface, "swapChain");
+        var device = PrivateField<SilkD3D12Device>(surface, "device");
+        var fence = PrivateField<SilkD3D12Fence>(surface, "fence");
+        var submitted = fence.CurrentValue;
+        Assert.True(fence.CompletedValue < submitted);
+        Assert.Equal(1, rendered);
+        Assert.Equal(1, onRendered);
+        using var retiring = new ManualResetEventSlim();
+        var release = Task.Run(() => {
+            try {
+                Assert.True(retiring.Wait(TimeSpan.FromSeconds(2)));
+                Assert.True(SpinWait.SpinUntil(() => fence.CurrentValue > submitted, TimeSpan.FromSeconds(2)),
+                    "Unload did not submit its bounded retirement drain.");
+                Assert.True(fence.CompletedValue < submitted);
+                Assert.False(renderer.IsDisposed);
+                Assert.NotNull(context.Camera);
+                Assert.False(commands.IsDisposed);
+                Assert.False(swapChain.IsDisposed);
+                Assert.False(device.IsDisposed);
+                Assert.False(fence.IsDisposed);
+            } finally {
+                gate.Release();
+            }
+        });
+        try {
+            retiring.Set();
+            surface.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent));
+        } finally {
+            release.GetAwaiter().GetResult();
+        }
+        Assert.True(renderer.IsDisposed);
+        Assert.True(commands.IsDisposed);
+        Assert.True(swapChain.IsDisposed);
+        Assert.True(device.IsDisposed);
+        Assert.True(fence.IsDisposed);
+        Assert.Null(context.Camera);
+        Assert.False(surface.IsInitialized);
+        Assert.Equal(2UL, surface.PresentedFrames);
+        Assert.Equal(2, rendered);
+        Assert.Equal(2, onRendered);
+        Assert.False(surface.TryTakeCompletedFrame());
+        surface.RetireSceneResources();
+        PumpDispatcher();
+        Assert.Equal(2, rendered);
+        Assert.Equal(2, onRendered);
+        Assert.False(surface.TryTakeCompletedFrame());
+    });
+
+    /// <summary>Processes queued lifecycle callbacks while preserving the caller's active recording stack.</summary>
+    private static void PumpDispatcher() {
+        var frame = new DispatcherFrame();
+        Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,
+            new Action(() => frame.Continue = false));
+        Dispatcher.PushFrame(frame);
+    }
+
     /// <summary>
     ///     Verifies a pending GPU frame leaves the dispatcher live and skips scene updates and octree maintenance.
     /// </summary>
@@ -177,6 +376,7 @@ public sealed class NonblockingFramePresentationTests {
     /// <returns>The viewport with a deterministic camera and black clear color.</returns>
     private static Viewport3DX CreateViewport(D3D12PresentationSurface surface) {
         var viewport = new Viewport3DX {
+            EnableSwapChainRendering = true,
             BackgroundColor = Colors.Black,
             Camera = new HelixToolkit.Wpf.SharpDX.OrthographicCamera {
                 Position = new Point3D(0, 0, 5),
@@ -219,11 +419,16 @@ public sealed class NonblockingFramePresentationTests {
 
     /// <summary>Creates the ordinary mesh node with a scene-update observer.</summary>
     private sealed class ObservedMeshModel : MeshGeometryModel3D {
+        /// <summary>Creates the ordinary production mesh with an observable recording callback.</summary>
+        /// <returns>The mesh node used by the real frame recorder.</returns>
         protected override SceneNode OnCreateSceneNode() => new ObservedMeshNode();
     }
 
     /// <summary>Observes actual scene preparation while retaining all original mesh rendering behavior.</summary>
     private sealed class ObservedMeshNode : MeshNode {
+        /// <summary>Gets or sets one callback invoked from the next productive scene update.</summary>
+        internal Action<RenderContext>? DuringNextUpdate { get; set; }
+
         /// Gets the number of productive scene-update calls.
         internal int UpdateCount { get; private set; }
         /// Gets the number of productive non-render maintenance calls.
@@ -231,12 +436,19 @@ public sealed class NonblockingFramePresentationTests {
         /// Gets the camera position consumed by the last productive scene update.
         internal Vector3 LastCameraPosition { get; private set; }
 
+        /// <summary>Observes productive preparation and invokes an optional one-shot reentrant lifecycle operation.</summary>
+        /// <param name="context">The actual borrowed frame context.</param>
         public override void Update(RenderContext context) {
             UpdateCount++;
             LastCameraPosition = context.Camera!.Position;
+            var callback = DuringNextUpdate;
+            DuringNextUpdate = null;
+            callback?.Invoke(context);
             base.Update(context);
         }
 
+        /// <summary>Counts actual non-render maintenance without changing its behavior.</summary>
+        /// <param name="context">The actual borrowed frame context.</param>
         public override void UpdateNotRender(RenderContext context) {
             MaintenanceCount++;
             base.UpdateNotRender(context);
@@ -277,11 +489,14 @@ public sealed class NonblockingFramePresentationTests {
             _released = true;
         }
 
+        /// <summary>Releases the gate and drains a surviving queue before releasing the independent gate fence.</summary>
         public void Dispose() {
             if (_fence.IsDisposed) return;
             Release();
-            var drain = _queue.Signal(_completionFence);
-            _completionFence.Wait(drain, TimeSpan.FromSeconds(5));
+            if (!_queue.IsDisposed) {
+                var drain = _queue.Signal(_completionFence);
+                _completionFence.Wait(drain, TimeSpan.FromSeconds(5));
+            }
             _fence.Dispose();
         }
 

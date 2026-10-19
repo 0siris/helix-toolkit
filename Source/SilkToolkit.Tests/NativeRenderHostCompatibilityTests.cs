@@ -261,7 +261,7 @@ public sealed class NativeRenderHostCompatibilityTests {
     /// <param name="surface">The real hidden surface.</param>
     /// <returns>The actual viewport owner.</returns>
     private static Viewport3DX CreateViewport(D3D12PresentationSurface surface) {
-        var viewport = new Viewport3DX();
+        var viewport = new Viewport3DX { EnableSwapChainRendering = true };
         typeof(Viewport3DX).GetField("d3d12Surface", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(viewport, surface);
         surface.RenderHost = viewport;

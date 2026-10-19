@@ -475,6 +475,7 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
             Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, static () => { });
             Assert.True(Surface.IsInitialized);
             Viewport = new Viewport3DX {
+                EnableSwapChainRendering = true,
                 BackgroundColor = Colors.Black,
                 FxaaLevel = FXAALevel.None,
                 Camera = new HelixToolkit.Wpf.SharpDX.OrthographicCamera {

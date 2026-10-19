@@ -1632,7 +1632,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <returns>The next completed-fence reusable mesh binding slot.</returns>
     private SilkD3D12MeshBindings NextEffectMeshBindings() {
         if (effectMeshIndex == effectMeshBindings.Count)
-            effectMeshBindings.Add(new SilkD3D12MeshBindings(Device, resourceHeap, samplerHeap, _effectBindings, mainColor.Description.Format, outputMode));
+            effectMeshBindings.Add(new SilkD3D12MeshBindings(Device, resourceHeap, samplerHeap, _effectBindings));
         return effectMeshBindings[effectMeshIndex++];
     }
 
@@ -1642,7 +1642,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <returns>The next completed-fence reusable point/line binding slot.</returns>
     private SilkD3D12PointLineBindings NextEffectLineBindings() {
         if (effectLineIndex == effectLineBindings.Count)
-            effectLineBindings.Add(new SilkD3D12PointLineBindings(Device, resourceHeap, samplerHeap, _effectBindings, mainColor.Description.Format, outputMode));
+            effectLineBindings.Add(new SilkD3D12PointLineBindings(Device, resourceHeap, samplerHeap, _effectBindings));
         return effectLineBindings[effectLineIndex++];
     }
 

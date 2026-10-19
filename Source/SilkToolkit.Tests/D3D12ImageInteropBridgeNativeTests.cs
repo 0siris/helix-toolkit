@@ -23,61 +23,62 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
     [Trait("Category", "DX12")]
     [Trait("Category", "Wpf")]
     public Task BorrowedDeviceCopiesPremultipliedBgraWithoutOverwritingPublishedSlot() => StaThread.RunAsync(() => {
-        using var frame = new HardwareFrame();
-        var bridge = frame.Bridge;
-        Assert.True(bridge.IsCopyComplete);
-        Assert.False(bridge.IsCopyPending);
-        Assert.False(bridge.HasReadySurface);
-        Assert.Equal(0, bridge.ReadySurface);
-        Assert.Equal(0UL, bridge.ReadySerial);
-        Assert.Equal(0UL, bridge.CopyCount);
-        Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(1));
-        frame.Clear(1, 0.5f, 0.25f, 0.5f);
-        bridge.BeginCopy(1);
-        Assert.True(bridge.IsCopyPending);
-        Assert.False(bridge.HasReadySurface);
-        Assert.Throws<InvalidOperationException>(() => bridge.BeginCopy(2));
-        frame.WaitForCopy();
-        var first = bridge.ReadySurface;
-        AssertSurface(first, [32, 64, 128, 128]);
-        AssertActualDevice(frame.Device, bridge.Target.ColorResource);
-        Assert.Equal(bridge.AdapterLuid, ReadD3D9AdapterLuid(first));
-
-        for (var retry = 0; retry < 128; retry++) {
-            // A failed TryLock performs no publication acknowledgment and no new copy.
+            using var frame = new HardwareFrame();
+            var bridge = frame.Bridge;
             Assert.True(bridge.IsCopyComplete);
-            Assert.True(bridge.HasReadySurface);
-            Assert.Equal(first, bridge.ReadySurface);
-            Assert.Equal(1UL, bridge.ReadySerial);
-        }
+            Assert.False(bridge.IsCopyPending);
+            Assert.False(bridge.HasReadySurface);
+            Assert.Equal(0, bridge.ReadySurface);
+            Assert.Equal(0UL, bridge.ReadySerial);
+            Assert.Equal(0UL, bridge.CopyCount);
+            Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(1));
+            frame.Clear(1, 0.5f, 0.25f, 0.5f);
+            bridge.BeginCopy(1);
+            Assert.True(bridge.IsCopyPending);
+            Assert.False(bridge.HasReadySurface);
+            Assert.Throws<InvalidOperationException>(() => bridge.BeginCopy(2));
+            frame.WaitForCopy();
+            var first = bridge.ReadySurface;
+            AssertSurface(first, [32, 64, 128, 128]);
+            AssertActualDevice(frame.Device, bridge.Target.ColorResource);
+            Assert.Equal(bridge.AdapterLuid, ReadD3D9AdapterLuid(first));
 
-        Assert.Throws<InvalidOperationException>(() => bridge.BeginCopy(2));
-        Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(2));
-        Assert.Equal(1UL, bridge.CopyCount);
-        Assert.Equal(1UL, bridge.ReadySerial);
-        bridge.ConfirmPublication(1);
-        Assert.False(bridge.HasReadySurface);
-        frame.Clear(0, 0, 1, 1);
-        bridge.BeginCopy(2); // The earlier rejected serial remains available.
-        AssertSurface(first, [32, 64, 128, 128]);
-        frame.WaitForCopy();
-        var second = bridge.ReadySurface;
-        Assert.NotEqual(first, second);
-        AssertSurface(second, [255, 0, 0, 255]);
-        AssertSurface(first, [32, 64, 128, 128]);
-        Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(1));
-        bridge.ConfirmPublication(2);
-        frame.Clear(1, 1, 1, 0);
-        bridge.BeginCopy(3);
-        frame.WaitForCopy();
-        Assert.Equal(first, bridge.ReadySurface);
-        AssertSurface(first, [0, 0, 0, 0]);
-        bridge.ConfirmDetached();
-        Assert.Equal(first, bridge.ReadySurface);
-        Assert.Equal(3UL, bridge.ReadySerial);
-        bridge.ConfirmPublication(3);
-        Assert.Equal(3UL, bridge.CopyCount);
-    });
+            for (var retry = 0; retry < 128; retry++) {
+                // A failed TryLock performs no publication acknowledgment and no new copy.
+                Assert.True(bridge.IsCopyComplete);
+                Assert.True(bridge.HasReadySurface);
+                Assert.Equal(first, bridge.ReadySurface);
+                Assert.Equal(1UL, bridge.ReadySerial);
+            }
+
+            Assert.Throws<InvalidOperationException>(() => bridge.BeginCopy(2));
+            Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(2));
+            Assert.Equal(1UL, bridge.CopyCount);
+            Assert.Equal(1UL, bridge.ReadySerial);
+            bridge.ConfirmPublication(1);
+            Assert.False(bridge.HasReadySurface);
+            frame.Clear(0, 0, 1, 1);
+            bridge.BeginCopy(2); // The earlier rejected serial remains available.
+            AssertSurface(first, [32, 64, 128, 128]);
+            frame.WaitForCopy();
+            var second = bridge.ReadySurface;
+            Assert.NotEqual(first, second);
+            AssertSurface(second, [255, 0, 0, 255]);
+            AssertSurface(first, [32, 64, 128, 128]);
+            Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(1));
+            bridge.ConfirmPublication(2);
+            frame.Clear(1, 1, 1, 0);
+            bridge.BeginCopy(3);
+            frame.WaitForCopy();
+            Assert.Equal(first, bridge.ReadySurface);
+            AssertSurface(first, [0, 0, 0, 0]);
+            bridge.ConfirmDetached();
+            Assert.Equal(first, bridge.ReadySurface);
+            Assert.Equal(3UL, bridge.ReadySerial);
+            bridge.ConfirmPublication(3);
+            Assert.Equal(3UL, bridge.CopyCount);
+        }
+    );
 
     /// <summary>Checks same-serial rebind bookkeeping and rejects stale acknowledgments or invalid source states.</summary>
     /// <returns>The explicit STA slot-lifecycle regression.</returns>
@@ -86,41 +87,42 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
     [Trait("Category", "DX12")]
     [Trait("Category", "Wpf")]
     public Task DetachedPublishedSurfaceRebindProtectsItsSlotAndReadySerial() => StaThread.RunAsync(() => {
-        using var frame = new HardwareFrame();
-        var bridge = frame.Bridge;
-        frame.Clear(0, 1, 0, 1);
-        bridge.BeginCopy(5);
-        frame.WaitForCopy();
-        var first = bridge.ReadySurface;
-        bridge.ConfirmPublication(5);
-        bridge.ConfirmDetached();
-        bridge.ConfirmPublication(5); // Analogue of rebind/unlock of the retained published pointer.
-        Assert.Equal(1UL, bridge.CopyCount);
-        Assert.Throws<ArgumentOutOfRangeException>(() => bridge.BeginCopy(5));
-        Assert.Throws<ArgumentOutOfRangeException>(() => bridge.BeginCopy(0));
-        Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(4));
-        frame.Context.Reset();
-        frame.Context.Transition(bridge.Target.ColorResource, ResourceStates.RenderTarget);
-        Assert.Throws<InvalidOperationException>(() => bridge.BeginCopy(6));
-        Assert.Equal(1UL, bridge.CopyCount);
-        frame.Context.Transition(bridge.Target.ColorResource, ResourceStates.Common);
-        frame.Context.Close();
-        frame.SubmitAndDrain();
-        bridge.BeginCopy(6);
-        Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(5));
-        frame.WaitForCopy();
-        var second = bridge.ReadySurface;
-        Assert.NotEqual(first, second);
-        Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(5));
-        bridge.ConfirmDetached();
-        Assert.Equal(second, bridge.ReadySurface);
-        Assert.Equal(6UL, bridge.ReadySerial);
-        bridge.ConfirmPublication(6);
-        bridge.BeginCopy(7);
-        frame.WaitForCopy();
-        Assert.Equal(first, bridge.ReadySurface);
-        Assert.Equal(7UL, bridge.ReadySerial);
-    });
+            using var frame = new HardwareFrame();
+            var bridge = frame.Bridge;
+            frame.Clear(0, 1, 0, 1);
+            bridge.BeginCopy(5);
+            frame.WaitForCopy();
+            var first = bridge.ReadySurface;
+            bridge.ConfirmPublication(5);
+            bridge.ConfirmDetached();
+            bridge.ConfirmPublication(5); // Analogue of rebind/unlock of the retained published pointer.
+            Assert.Equal(1UL, bridge.CopyCount);
+            Assert.Throws<ArgumentOutOfRangeException>(() => bridge.BeginCopy(5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => bridge.BeginCopy(0));
+            Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(4));
+            frame.Context.Reset();
+            frame.Context.Transition(bridge.Target.ColorResource, ResourceStates.RenderTarget);
+            Assert.Throws<InvalidOperationException>(() => bridge.BeginCopy(6));
+            Assert.Equal(1UL, bridge.CopyCount);
+            frame.Context.Transition(bridge.Target.ColorResource, ResourceStates.Common);
+            frame.Context.Close();
+            frame.SubmitAndDrain();
+            bridge.BeginCopy(6);
+            Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(5));
+            frame.WaitForCopy();
+            var second = bridge.ReadySurface;
+            Assert.NotEqual(first, second);
+            Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(5));
+            bridge.ConfirmDetached();
+            Assert.Equal(second, bridge.ReadySurface);
+            Assert.Equal(6UL, bridge.ReadySerial);
+            bridge.ConfirmPublication(6);
+            bridge.BeginCopy(7);
+            frame.WaitForCopy();
+            Assert.Equal(first, bridge.ReadySurface);
+            Assert.Equal(7UL, bridge.ReadySerial);
+        }
+    );
 
     /// <summary>Measures warmed real copies, query polling and acknowledgments without recurring managed allocations.</summary>
     /// <returns>The explicit STA hardware allocation regression.</returns>
@@ -129,29 +131,30 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
     [Trait("Category", "DX12")]
     [Trait("Category", "Wpf")]
     public Task WarmCopiesAndPublicationBookkeepingReuseAllManagedStorage() => StaThread.RunAsync(() => {
-        using var frame = new HardwareFrame();
-        frame.Clear(1, 0, 0, 1);
-        for (ulong serial = 1; serial <= 32; serial++) frame.CopyAndAcknowledge(serial);
-        var countBefore = frame.Bridge.CopyCount;
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (ulong serial = 33; serial <= 96; serial++) frame.CopyAndAcknowledge(serial);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.Equal(64UL, frame.Bridge.CopyCount - countBefore);
-        Assert.Equal(0L, allocated);
-        frame.Bridge.BeginCopy(97);
-        frame.WaitForCopy();
-        var ready = frame.Bridge.ReadySurface;
-        AssertSurface(ready, [0, 0, 255, 255]);
-        before = GC.GetAllocatedBytesForCurrentThread();
-        var stable = true;
-        for (var retry = 0; retry < 1024; retry++)
-            stable &= frame.Bridge.IsCopyComplete && frame.Bridge.HasReadySurface &&
-                frame.Bridge.ReadySurface == ready && frame.Bridge.ReadySerial == 97;
-        allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.True(stable);
-        Assert.Equal(0L, allocated);
-        Assert.Equal(97UL, frame.Bridge.CopyCount);
-    });
+            using var frame = new HardwareFrame();
+            frame.Clear(1, 0, 0, 1);
+            for (ulong serial = 1; serial <= 32; serial++) frame.CopyAndAcknowledge(serial);
+            var countBefore = frame.Bridge.CopyCount;
+            var before = GC.GetAllocatedBytesForCurrentThread();
+            for (ulong serial = 33; serial <= 96; serial++) frame.CopyAndAcknowledge(serial);
+            var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            Assert.Equal(64UL, frame.Bridge.CopyCount - countBefore);
+            Assert.Equal(0L, allocated);
+            frame.Bridge.BeginCopy(97);
+            frame.WaitForCopy();
+            var ready = frame.Bridge.ReadySurface;
+            AssertSurface(ready, [0, 0, 255, 255]);
+            before = GC.GetAllocatedBytesForCurrentThread();
+            var stable = true;
+            for (var retry = 0; retry < 1024; retry++)
+                stable &= frame.Bridge.IsCopyComplete && frame.Bridge.HasReadySurface &&
+                          frame.Bridge.ReadySurface == ready && frame.Bridge.ReadySerial == 97;
+            allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            Assert.True(stable);
+            Assert.Equal(0L, allocated);
+            Assert.Equal(97UL, frame.Bridge.CopyCount);
+        }
+    );
 
     /// <summary>Checks creation validation, enforced thread affinity and retention until confirmed teardown.</summary>
     /// <returns>The explicit STA lifetime regression.</returns>
@@ -160,61 +163,65 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
     [Trait("Category", "DX12")]
     [Trait("Category", "Wpf")]
     public Task TeardownRequiresDetachmentAndLeavesBorrowedDeviceAlive() => StaThread.RunAsync(() => {
-        using var frame = new HardwareFrame();
-        var bridge = frame.Bridge;
-        using (var unused = new D3D12ImageInteropBridge(frame.Device, frame.Window.Handle, 3, 2)) {
-            unused.Dispose();
-            Assert.True(unused.IsDisposed);
-            Assert.False(frame.Device.IsDisposed);
-        }
-
-        Assert.Throws<ArgumentException>(() => new D3D12ImageInteropBridge(frame.Device, 0, 8, 6));
-        Assert.Throws<ArgumentOutOfRangeException>(() =>
-            new D3D12ImageInteropBridge(frame.Device, frame.Window.Handle, 0, 6));
-        Assert.Throws<ArgumentOutOfRangeException>(() =>
-            new D3D12ImageInteropBridge(frame.Device, frame.Window.Handle, 8, uint.MaxValue));
-        Exception? wrongThread = null;
-        var thread = new Thread(() => {
-            try {
-                _ = bridge.IsCopyComplete;
-            } catch (Exception exception) {
-                wrongThread = exception;
+            using var frame = new HardwareFrame();
+            var bridge = frame.Bridge;
+            using (var unused = new D3D12ImageInteropBridge(frame.Device, frame.Window.Handle, 3, 2)) {
+                unused.Dispose();
+                Assert.True(unused.IsDisposed);
+                Assert.False(frame.Device.IsDisposed);
             }
-        });
-        thread.Start();
-        Assert.True(thread.Join(TimeSpan.FromSeconds(5)));
-        Assert.IsType<InvalidOperationException>(wrongThread);
-        frame.Clear(1, 0, 0, 1);
-        bridge.BeginCopy(1);
-        Assert.Throws<InvalidOperationException>(bridge.Dispose);
-        Assert.False(bridge.IsDisposed);
-        Assert.False(bridge.Target.ColorResource.IsDisposed);
-        frame.WaitForCopy();
-        var source = bridge.Target.ColorResource;
-        var descriptor = bridge.Target.RenderTargetView;
-        Assert.Throws<InvalidOperationException>(bridge.Dispose);
-        // These native tests never attach a surface to WPF; this truthfully acknowledges actual detachment.
-        bridge.ConfirmDetached();
-        bridge.Dispose();
-        Assert.True(bridge.IsDisposed);
-        Assert.True(source.IsDisposed);
-        Assert.True(descriptor.IsDisposed);
-        Assert.False(frame.Device.IsDisposed);
-        using var survivor = frame.Device.CreateBuffer(256);
-        Assert.NotEqual(0, survivor.NativePointer);
-        Assert.Throws<ObjectDisposedException>(() => bridge.BeginCopy(2));
-        bridge.Dispose();
 
-        using var copyingFrame = new HardwareFrame();
-        copyingFrame.Clear(0, 1, 0, 1);
-        copyingFrame.Bridge.BeginCopy(1);
-        Assert.True(copyingFrame.Bridge.IsCopyPending);
-        // No completion poll precedes Dispose: teardown itself must drain the submitted D3D11 event.
-        copyingFrame.Bridge.ConfirmDetached();
-        copyingFrame.Bridge.Dispose();
-        Assert.True(copyingFrame.Bridge.IsDisposed);
-        Assert.False(copyingFrame.Device.IsDisposed);
-    });
+            Assert.Throws<ArgumentException>(() => new D3D12ImageInteropBridge(frame.Device, 0, 8, 6));
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                new D3D12ImageInteropBridge(frame.Device, frame.Window.Handle, 0, 6)
+            );
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                new D3D12ImageInteropBridge(frame.Device, frame.Window.Handle, 8, uint.MaxValue)
+            );
+            Exception? wrongThread = null;
+            var thread = new Thread(() => {
+                    try {
+                        _ = bridge.IsCopyComplete;
+                    } catch (Exception exception) {
+                        wrongThread = exception;
+                    }
+                }
+            );
+            thread.Start();
+            Assert.True(thread.Join(TimeSpan.FromSeconds(5)));
+            Assert.IsType<InvalidOperationException>(wrongThread);
+            frame.Clear(1, 0, 0, 1);
+            bridge.BeginCopy(1);
+            Assert.Throws<InvalidOperationException>(bridge.Dispose);
+            Assert.False(bridge.IsDisposed);
+            Assert.False(bridge.Target.ColorResource.IsDisposed);
+            frame.WaitForCopy();
+            var source = bridge.Target.ColorResource;
+            var descriptor = bridge.Target.RenderTargetView;
+            Assert.Throws<InvalidOperationException>(bridge.Dispose);
+            // These native tests never attach a surface to WPF; this truthfully acknowledges actual detachment.
+            bridge.ConfirmDetached();
+            bridge.Dispose();
+            Assert.True(bridge.IsDisposed);
+            Assert.True(source.IsDisposed);
+            Assert.True(descriptor.IsDisposed);
+            Assert.False(frame.Device.IsDisposed);
+            using var survivor = frame.Device.CreateBuffer(256);
+            Assert.NotEqual(0, survivor.NativePointer);
+            Assert.Throws<ObjectDisposedException>(() => bridge.BeginCopy(2));
+            bridge.Dispose();
+
+            using var copyingFrame = new HardwareFrame();
+            copyingFrame.Clear(0, 1, 0, 1);
+            copyingFrame.Bridge.BeginCopy(1);
+            Assert.True(copyingFrame.Bridge.IsCopyPending);
+            // No completion poll precedes Dispose: teardown itself must drain the submitted D3D11 event.
+            copyingFrame.Bridge.ConfirmDetached();
+            copyingFrame.Bridge.Dispose();
+            Assert.True(copyingFrame.Bridge.IsDisposed);
+            Assert.False(copyingFrame.Device.IsDisposed);
+        }
+    );
 
     /// <summary>Compares actual top-left and bottom-right premultiplied BGRA destination bytes.</summary>
     /// <param name="surface">The completed D3D9 destination surface.</param>
@@ -232,8 +239,11 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
     /// <param name="source">The bridge source.</param>
     private static void AssertActualDevice(SilkD3D12Device device, SilkD3D12Resource source) {
         var deviceId = ID3D12Device.Guid;
-        Marshal.ThrowExceptionForHR(Method<GetResourceDevice>(source.NativePointer, 7)(
-            source.NativePointer, in deviceId, out var actual));
+        Marshal.ThrowExceptionForHR(
+            Method<GetResourceDevice>(source.NativePointer, 7)(
+                source.NativePointer, in deviceId, out var actual
+            )
+        );
         try {
             Assert.Equal(device.NativePointer, actual);
         } finally {
@@ -253,8 +263,11 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
             Marshal.ThrowExceptionForHR(Method<GetDevice>(device, 6)(device, out direct3D));
             var id = IDirect3D9Ex.Guid;
             Marshal.ThrowExceptionForHR(Marshal.QueryInterface(direct3D, ref id, out extended));
-            Marshal.ThrowExceptionForHR(Method<GetAdapterLuid>(extended, 21)(
-                extended, creation.AdapterOrdinal, out var luid));
+            Marshal.ThrowExceptionForHR(
+                Method<GetAdapterLuid>(extended, 21)(
+                    extended, creation.AdapterOrdinal, out var luid
+                )
+            );
             return unchecked((long) ((ulong) (uint) luid.High << 32 | luid.Low));
         } finally {
             if (extended != 0) Marshal.Release(extended);
@@ -285,9 +298,11 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
 
         /// <summary>Creates hardware submission owners and the production bridge on the current STA thread.</summary>
         internal HardwareFrame() {
-            Window = new HwndSource(new HwndSourceParameters(nameof(D3D12ImageInteropBridgeNativeTests)) {
-                Width = 16, Height = 16, WindowStyle = unchecked((int) 0x80000000)
-            });
+            Window = new HwndSource(
+                new HwndSourceParameters(nameof(D3D12ImageInteropBridgeNativeTests)) {
+                    Width = 16, Height = 16, WindowStyle = unchecked((int) 0x80000000)
+                }
+            );
             try {
                 Device = SilkD3D12DeviceFactory.CreateDefault();
                 queue = Device.CreateCommandQueue();

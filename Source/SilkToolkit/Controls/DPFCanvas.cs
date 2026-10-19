@@ -13,8 +13,7 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 /// arguments; the presentation owner decides whether any scene, completion or publication work is needed.
 /// Input and layout remain in WPF DIPs independently of the image's pixel resolution.
 /// </remarks>
-internal sealed class DPFCanvas : Grid, IDisposable
-{
+internal sealed class DPFCanvas : Grid, IDisposable {
     /// <summary>Retains the visual until its borrowed native back buffer is safely detached.</summary>
     private readonly Image image;
 
@@ -55,8 +54,7 @@ internal sealed class DPFCanvas : Grid, IDisposable
     private bool disposed;
 
     /// <summary>Creates one Stretch.Fill image and retained lifecycle callbacks.</summary>
-    internal DPFCanvas()
-    {
+    internal DPFCanvas() {
         notifyPresentationChanged = NotifyPresentationChanged;
         renderingCallback = OnRendering;
         sourceChangedCallback = OnSourceChanged;
@@ -72,11 +70,9 @@ internal sealed class DPFCanvas : Grid, IDisposable
     internal D3D12ImageSource ImageSource { get; } = new();
 
     /// <summary>Gets or sets whether native pixels use monitor DPI rather than one pixel per DIP.</summary>
-    internal bool EnableDpiScale
-    {
+    internal bool EnableDpiScale {
         get => enableDpiScale;
-        set
-        {
+        set {
             VerifyAccess();
             ObjectDisposedException.ThrowIf(stopping, this);
             if (enableDpiScale == value)
@@ -111,8 +107,7 @@ internal sealed class DPFCanvas : Grid, IDisposable
     /// <summary>Stops callbacks, requests native detachment and clears the visual only after successful image disposal.</summary>
     /// <exception cref="TimeoutException">The image remains bound; retain this canvas and native resources and retry.</exception>
     /// <remarks>No parent owner, bridge, application scene or manager is disposed by this method.</remarks>
-    public void Dispose()
-    {
+    public void Dispose() {
         VerifyAccess();
         if (disposed)
             return;
@@ -123,12 +118,9 @@ internal sealed class DPFCanvas : Grid, IDisposable
         NativeHandle = 0;
         StopSubscriptions();
         CancelNotification();
-        try
-        {
+        try {
             ImageSource.Dispose();
-        }
-        finally
-        {
+        } finally {
             // Even a failed detach must reach the native owner while its allocations remain retained.
             if (firstAttempt)
                 PresentationChanged?.Invoke(this, EventArgs.Empty);
@@ -147,8 +139,7 @@ internal sealed class DPFCanvas : Grid, IDisposable
 
     /// <summary>Updates physical dimensions after layout without changing DIP coordinates.</summary>
     /// <param name="sizeInfo">The actual WPF render-size transition.</param>
-    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
-    {
+    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
         base.OnRenderSizeChanged(sizeInfo);
         RefreshPresentation();
         QueueNotification();
@@ -157,8 +148,7 @@ internal sealed class DPFCanvas : Grid, IDisposable
     /// <summary>Refreshes pixel dimensions after a monitor or root DPI change.</summary>
     /// <param name="oldDpi">The preceding monitor DPI.</param>
     /// <param name="newDpi">The current monitor DPI.</param>
-    protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
-    {
+    protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi) {
         base.OnDpiChanged(oldDpi, newDpi);
         RefreshPresentation();
         QueueNotification();
@@ -167,13 +157,11 @@ internal sealed class DPFCanvas : Grid, IDisposable
     /// <summary>Reactivates source tracking and schedules one notification after the owner's Loaded handler can attach.</summary>
     /// <param name="sender">The canvas receiving Loaded.</param>
     /// <param name="args">The original routed lifecycle event.</param>
-    private void OnLoaded(object sender, RoutedEventArgs args)
-    {
+    private void OnLoaded(object sender, RoutedEventArgs args) {
         if (stopping || loaded)
             return;
         loaded = true;
-        if (!sourceSubscribed)
-        {
+        if (!sourceSubscribed) {
             PresentationSource.AddSourceChangedHandler(this, sourceChangedCallback);
             sourceSubscribed = true;
         }
@@ -185,8 +173,7 @@ internal sealed class DPFCanvas : Grid, IDisposable
     /// <summary>Cancels pending callbacks and detaches before notifying the owner, retaining the image on failure.</summary>
     /// <param name="sender">The unloading canvas.</param>
     /// <param name="args">The original routed lifecycle event.</param>
-    private void OnUnloaded(object sender, RoutedEventArgs args)
-    {
+    private void OnUnloaded(object sender, RoutedEventArgs args) {
         if (stopping || !loaded)
             return;
         loaded = false;
@@ -194,12 +181,9 @@ internal sealed class DPFCanvas : Grid, IDisposable
         NativeHandle = 0;
         StopSubscriptions();
         CancelNotification();
-        try
-        {
+        try {
             _ = ImageSource.TryDetach();
-        }
-        finally
-        {
+        } finally {
             PresentationChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -207,8 +191,7 @@ internal sealed class DPFCanvas : Grid, IDisposable
     /// <summary>Starts or stops the single rendering subscription when WPF visibility changes.</summary>
     /// <param name="sender">The canvas whose visibility changed.</param>
     /// <param name="args">The original visibility transition.</param>
-    private void OnVisibilityChanged(object sender, DependencyPropertyChangedEventArgs args)
-    {
+    private void OnVisibilityChanged(object sender, DependencyPropertyChangedEventArgs args) {
         RefreshPresentation();
         QueueNotification();
     }
@@ -216,8 +199,7 @@ internal sealed class DPFCanvas : Grid, IDisposable
     /// <summary>Refreshes the borrowed actual HWND after WPF source replacement.</summary>
     /// <param name="sender">The canvas whose presentation source changed.</param>
     /// <param name="args">The old and new presentation sources.</param>
-    private void OnSourceChanged(object sender, SourceChangedEventArgs args)
-    {
+    private void OnSourceChanged(object sender, SourceChangedEventArgs args) {
         RefreshPresentation();
         QueueNotification();
     }
@@ -228,26 +210,30 @@ internal sealed class DPFCanvas : Grid, IDisposable
     private void OnFrontBufferChanged(object? sender, EventArgs args) => QueueNotification();
 
     /// <summary>Reads current WPF geometry and source state and updates subscriptions only on actual transitions.</summary>
-    private void RefreshPresentation()
-    {
+    private void RefreshPresentation() {
         if (stopping)
             return;
         var dpi = VisualTreeHelper.GetDpi(this);
-        var scaleX = enableDpiScale ? dpi.DpiScaleX : 1;
-        var scaleY = enableDpiScale ? dpi.DpiScaleY : 1;
+        var scaleX = enableDpiScale
+            ? dpi.DpiScaleX
+            : 1;
+        var scaleY = enableDpiScale
+            ? dpi.DpiScaleY
+            : 1;
         var width = ToPixelDimension(ActualWidth, scaleX);
         var height = ToPixelDimension(ActualHeight, scaleY);
-        var handle = loaded && PresentationSource.FromVisual(this) is HwndSource source ? source.Handle : 0;
+        var handle = loaded && PresentationSource.FromVisual(this) is HwndSource source
+            ? source.Handle
+            : 0;
         var active = loaded && IsVisible && handle != 0 && width != 0 && height != 0;
-        var changed = EffectiveDpiScale != (float)scaleX || PixelWidth != width || PixelHeight != height ||
-            NativeHandle != handle || IsActive != active;
-        EffectiveDpiScale = (float)scaleX;
+        var changed = EffectiveDpiScale != (float) scaleX || PixelWidth != width || PixelHeight != height ||
+                      NativeHandle != handle || IsActive != active;
+        EffectiveDpiScale = (float) scaleX;
         PixelWidth = width;
         PixelHeight = height;
         NativeHandle = handle;
         IsActive = active;
-        if (active != renderingSubscribed)
-        {
+        if (active != renderingSubscribed) {
             if (active)
                 CompositionTarget.Rendering += renderingCallback;
             else
@@ -264,42 +250,38 @@ internal sealed class DPFCanvas : Grid, IDisposable
     /// <param name="scale">The effective monitor scale.</param>
     /// <returns>Zero for empty layout, otherwise the ceiling clamped to WPF's signed dimension limit.</returns>
     private static uint ToPixelDimension(double dips, double scale) =>
-        dips > 0 ? (uint)Math.Min(int.MaxValue, Math.Ceiling(dips * scale)) : 0;
+        dips > 0
+            ? (uint) Math.Min(int.MaxValue, Math.Ceiling(dips * scale))
+            : 0;
 
     /// <summary>Posts one retained callback per group of actual presentation changes, never per rendering tick.</summary>
-    private void QueueNotification()
-    {
+    private void QueueNotification() {
         if (!loaded || stopping || notification is not null || Dispatcher.HasShutdownStarted)
             return;
         notification = Dispatcher.BeginInvoke(DispatcherPriority.Render, notifyPresentationChanged);
     }
 
     /// <summary>Clears the pending marker before calling the owner so reentrant changes can schedule a later notification.</summary>
-    private void NotifyPresentationChanged()
-    {
+    private void NotifyPresentationChanged() {
         notification = null;
         if (loaded && !stopping)
             PresentationChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>Aborts the sole queued lifecycle callback during unload or disposal.</summary>
-    private void CancelNotification()
-    {
+    private void CancelNotification() {
         notification?.Abort();
         notification = null;
     }
 
     /// <summary>Removes static and source subscriptions once, preserving timestamp deduplication across reload.</summary>
-    private void StopSubscriptions()
-    {
-        if (renderingSubscribed)
-        {
+    private void StopSubscriptions() {
+        if (renderingSubscribed) {
             CompositionTarget.Rendering -= renderingCallback;
             renderingSubscribed = false;
         }
 
-        if (sourceSubscribed)
-        {
+        if (sourceSubscribed) {
             PresentationSource.RemoveSourceChangedHandler(this, sourceChangedCallback);
             sourceSubscribed = false;
         }
@@ -308,8 +290,7 @@ internal sealed class DPFCanvas : Grid, IDisposable
     /// <summary>Forwards the original WPF arguments once for each distinct timestamp without frame allocations.</summary>
     /// <param name="sender">The original WPF composition sender.</param>
     /// <param name="args">The actual RenderingEventArgs supplied by WPF.</param>
-    private void OnRendering(object? sender, EventArgs args)
-    {
+    private void OnRendering(object? sender, EventArgs args) {
         if (!IsActive || args is not RenderingEventArgs renderingArgs ||
             hasRenderingTime && renderingArgs.RenderingTime == lastRenderingTime)
             return;

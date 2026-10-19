@@ -35,7 +35,8 @@ public sealed class D3D12SharedBgraBridgeResourceTests {
             Assert.Equal(ResourceFlags.AllowRenderTarget | ResourceFlags.AllowSimultaneousAccess, description.Flags);
             Assert.Equal(HeapType.Default, source.HeapType);
             Assert.Throws<InvalidOperationException>(() =>
-                device.ResourceStates.Track(source.NativePointer, ResourceStates.Common));
+                device.ResourceStates.Track(source.NativePointer, ResourceStates.Common)
+            );
             using var context = device.CreateCommandContext();
             context.Reset();
             Assert.True(context.Transition(source, ResourceStates.RenderTarget));

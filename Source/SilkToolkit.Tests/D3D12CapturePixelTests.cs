@@ -24,14 +24,23 @@ public sealed class D3D12CapturePixelTests {
     [InlineData(Format.FormatB8G8R8A8Unorm, true, 1, 0, 1, 1, 255, 0, 255)]
     [InlineData(Format.FormatB8G8R8A8Unorm, true, 40, 80, 120, 0, 0, 0, 0)]
     [InlineData(Format.FormatB8G8R8A8Unorm, true, 30, 60, 90, 255, 30, 60, 90)]
-    public void CapturePreservesItsDeclaredPixelContract(Format format, bool premultiplied,
-        int first, int green, int third, int alpha, int blue, int expectedGreen, int red) {
-        byte[] padded = [99, 99, (byte)first, (byte)green, (byte)third, (byte)alpha, 77, 77];
+    public void CapturePreservesItsDeclaredPixelContract(
+        Format format,
+        bool premultiplied,
+        int first,
+        int green,
+        int third,
+        int alpha,
+        int blue,
+        int expectedGreen,
+        int red
+    ) {
+        byte[] padded = [99, 99, (byte) first, (byte) green, (byte) third, (byte) alpha, 77, 77];
         var frame = D3D12PresentationSurface.CreateCapturedFrame(padded, 2, 6, 1, 1, format, premultiplied);
-        Assert.Equal(new byte[] { (byte)blue, (byte)expectedGreen, (byte)red, (byte)alpha }, frame.Pixels);
-        Assert.Equal((uint)1, frame.Width);
-        Assert.Equal((uint)1, frame.Height);
-        Assert.Equal((byte)99, padded[0]);
-        Assert.Equal((byte)first, padded[2]);
+        Assert.Equal(new byte[] { (byte) blue, (byte) expectedGreen, (byte) red, (byte) alpha }, frame.Pixels);
+        Assert.Equal((uint) 1, frame.Width);
+        Assert.Equal((uint) 1, frame.Height);
+        Assert.Equal((byte) 99, padded[0]);
+        Assert.Equal((byte) first, padded[2]);
     }
 }

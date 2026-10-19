@@ -19,107 +19,157 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Bounds explicit drains and actual GPU/copy progress.</summary>
     private static readonly TimeSpan CompletionTimeout = TimeSpan.FromSeconds(5);
+
     /// <summary>The borrowed actual viewport and scene-demand consumer.</summary>
     private readonly Viewport3DX viewport;
+
     /// <summary>The borrowed WPF publication boundary.</summary>
     private readonly DPFCanvas canvas;
+
     /// <summary>The hardware policy retained across native recreation.</summary>
     private readonly SilkDriverType driverType;
+
     /// <summary>The shared thread-safe demand coordinator.</summary>
     private readonly D3D12RenderDemand demand;
+
     /// <summary>Drains pending ownership while the canvas has no composition subscription.</summary>
     private readonly DispatcherTimer serviceTimer;
+
     /// <summary>The cached Scene2D repaint notification.</summary>
     private readonly Action invalidateScene2D;
+
     /// <summary>Reuses the callback for disposal requested from inside a scene update.</summary>
     private readonly Action disposeViewport;
+
     /// <summary>Retains at most one deferred disposal operation after recording unwinds.</summary>
     private DispatcherOperation? deferredDisposal;
+
     /// <summary>The currently subscribed Scene2D roots.</summary>
     private readonly FastList<SceneNode2D> roots2D = [];
+
     /// <summary>The sole owned D3D12 device.</summary>
     private SilkD3D12Device? device;
+
     /// <summary>The sole owned native submission queue.</summary>
     private SilkD3D12CommandQueue? queue;
+
     /// <summary>The reusable owned command allocator/list.</summary>
     private SilkD3D12CommandContext? commands;
+
     /// <summary>The fence protecting every renderer allocation.</summary>
     private SilkD3D12Fence? fence;
+
     /// <summary>The owned interop allocations borrowing the same device.</summary>
     private D3D12ImageInteropBridge? bridge;
+
     /// <summary>The owned common scene recorder.</summary>
     private D3D12FrameRenderer? renderer;
+
     /// <summary>The last actual presentation HWND used by the D3D9 device.</summary>
     private nint nativeHandle;
+
     /// <summary>The allocated source width.</summary>
     private uint width;
+
     /// <summary>The allocated source height.</summary>
     private uint height;
+
     /// <summary>The effective scale of the last requested scene.</summary>
     private float dpiScale;
+
     /// <summary>The native fence that must complete before command/resource reuse.</summary>
     private ulong pendingFence;
+
     /// <summary>Whether that fence belongs to an accepted scene submission.</summary>
     private bool pendingScene;
+
     /// <summary>The accepted serial currently in transport, or zero when idle.</summary>
     private ulong transportSerial;
+
     /// <summary>Whether the current serial has entered its D3D11 copy.</summary>
     private bool copyStarted;
+
     /// <summary>The start of the outstanding GPU stage.</summary>
     private TimeSpan stageStarted;
+
     /// <summary>The last fully published surface, retained for frontbuffer rebinding.</summary>
     private nint publishedSurface;
+
     /// <summary>The serial of that retained image.</summary>
     private ulong publishedSerial;
+
     /// <summary>The completions already delivered to the viewport.</summary>
     private ulong notifiedCompletions;
+
     /// <summary>Marks resources whose recorded state must be discarded before another frame.</summary>
     private bool recreateRequested;
+
     /// <summary>Protects allocations after execution without a successful completion signal.</summary>
     private bool unfencedExecution;
+
     /// <summary>Rejects nested frame preparation and completion callbacks.</summary>
     private bool updating;
+
     /// <summary>Prevents application/native disposal while node hooks still record into borrowed resources.</summary>
     private bool recording;
+
     /// <summary>Retains a disposal request until the current CPU recording stack has unwound.</summary>
     private bool disposeRequested;
+
     /// <summary>Stops new submissions during an explicit, retryable teardown.</summary>
     private bool stopping;
+
     /// <summary>The last automatic WPF timestamp already processed.</summary>
     private TimeSpan lastRenderingTime;
+
     /// <summary>Whether an automatic timestamp has been observed in this active interval.</summary>
     private bool hasRenderingTime;
+
     /// <summary>The optional explicit-capture allocation retained through native completion.</summary>
     private SilkD3D12Resource? captureReadback;
+
     /// <summary>The native row layout of the explicit capture.</summary>
     private PlacedSubresourceFootprint captureFootprint;
+
     /// <summary>The native byte count of the explicit capture.</summary>
     private ulong captureBytes;
 
     /// <summary>Gets the borrowed publication canvas.</summary>
     internal DPFCanvas Canvas => canvas;
+
     /// <summary>Gets whether native resources have been initialized.</summary>
     internal bool IsInitialized => bridge is not null;
+
     /// <summary>Gets whether an accepted frame still owns rendering, copying or unpublished output.</summary>
     internal bool HasPendingTransport => pendingFence != 0 || unfencedExecution || transportSerial != 0;
+
     /// <summary>Gets the current native generation.</summary>
     internal ulong Generation { get; private set; }
+
     /// <summary>Gets the number of accepted scene submissions across generations.</summary>
     internal ulong SubmittedFrames { get; private set; }
+
     /// <summary>Gets the number of GPU-completed scene frames across generations.</summary>
     internal ulong CompletedFrames { get; private set; }
+
     /// <summary>Gets the number of native copy submissions across generations.</summary>
     internal ulong CopiedFrames { get; private set; }
+
     /// <summary>Gets the number of new images published, excluding rebinding.</summary>
     internal ulong PublishedFrames { get; private set; }
+
     /// <summary>Gets the number of retained-image rebindings.</summary>
     internal ulong ReboundFrames { get; private set; }
+
     /// <summary>Gets the actual retained scene context.</summary>
     internal RenderContext? RenderContext => renderer?.RenderContext;
+
     /// <summary>Gets the actual prepared hierarchy when initialized.</summary>
     internal FastList<KeyValuePair<int, SceneNode>>? PerFrameFlattenedScene => renderer?.PerFrameFlattenedScene;
+
     /// <summary>Gets the canonical straight-BGRA capture produced only by an explicit request.</summary>
     internal D3D12CapturedFrame? LastCapturedFrame { get; private set; }
+
     /// <summary>Gets whether final native teardown completed.</summary>
     internal bool IsDisposed { get; private set; }
 
@@ -135,17 +185,18 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="viewport">The borrowed viewport supplying actual scene preparation.</param>
     /// <param name="canvas">The borrowed WPF canvas.</param>
     /// <param name="driverType">The selected native device policy.</param>
-    internal D3D12WpfPresentation(Viewport3DX viewport, DPFCanvas canvas,
-        SilkDriverType driverType = SilkDriverType.Hardware) {
+    internal D3D12WpfPresentation(
+        Viewport3DX viewport,
+        DPFCanvas canvas,
+        SilkDriverType driverType = SilkDriverType.Hardware
+    ) {
         this.viewport = viewport;
         this.canvas = canvas;
         this.driverType = driverType;
         demand = viewport.RenderDemand;
         invalidateScene2D = viewport.InvalidateRender;
         disposeViewport = FinishViewportDisposal;
-        serviceTimer = new DispatcherTimer(DispatcherPriority.Background, canvas.Dispatcher) {
-            Interval = TimeSpan.FromMilliseconds(16)
-        };
+        serviceTimer = new DispatcherTimer(DispatcherPriority.Background, canvas.Dispatcher) { Interval = TimeSpan.FromMilliseconds(16) };
         serviceTimer.Tick += ServiceSuspendedTransport;
         canvas.Rendering += OnRendering;
         canvas.PresentationChanged += OnPresentationChanged;
@@ -189,6 +240,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             demand.Request(D3D12RenderInvalidation.Render);
             return 0;
         }
+
         updating = true;
         var reserved = false;
         var accepted = false;
@@ -199,6 +251,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 if (canvas.IsActive) viewport.UpdateWpfCamera(renderingTime);
                 return 0;
             }
+
             viewport.RaiseCompletedWpfFrames(this);
             if (IsDisposed || stopping || !viewport.CanRenderWpfScene || !canvas.IsActive) return 0;
             if (bridge is null) CreateNative();
@@ -220,12 +273,14 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                     recreateRequested = true;
                     return 0;
                 }
+
                 if (captureFrame) {
                     captureFootprint = device!.GetCopyableFootprint(target.ColorResource, out captureBytes);
                     captureReadback = device.CreateBuffer(captureBytes, HeapType.Readback);
                     currentCommands.Transition(target.ColorResource, ResourceStates.CopySource);
                     currentCommands.CopyTextureToBuffer(captureReadback, target.ColorResource, in captureFootprint);
                 }
+
                 currentCommands.Transition(target.ColorResource, ResourceStates.Common);
                 currentCommands.Close();
                 recording = false;
@@ -295,18 +350,21 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                     // Bridge disposal separately confirms whether its own D3D11 device was removed.
                 }
             }
+
             if (!TryDetach()) return false;
             ReleaseNative();
             recreateRequested = false;
             demand.Request(D3D12RenderInvalidation.SceneGraph);
             return canvas.IsActive;
         }
+
         if (unfencedExecution) {
             pendingFence = queue!.Signal(fence!);
             pendingScene = false;
             unfencedExecution = false;
             stageStarted = Now();
         }
+
         if (pendingFence != 0) {
             device.ThrowIfDeviceRemoved();
             if (fence!.CompletedValue < pendingFence) {
@@ -314,17 +372,20 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 if (!wait) return false;
                 fence.Wait(pendingFence, CompletionTimeout - (Now() - stageStarted));
             }
+
             pendingFence = 0;
             if (pendingScene) CompletedFrames++;
             pendingScene = false;
             if (captureReadback is not null) {
                 LastCapturedFrame = D3D12PresentationSurface.CreateCapturedFrame(
-                    captureReadback.Read(checked((int)captureBytes)), captureFootprint.Offset,
-                    captureFootprint.Footprint.RowPitch, width, height, Format.FormatB8G8R8A8Unorm, true);
+                    captureReadback.Read(checked((int) captureBytes)), captureFootprint.Offset,
+                    captureFootprint.Footprint.RowPitch, width, height, Format.FormatB8G8R8A8Unorm, true
+                );
                 captureReadback.Dispose();
                 captureReadback = null;
             }
         }
+
         viewport.RaiseCompletedWpfFrames(this);
         if (IsDisposed || stopping) return false;
         if (bridge!.IsCopyPending && !CompleteCopy(wait)) return false;
@@ -335,6 +396,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             demand.Request(D3D12RenderInvalidation.SceneGraph);
             return canvas.IsActive && canvas.NativeHandle != 0;
         }
+
         if (transportSerial != 0 && !copyStarted) {
             bridge.BeginCopy(transportSerial);
             copyStarted = true;
@@ -342,12 +404,14 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             stageStarted = Now();
             if (!CompleteCopy(wait)) return false;
         }
+
         viewport.RaiseCompletedWpfFrames(this);
         if (IsDisposed || stopping) return false;
         if (!canvas.IsActive) {
             _ = TryDetach();
             return false;
         }
+
         if (bridge.HasReadySurface) {
             demand.RequestPublication();
             _ = demand.TryTakePublicationRequest();
@@ -357,6 +421,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 demand.RequestPublication();
                 return false;
             }
+
             bridge.ConfirmPublication(serial);
             publishedSurface = surface;
             publishedSerial = serial;
@@ -368,9 +433,11 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 demand.RequestPublication();
                 return false;
             }
+
             bridge.ConfirmPublication(publishedSerial);
             ReboundFrames++;
         }
+
         return transportSerial == 0;
     }
 
@@ -383,6 +450,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             if (!wait) return false;
             Thread.Yield();
         }
+
         return true;
     }
 
@@ -399,6 +467,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             demand.RequestRecovery();
             return false;
         }
+
         bridge?.ConfirmDetached();
         if (publishedSurface != 0) demand.RequestPublication();
         return true;
@@ -409,15 +478,18 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         nativeHandle = canvas.NativeHandle;
         width = canvas.PixelWidth;
         height = canvas.PixelHeight;
-        if (nativeHandle == 0 || width == 0 || height == 0) throw new InvalidOperationException("The canvas has no native presentation size.");
+        if (nativeHandle == 0 || width == 0 || height == 0)
+            throw new InvalidOperationException("The canvas has no native presentation size.");
         try {
             device = SilkD3D12DeviceFactory.CreateDefault(driverType: driverType);
             queue = device.CreateCommandQueue();
             commands = device.CreateCommandContext();
             fence = device.CreateFence();
             bridge = new D3D12ImageInteropBridge(device, nativeHandle, width, height);
-            renderer = new D3D12FrameRenderer(device, Format.FormatB8G8R8A8Unorm, viewport.EffectsManager,
-                D3D12ColorOutputMode.Premultiplied);
+            renderer = new D3D12FrameRenderer(
+                device, Format.FormatB8G8R8A8Unorm, viewport.EffectsManager,
+                D3D12ColorOutputMode.Premultiplied
+            );
             Generation++;
         } catch {
             ReleaseNative();
@@ -456,6 +528,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 var drain = queue!.Signal(fence!);
                 fence!.Wait(drain, CompletionTimeout);
             }
+
             pendingFence = 0;
             unfencedExecution = false;
             if (bridge is not null && bridge.IsCopyPending) {
@@ -463,6 +536,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 _ = CompleteCopy(true);
             }
         }
+
         if (!TryDetach()) throw new TimeoutException("The WPF image is still bound; native resources remain owned for disposal retry.");
     }
 
@@ -507,8 +581,9 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             (hasRenderingTime && args.RenderingTime == lastRenderingTime)) return;
         hasRenderingTime = true;
         lastRenderingTime = args.RenderingTime;
-        try { _ = RenderFrame(args.RenderingTime); }
-        catch (Exception exception) {
+        try {
+            _ = RenderFrame(args.RenderingTime);
+        } catch (Exception exception) {
             viewport.StopRendering();
             viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));
         }
@@ -546,8 +621,9 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="sender">The bounded retirement timer.</param>
     /// <param name="args">The retained timer event arguments.</param>
     private void ServiceSuspendedTransport(object? sender, EventArgs args) {
-        try { _ = RenderFrame(TimeSpan.Zero); }
-        catch (Exception exception) {
+        try {
+            _ = RenderFrame(TimeSpan.Zero);
+        } catch (Exception exception) {
             serviceTimer.Stop();
             viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));
         }

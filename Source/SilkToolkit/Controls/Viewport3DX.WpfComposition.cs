@@ -21,8 +21,10 @@ public partial class Viewport3DX {
     /// <param name="canvas">The actual borrowed WPF presentation canvas.</param>
     /// <param name="driverType">The native driver selection; interop support must be established explicitly.</param>
     /// <returns>The productive owner using this viewport's existing scene and demand.</returns>
-    internal D3D12WpfPresentation InitializeWpfPresentation(DPFCanvas canvas,
-        SilkDriverType driverType = SilkDriverType.Hardware) {
+    internal D3D12WpfPresentation InitializeWpfPresentation(
+        DPFCanvas canvas,
+        SilkDriverType driverType = SilkDriverType.Hardware
+    ) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (d3d12Surface is not null || wpfPresentation is not null)
@@ -43,18 +45,24 @@ public partial class Viewport3DX {
     /// <param name="target">The borrowed shared color allocation and RTV.</param>
     /// <param name="dpiScale">The actual canvas render scale.</param>
     /// <returns>The number of actual recorded native draws.</returns>
-    internal int RecordWpfScene(D3D12FrameRenderer renderer, SilkD3D12CommandContext commands,
-        in D3D12FrameTarget target, float dpiScale) {
+    internal int RecordWpfScene(
+        D3D12FrameRenderer renderer,
+        SilkD3D12CommandContext commands,
+        in D3D12FrameTarget target,
+        float dpiScale
+    ) {
         FillD3D12FrameRoots();
         try {
             wpfPresentation!.SetScene2DRoots(frameRoots2D);
             renderer.SetEffectsManager(EffectsManager);
             var clear = BackgroundColor.ToColor4();
-            return renderer.RecordViewportFrame(commands, in target, dpiScale,
+            return renderer.RecordViewportFrame(
+                commands, in target, dpiScale,
                 [clear.X, clear.Y, clear.Z, clear.W], frameRoots, CameraCore!, EnableRenderFrustum,
-                IsShadowMappingEnabled, OitRenderMode, OitDepthPeelingIteration, (float)OitWeightPower,
-                (float)OitWeightDepthSlope, OitWeightMode, FxaaLevel, EnableSsao, (float)SsaoSamplingRadius,
-                (float)SsaoIntensity, SsaoQuality, frameRoots2D, EnableAutoOctreeUpdate, EnableRenderOrder, this);
+                IsShadowMappingEnabled, OitRenderMode, OitDepthPeelingIteration, (float) OitWeightPower,
+                (float) OitWeightDepthSlope, OitWeightMode, FxaaLevel, EnableSsao, (float) SsaoSamplingRadius,
+                (float) SsaoIntensity, SsaoQuality, frameRoots2D, EnableAutoOctreeUpdate, EnableRenderOrder, this
+            );
         } finally {
             frameRoots.Clear();
             frameRoots2D.Clear();

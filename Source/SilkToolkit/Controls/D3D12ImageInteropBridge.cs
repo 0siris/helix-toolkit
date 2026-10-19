@@ -199,7 +199,9 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
     public nint ReadySurface {
         get {
             VerifyAlive();
-            return readySlot < 0 ? 0 : (nint) surfaces9[readySlot].Handle;
+            return readySlot < 0
+                ? 0
+                : (nint) surfaces9[readySlot].Handle;
         }
     }
 
@@ -244,13 +246,16 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
         if (source12!.State != D12.ResourceStates.Common)
             throw new InvalidOperationException("The completed D3D12 source must be in COMMON state.");
         SilkMarshal.ThrowHResult(device11.Handle->GetDeviceRemovedReason());
-        copySlot = boundSlot == 0 ? 1 : 0;
+        copySlot = boundSlot == 0
+            ? 1
+            : 0;
         copyStarted = Stopwatch.GetTimestamp();
         copyPending = true;
         detached = false;
         context11.Handle->CopyResource(
             (D11.ID3D11Resource*) destinations11[copySlot].Handle,
-            (D11.ID3D11Resource*) source11.Handle);
+            (D11.ID3D11Resource*) source11.Handle
+        );
         context11.Handle->End((D11.ID3D11Asynchronous*) copyQuery11.Handle);
         context11.Handle->Flush();
         copySerial = frameSerial;
@@ -323,8 +328,11 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
     private void InitializeDevices(nint hwnd) {
         var luid = device12.Handle->GetAdapterLuid();
         adapterLuid = unchecked((long) ((ulong) (uint) luid.High << 32 | luid.Low));
-        SilkMarshal.ThrowHResult(SilkD3D12DeviceFactory.DxgiApi.CreateDXGIFactory2(
-            0, out ComPtr<Dxgi.IDXGIFactory4> factory));
+        SilkMarshal.ThrowHResult(
+            SilkD3D12DeviceFactory.DxgiApi.CreateDXGIFactory2(
+                0, out ComPtr<Dxgi.IDXGIFactory4> factory
+            )
+        );
         using (factory) {
             var adapterGuid = Dxgi.IDXGIAdapter1.Guid;
             Dxgi.IDXGIAdapter1* actualAdapter = null;
@@ -342,7 +350,8 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
             var result = D3D11Api.CreateDevice(
                 (Dxgi.IDXGIAdapter*) actual.Handle, D3DDriverType.Unknown, 0,
                 (uint) D11.CreateDeviceFlag.BgraSupport, &level, 1, D11.D3D11.SdkVersion,
-                &native11, null, &immediate11);
+                &native11, null, &immediate11
+            );
             device11 = new ComPtr<D11.ID3D11Device>(native11);
             context11 = new ComPtr<D11.ID3D11DeviceContext>(immediate11);
             SilkMarshal.ThrowHResult(result);
@@ -359,10 +368,13 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
             SwapEffect = D9.Swapeffect.Discard,
             BackBufferFormat = D9.Format.Unknown
         };
-        SilkMarshal.ThrowHResult(direct3D9.Handle->CreateDeviceEx(
-            adapter9, D9.Devtype.Hal, hwnd,
-            (uint) (D9.D3D9.CreateMultithreaded | D9.D3D9.CreateFpuPreserve | D9.D3D9.CreateSoftwareVertexprocessing),
-            &present, null, ref device9));
+        SilkMarshal.ThrowHResult(
+            direct3D9.Handle->CreateDeviceEx(
+                adapter9, D9.Devtype.Hal, hwnd,
+                (uint) (D9.D3D9.CreateMultithreaded | D9.D3D9.CreateFpuPreserve | D9.D3D9.CreateSoftwareVertexprocessing),
+                &present, null, ref device9
+            )
+        );
     }
 
     /// <summary>Creates the canonical tracked source, its RTV, D3D11 imports and both D3D9Ex destinations.</summary>
@@ -378,8 +390,11 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
         using (device11v1) {
             void* ntHandle = null;
             try {
-                SilkMarshal.ThrowHResult(device12.Handle->CreateSharedHandle(
-                    (D12.ID3D12DeviceChild*) source12.Handle, null, 0x10000000, (char*) null, &ntHandle));
+                SilkMarshal.ThrowHResult(
+                    device12.Handle->CreateSharedHandle(
+                        (D12.ID3D12DeviceChild*) source12.Handle, null, 0x10000000, (char*) null, &ntHandle
+                    )
+                );
                 SilkMarshal.ThrowHResult(device11v1.OpenSharedResource1(ntHandle, out source11));
             } finally {
                 // Only the D3D12 NT handle is owned by this process; the import retains the allocation.
@@ -390,9 +405,12 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
         for (var slot = 0; slot < destinations11.Length; slot++) {
             // These D3D9 legacy sharing tokens must never be passed to CloseHandle.
             void* legacyHandle = null;
-            SilkMarshal.ThrowHResult(device9.Handle->CreateTexture(
-                width, height, 1, (uint) D9.D3D9.UsageRendertarget,
-                D9.Format.A8R8G8B8, D9.Pool.Default, ref textures9[slot], &legacyHandle));
+            SilkMarshal.ThrowHResult(
+                device9.Handle->CreateTexture(
+                    width, height, 1, (uint) D9.D3D9.UsageRendertarget,
+                    D9.Format.A8R8G8B8, D9.Pool.Default, ref textures9[slot], &legacyHandle
+                )
+            );
             if (legacyHandle == null)
                 throw new PlatformNotSupportedException("D3D9Ex did not provide a legacy texture sharing token.");
             SilkMarshal.ThrowHResult(device11.OpenSharedResource(legacyHandle, out destinations11[slot]));

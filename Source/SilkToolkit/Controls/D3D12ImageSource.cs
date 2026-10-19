@@ -11,8 +11,7 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 /// Front-buffer loss does not authorize releasing a surface. Access NativeImage only for visual binding and
 /// inspection; changing its back buffer directly would invalidate BoundSurface bookkeeping.
 /// </remarks>
-internal sealed class D3D12ImageSource : IDisposable
-{
+internal sealed class D3D12ImageSource : IDisposable {
     /// <summary>Bounds each ordinary image-lock attempt without waiting for desktop composition.</summary>
     private static readonly Duration LockTimeout = new(TimeSpan.Zero);
 
@@ -26,8 +25,7 @@ internal sealed class D3D12ImageSource : IDisposable
     private bool disposed;
 
     /// <summary>Creates the retained image and its front-buffer notification subscription.</summary>
-    internal D3D12ImageSource()
-    {
+    internal D3D12ImageSource() {
         NativeImage.IsFrontBufferAvailableChanged += OnFrontBufferChanged;
     }
 
@@ -56,8 +54,7 @@ internal sealed class D3D12ImageSource : IDisposable
     /// Native WPF errors propagate; inspect BoundSurface before recovery, because SetBackBuffer may have
     /// succeeded. Rebinding the same completed pointer is intentional for front-buffer recovery.
     /// </remarks>
-    internal bool TryPublish(nint surface, uint width, uint height)
-    {
+    internal bool TryPublish(nint surface, uint width, uint height) {
         NativeImage.VerifyAccess();
         ObjectDisposedException.ThrowIf(stopping, this);
         if (surface == 0)
@@ -70,16 +67,13 @@ internal sealed class D3D12ImageSource : IDisposable
             return false;
 
         var locked = NativeImage.TryLock(LockTimeout);
-        try
-        {
+        try {
             if (!locked || !IsFrontBufferAvailable)
                 return false;
             NativeImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface, enableSoftwareFallback: true);
             BoundSurface = surface;
-            NativeImage.AddDirtyRect(new Int32Rect(0, 0, (int)width, (int)height));
-        }
-        finally
-        {
+            NativeImage.AddDirtyRect(new Int32Rect(0, 0, (int) width, (int) height));
+        } finally {
             // The repository's .NET 10 proof requires balancing even a normally returned false TryLock.
             NativeImage.Unlock();
         }
@@ -90,21 +84,17 @@ internal sealed class D3D12ImageSource : IDisposable
     /// <summary>Attempts to detach the borrowed surface under a zero-timeout lock, including during front-buffer loss.</summary>
     /// <returns>True only after successful detachment and Unlock; false retains the existing binding.</returns>
     /// <remarks>WPF errors propagate with actual binding bookkeeping retained for controlled recovery.</remarks>
-    internal bool TryDetach()
-    {
+    internal bool TryDetach() {
         NativeImage.VerifyAccess();
         if (disposed)
             return true;
         var locked = NativeImage.TryLock(LockTimeout);
-        try
-        {
+        try {
             if (!locked)
                 return false;
             NativeImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, 0, enableSoftwareFallback: true);
             BoundSurface = 0;
-        }
-        finally
-        {
+        } finally {
             NativeImage.Unlock();
         }
 
@@ -118,14 +108,12 @@ internal sealed class D3D12ImageSource : IDisposable
     /// On failure its image, actual binding and front-buffer subscription remain available for recovery.
     /// The caller alone disposes native allocations, and only after successful detachment.
     /// </remarks>
-    public void Dispose()
-    {
+    public void Dispose() {
         NativeImage.VerifyAccess();
         if (disposed)
             return;
         stopping = true;
-        for (var attempt = 0; attempt < DetachAttempts; attempt++)
-        {
+        for (var attempt = 0; attempt < DetachAttempts; attempt++) {
             if (!TryDetach())
                 continue;
             NativeImage.IsFrontBufferAvailableChanged -= OnFrontBufferChanged;
@@ -140,8 +128,7 @@ internal sealed class D3D12ImageSource : IDisposable
     /// <summary>Forwards the original availability transition without detaching or freeing a native allocation.</summary>
     /// <param name="sender">The retained D3DImage.</param>
     /// <param name="args">The original WPF dependency-property transition.</param>
-    private void OnFrontBufferChanged(object sender, DependencyPropertyChangedEventArgs args)
-    {
+    private void OnFrontBufferChanged(object sender, DependencyPropertyChangedEventArgs args) {
         FrontBufferChanged?.Invoke(this, EventArgs.Empty);
     }
 }

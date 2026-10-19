@@ -99,7 +99,7 @@ public partial class Viewport3DX : IRenderHost {
     public void StartRendering() {
         renderingEnabled = true;
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        if (d3d12Surface is not null) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
+        if (EnableSwapChainRendering) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
         InvalidateRender();
     }
 

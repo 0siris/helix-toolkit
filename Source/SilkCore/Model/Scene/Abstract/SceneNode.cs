@@ -39,6 +39,80 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// Gets or sets the actual native host assigned before attachment and frame updates.
     public virtual IRenderHost? RenderHost { get; set; }
 
+    /// <summary>Retains renderer identity and its active host independently of the most recent frame's host.</summary>
+    private List<KeyValuePair<object, IRenderHost?>>? nativeAttachments;
+
+    /// <summary>Retains or refreshes one renderer's native attachment without creating a per-frame lease object.</summary>
+    /// <param name="owner">The native renderer that releases this attachment after GPU completion.</param>
+    /// <param name="host">The renderer's active host, or null for an offscreen consumer.</param>
+    internal void RetainNativeAttachment(object owner, IRenderHost? host) {
+        nativeAttachments ??= [];
+        for (var index = 0; index < nativeAttachments.Count; index++) {
+            if (!ReferenceEquals(nativeAttachments[index].Key, owner)) continue;
+            nativeAttachments[index] = new KeyValuePair<object, IRenderHost?>(owner, host);
+            RenderHost = host;
+            return;
+        }
+        nativeAttachments.Add(new KeyValuePair<object, IRenderHost?>(owner, host));
+        RenderHost = host;
+    }
+
+    /// <summary>Clears an inactive frame host without discarding its renderer's outstanding resource ownership.</summary>
+    /// <param name="owner">The renderer replacing its previous hierarchy snapshot.</param>
+    internal void ClearNativeRenderHost(object owner) {
+        if (nativeAttachments is null) return;
+        for (var index = 0; index < nativeAttachments.Count; index++) {
+            var attachment = nativeAttachments[index];
+            if (!ReferenceEquals(attachment.Key, owner)) continue;
+            nativeAttachments[index] = new KeyValuePair<object, IRenderHost?>(owner, null);
+            if (ReferenceEquals(RenderHost, attachment.Value)) RestoreNativeRenderHost();
+            return;
+        }
+    }
+
+    /// <summary>Releases this renderer alone and detaches native bindings only after the final consumer retires.</summary>
+    /// <param name="owner">The quiescent native renderer releasing its attachment.</param>
+    internal void ReleaseNativeAttachment(object owner) {
+        if (nativeAttachments is null) return;
+        for (var index = 0; index < nativeAttachments.Count; index++) {
+            var attachment = nativeAttachments[index];
+            if (!ReferenceEquals(attachment.Key, owner)) continue;
+            nativeAttachments.RemoveAt(index);
+            if (nativeAttachments.Count == 0) {
+                if (!IsDisposed) Detach();
+            } else if (ReferenceEquals(RenderHost, attachment.Value)) {
+                RestoreNativeRenderHost();
+            }
+            return;
+        }
+    }
+
+    /// <summary>Restores an active surviving host after the current host releases or replaces its scene.</summary>
+    private void RestoreNativeRenderHost() {
+        RenderHost = null;
+        if (nativeAttachments is null) return;
+        for (var index = nativeAttachments.Count - 1; index >= 0; index--)
+            if (nativeAttachments[index].Value is { } host) {
+                RenderHost = host;
+                return;
+            }
+    }
+
+    /// <summary>Defers hierarchy-driven detachment while an independent native renderer still owns the node.</summary>
+    internal void DetachIfUnleased() {
+        if (nativeAttachments is not { Count: > 0 }) Detach();
+    }
+
+    /// <summary>Checks whether another native consumer still retains bindings or an active source on this node.</summary>
+    /// <param name="owner">The renderer considering its own source cleanup.</param>
+    /// <returns>Whether another renderer retains this node.</returns>
+    internal bool HasOtherNativeAttachments(object owner) {
+        if (nativeAttachments is null) return false;
+        foreach (var attachment in nativeAttachments)
+            if (!ReferenceEquals(attachment.Key, owner)) return true;
+        return false;
+    }
+
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SceneNode" /> class.
@@ -157,7 +231,6 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         else EffectsManager = null;
         EffectTechnique = null;
         Detached?.Invoke(this, EventArgs.Empty);
-        Invalidated = null;
     }
 
     /// <summary>
@@ -201,10 +274,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
             case InvalidateTypes.PerFrameRenderables: RenderHost?.InvalidatePerFrameRenderables(); break;
         }
         Invalidated?.Invoke(this, type);
-        if (!parent.TryGetTarget(out var target))
-            return;
-
-        foreach (var node in target.TraverseUp())
+        for (var node = Parent; node is not null; node = node.Parent)
             node.Invalidated?.Invoke(this, type);
     }
 
@@ -252,6 +322,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
 
     protected override void OnDispose(bool disposeManagedResources) {
         Detach();
+        nativeAttachments?.Clear();
         RenderCore.Dispose();
         Invalidated = null;
         VisibleChanged = null;

@@ -128,7 +128,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="detachChildren">Whether to detach the child nodes automatically after removing. Default = true.</param>
     public void Clear(bool detachChildren = true) {
         for (var i = 0; i < ItemsInternal.Count; ++i) {
-            if (detachChildren) ItemsInternal[i].Detach();
+            if (detachChildren) ItemsInternal[i].DetachIfUnleased();
             ItemsInternal[i].Parent = null;
         }
 
@@ -146,7 +146,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <returns></returns>
     public bool RemoveChildNode(SceneNode node, bool detachChild = true) {
         if (ItemHashSet.Remove(node.Guid)) {
-            if (detachChild) node.Detach();
+            if (detachChild) node.DetachIfUnleased();
             ItemsInternal.Remove(node);
             node.Parent = null;
             if (IsAttached) InvalidateSceneGraph();
@@ -183,7 +183,7 @@ public abstract class GroupNodeBase : SceneNode {
     ///     Called when [detach].
     /// </summary>
     protected override void OnDetach() {
-        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Detach();
+        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].DetachIfUnleased();
         base.OnDetach();
     }
 

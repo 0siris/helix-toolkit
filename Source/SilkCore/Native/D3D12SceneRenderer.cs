@@ -117,6 +117,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     private readonly HashSet<SceneNode> attachedNodes = new(ReferenceEqualityComparer.Instance);
 
+    /// <summary>Retains the current hierarchy's attachment membership without per-frame snapshots.</summary>
+    private readonly HashSet<SceneNode> preparationAttachments = new(ReferenceEqualityComparer.Instance);
+
     /// <summary>
     ///     Reused visible-node list for allocation-free per-frame selection.
     /// </summary>
@@ -332,7 +335,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 foreach (var root in roots) preparationRoots.Add(root);
             }
             foreach (var entry in PerFrameFlattenedScene)
-                if (ReferenceEquals(entry.Value.RenderHost, renderHost)) entry.Value.RenderHost = null;
+                entry.Value.ClearNativeRenderHost(this);
             PerFrameFlattenedScene.Clear();
             renderHost = host;
             WalkPreparation(context, effectsManager, host, update: true);
@@ -342,13 +345,22 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             PerFrameFlattenedScene.RemoveAll(static entry => entry.Value.IsDisposed);
             WalkPreparation(context, effectsManager, host, update: false);
             foreach (var node in attachedNodes)
-                if (node.RenderCore is ScreenCloneRenderCore capture && !preparedNodes.Contains(node))
+                if (node.RenderCore is ScreenCloneRenderCore capture && !preparedNodes.Contains(node) &&
+                    (preparationAttachments.Contains(node) || !node.HasOtherNativeAttachments(this)))
                     capture.StopCapture();
+            updatedNodes.Clear();
+            foreach (var node in attachedNodes)
+                if (!preparationAttachments.Contains(node)) updatedNodes.Add(node);
+            foreach (var node in updatedNodes) {
+                node.ReleaseNativeAttachment(this);
+                attachedNodes.Remove(node);
+            }
             return preparedNodes;
         } finally {
             preparationRoots.Clear();
             updatedNodes.Clear();
             preparationStack.Clear();
+            preparationAttachments.Clear();
             isPreparing = false;
         }
     }
@@ -371,11 +383,11 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             var node = nodes[index++];
             if (node.IsDisposed) continue;
             if (update) {
-                node.RenderHost = host;
+                preparationAttachments.Add(node);
+                RetainNodeAttachment(node, host);
                 if (effectsManager is not null) node.Attach(effectsManager);
                 var attached = effectsManager is not null ? node.IsAttached : node.RenderCore.IsAttached || node.Attach();
                 if (attached) {
-                    attachedNodes.Add(node);
                     node.Update(context);
                     updatedNodes.Add(node);
                 }
@@ -392,6 +404,13 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         }
     }
 
+    /// <summary>Tracks one renderer lease per original node, retaining capacity across completed frames.</summary>
+    /// <param name="node">The application-owned node used by this renderer.</param>
+    /// <param name="host">The active host for this frame, or null for offscreen rendering.</param>
+    private void RetainNodeAttachment(SceneNode node, IRenderHost? host) {
+        if (attachedNodes.Add(node) || isPreparing) node.RetainNativeAttachment(this, host);
+    }
+
     /// <summary>
     ///     Recycles descriptor slots only after the presentation host has completed the preceding frame fence.
     /// </summary>
@@ -400,7 +419,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         postProcessResources?.BeginFrame();
         bloomHalfResources?.BeginFrame();
         bloomQuarterResources?.BeginFrame();
-        attachedNodes.RemoveWhere(static node => node.IsDisposed || !node.RenderCore.IsAttached);
+        attachedNodes.RemoveWhere(static node => node.IsDisposed);
         outlineResources?.BeginFrame();
         outlineBlurResources?.BeginFrame();
         effectStencil?.BeginFrame();
@@ -1048,7 +1067,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         for (var index = 0; index < visibleNodes.Count; index++) {
             var node = visibleNodes.Items[index];
             if (!node.RenderCore.IsAttached && !node.Attach()) continue;
-            attachedNodes.Add(node);
+            RetainNodeAttachment(node, renderHost);
             if (node.RenderCore is MeshRenderCore meshOwner) meshOwner.D3D12SceneNode = node;
             node.ComputeTransformMatrix();
             node.RenderCore.ModelMatrix = node.TotalModelMatrixInternal;
@@ -1321,7 +1340,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         for (var index = 0; index < visibleNodes.Count; index++) {
             var node = visibleNodes.Items[index];
             if (!node.RenderCore.IsThrowingShadow || !node.Attach()) continue;
-            attachedNodes.Add(node);
+            RetainNodeAttachment(node, renderHost);
             if (node.RenderCore is MeshRenderCore meshOwner) meshOwner.D3D12SceneNode = node;
             node.ComputeTransformMatrix();
             node.RenderCore.ModelMatrix = node.TotalModelMatrixInternal;
@@ -1391,7 +1410,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             if (node is not VolumeTextureNode || !node.Attach() ||
                 node.RenderCore is not VolumeRenderCore core)
                 continue;
-            attachedNodes.Add(node);
+            RetainNodeAttachment(node, renderHost);
             if (node.RenderCore is MeshRenderCore meshOwner) meshOwner.D3D12SceneNode = node;
             node.ComputeTransformMatrix();
             core.ModelMatrix = node.TotalModelMatrixInternal;
@@ -1457,7 +1476,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             if (node is not ParticleStormNode || !node.Attach() ||
                 node.RenderCore is not ParticleRenderCore core)
                 continue;
-            attachedNodes.Add(node);
+            RetainNodeAttachment(node, renderHost);
             if (node.RenderCore is MeshRenderCore meshOwner) meshOwner.D3D12SceneNode = node;
             node.ComputeTransformMatrix();
             core.ModelMatrix = node.TotalModelMatrixInternal;
@@ -1778,9 +1797,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 foreach (var binding in cache.Values) binding.Dispose();
         _peelingPointLineBindings.Clear();
         foreach (var node in attachedNodes)
-            if (node.RenderHost is null || ReferenceEquals(node.RenderHost, renderHost)) node.Detach();
-        foreach (var entry in PerFrameFlattenedScene)
-            if (ReferenceEquals(entry.Value.RenderHost, renderHost)) entry.Value.RenderHost = null;
+            node.ReleaseNativeAttachment(this);
         PerFrameFlattenedScene.Clear();
         renderHost = null;
         foreach (var intersection in intersectionResources.Values) intersection.Dispose();
@@ -1795,6 +1812,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         foreach (var particle in particleResources.Values) particle.Dispose();
         foreach (var capture in screenCaptureResources.Values) capture.Dispose();
         attachedNodes.Clear();
+        preparationAttachments.Clear();
         meshBindings.Clear();
         pointLineBindings.Clear();
         volumeBindings.Clear();

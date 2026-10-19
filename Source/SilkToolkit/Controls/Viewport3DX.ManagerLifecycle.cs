@@ -27,6 +27,9 @@ public partial class Viewport3DX {
     /// <summary>Retains the callback used only for deferred manager lifecycle transitions.</summary>
     private Action? applyManagerLifecycle;
 
+    /// <summary>Retries only a pending resource transition while GPU work or an image lock prevents retirement.</summary>
+    private DispatcherTimer? managerLifecycleRetryTimer;
+
     /// <summary>Retains final viewport disposal requested from an HWND frame callback.</summary>
     private bool nativeViewportDisposalRequested;
 
@@ -86,6 +89,7 @@ public partial class Viewport3DX {
     private void DetachHostContracts() {
         managerLifecycleOperation?.Abort();
         managerLifecycleOperation = null;
+        managerLifecycleRetryTimer?.Stop();
         nativeViewportDisposalOperation?.Abort();
         nativeViewportDisposalOperation = null;
         Loaded -= HostContractsLoaded;
@@ -160,7 +164,7 @@ public partial class Viewport3DX {
         if (viewport.IsDisposed) return;
         viewport.managerResourcesResetPending = true;
         viewport.InvalidateSceneGraph();
-        if (viewport.IsPreparingPresentationFrame) {
+        if (viewport.IsPreparingPresentationFrame || !viewport.CanRetireManagerWithoutWaiting()) {
             viewport.wpfPresentation?.RequestRecreation();
             viewport.ScheduleManagerLifecycle();
         } else {
@@ -248,6 +252,7 @@ public partial class Viewport3DX {
         if (!IsDisposed && !IsPreparingPresentationFrame)
             registeredModelContainer?.SchedulePendingEffectsManagerSynchronization();
         if (!managerResourcesResetPending || IsDisposed || Dispatcher.HasShutdownStarted ||
+            managerLifecycleRetryTimer is { IsEnabled: true } ||
             managerLifecycleOperation is { Status: DispatcherOperationStatus.Pending or DispatcherOperationStatus.Executing })
             return;
         applyManagerLifecycle ??= ApplyQueuedManagerLifecycle;
@@ -259,16 +264,48 @@ public partial class Viewport3DX {
         managerLifecycleOperation = null;
         if (IsDisposed || !managerResourcesResetPending || IsPreparingPresentationFrame) return;
         try {
+            if (!CanRetireManagerWithoutWaiting()) {
+                ScheduleManagerLifecycleRetry();
+                return;
+            }
             ApplyManagerLifecycle();
         } catch (TimeoutException exception) {
+            ScheduleManagerLifecycleRetry();
             LoggerLib.Logger.Error(exception, "Viewport manager resources remain owned for retirement retry");
         }
+    }
+
+    /// <summary>Polls accepted work without blocking an ordinary manager identity change or dispatcher callback.</summary>
+    /// <returns>Whether the preceding GPU and cross-device copy no longer borrow resources.</returns>
+    private bool CanRetireManagerWithoutWaiting() =>
+        wpfPresentation is not { HasPendingGpuWork: true } &&
+        (d3d12Surface is null || d3d12Surface.CompletePendingFrame());
+
+    /// <summary>Retains one exceptional timer until pending GPU work or a transient lock permits retirement.</summary>
+    private void ScheduleManagerLifecycleRetry() {
+        if (IsDisposed || Dispatcher.HasShutdownStarted) return;
+        if (managerLifecycleRetryTimer is null) {
+            managerLifecycleRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) {
+                Interval = TimeSpan.FromMilliseconds(100)
+            };
+            managerLifecycleRetryTimer.Tick += RetryManagerLifecycle;
+        }
+        managerLifecycleRetryTimer.Start();
+    }
+
+    /// <summary>Stops the exceptional timer before retrying so settled viewports retain no periodic work.</summary>
+    /// <param name="sender">The retained lifecycle timer.</param>
+    /// <param name="args">The original timer arguments.</param>
+    private void RetryManagerLifecycle(object? sender, EventArgs args) {
+        managerLifecycleRetryTimer!.Stop();
+        ApplyQueuedManagerLifecycle();
     }
 
     /// <summary>Retires the old generation, transfers subscriptions to the latest value and preserves pending scene demand.</summary>
     private void ApplyManagerLifecycle() {
         RetireSceneResourcesForManagerChange();
         if (IsDisposed) return;
+        managerLifecycleRetryTimer?.Stop();
         SetSubscribedEffectsManager(EffectsManager);
         d3d12Surface?.SetEffectsManager(EffectsManager);
         managerResourcesResetPending = false;

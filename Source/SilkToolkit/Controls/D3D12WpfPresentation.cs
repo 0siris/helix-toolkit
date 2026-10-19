@@ -145,6 +145,11 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Gets whether an accepted frame still owns rendering, copying or unpublished output.</summary>
     internal bool HasPendingTransport => pendingFence != 0 || unfencedExecution || transportSerial != 0;
 
+    /// <summary>Gets whether accepted GPU or cross-device copy work still borrows the current generation.</summary>
+    internal bool HasPendingGpuWork => unfencedExecution ||
+        (pendingFence != 0 && fence!.CompletedValue < pendingFence) ||
+        (bridge is { IsCopyPending: true } copying && !copying.IsCopyComplete);
+
     /// <summary>Gets the current native generation.</summary>
     internal ulong Generation { get; private set; }
 

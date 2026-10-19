@@ -26,7 +26,7 @@ public sealed class NativeRenderHostCompatibilityTests {
     [Fact]
     [Trait("Category", "Wpf")]
     public Task ViewportIsItsActualHostAndExposesLiveBindings() => StaThread.RunAsync(() => {
-        using var viewport = new Viewport3DX();
+        using var viewport = new Viewport3DX { EnableSwapChainRendering = true };
         using var other = new Viewport3DX();
         var host = viewport.RenderHost;
         var target = new Border();

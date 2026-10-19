@@ -1248,6 +1248,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     /// <returns>The captured frame.</returns>
     internal D3D12CapturedFrame CaptureD3D12Frame() {
+        if (managerResourcesResetPending && !IsPreparingPresentationFrame) ApplyManagerLifecycle();
         if (!CanRenderWithEffectsManager)
             throw new InvalidOperationException("The effects-manager resource transition has not completed.");
         if (wpfPresentation is { } composited) return composited.CaptureFrame();

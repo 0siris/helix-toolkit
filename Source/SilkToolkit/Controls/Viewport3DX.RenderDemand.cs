@@ -93,6 +93,7 @@ public partial class Viewport3DX {
 
         isD3D12FrameUpdating = true;
         var reserved = false;
+        var failedRecording = false;
         var beforeSubmission = surface.PresentedFrames;
         var onDemand = RenderOnDemand;
         try {
@@ -114,7 +115,13 @@ public partial class Viewport3DX {
             if (!ReferenceEquals(d3d12Surface, surface) || surface.IsDisposed || IsDisposed) return 0;
             if (onDemand && !reserved && !renderDemand.TryBeginFrame(out _)) return 0;
             reserved |= onDemand;
-            var recorded = RecordD3D12ViewportFrame(surface, camera, captureFrame, waitForCompletion);
+            int recorded;
+            try {
+                recorded = RecordD3D12ViewportFrame(surface, camera, captureFrame, waitForCompletion);
+            } catch {
+                failedRecording = true;
+                throw;
+            }
             RaiseCompletedD3D12Frames(surface);
             return recorded;
         } finally {
@@ -122,7 +129,8 @@ public partial class Viewport3DX {
             frameRoots.Clear();
             frameRoots2D.Clear();
             isD3D12FrameUpdating = false;
-            surface.SchedulePendingRetirement();
+            if (failedRecording) surface.RetireSceneResources();
+            else surface.SchedulePendingRetirement();
             ScheduleNativeViewportDisposal();
             ScheduleManagerLifecycle();
         }

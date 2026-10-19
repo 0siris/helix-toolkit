@@ -1,3 +1,4 @@
+#define WPF_PREMULTIPLIED_OUTPUT
 #include "psScreenDup.hlsl"
 
 float4 mainPremultiplied(ScreenDupVS_INPUT input) : SV_Target {

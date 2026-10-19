@@ -34,7 +34,13 @@ cbuffer cbTransforms : register(b0) {
 };
 
 // The native presentation profile shares a reserved OIT-mode bit; public constant layouts stay unchanged.
-bool IsPremultipliedOutput() { return (OITWeightMode & 0x40000000) != 0; }
+bool IsPremultipliedOutput() {
+#ifdef WPF_PREMULTIPLIED_OUTPUT
+    return (OITWeightMode & 0x40000000) != 0;
+#else
+    return false;
+#endif
+}
 
 #if defined(MESHSIMPLE)
 cbuffer cbMeshSimple : register(b1) {

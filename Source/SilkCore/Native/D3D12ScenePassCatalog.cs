@@ -445,7 +445,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
             selectedTargetFormats);
         if (rasterOverride.HasValue || stencilReference.HasValue || outputMode == D3D12ColorOutputMode.Premultiplied)
             passDescription = new ShaderPassDescription(passDescription.Name!) {
-                ShaderList = SelectOutputShaders(passDescription.ShaderList, techniqueName),
+                ShaderList = SelectOutputShaders(passDescription.ShaderList),
                 InputLayoutDescription = passDescription.InputLayoutDescription,
                 BlendStateDescription = blend,
                 DepthStencilStateDescription = passDescription.DepthStencilStateDescription,
@@ -467,19 +467,22 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         return pass;
     }
 
-    /// <summary>Isolates desktop coverage from the legacy screen-quad shader's existing descriptor contract.</summary>
+    /// <summary>Isolates profile-only global reads from each legacy shader's existing descriptor contract.</summary>
     /// <param name="shaders">The existing pass stages, retained for legacy or application shaders.</param>
-    /// <param name="technique">The technique whose pass is being created on a cache miss.</param>
-    /// <returns>The original stages or a private desktop-profile pixel-stage substitution.</returns>
-    private IList<ShaderDescription>? SelectOutputShaders(IList<ShaderDescription>? shaders, string technique) {
-        if (outputMode != D3D12ColorOutputMode.Premultiplied ||
-            technique != DefaultRenderTechniqueNames.ScreenDuplication || shaders is null) return shaders;
+    /// <returns>The original stages or private profile pixel-stage substitutions created on a pass-cache miss.</returns>
+    private IList<ShaderDescription>? SelectOutputShaders(IList<ShaderDescription>? shaders) {
+        if (outputMode != D3D12ColorOutputMode.Premultiplied || shaders is null) return shaders;
         var result = new ShaderDescription[shaders.Count];
         for (var index = 0; index < shaders.Count; index++) {
             var shader = shaders[index];
-            result[index] = shader.ShaderType == ShaderStage.Pixel && shader.ByteCodeName == "psScreenDup"
-                ? new ShaderDescription("psScreenDupPremultiplied", ShaderStage.Pixel,
-                    new ShaderReflector(), "psScreenDupPremultiplied")
+            var name = shader.ByteCodeName;
+            var profileStage = shader.ShaderType == ShaderStage.Pixel && name is
+                "psScreenDup" or "psLuma" or "psFXAA" or "psEffectBloomExtract" or "psEffectBloomCombine" or
+                "psEffectMeshXRay" or "psParticle" or "psParticleOIT" or "psParticleOITDP" or "psVolume" or
+                "psVolumeDiffuse" or "psMeshBlinnPhongOITQuad" or "psMeshOITDPFinal";
+            result[index] = profileStage
+                ? new ShaderDescription($"{name}Premultiplied", ShaderStage.Pixel,
+                    new ShaderReflector(), $"{name}Premultiplied")
                 : shader;
         }
         return result;

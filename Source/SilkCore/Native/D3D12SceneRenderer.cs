@@ -323,7 +323,20 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </remarks>
     /// <exception cref="ObjectDisposedException">The renderer has been disposed.</exception>
     internal FastList<SceneNode> PrepareScene(IEnumerable<SceneNode> roots, RenderContext context,
-        IEffectsManager? effectsManager = null, IRenderHost? host = null) {
+        IEffectsManager? effectsManager = null, IRenderHost? host = null) =>
+        PrepareScene(roots, context, effectsManager, host, null);
+
+    /// <summary>Prepares the live scene while allowing its owner to revoke resource access from application callbacks.</summary>
+    /// <param name="roots">The original scene hierarchy roots.</param>
+    /// <param name="context">The retained update and maintenance context.</param>
+    /// <param name="effectsManager">The optional original attachment owner.</param>
+    /// <param name="host">The actual host receiving node invalidations.</param>
+    /// <param name="canContinue">The cached live permission predicate, or null for an independent native caller.</param>
+    /// <returns>The prepared nodes, ignored by the caller when permission has been revoked.</returns>
+    /// <exception cref="ObjectDisposedException">The renderer has been disposed.</exception>
+    /// <exception cref="InvalidOperationException">Scene preparation is already active.</exception>
+    internal FastList<SceneNode> PrepareScene(IEnumerable<SceneNode> roots, RenderContext context,
+        IEffectsManager? effectsManager, IRenderHost? host, Func<bool>? canContinue) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (isPreparing) throw new InvalidOperationException("Scene preparation cannot be nested.");
         isPreparing = true;
@@ -338,12 +351,16 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 entry.Value.ClearNativeRenderHost(this);
             PerFrameFlattenedScene.Clear();
             renderHost = host;
-            WalkPreparation(context, effectsManager, host, update: true);
-            foreach (var node in updatedNodes)
+            WalkPreparation(context, effectsManager, host, update: true, canContinue);
+            foreach (var node in updatedNodes) {
+                if (canContinue?.Invoke() == false) return preparedNodes;
                 if (!node.IsDisposed && node.RenderCore.IsAttached)
                     node.UpdateNotRender(context);
+            }
+            if (canContinue?.Invoke() == false) return preparedNodes;
             PerFrameFlattenedScene.RemoveAll(static entry => entry.Value.IsDisposed);
-            WalkPreparation(context, effectsManager, host, update: false);
+            WalkPreparation(context, effectsManager, host, update: false, canContinue);
+            if (canContinue?.Invoke() == false) return preparedNodes;
             foreach (var node in attachedNodes)
                 if (node.RenderCore is ScreenCloneRenderCore capture && !preparedNodes.Contains(node) &&
                     (preparationAttachments.Contains(node) || !node.HasOtherNativeAttachments(this)))
@@ -370,11 +387,14 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <param name="effectsManager">The optional original attachment owner.</param>
     /// <param name="host">The actual host receiving node invalidations.</param>
     /// <param name="update">Whether to update all live nodes or collect only visible attached subtrees.</param>
-    private void WalkPreparation(RenderContext context, IEffectsManager? effectsManager, IRenderHost? host, bool update) {
+    /// <param name="canContinue">The owner's optional cached resource-lifetime predicate.</param>
+    private void WalkPreparation(RenderContext context, IEffectsManager? effectsManager, IRenderHost? host, bool update,
+        Func<bool>? canContinue) {
         IList<SceneNode> nodes = preparationRoots;
         var index = 0;
         var depth = 0;
         while (true) {
+            if (canContinue?.Invoke() == false) return;
             if (index >= nodes.Count) {
                 if (!preparationStack.TryPop(out var parent)) return;
                 (index, depth, nodes) = parent;
@@ -387,6 +407,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 RetainNodeAttachment(node, host);
                 if (effectsManager is not null) node.Attach(effectsManager);
                 var attached = effectsManager is not null ? node.IsAttached : node.RenderCore.IsAttached || node.Attach();
+                if (canContinue?.Invoke() == false) return;
                 if (attached) {
                     node.Update(context);
                     updatedNodes.Add(node);

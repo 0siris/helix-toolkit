@@ -180,6 +180,16 @@ public partial class Viewport3DX {
     /// <param name="args">The effective image-property transition.</param>
     protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs args) {
         base.OnPropertyChanged(args);
+        if (args.Property == EnableD2DRenderingProperty && args.NewValue is false) CancelScene2DInput();
         if (imageProperties.Contains(args.Property)) InvalidateRender();
+    }
+
+    /// <summary>Cancels retained 2D press and hover state when the scene overlay becomes disabled.</summary>
+    private void CancelScene2DInput() {
+        var previous = currentHit2D;
+        currentHit2D = null;
+        MouseOverModel2D = null;
+        if (previous?.ModelHit is Elements2D.Element2D element)
+            element.RaiseEvent(new Elements2D.Mouse2DEventArgs(Elements2D.Element2D.MouseUp2DEvent, element, this));
     }
 }

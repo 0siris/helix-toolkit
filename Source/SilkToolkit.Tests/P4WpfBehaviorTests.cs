@@ -347,7 +347,9 @@ public sealed class P4WpfBehaviorTests(ITestOutputHelper output) {
         var look = harness.Viewport.Camera.LookDirection;
         foreach (var scenePicking in new[] { true, false }) {
             harness.Viewport.EnableMouseButtonHitTest = scenePicking;
-            var args = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right);
+            var args = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right) {
+                RoutedEvent = Mouse.PreviewMouseDownEvent
+            };
             typeof(Viewport3DX).GetMethod("MouseDownHitTest", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .Invoke(harness.Viewport, [new Point(80, 60), args]);
             Assert.True(args.Handled);
@@ -357,6 +359,60 @@ public sealed class P4WpfBehaviorTests(ITestOutputHelper output) {
         Assert.Equal(position, harness.Viewport.Camera.Position);
         Assert.Equal(look, harness.Viewport.Camera.LookDirection);
         output.WriteLine($"Actual Scene2D hits={hits2D}; scene hits={hits3D}; consumed before camera routing.");
+    });
+
+    /// <summary>Stops invisible overlay picking and clears the previous press and hover when Scene2D is disabled.</summary>
+    /// <returns>The real layout, input cancellation and underlying scene-picking verification.</returns>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task DisabledScene2DReleasesInputAndAllowsUnderlyingScenePicking() => StaThread.RunAsync(async () => {
+        await using var harness = new P4WpfHarness();
+        using var overlay = new RectangleModel2D {
+            Width = 160, Height = 120, Fill = Brushes.Blue, StrokeThickness = 0, EnableBitmapCache = false
+        };
+        var viewport = harness.Viewport;
+        viewport.Content2D = overlay;
+        await harness.WarmAsync();
+        var presses = 0;
+        var releases = 0;
+        var leaves = 0;
+        var sceneHits = 0;
+        overlay.MouseDown2D += (_, _) => presses++;
+        overlay.MouseUp2D += (_, args) => {
+            releases++;
+            Assert.Null(args.HitTest2DResult);
+        };
+        overlay.MouseLeave2D += (_, _) => leaves++;
+        viewport.MouseDown3D += (_, args) => {
+            if (((MouseDown3DEventArgs) args).HitTestResult?.ModelHit is MeshGeometryModel3D) sceneHits++;
+        };
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var down = typeof(Viewport3DX).GetMethod("MouseDownHitTest", flags)!;
+        var move = typeof(Viewport3DX).GetMethod("MouseMoveHitTest", flags)!;
+        var point = new Point(80, 60);
+        var input = new MouseButtonEventArgs(Mouse.PrimaryDevice, 1, MouseButton.Left) {
+            RoutedEvent = Mouse.PreviewMouseDownEvent
+        };
+        move.Invoke(viewport, [point, input]);
+        down.Invoke(viewport, [point, input]);
+        Assert.Same(overlay, viewport.MouseOverModel2D);
+        Assert.True(input.Handled);
+        Assert.Equal(1, presses);
+        viewport.EnableD2DRendering = false;
+        Assert.Null(viewport.MouseOverModel2D);
+        Assert.Equal(1, releases);
+        Assert.Equal(1, leaves);
+        await harness.DrainAsync();
+        input = new MouseButtonEventArgs(Mouse.PrimaryDevice, 2, MouseButton.Left) {
+            RoutedEvent = Mouse.PreviewMouseDownEvent
+        };
+        down.Invoke(viewport, [point, input]);
+        Assert.Equal(1, presses);
+        Assert.Equal(1, sceneHits);
+        viewport.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 3, MouseButton.Left) {
+            RoutedEvent = Mouse.MouseUpEvent
+        });
     });
 
     /// <summary>Requires the real centered view cube to win over scene geometry after the frontmost 2D overlay is removed.</summary>
@@ -388,7 +444,9 @@ public sealed class P4WpfBehaviorTests(ITestOutputHelper output) {
         var down = typeof(Viewport3DX).GetMethod("MouseDownHitTest", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var point = new Point(80, 60);
         viewport.EnableMouseButtonHitTest = false;
-        var input = new MouseButtonEventArgs(Mouse.PrimaryDevice, 1, MouseButton.Left);
+        var input = new MouseButtonEventArgs(Mouse.PrimaryDevice, 1, MouseButton.Left) {
+            RoutedEvent = Mouse.PreviewMouseDownEvent
+        };
         down.Invoke(viewport, [point, input]);
         Assert.True(input.Handled);
         Assert.Equal(1, overlayHits);
@@ -396,7 +454,9 @@ public sealed class P4WpfBehaviorTests(ITestOutputHelper output) {
         Assert.Equal(0, sceneHits);
         viewport.Content2D = null;
         await harness.DrainAsync();
-        input = new MouseButtonEventArgs(Mouse.PrimaryDevice, 2, MouseButton.Left);
+        input = new MouseButtonEventArgs(Mouse.PrimaryDevice, 2, MouseButton.Left) {
+            RoutedEvent = Mouse.PreviewMouseDownEvent
+        };
         down.Invoke(viewport, [point, input]);
         Assert.True(input.Handled);
         Assert.Equal(1, cubeHits);
@@ -404,7 +464,9 @@ public sealed class P4WpfBehaviorTests(ITestOutputHelper output) {
         viewport.ShowViewCube = false;
         viewport.EnableMouseButtonHitTest = true;
         await harness.DrainAsync();
-        input = new MouseButtonEventArgs(Mouse.PrimaryDevice, 3, MouseButton.Left);
+        input = new MouseButtonEventArgs(Mouse.PrimaryDevice, 3, MouseButton.Left) {
+            RoutedEvent = Mouse.PreviewMouseDownEvent
+        };
         down.Invoke(viewport, [point, input]);
         Assert.Equal(1, overlayHits);
         Assert.Equal(1, cubeHits);

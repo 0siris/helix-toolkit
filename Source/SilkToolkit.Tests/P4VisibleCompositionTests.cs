@@ -77,15 +77,17 @@ public sealed class P4VisibleCompositionTests(ITestOutputHelper output) {
             var handle = new WindowInteropHelper(window).Handle;
             Assert.Equal(handle, WindowFromPoint(nativePoint));
             Assert.True(SetCursorPos(nativePoint.X, nativePoint.Y));
-            Assert.True(ScreenToClient(handle, ref nativePoint));
-            var packed = (nint) ((nativePoint.X & 0xffff) | ((nativePoint.Y & 0xffff) << 16));
-            _ = SendMessage(handle, 0x0200, 0, packed);
-            _ = SendMessage(handle, 0x0201, 1, packed);
-            _ = SendMessage(handle, 0x0202, 0, packed);
+            await WaitAsync(() => button.IsMouseOver, "native pointer over WPF Button");
+            MouseEvent(0x0002, 0, 0, 0, 0);
+            try {
+                await Task.Delay(40);
+            } finally {
+                MouseEvent(0x0004, 0, 0, 0, 0);
+            }
             await WaitAsync(() => clickCount == 1, "native WPF Button click");
             Assert.Equal(1, clickCount);
             Assert.True(button.IsLoaded);
-            output.WriteLine($"Real WM_MOUSE click count={clickCount}; WindowFromPoint=0x{handle:X}; no Popup or child HWND.");
+            output.WriteLine($"Real OS mouse click count={clickCount}; WindowFromPoint=0x{handle:X}; no Popup or child HWND.");
 
             Panel.SetZIndex(button, -1);
             window.UpdateLayout();
@@ -251,22 +253,14 @@ public sealed class P4VisibleCompositionTests(ITestOutputHelper output) {
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool SetCursorPos(int x, int y);
 
-    /// <summary>Converts a physical screen point into the actual acceptance HWND client coordinate system.</summary>
-    /// <param name="window">The real acceptance HWND.</param>
-    /// <param name="point">The screen coordinate, replaced with the client coordinate.</param>
-    /// <returns>Whether the conversion succeeded.</returns>
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool ScreenToClient(nint window, ref NativePoint point);
-
-    /// <summary>Sends ordinary native mouse messages to the public WPF Window without raising a synthetic Click.</summary>
-    /// <param name="window">The actual WPF Window HWND.</param>
-    /// <param name="message">The native mouse message.</param>
-    /// <param name="wParam">The native button flags.</param>
-    /// <param name="lParam">The packed physical client coordinates.</param>
-    /// <returns>The native message result.</returns>
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    private static extern nint SendMessage(nint window, uint message, nint wParam, nint lParam);
+    /// <summary>Delivers actual OS button transitions, including physical button state consumed by WPF.</summary>
+    /// <param name="flags">The left-button down or up transition.</param>
+    /// <param name="x">Unused relative horizontal movement.</param>
+    /// <param name="y">Unused relative vertical movement.</param>
+    /// <param name="data">Unused wheel data.</param>
+    /// <param name="extraInfo">Unused event metadata.</param>
+    [DllImport("user32.dll", EntryPoint = "mouse_event")]
+    private static extern void MouseEvent(uint flags, uint x, uint y, uint data, nuint extraInfo);
 
     /// <summary>Acquires the desktop DC only for reading already composed pixels.</summary>
     /// <param name="window">Zero selects the desktop.</param>

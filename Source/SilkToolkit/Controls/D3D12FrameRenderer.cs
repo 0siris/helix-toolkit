@@ -402,7 +402,9 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         updateContext.EnableBoundingFrustum = testFrustum;
         updateContext.AutoUpdateOctree = autoUpdateOctree;
         updateContext.TimeStamp = TimeSpan.FromSeconds((double) Stopwatch.GetTimestamp() / Stopwatch.Frequency);
-        var preparedNodes = renderer.PrepareScene(roots, updateContext, effectsManager, renderHost);
+        var canContinue = (renderHost as Viewport3DX)?.ScenePreparationPermission;
+        var preparedNodes = renderer.PrepareScene(roots, updateContext, effectsManager, renderHost, canContinue);
+        if (canContinue?.Invoke() == false) return 0;
         foreach (var node in preparedNodes) {
             if (FindScreenSpacedAncestor(node) is not null) continue;
             if (node is ScreenSpacedNode screenSpaced) {

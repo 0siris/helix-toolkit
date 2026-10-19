@@ -217,7 +217,10 @@ public class ViewBoxNode : ScreenSpacedNode {
                                                 textureCoordinates[i].Y);
     }
 
-    protected override bool CanHitTest(HitTestContext? context) => context != null;
+    /// <summary>Allows cube picking only while its visible, interactive hierarchy is alive.</summary>
+    /// <param name="context">The actual viewport picking context.</param>
+    /// <returns>Whether the cube can consume a pointer event.</returns>
+    protected override bool CanHitTest(HitTestContext? context) => context != null && Visible && IsHitTestVisible && !IsDisposed;
 
     protected override bool OnHitTest(
         HitTestContext context,

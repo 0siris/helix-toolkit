@@ -343,8 +343,12 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
     /// <returns>The bounded dispatcher-owned frame and transport drain.</returns>
     internal Task DrainAsync() {
         if (Wpf is null) {
-            _ = Tick(wait: true);
-            return Task.CompletedTask;
+            return PollAsync(() => {
+                if (!Viewport.CanSubmitNativeScene) return false;
+                var before = Submitted;
+                _ = Tick(wait: true);
+                return Submitted > before && Submitted == Completed;
+            }, "native lifecycle and accepted frame completion");
         }
         return PollAsync(() => {
             _ = Tick();

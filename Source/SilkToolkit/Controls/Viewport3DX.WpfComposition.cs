@@ -11,6 +11,16 @@ public partial class Viewport3DX {
     /// <summary>The composited owner selected by the public template or an internal presentation harness.</summary>
     private D3D12WpfPresentation? wpfPresentation;
 
+    /// <summary>Retains one permission delegate for native preparation across application node callbacks.</summary>
+    private Func<bool>? scenePreparationPermission;
+
+    /// <summary>Gets the cached live permission predicate without allocating during warmed scene preparation.</summary>
+    internal Func<bool> ScenePreparationPermission => scenePreparationPermission ??= IsScenePreparationPermitted;
+
+    /// <summary>Rejects further scene access after a callback requests manager retirement, hiding or disposal.</summary>
+    /// <returns>Whether both presentation lifetimes still permit borrowing scene resources.</returns>
+    private bool IsScenePreparationPermitted() => CanRenderWpfScene && CanSubmitNativeScene;
+
     /// <summary>Gets whether automatic rendering is enabled for this actual host.</summary>
     internal bool WpfRenderingEnabled => renderingEnabled;
 

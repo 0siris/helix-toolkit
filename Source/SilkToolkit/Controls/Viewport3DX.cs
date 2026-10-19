@@ -1445,7 +1445,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The original input event (which mouse button pressed?)
     /// </param>
     private void MouseDownHitTest(Point pt, InputEventArgs? originalInputEventArgs = null) {
-        if (Overlay2D.HitTest(pt.ToVector2(), out currentHit2D)
+        if (EnableD2DRendering && Overlay2D.HitTest(pt.ToVector2(), out currentHit2D)
             && currentHit2D is {ModelHit: Elements2D.Element2D e} hit2D) {
             e.RaiseEvent(new Mouse2DEventArgs(Elements2D.Element2D.MouseDown2DEvent,
                 hit2D.ModelHit,
@@ -1495,7 +1495,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     private bool ViewBoxHitTest(Point p, InputEventArgs? originalInputEventArgs = null) {
-        if (viewCube is not { } cube) return false;
+        if (!ShowViewCube || viewCube is not { } cube) return false;
         var ray = this.UnProject(p.ToVector2());
         var hits = new List<HitTestResult>();
         var hitContext = new HitTestContext(IViewportExtensions.CreateRenderMatrices(this), ray, p.ToVector2());
@@ -1526,7 +1526,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The original input event (which mouse button pressed?)
     /// </param>
     private void MouseMoveHitTest(Point pt, InputEventArgs? originalInputEventArgs = null) {
-        if (Overlay2D.HitTest(pt.ToVector2(), out var hit2D)
+        if (EnableD2DRendering && Overlay2D.HitTest(pt.ToVector2(), out var hit2D)
             && hit2D is {ModelHit: Elements2D.Element2D e} actualHit2D) {
             MouseOverModel2D = e;
             e.RaiseEvent(new Mouse2DEventArgs(Elements2D.Element2D.MouseMove2DEvent,

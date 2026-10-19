@@ -72,11 +72,11 @@ public sealed class P4ManagerResourceTests {
 
         for (var epoch = 0; epoch < 3; epoch++) {
             var geometry = new MeshGeometry3D {
-                Positions = [new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0)],
-                Indices = [0, 1, 2]
+                Positions = [new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0)], Indices = [0, 1, 2]
             };
             var buffer = Assert.IsType<DefaultMeshGeometryBufferModel>(
-                effects.GeometryBufferManager.Register<DefaultMeshGeometryBufferModel>(Guid.NewGuid(), geometry));
+                effects.GeometryBufferManager.Register<DefaultMeshGeometryBufferModel>(Guid.NewGuid(), geometry)
+            );
             using var storage = effects.StructArrayPool.Register(sizeof(int));
             var id = storage.GetId();
             var value = epoch + 41;
@@ -133,8 +133,10 @@ public sealed class P4ManagerResourceTests {
                 Assert.False(context.DeviceContext.HasNativeContext);
                 Assert.Same(effects.Factory2D, context.DeviceContext.Factory);
                 Assert.NotSame(previousContext, context.DeviceContext);
-                using var target = new BitmapProxy("P4", context.DeviceContext, new Size2(16, 16),
-                    BitmapProxy.CreateDescription(96, 96, Silk.NET.DXGI.Format.FormatB8G8R8A8Unorm));
+                using var target = new BitmapProxy(
+                    "P4", context.DeviceContext, new Size2(16, 16),
+                    BitmapProxy.CreateDescription(96, 96, Silk.NET.DXGI.Format.FormatB8G8R8A8Unorm)
+                );
                 root.Attach();
                 root.Update(context);
                 child.Update(context);
@@ -187,8 +189,10 @@ public sealed class P4ManagerResourceTests {
         Assert.Equal(0, reinitialized);
         Assert.Equal(0, disposing);
         Assert.Empty(effects.RenderTechniques);
-        foreach (var name in new[] { "geometryBufferManager", "structArrayPool", "factory2D", "device2D",
-                     "deviceContext2D", "wicImgFactory", "directWriteFactory" }) {
+        foreach (var name in new[] {
+                     "geometryBufferManager", "structArrayPool", "factory2D", "device2D", "deviceContext2D", "wicImgFactory",
+                     "directWriteFactory"
+                 }) {
             var field = typeof(EffectsManager).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.NotNull(field);
             Assert.Null(field.GetValue(effects));
@@ -220,8 +224,10 @@ public sealed class P4ManagerResourceTests {
         public ResourceGeneration(EffectsManager effects) {
             Geometry = Assert.IsType<GeometryBufferManager>(effects.GeometryBufferManager);
             Pool = Assert.IsType<StructArrayPool>(effects.StructArrayPool);
-            Drawing = [effects.Factory2D, effects.Device2D, effects.DeviceContext2D,
-                effects.WicImgFactory, effects.DirectWriteFactory];
+            Drawing = [
+                effects.Factory2D, effects.Device2D, effects.DeviceContext2D,
+                effects.WicImgFactory, effects.DirectWriteFactory
+            ];
             Assert.Same(effects.Factory2D, effects.DeviceContext2D.Factory);
             AssertLive();
         }

@@ -87,6 +87,7 @@ public partial class Viewport3DX {
             RaiseCompletedD3D12Frames(surface);
             if (ReferenceEquals(surface, d3d12Surface) && !surface.IsDisposed) surface.RetireSceneResources();
         }
+
         ReleaseSharedSceneResourceRegistration();
     }
 
@@ -136,16 +137,22 @@ public partial class Viewport3DX {
             managerResourcesResetPending = true;
             ScheduleManagerLifecycle();
         }
-        var selected = active ? configured : null;
+
+        var selected = active
+            ? configured
+            : null;
         if (ReferenceEquals(selected, registeredModelContainer)) return;
         if (registeredModelContainer is { } previous) {
             sharedSceneNotificationRevision = previous.SceneRevision;
             previous.UnregisterConsumer(this);
         }
+
         registeredModelContainer = selected;
-        selected?.RegisterConsumer(this, ReferenceEquals(selected, resourceModelContainer)
-            ? sharedSceneNotificationRevision
-            : null);
+        selected?.RegisterConsumer(
+            this, ReferenceEquals(selected, resourceModelContainer)
+                ? sharedSceneNotificationRevision
+                : null
+        );
     }
 
     /// <summary>Restores shared notification membership after reload.</summary>
@@ -304,6 +311,7 @@ public partial class Viewport3DX {
                 ScheduleManagerLifecycleRetry();
                 return;
             }
+
             ApplyManagerLifecycle();
         } catch (TimeoutException exception) {
             ScheduleManagerLifecycleRetry();
@@ -326,6 +334,7 @@ public partial class Viewport3DX {
             };
             managerLifecycleRetryTimer.Tick += RetryManagerLifecycle;
         }
+
         managerLifecycleRetryTimer.Start();
     }
 

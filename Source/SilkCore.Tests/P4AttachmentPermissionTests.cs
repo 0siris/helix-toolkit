@@ -66,7 +66,11 @@ public sealed class P4AttachmentPermissionTests {
         Assert.True(core.IsAttached);
         Assert.Null(core.GeometryBuffer);
         Assert.Equal(0, node.BufferCreations);
-        Assert.Equal(duringDefaults ? 1 : 0, node.DefaultAssignments);
+        Assert.Equal(
+            duringDefaults
+                ? 1
+                : 0, node.DefaultAssignments
+        );
         Assert.False(node.HasAttachmentPermission);
         node.Detach();
         Assert.False(node.IsAttached);
@@ -131,7 +135,10 @@ public sealed class P4AttachmentPermissionTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void WarmPermissionChecksDoNotAllocate() {
-        Assert.Equal("false", AppContext.GetData("System.GC.Concurrent")?.ToString(), ignoreCase: true);
+        Assert.Equal(
+            "false", AppContext.GetData("System.GC.Concurrent")
+                ?.ToString(), ignoreCase: true
+        );
         using var effects = new DefaultEffectsManager();
         using var node = CreateMesh();
         Func<bool> permission = static () => true;
@@ -208,15 +215,15 @@ public sealed class P4AttachmentPermissionTests {
     private static int SubscriberCount(MaterialCore material) {
         var field = typeof(ObservableObject).GetField("PropertyChanged", BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.NotNull(field);
-        return (field.GetValue(material) as PropertyChangedEventHandler)?.GetInvocationList().Length ?? 0;
+        return (field.GetValue(material) as PropertyChangedEventHandler)?.GetInvocationList()
+            .Length ?? 0;
     }
 
     /// <summary>Creates a real mesh node with geometry and inspectable attachment callbacks.</summary>
     /// <returns>The mesh node used by these regressions.</returns>
     private static CallbackMeshNode CreateMesh() => new() {
         Geometry = new MeshGeometry3D {
-            Positions = [new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0)],
-            Indices = [0, 1, 2]
+            Positions = [new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0)], Indices = [0, 1, 2]
         }
     };
 

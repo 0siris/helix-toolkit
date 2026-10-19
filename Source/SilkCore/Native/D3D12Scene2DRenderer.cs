@@ -3,7 +3,6 @@ using HelixToolkit.SharpDX.Core;
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
-
 using System.Runtime.InteropServices;
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Model;
@@ -160,8 +159,13 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="dpiScale">The physical-pixel scale used by text.</param>
     /// <param name="layoutContext">The original update context, or null for already prepared native callers.</param>
     /// <returns>The number of prepared draws.</returns>
-    internal int Prepare(IEnumerable<SceneNode2D> roots, uint width, uint height, float dpiScale,
-        RenderContext2D? layoutContext = null) => Prepare(roots, width, height, dpiScale, layoutContext, null);
+    internal int Prepare(
+        IEnumerable<SceneNode2D> roots,
+        uint width,
+        uint height,
+        float dpiScale,
+        RenderContext2D? layoutContext = null
+    ) => Prepare(roots, width, height, dpiScale, layoutContext, null);
 
     /// <summary>Prepares the original Scene2D lifecycle while the caller retains resource permission.</summary>
     /// <param name="roots">The existing Scene2D roots.</param>
@@ -171,8 +175,14 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="layoutContext">The original update context, or null for prepared native callers.</param>
     /// <param name="canContinue">The retained permission, or null for independent native callers.</param>
     /// <returns>The prepared draw count, or zero when permission is revoked.</returns>
-    internal int Prepare(IEnumerable<SceneNode2D> roots, uint width, uint height, float dpiScale,
-        RenderContext2D? layoutContext, Func<bool>? canContinue) {
+    internal int Prepare(
+        IEnumerable<SceneNode2D> roots,
+        uint width,
+        uint height,
+        float dpiScale,
+        RenderContext2D? layoutContext,
+        Func<bool>? canContinue
+    ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         roots.AsGuardNotNull();
         ArgumentOutOfRangeException.ThrowIfZero(width);
@@ -189,12 +199,14 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             } else {
                 foreach (var root in roots) preparationRoots.Add(root);
             }
+
             foreach (var root in attachedRoots) {
                 if (canContinue?.Invoke() == false) return 0;
                 if (!root.IsDisposed && preparationRoots.Contains(root)) continue;
                 attachedRoots.Remove(root);
                 root.Detach();
             }
+
             foreach (var root in preparationRoots) {
                 if (canContinue?.Invoke() == false) return 0;
                 if (root.IsDisposed) continue;
@@ -210,10 +222,14 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
                     if (canContinue?.Invoke() == false) return 0;
                     UpdateSceneGraph(root, layoutContext, canContinue);
                 }
+
                 if (canContinue?.Invoke() == false) return 0;
                 Traverse(root, viewport, viewport, dpiScale, canContinue);
             }
-            return canContinue?.Invoke() == false ? 0 : draws.Count;
+
+            return canContinue?.Invoke() == false
+                ? 0
+                : draws.Count;
         } finally {
             if (canContinue?.Invoke() == false) draws.Clear();
             preparationRoots.Clear();
@@ -251,30 +267,39 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
                     registration = resources.Register(context, image);
                     imageTextures.Add(owner, registration);
                 }
+
                 texture = registration.Texture.Resource;
             }
+
             context.Transition(texture, ResourceStates.PixelShaderResource);
             UpdateAtlasUvs(draw);
             var slot = NextBindingSlot();
             slot.Update(draw.Vertices.AsSpan(0, draw.VertexCount), draw.Indices.AsSpan(0, draw.IndexCount), in transforms);
             device.CreateShaderResourceView(texture, slot.Bindings.ShaderResource(TextureRegister));
             var clip = draw.Clip;
-            context.SetScissorRectangle(checked((int) clip.Left),
+            context.SetScissorRectangle(
+                checked((int) clip.Left),
                 checked((int) clip.Top),
                 checked((int) clip.Right),
-                checked((int) clip.Bottom));
+                checked((int) clip.Bottom)
+            );
             pass.BindShader(context);
             slot.Bindings.BindGraphics(context);
-            context.SetVertexBuffer(0,
+            context.SetVertexBuffer(
+                0,
                 slot.VertexBuffer,
                 SpriteStruct.SizeInBytes,
-                checked((uint) draw.VertexCount * SpriteStruct.SizeInBytes));
-            context.SetIndexBuffer(slot.IndexBuffer,
+                checked((uint) draw.VertexCount * SpriteStruct.SizeInBytes)
+            );
+            context.SetIndexBuffer(
+                slot.IndexBuffer,
                 Format.FormatR32Uint,
-                checked((uint) draw.IndexCount * sizeof(uint)));
+                checked((uint) draw.IndexCount * sizeof(uint))
+            );
             context.DrawIndexedInstanced(checked((uint) draw.IndexCount));
             recorded++;
         }
+
         return recorded;
     }
 
@@ -325,8 +350,13 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="viewport">The full viewport.</param>
     /// <param name="dpiScale">The physical text scale.</param>
     /// <param name="canContinue">The retained frame permission.</param>
-    private void Traverse(SceneNode2D node, RectangleF inheritedClip, RectangleF viewport, float dpiScale,
-        Func<bool>? canContinue) {
+    private void Traverse(
+        SceneNode2D node,
+        RectangleF inheritedClip,
+        RectangleF viewport,
+        float dpiScale,
+        Func<bool>? canContinue
+    ) {
         if (canContinue?.Invoke() == false || node.IsDisposed) return;
         if (node.Visibility != Visibility.Visible) return;
         node.UpdateTransform(canContinue);
@@ -404,13 +434,15 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         if (TryGetColor(core.Background, out var background))
             AddRoundedGeometry(node, node.LayoutBound, core.CornerRadius, default, background, clip, false);
         if (TryGetColor(core.StrokeBrush, out var stroke) && core.BorderThickness.LengthSquared() > 0)
-            AddRoundedGeometry(node,
+            AddRoundedGeometry(
+                node,
                 node.LayoutBound,
                 core.CornerRadius,
                 core.BorderThickness,
                 stroke,
                 clip,
-                true);
+                true
+            );
     }
 
     /// <summary>
@@ -424,7 +456,8 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         if (TryGetColor(core.Background, out var background))
             AddQuad(node, node.LayoutBound, background, clip, atlas.White);
         if (string.IsNullOrEmpty(core.Text) || !TryGetColor(core.Foreground, out var foreground)) return;
-        var entry = atlas.GetOrCreate(core.Text,
+        var entry = atlas.GetOrCreate(
+            core.Text,
             core.FontFamily,
             core.FontWeight,
             core.FontStyle,
@@ -434,12 +467,15 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             core.TextAlignment,
             core.FlowDirection,
             node,
-            dpiScale);
+            dpiScale
+        );
         if (entry.Width == 0 || entry.Height == 0) return;
-        var bounds = new RectangleF(node.LayoutBound.Left + entry.OffsetX,
+        var bounds = new RectangleF(
+            node.LayoutBound.Left + entry.OffsetX,
             node.LayoutBound.Top + entry.OffsetY,
             entry.Width,
-            entry.Height);
+            entry.Height
+        );
         AddQuad(node, bounds, foreground, clip, entry);
     }
 
@@ -458,12 +494,15 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
                     ?? throw new InvalidOperationException("The Scene2D image stream could not be loaded.");
             images.Add(stream, image);
         }
-        AddQuad(node,
+
+        AddQuad(
+            node,
             node.LayoutBound,
             new Color4(1, 1, 1, Math.Clamp(node.Opacity, 0, 1)),
             clip,
             null,
-            image);
+            image
+        );
     }
 
     /// <summary>
@@ -485,13 +524,17 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="clip">The inherited physical scissor rectangle.</param>
     /// <param name="entry">The optional glyph or white atlas entry.</param>
     /// <param name="image">The optional standalone image texture.</param>
-    private void AddQuad(SceneNode2D node,
+    private void AddQuad(
+        SceneNode2D node,
         RectangleF bounds,
         Color4 color,
         RectangleF clip,
         D3D12GlyphAtlasEntry? entry,
-        TextureModel? image = null) {
-        var uv = entry is null ? new RectangleF(0, 0, 1, 1) : default;
+        TextureModel? image = null
+    ) {
+        var uv = entry is null
+            ? new RectangleF(0, 0, 1, 1)
+            : default;
         Span<SpriteStruct> vertices = stackalloc SpriteStruct[4];
         FillQuadVertices(vertices, bounds, node.TotalModelMatrix, color, uv);
         Span<uint> indices = stackalloc uint[6];
@@ -512,11 +555,13 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="thickness">The physical border thickness.</param>
     /// <param name="color">The public straight RGBA input color.</param>
     /// <param name="clip">The inherited physical scissor rectangle.</param>
-    private void AddRectangleRing(SceneNode2D node,
+    private void AddRectangleRing(
+        SceneNode2D node,
         RectangleF bounds,
         float thickness,
         Color4 color,
-        RectangleF clip) {
+        RectangleF clip
+    ) {
         var width = Math.Min(thickness, bounds.Width / 2);
         var height = Math.Min(thickness, bounds.Height / 2);
         var vertices = scratchVertices;
@@ -524,23 +569,31 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         vertices.Clear();
         indices.Clear();
         AppendQuad(vertices, indices, new RectangleF(bounds.Left, bounds.Top, bounds.Width, height), node, color);
-        AppendQuad(vertices,
+        AppendQuad(
+            vertices,
             indices,
             new RectangleF(bounds.Left, bounds.Bottom - height, bounds.Width, height),
             node,
-            color);
-        AppendQuad(vertices,
+            color
+        );
+        AppendQuad(
+            vertices,
             indices,
             new RectangleF(bounds.Left, bounds.Top + height, width, bounds.Height - height * 2),
             node,
-            color);
-        AppendQuad(vertices,
+            color
+        );
+        AppendQuad(
+            vertices,
             indices,
             new RectangleF(bounds.Right - width, bounds.Top + height, width, bounds.Height - height * 2),
             node,
-            color);
-        StoreDraw(node, CollectionsMarshal.AsSpan(vertices), CollectionsMarshal.AsSpan(indices),
-            ToScissor(clip), null, atlas.White);
+            color
+        );
+        StoreDraw(
+            node, CollectionsMarshal.AsSpan(vertices), CollectionsMarshal.AsSpan(indices),
+            ToScissor(clip), null, atlas.White
+        );
     }
 
     /// <summary>
@@ -551,11 +604,13 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="strokeWidth">The physical stroke width; zero selects a filled shape.</param>
     /// <param name="color">The public straight RGBA input color.</param>
     /// <param name="clip">The inherited physical scissor rectangle.</param>
-    private void AddEllipseGeometry(SceneNode2D node,
+    private void AddEllipseGeometry(
+        SceneNode2D node,
         RectangleF bounds,
         float strokeWidth,
         Color4 color,
-        RectangleF clip) {
+        RectangleF clip
+    ) {
         var outer = scratchOuter;
         var inner = scratchInner;
         outer.Clear();
@@ -565,12 +620,21 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         var radiusY = bounds.Height / 2;
         for (var index = 0; index < CurveSegments; index++) {
             var angle = MathF.Tau * index / CurveSegments;
-            outer.Add(new Vector2(center.X + MathF.Cos(angle) * radiusX,
-                center.Y + MathF.Sin(angle) * radiusY));
+            outer.Add(
+                new Vector2(
+                    center.X + MathF.Cos(angle) * radiusX,
+                    center.Y + MathF.Sin(angle) * radiusY
+                )
+            );
             if (strokeWidth > 0)
-                inner.Add(new Vector2(center.X + MathF.Cos(angle) * Math.Max(0, radiusX - strokeWidth),
-                    center.Y + MathF.Sin(angle) * Math.Max(0, radiusY - strokeWidth)));
+                inner.Add(
+                    new Vector2(
+                        center.X + MathF.Cos(angle) * Math.Max(0, radiusX - strokeWidth),
+                        center.Y + MathF.Sin(angle) * Math.Max(0, radiusY - strokeWidth)
+                    )
+                );
         }
+
         AddConvexOrRing(node, outer, inner, color, clip);
     }
 
@@ -584,26 +648,35 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="color">The public straight RGBA input color.</param>
     /// <param name="clip">The inherited physical scissor rectangle.</param>
     /// <param name="ring">Whether to construct a border ring rather than a filled shape.</param>
-    private void AddRoundedGeometry(SceneNode2D node,
+    private void AddRoundedGeometry(
+        SceneNode2D node,
         RectangleF bounds,
         float radius,
         Vector4 thickness,
         Color4 color,
         RectangleF clip,
-        bool ring) {
+        bool ring
+    ) {
         var outer = scratchOuter;
         var inner = scratchInner;
         CreateRoundedPerimeter(outer, bounds, radius);
         inner.Clear();
         if (ring) {
-            var innerBounds = new RectangleF(bounds.Left + thickness.W,
+            var innerBounds = new RectangleF(
+                bounds.Left + thickness.W,
                 bounds.Top + thickness.X,
                 Math.Max(0, bounds.Width - thickness.W - thickness.Y),
-                Math.Max(0, bounds.Height - thickness.X - thickness.Z));
-            var innerRadius = Math.Max(0, radius - Math.Max(Math.Max(thickness.X, thickness.Y),
-                Math.Max(thickness.Z, thickness.W)));
+                Math.Max(0, bounds.Height - thickness.X - thickness.Z)
+            );
+            var innerRadius = Math.Max(
+                0, radius - Math.Max(
+                    Math.Max(thickness.X, thickness.Y),
+                    Math.Max(thickness.Z, thickness.W)
+                )
+            );
             CreateRoundedPerimeter(inner, innerBounds, innerRadius);
         }
+
         AddConvexOrRing(node, outer, inner, color, clip);
     }
 
@@ -615,11 +688,13 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="inner">The optional clockwise inner perimeter.</param>
     /// <param name="color">The public straight RGBA input color.</param>
     /// <param name="clip">The inherited physical scissor rectangle.</param>
-    private void AddConvexOrRing(SceneNode2D node,
+    private void AddConvexOrRing(
+        SceneNode2D node,
         IReadOnlyList<Vector2> outer,
         IReadOnlyList<Vector2> inner,
         Color4 color,
-        RectangleF clip) {
+        RectangleF clip
+    ) {
         if (outer.Count < 3) return;
         var atlasUv = new Vector2((atlas.White.X + 0.5f) / atlas.Width, (atlas.White.Y + 0.5f) / atlas.Height);
         var vertexColor = ToVector(color);
@@ -632,6 +707,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
                 vertices.Add(CreateVertex(outer[index], node.TotalModelMatrix, atlasUv, vertexColor));
                 vertices.Add(CreateVertex(inner[index], node.TotalModelMatrix, atlasUv, vertexColor));
             }
+
             for (var index = 0; index < outer.Count; index++) {
                 var next = (index + 1) % outer.Count;
                 var outerCurrent = checked((uint) index * 2);
@@ -658,8 +734,11 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
                 indices.Add(checked((uint) ((index + 1) % outer.Count) + 1));
             }
         }
-        StoreDraw(node, CollectionsMarshal.AsSpan(vertices), CollectionsMarshal.AsSpan(indices),
-            ToScissor(clip), null, atlas.White);
+
+        StoreDraw(
+            node, CollectionsMarshal.AsSpan(vertices), CollectionsMarshal.AsSpan(indices),
+            ToScissor(clip), null, atlas.White
+        );
     }
 
     /// <summary>
@@ -678,6 +757,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             result.Add(bounds.BottomLeft);
             return;
         }
+
         var segmentsPerCorner = CurveSegments / 4;
         ReadOnlySpan<Vector2> centers = [
             new Vector2(bounds.Right - clamped, bounds.Top + clamped),
@@ -686,10 +766,10 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             new Vector2(bounds.Left + clamped, bounds.Top + clamped)
         ];
         for (var corner = 0; corner < centers.Length; corner++)
-            for (var segment = 0; segment < segmentsPerCorner; segment++) {
-                var angle = -MathF.PI / 2 + corner * MathF.PI / 2 + segment * MathF.PI / 2 / segmentsPerCorner;
-                result.Add(centers[corner] + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * clamped);
-            }
+        for (var segment = 0; segment < segmentsPerCorner; segment++) {
+            var angle = -MathF.PI / 2 + corner * MathF.PI / 2 + segment * MathF.PI / 2 / segmentsPerCorner;
+            result.Add(centers[corner] + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * clamped);
+        }
     }
 
     /// <summary>
@@ -700,17 +780,21 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="bounds">The local geometry bounds.</param>
     /// <param name="node">The source scene node.</param>
     /// <param name="color">The public straight RGBA input color.</param>
-    private void AppendQuad(List<SpriteStruct> vertices,
+    private void AppendQuad(
+        List<SpriteStruct> vertices,
         List<uint> indices,
         RectangleF bounds,
         SceneNode2D node,
-        Color4 color) {
+        Color4 color
+    ) {
         if (bounds.Width <= 0 || bounds.Height <= 0) return;
         var start = checked((uint) vertices.Count);
-        var uv = new RectangleF((float) atlas.White.X / atlas.Width,
+        var uv = new RectangleF(
+            (float) atlas.White.X / atlas.Width,
             (float) atlas.White.Y / atlas.Height,
             (float) atlas.White.Width / atlas.Width,
-            (float) atlas.White.Height / atlas.Height);
+            (float) atlas.White.Height / atlas.Height
+        );
         Span<SpriteStruct> quad = stackalloc SpriteStruct[4];
         FillQuadVertices(quad, bounds, node.TotalModelMatrix, color, uv);
         foreach (var vertex in quad) vertices.Add(vertex);
@@ -730,10 +814,12 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="color">The public straight RGBA input color.</param>
     /// <param name="uv">The normalized source texture coordinates.</param>
     /// <returns>Four clockwise transformed vertices with straight input colors.</returns>
-    internal static SpriteStruct[] CreateQuadVertices(RectangleF bounds,
+    internal static SpriteStruct[] CreateQuadVertices(
+        RectangleF bounds,
         Matrix3X2 transform,
         Color4 color,
-        RectangleF uv) {
+        RectangleF uv
+    ) {
         var result = new SpriteStruct[4];
         FillQuadVertices(result, bounds, transform, color, uv);
         return result;
@@ -745,8 +831,13 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="transform">The accumulated node transform.</param>
     /// <param name="color">The public straight input color.</param>
     /// <param name="uv">The normalized source rectangle.</param>
-    private static void FillQuadVertices(Span<SpriteStruct> vertices, RectangleF bounds,
-        Matrix3X2 transform, Color4 color, RectangleF uv) {
+    private static void FillQuadVertices(
+        Span<SpriteStruct> vertices,
+        RectangleF bounds,
+        Matrix3X2 transform,
+        Color4 color,
+        RectangleF uv
+    ) {
         var vertexColor = ToVector(color);
         vertices[0] = CreateVertex(bounds.TopLeft, transform, uv.TopLeft, vertexColor);
         vertices[1] = CreateVertex(bounds.TopRight, transform, uv.TopRight, vertexColor);
@@ -761,8 +852,14 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="clip">The physical scissor rectangle.</param>
     /// <param name="image">The optional standalone source image.</param>
     /// <param name="entry">The optional glyph or white atlas entry.</param>
-    private void StoreDraw(SceneNode2D node, ReadOnlySpan<SpriteStruct> vertices, ReadOnlySpan<uint> indices,
-        RectangleF clip, TextureModel? image, D3D12GlyphAtlasEntry? entry) {
+    private void StoreDraw(
+        SceneNode2D node,
+        ReadOnlySpan<SpriteStruct> vertices,
+        ReadOnlySpan<uint> indices,
+        RectangleF clip,
+        TextureModel? image,
+        D3D12GlyphAtlasEntry? entry
+    ) {
         if (draws.Count == drawStorage.Count)
             drawStorage.Add(new D3D12Scene2DDraw(node, [], [], clip, image, entry));
         var draw = drawStorage[draws.Count];
@@ -778,14 +875,12 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="uv">The normalized source texture coordinates.</param>
     /// <param name="color">The public straight RGBA input color.</param>
     /// <returns>The transformed sprite vertex.</returns>
-    private static SpriteStruct CreateVertex(Vector2 position,
+    private static SpriteStruct CreateVertex(
+        Vector2 position,
         Matrix3X2 transform,
         Vector2 uv,
-        Vector4 color) => new() {
-        Position = Matrix3X2.TransformPoint(transform, position),
-        UV = uv,
-        Color = color
-    };
+        Vector4 color
+    ) => new() { Position = Matrix3X2.TransformPoint(transform, position), UV = uv, Color = color };
 
     /// <summary>
     ///     Converts one solid Direct2D brush to its renderer color.
@@ -798,6 +893,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             color = solid.Color;
             return color.W > 0;
         }
+
         color = default;
         return false;
     }
@@ -820,6 +916,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             foreach (ref var vertex in draw.Vertices.AsSpan(0, draw.VertexCount)) vertex.UV = white;
             return;
         }
+
         var left = (float) entry.X / atlas.Width;
         var top = (float) entry.Y / atlas.Height;
         var right = (float) (entry.X + entry.Width) / atlas.Width;
@@ -838,10 +935,8 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <returns>The axis-aligned physical bounds of the transformed corners.</returns>
     internal static RectangleF TransformBounds(RectangleF bounds, Matrix3X2 transform) {
         ReadOnlySpan<Vector2> points = stackalloc Vector2[4] {
-            Matrix3X2.TransformPoint(transform, bounds.TopLeft),
-            Matrix3X2.TransformPoint(transform, bounds.TopRight),
-            Matrix3X2.TransformPoint(transform, bounds.BottomRight),
-            Matrix3X2.TransformPoint(transform, bounds.BottomLeft)
+            Matrix3X2.TransformPoint(transform, bounds.TopLeft), Matrix3X2.TransformPoint(transform, bounds.TopRight),
+            Matrix3X2.TransformPoint(transform, bounds.BottomRight), Matrix3X2.TransformPoint(transform, bounds.BottomLeft)
         };
         var left = points[0].X;
         var top = points[0].Y;
@@ -853,6 +948,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             right = MathF.Max(right, points[index].X);
             bottom = MathF.Max(bottom, points[index].Y);
         }
+
         return new RectangleF(left, top, right - left, bottom - top);
     }
 
@@ -941,20 +1037,26 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         /// <param name="device">The native Direct3D 12 allocation device.</param>
         /// <param name="resourceHeap">The shared shader-visible resource heap.</param>
         /// <param name="samplerHeap">The shared shader-visible sampler heap.</param>
-        internal BindingSlot(SilkD3D12Device device,
+        internal BindingSlot(
+            SilkD3D12Device device,
             SilkD3D12DescriptorHeap resourceHeap,
-            SilkD3D12DescriptorHeap samplerHeap) {
+            SilkD3D12DescriptorHeap samplerHeap
+        ) {
             this.device = device;
             Bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
-            Transforms = new SilkD3D12ConstantBuffer(device,
+            Transforms = new SilkD3D12ConstantBuffer(
+                device,
                 Bindings.ConstantBuffer(0),
-                GlobalTransformStruct.SizeInBytes);
+                GlobalTransformStruct.SizeInBytes
+            );
             FallbackConstants = device.CreateBuffer(256, HeapType.Upload);
             FallbackConstants.Write(new byte[256]);
             Bindings.InitializeFallbackDescriptors(device, FallbackConstants, 0);
-            device.CreateSampler(Bindings.Sampler(SamplerRegister),
+            device.CreateSampler(
+                Bindings.Sampler(SamplerRegister),
                 Filter.MinMagMipLinear,
-                TextureAddressMode.Clamp);
+                TextureAddressMode.Clamp
+            );
             vertexBuffer = device.CreateBuffer(SpriteStruct.SizeInBytes, HeapType.Upload);
             indexBuffer = device.CreateBuffer(sizeof(uint), HeapType.Upload);
         }
@@ -1028,12 +1130,14 @@ internal sealed class D3D12Scene2DDraw {
     /// <param name="clip">The inherited physical scissor rectangle.</param>
     /// <param name="image">The optional standalone image texture.</param>
     /// <param name="atlasEntry">The atlas entry.</param>
-    internal D3D12Scene2DDraw(SceneNode2D node,
+    internal D3D12Scene2DDraw(
+        SceneNode2D node,
         SpriteStruct[] vertices,
         uint[] indices,
         RectangleF clip,
         TextureModel? image,
-        D3D12GlyphAtlasEntry? atlasEntry) {
+        D3D12GlyphAtlasEntry? atlasEntry
+    ) {
         Node = node;
         Vertices = vertices;
         Indices = indices;
@@ -1051,8 +1155,14 @@ internal sealed class D3D12Scene2DDraw {
     /// <param name="clip">The physical scissor rectangle.</param>
     /// <param name="image">The optional standalone image.</param>
     /// <param name="entry">The optional atlas entry.</param>
-    internal void Update(SceneNode2D node, ReadOnlySpan<SpriteStruct> vertices, ReadOnlySpan<uint> indices,
-        RectangleF clip, TextureModel? image, D3D12GlyphAtlasEntry? entry) {
+    internal void Update(
+        SceneNode2D node,
+        ReadOnlySpan<SpriteStruct> vertices,
+        ReadOnlySpan<uint> indices,
+        RectangleF clip,
+        TextureModel? image,
+        D3D12GlyphAtlasEntry? entry
+    ) {
         if (Vertices.Length < vertices.Length) Vertices = new SpriteStruct[vertices.Length];
         if (Indices.Length < indices.Length) Indices = new uint[indices.Length];
         vertices.CopyTo(Vertices);

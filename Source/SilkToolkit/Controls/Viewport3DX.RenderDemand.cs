@@ -122,6 +122,7 @@ public partial class Viewport3DX {
                 failedRecording = true;
                 throw;
             }
+
             RaiseCompletedD3D12Frames(surface);
             return recorded;
         } finally {

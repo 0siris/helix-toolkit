@@ -5,7 +5,6 @@ using HelixToolkit.SharpDX.Core.Model.Scene2D;
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,16 +41,22 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
 
     /// <summary>The native child-window transport host.</summary>
     private readonly HwndSwapChainHost windowHost = new();
+
     /// <summary>The coalesced physical resize requests.</summary>
     private readonly D3D12ResizeQueue resizeQueue = new();
+
     /// <summary>Protects the single reusable command context until its submitted GPU fence completes.</summary>
     private readonly D3D12FrameSubmission _frameSubmission = new();
+
     /// <summary>Retries the latest queued resize without blocking or spinning while a frame is pending.</summary>
     private readonly DispatcherTimer _resizeRetryTimer;
+
     /// <summary>Records a requested effects-manager change until the preceding GPU frame has completed.</summary>
     private bool _effectsManagerDirty;
+
     /// <summary>The requested hardware or WARP adapter type.</summary>
     private readonly SilkDriverType driverType;
+
     /// <summary>The borrowed current effects manager.</summary>
     private IEffectsManager? effectsManager;
 
@@ -90,7 +95,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
 
     /// <summary>Gets live submission permission after all node callbacks and before command execution.</summary>
     private bool CanSubmitFrame => !IsDisposed && !IsRetirementPending && !suspended &&
-        (RenderHost is not Viewport3DX viewport || viewport.CanSubmitNativeScene);
+                                   (RenderHost is not Viewport3DX viewport || viewport.CanSubmitNativeScene);
 
     /// <summary>Controls render resolution independently of physical native pointer decoding.</summary>
     private bool enableDpiScale = true;
@@ -122,19 +127,28 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     }
 
     /// <summary>Gets the render target scale independently of the native window's physical input scale.</summary>
-    internal double EffectiveDpiScale => enableDpiScale ? DpiScale : 1;
+    internal double EffectiveDpiScale => enableDpiScale
+        ? DpiScale
+        : 1;
+
     /// <summary>The pending dispatcher operation for a physical resize.</summary>
     private DispatcherOperation? resizeOperation;
+
     /// <summary>The device owned by the presentation lifetime.</summary>
     private SilkD3D12Device? device;
+
     /// <summary>The queue retained for submission and native completion.</summary>
     private SilkD3D12CommandQueue? commandQueue;
+
     /// <summary>The single reusable command context protected by the frame submission.</summary>
     private SilkD3D12CommandContext? commandContext;
+
     /// <summary>The completion fence protecting commands and renderer resources.</summary>
     private SilkD3D12Fence? fence;
+
     /// <summary>The HWND color buffers and presentation transport.</summary>
     private SilkD3D12SwapChain? swapChain;
+
     /// <summary>The common scene recorder and its fence-protected native resource owners.</summary>
     private D3D12FrameRenderer? frameRenderer;
 
@@ -143,14 +157,14 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// </summary>
     /// <param name="driverType">The hardware or WARP device type.</param>
     /// <param name="effectsManager">The optional borrowed scene effects manager.</param>
-    public D3D12PresentationSurface(SilkDriverType driverType = SilkDriverType.Hardware,
-        IEffectsManager? effectsManager = null) {
+    public D3D12PresentationSurface(
+        SilkDriverType driverType = SilkDriverType.Hardware,
+        IEffectsManager? effectsManager = null
+    ) {
         this.driverType = driverType;
         this.effectsManager = effectsManager;
         retireNativeCallback = ApplyPendingRetirement;
-        _resizeRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) {
-            Interval = TimeSpan.FromMilliseconds(16)
-        };
+        _resizeRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) { Interval = TimeSpan.FromMilliseconds(16) };
         _resizeRetryTimer.Tick += RetryPendingResize;
         Children.Add(windowHost);
         windowHost.HandleCreated += OnHandleCreated;
@@ -247,7 +261,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         if (_frameSubmission.IsPending)
             throw new InvalidOperationException("Effect pipelines cannot change while a Direct3D 12 frame is pending");
         var renderer = frameRenderer
-            ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+                       ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
         renderer.SetEffectsManager(effectsManager);
         _effectsManagerDirty = false;
     }
@@ -261,9 +275,9 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         Dispatcher.VerifyAccess();
         if (!_frameSubmission.IsPending) return true;
         var currentFence = fence
-            ?? throw new InvalidOperationException("The pending Direct3D 12 frame has no completion fence");
+                           ?? throw new InvalidOperationException("The pending Direct3D 12 frame has no completion fence");
         var currentDevice = device
-            ?? throw new InvalidOperationException("The pending Direct3D 12 frame has no device");
+                            ?? throw new InvalidOperationException("The pending Direct3D 12 frame has no device");
         currentDevice.ThrowIfDeviceRemoved();
         var completed = currentFence.CompletedValue;
         if (completed == ulong.MaxValue)
@@ -317,7 +331,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
             var target = CreateFrameTarget(currentSwapChain);
             var renderer = frameRenderer
-                ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+                           ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
             renderer.RecordClearFrame(currentContext, in target, clearColor);
             _ = EndFrame(currentContext, currentSwapChain, backBuffer);
         } catch {
@@ -356,12 +370,16 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         frameActive = true;
         try {
             var renderer = frameRenderer
-                ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+                           ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
             var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
             var target = CreateFrameTarget(currentSwapChain);
-            var recorded = renderer.RecordSceneFrame(currentContext, in target, clearColor, candidates,
-                in transforms, testFrustum, ref frustum, lights);
-            return EndFrame(currentContext, currentSwapChain, backBuffer) ? recorded : 0;
+            var recorded = renderer.RecordSceneFrame(
+                currentContext, in target, clearColor, candidates,
+                in transforms, testFrustum, ref frustum, lights
+            );
+            return EndFrame(currentContext, currentSwapChain, backBuffer)
+                ? recorded
+                : 0;
         } catch {
             DiscardRecordedFrame();
             throw;
@@ -430,35 +448,42 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         frameActive = true;
         try {
             var renderer = frameRenderer
-                ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+                           ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
             var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
             var target = CreateFrameTarget(currentSwapChain);
-            var recorded = renderer.RecordViewportFrame(currentContext, in target, (float)EffectiveDpiScale,
+            var recorded = renderer.RecordViewportFrame(
+                currentContext, in target, (float) EffectiveDpiScale,
                 clearColor, roots, camera, testFrustum, enableShadows, oitRenderType, oitDepthPeelingIterations,
                 oitWeightPower, oitWeightDepthSlope, oitWeightMode, fxaaLevel, enableSsao, ssaoRadius,
-                ssaoIntensity, ssaoQuality, roots2D, autoUpdateOctree, enableRenderOrder, RenderHost);
+                ssaoIntensity, ssaoQuality, roots2D, autoUpdateOctree, enableRenderOrder, RenderHost
+            );
             if (!CanSubmitFrame) {
                 DiscardRecordedFrame();
                 return 0;
             }
+
             PlacedSubresourceFootprint footprint = default;
             ulong totalBytes = 0;
             if (captureFrame) {
                 LastCapturedFrame = null;
                 var currentDevice = device
-                    ?? throw new InvalidOperationException("The Direct3D 12 device is unavailable.");
+                                    ?? throw new InvalidOperationException("The Direct3D 12 device is unavailable.");
                 footprint = currentDevice.GetCopyableFootprint(backBuffer, out totalBytes);
                 captureReadback = currentDevice.CreateBuffer(totalBytes, HeapType.Readback);
                 currentContext.Transition(backBuffer, ResourceStates.CopySource);
                 currentContext.CopyTextureToBuffer(captureReadback, backBuffer, in footprint);
             }
+
             if (!EndFrame(currentContext, currentSwapChain, backBuffer, waitForCompletion || captureFrame)) return 0;
             if (captureReadback is { } readback) {
-                LastCapturedFrame = CreateCapturedFrame(readback, in footprint, totalBytes,
-                    currentSwapChain.Width, currentSwapChain.Height);
+                LastCapturedFrame = CreateCapturedFrame(
+                    readback, in footprint, totalBytes,
+                    currentSwapChain.Width, currentSwapChain.Height
+                );
                 readback.Dispose();
                 captureReadback = null;
             }
+
             return recorded;
         } catch {
             DiscardRecordedFrame();
@@ -483,15 +508,19 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <param name="width">The frame width.</param>
     /// <param name="height">The frame height.</param>
     /// <returns>The tightly packed WPF frame.</returns>
-    private static D3D12CapturedFrame CreateCapturedFrame(SilkD3D12Resource readback,
+    private static D3D12CapturedFrame CreateCapturedFrame(
+        SilkD3D12Resource readback,
         in PlacedSubresourceFootprint footprint,
         ulong totalBytes,
         uint width,
-        uint height) => CreateCapturedFrame(readback.Read(checked((int) totalBytes)),
+        uint height
+    ) => CreateCapturedFrame(
+        readback.Read(checked((int) totalBytes)),
         footprint.Offset,
         footprint.Footprint.RowPitch,
         width,
-        height);
+        height
+    );
 
     /// <summary>
     ///     Converts a padded RGBA readback allocation to tightly packed WPF BGRA pixels.
@@ -504,13 +533,15 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <param name="sourceFormat">The channel order of the readback allocation.</param>
     /// <param name="premultiplied">Whether RGB must be normalized from premultiplied to straight color.</param>
     /// <returns>The tightly packed WPF frame.</returns>
-    internal static D3D12CapturedFrame CreateCapturedFrame(byte[] padded,
+    internal static D3D12CapturedFrame CreateCapturedFrame(
+        byte[] padded,
         ulong offset,
         uint rowPitch,
         uint width,
         uint height,
         Silk.NET.DXGI.Format sourceFormat = Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm,
-        bool premultiplied = false) {
+        bool premultiplied = false
+    ) {
         padded.AsGuardNotNull();
         if (sourceFormat is not (Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm or
             Silk.NET.DXGI.Format.FormatB8G8R8A8Unorm))
@@ -520,17 +551,21 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         for (var row = 0; row < height; row++) {
             var sourceOffset = checked((int) offset + (int) row * (int) rowPitch);
             var destinationOffset = checked((int) row * rowBytes);
-            padded.AsSpan(sourceOffset, rowBytes).CopyTo(pixels.AsSpan(destinationOffset, rowBytes));
+            padded.AsSpan(sourceOffset, rowBytes)
+                .CopyTo(pixels.AsSpan(destinationOffset, rowBytes));
         }
+
         for (var index = 0; index < pixels.Length; index += 4) {
             if (sourceFormat == Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm)
                 (pixels[index], pixels[index + 2]) = (pixels[index + 2], pixels[index]);
             if (!premultiplied) continue;
             var alpha = pixels[index + 3];
             for (var channel = 0; channel < 3; channel++)
-                pixels[index + channel] = alpha == 0 ? (byte)0 :
-                    (byte)Math.Min(255, (pixels[index + channel] * 255 + alpha / 2) / alpha);
+                pixels[index + channel] = alpha == 0
+                    ? (byte) 0
+                    : (byte) Math.Min(255, (pixels[index + channel] * 255 + alpha / 2) / alpha);
         }
+
         return new D3D12CapturedFrame(width, height, pixels);
     }
 
@@ -640,16 +675,20 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
 
         var size = D3D12PresentationSize.Calculate(ActualWidth, ActualHeight, EffectiveDpiScale);
         try {
-            var selectedDriverType = effectsManager?.EnableSoftwareRendering == true ? SilkDriverType.Warp : driverType;
+            var selectedDriverType = effectsManager?.EnableSoftwareRendering == true
+                ? SilkDriverType.Warp
+                : driverType;
             device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, selectedDriverType);
             commandQueue = device.CreateCommandQueue();
             commandContext = device.CreateCommandContext();
             fence = device.CreateFence();
-            swapChain = new SilkD3D12SwapChain(device,
+            swapChain = new SilkD3D12SwapChain(
+                device,
                 commandQueue,
                 windowHost.NativeHandle,
                 size.Width,
-                size.Height);
+                size.Height
+            );
             frameRenderer = new D3D12FrameRenderer(device, swapChain.Format, effectsManager);
             frameRenderer.Resize(size.Width, size.Height);
             _effectsManagerDirty = false;
@@ -668,6 +707,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             retireRequested = true;
             return;
         }
+
         retiringNative = true;
         try {
             _resizeRetryTimer.Stop();
@@ -713,9 +753,9 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         if (_frameSubmission.IsPending)
             throw new InvalidOperationException("A pending Direct3D 12 frame still owns the command context");
         var currentSwapChain = swapChain
-            ?? throw new InvalidOperationException("The presentation surface is not attached to a window.");
+                               ?? throw new InvalidOperationException("The presentation surface is not attached to a window.");
         var currentContext = commandContext
-            ?? throw new InvalidOperationException("The command context is unavailable.");
+                             ?? throw new InvalidOperationException("The command context is unavailable.");
         var backBuffer = currentSwapChain.CurrentBackBuffer;
         currentContext.Reset();
         commandsOpen = true;
@@ -727,7 +767,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <returns>The frame boundary metadata.</returns>
     private static D3D12FrameTarget CreateFrameTarget(SilkD3D12SwapChain currentSwapChain) => new(
         currentSwapChain.CurrentBackBuffer, currentSwapChain.CurrentRenderTargetView,
-        currentSwapChain.Width, currentSwapChain.Height, currentSwapChain.Format);
+        currentSwapChain.Width, currentSwapChain.Height, currentSwapChain.Format
+    );
 
     /// <summary>
     ///     Submits and presents one protected frame, waiting only for explicit synchronous consumers.
@@ -749,10 +790,11 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             DiscardRecordedFrame();
             return false;
         }
+
         var currentQueue = commandQueue
-            ?? throw new InvalidOperationException("The command queue is unavailable.");
+                           ?? throw new InvalidOperationException("The command queue is unavailable.");
         var currentFence = fence
-            ?? throw new InvalidOperationException("The presentation fence is unavailable.");
+                           ?? throw new InvalidOperationException("The presentation fence is unavailable.");
         currentContext.Transition(backBuffer, ResourceStates.Present);
         currentContext.Close();
         commandsOpen = false;
@@ -794,6 +836,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             _resizeRetryTimer.Start();
             return;
         }
+
         _resizeRetryTimer.Stop();
         if (!resizeQueue.TryTake(out var size)) return;
         if (swapChain.Width == size.Width && swapChain.Height == size.Height) return;

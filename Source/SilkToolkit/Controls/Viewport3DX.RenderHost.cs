@@ -31,7 +31,9 @@ public partial class Viewport3DX : IRenderHost {
 
     float IRenderHost.DpiScale {
         get => wpfPresentation?.Canvas.EffectiveDpiScale ??
-            (float) (d3d12Surface?.EffectiveDpiScale ?? (EnableDpiScale ? DpiScale : 1));
+               (float) (d3d12Surface?.EffectiveDpiScale ?? (EnableDpiScale
+                   ? DpiScale
+                   : 1));
         set {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
             if (!float.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
@@ -51,15 +53,24 @@ public partial class Viewport3DX : IRenderHost {
         if (wpfPresentation is { } composited) {
             var submitted = composited.SubmittedFrames;
             var completedCount = completedD3D12Frames;
-            _ = composited.RenderFrame(TimeSpan.FromSeconds((double)System.Diagnostics.Stopwatch.GetTimestamp() /
-                System.Diagnostics.Stopwatch.Frequency), waitForCompletion: true);
+            _ = composited.RenderFrame(
+                TimeSpan.FromSeconds(
+                    (double) System.Diagnostics.Stopwatch.GetTimestamp() /
+                    System.Diagnostics.Stopwatch.Frequency
+                ), waitForCompletion: true
+            );
             return composited.SubmittedFrames != submitted || completedD3D12Frames != completedCount;
         }
+
         var surface = d3d12Surface;
         var presented = surface?.PresentedFrames ?? 0;
         var completed = completedD3D12Frames;
-        _ = RenderD3D12Frame(TimeSpan.FromSeconds((double)System.Diagnostics.Stopwatch.GetTimestamp() /
-            System.Diagnostics.Stopwatch.Frequency), waitForCompletion: true);
+        _ = RenderD3D12Frame(
+            TimeSpan.FromSeconds(
+                (double) System.Diagnostics.Stopwatch.GetTimestamp() /
+                System.Diagnostics.Stopwatch.Frequency
+            ), waitForCompletion: true
+        );
         return completedD3D12Frames != completed || (surface is not null && surface.PresentedFrames != presented);
     }
 
@@ -80,6 +91,7 @@ public partial class Viewport3DX : IRenderHost {
             composited.Canvas.Width = width;
             composited.Canvas.Height = height;
         }
+
         InvalidateRender();
     }
 
@@ -102,5 +114,6 @@ public partial class Viewport3DX : IRenderHost {
 
     /// Requests preparation of current per-frame renderables on the next real frame.
     public void InvalidatePerFrameRenderables() => RequestD3D12Render(
-        D3D12RenderInvalidation.PerFrameRenderables | D3D12RenderInvalidation.Render);
+        D3D12RenderInvalidation.PerFrameRenderables | D3D12RenderInvalidation.Render
+    );
 }

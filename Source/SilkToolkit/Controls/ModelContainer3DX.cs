@@ -59,7 +59,8 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         nameof(EffectsManager),
         typeof(IEffectsManager),
         typeof(ModelContainer3DX),
-        new PropertyMetadata(null, EffectsManagerChanged));
+        new PropertyMetadata(null, EffectsManagerChanged)
+    );
 
     /// <summary>
     /// Initializes a shared model container.
@@ -89,7 +90,8 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         VerifyAccess();
         var previous = consumers;
         foreach (var consumer in previous)
-            if (ReferenceEquals(consumer, host)) return;
+            if (ReferenceEquals(consumer, host))
+                return;
         IRenderHost[] next = new IRenderHost[previous.Length + 1];
         Array.Copy(previous, next, previous.Length);
         next[^1] = host;
@@ -122,7 +124,8 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     internal void RegisterResourceConsumer(Viewport3DX viewport) {
         VerifyAccess();
         foreach (var consumer in resourceConsumers)
-            if (ReferenceEquals(consumer, viewport)) return;
+            if (ReferenceEquals(consumer, viewport))
+                return;
         var next = new Viewport3DX[resourceConsumers.Length + 1];
         Array.Copy(resourceConsumers, next, resourceConsumers.Length);
         next[^1] = viewport;
@@ -188,7 +191,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <param name="owner">The shared model container whose manager changed.</param>
     /// <param name="args">The dependency-property mutation.</param>
     private static void EffectsManagerChanged(DependencyObject owner, DependencyPropertyChangedEventArgs args) =>
-        ((ModelContainer3DX)owner).RequestEffectsManagerSynchronization();
+        ((ModelContainer3DX) owner).RequestEffectsManagerSynchronization();
 
     /// <summary>Requests a latest-value manager fanout and blocks scene entry until every old owner retires.</summary>
     /// <exception cref="TimeoutException">Retirement timed out; the pending identity and owners remain retained.</exception>
@@ -260,6 +263,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
                 completed = true;
                 return;
             }
+
             if (assignManager) {
                 foreach (var host in snapshot) {
                     if (!ReferenceEquals(manager, EffectsManager) || !ReferenceEquals(snapshot, consumers)) {
@@ -267,9 +271,11 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
                         completed = true;
                         return;
                     }
+
                     if (!ReferenceEquals(host.EffectsManager, manager)) host.EffectsManager = manager;
                 }
             }
+
             InvalidateConsumers(null, InvalidateTypes.SceneGraph);
             completed = true;
         } catch (TimeoutException) {
@@ -281,6 +287,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
                 managerIdentityChangePending |= assignManager;
                 resourceRetirementPending |= retireAll;
             }
+
             IsSynchronizingEffectsManager = managerIdentityChangePending || resourceRetirementPending;
             if (completed) SchedulePendingEffectsManagerSynchronization();
         }
@@ -302,7 +309,8 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <returns>Whether any actual viewport is currently preparing a presentation frame.</returns>
     private static bool HasPreparingConsumer(IRenderHost[] snapshot) {
         foreach (var host in snapshot)
-            if (host is Viewport3DX { IsPreparingPresentationFrame: true }) return true;
+            if (host is Viewport3DX { IsPreparingPresentationFrame: true })
+                return true;
         return false;
     }
 
@@ -325,6 +333,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
             };
             managerRetryTimer.Tick += RetryManagerRetirement;
         }
+
         managerRetryTimer.Start();
     }
 

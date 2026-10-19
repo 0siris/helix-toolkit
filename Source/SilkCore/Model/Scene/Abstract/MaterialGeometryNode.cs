@@ -4,7 +4,6 @@ using HelixToolkit.SharpDX.Core.Model;
 The MIT License(MIT)
 Copyright(c) 2020 Helix Toolkit contributors
 */
-
 using System.ComponentModel;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Interface;
@@ -40,7 +39,9 @@ public abstract class MaterialGeometryNode : GeometryNode {
         set {
             if (Set(ref field, value))
                 if (RenderType == RenderType.Opaque || RenderType == RenderType.Transparent)
-                    RenderType = value ? RenderType.Transparent : RenderType.Opaque;
+                    RenderType = value
+                        ? RenderType.Transparent
+                        : RenderType.Opaque;
         }
     }
 
@@ -55,7 +56,11 @@ public abstract class MaterialGeometryNode : GeometryNode {
             if (RenderCore is PointLineRenderCore pointLineRenderCore)
                 pointLineRenderCore.D3D12Material = material;
 
-            ObserveMaterial(!IsDisposed && (IsAttached || RenderCore.IsAttached) ? material : null);
+            ObserveMaterial(
+                !IsDisposed && (IsAttached || RenderCore.IsAttached)
+                    ? material
+                    : null
+            );
             InvalidateRender();
         }
     }

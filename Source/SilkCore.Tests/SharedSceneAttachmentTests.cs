@@ -46,7 +46,10 @@ public sealed class SharedSceneAttachmentTests {
     /// <summary>Retains lease capacity and root notification traversal after warming actual core attachment.</summary>
     [Fact]
     public void WarmLeaseRefreshAndAncestorInvalidationDoNotAllocate() {
-        Assert.Equal("false", AppContext.GetData("System.GC.Concurrent")?.ToString(), ignoreCase: true);
+        Assert.Equal(
+            "false", AppContext.GetData("System.GC.Concurrent")
+                ?.ToString(), ignoreCase: true
+        );
         using var root = new GroupNode();
         using var child = new GroupNode();
         root.AddChildNode(child);
@@ -71,6 +74,7 @@ public sealed class SharedSceneAttachmentTests {
             child.InvalidateRender();
             child.ReleaseNativeAttachment(second);
         }
+
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Equal(0, allocated);
         Assert.Equal(1_000, notifications);
@@ -93,8 +97,12 @@ public sealed class SharedSceneAttachmentTests {
         Assert.True(node.Attach());
         node.RetainNativeAttachment(second, null);
         node.RetainNativeAttachment(second, null);
-        var leaving = releaseLatest ? second : first;
-        var surviving = releaseLatest ? first : second;
+        var leaving = releaseLatest
+            ? second
+            : first;
+        var surviving = releaseLatest
+            ? first
+            : second;
         node.ReleaseNativeAttachment(leaving);
         node.ReleaseNativeAttachment(leaving);
         Assert.True(node.RenderCore.IsAttached);

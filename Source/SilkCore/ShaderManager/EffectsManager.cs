@@ -161,9 +161,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     /// <param name="adapterIndex">Index of the adapter.</param>
     public EffectsManager(int adapterIndex)
-        : this(new EffectsManagerConfiguration {
-            AdapterIndex = adapterIndex
-        }) { }
+        : this(new EffectsManagerConfiguration { AdapterIndex = adapterIndex }) { }
 
     /// <summary>
     ///     Initializes the manager and its shared rendering resources.
@@ -187,11 +185,15 @@ public class EffectsManager : DisposeObject, IEffectsManager {
         if (techniqueDict.ContainsKey(name))
             throw new ArgumentException($"Technique {name} already exists.");
         techniqueDescriptions.Add(name, description);
-        techniqueDict.Add(name,
-            new Lazy<IRenderTechnique?>(() => Initialized
+        techniqueDict.Add(
+            name,
+            new Lazy<IRenderTechnique?>(
+                () => Initialized
                     ? new Technique(description, null)
                     : null,
-                true));
+                true
+            )
+        );
     }
 
     /// <summary>
@@ -216,11 +218,15 @@ public class EffectsManager : DisposeObject, IEffectsManager {
             directWriteFactory = new DirectWriteFactory();
             foreach (var tech in techniqueDescriptions.Values) {
                 var name = tech.Name.AsNotNull("Technique name must be initialized.");
-                techniqueDict.Add(name,
-                    new Lazy<IRenderTechnique?>(() => Initialized
+                techniqueDict.Add(
+                    name,
+                    new Lazy<IRenderTechnique?>(
+                        () => Initialized
                             ? new Technique(tech, null)
                             : null,
-                        true));
+                        true
+                    )
+                );
             }
 
             Initialized = true;
@@ -285,10 +291,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     public IRenderTechnique GetTechnique(string name) {
         if (!techniqueDict.TryGetValue(name, out var t)) {
             Logger.Warn("Technique {Value0} does not exist. Return a null technique", name);
-            return new Technique(new TechniqueDescription {
-                Name = name,
-                IsNull = true
-            }, this);
+            return new Technique(new TechniqueDescription { Name = name, IsNull = true }, this);
         }
 
         return t.Value ?? Technique.NullTechnique;
@@ -328,6 +331,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
             resourcesAvailable = wasAvailable;
             throw;
         }
+
         foreach (var technique in techniqueDict.Values.ToArray())
             if (technique.IsValueCreated) {
                 var t = technique.Value;

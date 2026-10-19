@@ -162,7 +162,10 @@ public sealed class P4Scene2DPermissionTests {
     [Fact]
     [Trait("Category", "Warp")]
     public void WarmPreparationWithPermissionAndUpdateSubscriberAllocatesExactlyZero() {
-        Assert.Equal("false", AppContext.GetData("System.GC.Concurrent")?.ToString(), ignoreCase: true);
+        Assert.Equal(
+            "false", AppContext.GetData("System.GC.Concurrent")
+                ?.ToString(), ignoreCase: true
+        );
         using var fixture = new PreparationFixture();
         using var effects = new EffectsManager();
         using var context = new RenderContext2D(effects.DeviceContext2D, effects, 16, 16);
@@ -178,6 +181,7 @@ public sealed class P4Scene2DPermissionTests {
             fixture.Renderer.BeginFrame();
             fixture.Renderer.Prepare(roots, 16, 16, 1, context, permission);
         }
+
         var before = GC.GetAllocatedBytesForCurrentThread();
         var control = new byte[40];
         GC.KeepAlive(control);
@@ -189,6 +193,7 @@ public sealed class P4Scene2DPermissionTests {
             fixture.Renderer.BeginFrame();
             draws += fixture.Renderer.Prepare(roots, 16, 16, 1, context, permission);
         }
+
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Equal(1_000, updates);
         Assert.Equal(1_000, draws);
@@ -199,10 +204,13 @@ public sealed class P4Scene2DPermissionTests {
     private sealed class ObservedRectangle : RectangleNode2D {
         /// <summary>Runs an optional application callback from an original virtual hook.</summary>
         internal Action<string>? Callback;
+
         /// <summary>Counts entered updates independently of resource creation.</summary>
         internal int Updates;
+
         /// <summary>Counts entered measurement hooks.</summary>
         internal int Measures;
+
         /// <summary>Counts entered arrangement hooks.</summary>
         internal int Arranges;
 
@@ -243,10 +251,13 @@ public sealed class P4Scene2DPermissionTests {
     private sealed class PreparationFixture : IDisposable {
         /// <summary>Owns the real software native device.</summary>
         private readonly SilkD3D12Device device = SilkD3D12DeviceFactory.CreateDefault(driverType: SilkDriverType.Warp);
+
         /// <summary>Owns the resource descriptor heap.</summary>
         private readonly SilkD3D12DescriptorHeap resources;
+
         /// <summary>Owns the sampler descriptor heap.</summary>
         private readonly SilkD3D12DescriptorHeap samplers;
+
         /// <summary>Owns native resource registrations.</summary>
         private readonly SilkD3D12ResourceManager manager;
 

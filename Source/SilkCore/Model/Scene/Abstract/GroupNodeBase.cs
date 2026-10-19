@@ -3,8 +3,6 @@
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-
-
 using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Utilities;
@@ -19,8 +17,10 @@ public abstract class GroupNodeBase : SceneNode {
     public enum Operation {
         /// <summary>A child was added.</summary>
         Add,
+
         /// <summary>A child was removed.</summary>
         Remove,
+
         /// <summary>The child collection was cleared.</summary>
         Clear
     }
@@ -55,8 +55,10 @@ public abstract class GroupNodeBase : SceneNode {
 
     /// <summary>Notifies observers after adding a child.</summary>
     public event EventHandler<OnChildNodeChangedArgs>? ChildNodeAdded;
+
     /// <summary>Notifies observers after removing a child.</summary>
     public event EventHandler<OnChildNodeChangedArgs>? ChildNodeRemoved;
+
     /// <summary>Notifies observers after clearing the child collection.</summary>
     public event EventHandler<OnChildNodeChangedArgs>? Cleared;
 
@@ -133,7 +135,9 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="detachChildren">Whether to detach the child nodes automatically after removing. Default = true.</param>
     public void Clear(bool detachChildren = true) {
         for (var i = 0; i < ItemsInternal.Count; ++i) {
-            if (detachChildren) ItemsInternal[i].DetachIfUnleased();
+            if (detachChildren)
+                ItemsInternal[i]
+                    .DetachIfUnleased();
             ItemsInternal[i].Parent = null;
         }
 
@@ -178,7 +182,8 @@ public abstract class GroupNodeBase : SceneNode {
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
             for (var i = 0; i < ItemsInternal.Count && CanContinueAttachment; ++i)
-                ItemsInternal[i].Attach(effectsManager, AttachmentPermission);
+                ItemsInternal[i]
+                    .Attach(effectsManager, AttachmentPermission);
             return true;
         }
 
@@ -189,7 +194,9 @@ public abstract class GroupNodeBase : SceneNode {
     ///     Called when [detach].
     /// </summary>
     protected override void OnDetach() {
-        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].DetachIfUnleased();
+        for (var i = 0; i < ItemsInternal.Count; ++i)
+            ItemsInternal[i]
+                .DetachIfUnleased();
         base.OnDetach();
     }
 

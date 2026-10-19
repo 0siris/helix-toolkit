@@ -147,8 +147,8 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
     /// <summary>Gets whether accepted GPU or cross-device copy work still borrows the current generation.</summary>
     internal bool HasPendingGpuWork => unfencedExecution ||
-        (pendingFence != 0 && fence!.CompletedValue < pendingFence) ||
-        (bridge is { IsCopyPending: true } copying && !copying.IsCopyComplete);
+                                       (pendingFence != 0 && fence!.CompletedValue < pendingFence) ||
+                                       (bridge is { IsCopyPending: true } copying && !copying.IsCopyComplete);
 
     /// <summary>Gets the current native generation.</summary>
     internal ulong Generation { get; private set; }
@@ -210,6 +210,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             recreateRequested = false;
             return;
         }
+
         updating = true;
         try {
             _ = ServiceTransport(true);
@@ -416,6 +417,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             recreateRequested = false;
             return canvas.IsActive && canvas.NativeHandle != 0 && canvas.PixelWidth != 0 && canvas.PixelHeight != 0;
         }
+
         if (device.Handle->GetDeviceRemovedReason() < 0) {
             if (bridge is { IsCopyPending: true }) {
                 try {
@@ -560,7 +562,9 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         if (nativeHandle == 0 || width == 0 || height == 0)
             throw new InvalidOperationException("The canvas has no native presentation size.");
         try {
-            var selectedDriver = viewport.EffectsManager?.EnableSoftwareRendering == true ? SilkDriverType.Warp : driverType;
+            var selectedDriver = viewport.EffectsManager?.EnableSoftwareRendering == true
+                ? SilkDriverType.Warp
+                : driverType;
             device = SilkD3D12DeviceFactory.CreateDefault(driverType: selectedDriver);
             queue = device.CreateCommandQueue();
             commands = device.CreateCommandContext();

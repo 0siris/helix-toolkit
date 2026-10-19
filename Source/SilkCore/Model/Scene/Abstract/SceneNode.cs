@@ -4,8 +4,6 @@ using HelixToolkit.SharpDX.Core.Animations;
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-
-
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Core;
@@ -59,6 +57,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
             RenderHost = host;
             return;
         }
+
         nativeAttachments.Add(new KeyValuePair<object, IRenderHost?>(owner, host));
         RenderHost = host;
     }
@@ -89,6 +88,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
             } else if (ReferenceEquals(RenderHost, attachment.Value)) {
                 RestoreNativeRenderHost();
             }
+
             return;
         }
     }
@@ -115,7 +115,8 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     internal bool HasOtherNativeAttachments(object owner) {
         if (nativeAttachments is null) return false;
         foreach (var attachment in nativeAttachments)
-            if (!ReferenceEquals(attachment.Key, owner)) return true;
+            if (!ReferenceEquals(attachment.Key, owner))
+                return true;
         return false;
     }
 
@@ -125,12 +126,14 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// </summary>
     public SceneNode() {
         WrapperSource = this;
-        renderCore = new Lazy<RenderCore>(() => {
-            var createdCore = OnCreateRenderCore();
-            createdCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
-            return createdCore;
-        },
-                                          true);
+        renderCore = new Lazy<RenderCore>(
+            () => {
+                var createdCore = OnCreateRenderCore();
+                createdCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
+                return createdCore;
+            },
+            true
+        );
     }
 
     /// <summary>
@@ -141,8 +144,8 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
 
     public int CompareTo(SceneNode? other)
         => other is null
-               ? 1
-               : RenderOrderKey.CompareTo(other.RenderOrderKey);
+            ? 1
+            : RenderOrderKey.CompareTo(other.RenderOrderKey);
 
     /// <summary>
     ///     <para>Attaches the element to the specified effectsManager and initialize all necessary graphics resources.</para>
@@ -176,8 +179,8 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
             RenderHost ??= Parent?.RenderHost;
             EffectsManager = effectsManager;
             EffectTechnique = OnSetRenderTechnique is not null
-                                  ? OnSetRenderTechnique(effectsManager)
-                                  : OnCreateRenderTechnique(effectsManager);
+                ? OnSetRenderTechnique(effectsManager)
+                : OnCreateRenderTechnique(effectsManager);
             if (!CanContinueAttachment) return;
 
             if (EffectTechnique is null) {
@@ -295,6 +298,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
             case InvalidateTypes.SceneGraph: RenderHost?.InvalidateSceneGraph(); break;
             case InvalidateTypes.PerFrameRenderables: RenderHost?.InvalidatePerFrameRenderables(); break;
         }
+
         Invalidated?.Invoke(this, type);
         for (var node = Parent; node is not null; node = node.Parent)
             node.Invalidated?.Invoke(this, type);
@@ -530,7 +534,9 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     ///     The parent.
     /// </value>
     public SceneNode? Parent {
-        get => parent.TryGetTarget(out var target) ? target : null;
+        get => parent.TryGetTarget(out var target)
+            ? target
+            : null;
 
         internal set {
             parent.TryGetTarget(out var target);
@@ -554,7 +560,11 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         get => visible;
         set {
             if (SetAffectsRender(ref visible, value))
-                VisibleChanged?.Invoke(this, value ? BoolArgs.TrueArgs : BoolArgs.FalseArgs);
+                VisibleChanged?.Invoke(
+                    this, value
+                        ? BoolArgs.TrueArgs
+                        : BoolArgs.FalseArgs
+                );
         }
     }
 
@@ -701,6 +711,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     #endregion Handling Transforms
 
     #region RenderCore
+
     private readonly Lazy<RenderCore> renderCore;
     public RenderCore RenderCore => renderCore.Value; // used ont Attached -> core is initialized in Lazy
 
@@ -1078,7 +1089,6 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="effectName">Name of the effect.</param>
     /// <param name="effect">The effect.</param>
     /// <returns></returns>
-
     public bool TryGetPostEffect(string effectName, [NotNullWhen(true)] out IEffectAttributes? effect)
         => postEffectNames.TryGetValue(effectName, out effect);
 

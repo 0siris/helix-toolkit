@@ -4,11 +4,11 @@ using HelixToolkit.SharpDX.Core.Core2D;
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
+
 /// <summary>Provides shared shape brushes and lazily updated stroke resources.</summary>
 public abstract class ShapeNode2D : SceneNode2D {
     /// <summary>Tracks whether the stroke style must be recreated from the current factory.</summary>
@@ -17,7 +17,7 @@ public abstract class ShapeNode2D : SceneNode2D {
     /// <summary>Gets the shape-specific rendering state.</summary>
     private ShapeRenderCore2DBase ShapeCore
         => RenderCore as ShapeRenderCore2DBase
-            ?? throw new InvalidOperationException("The shape render core has not been created.");
+           ?? throw new InvalidOperationException("The shape render core has not been created.");
 
     /// <summary>Gets or sets the shape fill brush.</summary>
     public Brush? Fill {
@@ -125,17 +125,19 @@ public abstract class ShapeNode2D : SceneNode2D {
         base.Update(context);
         if (!CanContinueScenePreparation) return;
         if (strokeStyleChanged) {
-            ShapeCore.StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
-                                                          new StrokeStyleProperties {
-                                                              DashCap = StrokeDashCap,
-                                                              StartCap = StrokeStartLineCap,
-                                                              EndCap = StrokeEndLineCap,
-                                                              DashOffset = StrokeDashOffset,
-                                                              LineJoin = StrokeLineJoin,
-                                                              MiterLimit = Math.Max(1, StrokeMiterLimit),
-                                                              DashStyle = StrokeDashStyle
-                                                          },
-                                                           StrokeDashArray);
+            ShapeCore.StrokeStyle = new StrokeStyle(
+                context.DeviceResources.Factory2D,
+                new StrokeStyleProperties {
+                    DashCap = StrokeDashCap,
+                    StartCap = StrokeStartLineCap,
+                    EndCap = StrokeEndLineCap,
+                    DashOffset = StrokeDashOffset,
+                    LineJoin = StrokeLineJoin,
+                    MiterLimit = Math.Max(1, StrokeMiterLimit),
+                    DashStyle = StrokeDashStyle
+                },
+                StrokeDashArray
+            );
             strokeStyleChanged = false;
         }
     }

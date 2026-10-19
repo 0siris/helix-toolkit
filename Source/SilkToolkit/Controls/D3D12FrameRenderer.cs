@@ -213,8 +213,12 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     /// <param name="colorFormat">The color format used by all borrowed targets and graphics pipelines.</param>
     /// <param name="effectsManager">The optional borrowed scene effects manager.</param>
     /// <param name="outputMode">The immutable compositing contract; legacy callers retain existing behavior.</param>
-    internal D3D12FrameRenderer(SilkD3D12Device device, Format colorFormat, IEffectsManager? effectsManager = null,
-        D3D12ColorOutputMode outputMode = D3D12ColorOutputMode.Legacy) {
+    internal D3D12FrameRenderer(
+        SilkD3D12Device device,
+        Format colorFormat,
+        IEffectsManager? effectsManager = null,
+        D3D12ColorOutputMode outputMode = D3D12ColorOutputMode.Legacy
+    ) {
         device.AsGuardNotNull();
         if (colorFormat == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(colorFormat));
         this.device = device;
@@ -280,12 +284,15 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         context.Transition(target.ColorResource, ResourceStates.RenderTarget);
         if (outputMode == D3D12ColorOutputMode.Premultiplied) {
             var alpha = clearColor[3];
-            ReadOnlySpan<float> premultiplied = [clearColor[0] * alpha, clearColor[1] * alpha,
-                clearColor[2] * alpha, alpha];
+            ReadOnlySpan<float> premultiplied = [
+                clearColor[0] * alpha, clearColor[1] * alpha,
+                clearColor[2] * alpha, alpha
+            ];
             context.ClearRenderTarget(target.ColorResource, target.RenderTargetView, premultiplied);
         } else {
             context.ClearRenderTarget(target.ColorResource, target.RenderTargetView, clearColor);
         }
+
         context.ClearDepthStencil(depthStencilBuffer!, depthStencilView!);
         context.SetRenderTargets(target.RenderTargetView, depthStencilView!);
         context.SetViewport(target.Width, target.Height);

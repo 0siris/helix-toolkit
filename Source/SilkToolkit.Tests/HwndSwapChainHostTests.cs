@@ -28,10 +28,8 @@ public sealed class HwndSwapChainHostTests {
     public void LegacyPresentationControlsStayAbsentAndBackendSelectionIsPublic() {
         var assembly = typeof(Viewport3DX).Assembly;
         var removedTypes = new[] {
-            "HelixToolkit.Wpf.SharpDX.Controls.DPFSurfaceSwapChain",
-            "HelixToolkit.Wpf.SharpDX.Controls.DX11ImageSource",
-            "HelixToolkit.Wpf.SharpDX.Controls.DX11ImageSourceRenderHost",
-            "HelixToolkit.Wpf.SharpDX.Controls.RenderControl",
+            "HelixToolkit.Wpf.SharpDX.Controls.DPFSurfaceSwapChain", "HelixToolkit.Wpf.SharpDX.Controls.DX11ImageSource",
+            "HelixToolkit.Wpf.SharpDX.Controls.DX11ImageSourceRenderHost", "HelixToolkit.Wpf.SharpDX.Controls.RenderControl",
             "HelixToolkit.Wpf.SharpDX.Controls.ScreenDuplicationViewport3DX"
         };
 
@@ -51,10 +49,7 @@ public sealed class HwndSwapChainHostTests {
     /// </summary>
     [Fact]
     public void CapturedFrameConvertsPaddedRgbaToPackedBgra() {
-        var source = new byte[] {
-            99, 99, 1, 2, 3, 4, 5, 6, 7, 8, 99, 99,
-            9, 10, 11, 12, 13, 14, 15, 16, 99, 99
-        };
+        var source = new byte[] { 99, 99, 1, 2, 3, 4, 5, 6, 7, 8, 99, 99, 9, 10, 11, 12, 13, 14, 15, 16, 99, 99 };
 
         var frame = D3D12PresentationSurface.CreateCapturedFrame(source, 2, 10, 2, 2);
 
@@ -110,62 +105,70 @@ public sealed class HwndSwapChainHostTests {
     [Fact]
     public Task HostForwardsMouseAndDpiMessages() {
         return StaThread.RunAsync(() => {
-            using var host = new HwndSwapChainHost();
-            var events = new List<HwndPointerEventArgs>();
-            var dpiChanges = new List<double>();
-            host.PointerInput += (_, eventArgs) => events.Add(eventArgs);
-            host.DpiScaleChanged += (_, value) => dpiChanges.Add(value);
+                using var host = new HwndSwapChainHost();
+                var events = new List<HwndPointerEventArgs>();
+                var dpiChanges = new List<double>();
+                host.PointerInput += (_, eventArgs) => events.Add(eventArgs);
+                host.DpiScaleChanged += (_, value) => dpiChanges.Add(value);
 
-            Assert.False(host.ProcessMessage(0x0200, 0, PackPoint(12, -34)));
-            Assert.False(host.ProcessMessage(0x0201, 0, PackPoint(12, -34)));
-            Assert.False(host.ProcessMessage(0x0202, 0, PackPoint(12, -34)));
-            Assert.True(host.ProcessMessage(0x020A, (nint) (120 << 16), PackPoint(12, -34)));
-            Assert.False(host.ProcessMessage(0x02E0, 144, 0));
+                Assert.False(host.ProcessMessage(0x0200, 0, PackPoint(12, -34)));
+                Assert.False(host.ProcessMessage(0x0201, 0, PackPoint(12, -34)));
+                Assert.False(host.ProcessMessage(0x0202, 0, PackPoint(12, -34)));
+                Assert.True(host.ProcessMessage(0x020A, (nint) (120 << 16), PackPoint(12, -34)));
+                Assert.False(host.ProcessMessage(0x02E0, 144, 0));
 
-            Assert.Collection(events,
-                eventArgs => AssertPointer(eventArgs, HwndPointerAction.Move, HwndPointerButton.None, 0),
-                eventArgs => AssertPointer(eventArgs, HwndPointerAction.Pressed, HwndPointerButton.Left, 0),
-                eventArgs => AssertPointer(eventArgs, HwndPointerAction.Released, HwndPointerButton.Left, 0),
-                eventArgs => AssertPointer(eventArgs, HwndPointerAction.Wheel, HwndPointerButton.None, 120));
-            Assert.All(events, eventArgs => {
-                Assert.Equal(HwndPointerDevice.Mouse, eventArgs.Device);
-                Assert.Equal(12, eventArgs.X);
-                Assert.Equal(-34, eventArgs.Y);
-            });
-            Assert.Equal([1.5], dpiChanges);
-            Assert.Equal(1.5, host.DpiScale);
-        });
+                Assert.Collection(
+                    events,
+                    eventArgs => AssertPointer(eventArgs, HwndPointerAction.Move, HwndPointerButton.None, 0),
+                    eventArgs => AssertPointer(eventArgs, HwndPointerAction.Pressed, HwndPointerButton.Left, 0),
+                    eventArgs => AssertPointer(eventArgs, HwndPointerAction.Released, HwndPointerButton.Left, 0),
+                    eventArgs => AssertPointer(eventArgs, HwndPointerAction.Wheel, HwndPointerButton.None, 120)
+                );
+                Assert.All(
+                    events, eventArgs => {
+                        Assert.Equal(HwndPointerDevice.Mouse, eventArgs.Device);
+                        Assert.Equal(12, eventArgs.X);
+                        Assert.Equal(-34, eventArgs.Y);
+                    }
+                );
+                Assert.Equal([1.5], dpiChanges);
+                Assert.Equal(1.5, host.DpiScale);
+            }
+        );
     }
 
     /// <summary>Converts physical mouse positions to signed DIP coordinates after a real native DPI message.</summary>
     /// <returns>The managed native-message decoding verification.</returns>
     [Fact]
     public Task NativeDpiChangePreservesSignedDipMousePositions() => StaThread.RunAsync(() => {
-        using var host = new HwndSwapChainHost();
-        var pointers = new List<HwndPointerEventArgs>();
-        host.PointerInput += (_, args) => pointers.Add(args);
-        Assert.False(host.ProcessMessage(0x02E0, 192, 0));
-        Assert.False(host.ProcessMessage(0x0201, 0, PackPoint(25, 29)));
-        Assert.False(host.ProcessMessage(0x0200, 0, PackPoint(-5, 37)));
-        Assert.False(host.ProcessMessage(0x0202, 0, PackPoint(-5, 37)));
-        Assert.Equal(2, host.DpiScale);
-        Assert.Collection(pointers,
-            args => {
-                Assert.Equal(HwndPointerAction.Pressed, args.Action);
-                Assert.Equal(12.5, args.X);
-                Assert.Equal(14.5, args.Y);
-            },
-            args => {
-                Assert.Equal(HwndPointerAction.Move, args.Action);
-                Assert.Equal(-2.5, args.X);
-                Assert.Equal(18.5, args.Y);
-            },
-            args => {
-                Assert.Equal(HwndPointerAction.Released, args.Action);
-                Assert.Equal(-2.5, args.X);
-                Assert.Equal(18.5, args.Y);
-            });
-    });
+            using var host = new HwndSwapChainHost();
+            var pointers = new List<HwndPointerEventArgs>();
+            host.PointerInput += (_, args) => pointers.Add(args);
+            Assert.False(host.ProcessMessage(0x02E0, 192, 0));
+            Assert.False(host.ProcessMessage(0x0201, 0, PackPoint(25, 29)));
+            Assert.False(host.ProcessMessage(0x0200, 0, PackPoint(-5, 37)));
+            Assert.False(host.ProcessMessage(0x0202, 0, PackPoint(-5, 37)));
+            Assert.Equal(2, host.DpiScale);
+            Assert.Collection(
+                pointers,
+                args => {
+                    Assert.Equal(HwndPointerAction.Pressed, args.Action);
+                    Assert.Equal(12.5, args.X);
+                    Assert.Equal(14.5, args.Y);
+                },
+                args => {
+                    Assert.Equal(HwndPointerAction.Move, args.Action);
+                    Assert.Equal(-2.5, args.X);
+                    Assert.Equal(18.5, args.Y);
+                },
+                args => {
+                    Assert.Equal(HwndPointerAction.Released, args.Action);
+                    Assert.Equal(-2.5, args.X);
+                    Assert.Equal(18.5, args.Y);
+                }
+            );
+        }
+    );
 
     /// <summary>
     ///     Verifies native presses reuse the viewport's existing configurable camera gesture handlers.
@@ -173,21 +176,34 @@ public sealed class HwndSwapChainHostTests {
     [Fact]
     public Task NativePointerResolvesExistingCameraGestureBindings() {
         return StaThread.RunAsync(() => {
-            using var viewport = new Viewport3DX { EnableSwapChainRendering = true };
+                using var viewport = new Viewport3DX { EnableSwapChainRendering = true };
 
-            Assert.Same(viewport.CameraController.RotateHandler,
-                viewport.ResolveD3D12PointerGesture(HwndPointerButton.Right, ModifierKeys.None));
-            Assert.Same(viewport.CameraController.ZoomHandler,
-                viewport.ResolveD3D12PointerGesture(HwndPointerButton.Right, ModifierKeys.Control));
-            Assert.Same(viewport.CameraController.PanHandler,
-                viewport.ResolveD3D12PointerGesture(HwndPointerButton.Right, ModifierKeys.Shift));
-            Assert.Same(viewport.CameraController.ChangeFieldOfViewHandler,
-                viewport.ResolveD3D12PointerGesture(HwndPointerButton.Right, ModifierKeys.Alt));
-            Assert.Same(viewport.CameraController.ZoomRectangleHandler,
-                viewport.ResolveD3D12PointerGesture(HwndPointerButton.Right,
-                    ModifierKeys.Control | ModifierKeys.Shift));
-            Assert.Null(viewport.ResolveD3D12PointerGesture(HwndPointerButton.Left, ModifierKeys.None));
-        });
+                Assert.Same(
+                    viewport.CameraController.RotateHandler,
+                    viewport.ResolveD3D12PointerGesture(HwndPointerButton.Right, ModifierKeys.None)
+                );
+                Assert.Same(
+                    viewport.CameraController.ZoomHandler,
+                    viewport.ResolveD3D12PointerGesture(HwndPointerButton.Right, ModifierKeys.Control)
+                );
+                Assert.Same(
+                    viewport.CameraController.PanHandler,
+                    viewport.ResolveD3D12PointerGesture(HwndPointerButton.Right, ModifierKeys.Shift)
+                );
+                Assert.Same(
+                    viewport.CameraController.ChangeFieldOfViewHandler,
+                    viewport.ResolveD3D12PointerGesture(HwndPointerButton.Right, ModifierKeys.Alt)
+                );
+                Assert.Same(
+                    viewport.CameraController.ZoomRectangleHandler,
+                    viewport.ResolveD3D12PointerGesture(
+                        HwndPointerButton.Right,
+                        ModifierKeys.Control | ModifierKeys.Shift
+                    )
+                );
+                Assert.Null(viewport.ResolveD3D12PointerGesture(HwndPointerButton.Left, ModifierKeys.None));
+            }
+        );
     }
 
     /// <summary>
@@ -197,31 +213,32 @@ public sealed class HwndSwapChainHostTests {
     [Trait("Category", "Wpf")]
     public Task CreatesAndDestroysChildWindow() {
         return StaThread.RunAsync(() => {
-            using var source = new HwndSource(new HwndSourceParameters(nameof(HwndSwapChainHostTests)) {
-                Width = 32,
-                Height = 24,
-                WindowStyle = unchecked((int) 0x80000000)
-            });
-            var host = new HwndSwapChainHost();
-            var created = 0;
-            var destroyed = 0;
-            host.HandleCreated += (_, _) => created++;
-            host.HandleDestroyed += (_, _) => destroyed++;
+                using var source = new HwndSource(
+                    new HwndSourceParameters(nameof(HwndSwapChainHostTests)) {
+                        Width = 32, Height = 24, WindowStyle = unchecked((int) 0x80000000)
+                    }
+                );
+                var host = new HwndSwapChainHost();
+                var created = 0;
+                var destroyed = 0;
+                host.HandleCreated += (_, _) => created++;
+                host.HandleDestroyed += (_, _) => destroyed++;
 
-            source.RootVisual = host;
-            host.UpdateLayout();
+                source.RootVisual = host;
+                host.UpdateLayout();
 
-            Assert.True(host.IsHandleCreated);
-            Assert.NotEqual(nint.Zero, host.NativeHandle);
-            Assert.Equal(1, created);
+                Assert.True(host.IsHandleCreated);
+                Assert.NotEqual(nint.Zero, host.NativeHandle);
+                Assert.Equal(1, created);
 
-            source.RootVisual = null;
-            host.Dispose();
+                source.RootVisual = null;
+                host.Dispose();
 
-            Assert.False(host.IsHandleCreated);
-            Assert.Equal(nint.Zero, host.NativeHandle);
-            Assert.Equal(1, destroyed);
-        });
+                Assert.False(host.IsHandleCreated);
+                Assert.Equal(nint.Zero, host.NativeHandle);
+                Assert.Equal(1, destroyed);
+            }
+        );
     }
 
     /// <summary>
@@ -265,12 +282,14 @@ public sealed class HwndSwapChainHostTests {
             FarPlaneDistance = 500
         };
 
-        var transforms = D3D12PresentationSurface.CreateViewportTransforms(camera,
+        var transforms = D3D12PresentationSurface.CreateViewportTransforms(
+            camera,
             80,
             40,
             1.5f,
             12.25f,
-            out var frustum);
+            out var frustum
+        );
 
         Assert.Equal(new Vector4(80, 40, 1f / 80, 1f / 40), transforms.Viewport);
         Assert.Equal(transforms.Viewport, transforms.Resolution);
@@ -293,71 +312,75 @@ public sealed class HwndSwapChainHostTests {
     [Trait("Category", "Wpf")]
     public Task WpfSurfaceAttachesRendersResizesAndDetaches() {
         return StaThread.RunAsync(() => {
-            for (var iteration = 0; iteration < 3; iteration++) {
-                using var source = new HwndSource(new HwndSourceParameters(nameof(HwndSwapChainHostTests)) {
-                    Width = 32,
-                    Height = 24,
-                    WindowStyle = unchecked((int) 0x80000000)
-                });
-                using var surface = new D3D12PresentationSurface(SilkDriverType.Warp) {
-                    Width = 32,
-                    Height = 24
-                };
+                for (var iteration = 0; iteration < 3; iteration++) {
+                    using var source = new HwndSource(
+                        new HwndSourceParameters(nameof(HwndSwapChainHostTests)) {
+                            Width = 32, Height = 24, WindowStyle = unchecked((int) 0x80000000)
+                        }
+                    );
+                    using var surface = new D3D12PresentationSurface(SilkDriverType.Warp) { Width = 32, Height = 24 };
 
-                source.RootVisual = surface;
-                surface.UpdateLayout();
-                Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, () => { });
+                    source.RootVisual = surface;
+                    surface.UpdateLayout();
+                    Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, () => { });
 
-                Assert.True(surface.IsInitialized);
-                var initialSize = D3D12PresentationSize.Calculate(32, 24, surface.WindowHost.DpiScale);
-                Assert.Equal(initialSize.Width, surface.PixelWidth);
-                Assert.Equal(initialSize.Height, surface.PixelHeight);
-                using var node = new MeshNode {
-                    Material = new DiffuseMaterialCore(),
-                    Geometry = new MeshGeometry3D {
-                        Positions = new Vector3Collection([
-                            new Vector3(-0.8f, 0.8f, 0),
-                            new Vector3(0.8f, 0.8f, 0),
-                            new Vector3(-0.8f, -0.8f, 0),
-                            new Vector3(0.8f, -0.8f, 0)
-                        ]),
-                        Colors = new Color4Collection([
-                            new Vector4(1, 0, 0, 1),
-                            new Vector4(1, 0, 0, 1),
-                            new Vector4(1, 0, 0, 1),
-                            new Vector4(1, 0, 0, 1)
-                        ]),
-                        Indices = new IntCollection([0, 1, 2, 2, 1, 3])
-                    }
-                };
-                var camera = new PerspectiveCameraCore {
-                    Position = new Vector3(0, 0, 2),
-                    LookDirection = new Vector3(0, 0, -2),
-                    UpDirection = Vector3.UnitY,
-                    NearPlaneDistance = 0.1f,
-                    FarPlaneDistance = 100
-                };
-                Assert.Equal(1,
-                    surface.RenderViewportOnce([0.25f, 0.5f, 0.75f, 1], [node], camera, true));
-                Assert.Equal(1UL, surface.PresentedFrames);
+                    Assert.True(surface.IsInitialized);
+                    var initialSize = D3D12PresentationSize.Calculate(32, 24, surface.WindowHost.DpiScale);
+                    Assert.Equal(initialSize.Width, surface.PixelWidth);
+                    Assert.Equal(initialSize.Height, surface.PixelHeight);
+                    using var node = new MeshNode {
+                        Material = new DiffuseMaterialCore(),
+                        Geometry = new MeshGeometry3D {
+                            Positions = new Vector3Collection(
+                                [
+                                    new Vector3(-0.8f, 0.8f, 0),
+                                    new Vector3(0.8f, 0.8f, 0),
+                                    new Vector3(-0.8f, -0.8f, 0),
+                                    new Vector3(0.8f, -0.8f, 0)
+                                ]
+                            ),
+                            Colors = new Color4Collection(
+                                [
+                                    new Vector4(1, 0, 0, 1),
+                                    new Vector4(1, 0, 0, 1),
+                                    new Vector4(1, 0, 0, 1),
+                                    new Vector4(1, 0, 0, 1)
+                                ]
+                            ),
+                            Indices = new IntCollection([0, 1, 2, 2, 1, 3])
+                        }
+                    };
+                    var camera = new PerspectiveCameraCore {
+                        Position = new Vector3(0, 0, 2),
+                        LookDirection = new Vector3(0, 0, -2),
+                        UpDirection = Vector3.UnitY,
+                        NearPlaneDistance = 0.1f,
+                        FarPlaneDistance = 100
+                    };
+                    Assert.Equal(
+                        1,
+                        surface.RenderViewportOnce([0.25f, 0.5f, 0.75f, 1], [node], camera, true)
+                    );
+                    Assert.Equal(1UL, surface.PresentedFrames);
 
-                surface.Width = 80;
-                surface.Height = 60;
-                surface.UpdateLayout();
-                Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, () => { });
+                    surface.Width = 80;
+                    surface.Height = 60;
+                    surface.UpdateLayout();
+                    Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, () => { });
 
-                var resized = D3D12PresentationSize.Calculate(80, 60, surface.WindowHost.DpiScale);
-                Assert.Equal(resized.Width, surface.PixelWidth);
-                Assert.Equal(resized.Height, surface.PixelHeight);
-                surface.RenderOnce([0, 0, 0, 1]);
-                Assert.Equal(2UL, surface.PresentedFrames);
+                    var resized = D3D12PresentationSize.Calculate(80, 60, surface.WindowHost.DpiScale);
+                    Assert.Equal(resized.Width, surface.PixelWidth);
+                    Assert.Equal(resized.Height, surface.PixelHeight);
+                    surface.RenderOnce([0, 0, 0, 1]);
+                    Assert.Equal(2UL, surface.PresentedFrames);
 
-                source.RootVisual = null;
-                surface.Dispose();
-                Assert.False(surface.IsInitialized);
-                Assert.True(surface.IsDisposed);
+                    source.RootVisual = null;
+                    surface.Dispose();
+                    Assert.False(surface.IsInitialized);
+                    Assert.True(surface.IsDisposed);
+                }
             }
-        });
+        );
     }
 
     /// <summary>
@@ -368,118 +391,139 @@ public sealed class HwndSwapChainHostTests {
     [Trait("Category", "Wpf")]
     public Task ViewportUsesDx12SurfaceAndCurrentCamera() {
         return StaThread.RunAsync(() => {
-            using var source = new HwndSource(new HwndSourceParameters(nameof(HwndSwapChainHostTests)) {
-                Width = 48,
-                Height = 32,
-                WindowStyle = unchecked((int) 0x80000000)
-            });
-            using var viewport = new Viewport3DX {
-                EnableSwapChainRendering = true,
-                Width = 48,
-                Height = 32,
-                D3D12DriverType = SilkDriverType.Warp
-            };
-            var theme = new ResourceDictionary {
-                Source = new Uri("/SilkToolkit;component/Themes/Generic.xaml", UriKind.Relative)
-            };
-            viewport.Resources.MergedDictionaries.Add(theme);
-            viewport.Style = Assert.IsType<Style>(theme[typeof(Viewport3DX)]);
-            viewport.Items.Add(new MeshGeometryModel3D {
-                Material = HelixToolkit.Wpf.SharpDX.DiffuseMaterials.Red,
-                Geometry = new MeshGeometry3D {
-                    Positions = new Vector3Collection([
-                        new Vector3(-0.5f, 0.5f, 0),
-                        new Vector3(0.5f, 0.5f, 0),
-                        new Vector3(0, -0.5f, 0)
-                    ]),
-                    Indices = new IntCollection([0, 1, 2])
-                }
-            });
+                using var source = new HwndSource(
+                    new HwndSourceParameters(nameof(HwndSwapChainHostTests)) {
+                        Width = 48, Height = 32, WindowStyle = unchecked((int) 0x80000000)
+                    }
+                );
+                using var viewport = new Viewport3DX {
+                    EnableSwapChainRendering = true, Width = 48, Height = 32, D3D12DriverType = SilkDriverType.Warp
+                };
+                var theme = new ResourceDictionary { Source = new Uri("/SilkToolkit;component/Themes/Generic.xaml", UriKind.Relative) };
+                viewport.Resources.MergedDictionaries.Add(theme);
+                viewport.Style = Assert.IsType<Style>(theme[typeof(Viewport3DX)]);
+                viewport.Items.Add(
+                    new MeshGeometryModel3D {
+                        Material = HelixToolkit.Wpf.SharpDX.DiffuseMaterials.Red,
+                        Geometry = new MeshGeometry3D {
+                            Positions = new Vector3Collection(
+                                [
+                                    new Vector3(-0.5f, 0.5f, 0),
+                                    new Vector3(0.5f, 0.5f, 0),
+                                    new Vector3(0, -0.5f, 0)
+                                ]
+                            ),
+                            Indices = new IntCollection([0, 1, 2])
+                        }
+                    }
+                );
 
-            source.RootVisual = viewport;
-            _ = viewport.ApplyTemplate();
-            viewport.UpdateLayout();
-            Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, () => { });
+                source.RootVisual = viewport;
+                _ = viewport.ApplyTemplate();
+                viewport.UpdateLayout();
+                Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.ApplicationIdle, () => { });
 
-            var surface = Assert.IsType<D3D12PresentationSurface>(viewport.D3D12Surface);
-            Assert.True(surface.IsInitialized);
-            Assert.Single(viewport.Renderables.OfType<MeshNode>());
-            Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(1)) >= 1);
-            Assert.True(surface.PresentedFrames >= 1);
+                var surface = Assert.IsType<D3D12PresentationSurface>(viewport.D3D12Surface);
+                Assert.True(surface.IsInitialized);
+                Assert.Single(viewport.Renderables.OfType<MeshNode>());
+                Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(1)) >= 1);
+                Assert.True(surface.PresentedFrames >= 1);
 
-            var originalPosition = viewport.Camera.Position;
-            var previewWheels = 0;
-            var bubbleWheels = 0;
-            viewport.PreviewMouseWheel += (_, args) => {
-                Assert.Equal(120, args.Delta);
-                previewWheels++;
-            };
-            viewport.AddHandler(Mouse.MouseWheelEvent, new MouseWheelEventHandler((_, args) => {
-                Assert.Equal(120, args.Delta);
-                bubbleWheels++;
-            }), handledEventsToo: true);
-            surface.WindowHost.ProcessMessage(0x020A, (nint) (120 << 16), PackPoint(12, 12));
-            Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(2)) >= 1);
-            Assert.NotEqual(originalPosition, viewport.Camera.Position);
-            Assert.Equal(1, previewWheels);
-            Assert.Equal(1, bubbleWheels);
+                var originalPosition = viewport.Camera.Position;
+                var previewWheels = 0;
+                var bubbleWheels = 0;
+                viewport.PreviewMouseWheel += (_, args) => {
+                    Assert.Equal(120, args.Delta);
+                    previewWheels++;
+                };
+                viewport.AddHandler(
+                    Mouse.MouseWheelEvent, new MouseWheelEventHandler((_, args) => {
+                            Assert.Equal(120, args.Delta);
+                            bubbleWheels++;
+                        }
+                    ), handledEventsToo: true
+                );
+                surface.WindowHost.ProcessMessage(0x020A, (nint) (120 << 16), PackPoint(12, 12));
+                Assert.True(viewport.RenderD3D12Frame(TimeSpan.FromSeconds(2)) >= 1);
+                Assert.NotEqual(originalPosition, viewport.Camera.Position);
+                Assert.Equal(1, previewWheels);
+                Assert.Equal(1, bubbleWheels);
 
-            var pointerPositions = new List<Point>();
-            viewport.MouseDown3D += (_, eventArgs) =>
-                pointerPositions.Add(((MouseDown3DEventArgs) eventArgs).Position);
-            viewport.MouseMove3D += (_, eventArgs) =>
-                pointerPositions.Add(((MouseMove3DEventArgs) eventArgs).Position);
-            viewport.MouseUp3D += (_, eventArgs) =>
-                pointerPositions.Add(((MouseUp3DEventArgs) eventArgs).Position);
-            var originalLookDirection = viewport.Camera.LookDirection;
-            surface.WindowHost.ProcessMessage(0x0204, 0, PackPoint(12, 12));
-            surface.WindowHost.ProcessMessage(0x0200, 0, PackPoint(30, 18));
-            surface.WindowHost.ProcessMessage(0x0205, 0, PackPoint(30, 18));
+                var pointerPositions = new List<Point>();
+                viewport.MouseDown3D += (_, eventArgs) =>
+                    pointerPositions.Add(((MouseDown3DEventArgs) eventArgs).Position);
+                viewport.MouseMove3D += (_, eventArgs) =>
+                    pointerPositions.Add(((MouseMove3DEventArgs) eventArgs).Position);
+                viewport.MouseUp3D += (_, eventArgs) =>
+                    pointerPositions.Add(((MouseUp3DEventArgs) eventArgs).Position);
+                var originalLookDirection = viewport.Camera.LookDirection;
+                surface.WindowHost.ProcessMessage(0x0204, 0, PackPoint(12, 12));
+                surface.WindowHost.ProcessMessage(0x0200, 0, PackPoint(30, 18));
+                surface.WindowHost.ProcessMessage(0x0205, 0, PackPoint(30, 18));
 
-            // Standard WPF camera capture may reevaluate the pointer once at the unchanged press position.
-            var mouseEventCount = pointerPositions.Count;
-            Assert.InRange(mouseEventCount, 3, 4);
-            Assert.Equal(new Point(12 / surface.WindowHost.DpiScale, 12 / surface.WindowHost.DpiScale),
-                pointerPositions[0]);
-            if (mouseEventCount == 4)
-                Assert.Equal(pointerPositions[0], pointerPositions[1]);
-            var releasePoint = new Point(30 / surface.WindowHost.DpiScale, 18 / surface.WindowHost.DpiScale);
-            Assert.Equal(releasePoint, pointerPositions[^2]);
-            Assert.Equal(releasePoint, pointerPositions[^1]);
-            Assert.NotEqual(originalLookDirection, viewport.Camera.LookDirection);
+                // Standard WPF camera capture may reevaluate the pointer once at the unchanged press position.
+                var mouseEventCount = pointerPositions.Count;
+                Assert.InRange(mouseEventCount, 3, 4);
+                Assert.Equal(
+                    new Point(12 / surface.WindowHost.DpiScale, 12 / surface.WindowHost.DpiScale),
+                    pointerPositions[0]
+                );
+                if (mouseEventCount == 4)
+                    Assert.Equal(pointerPositions[0], pointerPositions[1]);
+                var releasePoint = new Point(30 / surface.WindowHost.DpiScale, 18 / surface.WindowHost.DpiScale);
+                Assert.Equal(releasePoint, pointerPositions[^2]);
+                Assert.Equal(releasePoint, pointerPositions[^1]);
+                Assert.NotEqual(originalLookDirection, viewport.Camera.LookDirection);
 
-            viewport.ProcessD3D12Pointer(new HwndPointerEventArgs(HwndPointerDevice.Touch,
-                HwndPointerAction.Pressed,
-                7,
-                8,
-                8,
-                HwndPointerButton.None,
-                0), ModifierKeys.None);
-            viewport.ProcessD3D12Pointer(new HwndPointerEventArgs(HwndPointerDevice.Touch,
-                HwndPointerAction.Pressed,
-                8,
-                10,
-                10,
-                HwndPointerButton.None,
-                0), ModifierKeys.None);
-            viewport.ProcessD3D12Pointer(new HwndPointerEventArgs(HwndPointerDevice.Touch,
-                HwndPointerAction.Move,
-                7,
-                9,
-                9,
-                HwndPointerButton.None,
-                0), ModifierKeys.None);
-            viewport.ProcessD3D12Pointer(new HwndPointerEventArgs(HwndPointerDevice.Touch,
-                HwndPointerAction.Released,
-                7,
-                9,
-                9,
-                HwndPointerButton.None,
-                0), ModifierKeys.None);
-            Assert.Equal(mouseEventCount + 3, pointerPositions.Count);
+                viewport.ProcessD3D12Pointer(
+                    new HwndPointerEventArgs(
+                        HwndPointerDevice.Touch,
+                        HwndPointerAction.Pressed,
+                        7,
+                        8,
+                        8,
+                        HwndPointerButton.None,
+                        0
+                    ), ModifierKeys.None
+                );
+                viewport.ProcessD3D12Pointer(
+                    new HwndPointerEventArgs(
+                        HwndPointerDevice.Touch,
+                        HwndPointerAction.Pressed,
+                        8,
+                        10,
+                        10,
+                        HwndPointerButton.None,
+                        0
+                    ), ModifierKeys.None
+                );
+                viewport.ProcessD3D12Pointer(
+                    new HwndPointerEventArgs(
+                        HwndPointerDevice.Touch,
+                        HwndPointerAction.Move,
+                        7,
+                        9,
+                        9,
+                        HwndPointerButton.None,
+                        0
+                    ), ModifierKeys.None
+                );
+                viewport.ProcessD3D12Pointer(
+                    new HwndPointerEventArgs(
+                        HwndPointerDevice.Touch,
+                        HwndPointerAction.Released,
+                        7,
+                        9,
+                        9,
+                        HwndPointerButton.None,
+                        0
+                    ), ModifierKeys.None
+                );
+                Assert.Equal(mouseEventCount + 3, pointerPositions.Count);
 
-            source.RootVisual = null;
-        });
+                source.RootVisual = null;
+            }
+        );
     }
 
     /// <summary>

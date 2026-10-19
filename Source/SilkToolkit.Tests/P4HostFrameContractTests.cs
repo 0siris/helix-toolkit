@@ -36,48 +36,49 @@ public sealed class P4HostFrameContractTests {
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     public Task ActualHostContextAndRootsFollowAcceptedFrames(bool hwnd) => StaThread.RunAsync(async () => {
-        using var effects = new DefaultEffectsManager();
-        await using var driver = new P4PresentationDriver(hwnd, effects);
-        var model = P4PresentationDriver.CreateMesh();
-        using var group = new GroupModel3D();
-        group.Children.Add(model);
-        driver.Viewport.Items.Add(group);
-        await driver.WarmAsync();
+            using var effects = new DefaultEffectsManager();
+            await using var driver = new P4PresentationDriver(hwnd, effects);
+            var model = P4PresentationDriver.CreateMesh();
+            using var group = new GroupModel3D();
+            group.Children.Add(model);
+            driver.Viewport.Items.Add(group);
+            await driver.WarmAsync();
 
-        var host = driver.Viewport.RenderHost;
-        var context = Assert.IsType<RenderContext>(host.RenderContext);
-        Assert.Same(driver.Viewport, host);
-        Assert.Same(driver.Viewport, host.Viewport);
-        Assert.Same(driver.Context, context);
-        Assert.Same(driver.Camera.CameraInternal, context.Camera);
-        Assert.Equal(64f, context.ActualWidth);
-        Assert.Equal(48f, context.ActualHeight);
-        Assert.Equal(64f, context.Viewport.Width);
-        Assert.Equal(48f, context.Viewport.Height);
-        Assert.Same(host, model.SceneNode.RenderHost);
-        Assert.Same(context, ((P4ObservedMeshNode)model.SceneNode).LastContext);
-        Assert.Same(driver.FlattenedScene, host.PerFrameFlattenedScene);
-        Assert.Contains(host.PerFrameFlattenedScene, entry => ReferenceEquals(entry.Value, group.SceneNode));
-        Assert.Contains(host.PerFrameFlattenedScene, entry => ReferenceEquals(entry.Value, model.SceneNode));
+            var host = driver.Viewport.RenderHost;
+            var context = Assert.IsType<RenderContext>(host.RenderContext);
+            Assert.Same(driver.Viewport, host);
+            Assert.Same(driver.Viewport, host.Viewport);
+            Assert.Same(driver.Context, context);
+            Assert.Same(driver.Camera.CameraInternal, context.Camera);
+            Assert.Equal(64f, context.ActualWidth);
+            Assert.Equal(48f, context.ActualHeight);
+            Assert.Equal(64f, context.Viewport.Width);
+            Assert.Equal(48f, context.Viewport.Height);
+            Assert.Same(host, model.SceneNode.RenderHost);
+            Assert.Same(context, ((P4ObservedMeshNode) model.SceneNode).LastContext);
+            Assert.Same(driver.FlattenedScene, host.PerFrameFlattenedScene);
+            Assert.Contains(host.PerFrameFlattenedScene, entry => ReferenceEquals(entry.Value, group.SceneNode));
+            Assert.Contains(host.PerFrameFlattenedScene, entry => ReferenceEquals(entry.Value, model.SceneNode));
 
-        driver.Camera.Position = new Point3D(0.25, 0, 5);
-        driver.Camera.LookDirection = new Vector3D(-0.25, 0, -5);
-        await driver.DrainAsync();
-        Assert.Equal(new Vector3(0.25f, 0, 5), driver.Context!.CameraParams.Position);
+            driver.Camera.Position = new Point3D(0.25, 0, 5);
+            driver.Camera.LookDirection = new Vector3D(-0.25, 0, -5);
+            await driver.DrainAsync();
+            Assert.Equal(new Vector3(0.25f, 0, 5), driver.Context!.CameraParams.Position);
 
-        driver.Viewport.Items.Clear();
-        driver.Viewport.InvalidateSceneGraph();
-        await driver.DrainAsync();
-        Assert.DoesNotContain(host.PerFrameFlattenedScene, entry => ReferenceEquals(entry.Value, model.SceneNode));
-        var before = driver.Counts;
-        driver.Viewport.InvalidateRender();
-        Assert.True(host.UpdateAndRender(), "An accepted empty scene is a real host frame.");
-        await driver.FinishTransportAsync();
-        driver.AssertAdvanced(before, 1);
-        Assert.Same(context, host.RenderContext);
-        Assert.False(group.SceneNode.IsDisposed);
-        driver.AssertIdleOrHidden();
-    });
+            driver.Viewport.Items.Clear();
+            driver.Viewport.InvalidateSceneGraph();
+            await driver.DrainAsync();
+            Assert.DoesNotContain(host.PerFrameFlattenedScene, entry => ReferenceEquals(entry.Value, model.SceneNode));
+            var before = driver.Counts;
+            driver.Viewport.InvalidateRender();
+            Assert.True(host.UpdateAndRender(), "An accepted empty scene is a real host frame.");
+            await driver.FinishTransportAsync();
+            driver.AssertAdvanced(before, 1);
+            Assert.Same(context, host.RenderContext);
+            Assert.False(group.SceneNode.IsDisposed);
+            driver.AssertIdleOrHidden();
+        }
+    );
 
     /// <summary>Skips actual busy GPU frames without replacing snapshots or duplicating completion event pairs.</summary>
     /// <param name="hwnd">Whether the viewport explicitly selects the HWND backend.</param>
@@ -88,44 +89,45 @@ public sealed class P4HostFrameContractTests {
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     public Task PendingGpuFrameKeepsSnapshotAndCompletesExactlyOnce(bool hwnd) => StaThread.RunAsync(async () => {
-        using var effects = new DefaultEffectsManager();
-        await using var driver = new P4PresentationDriver(hwnd, effects);
-        driver.Viewport.Items.Add(P4PresentationDriver.CreateMesh());
-        await driver.WarmAsync();
-        var before = driver.Counts;
-        using (var gate = new P4NativeQueueGate(driver)) {
-            driver.Viewport.InvalidateRender();
-            _ = driver.Tick();
-            Assert.Equal(before.Submitted + 1, driver.Submitted);
-            Assert.Equal(before.Completed, driver.Completed);
-            Assert.Equal(before.Rendered, driver.RenderedCount);
-            var context = driver.Context;
-            var snapshot = driver.Viewport.PerFrameFlattenedScene.ToArray();
-            using var added = new GroupModel3D();
-            driver.Viewport.Items.Add(added);
-            driver.Camera.Position = new Point3D(0.25, 0, 5);
-            for (var tick = 0; tick < 4; tick++) Assert.Equal(0, driver.Tick());
-            Assert.Same(context, driver.Context);
-            Assert.Equal(snapshot, driver.Viewport.PerFrameFlattenedScene.ToArray());
-            Assert.Equal(before.Submitted + 1, driver.Submitted);
-            Assert.Equal(before.OnRendered, driver.OnRenderedCount);
-            gate.Release();
-            await driver.DrainAsync();
-            Assert.Contains(driver.Viewport.PerFrameFlattenedScene, entry => ReferenceEquals(entry.Value, added.SceneNode));
-            Assert.Equal(new Vector3(0.25f, 0, 5), driver.Context!.CameraParams.Position);
-            driver.Viewport.Items.Remove(added);
-        }
+            using var effects = new DefaultEffectsManager();
+            await using var driver = new P4PresentationDriver(hwnd, effects);
+            driver.Viewport.Items.Add(P4PresentationDriver.CreateMesh());
+            await driver.WarmAsync();
+            var before = driver.Counts;
+            using (var gate = new P4NativeQueueGate(driver)) {
+                driver.Viewport.InvalidateRender();
+                _ = driver.Tick();
+                Assert.Equal(before.Submitted + 1, driver.Submitted);
+                Assert.Equal(before.Completed, driver.Completed);
+                Assert.Equal(before.Rendered, driver.RenderedCount);
+                var context = driver.Context;
+                var snapshot = driver.Viewport.PerFrameFlattenedScene.ToArray();
+                using var added = new GroupModel3D();
+                driver.Viewport.Items.Add(added);
+                driver.Camera.Position = new Point3D(0.25, 0, 5);
+                for (var tick = 0; tick < 4; tick++) Assert.Equal(0, driver.Tick());
+                Assert.Same(context, driver.Context);
+                Assert.Equal(snapshot, driver.Viewport.PerFrameFlattenedScene.ToArray());
+                Assert.Equal(before.Submitted + 1, driver.Submitted);
+                Assert.Equal(before.OnRendered, driver.OnRenderedCount);
+                gate.Release();
+                await driver.DrainAsync();
+                Assert.Contains(driver.Viewport.PerFrameFlattenedScene, entry => ReferenceEquals(entry.Value, added.SceneNode));
+                Assert.Equal(new Vector3(0.25f, 0, 5), driver.Context!.CameraParams.Position);
+                driver.Viewport.Items.Remove(added);
+            }
 
-        await driver.DrainAsync();
-        Assert.Equal(driver.Submitted, driver.Completed);
-        Assert.Equal((ulong)driver.RenderedCount, driver.Completed);
-        Assert.Equal(driver.RenderedCount, driver.OnRenderedCount);
-        driver.AssertIdleOrHidden();
-        var retired = driver.Counts;
-        driver.Viewport.RetireSceneResourcesForManagerChange();
-        driver.Viewport.RetireSceneResourcesForManagerChange();
-        Assert.Equal(retired, driver.Counts);
-    });
+            await driver.DrainAsync();
+            Assert.Equal(driver.Submitted, driver.Completed);
+            Assert.Equal((ulong) driver.RenderedCount, driver.Completed);
+            Assert.Equal(driver.RenderedCount, driver.OnRenderedCount);
+            driver.AssertIdleOrHidden();
+            var retired = driver.Counts;
+            driver.Viewport.RetireSceneResourcesForManagerChange();
+            driver.Viewport.RetireSceneResourcesForManagerChange();
+            Assert.Equal(retired, driver.Counts);
+        }
+    );
 
     /// <summary>Requires new same-owner captures with straight BGRA channels and coverage rather than another host's pixels.</summary>
     /// <param name="hwnd">Whether the capturing viewport explicitly selects the HWND backend.</param>
@@ -136,34 +138,44 @@ public sealed class P4HostFrameContractTests {
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     public Task CaptureReturnsNewSameOwnerFramesWithExplicitPixelRepresentation(bool hwnd) => StaThread.RunAsync(async () => {
-        using var effects = new DefaultEffectsManager();
-        await using var driver = new P4PresentationDriver(hwnd, effects);
-        await using var other = new P4PresentationDriver(!hwnd, effects);
-        await driver.WarmAsync();
-        await other.WarmAsync();
-        other.Viewport.BackgroundColor = Colors.Lime;
-        var otherCapture = await other.CaptureAsync();
-        P4PresentationDriver.AssertPixel(otherCapture, 2, 2, 0, 255, 0, 255);
-        byte[]? precedingPixels = null;
-        foreach (var alpha in new byte[] { 0, 128, 255 }) {
-            driver.Viewport.BackgroundColor = Color.FromArgb(alpha, 224, 64, 32);
-            await driver.DrainAsync();
-            var before = driver.Counts;
-            var captured = await driver.CaptureAsync();
-            driver.AssertAdvanced(before, 1);
-            Assert.NotSame(precedingPixels, captured.Pixels);
-            Assert.NotSame(otherCapture.Pixels, captured.Pixels);
-            Assert.Equal(64u, captured.Width);
-            Assert.Equal(48u, captured.Height);
-            Assert.Equal(64 * 48 * 4, captured.Pixels.Length);
-            var transparentWpf = !hwnd && alpha == 0;
-            P4PresentationDriver.AssertPixel(captured, 2, 2,
-                transparentWpf ? 0 : 32, transparentWpf ? 0 : 64, transparentWpf ? 0 : 224, alpha, 3);
-            precedingPixels = captured.Pixels;
+            using var effects = new DefaultEffectsManager();
+            await using var driver = new P4PresentationDriver(hwnd, effects);
+            await using var other = new P4PresentationDriver(!hwnd, effects);
+            await driver.WarmAsync();
+            await other.WarmAsync();
+            other.Viewport.BackgroundColor = Colors.Lime;
+            var otherCapture = await other.CaptureAsync();
+            P4PresentationDriver.AssertPixel(otherCapture, 2, 2, 0, 255, 0, 255);
+            byte[]? precedingPixels = null;
+            foreach (var alpha in new byte[] { 0, 128, 255 }) {
+                driver.Viewport.BackgroundColor = Color.FromArgb(alpha, 224, 64, 32);
+                await driver.DrainAsync();
+                var before = driver.Counts;
+                var captured = await driver.CaptureAsync();
+                driver.AssertAdvanced(before, 1);
+                Assert.NotSame(precedingPixels, captured.Pixels);
+                Assert.NotSame(otherCapture.Pixels, captured.Pixels);
+                Assert.Equal(64u, captured.Width);
+                Assert.Equal(48u, captured.Height);
+                Assert.Equal(64 * 48 * 4, captured.Pixels.Length);
+                var transparentWpf = !hwnd && alpha == 0;
+                P4PresentationDriver.AssertPixel(
+                    captured, 2, 2,
+                    transparentWpf
+                        ? 0
+                        : 32, transparentWpf
+                        ? 0
+                        : 64, transparentWpf
+                        ? 0
+                        : 224, alpha, 3
+                );
+                precedingPixels = captured.Pixels;
+            }
+
+            Assert.NotSame(driver.Context, other.Context);
+            P4PresentationDriver.AssertPixel(await other.CaptureAsync(), 2, 2, 0, 255, 0, 255);
         }
-        Assert.NotSame(driver.Context, other.Context);
-        P4PresentationDriver.AssertPixel(await other.CaptureAsync(), 2, 2, 0, 255, 0, 255);
-    });
+    );
 
     /// <summary>Rejects stale readback after hidden entry, canceled recording and a nested capture from a real mesh callback.</summary>
     /// <param name="hwnd">Whether the viewport explicitly selects the HWND backend.</param>
@@ -174,50 +186,51 @@ public sealed class P4HostFrameContractTests {
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     public Task CaptureRejectsSkippedCancelledAndReentrantRequests(bool hwnd) => StaThread.RunAsync(async () => {
-        using var effects = new DefaultEffectsManager();
-        await using var driver = new P4PresentationDriver(hwnd, effects);
-        var mesh = P4PresentationDriver.CreateMesh();
-        driver.Viewport.Items.Add(mesh);
-        var node = (P4ObservedMeshNode)mesh.SceneNode;
-        await driver.WarmAsync();
-        var oldCapture = await driver.CaptureAsync();
-        var before = driver.Counts;
-        driver.Viewport.Visibility = Visibility.Hidden;
-        Assert.Throws<InvalidOperationException>(() => driver.Viewport.CaptureD3D12Frame());
-        Assert.Equal(before, driver.Counts);
-        driver.Viewport.Visibility = Visibility.Visible;
-        await driver.DrainAsync();
-
-        oldCapture = await driver.CaptureAsync();
-        before = driver.Counts;
-        var cancellationCount = 0;
-        node.OnNextUpdate = _ => {
-            cancellationCount++;
-            Assert.True(driver.Viewport.IsPreparingPresentationFrame);
-            effects.DisposeAllResources();
-        };
-        Assert.Throws<InvalidOperationException>(() => driver.Viewport.CaptureD3D12Frame());
-        Assert.Equal(1, cancellationCount);
-        Assert.Equal(before, driver.Counts);
-        effects.Reinitialize();
-        await driver.DrainAsync();
-        P4PresentationDriver.SetMeshColor(mesh, new Vector4(1, 0, 0, 1));
-        var fresh = await driver.CaptureAsync();
-        Assert.NotSame(oldCapture.Pixels, fresh.Pixels);
-        P4PresentationDriver.AssertPixel(fresh, 32, 24, 0, 0, 255, 255);
-
-        before = driver.Counts;
-        var nestedCount = 0;
-        node.OnNextUpdate = _ => {
-            nestedCount++;
+            using var effects = new DefaultEffectsManager();
+            await using var driver = new P4PresentationDriver(hwnd, effects);
+            var mesh = P4PresentationDriver.CreateMesh();
+            driver.Viewport.Items.Add(mesh);
+            var node = (P4ObservedMeshNode) mesh.SceneNode;
+            await driver.WarmAsync();
+            var oldCapture = await driver.CaptureAsync();
+            var before = driver.Counts;
+            driver.Viewport.Visibility = Visibility.Hidden;
             Assert.Throws<InvalidOperationException>(() => driver.Viewport.CaptureD3D12Frame());
-        };
-        driver.Viewport.InvalidateRender();
-        _ = driver.Tick(wait: true);
-        await driver.FinishTransportAsync();
-        Assert.Equal(1, nestedCount);
-        driver.AssertAdvanced(before, 1);
-    });
+            Assert.Equal(before, driver.Counts);
+            driver.Viewport.Visibility = Visibility.Visible;
+            await driver.DrainAsync();
+
+            oldCapture = await driver.CaptureAsync();
+            before = driver.Counts;
+            var cancellationCount = 0;
+            node.OnNextUpdate = _ => {
+                cancellationCount++;
+                Assert.True(driver.Viewport.IsPreparingPresentationFrame);
+                effects.DisposeAllResources();
+            };
+            Assert.Throws<InvalidOperationException>(() => driver.Viewport.CaptureD3D12Frame());
+            Assert.Equal(1, cancellationCount);
+            Assert.Equal(before, driver.Counts);
+            effects.Reinitialize();
+            await driver.DrainAsync();
+            P4PresentationDriver.SetMeshColor(mesh, new Vector4(1, 0, 0, 1));
+            var fresh = await driver.CaptureAsync();
+            Assert.NotSame(oldCapture.Pixels, fresh.Pixels);
+            P4PresentationDriver.AssertPixel(fresh, 32, 24, 0, 0, 255, 255);
+
+            before = driver.Counts;
+            var nestedCount = 0;
+            node.OnNextUpdate = _ => {
+                nestedCount++;
+                Assert.Throws<InvalidOperationException>(() => driver.Viewport.CaptureD3D12Frame());
+            };
+            driver.Viewport.InvalidateRender();
+            _ = driver.Tick(wait: true);
+            await driver.FinishTransportAsync();
+            Assert.Equal(1, nestedCount);
+            driver.AssertAdvanced(before, 1);
+        }
+    );
 }
 
 /// <summary>Drives genuine viewport templates on a hidden WPF source without substituting lifetime or submission state.</summary>
@@ -235,12 +248,9 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
     /// <param name="hwnd">Whether to select HWND rather than WPF composition.</param>
     /// <param name="effects">The application-owned manager borrowed by the viewport.</param>
     internal P4PresentationDriver(bool hwnd, IEffectsManager effects) {
-        var resources = new ResourceDictionary {
-            Source = new Uri("/SilkToolkit;component/Themes/Generic.xaml", UriKind.Relative)
-        };
+        var resources = new ResourceDictionary { Source = new Uri("/SilkToolkit;component/Themes/Generic.xaml", UriKind.Relative) };
         Camera = new P4ObservedCamera {
-            Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5),
-            UpDirection = new Vector3D(0, 1, 0), Width = 2
+            Position = new Point3D(0, 0, 5), LookDirection = new Vector3D(0, 0, -5), UpDirection = new Vector3D(0, 1, 0), Width = 2
         };
         Viewport = new Viewport3DX {
             EnableSwapChainRendering = hwnd,
@@ -256,18 +266,19 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
             FxaaLevel = FXAALevel.None,
             BackgroundColor = Colors.Blue,
             Camera = Camera,
-            Width = 64, Height = 48,
+            Width = 64,
+            Height = 48,
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
-            Style = (Style)resources[typeof(Viewport3DX)]
+            Style = (Style) resources[typeof(Viewport3DX)]
         };
         Viewport.StopRendering();
         Viewport.Rendered += HandleRendered;
         Viewport.OnRendered += HandleOnRendered;
         Root.Children.Add(Viewport);
-        source = new HwndSource(new HwndSourceParameters(nameof(P4PresentationDriver)) {
-            Width = 128, Height = 96, WindowStyle = unchecked((int)0x80000000)
-        });
+        source = new HwndSource(
+            new HwndSourceParameters(nameof(P4PresentationDriver)) { Width = 128, Height = 96, WindowStyle = unchecked((int) 0x80000000) }
+        );
         source.RootVisual = Root;
         Root.UpdateLayout();
         Assert.True(Viewport.ApplyTemplate() || Viewport.Template is not null);
@@ -310,7 +321,8 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
     internal ulong Submitted => Wpf?.SubmittedFrames ?? Native!.PresentedFrames;
 
     /// <summary>Gets observed real fence completions, independently of event delivery.</summary>
-    internal ulong Completed => Wpf?.CompletedFrames ?? ReadField<D3D12FrameSubmission>(Native!, "_frameSubmission").CompletedFrames;
+    internal ulong Completed => Wpf?.CompletedFrames ?? ReadField<D3D12FrameSubmission>(Native!, "_frameSubmission")
+        .CompletedFrames;
 
     /// <summary>Gets the number of actual host completion callbacks.</summary>
     internal int RenderedCount { get; private set; }
@@ -343,29 +355,36 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
     /// <returns>The bounded dispatcher-owned frame and transport drain.</returns>
     internal Task DrainAsync() {
         if (Wpf is null) {
-            return PollAsync(() => {
-                if (!Viewport.CanSubmitNativeScene) return false;
-                var before = Submitted;
-                _ = Tick(wait: true);
-                return Submitted > before && Submitted == Completed;
-            }, "native lifecycle and accepted frame completion");
+            return PollAsync(
+                () => {
+                    if (!Viewport.CanSubmitNativeScene) return false;
+                    var before = Submitted;
+                    _ = Tick(wait: true);
+                    return Submitted > before && Submitted == Completed;
+                }, "native lifecycle and accepted frame completion"
+            );
         }
-        return PollAsync(() => {
-            _ = Tick();
-            var demand = Viewport.RenderDemand;
-            return !Wpf.HasPendingTransport && !demand.HasRenderDemand &&
-                !demand.HasRecoveryDemand && !demand.HasPublicationDemand;
-        }, "viewport scene and WPF transport drain");
+
+        return PollAsync(
+            () => {
+                _ = Tick();
+                var demand = Viewport.RenderDemand;
+                return !Wpf.HasPendingTransport && !demand.HasRenderDemand &&
+                       !demand.HasRecoveryDemand && !demand.HasPublicationDemand;
+            }, "viewport scene and WPF transport drain"
+        );
     }
 
     /// <summary>Finishes accepted transport while excluding fresh scene submissions.</summary>
     /// <returns>The bounded transport-only completion.</returns>
     internal async Task FinishTransportAsync() {
         if (Wpf is not null) {
-            await PollAsync(() => {
-                _ = Wpf.RenderFrame(TimeSpan.FromSeconds(1), automaticFrame: true);
-                return !Wpf.HasPendingTransport;
-            }, "accepted WPF transport");
+            await PollAsync(
+                () => {
+                    _ = Wpf.RenderFrame(TimeSpan.FromSeconds(1), automaticFrame: true);
+                    return !Wpf.HasPendingTransport;
+                }, "accepted WPF transport"
+            );
         }
     }
 
@@ -382,8 +401,8 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
     /// <param name="before">The actual counters before the isolated operation.</param>
     /// <param name="frames">The number of accepted scene submissions.</param>
     internal void AssertAdvanced((ulong Submitted, ulong Completed, int Rendered, int OnRendered) before, int frames) {
-        Assert.Equal(before.Submitted + (ulong)frames, Submitted);
-        Assert.Equal(before.Completed + (ulong)frames, Completed);
+        Assert.Equal(before.Submitted + (ulong) frames, Submitted);
+        Assert.Equal(before.Completed + (ulong) frames, Completed);
         Assert.Equal(before.Rendered + frames, RenderedCount);
         Assert.Equal(before.OnRendered + frames, OnRenderedCount);
     }
@@ -421,7 +440,7 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
     /// <param name="sender">The selected canvas or HWND surface.</param>
     /// <param name="args">The productive completion arguments.</param>
     private void HandleOnRendered(object? sender, EventArgs args) {
-        Assert.Same((object?)Canvas ?? Native, sender);
+        Assert.Same((object?) Canvas ?? Native, sender);
         OnRenderedCount++;
     }
 
@@ -429,9 +448,16 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
     /// <returns>The dispatcher-owned fixture teardown.</returns>
     public async ValueTask DisposeAsync() {
         if (disposed) return;
-        await PollAsync(() => {
-            try { Viewport.Dispose(); return true; } catch (TimeoutException) { return false; }
-        }, "viewport detachment and disposal");
+        await PollAsync(
+            () => {
+                try {
+                    Viewport.Dispose();
+                    return true;
+                } catch (TimeoutException) {
+                    return false;
+                }
+            }, "viewport detachment and disposal"
+        );
         source.RootVisual = null;
         source.Dispose();
         disposed = true;
@@ -453,7 +479,8 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
     /// <param name="mesh">The application-owned mesh.</param>
     /// <param name="color">The new straight material color.</param>
     internal static void SetMeshColor(MeshGeometryModel3D mesh, Vector4 color) =>
-        Assert.IsType<DiffuseMaterial>(mesh.Material).DiffuseColor = color;
+        Assert.IsType<DiffuseMaterial>(mesh.Material)
+            .DiffuseColor = color;
 
     /// <summary>Checks separate BGRA channels at an actual readback or WPF snapshot location.</summary>
     /// <param name="frame">The actual tightly packed frame.</param>
@@ -464,13 +491,23 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
     /// <param name="red">The expected red byte.</param>
     /// <param name="alpha">The expected coverage byte.</param>
     /// <param name="tolerance">The allowed byte quantization error.</param>
-    internal static void AssertPixel(D3D12CapturedFrame frame, int x, int y, int blue, int green, int red, int alpha,
-        int tolerance = 2) {
-        var offset = checked((y * (int)frame.Width + x) * 4);
+    internal static void AssertPixel(
+        D3D12CapturedFrame frame,
+        int x,
+        int y,
+        int blue,
+        int green,
+        int red,
+        int alpha,
+        int tolerance = 2
+    ) {
+        var offset = checked((y * (int) frame.Width + x) * 4);
         int[] expected = [blue, green, red, alpha];
         for (var channel = 0; channel < 4; channel++)
-            Assert.InRange((int)frame.Pixels[offset + channel], Math.Max(0, expected[channel] - tolerance),
-                Math.Min(255, expected[channel] + tolerance));
+            Assert.InRange(
+                (int) frame.Pixels[offset + channel], Math.Max(0, expected[channel] - tolerance),
+                Math.Min(255, expected[channel] + tolerance)
+            );
     }
 
     /// <summary>Yields only the bounded test driver while real dispatcher and GPU work progresses.</summary>
@@ -492,7 +529,8 @@ internal sealed class P4PresentationDriver : IAsyncDisposable {
     /// <param name="name">The existing ownership field.</param>
     /// <returns>The actual retained value.</returns>
     internal static T ReadField<T>(object owner, string name) =>
-        (T)owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!;
+        (T) owner.GetType()
+            .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!;
 }
 
 /// <summary>Retains normal camera behavior with a one-shot observer in its actual controller time step.</summary>
@@ -551,9 +589,13 @@ internal sealed class P4NativeQueueGate : IDisposable {
     /// <summary>Inserts a genuine queue wait and creates an independent fence for quiescence evidence.</summary>
     /// <param name="driver">The initialized actual presentation driver.</param>
     internal P4NativeQueueGate(P4PresentationDriver driver) {
-        var owner = (object?)driver.Wpf ?? driver.Native!;
+        var owner = (object?) driver.Wpf ?? driver.Native!;
         var device = P4PresentationDriver.ReadField<SilkD3D12Device>(owner, "device");
-        Queue = P4PresentationDriver.ReadField<SilkD3D12CommandQueue>(owner, driver.Wpf is null ? "commandQueue" : "queue");
+        Queue = P4PresentationDriver.ReadField<SilkD3D12CommandQueue>(
+            owner, driver.Wpf is null
+                ? "commandQueue"
+                : "queue"
+        );
         gate = device.CreateFence();
         Probe = device.CreateFence();
         var wait = NativeMethod<WaitQueue>(Queue.NativePointer, 15);

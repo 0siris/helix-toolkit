@@ -3,8 +3,6 @@ using HelixToolkit.SharpDX.Core;
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-
-
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model.Components;
@@ -15,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 
 /// Owns geometry, instances and rasterizer settings shared by the native and effects-manager attachment paths.
 public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInstancing, IBoundable,
-                                     IApplyPostEffect {
+    IApplyPostEffect {
     /// <summary>
     ///     Initializes a new instance of the <see cref="GeometryNode" /> class.
     /// </summary>
@@ -74,7 +72,9 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// </summary>
     protected virtual void OnRasterStateChanged() {
         if ((IsAttached || RenderCore.IsAttached) && RenderCore is IGeometryRenderCore r)
-            r.RasterDescription = OnCreateRasterState != null ? OnCreateRasterState() : CreateRasterState();
+            r.RasterDescription = OnCreateRasterState != null
+                ? OnCreateRasterState()
+                : CreateRasterState();
     }
 
     /// <summary>
@@ -166,7 +166,8 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
         => geometry switch {
             BoneSkinnedMeshGeometry3D boneGeometry => new BoneSkinPreComputeBufferModel(
                 new BoneSkinnedMeshBufferModel { Geometry = boneGeometry },
-                DefaultVertex.SizeInBytes),
+                DefaultVertex.SizeInBytes
+            ),
             BillboardBase billboard => new DefaultBillboardBufferModel { Geometry = billboard },
             LineGeometry3D line => new DefaultLineGeometryBufferModel { Geometry = line },
             PointGeometry3D point => new DefaultPointGeometryBufferModel { Geometry = point },
@@ -211,9 +212,11 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
     /// <returns></returns>
     public override bool TestViewFrustum(ref BoundingFrustum viewFrustum) {
         if (!EnableViewFrustumCheck) return true;
-        return BoundingFrustumExtensions.IsInOrIntersectFrustum(ref viewFrustum,
-                                                                ref BoundManager.BoundsWithTransform,
-                                                                ref BoundManager.BoundsSphereWithTransform);
+        return BoundingFrustumExtensions.IsInOrIntersectFrustum(
+            ref viewFrustum,
+            ref BoundManager.BoundsWithTransform,
+            ref BoundManager.BoundsSphereWithTransform
+        );
     }
 
     /// <summary>
@@ -349,7 +352,7 @@ public abstract class GeometryNode : SceneNode, IHitable, IThrowingShadow, IInst
 
     /// Gets whether immutable selected-pair compute inputs supply actual geometry without a CPU line buffer.
     private bool HasGpuIntersectionInputs => RenderCore is MeshIntersectionRenderCore { UseGpu: true } intersection
-        && intersection.Inputs.Any(input => input.Candidates.Length > 0);
+                                             && intersection.Inputs.Any(input => input.Candidates.Length > 0);
 
     /// <summary>
     ///     Gets or sets the bound manager.

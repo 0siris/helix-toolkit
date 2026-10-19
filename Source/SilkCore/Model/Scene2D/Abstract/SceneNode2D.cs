@@ -3,13 +3,13 @@ using HelixToolkit.SharpDX.Core;
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
+
 /// <summary>Provides renderer-independent 2D scene state, layout and invalidation.</summary>
 public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>Gets the logger used for optional 2D rendering diagnostics.</summary>
@@ -56,12 +56,16 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </value>
     public SceneNode2D? Parent {
         get {
-            return parent is { } weak && weak.TryGetTarget(out var target) ? target : null;
+            return parent is { } weak && weak.TryGetTarget(out var target)
+                ? target
+                : null;
         }
         set {
             var current = Parent;
             if (Set(ref current, value))
-                parent = value is { } node ? new WeakReference<SceneNode2D>(node) : null;
+                parent = value is { } node
+                    ? new WeakReference<SceneNode2D>(node)
+                    : null;
         }
     }
 
@@ -329,11 +333,13 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
             IsRenderable = false;
             return;
         }
+
         if (UpdateRequested is { } update) {
             if (updateArguments is null || !ReferenceEquals(updateArguments.Context, context))
                 updateArguments = new UpdateEventArgs(context);
             update(this, updateArguments);
         }
+
         IsRenderable = CanContinueScenePreparation && CanRender(context) && CanContinueScenePreparation;
     }
 
@@ -493,10 +499,14 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
 #if DISABLEBITMAPCACHE
         IsBitmapCacheValid = false;
 #else
-        EnsureBitmapCache(context,
-                          new Size2((int)Math.Ceiling(LayoutClipBound.Width),
-                                    (int)Math.Ceiling(LayoutClipBound.Height)),
-                          context.DeviceContext.MaximumBitmapSize);
+        EnsureBitmapCache(
+            context,
+            new Size2(
+                (int) Math.Ceiling(LayoutClipBound.Width),
+                (int) Math.Ceiling(LayoutClipBound.Height)
+            ),
+            context.DeviceContext.MaximumBitmapSize
+        );
 #endif
         if (EnableBitmapCache && IsBitmapCacheValid && bitmapCache is { } cache) {
             if (IsVisualDirty) {
@@ -570,9 +580,11 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
         if (IsRenderable && EnableBitmapCache && IsBitmapCacheValid && !IsVisualDirty
             && context.HasTarget && bitmapCache is { } cache) {
             context.DeviceContext.Transform = RelativeMatrix;
-            context.DeviceContext.DrawImage(cache,
-                                            new Vector2(0, 0),
-                                            new RectangleF(0, 0, RenderSize.X, RenderSize.Y));
+            context.DeviceContext.DrawImage(
+                cache,
+                new Vector2(0, 0),
+                new RectangleF(0, 0, RenderSize.X, RenderSize.Y)
+            );
         } else {
             Render(context);
         }
@@ -584,7 +596,9 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <param name="context">The context.</param>
     protected virtual void OnRender(RenderContext2D context) {
         RenderCore.Render(context);
-        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Render(context);
+        for (var i = 0; i < ItemsInternal.Count; ++i)
+            ItemsInternal[i]
+                .Render(context);
     }
 
     #endregion Rendering

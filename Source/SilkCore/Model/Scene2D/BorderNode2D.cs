@@ -3,17 +3,17 @@ using HelixToolkit.SharpDX.Core;
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
+
 /// <summary>Arranges content inside a rounded border with lazily updated stroke resources.</summary>
 public class BorderNode2D : ContentNode2D {
     /// <summary>Gets the border-specific rendering state.</summary>
     private BorderRenderCore2D BorderCore => RenderCore as BorderRenderCore2D
-        ?? throw new InvalidOperationException("Border render core is not initialized.");
+                                             ?? throw new InvalidOperationException("Border render core is not initialized.");
 
     /// <summary>Tracks whether the stroke style must be recreated from the current factory.</summary>
     private bool strokeStyleChanged = true;
@@ -116,7 +116,8 @@ public class BorderNode2D : ContentNode2D {
         base.Update(context);
         if (!CanContinueScenePreparation) return;
         if (strokeStyleChanged) {
-            BorderCore.StrokeStyle = new StrokeStyle(context.DeviceResources.Factory2D,
+            BorderCore.StrokeStyle = new StrokeStyle(
+                context.DeviceResources.Factory2D,
                 new StrokeStyleProperties {
                     DashCap = StrokeDashCap,
                     StartCap = StrokeStartLineCap,
@@ -125,7 +126,8 @@ public class BorderNode2D : ContentNode2D {
                     LineJoin = StrokeLineJoin,
                     MiterLimit = Math.Max(1, StrokeMiterLimit),
                     DashStyle = StrokeDashStyle
-                });
+                }
+            );
             strokeStyleChanged = false;
         }
     }
@@ -135,11 +137,14 @@ public class BorderNode2D : ContentNode2D {
         if (Content != null) {
             var margin = new Size2F(
                 BorderThickness.Left / 2 + Padding.Left + BorderThickness.Right / 2 + Padding.Right,
-                BorderThickness.Top / 2 + Padding.Top + BorderThickness.Bottom / 2 + Padding.Bottom);
+                BorderThickness.Top / 2 + Padding.Top + BorderThickness.Bottom / 2 + Padding.Bottom
+            );
             margin.Width *= DpiScale;
             margin.Height *= DpiScale;
-            var childAvail = new Size2F(Math.Max(0, availableSize.Width - margin.Width),
-                                        Math.Max(0, availableSize.Height - margin.Height));
+            var childAvail = new Size2F(
+                Math.Max(0, availableSize.Width - margin.Width),
+                Math.Max(0, availableSize.Height - margin.Height)
+            );
 
             var size = base.MeasureOverride(childAvail);
             if (Width != float.PositiveInfinity && Height != float.PositiveInfinity) return availableSize;
@@ -148,16 +153,18 @@ public class BorderNode2D : ContentNode2D {
             if (Height != float.PositiveInfinity) size.Height = Height * DpiScale;
             return size;
         } else {
-            var size = new Size2F(BorderThickness.Left / 2 + Padding.Left + BorderThickness.Right / 2 +
-                                  Padding.Right +
-                                  MarginWidthHeight.X + Width == float.PositiveInfinity
-                                      ? 0
-                                      : Width,
-                                  BorderThickness.Top / 2 + Padding.Top + BorderThickness.Bottom / 2 +
-                                  Padding.Bottom +
-                                  MarginWidthHeight.Y + Height == float.PositiveInfinity
-                                      ? 0
-                                      : Height);
+            var size = new Size2F(
+                BorderThickness.Left / 2 + Padding.Left + BorderThickness.Right / 2 +
+                Padding.Right +
+                MarginWidthHeight.X + Width == float.PositiveInfinity
+                    ? 0
+                    : Width,
+                BorderThickness.Top / 2 + Padding.Top + BorderThickness.Bottom / 2 +
+                Padding.Bottom +
+                MarginWidthHeight.Y + Height == float.PositiveInfinity
+                    ? 0
+                    : Height
+            );
             size.Width *= DpiScale;
             size.Height *= DpiScale;
             return size;

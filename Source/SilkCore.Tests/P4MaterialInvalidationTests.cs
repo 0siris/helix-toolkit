@@ -133,11 +133,19 @@ public sealed class P4MaterialInvalidationTests {
         using var consumer = new DemandObserver(root);
         material.Notify();
         Assert.Equal(1, consumer.Requests);
-        node.ReleaseNativeAttachment(releaseLatest ? second : first);
+        node.ReleaseNativeAttachment(
+            releaseLatest
+                ? second
+                : first
+        );
         consumer.Drain();
         material.Notify();
         Assert.Equal(1, consumer.Requests);
-        node.ReleaseNativeAttachment(releaseLatest ? first : second);
+        node.ReleaseNativeAttachment(
+            releaseLatest
+                ? first
+                : second
+        );
         consumer.Drain();
         material.Notify();
         Assert.Equal(0, consumer.Requests);
@@ -153,7 +161,10 @@ public sealed class P4MaterialInvalidationTests {
     [Fact]
     [Trait("Category", "Unit")]
     public void WarmNativeAttachmentAndNotificationDoNotAllocate() {
-        Assert.Equal("false", AppContext.GetData("System.GC.Concurrent")?.ToString(), ignoreCase: true);
+        Assert.Equal(
+            "false", AppContext.GetData("System.GC.Concurrent")
+                ?.ToString(), ignoreCase: true
+        );
         using var root = new GroupNode();
         using var node = CreateNode("mesh");
         var material = new RetainedArgsMaterial();
@@ -174,6 +185,7 @@ public sealed class P4MaterialInvalidationTests {
             node.Attach();
             material.Notify();
         }
+
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Equal(0, allocated);
         Assert.Equal(1_000, consumer.Requests);
@@ -188,18 +200,13 @@ public sealed class P4MaterialInvalidationTests {
     private static MaterialGeometryNode CreateNode(string kind) => kind switch {
         "mesh" => new MeshNode {
             Geometry = new MeshGeometry3D {
-                Positions = [new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0)],
-                Indices = [0, 1, 2]
+                Positions = [new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0)], Indices = [0, 1, 2]
             }
         },
         "line" => new LineNode {
-            Geometry = new LineGeometry3D {
-                Positions = [new Vector3(0, 0, 0), new Vector3(1, 0, 0)], Indices = [0, 1]
-            }
+            Geometry = new LineGeometry3D { Positions = [new Vector3(0, 0, 0), new Vector3(1, 0, 0)], Indices = [0, 1] }
         },
-        "point" => new PointNode {
-            Geometry = new PointGeometry3D { Positions = [new Vector3(0, 0, 0)], Indices = [0] }
-        },
+        "point" => new PointNode { Geometry = new PointGeometry3D { Positions = [new Vector3(0, 0, 0)], Indices = [0] } },
         _ => throw new ArgumentOutOfRangeException(nameof(kind))
     };
 

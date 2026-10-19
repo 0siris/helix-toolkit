@@ -89,7 +89,8 @@ internal sealed class DPFCanvas : Grid, IDisposable {
 
     /// <summary>Gets or sets the render scale without modifying WPF layout or pointer coordinates.</summary>
     internal double DpiScale {
-        get => dpiScale ?? VisualTreeHelper.GetDpi(this).DpiScaleX;
+        get => dpiScale ?? VisualTreeHelper.GetDpi(this)
+            .DpiScaleX;
         set {
             VerifyAccess();
             ObjectDisposedException.ThrowIf(stopping, this);

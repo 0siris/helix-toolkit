@@ -21,142 +21,156 @@ public sealed class P4VisibleCompositionTests(ITestOutputHelper output) {
     [Trait("Category", "DX12")]
     [Trait("Category", "Wpf")]
     public Task ProductionViewportComposesWithControlsBrushEffectsAndAdorners() => StaThread.RunAsync(async () => {
-        var harness = new P4WpfHarness(hiddenSource: false);
-        var root = harness.Root;
-        root.Width = 380;
-        root.Height = 200;
-        root.Background = Brushes.Magenta;
-        var viewport = harness.Viewport;
-        viewport.HorizontalAlignment = HorizontalAlignment.Left;
-        viewport.VerticalAlignment = VerticalAlignment.Top;
-        viewport.Margin = new Thickness(20, 20, 0, 0);
-        var decorator = new AdornerDecorator { Child = root };
-        var window = new Window {
-            Title = "Phase 4 productive WPF composition acceptance",
-            Content = decorator, SizeToContent = SizeToContent.WidthAndHeight,
-            WindowStyle = WindowStyle.None, ResizeMode = ResizeMode.NoResize,
-            Left = 100, Top = 100, Topmost = true, ShowInTaskbar = false,
-            Background = Brushes.Magenta
-        };
-        var button = new Button {
-            Width = 64, Height = 32, Margin = new Thickness(60, 50, 0, 0),
-            HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top,
-            Template = ButtonTemplate()
-        };
-        Panel.SetZIndex(button, 10);
-        root.Children.Add(button);
-        var clickCount = 0;
-        button.Click += (_, _) => clickCount++;
-        AdornerLayer? layer = null;
-        SolidPatchAdorner? adorner = null;
-        var savedCursor = new NativePoint();
-        var restoreCursor = GetCursorPos(ref savedCursor);
-        try {
-            window.Show();
-            window.Activate();
-            window.UpdateLayout();
-            await harness.WarmAsync();
-            Assert.False(viewport.EnableSwapChainRendering);
-            Assert.Null(viewport.D3D12Surface);
-            Assert.True(harness.Owner.IsInitialized);
-            Assert.NotEqual(nint.Zero, harness.Canvas.ImageSource.BoundSurface);
-            Assert.True(harness.Owner.CompletedFrames > 0);
-            Assert.True(harness.Owner.CopiedFrames > 0);
-            Assert.True(harness.Owner.PublishedFrames > 0);
-            var initial = P4WpfHarness.Snapshot(harness.Canvas, 160, 120);
-            P4WpfHarness.AssertPixel(initial, 160, 80, 60, Colors.Red);
-            P4WpfHarness.AssertPixel(initial, 160, 8, 8, Colors.Black);
-            output.WriteLine($"Production GPU image: {harness.Counters}; surface=0x{harness.Canvas.ImageSource.BoundSurface:X}.");
-
-            // Read the actual desktop as well as WPF's D3DImage software snapshot; neither feeds presentation.
-            var buttonPoint = new Point(92, 66);
-            await AssertDesktopAsync(window, root, buttonPoint, Colors.Lime, "WPF Button above GPU");
-            AssertSnapshot(decorator, buttonPoint, Colors.Lime, "WPF Button above GPU");
-            var screen = root.PointToScreen(buttonPoint);
-            var nativePoint = new NativePoint { X = (int) Math.Round(screen.X), Y = (int) Math.Round(screen.Y) };
-            var handle = new WindowInteropHelper(window).Handle;
-            Assert.Equal(handle, WindowFromPoint(nativePoint));
-            Assert.True(SetCursorPos(nativePoint.X, nativePoint.Y));
-            await WaitAsync(() => button.IsMouseOver, "native pointer over WPF Button");
-            MouseEvent(0x0002, 0, 0, 0, 0);
-            try {
-                await Task.Delay(40);
-            } finally {
-                MouseEvent(0x0004, 0, 0, 0, 0);
-            }
-            await WaitAsync(() => clickCount == 1, "native WPF Button click");
-            Assert.Equal(1, clickCount);
-            Assert.True(button.IsLoaded);
-            output.WriteLine($"Real OS mouse click count={clickCount}; WindowFromPoint=0x{handle:X}; no Popup or child HWND.");
-
-            Panel.SetZIndex(button, -1);
-            window.UpdateLayout();
-            await AssertDesktopAsync(window, root, buttonPoint, Colors.Red, "GPU above lowered Button");
-            AssertSnapshot(decorator, buttonPoint, Colors.Red, "GPU above lowered Button");
-            Panel.SetZIndex(button, 10);
-            window.UpdateLayout();
-            await AssertDesktopAsync(window, root, buttonPoint, Colors.Lime, "restored Button ZIndex");
-            button.Visibility = Visibility.Collapsed;
-
-            var clippedPoint = new Point(150, 110);
-            AssertSnapshot(decorator, clippedPoint, Colors.Black, "GPU before clipping");
-            viewport.Clip = new RectangleGeometry(new Rect(0, 0, 80, 120));
-            window.UpdateLayout();
-            AssertSnapshot(decorator, clippedPoint, Colors.Magenta, "parent revealed by GPU clipping");
-            await AssertDesktopAsync(window, root, clippedPoint, Colors.Magenta, "parent revealed by GPU clipping");
-            viewport.Clip = null;
-
-            var brushPreview = new Border {
-                Width = 160, Height = 120, Margin = new Thickness(200, 20, 0, 0),
-                HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top,
-                Background = new VisualBrush(viewport) { Stretch = Stretch.Fill }
+            var harness = new P4WpfHarness(hiddenSource: false);
+            var root = harness.Root;
+            root.Width = 380;
+            root.Height = 200;
+            root.Background = Brushes.Magenta;
+            var viewport = harness.Viewport;
+            viewport.HorizontalAlignment = HorizontalAlignment.Left;
+            viewport.VerticalAlignment = VerticalAlignment.Top;
+            viewport.Margin = new Thickness(20, 20, 0, 0);
+            var decorator = new AdornerDecorator { Child = root };
+            var window = new Window {
+                Title = "Phase 4 productive WPF composition acceptance",
+                Content = decorator,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                WindowStyle = WindowStyle.None,
+                ResizeMode = ResizeMode.NoResize,
+                Left = 100,
+                Top = 100,
+                Topmost = true,
+                ShowInTaskbar = false,
+                Background = Brushes.Magenta
             };
-            root.Children.Add(brushPreview);
-            window.UpdateLayout();
-            AssertSnapshot(decorator, new Point(280, 80), Colors.Red, "actual VisualBrush GPU mesh");
-            AssertSnapshot(decorator, new Point(208, 28), Colors.Black, "actual VisualBrush GPU background");
-            await AssertDesktopAsync(window, root, new Point(280, 80), Colors.Red, "actual VisualBrush GPU mesh");
-
-            var sharp = P4WpfHarness.Snapshot(harness.Canvas, 160, 120);
-            var boundary = Enumerable.Range(1, 79).First(x => sharp[(60 * 160 + x) * 4 + 2] > 200);
-            var sampleX = boundary - 3;
-            Assert.True(sampleX > 0);
-            var sharpRed = sharp[(60 * 160 + sampleX) * 4 + 2];
-            Assert.InRange(sharpRed, 0, 8);
-            viewport.Effect = new BlurEffect { Radius = 8, KernelType = KernelType.Gaussian };
-            window.UpdateLayout();
-            var blurred = P4WpfHarness.Snapshot(decorator, 380, 200);
-            var blurredRed = blurred[((60 + 20) * 380 + sampleX + 20) * 4 + 2];
-            Assert.InRange(blurredRed, 9, 220);
-            output.WriteLine($"Blur of actual GPU mesh edge at DIP ({sampleX},60): sharp R={sharpRed}, blurred R={blurredRed}.");
-            viewport.Effect = null;
-
-            layer = Assert.IsType<AdornerLayer>(AdornerLayer.GetAdornerLayer(viewport));
-            adorner = new SolidPatchAdorner(viewport);
-            layer.Add(adorner);
-            window.UpdateLayout();
-            Assert.Contains(adorner, layer.GetAdorners(viewport)!);
-            AssertSnapshot(decorator, new Point(60, 60), Colors.Cyan, "actual AdornerLayer over GPU");
-            await AssertDesktopAsync(window, root, new Point(60, 60), Colors.Cyan, "actual AdornerLayer over GPU");
-            layer.Remove(adorner);
-            adorner = null;
-            window.UpdateLayout();
-            Assert.True(layer.GetAdorners(viewport) is not { Length: > 0 });
-            harness.AssertIdle();
-            Assert.Equal(1, clickCount);
-            output.WriteLine($"Visible acceptance completed; {harness.Counters}; control clicks={clickCount}.");
-        } finally {
-            if (layer is not null && adorner is not null) layer.Remove(adorner);
-            viewport.Effect = null;
-            if (restoreCursor) _ = SetCursorPos(savedCursor.X, savedCursor.Y);
+            var button = new Button {
+                Width = 64,
+                Height = 32,
+                Margin = new Thickness(60, 50, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                Template = ButtonTemplate()
+            };
+            Panel.SetZIndex(button, 10);
+            root.Children.Add(button);
+            var clickCount = 0;
+            button.Click += (_, _) => clickCount++;
+            AdornerLayer? layer = null;
+            SolidPatchAdorner? adorner = null;
+            var savedCursor = new NativePoint();
+            var restoreCursor = GetCursorPos(ref savedCursor);
             try {
-                await harness.DisposeAsync();
+                window.Show();
+                window.Activate();
+                window.UpdateLayout();
+                await harness.WarmAsync();
+                Assert.False(viewport.EnableSwapChainRendering);
+                Assert.Null(viewport.D3D12Surface);
+                Assert.True(harness.Owner.IsInitialized);
+                Assert.NotEqual(nint.Zero, harness.Canvas.ImageSource.BoundSurface);
+                Assert.True(harness.Owner.CompletedFrames > 0);
+                Assert.True(harness.Owner.CopiedFrames > 0);
+                Assert.True(harness.Owner.PublishedFrames > 0);
+                var initial = P4WpfHarness.Snapshot(harness.Canvas, 160, 120);
+                P4WpfHarness.AssertPixel(initial, 160, 80, 60, Colors.Red);
+                P4WpfHarness.AssertPixel(initial, 160, 8, 8, Colors.Black);
+                output.WriteLine($"Production GPU image: {harness.Counters}; surface=0x{harness.Canvas.ImageSource.BoundSurface:X}.");
+
+                // Read the actual desktop as well as WPF's D3DImage software snapshot; neither feeds presentation.
+                var buttonPoint = new Point(92, 66);
+                await AssertDesktopAsync(window, root, buttonPoint, Colors.Lime, "WPF Button above GPU");
+                AssertSnapshot(decorator, buttonPoint, Colors.Lime, "WPF Button above GPU");
+                var screen = root.PointToScreen(buttonPoint);
+                var nativePoint = new NativePoint { X = (int) Math.Round(screen.X), Y = (int) Math.Round(screen.Y) };
+                var handle = new WindowInteropHelper(window).Handle;
+                Assert.Equal(handle, WindowFromPoint(nativePoint));
+                Assert.True(SetCursorPos(nativePoint.X, nativePoint.Y));
+                await WaitAsync(() => button.IsMouseOver, "native pointer over WPF Button");
+                MouseEvent(0x0002, 0, 0, 0, 0);
+                try {
+                    await Task.Delay(40);
+                } finally {
+                    MouseEvent(0x0004, 0, 0, 0, 0);
+                }
+
+                await WaitAsync(() => clickCount == 1, "native WPF Button click");
+                Assert.Equal(1, clickCount);
+                Assert.True(button.IsLoaded);
+                output.WriteLine($"Real OS mouse click count={clickCount}; WindowFromPoint=0x{handle:X}; no Popup or child HWND.");
+
+                Panel.SetZIndex(button, -1);
+                window.UpdateLayout();
+                await AssertDesktopAsync(window, root, buttonPoint, Colors.Red, "GPU above lowered Button");
+                AssertSnapshot(decorator, buttonPoint, Colors.Red, "GPU above lowered Button");
+                Panel.SetZIndex(button, 10);
+                window.UpdateLayout();
+                await AssertDesktopAsync(window, root, buttonPoint, Colors.Lime, "restored Button ZIndex");
+                button.Visibility = Visibility.Collapsed;
+
+                var clippedPoint = new Point(150, 110);
+                AssertSnapshot(decorator, clippedPoint, Colors.Black, "GPU before clipping");
+                viewport.Clip = new RectangleGeometry(new Rect(0, 0, 80, 120));
+                window.UpdateLayout();
+                AssertSnapshot(decorator, clippedPoint, Colors.Magenta, "parent revealed by GPU clipping");
+                await AssertDesktopAsync(window, root, clippedPoint, Colors.Magenta, "parent revealed by GPU clipping");
+                viewport.Clip = null;
+
+                var brushPreview = new Border {
+                    Width = 160,
+                    Height = 120,
+                    Margin = new Thickness(200, 20, 0, 0),
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Background = new VisualBrush(viewport) { Stretch = Stretch.Fill }
+                };
+                root.Children.Add(brushPreview);
+                window.UpdateLayout();
+                AssertSnapshot(decorator, new Point(280, 80), Colors.Red, "actual VisualBrush GPU mesh");
+                AssertSnapshot(decorator, new Point(208, 28), Colors.Black, "actual VisualBrush GPU background");
+                await AssertDesktopAsync(window, root, new Point(280, 80), Colors.Red, "actual VisualBrush GPU mesh");
+
+                var sharp = P4WpfHarness.Snapshot(harness.Canvas, 160, 120);
+                var boundary = Enumerable.Range(1, 79)
+                    .First(x => sharp[(60 * 160 + x) * 4 + 2] > 200);
+                var sampleX = boundary - 3;
+                Assert.True(sampleX > 0);
+                var sharpRed = sharp[(60 * 160 + sampleX) * 4 + 2];
+                Assert.InRange(sharpRed, 0, 8);
+                viewport.Effect = new BlurEffect { Radius = 8, KernelType = KernelType.Gaussian };
+                window.UpdateLayout();
+                var blurred = P4WpfHarness.Snapshot(decorator, 380, 200);
+                var blurredRed = blurred[((60 + 20) * 380 + sampleX + 20) * 4 + 2];
+                Assert.InRange(blurredRed, 9, 220);
+                output.WriteLine($"Blur of actual GPU mesh edge at DIP ({sampleX},60): sharp R={sharpRed}, blurred R={blurredRed}.");
+                viewport.Effect = null;
+
+                layer = Assert.IsType<AdornerLayer>(AdornerLayer.GetAdornerLayer(viewport));
+                adorner = new SolidPatchAdorner(viewport);
+                layer.Add(adorner);
+                window.UpdateLayout();
+                Assert.Contains(adorner, layer.GetAdorners(viewport)!);
+                AssertSnapshot(decorator, new Point(60, 60), Colors.Cyan, "actual AdornerLayer over GPU");
+                await AssertDesktopAsync(window, root, new Point(60, 60), Colors.Cyan, "actual AdornerLayer over GPU");
+                layer.Remove(adorner);
+                adorner = null;
+                window.UpdateLayout();
+                Assert.True(layer.GetAdorners(viewport) is not { Length: > 0 });
+                harness.AssertIdle();
+                Assert.Equal(1, clickCount);
+                output.WriteLine($"Visible acceptance completed; {harness.Counters}; control clicks={clickCount}.");
             } finally {
-                window.Content = null;
-                window.Close();
+                if (layer is not null && adorner is not null) layer.Remove(adorner);
+                viewport.Effect = null;
+                if (restoreCursor) _ = SetCursorPos(savedCursor.X, savedCursor.Y);
+                try {
+                    await harness.DisposeAsync();
+                } finally {
+                    window.Content = null;
+                    window.Close();
+                }
             }
         }
-    });
+    );
 
     /// <summary>Creates a solid button face so visual assertions do not depend on theme, hover or glyph rasterization.</summary>
     /// <returns>A normal WPF Button template without a Popup.</returns>
@@ -174,8 +188,10 @@ public sealed class P4VisibleCompositionTests(ITestOutputHelper output) {
     private void AssertSnapshot(Visual visual, Point point, Color expected, string operation) {
         var pixels = P4WpfHarness.Snapshot(visual, 380, 200);
         var offset = ((int) point.Y * 380 + (int) point.X) * 4;
-        output.WriteLine($"{operation}: WPF BGRA=({pixels[offset]},{pixels[offset + 1]}," +
-            $"{pixels[offset + 2]},{pixels[offset + 3]}) at {point}.");
+        output.WriteLine(
+            $"{operation}: WPF BGRA=({pixels[offset]},{pixels[offset + 1]}," +
+            $"{pixels[offset + 2]},{pixels[offset + 3]}) at {point}."
+        );
         P4WpfHarness.AssertPixel(pixels, 380, (int) point.X, (int) point.Y, expected);
     }
 
@@ -188,23 +204,28 @@ public sealed class P4VisibleCompositionTests(ITestOutputHelper output) {
     /// <returns>The bounded compositor wait.</returns>
     private async Task AssertDesktopAsync(Window window, FrameworkElement root, Point point, Color expected, string operation) {
         uint pixel = uint.MaxValue;
-        await WaitAsync(() => {
-            var screen = root.PointToScreen(point);
-            var nativePoint = new NativePoint { X = (int) Math.Round(screen.X), Y = (int) Math.Round(screen.Y) };
-            Assert.Equal(new WindowInteropHelper(window).Handle, WindowFromPoint(nativePoint));
-            var dc = GetDC(0);
-            Assert.NotEqual(nint.Zero, dc);
-            try {
-                pixel = GetPixel(dc, nativePoint.X, nativePoint.Y);
-            } finally {
-                _ = ReleaseDC(0, dc);
-            }
-            return pixel != uint.MaxValue && Math.Abs((int) (pixel & 255) - expected.R) <= 24 &&
-                Math.Abs((int) ((pixel >> 8) & 255) - expected.G) <= 24 &&
-                Math.Abs((int) ((pixel >> 16) & 255) - expected.B) <= 24;
-        }, operation);
-        output.WriteLine($"{operation}: desktop RGB=({pixel & 255},{(pixel >> 8) & 255}," +
-            $"{(pixel >> 16) & 255}) at DIP {point}.");
+        await WaitAsync(
+            () => {
+                var screen = root.PointToScreen(point);
+                var nativePoint = new NativePoint { X = (int) Math.Round(screen.X), Y = (int) Math.Round(screen.Y) };
+                Assert.Equal(new WindowInteropHelper(window).Handle, WindowFromPoint(nativePoint));
+                var dc = GetDC(0);
+                Assert.NotEqual(nint.Zero, dc);
+                try {
+                    pixel = GetPixel(dc, nativePoint.X, nativePoint.Y);
+                } finally {
+                    _ = ReleaseDC(0, dc);
+                }
+
+                return pixel != uint.MaxValue && Math.Abs((int) (pixel & 255) - expected.R) <= 24 &&
+                       Math.Abs((int) ((pixel >> 8) & 255) - expected.G) <= 24 &&
+                       Math.Abs((int) ((pixel >> 16) & 255) - expected.B) <= 24;
+            }, operation
+        );
+        output.WriteLine(
+            $"{operation}: desktop RGB=({pixel & 255},{(pixel >> 8) & 255}," +
+            $"{(pixel >> 16) & 255}) at DIP {point}."
+        );
     }
 
     /// <summary>Bounds test-only input/compositor waits without blocking the dispatcher.</summary>
@@ -234,6 +255,7 @@ public sealed class P4VisibleCompositionTests(ITestOutputHelper output) {
     private struct NativePoint {
         /// <summary>The horizontal physical pixel coordinate.</summary>
         internal int X;
+
         /// <summary>The vertical physical pixel coordinate.</summary>
         internal int Y;
     }

@@ -369,6 +369,35 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
         }
     );
 
+    /// <summary>Discards commands recorded by an automatic scene update that stops rendering reentrantly.</summary>
+    /// <returns>The unsubmitted recording and successful explicit retry verification.</returns>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task StopFromNodeUpdateDiscardsAutomaticCommandsAndRetainsDemand() => StaThread.RunAsync(async () => {
+        await using var driver = new FrameDriver();
+        await driver.WarmAsync();
+        var before = driver.Counts;
+        driver.Viewport.StartRendering();
+        driver.Node.StopOnNextUpdate = driver.Viewport;
+        driver.Viewport.InvalidateRender();
+        var automaticTick = typeof(D3D12WpfPresentation)
+            .GetMethod("OnRendering", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .CreateDelegate<EventHandler<RenderingEventArgs>>(driver.Owner);
+        automaticTick(driver.Canvas, CreateRenderingArgs(TimeSpan.FromSeconds(2)));
+        Assert.Equal(before.Submitted, driver.Owner.SubmittedFrames);
+        Assert.Equal(before.Completed, driver.Owner.CompletedFrames);
+        Assert.Equal(before.Copied, driver.Owner.CopiedFrames);
+        Assert.Equal(before.Published, driver.Owner.PublishedFrames);
+        Assert.Equal(before.Updates + 1, driver.Node.UpdateCount);
+        Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+        Assert.False(driver.Node.IsDisposed);
+        await driver.DrainAsync();
+        Assert.Equal(before.Submitted + 1, driver.Owner.SubmittedFrames);
+        Assert.Equal(before.Published + 1, driver.Owner.PublishedFrames);
+        AssertDominantMeshPixel(driver.Snapshot(), driver.Canvas.PixelWidth, driver.Canvas.PixelHeight, red: true);
+    });
+
     /// <summary>Retries genuine zero-duration WPF lock failures without replacing the ready frame or bound surface.</summary>
     /// <returns>The actual lock contention, retained transport and single-publication verification.</returns>
     [Fact(Explicit = true)]
@@ -1187,6 +1216,9 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
         /// <summary>Gets or sets the viewport invalidated exactly once from its next actual update.</summary>
         internal Viewport3DX? InvalidateOnNextUpdate { get; set; }
 
+        /// <summary>Gets or sets the viewport stopped once from its next scene update.</summary>
+        internal Viewport3DX? StopOnNextUpdate { get; set; }
+
         /// <summary>Gets or sets the viewport requesting disposal from its next actual update.</summary>
         internal Viewport3DX? DisposeOnNextUpdate { get; set; }
 
@@ -1211,6 +1243,9 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
             var invalidate = InvalidateOnNextUpdate;
             InvalidateOnNextUpdate = null;
             invalidate?.InvalidateRender();
+            var stop = StopOnNextUpdate;
+            StopOnNextUpdate = null;
+            stop?.StopRendering();
             var dispose = DisposeOnNextUpdate;
             DisposeOnNextUpdate = null;
             if (dispose is null) return;

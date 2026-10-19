@@ -259,20 +259,18 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             _ = demand.TryTakeRecoveryRequest();
             DetectPresentationChanges();
             if (!ServiceTransport(waitForCompletion || captureFrame)) {
-                if ((!automaticFrame || viewport.WpfRenderingEnabled) && canvas.IsActive)
+                if (CanRecordScene(automaticFrame))
                     viewport.UpdateWpfCamera(renderingTime);
                 return 0;
             }
 
             viewport.RaiseCompletedWpfFrames(this);
-            if ((automaticFrame && !viewport.WpfRenderingEnabled) || IsDisposed || stopping ||
-                !viewport.CanRenderWpfScene || !canvas.IsActive) return 0;
+            if (!CanRecordScene(automaticFrame)) return 0;
             if (bridge is null) CreateNative();
             if (captureFrame) demand.Request(D3D12RenderInvalidation.Render);
             reserved = demand.TryBeginFrame(out _);
             viewport.UpdateWpfCamera(renderingTime);
-            if ((automaticFrame && !viewport.WpfRenderingEnabled) || IsDisposed || stopping ||
-                !viewport.CanRenderWpfScene) return 0;
+            if (!CanRecordScene(automaticFrame)) return 0;
             if (!reserved && !demand.TryBeginFrame(out _)) return 0;
             reserved = true;
             if (captureFrame) {
@@ -286,7 +284,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             recording = true;
             try {
                 var draws = viewport.RecordWpfScene(renderer!, currentCommands, in target, canvas.EffectiveDpiScale);
-                if (stopping) {
+                if (!CanRecordScene(automaticFrame)) {
                     currentCommands.Close();
                     recording = false;
                     recreateRequested = true;
@@ -334,6 +332,13 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 deferredDisposal = canvas.Dispatcher.BeginInvoke(DispatcherPriority.Send, disposeViewport);
         }
     }
+
+    /// <summary>Reads current scene eligibility again after application callbacks, preserving explicit-consumer permission.</summary>
+    /// <param name="automaticFrame">Whether automatic rendering must still be enabled.</param>
+    /// <returns>Whether a scene may be recorded or submitted at this boundary.</returns>
+    private bool CanRecordScene(bool automaticFrame) =>
+        !IsDisposed && !stopping && viewport.CanRenderWpfScene && canvas.IsActive &&
+        (!automaticFrame || viewport.WpfRenderingEnabled);
 
     /// <summary>Returns a new explicit capture, rejecting a publication-blocked request rather than returning stale pixels.</summary>
     /// <returns>The newly completed, normalized scene pixels.</returns>

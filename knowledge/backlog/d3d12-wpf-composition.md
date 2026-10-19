@@ -2,7 +2,7 @@
 type: ImplementationPlan
 title: D3D12 WPF composition proof and phased integration
 generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T11:17:00Z }
-verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T12:00:00Z }
+verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T12:44:30Z }
 status: draft
 sources:
   - resource: ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
@@ -249,6 +249,9 @@ The plan maps F14–F20 to P3.1–P3.4 and remaining P4/P5 integration. F20 reco
 postprocess-target issue found during contract preparation. These are requirements, not claims that production
 WPF integration is already implemented. This documentation-only step does not authorize P3.1–P3.4, change the
 public default, or supersede the eight-failure baseline. It requires no source build/test/Graphify rerun.
+Independent review accepted contract commit `1913dab60` without must-fix findings. Parent documentation checks
+passed for the five changed Markdown files, OKF type declarations, 44 local links/resources and whitespace.
+P3.0 is complete; productive P3.1–P3.4 implementation remains unstarted pending explicit approval.
 
 # References
 

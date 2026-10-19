@@ -248,6 +248,15 @@ Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
 - Graphify nach finalen Quelländerungen erfolgreich: 1.021 Dateien, 9.841 Knoten, 17.265 Kanten, 2.884 Communities; bestehende 17 partielle Parser-Ergebnisse bleiben dokumentiert.
 - **Haltepunkt erreicht: Phase 3 startet erst nach ausdrücklicher Freigabe.**
 
+### Stand 2026-10-19 · P3.0 abgeschlossen
+
+- Architekturvertrag und Taskbesitz in `1913dab60` festgelegt; F14–F20 mit Abnahmekriterien zugeordnet.
+- Ein D3D12-Besitzer, geliehenes Ziel, explizite Frame-Serials und getrennte Render-/Kopie-/Publikationszustände verbindlich. WPF-Premultiplikation, Luma/FXAA-Coverage, Zwischenformate und Capture-Normalisierung getrennt definiert.
+- Recovery-Generationen, Unload/Attachment-Grenzen, Scene2D-Wecksignal und Heap-Prüfungen festgelegt; A/B/C/I haben getrennte Dateiverantwortung.
+- Unabhängiges Vertragsreview ohne offene Pflichtkorrekturen. Fünf Markdown-Dateien und 44 lokale Links/Quellenverweise geprüft; `git diff --check` erfolgreich.
+- Ausschließlich Dokumentation geändert. Keine neuen Build-, GPU-, Test- oder Graphify-Ergebnisse behauptet.
+- **Haltepunkt erreicht: P3.1–P3.4 sind vorbereitet und starten nach ausdrücklicher Freigabe.**
+
 Jeder Phasenbericht enthält:
 
 - Phasenstatus, integrierten Commit und erledigte Task-IDs.

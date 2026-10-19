@@ -2,8 +2,8 @@
 type: ArchitectureDecision
 title: WPF composition integration contracts
 generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T12:38:20Z }
-verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T12:38:20Z }
-status: draft
+verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T12:44:30Z }
+status: active
 sources:
   - resource: ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
   - resource: ../../Source/SilkToolkit/Controls/D3D12FrameRenderer.cs
@@ -208,3 +208,8 @@ The next implementation phase must establish these checks serially on the integr
 
 P3.0 itself changes documentation only. Build, shader, GPU, allocation and Graphify gates are not rerun for
 this contract. The previous Phase 2 runtime results remain historical evidence, not proof of these new requirements.
+
+Independent read-only review of contract commit `1913dab60` found no must-fix issues in ownership, transport,
+execute/signal failure, recovery, pixels/capture, task ownership or provenance. The parent checked all five
+changed Markdown files for documentation-only scope, OKF type declarations and 44 resolving local links/resource
+references; `git diff --check` passed. P3.0 is complete. P3.1–P3.4 remain unstarted pending explicit approval.

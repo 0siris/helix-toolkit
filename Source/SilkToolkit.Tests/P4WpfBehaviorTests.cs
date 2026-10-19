@@ -547,7 +547,12 @@ public sealed class P4WpfBehaviorTests(ITestOutputHelper output) {
         harness.Viewport.Camera.Position = new Point3D(0, 0, 5);
         await harness.DrainAsync();
 
-        material.EnableUnLit = false;
+        mesh.Material = new HelixToolkit.Wpf.SharpDX.PhongMaterial {
+            DiffuseColor = new Silk.NET.Maths.Vector4D<float>(0, 0, 1, 1),
+            AmbientColor = new Silk.NET.Maths.Vector4D<float>(0, 0, 1, 1),
+            SpecularColor = new Silk.NET.Maths.Vector4D<float>(0, 0, 0, 1),
+            EmissiveColor = new Silk.NET.Maths.Vector4D<float>(0, 0, 0, 1)
+        };
         harness.Viewport.Items.Add(new AmbientLight3D { Color = Colors.White });
         await harness.DrainAsync();
         P4WpfHarness.AssertPixel(harness.SnapshotCanvas(), 160, 80, 60, Colors.Blue);

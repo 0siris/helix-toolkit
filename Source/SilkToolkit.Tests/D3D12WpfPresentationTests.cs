@@ -349,7 +349,7 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
                     driver.Viewport.Rendered += (_, _) => driver.Viewport.StopRendering();
                 else driver.Viewport.StopRendering();
                 driver.Viewport.InvalidateRender();
-                automaticTick(driver.Canvas, new RenderingEventArgs(TimeSpan.FromSeconds(2)));
+                automaticTick(driver.Canvas, CreateRenderingArgs(TimeSpan.FromSeconds(2)));
                 Assert.Equal(before.Completed, driver.Owner.CompletedFrames);
                 Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
                 gate.Release();
@@ -358,7 +358,7 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
             var timestamp = 2L;
             await PollAsync(
                 () => {
-                    automaticTick(driver.Canvas, new RenderingEventArgs(TimeSpan.FromSeconds(++timestamp)));
+                    automaticTick(driver.Canvas, CreateRenderingArgs(TimeSpan.FromSeconds(++timestamp)));
                     return !driver.Owner.HasPendingTransport;
                 }, "stopped viewport's accepted transport publication"
             );
@@ -936,6 +936,13 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
             spin.SpinOnce();
         }
     }
+
+    /// <summary>Creates the framework's timestamp arguments through its nonpublic constructor for callback sequencing.</summary>
+    /// <param name="timestamp">The distinct automatic frame timestamp.</param>
+    /// <returns>The real WPF rendering arguments used only by the lifecycle test.</returns>
+    private static RenderingEventArgs CreateRenderingArgs(TimeSpan timestamp) =>
+        (RenderingEventArgs)Activator.CreateInstance(typeof(RenderingEventArgs),
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, [timestamp], null)!;
 
     /// <summary>Retries only test-owned asynchronous work, preserving dispatcher responsiveness and a finite deadline.</summary>
     /// <param name="completed">The actual nonblocking completion attempt.</param>

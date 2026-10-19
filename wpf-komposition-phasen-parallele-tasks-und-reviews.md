@@ -204,6 +204,14 @@ Die folgenden Architektur-Findings stammen aus dem Review von `6f36703f3`. Sie s
 - **F19 · Probe-Testtreiber und Pass-Cache sind keine Null-Allokationsvorlage:** Produktive Polls mit retained state und gecachten Callbacks; vermeidbare Kosten vor Pass-Cache-Treffern in berührten Pfaden beheben. **Tasks:** P3.0, P3.2 (B), P3.3 (C), P3.4 (I), P5.5. **Nachweis:** getrennte Warm-Messungen für Idle, echte Meshframes, Kopie/Publikation/Lock-Retry sowie aktive Scene2D/Effekte.
 - **F20 · Postprocess-Zwischenziele sind fest RGBA:** `SilkD3D12PostProcessResources.TargetFormat` und zugehörige Pass-/Kopierpfade auf BGRA-Verträglichkeit prüfen. Kein ungeprüfter CopyResource zwischen inkompatiblen Formatfamilien. **Tasks:** P3.0, P3.2 (B), P3.4 (I), P5.2. **Nachweis:** passende Ressourcen-/PSO-Formate für FXAA, Bloom, Outline und weitere betroffene Pässe.
 
+### Zusätzliche Findings aus Implementierung und P3-Prüfung
+
+- **F21 · Laufzeit-Profilprüfung kann alte Shader-Bindungen brechen:** Ein neuer b0-Zugriff in `psScreenDup` entfernte das WARP-Gerät bei bestehenden direkten Nutzern ohne zuvor benötigten b0-Puffer. Betroffene Pixelstufen als additive Profilvarianten kompilieren und nur im vormultiplizierten Passkatalog austauschen; alte Module behalten ihre Bindungsverträge. **Tasks:** P3.2, P3.4. **Nachweis:** unveränderte direkte Shader-Tests, Profil-Pixeltests und vollständiges Manifest mit 136 Modulen.
+- **F22 · Freigabe und Capture brauchen Fehleridentität:** D3D11-Geräteverlust darf Freigabe nicht dauerhaft verhindern; erfolgreicher Preflight wird nicht wiederholt. Capture muss eine neue abgeschlossene Serial nachweisen. **Task:** P3.4. **Nachweis:** wiederholbarer echter WPF-Lock-Fehlschlag, Dispose-Retry und Ablehnung alter Capture-Pixel.
+- **F23 · StopRendering muss nach allen Rückrufen gelten:** GPU-Abschluss-, Kamera-, Szenen- und Timer-Rückrufe können den Zustand ändern. Angenommenen Transport abschließen, Berechtigung vor neuer Einreichung erneut prüfen und abgebrochene Aufzeichnungen sicher verwerfen. **Task:** P3.4. **Nachweis:** Stop vor/aus Abschluss, aus Node-Update und aus suspendiertem Transport mit wiederhergestellter Sichtbarkeit.
+- **F24 · Heap-Nachweis braucht echte häufige Pfade:** Delegates, Polygon-Enumeratoren, Clip-Arrays und Metadatenzugriffe bei konstanten Spans gesondert prüfen. Framework-Kosten beim fehlgeschlagenen WPF-Lock getrennt messen. **Tasks:** P3.2, P3.4, P5.5. **Nachweis:** echte Draw-/Publikationszähler, ruhende und aktive Messungen sowie Scene2D mit Layout und Clipping.
+- **F25 · Allokationszähler kann durch Hintergrund-GC verfälscht werden:** Der dokumentierte .NET-10-Befund `dotnet/runtime#134724` passt zu sporadischen Zusatzbytes im parallelen Testlauf. Nur den Core-Testhost mit nicht gleichzeitigem GC qualifizieren, effektive Einstellung und positive Allokationskontrolle prüfen; Null-Byte-Grenzen beibehalten. **Tasks:** P3.4, P5.5. **Grenze:** Zuordnung des ursprünglichen Intervalls bleibt eine begründete Vermutung; keine Änderung der Produkt-GC-Einstellungen.
+
 Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
 
 - `c59fcc424:Source/HelixToolkit.SharpDX.Shared/Render/RenderHost/RenderHostBase.cs`: Zeilen 244–253 für EffectsManager-Ereignisse, 708–779 für Invalidierung und Framebudget.
@@ -256,6 +264,30 @@ Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
 - Unabhängiges Vertragsreview ohne offene Pflichtkorrekturen. Fünf Markdown-Dateien und 44 lokale Links/Quellenverweise geprüft; `git diff --check` erfolgreich.
 - Ausschließlich Dokumentation geändert. Keine neuen Build-, GPU-, Test- oder Graphify-Ergebnisse behauptet.
 - **Haltepunkt erreicht: P3.1–P3.4 sind vorbereitet und starten nach ausdrücklicher Freigabe.**
+
+### Stand 2026-10-19 · Phase 3 abgeschlossen
+
+- Nach ausdrücklicher Freigabe parallel implementiert und integriert: produktive GPU-Brücke, Core-Ausgabeprofil,
+  passiver WPF-Canvas und interner Präsentationsbesitzer mit gemeinsamer Renderpipeline.
+- **P3.1–P3.4 erledigt:** ein gemeinsamer D3D12-Besitzer, GPU-Brücke mit zwei unveränderlichen WPF-Zielslots,
+  bedarfsgesteuerter Transport mit Serials, korrekte BGRA-/Alpha-Ausgabe und explizites Capture.
+- Unabhängige Reviews mit Heap-Fokus; Owner-Runde 6, Core-Runde 5 und finales Messungsreview ohne offene
+  Pflichtkorrekturen. Findings F14–F25 umgesetzt beziehungsweise mit klaren Folgeaufgaben/Grenzen dokumentiert.
+- Shader-Kompatibilität durch 13 additive Profilmodule; bestehende Bindungsverträge und benutzerdefinierte
+  Shader-Reader bleiben erhalten. Neues Manifest umfasst 136 Module.
+- Letzter Implementierungsstand `1d0c59efe`; Rider-Build erfolgreich. **82 neue Fälle bestanden**, darunter
+  **27 ausdrückliche Hardwarefälle**. Standardtests **729/737 bestanden**, exakt dieselben acht Baseline-Fehler.
+- Warm-Messungen: Idle und native Scene2D-Vorbereitung **0 Bytes**; echter WPF-Mesh **184 Bytes/Frame**,
+  Mesh mit FXAA/Scene2D **208 Bytes/Frame**. 1.000 echte Lock-Retries: Framework und Owner jeweils 32.000 Bytes.
+- Exakte Core-Messung isoliert den bekannten möglichen Hintergrund-GC-Zählerfehler nur im Testhost;
+  positive Kontrolle 64 Bytes, unveränderte Null-Byte-Grenzen. Keine Änderung der Produkt-GC-Konfiguration.
+- Einzelheiten, Messgrenzen, Reviewantworten und TRX-Präfixe im
+  [Phasenbericht](knowledge/backlog/d3d12-wpf-composition.md). Geräteverlust/RDP/zweiter Adapter und mehrere
+  gemeinsame Verbraucher sind damit noch nicht vollständig nachgewiesen.
+- Graphify lokal erfolgreich: **1.038 Dateien, 10.230 Knoten, 18.893 Kanten, 2.756 Communities**;
+  dieselben 17 partiellen Parser-Ergebnisse. Staging entfernt, erzeugte Daten nicht von Hand geändert.
+- **Haltepunkt erreicht: Phase 4 und der öffentliche Backend-Schalter mit Default `false` starten erst nach
+  ausdrücklicher Freigabe.**
 
 Jeder Phasenbericht enthält:
 

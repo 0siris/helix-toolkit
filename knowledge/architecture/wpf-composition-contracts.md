@@ -2,7 +2,7 @@
 type: ArchitectureDecision
 title: WPF composition integration contracts
 generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T12:38:20Z }
-verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T12:44:30Z }
+verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T16:53:10Z }
 status: active
 sources:
   - resource: ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
@@ -10,6 +10,11 @@ sources:
   - resource: ../../Source/SilkToolkit/Controls/D3D12FrameTarget.cs
   - resource: ../../Source/SilkToolkit/Controls/D3D12RenderDemand.cs
   - resource: ../../Source/SilkToolkit/Controls/D3DImageInteropProbe.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12WpfPresentation.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12ImageInteropBridge.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12ImageSource.cs
+  - resource: ../../Source/SilkToolkit/Controls/DPFCanvas.cs
+  - resource: ../../Source/SilkCore/Native/D3D12ScenePassCatalog.cs
   - resource: ../../Source/SilkToolkit/Controls/Viewport3DX.RenderDemand.cs
   - resource: ../../Source/SilkCore/Native/D3D12PostProcessResources.cs
   - resource: ../../Source/SilkToolkit.Native.ShaderBuilder/PS/psLuma.hlsl
@@ -18,15 +23,16 @@ sources:
 
 # Decision and scope
 
-P3.0 records the contracts required before P3.1–P3.3 start in parallel. These are implementation requirements,
-not implemented APIs or new runtime verification. The Phase 2 basis is `6f36703f3`. The common recorder and
-value-type target remain; no second scene renderer or duplicated viewport loop is introduced in the canvas.
+P3.0 froze the contracts before P3.1–P3.3 started in parallel. P3.1–P3.4 now implement these internal APIs;
+the [phase report](/backlog/d3d12-wpf-composition.md) records runtime evidence and remaining limits. The
+Phase 2 basis is `6f36703f3`. The common recorder and value-type target remain; no second scene renderer
+or duplicated viewport loop is introduced in the canvas.
 The independent architecture review found no new Phase 2 blocker. Its six findings map to F14–F19 in the
 phase plan; the source-format audit adds F20. Productive implementation remains subject to the next phase gate.
 
 # Ownership
 
-The following names describe planned internal components; no public API is removed or renamed.
+The following names describe the implemented internal boundaries; no public API is removed or renamed.
 
 | Owner | Creates and disposes | Borrows |
 | --- | --- | --- |
@@ -250,4 +256,20 @@ this contract. The previous Phase 2 runtime results remain historical evidence, 
 Independent read-only review of contract commit `1913dab60` found no must-fix issues in ownership, transport,
 execute/signal failure, recovery, pixels/capture, task ownership or provenance. The parent checked all five
 changed Markdown files for documentation-only scope, OKF type declarations and 44 resolving local links/resource
-references; `git diff --check` passed. P3.0 is complete. P3.1–P3.4 remain unstarted pending explicit approval.
+references; `git diff --check` passed. P3.0 is complete. The user subsequently approved P3.1–P3.4;
+implementation is integrated. Its serial runtime/review gate is recorded in the phase report. This does not authorize P4.
+
+## Shader compatibility refinement during P3 validation
+
+Legacy pixel shaders must retain their existing descriptor requirements. A uniform profile test alone is
+insufficient: it can introduce a new b0 read before the legacy branch executes. The direct screen-quad regression
+demonstrated device removal when the previously unused b0 descriptor remained uninitialized.
+
+Affected pixel stages therefore have additive compiled `Premultiplied` variants. Only those wrappers define
+`WPF_PREMULTIPLIED_OUTPUT`; the legacy compilation makes `IsPremultipliedOutput()` constant false. The
+premultiplied catalog substitutes known built-in pixel modules in a copied shader list on pass creation.
+Substitution requires identity with the canonical built-in description, preserving an application's custom
+reader even when it uses the same bytecode name. Application modules and shared descriptions remain unchanged.
+The variant still reads the agreed b0
+profile bits; no public constant-buffer layout, technique, pass or constructor contract changes. The complete
+DXC inventory grows from 123 to 136 modules and is verified by the existing resource/manifest tests.

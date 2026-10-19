@@ -1,5 +1,21 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-19 — WPF composition Phase 3 verified
+
+- Integrated the productive borrowed-device GPU bridge, passive canvas and serial-aware presentation owner.
+  Kept scene demand separate from GPU completion, copy and WPF publication; retained ready slots across retries.
+- Preserved BGRA premultiplied coverage through geometry, OIT, effects, FXAA and Scene2D; isolated thirteen
+  compiled shader variants to retain legacy descriptor contracts and application shader readers.
+- Closed independent lifecycle, reentrancy, attachment and heap findings. Actual warm WPF mesh frames measure
+  184 bytes/frame, FXAA/Scene2D 208, idle and native Scene2D preparation zero; lock retries match framework cost.
+- Qualified exact allocation counters only in the Core test host, with nonconcurrent GC and a positive control;
+  the documented runtime accounting defect is a plausible explanation for earlier intermittent extra bytes.
+- Rider build passes; 729/737 standard cases pass with exactly the same eight baseline failures. All 82 new
+  cases pass, including 27 explicit hardware cases. Physical fault, RDP and multi-adapter limits remain disclosed.
+- Updated contracts and plan with F21–F25. Phase 4 public default-false selection remains behind approval.
+- Regenerated the local source graph: 1,038 files, 10,230 nodes, 18,893 edges and 2,756 communities; zero
+  model tokens, the same 17 partial-parser warnings, staging removed. Updated the durable graph snapshot.
+
 ## 2026-10-19 — WPF composition Phase 3 started
 
 - User approved the productive bridge/output/canvas implementation and serial integration after P3.0.

@@ -2,7 +2,7 @@
 type: ImplementationPlan
 title: D3D12 WPF composition proof and phased integration
 generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T11:17:00Z }
-verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T12:44:30Z }
+verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T16:53:10Z }
 status: draft
 sources:
   - resource: ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
@@ -17,13 +17,23 @@ sources:
   - resource: ../../Source/SilkToolkit.Tests/D3D12FrameRendererTests.cs
   - resource: ../../Source/SilkToolkit.Tests/ViewportRenderDemandTests.cs
   - resource: ../../Source/SilkCore.Tests/NativeFrameAllocationTests.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12WpfPresentation.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12ImageInteropBridge.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12ImageSource.cs
+  - resource: ../../Source/SilkToolkit/Controls/DPFCanvas.cs
+  - resource: ../../Source/SilkToolkit.Tests/D3D12WpfPresentationTests.cs
+  - resource: ../../Source/SilkCore/Native/D3D12ColorOutputProfile.cs
+  - resource: ../../Source/SilkCore.Tests/NativePremultipliedOutputTests.cs
+  - resource: ../../Source/SilkCore.Tests/NativeRenderSourceNotificationTests.cs
+  - resource: ../../Source/SilkCore.Tests/NativeMeshRecordingAllocationTests.cs
+  - resource: ../../Source/SilkCore.Tests/NativeParticleTextureLifetimeTests.cs
 ---
 
 # Scope
 
 The [implementation plan](../../wpf-komposition-phasen-parallele-tasks-und-reviews.md) defines six phases,
 parallel task ownership, thirteen historical findings, seven architecture integration findings and an explicit
-approval boundary after each phase. Phase 1 is an isolated hardware interoperability proof; Phase 2 extracts
+approval boundary after each phase, followed by five P3 implementation/qualification findings. Phase 1 is an isolated hardware interoperability proof; Phase 2 extracts
 the common recorder. Production Viewport selection remains later work.
 
 The intended default is `EnableSwapChainRendering = false`, restoring WPF composition. Explicit `true`
@@ -251,7 +261,123 @@ WPF integration is already implemented. This documentation-only step does not au
 public default, or supersede the eight-failure baseline. It requires no source build/test/Graphify rerun.
 Independent review accepted contract commit `1913dab60` without must-fix findings. Parent documentation checks
 passed for the five changed Markdown files, OKF type declarations, 44 local links/resources and whitespace.
-P3.0 is complete; productive P3.1–P3.4 implementation remains unstarted pending explicit approval.
+P3.0 is complete. The user subsequently approved productive P3.1–P3.4 implementation. Native bridge,
+Core output profile, passive canvas and internal viewport presentation owner are integrated; runtime,
+allocation and independent review gates are complete as recorded below. P4 public backend/default wiring remains separate.
+
+# P3 productive composition integration
+
+P3.1–P3.4 implement the internal presentation path before P4 exposes backend selection. One
+`D3D12WpfPresentation` owns the device, queue, reusable command context, fence and common frame renderer.
+`D3D12ImageInteropBridge` borrows that exact device and owns the canonical BGRA source/RTV, its D3D11 import
+and two D3D9Ex-created legacy-shared destinations. Adapter matching uses LUIDs. Normal presentation uses GPU
+copying and nonblocking completion/publication polling; CPU readback remains an explicit capture/test operation.
+
+The owner reserves scene demand before updates and consumes it only after execute/signal acceptance. A source
+cannot be recorded again while GPU completion, copying or publication still owns its serial. Failed WPF locks
+retain the ready slot; completion events, copy and publication are counted independently. Passive `DPFCanvas`
+forwards original rendering timestamps and owns only its Image/ImageSource and layout/lifecycle subscriptions.
+The ImageSource tracks actual successful SetBackBuffer binding even when a later dirty/unlock step fails.
+
+The Core profile preserves premultiplied BGRA through geometry, OIT, luma/FXAA, Scene2D/glyphs and affected
+effects; compatible color formats propagate through intermediate resources and PSOs. Frame constants carry
+internal profile bits without changing their public layout. Capture returns the existing straight BGRA contract,
+normalizing channels and alpha once. Continuous nodes, active particles/capture and dirty Scene2D notify demand.
+
+Compiled pixel-profile variants preserve legacy descriptor requirements. A full-suite regression exposed that a
+new b0 read in the shared screen-quad shader could remove the device for existing raw callers. Thirteen additive
+variants isolate profile-only reads; the immutable premultiplied catalog substitutes copied shader lists only on
+cache misses. Shared descriptions and application shader modules are retained. Inventory tests cover 136 modules.
+
+Reviewed fixes include fractional-DPI rounding, D3D11-removal-aware teardown, retryable disposal preflight,
+capture serial identity, and every automatic callback entry respecting a reentrant StopRendering. Accepted
+transport still completes after stopping; callbacks cannot submit a new automatic scene after camera, scene or
+completion hooks stop it. Unsubmitted recordings are discarded with their generation and demand is retained.
+Resize/recreation/unload keep application scene/manager ownership; final viewport disposal remains distinct.
+
+Heap work retains geometry, pass keys and binding delegates. Reviews removed texture-property closures,
+boxed polygon enumeration and clipped-bounds arrays/LINQ, and restored the cached particle owner predicate on
+each attachment cycle. Rectangle indices use explicit stack storage; allocation diagnostics separately measure
+cleanup, preparation and preparation without layout. Measurements preserve actual draw/publication counters.
+
+The final runtime and generated-graph results are recorded below. Physical GPU
+removal/hangs, RDP/WARP interop and multi-adapter behavior are not established by explicit generation recreation
+or callback/lock tests. Arbitrary custom shaders must honor the straight shader-color convention; their alpha
+representation cannot be inferred. Public default-false selection, templates, shared consumers, host manager
+events and broader input/property compatibility remain P4/P5 work.
+
+## P3 acceptance evidence
+
+The final implementation includes `1d0c59efe`; the serial Rider build
+`e1b00200-d057-425b-8ede-0a83472d1c2f` is the final compilation gate. Runtime qualification uses the complete
+standard filter, not a replacement selection that hides the eight existing failures. The 55 additional standard
+cases comprise 29 Core cases, 13 additional shader-inventory cases and 13 managed Toolkit cases. Another
+27 explicit hardware cases cover the productive bridge, passive canvas and presentation owner.
+
+The independent owner review finished without remaining blockers in round 6; Core output/attachment reviews
+accepted the particle reattachment fix, all thirteen compiled variants and the final custom-reader identity fix.
+The latter test resolves an actual native pipeline and verifies the application's reader is consumed once and
+retained on cache hits. These are static independent reviews; runtime evidence is established by the parent.
+
+Warm measurements use synchronous thread-local counters outside assertions, logging and capture:
+
+| Measured path | Actual work | Managed allocation |
+| --- | --- | --- |
+| Idle WPF coordination | 1,000 STA calls; all transport counters unchanged | 0 bytes |
+| Native bridge | 64 copies and 1,024 ready polls after warm-up | 0 bytes |
+| Native pass lookup and Scene2D preparation | 1,000 layouts/preparations, 6,000 clipped rectangle/ellipse/border draws | 0 bytes |
+| Native mesh recording, empty and unchanged textures | 256 frames and 768 draws per case | 72 bytes/frame |
+| Productive WPF mesh | 128 complete submitted/copied/published frames | 184 bytes/frame |
+| Productive WPF mesh + FXAA + Scene2D | 128 complete frames | 208 bytes/frame |
+| Failed WPF lock | 1,000 real retries | Framework control 32,000 bytes; owner 32,000 bytes |
+
+The WPF regression ceilings are 256 bytes/frame for the measured mesh and 512 for its FXAA/Scene2D case;
+native mesh recording is bounded by 128 bytes/frame. Lock retry therefore adds no measured owner allocation
+beyond WPF's 32 bytes/attempt. This is scene-specific evidence, not a zero-allocation claim for arbitrary
+materials, callbacks, animation, effects, capture, growing capacities, initialization or exceptional recovery.
+
+Exact counter qualification required a test-host adjustment. Parallel runs intermittently reported 8,008 or
+72 bytes for the otherwise zero-allocation Scene2D interval. Static investigation found the documented
+[background-GC accounting defect](https://github.com/dotnet/runtime/issues/134724), with an
+[upstream correction](https://github.com/dotnet/runtime/pull/134855). Matching the local symptom to that defect
+is an inference, not a traced allocation stack. A process-local non-concurrent-GC comparison passed the whole
+Core suite with only its three baseline failures. `SilkCore.Tests` alone now disables concurrent GC; the test
+checks the effective runtime setting and an allocating positive control before retaining the same warm-up,
+measured loops and exact zero assertions. Product/application GC settings are unchanged.
+
+ReSharper formatting and warning diagnostics were inspected; completed requests reported style/interop
+warnings, and some older large-file requests timed out. No global cleanup was applied. The complete build
+remains the compilation gate. The tracked shader manifest is generated by the shader build.
+
+The final Rider build succeeded. TRX prefix `wpf-phase3-verified` records **729 passed / 737 total**:
+Assimp 76/78, Core 486/489 and Toolkit 167/170. Automated comparisons against `wpf-phase2-verified` found
+exactly the same eight failing names and no removed baseline cases. All **55 added standard cases pass**.
+The global baseline is still not green; no inherited failure is represented as repaired by this phase.
+
+TRX prefix `wpf-phase3-hardware-final` records **26/26 executed Toolkit hardware cases passed**; the one
+uninitialized managed owner case is intentionally excluded by explicit-only execution. Prefix
+`wpf-phase3-core-accepted` records **30/30 cases passed**, including the shared-source hardware factory
+and all 29 new Core output/notification/mesh/particle cases. Thus **all 82 new P3 cases pass**, including
+27 explicit hardware cases. The broader shader compatibility selection passed 179/179 before the final
+custom-reader regression; the final full suite includes that regression and the complete 136-module inventory.
+
+The exact-counter host adjustment was reviewed independently. The first guard compared a runtime string to
+a boolean and failed before measurement; `1d0c59efe` checks the effective string value instead. The final
+full run reports positive control 64 bytes and zero cleanup/preparation/without-layout bytes. No measurement
+threshold was raised. The final delta review accepted that resolution without further required changes.
+
+Hardware evidence is one local GTX 1070/driver/desktop setup. Tests exercise bounded real queue stalls,
+immutable bound surfaces, real failed WPF locks, visible WPF pixels, resize/reload and explicit generation
+replacement. They do not establish physical GPU removal/hangs, RDP, WARP interop, a second hardware adapter
+or multiple shared-scene consumers. Those limits and the existing eight baseline failures remain explicit.
+
+P3.1–P3.4 are complete. **Stop before P4:** the public default-false switch, template selection, full property/
+input/shared-consumer compatibility and final parity/performance work require the next phase approval.
+
+Graphify completed after the final source changes: **1,038 files, 10,230 nodes, 18,893 edges and 2,756
+communities**, with zero model tokens. The same 17 partial-parser warnings remain. The wrapper exited
+successfully, wrote `graphify-out/graph.json` and removed `.graphify-code-corpus`; no generated graph was
+hand-edited. The [graph snapshot](/graphify-database.md) records the current counts.
 
 # References
 

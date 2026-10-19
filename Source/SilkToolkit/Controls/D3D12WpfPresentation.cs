@@ -178,6 +178,43 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Gets whether final native teardown completed.</summary>
     internal bool IsDisposed { get; private set; }
 
+    /// <summary>Gets whether application scene callbacks currently borrow this owner's open commands.</summary>
+    internal bool IsRecording => recording;
+
+    /// <summary>Gets whether any frame, transport or completion callback is active on this owner's stack.</summary>
+    internal bool IsUpdating => updating;
+
+    /// <summary>Completes submitted work before an external manager synchronously frees borrowed resources.</summary>
+    /// <remarks>This lifecycle operation may run inside camera or scene callbacks; it never releases open CPU recording.</remarks>
+    internal void DrainSubmittedWorkForManagerDisposal() {
+        canvas.Dispatcher.VerifyAccess();
+        if (device is null || device.Handle->GetDeviceRemovedReason() < 0) return;
+        var drain = queue!.Signal(fence!);
+        fence!.Wait(drain, CompletionTimeout);
+    }
+
+    /// <summary>Retires scene and transport resources before an external manager changes its attachment lifetime.</summary>
+    /// <exception cref="InvalidOperationException">A frame callback is still active.</exception>
+    /// <exception cref="TimeoutException">The WPF surface could not be detached; ownership is retained.</exception>
+    internal void RetireSceneResources() {
+        canvas.Dispatcher.VerifyAccess();
+        ObjectDisposedException.ThrowIf(IsDisposed || stopping, this);
+        if (updating) throw new InvalidOperationException("Scene resources cannot retire inside an active frame callback.");
+        RequestRecreation();
+        if (device is null) {
+            recreateRequested = false;
+            return;
+        }
+        updating = true;
+        try {
+            _ = ServiceTransport(true);
+            if (device is not null)
+                throw new TimeoutException("The WPF surface remains bound; scene resources are retained for retry.");
+        } finally {
+            updating = false;
+        }
+    }
+
     /// <summary>Requests generation replacement at a quiescent and detached native boundary.</summary>
     internal void RequestRecreation() {
         canvas.Dispatcher.VerifyAccess();
@@ -328,6 +365,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             if (reserved) demand.CompleteFrame(accepted);
             updating = false;
             UpdateServiceTimer();
+            viewport.ScheduleManagerLifecycle();
             if (disposeRequested && deferredDisposal is null && !canvas.Dispatcher.HasShutdownStarted)
                 deferredDisposal = canvas.Dispatcher.BeginInvoke(DispatcherPriority.Send, disposeViewport);
         }
@@ -337,7 +375,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="automaticFrame">Whether automatic rendering must still be enabled.</param>
     /// <returns>Whether a scene may be recorded or submitted at this boundary.</returns>
     private bool CanRecordScene(bool automaticFrame) =>
-        !IsDisposed && !stopping && viewport.CanRenderWpfScene && canvas.IsActive &&
+        !IsDisposed && !stopping && !recreateRequested && viewport.CanRenderWpfScene && canvas.IsActive &&
         (!automaticFrame || viewport.WpfRenderingEnabled);
 
     /// <summary>Returns a new explicit capture, rejecting a publication-blocked request rather than returning stale pixels.</summary>
@@ -367,7 +405,10 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="wait">Whether an explicit caller permits bounded GPU and query waits.</param>
     /// <returns>Whether transport is idle and scene recording may be considered.</returns>
     private bool ServiceTransport(bool wait) {
-        if (device is null) return canvas.IsActive && canvas.NativeHandle != 0 && canvas.PixelWidth != 0 && canvas.PixelHeight != 0;
+        if (device is null) {
+            recreateRequested = false;
+            return canvas.IsActive && canvas.NativeHandle != 0 && canvas.PixelWidth != 0 && canvas.PixelHeight != 0;
+        }
         if (device.Handle->GetDeviceRemovedReason() < 0) {
             if (bridge is { IsCopyPending: true }) {
                 try {
@@ -512,7 +553,8 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         if (nativeHandle == 0 || width == 0 || height == 0)
             throw new InvalidOperationException("The canvas has no native presentation size.");
         try {
-            device = SilkD3D12DeviceFactory.CreateDefault(driverType: driverType);
+            var selectedDriver = viewport.EffectsManager?.EnableSoftwareRendering == true ? SilkDriverType.Warp : driverType;
+            device = SilkD3D12DeviceFactory.CreateDefault(driverType: selectedDriver);
             queue = device.CreateCommandQueue();
             commands = device.CreateCommandContext();
             fence = device.CreateFence();
@@ -522,6 +564,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 D3D12ColorOutputMode.Premultiplied
             );
             Generation++;
+            viewport.MarkPresentationInitialized();
         } catch {
             ReleaseNative();
             throw;

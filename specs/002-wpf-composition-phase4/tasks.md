@@ -6,7 +6,7 @@ Baseline: `619feb80d`; 729/737 standard cases passing, eight known failures. See
 ## Setup and original contracts
 
 - [X] T001 Resolve this feature context, check hooks/checklists, verify repository ignores and record baseline evidence.
-- [ ] T002 [P] Audit original property aliases, initialization/lifecycle and WPF input against `c59fcc424` and
+- [X] T002 [P] Audit original property aliases, initialization/lifecycle and WPF input against `c59fcc424` and
   `6215e5c0b^`; return concrete sites/requirements without editing source.
 
 ## Integration wave

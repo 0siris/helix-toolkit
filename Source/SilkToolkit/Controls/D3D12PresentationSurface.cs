@@ -37,6 +37,9 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <summary>Gets the shared renderer that owns the productive scene and depth resources.</summary>
     internal D3D12FrameRenderer? FrameRenderer => frameRenderer;
 
+    /// <summary>Gets whether pending retirement or disposal must exclude this generation from scene submission.</summary>
+    internal bool IsRetirementPending => retireRequested || disposeRequested || retiringNative;
+
     /// <summary>The native child-window transport host.</summary>
     private readonly HwndSwapChainHost windowHost = new();
     /// <summary>The coalesced physical resize requests.</summary>
@@ -51,6 +54,43 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     private readonly SilkDriverType driverType;
     /// <summary>The borrowed current effects manager.</summary>
     private IEffectsManager? effectsManager;
+
+    /// <summary>Protects borrowed renderer, command and target references until the surface frame unwinds.</summary>
+    private bool frameActive;
+
+    /// <summary>Tracks an open command list that must be closed before abandoning its native generation.</summary>
+    private bool commandsOpen;
+
+    /// <summary>Retains generation retirement requested by unload, a barrier or an abandoned recording.</summary>
+    private bool retireRequested;
+
+    /// <summary>Retains whole-surface disposal without releasing the HWND host during a scene callback.</summary>
+    private bool disposeRequested;
+
+    /// <summary>Prevents reentrant native retirement or initialization while a bounded drain is in progress.</summary>
+    private bool retiringNative;
+
+    /// <summary>Distinguishes unloaded surfaces from standalone surfaces that have not received their first load.</summary>
+    private bool suspended;
+
+    /// <summary>Records load permission independently of handle creation and nested routed lifecycle events.</summary>
+    private bool loaded;
+
+    /// <summary>Reuses the dispatcher callback for rare deferred retirement without allocating on frame ticks.</summary>
+    private readonly Action retireNativeCallback;
+
+    /// <summary>Retains at most one queued retirement callback across nested dispatcher pumps.</summary>
+    private DispatcherOperation? retirementOperation;
+
+    /// <summary>Retains explicit capture storage until submission is drained, including exceptional signal failures.</summary>
+    private SilkD3D12Resource? captureReadback;
+
+    /// <summary>Gets whether this surface or its owning viewport still borrows the generation on the CPU stack.</summary>
+    private bool HasActiveFrame => frameActive || RenderHost is Viewport3DX { IsPreparingPresentationFrame: true };
+
+    /// <summary>Gets live submission permission after all node callbacks and before command execution.</summary>
+    private bool CanSubmitFrame => !IsDisposed && !IsRetirementPending && !suspended &&
+        (RenderHost is not Viewport3DX viewport || viewport.CanSubmitNativeScene);
 
     /// <summary>Controls render resolution independently of physical native pointer decoding.</summary>
     private bool enableDpiScale = true;
@@ -107,6 +147,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         IEffectsManager? effectsManager = null) {
         this.driverType = driverType;
         this.effectsManager = effectsManager;
+        retireNativeCallback = ApplyPendingRetirement;
         _resizeRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) {
             Interval = TimeSpan.FromMilliseconds(16)
         };
@@ -144,6 +185,59 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
 
         effectsManager = value;
         _effectsManagerDirty = true;
+    }
+
+    /// <summary>Drains and releases this generation while preserving the HWND host and borrowed application manager.</summary>
+    /// <remarks>The caller delivers preceding frame completions before requesting manager-resource retirement.</remarks>
+    /// <exception cref="TimeoutException">The bounded drain failed; ownership is retained for a controlled retry.</exception>
+    internal void RetireSceneResources() {
+        Dispatcher.VerifyAccess();
+        if (IsDisposed) return;
+        retireRequested = true;
+        if (HasActiveFrame || retiringNative) return;
+        StopNative();
+        retireRequested = false;
+    }
+
+    /// <summary>Recreates native resources lazily only when load, handle and live host permission allow it.</summary>
+    internal void EnsureNativeInitialized() {
+        Dispatcher.VerifyAccess();
+        if (IsDisposed || disposeRequested || retiringNative || HasActiveFrame || suspended ||
+            !(loaded || IsLoaded) || !windowHost.IsHandleCreated) return;
+        if (RenderHost is Viewport3DX { CanSubmitNativeScene: false }) return;
+        if (retireRequested) RetireSceneResources();
+        StartNative();
+    }
+
+    /// <summary>Schedules one retained retirement callback after both surface and viewport frame stacks unwind.</summary>
+    /// <remarks>A nested callback retains its request without reposting until a frame's finally calls this method.</remarks>
+    internal void SchedulePendingRetirement() {
+        Dispatcher.VerifyAccess();
+        if (IsDisposed || (!retireRequested && !disposeRequested) || HasActiveFrame || retiringNative ||
+            retirementOperation is not null || Dispatcher.HasShutdownStarted) return;
+        retirementOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, retireNativeCallback);
+    }
+
+    /// <summary>Applies deferred lifetime work once, preserving failed requests and all ownership for an explicit retry.</summary>
+    private void ApplyPendingRetirement() {
+        retirementOperation = null;
+        if (IsDisposed || HasActiveFrame || retiringNative) return;
+        try {
+            if (disposeRequested) Dispose();
+            else if (retireRequested) RetireSceneResources();
+        } catch (Exception exception) {
+            if (DeferredRenderException is not { } handler) throw;
+            handler(this, new RelayExceptionEventArgs(exception));
+        }
+    }
+
+    /// <summary>Closes unsubmitted commands and prevents reuse of their speculative resource-state tracking.</summary>
+    private void DiscardRecordedFrame() {
+        retireRequested = true;
+        LastCapturedFrame = null;
+        if (!commandsOpen) return;
+        commandContext!.Close();
+        commandsOpen = false;
     }
 
     /// <summary>Replaces effect pipelines only after no submitted frame can still reference the old catalog.</summary>
@@ -215,14 +309,24 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     public void RenderOnce(ReadOnlySpan<float> clearColor) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (frameActive || !CanSubmitFrame) return;
         _ = CompletePendingFrame(true);
         ApplyPendingResize();
-        var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
-        var target = CreateFrameTarget(currentSwapChain);
-        var renderer = frameRenderer
-            ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
-        renderer.RecordClearFrame(currentContext, in target, clearColor);
-        EndFrame(currentContext, currentSwapChain, backBuffer);
+        frameActive = true;
+        try {
+            var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
+            var target = CreateFrameTarget(currentSwapChain);
+            var renderer = frameRenderer
+                ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+            renderer.RecordClearFrame(currentContext, in target, clearColor);
+            _ = EndFrame(currentContext, currentSwapChain, backBuffer);
+        } catch {
+            DiscardRecordedFrame();
+            throw;
+        } finally {
+            frameActive = false;
+            SchedulePendingRetirement();
+        }
     }
 
     /// <summary>
@@ -245,17 +349,26 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (frameActive || !CanSubmitFrame) return 0;
         _ = CompletePendingFrame(true);
         ApplyPendingResize();
         ApplyPendingEffectsManager();
-        var renderer = frameRenderer
-            ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
-        var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
-        var target = CreateFrameTarget(currentSwapChain);
-        var recorded = renderer.RecordSceneFrame(currentContext, in target, clearColor, candidates,
-            in transforms, testFrustum, ref frustum, lights);
-        EndFrame(currentContext, currentSwapChain, backBuffer);
-        return recorded;
+        frameActive = true;
+        try {
+            var renderer = frameRenderer
+                ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+            var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
+            var target = CreateFrameTarget(currentSwapChain);
+            var recorded = renderer.RecordSceneFrame(currentContext, in target, clearColor, candidates,
+                in transforms, testFrustum, ref frustum, lights);
+            return EndFrame(currentContext, currentSwapChain, backBuffer) ? recorded : 0;
+        } catch {
+            DiscardRecordedFrame();
+            throw;
+        } finally {
+            frameActive = false;
+            SchedulePendingRetirement();
+        }
     }
 
     /// <summary>
@@ -310,48 +423,50 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         roots.AsGuardNotNull();
         camera.AsGuardNotNull();
+        if (frameActive || !CanSubmitFrame) return 0;
         if (!CompletePendingFrame(waitForCompletion || captureFrame)) return 0;
         ApplyPendingResize();
         ApplyPendingEffectsManager();
-        var renderer = frameRenderer
-            ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
-        var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
-        var target = CreateFrameTarget(currentSwapChain);
-        int recorded;
+        frameActive = true;
         try {
-            recorded = renderer.RecordViewportFrame(currentContext, in target, (float)EffectiveDpiScale,
+            var renderer = frameRenderer
+                ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+            var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
+            var target = CreateFrameTarget(currentSwapChain);
+            var recorded = renderer.RecordViewportFrame(currentContext, in target, (float)EffectiveDpiScale,
                 clearColor, roots, camera, testFrustum, enableShadows, oitRenderType, oitDepthPeelingIterations,
                 oitWeightPower, oitWeightDepthSlope, oitWeightMode, fxaaLevel, enableSsao, ssaoRadius,
                 ssaoIntensity, ssaoQuality, roots2D, autoUpdateOctree, enableRenderOrder, RenderHost);
-        } catch {
-            // Discard unsubmitted commands and their tracked resource states together. The previous frame is complete.
-            currentContext.Close();
-            StopNative();
-            StartNative();
-            throw;
-        }
-        SilkD3D12Resource? readback = null;
-        PlacedSubresourceFootprint footprint = default;
-        ulong totalBytes = 0;
-        if (captureFrame) {
-            var currentDevice = device
-                ?? throw new InvalidOperationException("The Direct3D 12 device is unavailable.");
-            footprint = currentDevice.GetCopyableFootprint(backBuffer, out totalBytes);
-            readback = currentDevice.CreateBuffer(totalBytes, HeapType.Readback);
-            currentContext.Transition(backBuffer, ResourceStates.CopySource);
-            currentContext.CopyTextureToBuffer(readback, backBuffer, in footprint);
-        }
-        EndFrame(currentContext, currentSwapChain, backBuffer, waitForCompletion || captureFrame);
-        if (readback is not null) {
-            using (readback) {
-                LastCapturedFrame = CreateCapturedFrame(readback,
-                    in footprint,
-                    totalBytes,
-                    currentSwapChain.Width,
-                    currentSwapChain.Height);
+            if (!CanSubmitFrame) {
+                DiscardRecordedFrame();
+                return 0;
             }
+            PlacedSubresourceFootprint footprint = default;
+            ulong totalBytes = 0;
+            if (captureFrame) {
+                LastCapturedFrame = null;
+                var currentDevice = device
+                    ?? throw new InvalidOperationException("The Direct3D 12 device is unavailable.");
+                footprint = currentDevice.GetCopyableFootprint(backBuffer, out totalBytes);
+                captureReadback = currentDevice.CreateBuffer(totalBytes, HeapType.Readback);
+                currentContext.Transition(backBuffer, ResourceStates.CopySource);
+                currentContext.CopyTextureToBuffer(captureReadback, backBuffer, in footprint);
+            }
+            if (!EndFrame(currentContext, currentSwapChain, backBuffer, waitForCompletion || captureFrame)) return 0;
+            if (captureReadback is { } readback) {
+                LastCapturedFrame = CreateCapturedFrame(readback, in footprint, totalBytes,
+                    currentSwapChain.Width, currentSwapChain.Height);
+                readback.Dispose();
+                captureReadback = null;
+            }
+            return recorded;
+        } catch {
+            DiscardRecordedFrame();
+            throw;
+        } finally {
+            frameActive = false;
+            SchedulePendingRetirement();
         }
-        return recorded;
     }
 
     /// <summary>
@@ -448,7 +563,11 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ///     Releases all native and WPF-host resources.
     /// </summary>
     public void Dispose() {
+        Dispatcher.VerifyAccess();
         if (IsDisposed) return;
+        disposeRequested = retireRequested = true;
+        if (HasActiveFrame || retiringNative) return;
+        StopNative();
 
         Loaded -= OnLoaded;
         Unloaded -= OnUnloaded;
@@ -458,9 +577,11 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         if (resizeOperation is { Status: DispatcherOperationStatus.Pending }) resizeOperation.Abort();
         _resizeRetryTimer.Stop();
         _resizeRetryTimer.Tick -= RetryPendingResize;
-        StopNative();
+        retirementOperation?.Abort();
+        retirementOperation = null;
         windowHost.Dispose();
         IsDisposed = true;
+        disposeRequested = retireRequested = false;
     }
 
     /// <summary>
@@ -468,28 +589,36 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="eventArgs">The event arguments.</param>
-    private void OnLoaded(object sender, RoutedEventArgs eventArgs) => StartNative();
+    private void OnLoaded(object sender, RoutedEventArgs eventArgs) {
+        loaded = true;
+        suspended = false;
+        EnsureNativeInitialized();
+    }
 
     /// <summary>
     ///     Stops native presentation when WPF detaches the surface.
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="eventArgs">The event arguments.</param>
-    private void OnUnloaded(object sender, RoutedEventArgs eventArgs) => StopNative();
+    private void OnUnloaded(object sender, RoutedEventArgs eventArgs) {
+        loaded = false;
+        suspended = true;
+        RetireSceneResources();
+    }
 
     /// <summary>
     ///     Starts native presentation as soon as the child HWND exists.
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="eventArgs">The event arguments.</param>
-    private void OnHandleCreated(object? sender, EventArgs eventArgs) => StartNative();
+    private void OnHandleCreated(object? sender, EventArgs eventArgs) => EnsureNativeInitialized();
 
     /// <summary>
     ///     Stops native presentation before the child HWND is destroyed.
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="eventArgs">The event arguments.</param>
-    private void OnHandleDestroyed(object? sender, EventArgs eventArgs) => StopNative();
+    private void OnHandleDestroyed(object? sender, EventArgs eventArgs) => RetireSceneResources();
 
     /// <summary>
     ///     Queues a physical resize when WPF changes DPI.
@@ -506,7 +635,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// </summary>
     private void StartNative() {
         Dispatcher.VerifyAccess();
-        if (IsDisposed || swapChain is not null || !windowHost.IsHandleCreated) return;
+        if (IsDisposed || disposeRequested || retireRequested || retiringNative || HasActiveFrame ||
+            swapChain is not null || !windowHost.IsHandleCreated) return;
 
         var size = D3D12PresentationSize.Calculate(ActualWidth, ActualHeight, EffectiveDpiScale);
         try {
@@ -534,26 +664,43 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ///     Waits for queued GPU work and releases the presentation stack in dependency order.
     /// </summary>
     private void StopNative() {
-        _resizeRetryTimer.Stop();
-        if (commandQueue is not null && fence is not null) {
-            var fenceValue = commandQueue.Signal(fence);
-            fence.Wait(fenceValue, TimeSpan.FromSeconds(5));
-            _ = _frameSubmission.TryComplete(fence.CompletedValue, FrameTimestamp());
+        if (HasActiveFrame || retiringNative) {
+            retireRequested = true;
+            return;
         }
+        retiringNative = true;
+        try {
+            _resizeRetryTimer.Stop();
+            if (resizeOperation is { Status: DispatcherOperationStatus.Pending }) resizeOperation.Abort();
+            resizeOperation = null;
+            if (commandQueue is not null && fence is not null) {
+                var fenceValue = commandQueue.Signal(fence);
+                fence.Wait(fenceValue, TimeSpan.FromSeconds(5));
+                _ = _frameSubmission.TryComplete(fence.CompletedValue, FrameTimestamp());
+            }
 
-        _frameSubmission.DiscardCompletions();
-        frameRenderer?.Dispose();
-        swapChain?.Dispose();
-        commandContext?.Dispose();
-        fence?.Dispose();
-        commandQueue?.Dispose();
-        device?.Dispose();
-        frameRenderer = null;
-        swapChain = null;
-        commandContext = null;
-        fence = null;
-        commandQueue = null;
-        device = null;
+            // Keep undelivered completions across retirement; already claimed serials remain claimed.
+            captureReadback?.Dispose();
+            captureReadback = null;
+            LastCapturedFrame = null;
+            frameRenderer?.Dispose();
+            swapChain?.Dispose();
+            commandContext?.Dispose();
+            fence?.Dispose();
+            commandQueue?.Dispose();
+            device?.Dispose();
+            frameRenderer = null;
+            swapChain = null;
+            commandContext = null;
+            fence = null;
+            commandQueue = null;
+            device = null;
+            commandsOpen = false;
+            if (RenderHost is Viewport3DX viewport) viewport.ObserveNativeRetirement(this);
+        } finally {
+            retiringNative = false;
+            if (disposeRequested) SchedulePendingRetirement();
+        }
     }
 
     /// <summary>
@@ -571,6 +718,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             ?? throw new InvalidOperationException("The command context is unavailable.");
         var backBuffer = currentSwapChain.CurrentBackBuffer;
         currentContext.Reset();
+        commandsOpen = true;
         return (currentContext, currentSwapChain, backBuffer);
     }
 
@@ -590,24 +738,31 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <param name="waitForCompletion">Whether this explicit consumer requires completed GPU work.</param>
     /// <exception cref="InvalidOperationException">The native command queue or completion fence is unavailable.</exception>
     /// <exception cref="TimeoutException">The submitted frame exceeded its finite completion deadline.</exception>
-    private void EndFrame(
+    /// <returns>Whether commands were submitted; canceled recording retains retirement without consuming a frame.</returns>
+    private bool EndFrame(
         SilkD3D12CommandContext currentContext,
         SilkD3D12SwapChain currentSwapChain,
         SilkD3D12Resource backBuffer,
         bool waitForCompletion = true
     ) {
+        if (!CanSubmitFrame) {
+            DiscardRecordedFrame();
+            return false;
+        }
         var currentQueue = commandQueue
             ?? throw new InvalidOperationException("The command queue is unavailable.");
         var currentFence = fence
             ?? throw new InvalidOperationException("The presentation fence is unavailable.");
         currentContext.Transition(backBuffer, ResourceStates.Present);
         currentContext.Close();
+        commandsOpen = false;
         currentQueue.Execute(currentContext);
         currentSwapChain.Present(0);
         var fenceValue = currentQueue.Signal(currentFence);
         _frameSubmission.Submit(fenceValue, FrameTimestamp());
         PresentedFrames++;
         if (waitForCompletion) _ = CompletePendingFrame(true);
+        return true;
     }
 
     /// <summary>
@@ -634,7 +789,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ///     Applies the newest physical size after polling outstanding GPU work without blocking the dispatcher.
     /// </summary>
     private void ApplyPendingResize() {
-        if (IsDisposed || swapChain is null) return;
+        if (IsDisposed || disposeRequested || retireRequested || frameActive || swapChain is null) return;
         if (!CompletePendingFrame()) {
             _resizeRetryTimer.Start();
             return;
@@ -656,6 +811,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
 
     /// <summary>Reports deferred resize failures at the same renderer boundary as ordinary composition failures.</summary>
     private void ApplyDeferredResize() {
+        if (HasActiveFrame) return;
         try {
             ApplyPendingResize();
         } catch (Exception exception) {

@@ -476,10 +476,23 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         for (var index = 0; index < shaders.Count; index++) {
             var shader = shaders[index];
             var name = shader.ByteCodeName;
-            var profileStage = shader.ShaderType == ShaderStage.Pixel && name is
-                "psScreenDup" or "psLuma" or "psFXAA" or "psEffectBloomExtract" or "psEffectBloomCombine" or
-                "psEffectMeshXRay" or "psParticle" or "psParticleOIT" or "psParticleOITDP" or "psVolume" or
-                "psVolumeDiffuse" or "psMeshBlinnPhongOITQuad" or "psMeshOITDPFinal";
+            var builtInStage = name switch {
+                "psScreenDup" => DefaultPSShaderDescriptions.PsScreenDup,
+                "psLuma" => DefaultPSShaderDescriptions.PsEffectLuma,
+                "psFXAA" => DefaultPSShaderDescriptions.PsEffectFxaa,
+                "psEffectBloomExtract" => DefaultPSShaderDescriptions.PsEffectBloomExtract,
+                "psEffectBloomCombine" => DefaultPSShaderDescriptions.PsEffectBloomCombine,
+                "psEffectMeshXRay" => DefaultPSShaderDescriptions.PsEffectMeshXRay,
+                "psParticle" => DefaultPSShaderDescriptions.PsParticle,
+                "psParticleOIT" => DefaultPSShaderDescriptions.PsParticleOit,
+                "psParticleOITDP" => DefaultPSShaderDescriptions.PsParticleOitdp,
+                "psVolume" => DefaultPSShaderDescriptions.PsVolume3D,
+                "psVolumeDiffuse" => DefaultPSShaderDescriptions.PsVolumeDiffuse3D,
+                "psMeshBlinnPhongOITQuad" => DefaultPSShaderDescriptions.PsMeshBlinnPhongOitQuad,
+                "psMeshOITDPFinal" => DefaultPSShaderDescriptions.PsMeshOitdpFinal,
+                _ => null
+            };
+            var profileStage = shader.ShaderType == ShaderStage.Pixel && ReferenceEquals(shader, builtInStage);
             result[index] = profileStage
                 ? new ShaderDescription($"{name}Premultiplied", ShaderStage.Pixel,
                     new ShaderReflector(), $"{name}Premultiplied")

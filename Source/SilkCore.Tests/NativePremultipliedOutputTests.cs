@@ -19,6 +19,31 @@ public sealed class NativePremultipliedOutputTests {
     /// <summary>The small physical extent shared by these deterministic pixel tests.</summary>
     private const uint Size = 16;
 
+    /// <summary>Preserves an application's bytecode reader even when it uses a built-in module name.</summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void ProfileRetainsApplicationShaderWithBuiltInBytecodeName() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(driverType: SilkDriverType.Warp);
+        var reader = new ApplicationShaderReader();
+        var customShader = new ShaderDescription("ApplicationScreen", ShaderStage.Pixel,
+            new ShaderReflector(), "psScreenDup", reader);
+        var technique = DefaultEffectsManager.LoadTechniqueDescriptions()
+            .Single(description => description.Name == DefaultRenderTechniqueNames.ScreenDuplication);
+        var pass = technique.PassDescriptions!.Single(description => description.Name == DefaultPassNames.Default);
+        pass.ShaderList = pass.ShaderList!.Select(shader => shader.ShaderType == ShaderStage.Pixel
+            ? customShader : shader).ToArray();
+        using var catalog = new D3D12ScenePassCatalog(device, Format.FormatB8G8R8A8Unorm,
+            Format.FormatD32FloatS8X24Uint, customTechniques: [technique],
+            outputMode: D3D12ColorOutputMode.Premultiplied);
+        using var node = new ScreenDuplicationNode();
+        var resolved = catalog.Resolve(node);
+        Assert.NotNull(resolved);
+        Assert.Equal(1, reader.Reads);
+        Assert.Same(resolved, catalog.Resolve(node));
+        Assert.Equal(1, reader.Reads);
+        Assert.Same(customShader, pass.ShaderList.Single(shader => shader.ShaderType == ShaderStage.Pixel));
+    }
+
     /// <summary>Checks zero, half and full alpha for ordinary blending, weighted OIT and depth peeling.</summary>
     /// <param name="transparency">Zero selects ordinary draws, one weighted OIT, two depth peeling.</param>
     /// <param name="fxaa">Whether to execute both productive FXAA passes.</param>
@@ -454,6 +479,18 @@ public sealed class NativePremultipliedOutputTests {
         for (var index = 0; index < pixels.Length; index += 4)
         for (var channel = 0; channel < 3; channel++)
             Assert.InRange(pixels[index + channel], 0, pixels[index + 3]);
+    }
+
+    /// <summary>Observes actual pipeline consumption through the application's bytecode-reader contract.</summary>
+    private sealed class ApplicationShaderReader : HelixToolkit.SharpDX.Core.Helper.IShaderByteCodeReader {
+        /// <summary>Gets the number of actual external module reads.</summary>
+        internal int Reads { get; private set; }
+
+        /// <inheritdoc />
+        public byte[] ReadDxil(string stage, string name, string entryPoint = "main") {
+            Reads++;
+            return HelixToolkit.SharpDX.Core.Helper.UWPShaderBytePool.ReadDxil(stage, name, entryPoint);
+        }
     }
 
     /// <summary>Supplies a desktop red pixel whose alpha byte is intentionally undefined/zero.</summary>

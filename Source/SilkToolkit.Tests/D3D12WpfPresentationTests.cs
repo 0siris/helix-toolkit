@@ -16,8 +16,10 @@ using HelixToolkit.Wpf.SharpDX.Controls;
 using HelixToolkit.Wpf.SharpDX.Elements2D;
 using Xunit;
 using Color = System.Windows.Media.Color;
+using DiffuseMaterial = HelixToolkit.Wpf.SharpDX.DiffuseMaterial;
 using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
+using SolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 namespace SilkToolkit.Tests;
 
@@ -302,6 +304,43 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output)
         AssertDominantMeshPixel(driver.Snapshot(), driver.Canvas.PixelWidth, driver.Canvas.PixelHeight, red: true);
     });
 
+    /// <summary>Finishes accepted GPU transport after StopRendering while retaining demand for a later restart.</summary>
+    /// <returns>The actual queue stall and stopped automatic-callback verification.</returns>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task StoppedRenderingFinishesAcceptedTransportWithoutSubmittingNewDemand() => StaThread.RunAsync(async () =>
+    {
+        await using var driver = new FrameDriver();
+        await driver.WarmAsync();
+        var before = driver.Counts;
+        var automaticTick = typeof(D3D12WpfPresentation)
+            .GetMethod("OnRendering", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .CreateDelegate<EventHandler<RenderingEventArgs>>(driver.Owner);
+        using (var gate = new NativeQueueGate(driver.Owner))
+        {
+            driver.Viewport.InvalidateRender();
+            Assert.True(driver.Owner.RenderFrame(FrameTime) > 0);
+            driver.Viewport.StopRendering();
+            driver.Viewport.InvalidateRender();
+            automaticTick(driver.Canvas, new RenderingEventArgs(TimeSpan.FromSeconds(2)));
+            Assert.Equal(before.Completed, driver.Owner.CompletedFrames);
+            Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+            gate.Release();
+        }
+
+        var timestamp = 2L;
+        await PollAsync(() =>
+        {
+            automaticTick(driver.Canvas, new RenderingEventArgs(TimeSpan.FromSeconds(++timestamp)));
+            return !driver.Owner.HasPendingTransport;
+        }, "stopped viewport's accepted transport publication");
+        driver.AssertAdvanced(before, 1);
+        Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+        await driver.DrainAsync();
+        driver.AssertAdvanced(before, 2);
+    });
+
     /// <summary>Retries genuine zero-duration WPF lock failures without replacing the ready frame or bound surface.</summary>
     /// <returns>The actual lock contention, retained transport and single-publication verification.</returns>
     [Fact(Explicit = true)]
@@ -352,6 +391,12 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output)
                 Assert.True(driver.Viewport.RenderDemand.HasPublicationDemand);
                 Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
             }
+            var start = GC.GetAllocatedBytesForCurrentThread();
+            for (var tick = 0; tick < 1000; tick++)
+                _ = driver.Owner.RenderFrame(FrameTime);
+            var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
+            Assert.Equal(0, allocated);
+            Assert.Equal(blocked, driver.Counts);
         });
 
         await driver.DrainAsync();

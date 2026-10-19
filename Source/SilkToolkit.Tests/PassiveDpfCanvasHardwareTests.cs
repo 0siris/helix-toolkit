@@ -27,10 +27,10 @@ public sealed class PassiveDpfCanvasHardwareTests(ITestOutputHelper output) {
     public Task HiddenHardwareRetainsBoundPixelsAndRebindsWithoutSceneWork() => StaThread.RunAsync(async () => {
             using var source = new HwndSource(
                 new HwndSourceParameters(nameof(PassiveDpfCanvasHardwareTests)) {
-                    Width = 64, Height = 48, WindowStyle = unchecked((int) 0x80000000)
+                    Width = 128, Height = 96, WindowStyle = unchecked((int) 0x80000000)
                 }
             );
-            using var canvas = new DPFCanvas { EnableDpiScale = false };
+            using var canvas = new DPFCanvas { EnableDpiScale = false, Width = 64, Height = 48 };
             source.RootVisual = canvas;
             await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
             Assert.Single(canvas.Children);

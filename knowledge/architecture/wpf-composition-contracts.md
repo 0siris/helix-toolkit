@@ -2,7 +2,7 @@
 type: ArchitectureDecision
 title: WPF composition integration contracts
 generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T12:38:20Z }
-verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T16:53:10Z }
+verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T18:25:40Z }
 status: active
 sources:
   - resource: ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
@@ -24,6 +24,8 @@ sources:
   - resource: ../../Source/SilkToolkit/Controls/ModelContainer3DX.cs
   - resource: ../../Source/SilkCore/Model/Scene/Abstract/SceneNode.cs
   - resource: ../../Source/SilkToolkit/Controls/D3D12PresentationSurface.cs
+  - resource: ../../Source/SilkCore/Model/Scene2D/Abstract/SceneNode2D.cs
+  - resource: ../../Source/SilkCore/ShaderManager/EffectsManager.cs
 ---
 
 # Decision and scope
@@ -33,7 +35,8 @@ the [phase report](/backlog/d3d12-wpf-composition.md) records runtime evidence a
 Phase 2 basis is `6f36703f3`. The common recorder and value-type target remain; no second scene renderer
 or duplicated viewport loop is introduced in the canvas.
 The independent architecture review found no new Phase 2 blocker. Its six findings map to F14–F19 in the
-phase plan; the source-format audit adds F20. Productive implementation remains subject to the next phase gate.
+phase plan; the source-format audit adds F20. Phase 4 connects the public host and is documented in the
+[integration verification report](/testing/wpf-composition-phase4.md). Phase 5 remains a separate approval boundary.
 
 # Ownership
 
@@ -300,6 +303,11 @@ drain already submitted GPU work before the manager may free its resources. An a
 owners until unwinding, and a cached permission delegate stops subsequent node preparation/maintenance and draw
 recording when a callback changes the manager or presentation lifetime. Reinitialization must restore the entire
 manager resource set, including Scene2D factories/context and the struct-array pool, before notifying consumers.
+Concrete managers publish resource unavailability before disposal callbacks while preserving the historical public
+`Initialized` event order. If an observer aborts disposal, live availability resumes existing and late consumers;
+pending renderer retirement and shared barriers must still finish. Nonconcrete managers retain event-based gating.
+The same cached permission reaches attachment, Scene2D layout, update and transform traversal through borrowed
+per-node scopes restored in `finally`. Warm subscribed updates retain their context-specific event arguments.
 
 Each native renderer retains its own attachment lease on every borrowed scene node. Only the final lease
 detaches the node; the node's host falls back to another live lease. Shared containers distinguish notification

@@ -221,6 +221,8 @@ Die folgenden Architektur-Findings stammen aus dem Review von `6f36703f3`. Sie s
 - **F30 · Ressourcen können innerhalb von Attach-/Update-Rückrufen verschwinden:** Dieselbe wiederverwendete Berechtigungsprüfung durch Technik-Auswahl, rekursives Attachment, 3D-Maintenance und Scene2D-Attachment/Layout/Update führen; danach keine ungültigen Ressourcen lesen oder Befehle einreichen. **Tasks:** P4.3, P4.4, P4.6.
 - **F31 · Unsichtbare Elemente konsumieren weiterhin Eingabe:** Abgeschaltetes Scene2D auch aus Hit-Tests entfernen und Hover/Press bereinigen; ein ausgeblendeter ViewCube darf Szenenpicking nicht abfangen. **Tasks:** P4.3, P4.6.
 - **F32 · Neue Verbraucher verpassen einen laufenden Dispose-Rückruf:** Ressourcenverfügbarkeit vor den Benachrichtigungen veröffentlichen und bei Anmeldung sowie Frame-Eintritt prüfen. Den historischen öffentlichen `Initialized`-Wert während der Benachrichtigung erhalten. **Tasks:** P4.3, P4.4.
+- **F33 · Abgebrochene Ressourcenentsorgung sperrt Verbraucher dauerhaft:** Stellt der konkrete Manager nach einer Ausnahme seine Verfügbarkeit wieder her, müssen bestehende und spät angemeldete Verbraucher diesen Live-Zustand übernehmen. Ausstehende Retirement- und Shared-Barrieren bleiben bis zu ihrem tatsächlichen Abschluss wirksam. **Tasks:** P4.3, P4.4.
+- **F34 · Nativer Start vor dem Template verliert den Handler:** Ein explizit gewähltes HWND-Backend muss bei `StartRendering()` bereits ohne Surface genau einen Composition-Handler behalten. WPF-Komposition erhält dadurch keinen zweiten Renderpfad. **Tasks:** P4.1, P4.5.
 
 Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
 
@@ -299,16 +301,26 @@ Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
 - **Haltepunkt erreicht: Phase 4 und der öffentliche Backend-Schalter mit Default `false` starten erst nach
   ausdrücklicher Freigabe.**
 
-### Stand 2026-10-19 · Phase 4 in Ausführung
+### Stand 2026-10-19 · Phase 4 abgeschlossen
 
 - Ausdrücklich mit `$speckit-implement phase 4` freigegeben; parallele Tasks in isolierten Worktrees.
   Der zugehörige [Taskstand](specs/002-wpf-composition-phase4/tasks.md) verändert den fremden Assimp-Featurekontext nicht.
 - Öffentlicher Default `false`, DPI, Host-/Manager-Integration und gemeinsame Renderer-Leases sind integriert.
-  Die Findings F26–F32 schließen weitere Original-/Lebensdauerlücken; ihre gezielten Prüfungen und das Abschlussgate laufen.
+  Die Findings F26–F34 schließen weitere Original-/Lebensdauerlücken, einschließlich abgebrochener Ressourcenentsorgung
+  und nativem Start vor der Template-Erstellung. T001–T012 sind umgesetzt; Details zu Messgrenzen sind im Prüfbericht festgehalten.
+- Unabhängige Abschlussreviews R6/R7 ohne offene P1/P2-Befunde. Letzter Implementierungscommit `cb9f2ca50`;
+  vollständiger Rider-Rebuild erfolgreich, aktuelle DLL-Zeitstempel vor den finalen Tests geprüft.
+- **830/838 Standardfälle bestanden:** exakt dieselben acht bekannten Baseline-Fehler, alle 101 zusätzlichen
+  Standardfälle grün. **151/151 gezielte Abnahmefälle bestanden**, einschließlich ausdrücklich aktivierter Hardwaretests.
 - Sichtbare Abnahme bestanden: echter OS-Buttonklick über D3D12, ZIndex, Clipping, VisualBrush, Blur und Adorner.
   Sieben Render-/Abschluss-/Kopier-/Publikationsframes bleiben während dieser WPF-Operationen unverändert.
+- Warm-Messung: WPF-Mesh und WPF-Mesh mit FXAA/Scene2D jeweils **160 Bytes/Frame**; 1.000 Idle-Aufrufe,
+  native Bridge-Kopien/Polls und native Scene2D-Vorbereitung jeweils **0 Bytes**. Core-Mesh unverändert 72 Bytes/Frame;
+  Lock-Retries entsprechen exakt den Framework-Kosten. Bestehende Messgrenzen und Assertions bleiben erhalten.
 - Laufzeitergebnisse, Reviewantworten und Grenzen im [P4-Prüfbericht](knowledge/testing/wpf-composition-phase4.md).
-- Phase 5 bleibt bis zur erneuten Freigabe angehalten.
+- Graphify erfolgreich: **1.054 Dateien, 10.703 Knoten, 20.095 Kanten, 2.819 Communities**; unverändert 17 partielle
+  Parser-Ergebnisse, temporärer Korpus entfernt. Taskliste, Architektur, OKF-Log und Prüfbericht sind aktualisiert.
+- **Haltepunkt erreicht: Phase 5 wurde nicht gestartet und benötigt eine erneute Freigabe.**
 
 Jeder Phasenbericht enthält:
 

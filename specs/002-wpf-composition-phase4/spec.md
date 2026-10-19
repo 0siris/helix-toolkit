@@ -25,7 +25,7 @@ using subagents for parallel tasks. Phase 3 ends at `619feb80d`.
 
 ## Acceptance and limits
 
-The authoritative Phase 4 matrix is the existing phase plan, including P4.1–P4.7 and F01–F25. Complete that matrix,
+The authoritative Phase 4 matrix is the existing phase plan, including P4.1–P4.7 and the findings through F34. Complete that matrix,
 independent reviews and the serial build/test/heap gates, document material limitations, then stop before Phase 5.
 The Phase 3 standard baseline is 729/737 with eight known failures; do not hide these through altered test selection.
 Physical GPU fault injection, additional adapters and full final performance/parity audits remain Phase 5 scope.

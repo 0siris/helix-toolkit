@@ -1,5 +1,20 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-19 — WPF composition Phase 4 verified
+
+- Completed the public default-false presentation integration, original aliases/DPI/input contracts, borrowed
+  manager resource epochs and retained shared-scene ownership. Findings F26–F34 and independent R6/R7 closure
+  are documented in the [Phase 4 report](/testing/wpf-composition-phase4.md).
+- A fresh full Rider build passed. Standard results are 830/838 with exactly the eight known baseline failures;
+  all 101 additional standard cases pass. All 151 selected acceptance cases pass, including explicit hardware.
+- Visible production-template composition, actual OS Button input, ZIndex, clipping, VisualBrush, Blur and Adorner
+  pass while native counters remain idle. WPF mesh and FXAA/Scene2D measure 160 bytes/frame; idle, bridge and
+  native Scene2D warm measurements remain zero. Existing assertions and allocation ceilings were preserved.
+- Regenerated Graphify locally: 1,054 prepared files, 10,703 nodes, 20,095 edges and 2,819 communities; zero model
+  tokens, the same 17 partial-parser warnings, staging removed. Updated the graph snapshot and architecture.
+- The final hook check found no extension file. The unrelated Assimp feature pointer remains unchanged.
+  Phase 5 remains unstarted, with physical fault/monitor/touch and full parity/performance limits disclosed.
+
 ## 2026-10-19 — WPF composition Phase 4 started
 
 - User approved Phase 4 with parallel delegated tasks. Resolved the WPF-specific Spec-Kit context under

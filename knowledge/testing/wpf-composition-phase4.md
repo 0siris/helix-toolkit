@@ -2,7 +2,8 @@
 type: VerificationReport
 title: WPF composition Phase 4 implementation and verification
 generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T18:05:52Z }
-status: in-progress
+verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T18:25:40Z }
+status: stable
 sources:
   - resource: ../../specs/002-wpf-composition-phase4/tasks.md
   - resource: ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
@@ -14,6 +15,9 @@ sources:
   - resource: ../../Source/SilkCore.Tests/P4ManagerResourceTests.cs
   - resource: ../../Source/SilkCore.Tests/P4MaterialInvalidationTests.cs
   - resource: ../../Source/SilkCore.Tests/P4AttachmentPermissionTests.cs
+  - resource: ../../Source/SilkCore.Tests/P4Scene2DPermissionTests.cs
+  - resource: ../../Source/SilkToolkit.Tests/P4Scene2DResourceLifecycleTests.cs
+  - resource: ../../Source/SilkToolkit.Tests/ManagerResourceLifecycleTests.cs
 ---
 
 # Scope and implementation
@@ -56,19 +60,79 @@ same scene picking point `(0,0,0)`. This is controlled render-scale evidence, no
 
 # Validation status
 
-Final serial build, standard-suite comparison, explicit hardware/heap verification, independent review closure
-and Graphify are still in progress. Intermediate results are not the final phase gate.
+The final implementation is `cb9f2ca50`, following the independent R6 and R7 reviews without open P1/P2 findings.
+The serial Rider full rebuild `5798282c-447f-444a-968c-baafc9f1934e` passed. Artifact timestamps confirm the new
+Toolkit DLL at 20:20:59 local time and its test assembly at 20:21:16, after the final source change at 20:19:17.
 
-The current targeted acceptance run passed 91/92 cases. Its remaining light-pixel assertion used a diffuse
-camera-facing material that intentionally ignores scene lights; the fixture now uses a Phong material for that
-part of the unchanged light-output assertion. Earlier stale Core artifacts were detected by missing test discovery
-and DLL timestamps despite an incremental Rider success. A full Rider rebuild exposed the new Core test compile
-diagnostic; it was corrected, and subsequent artifact timestamps/discovery confirmed the current Core code.
+| Final run | Assimp | Core | Toolkit | Total |
+| --- | --- | --- | --- | --- |
+| Standard, `wpf-phase4-standard-fresh` | 76/78 | 528/531 | 226/229 | **830/838** |
+| Targeted including explicit hardware, `wpf-phase4-acceptance-fresh` | 0 selected | 42/42 | 109/109 | **151/151** |
 
-The existing zero-timeout disposal contract produced one image-detach timeout in a hardware series; the isolated
+The standard failures are exactly the eight Phase 3 baseline cases: two `LoadNativeGltfFactorsTest` material-null
+cases; `WarpManagesSharedTextureResources` and `WarpManagesSharedGeometryResources` maintenance assertions;
+`PostProcessCpuContractsAreDeterministic` random samples; two `RightDragMovesCameraBeforeOutsideRelease`
+octree-null cases; and `DelayedFenceKeepsDispatcherLiveAndRendersLatestCameraAfterCompletion` octree-null.
+All 101 additional standard cases pass. The selected acceptance cases overlap the standard suite and must not
+be added to its count. Per-project TRX files are under each test project's ignored `TestResults` directory.
+
+Earlier failures exposed the binding-coercion issue and missing pre-template native-start subscription.
+Pixel fixtures now use a Phong material for scene lighting, and native shape reattachment recreates its owned
+brushes as WPF elements do. The retirement-completion fixture explicitly retries failed zero-timeout detachment,
+preserving its final event-count and subscription assertions. Final assertions were not relaxed.
+
+Incremental Rider successes sometimes retained stale Core or Toolkit artifacts; DLL timestamps and missing test
+discovery exposed this. Full rebuilds supplied the final evidence above. Rider terminal calls returned HTTP 404
+after starting tests; completed TRX results and process termination establish the outcomes. No duplicate CLI
+fallback was started in response to those transport errors.
+
+ReSharper formatted all 45 changed C# files in `format` mode. The isolated formatting commit changes only
+whitespace. Warning-level diagnostics completed for 44 files; the large Core scene renderer timed out twice.
+Completed inspections reported no errors. Existing namespace/API compatibility, deliberate disposal/reentrancy
+tests and style warnings were inspected without semantic cleanup; the full compiler build remains authoritative.
+The final changed C# XML documentation blocks parse successfully.
+
+Reproduce through the repository Rider workflow, running one operation at a time:
+
+```powershell
+dotnet test SilkToolkit.slnx --no-build --filter "Category!=Hardware&Category!=DX12"
+dotnet test SilkToolkit.slnx --no-build --filter "FullyQualifiedName~P4|FullyQualifiedName~SharedScene|FullyQualifiedName~ManagerResourceLifecycle|FullyQualifiedName~D3D12WpfPresentationTests|FullyQualifiedName~D3D12ImageInteropBridgeNativeTests" -- xUnit.Explicit=on
+```
+
+These commands use `Source` as the Rider solution root, after a successful solution probe/build. Explicit
+hardware execution is part of this authorized phase, not the default repository test gate.
+
+## Warm heap results
+
+| Measured operation | Final result |
+| --- | --- |
+| WPF mesh, 128 accepted frames | 20,480 bytes, **160 bytes/frame** |
+| WPF mesh + FXAA + Scene2D, 128 accepted frames | 20,480 bytes, **160 bytes/frame** |
+| WPF idle, 1,000 STA calls | **0 bytes** |
+| Native bridge, 64 real copies and 1,024 ready polls | **0 bytes** in both measured regions |
+| Core mesh, textured and untextured, 256 frames each | 18,432 bytes each, **72 bytes/frame** |
+| Native Scene2D, 1,000 warm preparations/cleanup | **0 bytes**, positive control 64 bytes |
+| New cached-permission Scene2D with update subscriber, 1,000 preparations | **0 bytes** |
+| Failed WPF locks, 1,000 attempts | Framework and owner each **32,000 bytes** |
+
+Existing exact-zero assertions and productive-frame limits remain unchanged. The separate managed alias/status
+diagnostic measures 49,152 bytes over 1,024 operations, with a 1,048-byte positive control; this is not the GPU
+frame measurement. Initialization, capacity growth, capture and exceptional recovery are outside the warm regions.
+
+The existing zero-timeout disposal contract produced one image-detach timeout in an earlier hardware series; the isolated
 diagnostic passed. Independent review confirmed the same preflight path exists in the Phase 3 baseline. Owners
 remain retained after failure and the explicit timeout/retry test passed. This does not guarantee that a synchronous
 dispose always acquires WPF's image lock.
+
+## Generated knowledge and closure
+
+The local Graphify wrapper exited successfully, prepared **1,054 source files** and wrote **10,703 nodes,
+20,095 edges and 2,819 communities**. It used zero model tokens, reported the same 17 partial-parser warnings
+and removed `.graphify-code-corpus`. Generated output was not edited manually. The durable snapshot is recorded
+in [the graph concept](/graphify-database.md).
+
+All Phase 4 tasks are complete. Plan findings F26–F34 include the review corrections; the original Assimp feature
+pointer remains untouched. Changes are committed locally. Phase 5 and application-checkout changes were not started.
 
 # Review findings and closure
 
@@ -87,6 +151,11 @@ dispose always acquires WPF's image lock.
   priority. A hidden view cube must not consume picking.
 - A consumer joining during disposal needs availability published before the notification, while preserving
   the public `Initialized` event-order contract.
+- An observer rejecting resource disposal restores concrete live availability for existing and late consumers;
+  pending retirement and shared barriers still finish before new preparation. Four managed regressions cover
+  shared/nonshared and immediate/deferred retirement.
+- Explicit HWND `StartRendering()` retains one handler before template creation. The WPF selection never
+  subscribes that native handler; the existing public host-binding regression verifies pre-template behavior.
 
 # Remaining boundaries
 
@@ -97,4 +166,5 @@ scene render. Full effect/performance parity and physical fault acceptance remai
 
 The Spec-Kit prerequisite script is absent and its feature pointer selects an unrelated Assimp task. The attempted
 script failure and explicit WPF feature-directory adaptation are recorded in the feature plan; the unrelated
-pointer/tasks remain unchanged. Extension hooks must be checked again before completion.
+pointer/tasks remain unchanged. The final extension-hook check found no `.specify/extensions.yml`, so there were
+no registered post-implementation hooks.

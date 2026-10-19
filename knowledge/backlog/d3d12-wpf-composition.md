@@ -2,8 +2,8 @@
 type: ImplementationPlan
 title: D3D12 WPF composition proof and phased integration
 generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T11:17:00Z }
-verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T16:53:10Z }
-status: draft
+verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T18:25:40Z }
+status: active
 sources:
   - resource: ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
   - resource: ../../Source/SilkToolkit/SilkToolkit.csproj
@@ -33,11 +33,12 @@ sources:
 
 The [implementation plan](../../wpf-komposition-phasen-parallele-tasks-und-reviews.md) defines six phases,
 parallel task ownership, thirteen historical findings, seven architecture integration findings and an explicit
-approval boundary after each phase, followed by five P3 implementation/qualification findings. Phase 1 is an isolated hardware interoperability proof; Phase 2 extracts
-the common recorder. Production Viewport selection remains later work.
+approval boundary after each phase, followed by the P3 and P4 implementation/qualification findings through F34. Phase 1 is an isolated hardware interoperability proof; Phase 2 extracts
+the common recorder. Phase 4 integrates production Viewport selection and its original host contracts;
+see the [Phase 4 verification report](/testing/wpf-composition-phase4.md).
 
-The intended default is `EnableSwapChainRendering = false`, restoring WPF composition. Explicit `true`
-retains native HWND presentation. The future WPF path renders and publishes only on demand; an isolated
+The public default is `EnableSwapChainRendering = false`, restoring WPF composition. Explicit `true`
+retains native HWND presentation. The WPF path renders and publishes only on demand; an isolated
 invalidation requests six total frames by default. Updates received during a frame must survive its completion.
 
 # Working baseline

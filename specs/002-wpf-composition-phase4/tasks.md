@@ -24,17 +24,17 @@ Baseline: `619feb80d`; 729/737 standard cases passing, eight known failures. See
 
 ## Parallel test wave (depends on T005)
 
-- [ ] T006 [P] P4.4: Add dedicated real host/frame/context/scene/capture/completion and manager/shared-scene tests.
-- [ ] T007 [P] P4.5: Explicitly select HWND in existing native-specific tests and examples; preserve native input behavior.
-- [ ] T008 [P] P4.6: Add WPF default/XAML/backend lock/DPI/input/demand/2D/reload/template regression cases from the full
+- [X] T006 [P] P4.4: Add dedicated real host/frame/context/scene/capture/completion and manager/shared-scene tests.
+- [X] T007 [P] P4.5: Explicitly select HWND in existing native-specific tests and examples; preserve native input behavior.
+- [X] T008 [P] P4.6: Add WPF default/XAML/backend lock/DPI/input/demand/2D/reload/template regression cases from the full
   phase-plan matrix. Coordinate disjoint test files with T006/T007; do not weaken existing assertions.
 
 ## Serial acceptance and phase gate
 
 - [X] T009 P4.7: Verify visible WPF controls over real D3D12 output, ZIndex, clipping, VisualBrush, Blur and Adorner;
   preserve `ViewportWidgetOverlay` and record evidence/limits.
-- [ ] T010 Run independent integration/original-contract/heap reviews; resolve findings and re-review deltas.
-- [ ] T011 Format changed files, inspect diagnostics, build and run standard plus targeted/hardware/heap checks
+- [X] T010 Run independent integration/original-contract/heap reviews; resolve findings and re-review deltas.
+- [X] T011 Format changed files, inspect diagnostics, build and run standard plus targeted/hardware/heap checks
   serially. Compare the existing baseline failures and document all unexecuted or environment-limited cases.
-- [ ] T012 Update plan/OKF reports/log and task markers, regenerate Graphify, check documentation/whitespace,
+- [X] T012 Update plan/OKF reports/log and task markers, regenerate Graphify, check documentation/whitespace,
   inspect post-implementation hooks, commit locally and stop before Phase 5.

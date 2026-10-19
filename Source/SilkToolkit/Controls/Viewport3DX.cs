@@ -1626,6 +1626,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <remarks>All listeners run and required cleanup executes even when a listener throws.</remarks>
     protected virtual void Dispose(bool disposing) {
         if (disposedValue) return;
+        if (disposing && wpfPresentation?.DeferViewportDisposalIfRecording() == true) return;
         if (disposing) wpfPresentation?.PrepareForDisposal();
         disposedValue = true;
         if (!disposing) return;

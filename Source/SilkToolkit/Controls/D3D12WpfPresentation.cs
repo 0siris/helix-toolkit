@@ -31,6 +31,10 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     private readonly DispatcherTimer serviceTimer;
     /// <summary>The cached Scene2D repaint notification.</summary>
     private readonly Action invalidateScene2D;
+    /// <summary>Reuses the callback for disposal requested from inside a scene update.</summary>
+    private readonly Action disposeViewport;
+    /// <summary>Retains at most one deferred disposal operation after recording unwinds.</summary>
+    private DispatcherOperation? deferredDisposal;
     /// <summary>The currently subscribed Scene2D roots.</summary>
     private readonly FastList<SceneNode2D> roots2D = [];
     /// <summary>The sole owned D3D12 device.</summary>
@@ -75,6 +79,10 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     private bool unfencedExecution;
     /// <summary>Rejects nested frame preparation and completion callbacks.</summary>
     private bool updating;
+    /// <summary>Prevents application/native disposal while node hooks still record into borrowed resources.</summary>
+    private bool recording;
+    /// <summary>Retains a disposal request until the current CPU recording stack has unwound.</summary>
+    private bool disposeRequested;
     /// <summary>Stops new submissions during an explicit, retryable teardown.</summary>
     private bool stopping;
     /// <summary>The last automatic WPF timestamp already processed.</summary>
@@ -134,6 +142,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         this.driverType = driverType;
         demand = viewport.RenderDemand;
         invalidateScene2D = viewport.InvalidateRender;
+        disposeViewport = FinishViewportDisposal;
         serviceTimer = new DispatcherTimer(DispatcherPriority.Background, canvas.Dispatcher) {
             Interval = TimeSpan.FromMilliseconds(16)
         };
@@ -202,9 +211,15 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             var currentCommands = commands!;
             var target = bridge!.Target;
             currentCommands.Reset();
-            var recording = true;
+            recording = true;
             try {
                 var draws = viewport.RecordWpfScene(renderer!, currentCommands, in target, canvas.EffectiveDpiScale);
+                if (stopping) {
+                    currentCommands.Close();
+                    recording = false;
+                    recreateRequested = true;
+                    return 0;
+                }
                 if (captureFrame) {
                     captureFootprint = device!.GetCopyableFootprint(target.ColorResource, out captureBytes);
                     captureReadback = device.CreateBuffer(captureBytes, HeapType.Readback);
@@ -237,9 +252,12 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             demand.RequestRecovery();
             throw;
         } finally {
+            recording = false;
             if (reserved) demand.CompleteFrame(accepted);
             updating = false;
             UpdateServiceTimer();
+            if (disposeRequested && deferredDisposal is null && !canvas.Dispatcher.HasShutdownStarted)
+                deferredDisposal = canvas.Dispatcher.BeginInvoke(DispatcherPriority.Send, disposeViewport);
         }
     }
 
@@ -448,10 +466,28 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         if (!TryDetach()) throw new TimeoutException("The WPF image is still bound; native resources remain owned for disposal retry.");
     }
 
+    /// <summary>Defers viewport/application disposal until a reentrant scene-recording request has unwound.</summary>
+    /// <returns>Whether final disposal must be deferred.</returns>
+    internal bool DeferViewportDisposalIfRecording() {
+        if (!recording) return false;
+        stopping = disposeRequested = true;
+        return true;
+    }
+
+    /// <summary>Completes the retained disposal request after no node hook can access borrowed commands.</summary>
+    private void FinishViewportDisposal() {
+        deferredDisposal = null;
+        if (!IsDisposed) viewport.Dispose();
+    }
+
     /// <summary>Completes bounded native teardown; a failed detach/drain retains the owner for explicit retry.</summary>
     public void Dispose() {
         if (IsDisposed) return;
+        if (DeferViewportDisposalIfRecording()) return;
         PrepareForDisposal();
+        deferredDisposal?.Abort();
+        deferredDisposal = null;
+        disposeRequested = false;
         serviceTimer.Stop();
         serviceTimer.Tick -= ServiceSuspendedTransport;
         canvas.Rendering -= OnRendering;

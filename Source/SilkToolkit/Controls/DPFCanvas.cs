@@ -233,15 +233,15 @@ internal sealed class DPFCanvas : Grid, IDisposable
         if (stopping)
             return;
         var dpi = VisualTreeHelper.GetDpi(this);
-        var scaleX = enableDpiScale ? (float)dpi.DpiScaleX : 1;
-        var scaleY = enableDpiScale ? (float)dpi.DpiScaleY : 1;
+        var scaleX = enableDpiScale ? dpi.DpiScaleX : 1;
+        var scaleY = enableDpiScale ? dpi.DpiScaleY : 1;
         var width = ToPixelDimension(ActualWidth, scaleX);
         var height = ToPixelDimension(ActualHeight, scaleY);
         var handle = loaded && PresentationSource.FromVisual(this) is HwndSource source ? source.Handle : 0;
         var active = loaded && IsVisible && handle != 0 && width != 0 && height != 0;
-        var changed = EffectiveDpiScale != scaleX || PixelWidth != width || PixelHeight != height ||
+        var changed = EffectiveDpiScale != (float)scaleX || PixelWidth != width || PixelHeight != height ||
             NativeHandle != handle || IsActive != active;
-        EffectiveDpiScale = scaleX;
+        EffectiveDpiScale = (float)scaleX;
         PixelWidth = width;
         PixelHeight = height;
         NativeHandle = handle;
@@ -263,7 +263,7 @@ internal sealed class DPFCanvas : Grid, IDisposable
     /// <param name="dips">The WPF dimension in device-independent units.</param>
     /// <param name="scale">The effective monitor scale.</param>
     /// <returns>Zero for empty layout, otherwise the ceiling clamped to WPF's signed dimension limit.</returns>
-    private static uint ToPixelDimension(double dips, float scale) =>
+    private static uint ToPixelDimension(double dips, double scale) =>
         dips > 0 ? (uint)Math.Min(int.MaxValue, Math.Ceiling(dips * scale)) : 0;
 
     /// <summary>Posts one retained callback per group of actual presentation changes, never per rendering tick.</summary>

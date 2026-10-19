@@ -13,6 +13,22 @@ namespace SilkToolkit.Tests;
 [Collection(WpfCollection.Name)]
 public sealed class PassiveDpfCanvasTests
 {
+    /// <summary>Rounds pixel dimensions using the original double scale before exposing its float counterpart.</summary>
+    /// <returns>The fractional-DPI regression verification.</returns>
+    [Fact]
+    [Trait("Category", "Wpf")]
+    public Task FractionalDpiDoesNotAddAPixelThroughFloatRounding() => StaThread.RunAsync(() =>
+    {
+        using var canvas = new DPFCanvas();
+        VisualTreeHelper.SetRootDpi(canvas, new DpiScale(4.0 / 3.0, 4.0 / 3.0));
+        var size = new Size(96, 48);
+        canvas.Measure(size);
+        canvas.Arrange(new Rect(size));
+        Assert.Equal(128u, canvas.PixelWidth);
+        Assert.Equal(64u, canvas.PixelHeight);
+        Assert.Equal((float)(4.0 / 3.0), canvas.EffectiveDpiScale);
+    });
+
     /// <summary>Checks real 200-percent root DPI, fractional layout rounding and unchanged DIP coordinates.</summary>
     /// <returns>The headless layout verification.</returns>
     [Fact]

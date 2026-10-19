@@ -112,7 +112,7 @@ public sealed class P4ManagerResourceTests {
                 Assert.Same(effects.Factory2D, context.DeviceContext.Factory);
                 Assert.NotSame(previousContext, context.DeviceContext);
                 using var target = new BitmapProxy("P4", context.DeviceContext, new Size2(16, 16),
-                    new D2DBitmapProperties());
+                    BitmapProxy.CreateDescription(96, 96, Silk.NET.DXGI.Format.FormatB8G8R8A8Unorm));
                 root.Attach();
                 root.Update(context);
                 child.Update(context);

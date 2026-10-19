@@ -107,6 +107,7 @@ public partial class Viewport3DX {
 
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
         if (hostPresenter is { } presenter) presenter.Content = null;
+        ReleaseSharedSceneResourceRegistration();
     }
 
     /// <summary>Applies render resolution policy to the selected transport without changing native pointer scaling.</summary>

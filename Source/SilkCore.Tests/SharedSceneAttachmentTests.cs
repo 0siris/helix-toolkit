@@ -4,6 +4,43 @@ namespace SilkCore.Tests;
 
 /// <summary>Checks native attachment ownership independently of presentation, device and manager ownership.</summary>
 public sealed class SharedSceneAttachmentTests {
+    /// <summary>Notifies graph observers after removing null-manager native leases without detaching their cores.</summary>
+    /// <param name="clear">Whether to clear the hierarchy instead of removing its single child.</param>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void NullManagerLeasedHierarchyMutationInvalidates(bool clear) {
+        using var root = new GroupNode();
+        using var child = new GroupNode();
+        root.AddChildNode(child);
+        var owner = new object();
+        root.RetainNativeAttachment(owner, null);
+        child.RetainNativeAttachment(owner, null);
+        Assert.True(root.Attach());
+        Assert.True(child.Attach());
+        Assert.False(root.IsAttached);
+        Assert.False(child.IsAttached);
+        var notifications = 0;
+        root.Invalidated += (_, kind) => {
+            Assert.Equal(InvalidateTypes.SceneGraph, kind);
+            notifications++;
+        };
+
+        if (clear) root.Clear();
+        else Assert.True(root.RemoveChildNode(child));
+
+        Assert.Equal(1, notifications);
+        Assert.Empty(root.Items);
+        Assert.Null(child.Parent);
+        Assert.True(child.RenderCore.IsAttached);
+        Assert.False(root.RemoveChildNode(child));
+        Assert.Equal(1, notifications);
+        child.ReleaseNativeAttachment(owner);
+        root.ReleaseNativeAttachment(owner);
+        Assert.False(child.RenderCore.IsAttached);
+        Assert.False(root.RenderCore.IsAttached);
+    }
+
     /// <summary>Retains lease capacity and root notification traversal after warming actual core attachment.</summary>
     [Fact]
     public void WarmLeaseRefreshAndAncestorInvalidationDoNotAllocate() {

@@ -12,14 +12,20 @@ using HelixToolkit.SharpDX.Core.Utilities;
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
 
 /// <summary>
+/// Maintains child hierarchy membership and notifies scene consumers independently of legacy attachment state.
 /// </summary>
 public abstract class GroupNodeBase : SceneNode {
+    /// <summary>Identifies a completed child hierarchy mutation.</summary>
     public enum Operation {
+        /// <summary>A child was added.</summary>
         Add,
+        /// <summary>A child was removed.</summary>
         Remove,
+        /// <summary>The child collection was cleared.</summary>
         Clear
     }
 
+    /// <summary>Indexes current children by their scene identity.</summary>
     protected readonly Dictionary<Guid, SceneNode> ItemHashSet = [];
 
     /// <summary>
@@ -47,15 +53,18 @@ public abstract class GroupNodeBase : SceneNode {
     /// </value>
     public Metadata Metadata { get; set; } = new();
 
+    /// <summary>Notifies observers after adding a child.</summary>
     public event EventHandler<OnChildNodeChangedArgs>? ChildNodeAdded;
+    /// <summary>Notifies observers after removing a child.</summary>
     public event EventHandler<OnChildNodeChangedArgs>? ChildNodeRemoved;
+    /// <summary>Notifies observers after clearing the child collection.</summary>
     public event EventHandler<OnChildNodeChangedArgs>? Cleared;
 
     /// <summary>
     ///     Adds the child node.
     /// </summary>
     /// <param name="node">The node.</param>
-    /// <returns></returns>
+    /// <returns>Whether the child was newly added.</returns>
     /// <exception cref="System.ArgumentException">SceneNode already attach to a different node</exception>
     public bool AddChildNode(SceneNode node) {
         if (!ItemHashSet.ContainsKey(node.Guid)) {
@@ -64,10 +73,8 @@ public abstract class GroupNodeBase : SceneNode {
             if (node.Parent != null && node.Parent != this)
                 throw new ArgumentException("SceneNode already attach to a different node");
             node.Parent = this;
-            if (IsAttached) {
-                node.Attach(EffectsManager);
-                InvalidateSceneGraph();
-            }
+            if (IsAttached) node.Attach(EffectsManager);
+            InvalidateSceneGraph();
 
             ChildNodeAdded?.Invoke(this, new OnChildNodeChangedArgs(node, Operation.Add));
             return true;
@@ -83,7 +90,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="toIndex">To index.</param>
     public void MoveChildNode(int fromIndex, int toIndex) {
         ItemsInternal.Move(fromIndex, toIndex);
-        if (IsAttached) InvalidateSceneGraph();
+        InvalidateSceneGraph();
     }
 
     /// <summary>
@@ -91,16 +98,14 @@ public abstract class GroupNodeBase : SceneNode {
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="node">The node.</param>
-    /// <returns></returns>
+    /// <returns>Whether the child was inserted.</returns>
     public bool InsertChildNode(int index, SceneNode node) {
         if (node.IsAttached || ItemHashSet.ContainsKey(node.Guid)) return false;
         ItemHashSet.Add(node.Guid, node);
         ItemsInternal.Insert(index, node);
         node.Parent = this;
-        if (IsAttached) {
-            node.Attach(EffectsManager);
-            InvalidateSceneGraph();
-        }
+        if (IsAttached) node.Attach(EffectsManager);
+        InvalidateSceneGraph();
 
         ChildNodeAdded?.Invoke(this, new OnChildNodeChangedArgs(node, Operation.Add));
         return true;
@@ -111,7 +116,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// </summary>
     /// <param name="targetGroup">The target group.</param>
     /// <param name="node">The node.</param>
-    /// <returns></returns>
+    /// <returns>Whether the child was removed from this group and added to the target.</returns>
     public bool TransferChildNode(SceneNode node, GroupNodeBase targetGroup) {
         if (targetGroup == this || !ItemHashSet.Remove(node.Guid)) return false;
         ItemsInternal.Remove(node);
@@ -134,7 +139,7 @@ public abstract class GroupNodeBase : SceneNode {
 
         ItemsInternal.Clear();
         ItemHashSet.Clear();
-        if (IsAttached) InvalidateSceneGraph();
+        InvalidateSceneGraph();
         Cleared?.Invoke(this, new OnChildNodeChangedArgs(null, Operation.Clear));
     }
 
@@ -143,13 +148,13 @@ public abstract class GroupNodeBase : SceneNode {
     /// </summary>
     /// <param name="node">The node.</param>
     /// <param name="detachChild">Whether to detach the child node automatically after removing. Default = true.</param>
-    /// <returns></returns>
+    /// <returns>Whether the child belonged to this group and was removed.</returns>
     public bool RemoveChildNode(SceneNode node, bool detachChild = true) {
         if (ItemHashSet.Remove(node.Guid)) {
             if (detachChild) node.DetachIfUnleased();
             ItemsInternal.Remove(node);
             node.Parent = null;
-            if (IsAttached) InvalidateSceneGraph();
+            InvalidateSceneGraph();
             ChildNodeRemoved?.Invoke(this, new OnChildNodeChangedArgs(node, Operation.Remove));
             return true;
         }
@@ -162,14 +167,14 @@ public abstract class GroupNodeBase : SceneNode {
     /// </summary>
     /// <param name="guid">The unique identifier.</param>
     /// <param name="node">The node.</param>
-    /// <returns></returns>
+    /// <returns>Whether a child with the requested identity was found.</returns>
     public bool TryGetNode(Guid guid, [NotNullWhen(true)] out SceneNode? node) => ItemHashSet.TryGetValue(guid, out node);
 
     /// <summary>
     ///     Called when [attach].
     /// </summary>
     /// <param name="effectsManager">The effectsManager.</param>
-    /// <returns></returns>
+    /// <returns>Whether this group attached successfully.</returns>
     protected override bool OnAttach(IEffectsManager effectsManager) {
         if (base.OnAttach(effectsManager)) {
             for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Attach(effectsManager);
@@ -193,7 +198,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <param name="context">The context.</param>
     /// <param name="totalModelMatrix">The total model matrix.</param>
     /// <param name="hits">The hits.</param>
-    /// <returns></returns>
+    /// <returns>Whether any child was hit.</returns>
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
@@ -217,6 +222,7 @@ public abstract class GroupNodeBase : SceneNode {
         base.OnDispose(disposeManagedResources);
     }
 
+    /// <summary>Describes a completed child hierarchy operation and its affected node, when applicable.</summary>
     public sealed class OnChildNodeChangedArgs : EventArgs {
         /// <summary>
         ///     Initializes a new instance of the <see cref="OnChildNodeChangedArgs" /> class.
@@ -244,6 +250,9 @@ public abstract class GroupNodeBase : SceneNode {
         /// </value>
         public Operation Operation { get; private set; }
 
+        /// <summary>Retrieves the child described by a hierarchy notification.</summary>
+        /// <param name="args">The hierarchy notification.</param>
+        /// <returns>The affected node, or null for a clear operation.</returns>
         public static implicit operator SceneNode?(OnChildNodeChangedArgs args) => args.Node;
     }
 }

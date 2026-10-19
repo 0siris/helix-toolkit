@@ -28,6 +28,9 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <summary>Coalesces deferred manager changes into one dispatcher callback.</summary>
     private bool managerChangeQueued;
 
+    /// <summary>Retains a retry timer allocated only after a bounded native retirement times out.</summary>
+    private DispatcherTimer? managerRetryTimer;
+
     /// <summary>Records a requested identity fanout independently of forced same-manager resource retirement.</summary>
     private bool managerIdentityChangePending;
 
@@ -96,6 +99,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         Array.Copy(previous, index + 1, next, index, previous.Length - index - 1);
         Volatile.Write(ref consumers, next);
         if (next.Length == 0) RefreshRootSubscriptions();
+        SchedulePendingEffectsManagerSynchronization();
     }
 
     /// <summary>Reconciles root observers after collection changes, including reset, and wakes all active hosts.</summary>
@@ -143,6 +147,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         ((ModelContainer3DX)owner).RequestEffectsManagerSynchronization();
 
     /// <summary>Requests a latest-value manager fanout and blocks scene entry until every old owner retires.</summary>
+    /// <exception cref="TimeoutException">Retirement timed out; the pending identity and owners remain retained.</exception>
     private void RequestEffectsManagerSynchronization() {
         managerIdentityChangePending = true;
         IsSynchronizingEffectsManager = true;
@@ -151,6 +156,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
 
     /// <summary>Retires all shared native generations without changing independently supplied manager identities.</summary>
     /// <remarks>Call for same-instance manager resource disposal or reinitialization, on the container dispatcher.</remarks>
+    /// <exception cref="TimeoutException">Retirement timed out; the barrier and owners remain retained.</exception>
     internal void RequestSharedResourceRetirement() {
         VerifyAccess();
         resourceRetirementPending = true;
@@ -159,11 +165,14 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     }
 
     /// <summary>Retires all old native owners before assigning a replacement manager to any registered host.</summary>
+    /// <exception cref="TimeoutException">Retirement timed out; the barrier and resources remain owned for retry.</exception>
     private void SynchronizeEffectsManager() {
         if (!managerIdentityChangePending && !resourceRetirementPending) return;
         var snapshot = consumers;
-        if (isApplyingManagerChange || HasPreparingConsumer(snapshot)) {
-            QueueManagerSynchronization();
+        if (isApplyingManagerChange) return;
+        managerRetryTimer?.Stop();
+        if (HasPreparingConsumer(snapshot)) {
+            // The last consumer's frame exit resumes this transaction without polling a nested dispatcher pump.
             return;
         }
 
@@ -182,7 +191,6 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
             if ((assignManager && !ReferenceEquals(manager, EffectsManager)) || !ReferenceEquals(snapshot, consumers)) {
                 managerIdentityChangePending |= assignManager;
                 resourceRetirementPending |= retireAll;
-                QueueManagerSynchronization();
                 completed = true;
                 return;
             }
@@ -198,6 +206,9 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
             }
             InvalidateConsumers(null, InvalidateTypes.SceneGraph);
             completed = true;
+        } catch (TimeoutException) {
+            ScheduleManagerRetirementRetry();
+            throw;
         } finally {
             isApplyingManagerChange = false;
             if (!completed) {
@@ -205,14 +216,18 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
                 resourceRetirementPending |= retireAll;
             }
             IsSynchronizingEffectsManager = managerIdentityChangePending || resourceRetirementPending;
-            if (completed && IsSynchronizingEffectsManager) QueueManagerSynchronization();
+            if (completed) SchedulePendingEffectsManagerSynchronization();
         }
     }
 
-    /// <summary>Releases the queued callback slot before retrying the latest shared manager change.</summary>
+    /// <summary>Releases the queued callback slot and contains asynchronous retirement timeouts without clearing the barrier.</summary>
     private void ProcessManagerSynchronization() {
         managerChangeQueued = false;
-        SynchronizeEffectsManager();
+        try {
+            SynchronizeEffectsManager();
+        } catch (TimeoutException exception) {
+            LoggerLib.Logger.Error(exception, "Shared scene resources remain owned for retirement retry");
+        }
     }
 
     /// <summary>Checks the entire consumer set before any presentation resources or host managers change.</summary>
@@ -224,11 +239,33 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         return false;
     }
 
-    /// <summary>Posts one retained callback that rechecks active frames and uses the latest requested manager.</summary>
-    private void QueueManagerSynchronization() {
-        if (managerChangeQueued || Dispatcher.HasShutdownStarted) return;
+    /// <summary>Resumes pending shared work after the last consumer frame exits, without allocating on settled frames.</summary>
+    internal void SchedulePendingEffectsManagerSynchronization() {
+        if (!IsSynchronizingEffectsManager || isApplyingManagerChange || managerChangeQueued ||
+            managerRetryTimer is { IsEnabled: true } || Dispatcher.HasShutdownStarted || HasPreparingConsumer(consumers))
+            return;
         managerChangeQueued = true;
         Dispatcher.BeginInvoke(DispatcherPriority.Background, synchronizeEffectsManagerCallback);
+    }
+
+    /// <summary>Retries only exceptional retirement failures, retaining one timer and no periodic idle callback.</summary>
+    private void ScheduleManagerRetirementRetry() {
+        if (Dispatcher.HasShutdownStarted) return;
+        if (managerRetryTimer is null) {
+            managerRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) {
+                Interval = TimeSpan.FromMilliseconds(100)
+            };
+            managerRetryTimer.Tick += RetryManagerRetirement;
+        }
+        managerRetryTimer.Start();
+    }
+
+    /// <summary>Stops the exceptional timer before trying the latest transaction or waiting for a consumer frame exit.</summary>
+    /// <param name="sender">The retained retirement timer.</param>
+    /// <param name="args">The original timer tick.</param>
+    private void RetryManagerRetirement(object? sender, EventArgs args) {
+        managerRetryTimer!.Stop();
+        ProcessManagerSynchronization();
     }
 
     /// <inheritdoc />

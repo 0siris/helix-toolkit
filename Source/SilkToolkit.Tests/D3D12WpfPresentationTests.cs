@@ -326,11 +326,14 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
     );
 
     /// <summary>Finishes accepted GPU transport after StopRendering while retaining demand for a later restart.</summary>
+    /// <param name="stopFromCompletion">Whether the completion listener stops automatic work reentrantly.</param>
     /// <returns>The actual queue stall and stopped automatic-callback verification.</returns>
-    [Fact(Explicit = true)]
+    [Theory(Explicit = true)]
+    [InlineData(false)]
+    [InlineData(true)]
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
-    public Task StoppedRenderingFinishesAcceptedTransportWithoutSubmittingNewDemand() => StaThread.RunAsync(async () => {
+    public Task StoppedRenderingFinishesAcceptedTransportWithoutSubmittingNewDemand(bool stopFromCompletion) => StaThread.RunAsync(async () => {
             await using var driver = new FrameDriver();
             await driver.WarmAsync();
             var before = driver.Counts;
@@ -338,9 +341,12 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
                 .GetMethod("OnRendering", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .CreateDelegate<EventHandler<RenderingEventArgs>>(driver.Owner);
             using (var gate = new NativeQueueGate(driver.Owner)) {
+                if (stopFromCompletion) driver.Viewport.StartRendering();
                 driver.Viewport.InvalidateRender();
                 Assert.True(driver.Owner.RenderFrame(FrameTime) > 0);
-                driver.Viewport.StopRendering();
+                if (stopFromCompletion)
+                    driver.Viewport.Rendered += (_, _) => driver.Viewport.StopRendering();
+                else driver.Viewport.StopRendering();
                 driver.Viewport.InvalidateRender();
                 automaticTick(driver.Canvas, new RenderingEventArgs(TimeSpan.FromSeconds(2)));
                 Assert.Equal(before.Completed, driver.Owner.CompletedFrames);

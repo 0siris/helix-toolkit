@@ -237,13 +237,13 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="renderingTime">The WPF timestamp used by lightweight camera updates.</param>
     /// <param name="captureFrame">Whether this explicit caller requires a new captured scene.</param>
     /// <param name="waitForCompletion">Whether an explicit caller permits bounded native waits.</param>
-    /// <param name="renderScene">Whether this caller permits new scene submissions after servicing accepted transport.</param>
+    /// <param name="automaticFrame">Whether new submissions must respect the live automatic-rendering permission.</param>
     /// <returns>The actual scene draw count, or zero when idle, suspended, or transport-owned.</returns>
     internal int RenderFrame(
         TimeSpan renderingTime,
         bool captureFrame = false,
         bool waitForCompletion = false,
-        bool renderScene = true
+        bool automaticFrame = false
     ) {
         canvas.Dispatcher.VerifyAccess();
         if (IsDisposed || stopping) return 0;
@@ -259,17 +259,20 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             _ = demand.TryTakeRecoveryRequest();
             DetectPresentationChanges();
             if (!ServiceTransport(waitForCompletion || captureFrame)) {
-                if (renderScene && canvas.IsActive) viewport.UpdateWpfCamera(renderingTime);
+                if ((!automaticFrame || viewport.WpfRenderingEnabled) && canvas.IsActive)
+                    viewport.UpdateWpfCamera(renderingTime);
                 return 0;
             }
 
             viewport.RaiseCompletedWpfFrames(this);
-            if (!renderScene || IsDisposed || stopping || !viewport.CanRenderWpfScene || !canvas.IsActive) return 0;
+            if ((automaticFrame && !viewport.WpfRenderingEnabled) || IsDisposed || stopping ||
+                !viewport.CanRenderWpfScene || !canvas.IsActive) return 0;
             if (bridge is null) CreateNative();
             if (captureFrame) demand.Request(D3D12RenderInvalidation.Render);
             reserved = demand.TryBeginFrame(out _);
             viewport.UpdateWpfCamera(renderingTime);
-            if (IsDisposed || stopping || !viewport.CanRenderWpfScene) return 0;
+            if ((automaticFrame && !viewport.WpfRenderingEnabled) || IsDisposed || stopping ||
+                !viewport.CanRenderWpfScene) return 0;
             if (!reserved && !demand.TryBeginFrame(out _)) return 0;
             reserved = true;
             if (captureFrame) {
@@ -604,7 +607,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         hasRenderingTime = true;
         lastRenderingTime = args.RenderingTime;
         try {
-            _ = RenderFrame(args.RenderingTime, renderScene: viewport.WpfRenderingEnabled);
+            _ = RenderFrame(args.RenderingTime, automaticFrame: true);
         } catch (Exception exception) {
             viewport.StopRendering();
             viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));

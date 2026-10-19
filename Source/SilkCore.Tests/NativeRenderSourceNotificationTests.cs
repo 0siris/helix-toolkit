@@ -190,6 +190,7 @@ public sealed class NativeRenderSourceNotificationTests {
     [Fact]
     [Trait("Category", "Warp")]
     public void WarmPassLookupsAndScene2DGeometryRetainStorage() {
+        Assert.Equal(false, AppContext.GetData("System.GC.Concurrent"));
         using var device = SilkD3D12DeviceFactory.CreateDefault(driverType: SilkDriverType.Warp);
         using var resources = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
         using var samplers = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);
@@ -242,6 +243,11 @@ public sealed class NativeRenderSourceNotificationTests {
         var indexStorage = drawStorage.Select(draw => draw.Indices)
             .ToArray();
         var before = GC.GetAllocatedBytesForCurrentThread();
+        var allocatingControl = new byte[40];
+        GC.KeepAlive(allocatingControl);
+        var controlAllocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.True(controlAllocated >= allocatingControl.Length);
+        before = GC.GetAllocatedBytesForCurrentThread();
         for (var index = 0; index < 1_000; index++) catalog.ResolveSprite2D();
         var passAllocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Equal(0, passAllocated);
@@ -267,6 +273,7 @@ public sealed class NativeRenderSourceNotificationTests {
 
         var withoutLayoutAllocated = GC.GetAllocatedBytesForCurrentThread() - before;
         TestContext.Current.TestOutputHelper?.WriteLine(
+            $"Allocation counter positive control={controlAllocated}. " +
             $"Scene2D / 1000 frames: cleanup={cleanupAllocated}, preparation={preparationAllocated}, " +
             $"cleanup plus preparation without layout={withoutLayoutAllocated}."
         );

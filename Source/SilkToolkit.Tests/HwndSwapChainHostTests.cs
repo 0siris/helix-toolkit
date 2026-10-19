@@ -22,13 +22,12 @@ namespace SilkToolkit.Tests;
 [Collection(WpfCollection.Name)]
 public sealed class HwndSwapChainHostTests {
     /// <summary>
-    ///     Verifies removed D3D11 presentation controls and the old canvas-selection switch stay absent.
+    ///     Verifies removed D3D11 controls and the public selection switch stay absent while P3's canvas is internal.
     /// </summary>
     [Fact]
     public void LegacyPresentationApiIsAbsent() {
         var assembly = typeof(Viewport3DX).Assembly;
         var removedTypes = new[] {
-            "HelixToolkit.Wpf.SharpDX.Controls.DPFCanvas",
             "HelixToolkit.Wpf.SharpDX.Controls.DPFSurfaceSwapChain",
             "HelixToolkit.Wpf.SharpDX.Controls.DX11ImageSource",
             "HelixToolkit.Wpf.SharpDX.Controls.DX11ImageSourceRenderHost",
@@ -37,6 +36,8 @@ public sealed class HwndSwapChainHostTests {
         };
 
         Assert.All(removedTypes, typeName => Assert.Null(assembly.GetType(typeName, false, false)));
+        var canvas = Assert.NotNull(assembly.GetType("HelixToolkit.Wpf.SharpDX.Controls.DPFCanvas", false, false));
+        Assert.False(canvas.IsVisible);
         Assert.Null(typeof(Viewport3DX).GetProperty("EnableSwapChainRendering"));
     }
 

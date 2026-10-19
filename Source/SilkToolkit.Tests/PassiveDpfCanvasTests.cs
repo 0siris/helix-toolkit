@@ -22,6 +22,7 @@ public sealed class PassiveDpfCanvasTests {
             var size = new Size(96, 48);
             canvas.Measure(size);
             canvas.Arrange(new Rect(size));
+            canvas.UpdateLayout();
             Assert.Equal(128u, canvas.PixelWidth);
             Assert.Equal(64u, canvas.PixelHeight);
             Assert.Equal((float) (4.0 / 3.0), canvas.EffectiveDpiScale);
@@ -51,6 +52,7 @@ public sealed class PassiveDpfCanvasTests {
             var size = new Size(63.25, 47.25);
             canvas.Measure(size);
             canvas.Arrange(new Rect(size));
+            canvas.UpdateLayout();
             Assert.Equal(2f, canvas.EffectiveDpiScale);
             Assert.Equal(127u, canvas.PixelWidth);
             Assert.Equal(95u, canvas.PixelHeight);

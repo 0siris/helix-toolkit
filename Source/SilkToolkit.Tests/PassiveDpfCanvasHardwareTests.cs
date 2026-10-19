@@ -83,6 +83,7 @@ public sealed class PassiveDpfCanvasHardwareTests(ITestOutputHelper output) {
             canvas.Height = 72;
             canvas.Measure(new Size(96, 72));
             canvas.Arrange(new Rect(0, 0, 96, 72));
+            canvas.UpdateLayout();
             Assert.Equal(96u, canvas.PixelWidth);
             Assert.Equal(72u, canvas.PixelHeight);
             Assert.Same(nativeImage, canvas.ImageSource.NativeImage);

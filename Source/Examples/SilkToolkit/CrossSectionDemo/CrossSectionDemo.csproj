@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ValidSphere" Version="*-*" />
+    <PackageReference Include="ValidSphere" Version="0.3.1-preview" />
   </ItemGroup>
 
 </Project>

@@ -6,6 +6,9 @@ okf_version: "0.2"
 
 ## Repository
 
+The [coding policy](/policies/csharp-coding-conventions.md#assertions) fixes ValidSphere at `0.3.1-preview`, shared
+with MeshMeister consumers; this package pin changes no renderer behavior.
+
 * [Repository](/repository.md) - Current repository purpose, layout, and source references.
 * [Build](/build.md) - SDK, shell, solution, and build commands.
 * [Project Source Knowledge Graph](/graphify-database.md) - Generated Graphify database for C# and MSBuild source relationships.

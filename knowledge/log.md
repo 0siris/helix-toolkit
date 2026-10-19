@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-19 — Pin shared ValidSphere dependency
+
+- Fixed toolkit, importer, tests and example references at ValidSphere `0.3.1-preview`, matching MeshMeister.
+- Updated the assertion dependency policy and bundle index; no renderer code or assertion predicates changed.
+- The focused headless assertion-integration test passes, and CrossSectionDemo builds successfully with the pinned
+  package. Main consuming application builds and Debug/Release migration regressions also pass; no visible UI ran.
+
 ## 2026-10-18 — Shared viewport widget overlay
 
 * Moved the existing WPF/Win32 widget host into SilkToolkit with its public namespace and class body retained.

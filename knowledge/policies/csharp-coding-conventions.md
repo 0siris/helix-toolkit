@@ -62,7 +62,9 @@ without `<inheritdoc />`.
 
 # Assertions
 
-`ValidSphere` supplies fluent BCL guards. Argument validation uses `AsGuardNotNull()` or `Guard().Range(...)` and
+`ValidSphere` version `0.3.1-preview` supplies fluent BCL guards. Package references pin this version so consuming
+MeshMeister projects and the toolkit resolve the same assertion implementation. Argument validation uses
+`AsGuardNotNull()` or `Guard().Range(...)` and
 preserves `ArgumentNullException`/`ArgumentOutOfRangeException` contracts. Internal invariants use
 `AsNotNull()` or another `Is()` assertion only where `AssertException` is the correct failure type.
 Terminal `As`-forms return the validated value directly and inform nullable flow analysis; use the fluent

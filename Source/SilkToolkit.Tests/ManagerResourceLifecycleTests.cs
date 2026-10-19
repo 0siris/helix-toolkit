@@ -22,75 +22,74 @@ public sealed class ManagerResourceLifecycleTests {
     [InlineData(true, true)]
     public Task RejectedResourceDisposalResumesExistingAndLateConsumers(bool shared, bool preparing) =>
         StaThread.RunAsync(async () => {
-            using var manager = new DefaultEffectsManager();
-            var context = manager.DeviceContext2D;
-            var geometry = manager.GeometryBufferManager;
-            var container = new ModelContainer3DX { EffectsManager = manager };
-            var observed = false;
-            EventHandler<EventArgs> observing = (_, _) => {
-                Assert.True(manager.Initialized);
-                Assert.False(manager.ResourcesAvailable);
-                observed = true;
-            };
-            manager.DisposingResources += observing;
-            using var existing = new Viewport3DX {
-                EffectsManager = manager, EnableSharedModelMode = shared, SharedModelContainer = container
-            };
-            existing.PrepareHostFrameContracts();
-            var updating = typeof(Viewport3DX).GetField("isD3D12FrameUpdating", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            updating.SetValue(existing, preparing);
-            Viewport3DX? late = null;
-            var rejection = new TimeoutException("Injected rejection after the viewport disposal callback.");
-            EventHandler<EventArgs> rejecting = (_, _) => {
-                Assert.True(observed);
-                Assert.False(existing.CanSubmitNativeScene);
-                Assert.Equal(shared && preparing, container.IsSynchronizingEffectsManager);
-                late = new Viewport3DX {
+                using var manager = new DefaultEffectsManager();
+                var context = manager.DeviceContext2D;
+                var geometry = manager.GeometryBufferManager;
+                var container = new ModelContainer3DX { EffectsManager = manager };
+                var observed = false;
+                EventHandler<EventArgs> observing = (_, _) => {
+                    Assert.True(manager.Initialized);
+                    Assert.False(manager.ResourcesAvailable);
+                    observed = true;
+                };
+                manager.DisposingResources += observing;
+                using var existing = new Viewport3DX {
                     EffectsManager = manager, EnableSharedModelMode = shared, SharedModelContainer = container
                 };
-                late.PrepareHostFrameContracts();
-                Assert.False(late.CanSubmitNativeScene);
-                throw rejection;
-            };
-            manager.DisposingResources += rejecting;
-            try {
-                Assert.Same(rejection, Assert.Throws<TimeoutException>(manager.DisposeAllResources));
-                Assert.NotNull(late);
-                Assert.True(manager.Initialized);
-                Assert.True(manager.ResourcesAvailable);
-                Assert.False(manager.IsDisposed);
-                Assert.Same(context, manager.DeviceContext2D);
-                Assert.False(context.IsDisposed);
-                Assert.Same(geometry, manager.GeometryBufferManager);
-                manager.Reinitialize();
-                Assert.Same(context, manager.DeviceContext2D);
-                Assert.Equal(!preparing, existing.CanSubmitNativeScene);
-                Assert.Equal(!(shared && preparing), late.CanSubmitNativeScene);
-
-                updating.SetValue(existing, false);
-                existing.ScheduleManagerLifecycle();
-                await Dispatcher.CurrentDispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
-                Assert.False(container.IsSynchronizingEffectsManager);
                 existing.PrepareHostFrameContracts();
-                late.PrepareHostFrameContracts();
-                Assert.True(existing.CanSubmitNativeScene);
-                Assert.True(late.CanSubmitNativeScene);
-                Assert.True(existing.RenderDemand.HasRenderDemand);
-                Assert.True(late.RenderDemand.HasRenderDemand);
-                Drain(existing.RenderDemand);
-                Drain(late.RenderDemand);
-                Assert.False(existing.RenderDemand.HasRenderDemand);
-                Assert.False(late.RenderDemand.HasRenderDemand);
-                manager.RaiseInvalidateRender();
-                Assert.True(existing.RenderDemand.HasRenderDemand);
-                Assert.True(late.RenderDemand.HasRenderDemand);
-            } finally {
-                manager.DisposingResources -= observing;
-                manager.DisposingResources -= rejecting;
-                updating.SetValue(existing, false);
-                late?.Dispose();
+                var updating = typeof(Viewport3DX).GetField("isD3D12FrameUpdating", BindingFlags.Instance | BindingFlags.NonPublic)!;
+                updating.SetValue(existing, preparing);
+                Viewport3DX? late = null;
+                var rejection = new TimeoutException("Injected rejection after the viewport disposal callback.");
+                EventHandler<EventArgs> rejecting = (_, _) => {
+                    Assert.True(observed);
+                    Assert.False(existing.CanSubmitNativeScene);
+                    Assert.Equal(shared && preparing, container.IsSynchronizingEffectsManager);
+                    late = new Viewport3DX { EffectsManager = manager, EnableSharedModelMode = shared, SharedModelContainer = container };
+                    late.PrepareHostFrameContracts();
+                    Assert.False(late.CanSubmitNativeScene);
+                    throw rejection;
+                };
+                manager.DisposingResources += rejecting;
+                try {
+                    Assert.Same(rejection, Assert.Throws<TimeoutException>(manager.DisposeAllResources));
+                    Assert.NotNull(late);
+                    Assert.True(manager.Initialized);
+                    Assert.True(manager.ResourcesAvailable);
+                    Assert.False(manager.IsDisposed);
+                    Assert.Same(context, manager.DeviceContext2D);
+                    Assert.False(context.IsDisposed);
+                    Assert.Same(geometry, manager.GeometryBufferManager);
+                    manager.Reinitialize();
+                    Assert.Same(context, manager.DeviceContext2D);
+                    Assert.Equal(!preparing, existing.CanSubmitNativeScene);
+                    Assert.Equal(!(shared && preparing), late.CanSubmitNativeScene);
+
+                    updating.SetValue(existing, false);
+                    existing.ScheduleManagerLifecycle();
+                    await Dispatcher.CurrentDispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+                    Assert.False(container.IsSynchronizingEffectsManager);
+                    existing.PrepareHostFrameContracts();
+                    late.PrepareHostFrameContracts();
+                    Assert.True(existing.CanSubmitNativeScene);
+                    Assert.True(late.CanSubmitNativeScene);
+                    Assert.True(existing.RenderDemand.HasRenderDemand);
+                    Assert.True(late.RenderDemand.HasRenderDemand);
+                    Drain(existing.RenderDemand);
+                    Drain(late.RenderDemand);
+                    Assert.False(existing.RenderDemand.HasRenderDemand);
+                    Assert.False(late.RenderDemand.HasRenderDemand);
+                    manager.RaiseInvalidateRender();
+                    Assert.True(existing.RenderDemand.HasRenderDemand);
+                    Assert.True(late.RenderDemand.HasRenderDemand);
+                } finally {
+                    manager.DisposingResources -= observing;
+                    manager.DisposingResources -= rejecting;
+                    updating.SetValue(existing, false);
+                    late?.Dispose();
+                }
             }
-        });
+        );
 
     /// <summary>Blocks a consumer created inside a disposal notification until the manager publishes fresh resources.</summary>
     /// <param name="shared">Whether the late viewport also joins an active shared container.</param>

@@ -31,6 +31,12 @@ public sealed class EffectsManagerConfiguration {
 ///     Shader and Technique manager
 /// </summary>
 public class EffectsManager : DisposeObject, IEffectsManager {
+    /// <summary>Publishes resource unavailability before disposal callbacks while preserving the public initialization flag.</summary>
+    private volatile bool resourcesAvailable;
+
+    /// <summary>Gets whether a complete resource generation is available outside a disposal notification.</summary>
+    internal bool ResourcesAvailable => resourcesAvailable;
+
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     /// <summary>
@@ -218,6 +224,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
             }
 
             Initialized = true;
+            resourcesAvailable = true;
         } catch {
             techniqueDict.Clear();
             DisposeSharedResources();
@@ -313,7 +320,14 @@ public class EffectsManager : DisposeObject, IEffectsManager {
 
     /// <summary>Notifies consumers before releasing techniques and the current shared resource generation.</summary>
     private void DisposeResources() {
-        DisposingResources?.Invoke(this, EventArgs.Empty);
+        var wasAvailable = resourcesAvailable;
+        resourcesAvailable = false;
+        try {
+            DisposingResources?.Invoke(this, EventArgs.Empty);
+        } catch {
+            resourcesAvailable = wasAvailable;
+            throw;
+        }
         foreach (var technique in techniqueDict.Values.ToArray())
             if (technique.IsValueCreated) {
                 var t = technique.Value;
@@ -329,6 +343,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
 
     /// <summary>Releases complete or partially initialized shared resources without disposing their manager.</summary>
     private void DisposeSharedResources() {
+        resourcesAvailable = false;
         RemoveAndDispose(ref geometryBufferManager);
         RemoveAndDispose(ref directWriteFactory);
         RemoveAndDispose(ref deviceContext2D);

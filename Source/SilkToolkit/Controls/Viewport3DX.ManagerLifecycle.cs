@@ -50,6 +50,7 @@ public partial class Viewport3DX {
 
     /// <summary>Gets whether the current manager and shared-scene transaction allow new scene preparation.</summary>
     private bool CanRenderWithEffectsManager => !effectsResourcesUnavailable && !managerResourcesResetPending &&
+                                                EffectsManager is not EffectsManager { ResourcesAvailable: false } &&
                                                 !(EnableSharedModelMode && SharedModelContainerInternal is ModelContainer3DX {
                                                     IsSynchronizingEffectsManager: true
                                                 });
@@ -219,7 +220,7 @@ public partial class Viewport3DX {
         }
 
         subscribedEffectsManager = manager;
-        effectsResourcesUnavailable = manager is EffectsManager { Initialized: false };
+        effectsResourcesUnavailable = manager is EffectsManager { ResourcesAvailable: false };
         if (manager is null) return;
         manager.InvalidateRender += EffectsManagerInvalidated;
         manager.DisposingResources += EffectsManagerDisposingResources;

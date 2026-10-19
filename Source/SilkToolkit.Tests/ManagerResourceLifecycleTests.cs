@@ -10,6 +10,51 @@ namespace SilkToolkit.Tests;
 /// <summary>Checks real viewport subscriptions and shared notification membership without native initialization.</summary>
 [Collection(WpfCollection.Name)]
 public sealed class ManagerResourceLifecycleTests {
+    /// <summary>Blocks a consumer created inside a disposal notification until the manager publishes fresh resources.</summary>
+    /// <param name="shared">Whether the late viewport also joins an active shared container.</param>
+    /// <returns>The real manager-event subscription and preparation-availability verification.</returns>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task ConsumerJoiningDuringResourceDisposalWaitsForReinitialization(bool shared) => StaThread.RunAsync(() => {
+        using var manager = new DefaultEffectsManager();
+        var container = new ModelContainer3DX { EffectsManager = manager };
+        Viewport3DX? late = null;
+        EventHandler<EventArgs> joining = (_, _) => {
+            Assert.True(manager.Initialized);
+            Assert.False(manager.ResourcesAvailable);
+            late = new Viewport3DX {
+                EffectsManager = manager, EnableSharedModelMode = shared, SharedModelContainer = container
+            };
+            late.PrepareHostFrameContracts();
+            Assert.False(late.CanSubmitNativeScene);
+            Assert.False(late.UpdateAndRender());
+            Assert.Null(typeof(Viewport3DX).GetField("resourceModelContainer", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(late));
+        };
+        manager.DisposingResources += joining;
+        using var existing = new Viewport3DX {
+            EffectsManager = manager, EnableSharedModelMode = shared, SharedModelContainer = container
+        };
+        existing.PrepareHostFrameContracts();
+        try {
+            manager.DisposeAllResources();
+            manager.DisposingResources -= joining;
+            Assert.NotNull(late);
+            Assert.False(manager.ResourcesAvailable);
+            Assert.False(late.CanSubmitNativeScene);
+            Assert.False(existing.CanSubmitNativeScene);
+            manager.Reinitialize();
+            Assert.True(manager.ResourcesAvailable);
+            Assert.True(late.CanSubmitNativeScene);
+            Assert.True(existing.CanSubmitNativeScene);
+            Assert.True(late.RenderDemand.HasRenderDemand);
+        } finally {
+            manager.DisposingResources -= joining;
+            late?.Dispose();
+        }
+    });
+
     /// <summary>Keeps manager handlers detached when completion delivery disposes a retiring viewport.</summary>
     /// <returns>The managed dispatcher verification of reentrant retirement.</returns>
     [Fact]

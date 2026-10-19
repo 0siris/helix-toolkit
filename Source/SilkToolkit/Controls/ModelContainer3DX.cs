@@ -195,7 +195,12 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     private void RequestEffectsManagerSynchronization() {
         managerIdentityChangePending = true;
         IsSynchronizingEffectsManager = true;
-        SynchronizeEffectsManager();
+        try {
+            SynchronizeEffectsManager();
+        } catch (TimeoutException) {
+            ScheduleManagerRetirementRetry();
+            throw;
+        }
     }
 
     /// <summary>Retires all shared native generations without changing independently supplied manager identities.</summary>
@@ -287,6 +292,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         try {
             SynchronizeEffectsManager();
         } catch (TimeoutException exception) {
+            ScheduleManagerRetirementRetry();
             LoggerLib.Logger.Error(exception, "Shared scene resources remain owned for retirement retry");
         }
     }

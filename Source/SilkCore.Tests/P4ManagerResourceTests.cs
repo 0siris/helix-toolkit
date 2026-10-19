@@ -12,6 +12,28 @@ namespace SilkCore.Tests;
 
 /// <summary>Checks complete manager resource generations and same-instance recovery without a graphics device.</summary>
 public sealed class P4ManagerResourceTests {
+    /// <summary>Restores availability when a pre-disposal listener rejects retirement before any resource is released.</summary>
+    [Fact]
+    public void AbortedDisposalPreservesTheLiveGeneration() {
+        using var manager = new EffectsManager();
+        var context = manager.DeviceContext2D;
+        EventHandler<EventArgs> reject = (_, _) => {
+            Assert.True(manager.Initialized);
+            Assert.False(manager.ResourcesAvailable);
+            throw new TimeoutException("Injected bounded retirement rejection.");
+        };
+        manager.DisposingResources += reject;
+        try {
+            Assert.Throws<TimeoutException>(manager.DisposeAllResources);
+            Assert.True(manager.Initialized);
+            Assert.True(manager.ResourcesAvailable);
+            Assert.Same(context, manager.DeviceContext2D);
+            Assert.False(context.IsDisposed);
+        } finally {
+            manager.DisposingResources -= reject;
+        }
+    }
+
     /// <summary>Publishes fresh, live resources and original descriptions before notifying reinitialized consumers.</summary>
     [Fact]
     [Trait("Category", "Unit")]

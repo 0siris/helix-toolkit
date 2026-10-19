@@ -25,16 +25,23 @@ public sealed class NativePremultipliedOutputTests {
     public void ProfileRetainsApplicationShaderWithBuiltInBytecodeName() {
         using var device = SilkD3D12DeviceFactory.CreateDefault(driverType: SilkDriverType.Warp);
         var reader = new ApplicationShaderReader();
-        var customShader = new ShaderDescription("ApplicationScreen", ShaderStage.Pixel,
-            new ShaderReflector(), "psScreenDup", reader);
+        var customShader = new ShaderDescription(
+            "ApplicationScreen", ShaderStage.Pixel,
+            new ShaderReflector(), "psScreenDup", reader
+        );
         var technique = DefaultEffectsManager.LoadTechniqueDescriptions()
             .Single(description => description.Name == DefaultRenderTechniqueNames.ScreenDuplication);
         var pass = technique.PassDescriptions!.Single(description => description.Name == DefaultPassNames.Default);
         pass.ShaderList = pass.ShaderList!.Select(shader => shader.ShaderType == ShaderStage.Pixel
-            ? customShader : shader).ToArray();
-        using var catalog = new D3D12ScenePassCatalog(device, Format.FormatB8G8R8A8Unorm,
+                ? customShader
+                : shader
+            )
+            .ToArray();
+        using var catalog = new D3D12ScenePassCatalog(
+            device, Format.FormatB8G8R8A8Unorm,
             Format.FormatD32FloatS8X24Uint, customTechniques: [technique],
-            outputMode: D3D12ColorOutputMode.Premultiplied);
+            outputMode: D3D12ColorOutputMode.Premultiplied
+        );
         using var node = new ScreenDuplicationNode();
         var resolved = catalog.Resolve(node);
         Assert.NotNull(resolved);

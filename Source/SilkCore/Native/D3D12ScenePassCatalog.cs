@@ -494,10 +494,13 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
             };
             var profileStage = shader.ShaderType == ShaderStage.Pixel && ReferenceEquals(shader, builtInStage);
             result[index] = profileStage
-                ? new ShaderDescription($"{name}Premultiplied", ShaderStage.Pixel,
-                    new ShaderReflector(), $"{name}Premultiplied")
+                ? new ShaderDescription(
+                    $"{name}Premultiplied", ShaderStage.Pixel,
+                    new ShaderReflector(), $"{name}Premultiplied"
+                )
                 : shader;
         }
+
         return result;
     }
 

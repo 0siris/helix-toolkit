@@ -1,5 +1,11 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-19 — WPF composition Phase 3 started
+
+- User approved the productive bridge/output/canvas implementation and serial integration after P3.0.
+- Froze bridge, passive canvas, output-mode and Scene2D notification APIs and disjoint child ownership before
+  parallel work. Existing public HWND selection/default remains unchanged until Phase 4.
+
 ## 2026-10-19 — WPF composition P3.0 architecture contracts
 
 - Recorded one D3D12 presentation owner and borrowed bridge/renderer boundaries before parallel implementation.

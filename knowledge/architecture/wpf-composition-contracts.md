@@ -185,6 +185,44 @@ verify actual frame/copy/publication counts, so skipped work cannot produce a fa
 
 # Parallel ownership and acceptance
 
+## Phase 3 implementation coordination
+
+Phase 3 implementation is approved. Children start from the committed API coordination basis after `c2c7afc10`.
+I owns the new `D3D12ColorOutputMode` enum (`Legacy`, `Premultiplied`) in Core.Native. Existing internal
+constructors retain defaults: scene renderer adds optional `Format colorFormat = FormatR8G8B8A8Unorm` and
+`D3D12ColorOutputMode outputMode = Legacy` after its three existing arguments; pass catalog adds optional
+`outputMode = Legacy` after `effectsManager`. I appends the same optional output mode to the shared frame
+recorder and propagates these inputs. B owns both Core constructor implementations and output behavior.
+
+A implements internal `Controls.D3D12ImageInteropBridge(SilkD3D12Device device, nint hwnd, uint width, uint height)`:
+`D3D12FrameTarget Target`, `long AdapterLuid`, `bool IsCopyPending`, nonblocking `bool IsCopyComplete`,
+`bool HasReadySurface`, `nint ReadySurface`, `ulong ReadySerial`, `ulong CopyCount`, `bool IsDisposed`,
+`void BeginCopy(ulong frameSerial)`, `void ConfirmPublication(ulong frameSerial)`, `void ConfirmDetached()`,
+and bounded `Dispose()`. Initial IsCopyComplete is true. BeginCopy requires completed D3D12 work, source COMMON,
+no pending/ready copy, and selects a free destination. Polling completion exposes the ready surface/serial.
+ConfirmPublication is called only after successful WPF publication/unlock and releases the previous bound
+slot; ConfirmDetached follows actual WPF detachment. Dispose requires caller-completed D3D12 work and detached
+WPF surfaces; a copy timeout retains native ownership for retry. The bridge never owns the borrowed device.
+A may minimally extend `D3D12ResourceHandles.cs` for source creation/state registration; B does not edit it.
+
+C implements internal `Controls.DPFCanvas : Grid, IDisposable` as a passive publication/control boundary,
+not a scene renderer. It exposes `D3D12ImageSource ImageSource`, `bool EnableDpiScale`, `float EffectiveDpiScale`,
+`uint PixelWidth/PixelHeight`, `nint NativeHandle`, `bool IsActive`, plus `Rendering` forwarding original
+`RenderingEventArgs` and `PresentationChanged` notifications. The image source owns D3DImage and exposes
+`bool IsFrontBufferAvailable`, actual `nint BoundSurface`, `bool TryPublish(nint surface, uint width, uint height)`,
+`bool TryDetach()`, and `FrontBufferChanged`. Publication uses existing-slot pointers and no bridge dependency.
+BoundSurface updates immediately after SetBackBuffer, including partial-failure recovery; successful detach
+sets it to zero. Both classes use retained callbacks/subscriptions, disposal cannot free a bound native slot,
+and missed locks return false with balanced Unlock. I owns the presentation owner and canvas event consumer.
+
+B adds an internal allocation-free `SceneNode2D.RenderInvalidated` notification (Action event) that reaches
+attached root consumers on paint/layout invalidation. I subscribes with retained callbacks. Scene source
+follow-up requests use existing host invalidation APIs and remain inactive when not visibly used.
+
+These signatures are coordination requirements, not stubs that pretend implementation exists. Any required
+revision is sent to I before changing a caller. A/B/C own only their listed product/test files; I alone runs
+builds, GPU checks and Graphify on the integrated root checkout. No public backend selection changes in P3.
+
 I owns this contract, central Viewport/host files, shared frame renderer/target integration, project files and
 documentation. A owns the productive native bridge and shared-resource creation/adoption path plus its tests.
 B owns Core scene/pass/postprocess/source-notification code and shaders plus its tests. C owns canvas and

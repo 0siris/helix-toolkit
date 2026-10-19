@@ -302,6 +302,197 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output)
         AssertDominantMeshPixel(driver.Snapshot(), driver.Canvas.PixelWidth, driver.Canvas.PixelHeight, red: true);
     });
 
+    /// <summary>Retries genuine zero-duration WPF lock failures without replacing the ready frame or bound surface.</summary>
+    /// <returns>The actual lock contention, retained transport and single-publication verification.</returns>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task FailedImageLocksRetainOneReadyFrameUntilPublicationSucceeds() => StaThread.RunAsync(async () =>
+    {
+        await using var driver = new FrameDriver();
+        await driver.WarmAsync();
+        var before = driver.Counts;
+        var bridge = PrivateField<D3D12ImageInteropBridge>(driver.Owner, "bridge");
+        var copies = bridge.CopyCount;
+        var bound = driver.Canvas.ImageSource.BoundSurface;
+        nint ready = 0;
+        WithBlockedImageWrites(driver.Canvas.ImageSource.NativeImage, () =>
+        {
+            driver.Viewport.InvalidateRender();
+            PollWithoutDispatcher(() =>
+            {
+                _ = driver.Owner.RenderFrame(FrameTime);
+                return bridge.HasReadySurface;
+            }, "real GPU and interop copy completion with WPF publication blocked");
+            ready = bridge.ReadySurface;
+            Assert.NotEqual(nint.Zero, ready);
+            Assert.NotEqual(bound, ready);
+            Assert.Equal(before.Submitted + 1, bridge.ReadySerial);
+            Assert.Equal(before.Submitted + 1, driver.Owner.SubmittedFrames);
+            Assert.Equal(before.Completed + 1, driver.Owner.CompletedFrames);
+            Assert.Equal(before.Copied + 1, driver.Owner.CopiedFrames);
+            Assert.Equal(copies + 1, bridge.CopyCount);
+            Assert.Equal(before.Published, driver.Owner.PublishedFrames);
+            Assert.Equal(before.Updates + 1, driver.Node.UpdateCount);
+            Assert.Equal(before.Maintenance + 1, driver.Node.MaintenanceCount);
+            Assert.Equal(before.Rendered + 1, driver.RenderedCount);
+            Assert.Equal(before.OnRendered + 1, driver.OnRenderedCount);
+            var blocked = driver.Counts;
+            for (var tick = 0; tick < 256; tick++)
+            {
+                Assert.True(driver.Canvas.ImageSource.IsFrontBufferAvailable);
+                Assert.Equal(0, driver.Owner.RenderFrame(FrameTime));
+                Assert.Equal(blocked, driver.Counts);
+                Assert.True(bridge.HasReadySurface);
+                Assert.Equal(ready, bridge.ReadySurface);
+                Assert.Equal(before.Submitted + 1, bridge.ReadySerial);
+                Assert.Equal(bound, driver.Canvas.ImageSource.BoundSurface);
+                Assert.Equal(copies + 1, bridge.CopyCount);
+                Assert.True(driver.Owner.HasPendingTransport);
+                Assert.True(driver.Viewport.RenderDemand.HasPublicationDemand);
+                Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+            }
+        });
+
+        await driver.DrainAsync();
+        driver.AssertAdvanced(before, 1);
+        Assert.Equal(before.Rebound, driver.Owner.ReboundFrames);
+        Assert.Equal(copies + 1, bridge.CopyCount);
+        Assert.Equal(ready, driver.Canvas.ImageSource.BoundSurface);
+        Assert.False(bridge.HasReadySurface);
+        Assert.Equal(0UL, bridge.ReadySerial);
+        var settled = driver.Counts;
+        for (var tick = 0; tick < 256; tick++)
+            Assert.Equal(0, driver.Owner.RenderFrame(FrameTime));
+        Assert.Equal(settled, driver.Counts);
+    });
+
+    /// <summary>Rejects a blocked capture instead of returning a prior readback, then captures a newly accepted serial.</summary>
+    /// <returns>The actual publication backpressure and fresh capture identity verification.</returns>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task PublicationBlockedCaptureRejectsCachedPixelsAndRecoversWithAFreshSerial() => StaThread.RunAsync(async () =>
+    {
+        await using var driver = new FrameDriver();
+        await driver.WarmAsync();
+        var original = driver.Owner.CaptureFrame();
+        var originalSerial = driver.Owner.SubmittedFrames;
+        Assert.Equal(originalSerial, driver.Owner.CapturedSerial);
+        Assert.NotNull(driver.Owner.LastCapturedFrame);
+        AssertDominantMeshPixel(original.Pixels, original.Width, original.Height, red: true);
+        await driver.DrainAsync();
+        var before = driver.Counts;
+        var bridge = PrivateField<D3D12ImageInteropBridge>(driver.Owner, "bridge");
+        var bound = driver.Canvas.ImageSource.BoundSurface;
+        driver.Model.Material = DiffuseMaterials.Green;
+        WithBlockedImageWrites(driver.Canvas.ImageSource.NativeImage, () =>
+        {
+            driver.Viewport.InvalidateRender();
+            PollWithoutDispatcher(() =>
+            {
+                _ = driver.Owner.RenderFrame(FrameTime);
+                return bridge.HasReadySurface;
+            }, "new scene completion before the blocked capture attempt");
+            var ready = bridge.ReadySurface;
+            var serial = bridge.ReadySerial;
+            var blocked = driver.Counts;
+            Assert.Equal(before.Submitted + 1, serial);
+            Assert.True(serial > originalSerial);
+            Assert.Equal(before.Published, driver.Owner.PublishedFrames);
+            for (var attempt = 0; attempt < 3; attempt++)
+            {
+                Assert.True(driver.Canvas.ImageSource.IsFrontBufferAvailable);
+                var failure = Assert.Throws<InvalidOperationException>(() => driver.Owner.CaptureFrame());
+                Assert.Equal("The WPF transport is not available for a new captured scene.", failure.Message);
+                Assert.Null(driver.Owner.LastCapturedFrame);
+                Assert.Equal(0UL, driver.Owner.CapturedSerial);
+                Assert.Equal(blocked, driver.Counts);
+                Assert.True(bridge.HasReadySurface);
+                Assert.Equal(serial, bridge.ReadySerial);
+                Assert.Equal(ready, bridge.ReadySurface);
+                Assert.Equal(bound, driver.Canvas.ImageSource.BoundSurface);
+            }
+        });
+
+        await driver.DrainAsync();
+        driver.AssertAdvanced(before, 1);
+        var recovered = driver.Counts;
+        var requestedSerial = driver.Owner.SubmittedFrames + 1;
+        var captured = driver.Owner.CaptureFrame();
+        Assert.Equal(requestedSerial, driver.Owner.SubmittedFrames);
+        Assert.Equal(requestedSerial, driver.Owner.CapturedSerial);
+        Assert.True(driver.Owner.CapturedSerial > originalSerial);
+        Assert.NotSame(original.Pixels, captured.Pixels);
+        Assert.NotNull(driver.Owner.LastCapturedFrame);
+        AssertDominantMeshPixel(captured.Pixels, captured.Width, captured.Height, red: false);
+        await driver.DrainAsync();
+        driver.AssertAdvanced(recovered, 1);
+        Assert.Equal(requestedSerial, driver.Owner.CapturedSerial);
+    });
+
+    /// <summary>Retains native and application owners when genuine WPF lock contention blocks disposal preflight.</summary>
+    /// <returns>The actual detachment timeout and successful disposal retry verification.</returns>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task DisposalPreflightLockFailureRetainsOwnershipForRetry() => StaThread.RunAsync(async () =>
+    {
+        await using var driver = new FrameDriver();
+        await driver.WarmAsync();
+        var before = driver.Counts;
+        var bridge = PrivateField<D3D12ImageInteropBridge>(driver.Owner, "bridge");
+        var device = PrivateField<SilkD3D12Device>(driver.Owner, "device");
+        var renderer = driver.Owner.RenderContext;
+        var bound = driver.Canvas.ImageSource.BoundSurface;
+        var camera = driver.Viewport.Camera;
+        var disposingCount = 0;
+        driver.Viewport.Disposing += (_, _) => disposingCount++;
+        WithBlockedImageWrites(driver.Canvas.ImageSource.NativeImage, () =>
+        {
+            for (var attempt = 0; attempt < 3; attempt++)
+            {
+                var failure = Assert.Throws<TimeoutException>(() => driver.Viewport.Dispose());
+                Assert.Equal("The WPF image is still bound; native resources remain owned for disposal retry.",
+                    failure.Message);
+                Assert.False(driver.Viewport.IsDisposed);
+                Assert.False(driver.Owner.IsDisposed);
+                Assert.True(driver.Owner.IsInitialized);
+                Assert.False(bridge.IsDisposed);
+                Assert.False(device.IsDisposed);
+                Assert.Same(driver.Owner, PrivateField<D3D12WpfPresentation>(driver.Viewport, "wpfPresentation"));
+                Assert.Same(bridge, PrivateField<D3D12ImageInteropBridge>(driver.Owner, "bridge"));
+                Assert.Same(device, PrivateField<SilkD3D12Device>(driver.Owner, "device"));
+                Assert.Same(renderer, driver.Owner.RenderContext);
+                Assert.Same(driver.Effects, driver.Viewport.EffectsManager);
+                Assert.Same(camera, driver.Viewport.Camera);
+                Assert.Contains(driver.Model, driver.Viewport.Items);
+                Assert.False(driver.Node.IsDisposed);
+                Assert.False(driver.Effects.IsDisposed);
+                Assert.Equal(0, disposingCount);
+                Assert.Equal(bound, driver.Canvas.ImageSource.BoundSurface);
+                Assert.Equal(before, driver.Counts);
+            }
+        });
+
+        driver.Viewport.Dispose();
+        Assert.True(driver.Viewport.IsDisposed);
+        Assert.True(driver.Owner.IsDisposed);
+        Assert.True(bridge.IsDisposed);
+        Assert.True(device.IsDisposed);
+        Assert.True(driver.Node.IsDisposed);
+        Assert.False(driver.Effects.IsDisposed);
+        Assert.Equal(1, disposingCount);
+        Assert.Equal(nint.Zero, driver.Canvas.ImageSource.BoundSurface);
+        Assert.Null(PrivateField<D3D12WpfPresentation?>(driver.Viewport, "wpfPresentation"));
+        Assert.Null(driver.Viewport.EffectsManager);
+        Assert.Empty(driver.Viewport.Items);
+        driver.Viewport.Dispose();
+        driver.Owner.Dispose();
+        Assert.Equal(1, disposingCount);
+        Assert.Equal(before, driver.Counts);
+    });
+
     /// <summary>Replaces actual resized and explicitly invalidated generations without disposing application scene owners.</summary>
     /// <returns>The native replacement and shader pixel verification.</returns>
     [Fact(Explicit = true)]
@@ -603,6 +794,63 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output)
         Assert.True(dominant > pixels[offset] + 16, "The mesh interior unexpectedly contained dominant blue.");
         Assert.True(dominant > pixels[offset + (red ? 1 : 2)] + 16, "The mesh material channels were incorrect.");
         Assert.InRange((int)pixels[offset + 3], 240, 255);
+    }
+
+    /// <summary>Borrows WPF's real write event and restores it before any dispatcher continuation or fixture cleanup.</summary>
+    /// <param name="image">The initialized, genuinely bound native WPF image.</param>
+    /// <param name="verify">The synchronous STA assertions to perform while real image writes are blocked.</param>
+    /// <remarks>No dispatcher pumping is permitted while the borrowed event is reset; the event is never disposed.</remarks>
+    private static void WithBlockedImageWrites(D3DImage image, Action verify)
+    {
+        image.Dispatcher.VerifyAccess();
+        var field = typeof(D3DImage).GetField("_canWriteEvent", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.NotNull(field);
+        var canWrite = Assert.IsAssignableFrom<EventWaitHandle>(field.GetValue(image));
+        try
+        {
+            canWrite.Reset();
+            AssertImageWriteLockFails(image);
+            verify();
+            AssertImageWriteLockFails(image);
+            Assert.False(canWrite.WaitOne(0), "The compositor signaled the borrowed write event during the blocked interval.");
+        }
+        finally
+        {
+            canWrite.Set();
+        }
+    }
+
+    /// <summary>Proves a genuine zero-duration TryLock failure and balances its normally returned lock count.</summary>
+    /// <param name="image">The actual WPF image whose write event is currently reset.</param>
+    private static void AssertImageWriteLockFails(D3DImage image)
+    {
+        Assert.True(image.IsFrontBufferAvailable, "The test requires available WPF frontbuffer publication.");
+        var locked = image.TryLock(new Duration(TimeSpan.Zero));
+        try
+        {
+            Assert.False(locked,
+                "Resetting D3DImage._canWriteEvent did not force a real false TryLock; lock contention was not established.");
+        }
+        finally
+        {
+            image.Unlock();
+        }
+    }
+
+    /// <summary>Polls actual native progress on the STA without allowing compositor dispatcher callbacks to run.</summary>
+    /// <param name="completed">The genuine nonblocking transport operation and completion predicate.</param>
+    /// <param name="operation">The operation to identify if native progress stalls.</param>
+    /// <exception cref="TimeoutException">The real operation fails to complete within five seconds.</exception>
+    private static void PollWithoutDispatcher(Func<bool> completed, string operation)
+    {
+        var start = Stopwatch.GetTimestamp();
+        var spin = new SpinWait();
+        while (!completed())
+        {
+            if (Stopwatch.GetElapsedTime(start) >= CompletionTimeout)
+                throw new TimeoutException($"{operation} did not finish within {CompletionTimeout}.");
+            spin.SpinOnce();
+        }
     }
 
     /// <summary>Retries only test-owned asynchronous work, preserving dispatcher responsiveness and a finite deadline.</summary>

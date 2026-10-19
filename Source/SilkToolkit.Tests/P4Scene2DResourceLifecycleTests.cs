@@ -37,6 +37,10 @@ public sealed class P4Scene2DResourceLifecycleTests {
                     HorizontalAlignment = HelixToolkit.SharpDX.Core.Model.Scene2D.HorizontalAlignment.Left,
                     VerticalAlignment = HelixToolkit.SharpDX.Core.Model.Scene2D.VerticalAlignment.Top
                 };
+                // Native shape cores own their brushes; WPF elements likewise recreate them after reattachment.
+                child.Attached += (_, _) => {
+                    if (child.Fill is null) child.Fill = new SolidColorBrush(drawing, new Vector4(0, 1, 0, 1));
+                };
                 var overlay = Assert.IsType<Overlay>(
                     typeof(Viewport3DX)
                         .GetProperty("Overlay2D", BindingFlags.Instance | BindingFlags.NonPublic)!

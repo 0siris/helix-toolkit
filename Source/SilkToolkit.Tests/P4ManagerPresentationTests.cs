@@ -381,11 +381,25 @@ public sealed class P4ManagerPresentationTests {
                 var calls = 0;
                 driver.Viewport.Rendered += (_, _) => {
                     calls++;
-                    driver.Viewport.Dispose();
+                    try {
+                        driver.Viewport.Dispose();
+                    } catch (TimeoutException) {
+                        // A zero-timeout WPF detach retains ownership for the explicit retry below.
+                    }
                 };
                 gate.Release();
                 driver.Viewport.EffectsManager = replacement;
-                await P4PresentationDriver.PollAsync(() => driver.Viewport.IsDisposed, "retirement completion disposal");
+                await P4PresentationDriver.PollAsync(
+                    () => {
+                        if (calls == 0) return false;
+                        try {
+                            driver.Viewport.Dispose();
+                            return driver.Viewport.IsDisposed;
+                        } catch (TimeoutException) {
+                            return false;
+                        }
+                    }, "retirement completion disposal"
+                );
                 Assert.Equal(1, calls);
                 Assert.True(driver.Viewport.IsDisposed);
                 Assert.Null(P4PresentationDriver.ReadField<IEffectsManager?>(driver.Viewport, "subscribedEffectsManager"));

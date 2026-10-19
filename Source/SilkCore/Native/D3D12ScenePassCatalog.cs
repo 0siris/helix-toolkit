@@ -445,7 +445,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
             selectedTargetFormats);
         if (rasterOverride.HasValue || stencilReference.HasValue || outputMode == D3D12ColorOutputMode.Premultiplied)
             passDescription = new ShaderPassDescription(passDescription.Name!) {
-                ShaderList = passDescription.ShaderList,
+                ShaderList = SelectOutputShaders(passDescription.ShaderList, techniqueName),
                 InputLayoutDescription = passDescription.InputLayoutDescription,
                 BlendStateDescription = blend,
                 DepthStencilStateDescription = passDescription.DepthStencilStateDescription,
@@ -465,6 +465,24 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         pass.D3D12WireframePass = wireframePass;
         passes.Add(key, pass);
         return pass;
+    }
+
+    /// <summary>Isolates desktop coverage from the legacy screen-quad shader's existing descriptor contract.</summary>
+    /// <param name="shaders">The existing pass stages, retained for legacy or application shaders.</param>
+    /// <param name="technique">The technique whose pass is being created on a cache miss.</param>
+    /// <returns>The original stages or a private desktop-profile pixel-stage substitution.</returns>
+    private IList<ShaderDescription>? SelectOutputShaders(IList<ShaderDescription>? shaders, string technique) {
+        if (outputMode != D3D12ColorOutputMode.Premultiplied ||
+            technique != DefaultRenderTechniqueNames.ScreenDuplication || shaders is null) return shaders;
+        var result = new ShaderDescription[shaders.Count];
+        for (var index = 0; index < shaders.Count; index++) {
+            var shader = shaders[index];
+            result[index] = shader.ShaderType == ShaderStage.Pixel && shader.ByteCodeName == "psScreenDup"
+                ? new ShaderDescription("psScreenDupPremultiplied", ShaderStage.Pixel,
+                    new ShaderReflector(), "psScreenDupPremultiplied")
+                : shader;
+        }
+        return result;
     }
 
     /// <summary>Selects coverage-correct blending while retaining explicitly typed non-color accumulators.</summary>

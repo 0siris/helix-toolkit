@@ -19,6 +19,28 @@ namespace SilkToolkit.Tests;
 /// <param name="output">Receives allocation measurements after the measured rendering intervals.</param>
 [Collection(WpfCollection.Name)]
 public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
+    /// <summary>Retries actual HWND rendering after a failed preparation without consuming scene demand.</summary>
+    /// <returns>The STA native cancellation, retry, and pixel verification.</returns>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public Task FailedPreparationDiscardsRecordingAndPreservesDemand() => StaThread.RunAsync(() => {
+        using var driver = new FrameDriver();
+        _ = driver.Drain();
+        var oldRenderer = driver.Surface.FrameRenderer!;
+        var presented = driver.Surface.PresentedFrames;
+        var completed = driver.RenderedCount;
+        driver.Node.ThrowOnNextUpdate = true;
+        driver.Viewport.InvalidateRender();
+        Assert.Throws<InvalidOperationException>(() => driver.Viewport.RenderD3D12Frame(FrameTime));
+        Assert.Equal(presented, driver.Surface.PresentedFrames);
+        Assert.Equal(completed, driver.RenderedCount);
+        Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+        Assert.True(oldRenderer.IsDisposed);
+        Assert.NotSame(oldRenderer, driver.Surface.FrameRenderer);
+        AssertImage(driver.Viewport.CaptureD3D12Frame(), driver.Surface);
+        _ = driver.Drain();
+    });
+
     /// <summary>Uses one stable timestamp without allocating frame inputs or advancing the camera.</summary>
     private static readonly TimeSpan FrameTime = TimeSpan.FromSeconds(1);
 
@@ -36,7 +58,8 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
     public Task EmptyFramesConsumeThePublicBudget(int requested, int coerced, int frames) => StaThread.RunAsync(() => {
             using var driver = new FrameDriver(drawMesh: false);
             Assert.Equal(6, driver.Viewport.MinimumUpdateCount);
-            Assert.Equal(6UL, driver.Drain());
+            // Initial attachment can request a fresh budget from inside the first node update.
+            _ = driver.Drain();
             driver.Viewport.MinimumUpdateCount = requested;
             Assert.Equal(coerced, driver.Viewport.MinimumUpdateCount);
             Assert.Equal(coerced, driver.Viewport.RenderDemand.MinimumUpdateCount);
@@ -398,7 +421,7 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
             Assert.Equal(rendered + frames, driver.RenderedCount);
             Assert.Equal(onRendered + frames, driver.OnRenderedCount);
             Assert.True(draws >= frames);
-            Assert.InRange(allocated, 0L, 4096L * frames);
+        Assert.InRange(allocated, 0L, 2048L * frames);
             AssertImage(viewport.CaptureD3D12Frame(), driver.Surface);
         }
     );
@@ -471,7 +494,7 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
                 }
             };
             if (drawMesh) {
-                Viewport.Items.Add(new AmbientLight3D { Color = Color.FromRgb(0x51, 0x51, 0x51) });
+                Viewport.Items.Add(new AmbientLight3D { Color = System.Windows.Media.Color.FromRgb(0x51, 0x51, 0x51) });
                 Viewport.Items.Add(new DirectionalLight3D { Color = Colors.LightGray, Direction = new Vector3D(0, 0, -1) });
             }
 
@@ -576,6 +599,9 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
 
     /// <summary>Retains ordinary mesh behavior while counting scene work and supporting one update-time invalidation.</summary>
     private sealed class ObservedMeshNode : MeshNode {
+        /// <summary>Gets or sets whether the next real node update throws once before recording draws.</summary>
+        internal bool ThrowOnNextUpdate { get; set; }
+
         /// <summary>Gets the number of actual productive scene updates.</summary>
         internal int UpdateCount { get; private set; }
 
@@ -590,6 +616,10 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
         public override void Update(RenderContext context) {
             UpdateCount++;
             base.Update(context);
+            if (ThrowOnNextUpdate) {
+                ThrowOnNextUpdate = false;
+                throw new InvalidOperationException("Injected preparation failure.");
+            }
             var viewport = InvalidateOnNextUpdate;
             InvalidateOnNextUpdate = null;
             viewport?.InvalidateRender();

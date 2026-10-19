@@ -285,10 +285,19 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
         var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
         var target = CreateFrameTarget(currentSwapChain);
-        var recorded = renderer.RecordViewportFrame(currentContext, in target, (float)windowHost.DpiScale,
-            clearColor, roots, camera, testFrustum, enableShadows, oitRenderType, oitDepthPeelingIterations,
-            oitWeightPower, oitWeightDepthSlope, oitWeightMode, fxaaLevel, enableSsao, ssaoRadius,
-            ssaoIntensity, ssaoQuality, roots2D, autoUpdateOctree, enableRenderOrder, RenderHost);
+        int recorded;
+        try {
+            recorded = renderer.RecordViewportFrame(currentContext, in target, (float)windowHost.DpiScale,
+                clearColor, roots, camera, testFrustum, enableShadows, oitRenderType, oitDepthPeelingIterations,
+                oitWeightPower, oitWeightDepthSlope, oitWeightMode, fxaaLevel, enableSsao, ssaoRadius,
+                ssaoIntensity, ssaoQuality, roots2D, autoUpdateOctree, enableRenderOrder, RenderHost);
+        } catch {
+            // Discard unsubmitted commands and their tracked resource states together. The previous frame is complete.
+            currentContext.Close();
+            StopNative();
+            StartNative();
+            throw;
+        }
         SilkD3D12Resource? readback = null;
         PlacedSubresourceFootprint footprint = default;
         ulong totalBytes = 0;

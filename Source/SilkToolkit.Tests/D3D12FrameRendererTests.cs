@@ -30,11 +30,15 @@ public sealed class D3D12FrameRendererTests {
         using var update = new RenderContext(camera, 32, 24);
         var candidates = frame.Renderer.SceneRenderer.PrepareScene([mesh], update);
         var target = frame.Target;
-        var transforms = D3D12FrameRenderer.CreateViewportTransforms(camera, target.Width, target.Height, 1, 0,
-            out var frustum);
+        var transforms = D3D12FrameRenderer.CreateViewportTransforms(
+            camera, target.Width, target.Height, 1, 0,
+            out var frustum
+        );
         frame.Context.Reset();
-        var draws = frame.Renderer.RecordSceneFrame(frame.Context, in target, [0, 0, 1, 1],
-            candidates, in transforms, false, ref frustum);
+        var draws = frame.Renderer.RecordSceneFrame(
+            frame.Context, in target, [0, 0, 1, 1],
+            candidates, in transforms, false, ref frustum
+        );
         var pixels = frame.Readback(in target);
         Assert.Equal(1, draws);
         Assert.Same(mesh, Assert.Single(candidates));
@@ -49,18 +53,20 @@ public sealed class D3D12FrameRendererTests {
         var camera = CreateCamera();
         var target = frame.Target;
         frame.Context.Reset();
-        var draws = frame.Renderer.RecordViewportFrame(frame.Context, in target, 1,
-            [0, 0, 1, 1], Array.Empty<SceneNode>(), camera, false);
+        var draws = frame.Renderer.RecordViewportFrame(
+            frame.Context, in target, 1,
+            [0, 0, 1, 1], Array.Empty<SceneNode>(), camera, false
+        );
         var pixels = frame.Readback(in target);
 
         Assert.Equal(0, draws);
         Assert.Equal(Format.FormatR8G8B8A8Unorm, target.ColorResource.Description.Format);
         for (uint y = 0; y < target.Height; y++)
-            for (uint x = 0; x < target.Width; x++)
-                AssertPixel(pixels, target.Width, x, y, 0, 0, 255);
+        for (uint x = 0; x < target.Width; x++)
+            AssertPixel(pixels, target.Width, x, y, 0, 0, 255);
         Assert.Equal(ResourceStates.CopySource, target.ColorResource.State);
         var depth = Assert.IsType<SilkD3D12Resource>(frame.Renderer.DepthStencilBuffer);
-        Assert.Equal((ulong)target.Width, depth.Description.Width);
+        Assert.Equal((ulong) target.Width, depth.Description.Width);
         Assert.Equal(target.Height, depth.Description.Height);
 
         frame.Renderer.Dispose();
@@ -125,83 +131,93 @@ public sealed class D3D12FrameRendererTests {
     [Fact]
     [Trait("Category", "Warp")]
     public Task WarpReusesContextsAndReplacesThemAtCompletedResourceBoundaries() => StaThread.RunAsync(() => {
-        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration { EnableSoftwareRendering = true });
-        using var replacementEffects = new DefaultEffectsManager(
-            new EffectsManagerConfiguration { EnableSoftwareRendering = true });
-        using var frame = new OffscreenFrame(effects);
-        var camera = CreateCamera();
-        var roots = Array.Empty<SceneNode>();
-        var overlays = Array.Empty<SceneNode2D>();
-        _ = frame.Render(camera, roots, roots2D: overlays);
-        var context = Assert.IsType<RenderContext>(frame.Renderer.RenderContext);
-        var context2D = Assert.IsType<RenderContext2D>(frame.Renderer.RenderContext2D);
-        _ = frame.Render(camera, roots, roots2D: overlays);
-        Assert.Same(context, frame.Renderer.RenderContext);
-        Assert.Same(context2D, frame.Renderer.RenderContext2D);
-        Assert.Equal(Matrix3X2.Identity, context2D.RelativeTransform);
-        Assert.False(context2D.HasTarget);
+            using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration { EnableSoftwareRendering = true });
+            using var replacementEffects = new DefaultEffectsManager(
+                new EffectsManagerConfiguration { EnableSoftwareRendering = true }
+            );
+            using var frame = new OffscreenFrame(effects);
+            var camera = CreateCamera();
+            var roots = Array.Empty<SceneNode>();
+            var overlays = Array.Empty<SceneNode2D>();
+            _ = frame.Render(camera, roots, roots2D: overlays);
+            var context = Assert.IsType<RenderContext>(frame.Renderer.RenderContext);
+            var context2D = Assert.IsType<RenderContext2D>(frame.Renderer.RenderContext2D);
+            _ = frame.Render(camera, roots, roots2D: overlays);
+            Assert.Same(context, frame.Renderer.RenderContext);
+            Assert.Same(context2D, frame.Renderer.RenderContext2D);
+            Assert.Equal(Matrix3X2.Identity, context2D.RelativeTransform);
+            Assert.False(context2D.HasTarget);
 
-        _ = frame.Render(camera, roots, dpiScale: 2, roots2D: overlays);
-        Assert.NotSame(context, frame.Renderer.RenderContext);
-        Assert.Null(context.Camera);
-        Assert.True(context2D.IsDisposed);
-        Assert.Equal(2, frame.Renderer.RenderContext!.DpiScale);
-        Assert.Equal(2, frame.Renderer.RenderContext2D!.DpiScale);
+            _ = frame.Render(camera, roots, dpiScale: 2, roots2D: overlays);
+            Assert.NotSame(context, frame.Renderer.RenderContext);
+            Assert.Null(context.Camera);
+            Assert.True(context2D.IsDisposed);
+            Assert.Equal(2, frame.Renderer.RenderContext!.DpiScale);
+            Assert.Equal(2, frame.Renderer.RenderContext2D!.DpiScale);
 
-        var depth = Assert.IsType<SilkD3D12Resource>(frame.Renderer.DepthStencilBuffer);
-        var resizedContext = frame.Renderer.RenderContext;
-        using var resizedColor = frame.Device.CreateRenderTargetTexture2D(48, 16, Format.FormatR8G8B8A8Unorm);
-        using var resizedView = frame.TargetHeap.Allocate();
-        frame.Device.CreateRenderTargetView(resizedColor, resizedView);
-        var resized = new D3D12FrameTarget(resizedColor, resizedView, 48, 16, Format.FormatR8G8B8A8Unorm);
-        frame.Context.Reset();
-        _ = frame.Renderer.RecordViewportFrame(frame.Context, in resized, 2,
-            [1, 0, 0, 1], roots, camera, false, roots2D: overlays);
-        var pixels = frame.Readback(in resized);
-        AssertPixel(pixels, resized.Width, 0, 0, 255, 0, 0);
-        Assert.True(depth.IsDisposed);
-        Assert.NotSame(resizedContext, frame.Renderer.RenderContext);
-        Assert.Equal(48, frame.Renderer.RenderContext!.ActualWidth);
-        Assert.Equal(16, frame.Renderer.RenderContext2D!.ActualHeight);
+            var depth = Assert.IsType<SilkD3D12Resource>(frame.Renderer.DepthStencilBuffer);
+            var resizedContext = frame.Renderer.RenderContext;
+            using var resizedColor = frame.Device.CreateRenderTargetTexture2D(48, 16, Format.FormatR8G8B8A8Unorm);
+            using var resizedView = frame.TargetHeap.Allocate();
+            frame.Device.CreateRenderTargetView(resizedColor, resizedView);
+            var resized = new D3D12FrameTarget(resizedColor, resizedView, 48, 16, Format.FormatR8G8B8A8Unorm);
+            frame.Context.Reset();
+            _ = frame.Renderer.RecordViewportFrame(
+                frame.Context, in resized, 2,
+                [1, 0, 0, 1], roots, camera, false, roots2D: overlays
+            );
+            var pixels = frame.Readback(in resized);
+            AssertPixel(pixels, resized.Width, 0, 0, 255, 0, 0);
+            Assert.True(depth.IsDisposed);
+            Assert.NotSame(resizedContext, frame.Renderer.RenderContext);
+            Assert.Equal(48, frame.Renderer.RenderContext!.ActualWidth);
+            Assert.Equal(16, frame.Renderer.RenderContext2D!.ActualHeight);
 
-        var oldCatalog = frame.Renderer.PassCatalog;
-        var oldContext2D = frame.Renderer.RenderContext2D;
-        frame.Renderer.SetEffectsManager(replacementEffects);
-        Assert.True(oldCatalog.IsDisposed);
-        Assert.True(oldContext2D!.IsDisposed);
-        Assert.Null(frame.Renderer.RenderContext2D);
-        var selector = Field<Func<SceneNode, ShaderPass?>>(frame.Renderer, "resolvePass");
-        Assert.Same(frame.Renderer.PassCatalog, selector.Target);
-        _ = frame.Render(camera, roots, roots2D: overlays);
-        Assert.Same(replacementEffects, frame.Renderer.RenderContext2D!.DeviceResources);
-        frame.Renderer.Dispose();
-        Assert.False(effects.IsDisposed);
-        Assert.False(replacementEffects.IsDisposed);
-    });
+            var oldCatalog = frame.Renderer.PassCatalog;
+            var oldContext2D = frame.Renderer.RenderContext2D;
+            frame.Renderer.SetEffectsManager(replacementEffects);
+            Assert.True(oldCatalog.IsDisposed);
+            Assert.True(oldContext2D!.IsDisposed);
+            Assert.Null(frame.Renderer.RenderContext2D);
+            var selector = Field<Func<SceneNode, ShaderPass?>>(frame.Renderer, "resolvePass");
+            Assert.Same(frame.Renderer.PassCatalog, selector.Target);
+            _ = frame.Render(camera, roots, roots2D: overlays);
+            Assert.Same(replacementEffects, frame.Renderer.RenderContext2D!.DeviceResources);
+            frame.Renderer.Dispose();
+            Assert.False(effects.IsDisposed);
+            Assert.False(replacementEffects.IsDisposed);
+        }
+    );
 
     /// <summary>Discards mutable context stacks after a failed original Scene2D update and renders again.</summary>
     /// <returns>The STA exception and recovery verification.</returns>
     [Fact]
     [Trait("Category", "Warp")]
     public Task WarpDoesNotReuseFailedScene2DContextState() => StaThread.RunAsync(() => {
-        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration { EnableSoftwareRendering = true });
-        using var frame = new OffscreenFrame(effects);
-        using var overlay = new ThrowingOverlay();
-        var target = frame.Target;
-        var camera = CreateCamera();
-        frame.Context.Reset();
-        Assert.Throws<InvalidOperationException>(() => frame.Renderer.RecordViewportFrame(frame.Context,
-            in target, 1, [0, 0, 1, 1], Array.Empty<SceneNode>(), camera, false, roots2D: [overlay]));
-        var failed = Assert.IsType<RenderContext2D>(overlay.LastContext);
-        Assert.True(failed.IsDisposed);
-        Assert.Null(frame.Renderer.RenderContext2D);
-        var recovered = frame.Render(camera, Array.Empty<SceneNode>(), roots2D: Array.Empty<SceneNode2D>());
-        var current = Assert.IsType<RenderContext2D>(frame.Renderer.RenderContext2D);
-        Assert.NotSame(failed, current);
-        Assert.Equal(Matrix3X2.Identity, current.RelativeTransform);
-        Assert.False(current.HasTarget);
-        AssertPixel(recovered.Pixels, target.Width, 0, 0, 0, 0, 255);
-    });
+            using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration { EnableSoftwareRendering = true });
+            using var frame = new OffscreenFrame(effects);
+            using var overlay = new ThrowingOverlay();
+            var target = frame.Target;
+            var camera = CreateCamera();
+            frame.Context.Reset();
+            Assert.Throws<InvalidOperationException>(() => frame.Renderer.RecordViewportFrame(
+                    frame.Context,
+                    in target, 1, [0, 0, 1, 1], Array.Empty<SceneNode>(), camera, false, roots2D: [overlay]
+                )
+            );
+            var failed = Assert.IsType<RenderContext2D>(overlay.LastContext);
+            Assert.True(failed.IsDisposed);
+            Assert.Null(frame.Renderer.RenderContext2D);
+            // Submission belongs to the caller, including completion of a partially recorded failed frame.
+            _ = frame.Readback(in target);
+            var recovered = frame.Render(camera, Array.Empty<SceneNode>(), roots2D: Array.Empty<SceneNode2D>());
+            var current = Assert.IsType<RenderContext2D>(frame.Renderer.RenderContext2D);
+            Assert.NotSame(failed, current);
+            Assert.Equal(Matrix3X2.Identity, current.RelativeTransform);
+            Assert.False(current.HasTarget);
+            AssertPixel(recovered.Pixels, target.Width, 0, 0, 0, 0, 255);
+        }
+    );
 
     /// <summary>Rejects format, size, and DPI mismatches before changing the actual retained frame owners.</summary>
     [Fact]
@@ -218,21 +234,38 @@ public sealed class D3D12FrameRendererTests {
         var badSize = target with { Width = target.Width + 1 };
         var zeroSize = target with { Height = 0 };
         frame.Context.Reset();
-        Assert.Throws<ArgumentException>(() => frame.Renderer.RecordViewportFrame(frame.Context,
-            in badFormat, 1, [0, 0, 0, 1], roots, camera, false));
-        Assert.Throws<ArgumentException>(() => frame.Renderer.RecordViewportFrame(frame.Context,
-            in badSize, 1, [0, 0, 0, 1], roots, camera, false));
-        Assert.Throws<ArgumentOutOfRangeException>(() => frame.Renderer.RecordViewportFrame(frame.Context,
-            in zeroSize, 1, [0, 0, 0, 1], roots, camera, false));
-        Assert.Throws<ArgumentOutOfRangeException>(() => frame.Renderer.RecordViewportFrame(frame.Context,
-            in target, float.NaN, [0, 0, 0, 1], roots, camera, false));
+        Assert.Throws<ArgumentException>(() => frame.Renderer.RecordViewportFrame(
+                frame.Context,
+                in badFormat, 1, [0, 0, 0, 1], roots, camera, false
+            )
+        );
+        Assert.Throws<ArgumentException>(() => frame.Renderer.RecordViewportFrame(
+                frame.Context,
+                in badSize, 1, [0, 0, 0, 1], roots, camera, false
+            )
+        );
+        Assert.Throws<ArgumentOutOfRangeException>(() => frame.Renderer.RecordViewportFrame(
+                frame.Context,
+                in zeroSize, 1, [0, 0, 0, 1], roots, camera, false
+            )
+        );
+        Assert.Throws<ArgumentOutOfRangeException>(() => frame.Renderer.RecordViewportFrame(
+                frame.Context,
+                in target, float.NaN, [0, 0, 0, 1], roots, camera, false
+            )
+        );
         using var differentColor = frame.Device.CreateRenderTargetTexture2D(32, 24, Format.FormatB8G8R8A8Unorm);
         using var differentView = frame.TargetHeap.Allocate();
         frame.Device.CreateRenderTargetView(differentColor, differentView);
-        var mismatchedResource = new D3D12FrameTarget(differentColor, differentView, 32, 24,
-            Format.FormatR8G8B8A8Unorm);
-        Assert.Throws<ArgumentException>(() => frame.Renderer.RecordViewportFrame(frame.Context,
-            in mismatchedResource, 1, [0, 0, 0, 1], roots, camera, false));
+        var mismatchedResource = new D3D12FrameTarget(
+            differentColor, differentView, 32, 24,
+            Format.FormatR8G8B8A8Unorm
+        );
+        Assert.Throws<ArgumentException>(() => frame.Renderer.RecordViewportFrame(
+                frame.Context,
+                in mismatchedResource, 1, [0, 0, 0, 1], roots, camera, false
+            )
+        );
         Assert.Same(context, frame.Renderer.RenderContext);
         Assert.Same(depth, frame.Renderer.DepthStencilBuffer);
         Assert.False(depth!.IsDisposed);
@@ -242,22 +275,31 @@ public sealed class D3D12FrameRendererTests {
     /// <summary>Creates a camera whose center and background samples have independent pixel predictions.</summary>
     /// <returns>The fixed orthographic camera.</returns>
     private static OrthographicCameraCore CreateCamera() => new() {
-        Position = new Vector3(0, 0, 2), LookDirection = new Vector3(0, 0, -2),
-        UpDirection = Vector3.UnitY, Width = 2, NearPlaneDistance = 0.1f, FarPlaneDistance = 10
+        Position = new Vector3(0, 0, 2),
+        LookDirection = new Vector3(0, 0, -2),
+        UpDirection = Vector3.UnitY,
+        Width = 2,
+        NearPlaneDistance = 0.1f,
+        FarPlaneDistance = 10
     };
 
     /// <summary>Creates a centered green mesh with culling disabled for a platform-independent pixel oracle.</summary>
     /// <returns>The original productive mesh node.</returns>
     private static MeshNode CreateGreenQuad() => new() {
-        Material = new ColorMaterialCore(), CullMode = CullMode.None,
+        Material = new ColorMaterialCore(),
+        CullMode = CullMode.None,
         Geometry = new MeshGeometry3D {
-            Positions = new Vector3Collection([
-                new(-0.5f, 0.5f, 0), new(0.5f, 0.5f, 0), new(-0.5f, -0.5f, 0), new(0.5f, -0.5f, 0)
-            ]),
-            Colors = new Color4Collection([
-                new Vector4(0, 1, 0, 1), new Vector4(0, 1, 0, 1),
-                new Vector4(0, 1, 0, 1), new Vector4(0, 1, 0, 1)
-            ]),
+            Positions = new Vector3Collection(
+                [
+                    new(-0.5f, 0.5f, 0), new(0.5f, 0.5f, 0), new(-0.5f, -0.5f, 0), new(0.5f, -0.5f, 0)
+                ]
+            ),
+            Colors = new Color4Collection(
+                [
+                    new Vector4(0, 1, 0, 1), new Vector4(0, 1, 0, 1),
+                    new Vector4(0, 1, 0, 1), new Vector4(0, 1, 0, 1)
+                ]
+            ),
             Indices = new IntCollection([0, 1, 2, 2, 1, 3])
         }
     };
@@ -271,7 +313,7 @@ public sealed class D3D12FrameRendererTests {
     /// <param name="green">The expected green channel.</param>
     /// <param name="blue">The expected blue channel.</param>
     private static void AssertPixel(byte[] pixels, uint width, uint x, uint y, byte red, byte green, byte blue) {
-        var offset = checked((int)((y * width + x) * 4));
+        var offset = checked((int) ((y * width + x) * 4));
         Assert.Equal(red, pixels[offset]);
         Assert.Equal(green, pixels[offset + 1]);
         Assert.Equal(blue, pixels[offset + 2]);
@@ -284,8 +326,10 @@ public sealed class D3D12FrameRendererTests {
     /// <param name="name">The actual owner field.</param>
     /// <returns>The retained field value.</returns>
     private static T Field<T>(D3D12FrameRenderer renderer, string name) where T : class =>
-        Assert.IsType<T>(typeof(D3D12FrameRenderer).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!
-            .GetValue(renderer));
+        Assert.IsType<T>(
+            typeof(D3D12FrameRenderer).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(renderer)
+        );
 
     /// <summary>Models an application update hook that throws after mutating its frame context.</summary>
     private sealed class ThrowingOverlay : RectangleNode2D {
@@ -332,7 +376,7 @@ public sealed class D3D12FrameRendererTests {
 
         /// <summary>Creates a window-independent WARP target and its explicit submission owners.</summary>
         /// <param name="effectsManager">The optional borrowed scene manager.</param>
-        internal OffscreenFrame(HelixToolkit.SharpDX.Core.Interface.IEffectsManager? effectsManager = null) {
+        internal OffscreenFrame(HelixToolkit.SharpDX.Core.IEffectsManager? effectsManager = null) {
             Device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
             queue = Device.CreateCommandQueue();
             Context = Device.CreateCommandContext();
@@ -350,12 +394,18 @@ public sealed class D3D12FrameRendererTests {
         /// <param name="dpiScale">The explicit physical-pixel scale.</param>
         /// <param name="roots2D">The optional stable overlay roots.</param>
         /// <returns>The actual native draw count and tightly packed completed RGBA pixels.</returns>
-        internal (int Draws, byte[] Pixels) Render(CameraCore camera, IEnumerable<SceneNode> roots,
-            float dpiScale = 1, IEnumerable<SceneNode2D>? roots2D = null) {
+        internal (int Draws, byte[] Pixels) Render(
+            CameraCore camera,
+            IEnumerable<SceneNode> roots,
+            float dpiScale = 1,
+            IEnumerable<SceneNode2D>? roots2D = null
+        ) {
             var target = Target;
             Context.Reset();
-            var draws = Renderer.RecordViewportFrame(Context, in target, dpiScale,
-                [0, 0, 1, 1], roots, camera, false, roots2D: roots2D, autoUpdateOctree: false);
+            var draws = Renderer.RecordViewportFrame(
+                Context, in target, dpiScale,
+                [0, 0, 1, 1], roots, camera, false, roots2D: roots2D, autoUpdateOctree: false
+            );
             return (draws, Readback(in target));
         }
 
@@ -366,17 +416,19 @@ public sealed class D3D12FrameRendererTests {
             var footprint = Device.GetCopyableFootprint(target.ColorResource, out var bytes);
             using var readback = Device.CreateBuffer(bytes, HeapType.Readback);
             Context.Transition(target.ColorResource, ResourceStates.CopySource);
-            Context.CopyTextureToBuffer(readback,target.ColorResource, in footprint);
+            Context.CopyTextureToBuffer(readback, target.ColorResource, in footprint);
             Context.Close();
             queue.Execute(Context);
             fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(5));
             Device.ThrowIfDeviceRemoved();
-            var rowBytes = checked((int)target.Width * 4);
-            var pixels = new byte[checked(rowBytes * (int)target.Height)];
+            var rowBytes = checked((int) target.Width * 4);
+            var pixels = new byte[checked(rowBytes * (int) target.Height)];
             for (var row = 0; row < target.Height; row++) {
-                var source = footprint.Offset + (ulong)row * footprint.Footprint.RowPitch;
-                readback.Read(rowBytes, source).CopyTo(pixels, checked((int)row * rowBytes));
+                var source = footprint.Offset + (ulong) row * footprint.Footprint.RowPitch;
+                readback.Read(rowBytes, source)
+                    .CopyTo(pixels, checked((int) row * rowBytes));
             }
+
             return pixels;
         }
 

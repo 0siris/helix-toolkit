@@ -405,7 +405,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             if (update) {
                 preparationAttachments.Add(node);
                 RetainNodeAttachment(node, host);
-                if (effectsManager is not null) node.Attach(effectsManager);
+                if (effectsManager is not null) node.Attach(effectsManager, canContinue);
                 var attached = effectsManager is not null ? node.IsAttached : node.RenderCore.IsAttached || node.Attach();
                 if (canContinue?.Invoke() == false) return;
                 if (attached) {
@@ -530,9 +530,34 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         uint height,
         float dpiScale,
         RenderContext2D? layoutContext = null
+    ) => Render2D(context, roots, pass, target, width, height, dpiScale, layoutContext, null);
+
+    /// <summary>Prepares and draws the original overlay only while the frame retains resource permission.</summary>
+    /// <param name="context">The open command context.</param>
+    /// <param name="roots">The existing Scene2D roots.</param>
+    /// <param name="pass">The existing Sprite2D pass.</param>
+    /// <param name="target">The presentation render-target descriptor.</param>
+    /// <param name="width">The physical target width.</param>
+    /// <param name="height">The physical target height.</param>
+    /// <param name="dpiScale">The physical-pixel scale.</param>
+    /// <param name="layoutContext">The original Scene2D update context.</param>
+    /// <param name="canContinue">The retained permission, or null for independent native callers.</param>
+    /// <returns>The recorded draw count, or zero when permission is revoked.</returns>
+    internal int Render2D(
+        SilkD3D12CommandContext context,
+        IEnumerable<SceneNode2D> roots,
+        ShaderPass pass,
+        SilkD3D12Descriptor target,
+        uint width,
+        uint height,
+        float dpiScale,
+        RenderContext2D? layoutContext,
+        Func<bool>? canContinue
     ) {
+        if (canContinue?.Invoke() == false) return 0;
         using var profile = D3D12Profiler.Begin(context, "Silk.Overlay2D");
-        scene2DRenderer.Prepare(roots, width, height, dpiScale, layoutContext);
+        scene2DRenderer.Prepare(roots, width, height, dpiScale, layoutContext, canContinue);
+        if (canContinue?.Invoke() == false) return 0;
         return scene2DRenderer.RenderPrepared(context, pass, target, width, height);
     }
 

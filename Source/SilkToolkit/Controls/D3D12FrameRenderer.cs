@@ -693,6 +693,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 target.Height
             );
         if (roots2D is not null) {
+            if (canContinue?.Invoke() == false) return 0;
             var context2D = GetRenderContext2D(in target, dpiScale);
             try {
                 recorded += renderer.Render2D(
@@ -703,7 +704,8 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                     target.Width,
                     target.Height,
                     dpiScale,
-                    context2D
+                    context2D,
+                    canContinue
                 );
             } catch {
                 // Original update hooks can leave mutable context stacks unbalanced when they throw.
@@ -722,6 +724,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
             }
         }
 
+        if (canContinue?.Invoke() == false) return 0;
         D3D12Profiler.ReportDescriptors(renderer.SceneBindings, renderer.EffectBindings, ResourceHeap, SamplerHeap);
         return recorded;
     }

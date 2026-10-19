@@ -16,9 +16,11 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
 ///     Displays an encoded image and measures its decoded frame dimensions.
 /// </summary>
 public class ImageNode2D : SceneNode2D {
+    /// <summary>Gets the image-specific rendering state.</summary>
     private ImageRenderCore2D ImageCore => RenderCore as ImageRenderCore2D
         ?? throw new InvalidOperationException("Image render core is not initialized.");
 
+    /// <summary>Gets or sets the encoded source image stream.</summary>
     public Stream? ImageStream {
         get;
         set {
@@ -26,15 +28,19 @@ public class ImageNode2D : SceneNode2D {
         }
     }
 
+    /// <summary>Gets or sets the image opacity.</summary>
     public float Opacity {
         get => ImageCore.Opacity;
         set => ImageCore.Opacity = value;
     }
 
+    /// <summary>Gets whether the source bitmap needs to be reloaded.</summary>
     protected bool BitmapChanged { get; private set; } = true;
 
+    /// <inheritdoc />
     protected override RenderCore2D CreateRenderCore() => new ImageRenderCore2D();
 
+    /// <inheritdoc />
     protected override bool OnAttach() {
         if (base.OnAttach()) {
             BitmapChanged = true;
@@ -44,8 +50,16 @@ public class ImageNode2D : SceneNode2D {
         return false;
     }
 
+    /// <summary>Replaces the decoded bitmap while permission still allows resource access.</summary>
+    /// <param name="context">The original Scene2D update context.</param>
+    /// <param name="stream">The encoded image stream, or null to clear the bitmap.</param>
     private void LoadBitmap(RenderContext2D context, Stream? stream) {
-        ImageCore.Bitmap = stream is null ? null : OnLoadImage(context, stream);
+        var bitmap = stream is null ? null : OnLoadImage(context, stream);
+        if (!CanContinueScenePreparation) {
+            bitmap?.Dispose();
+            return;
+        }
+        ImageCore.Bitmap = bitmap;
     }
 
     /// <summary>
@@ -70,15 +84,19 @@ public class ImageNode2D : SceneNode2D {
         }
     }
 
+    /// <inheritdoc />
     public override void Update(RenderContext2D context) {
         base.Update(context);
+        if (!CanContinueScenePreparation) return;
         if (BitmapChanged) {
             LoadBitmap(context, ImageStream);
+            if (!CanContinueScenePreparation) return;
             BitmapChanged = false;
             InvalidateMeasure();
         }
     }
 
+    /// <inheritdoc />
     protected override Size2F MeasureOverride(Size2F availableSize) {
         if (ImageStream is not null) {
             var imageSize = ImageCore.ImageSize;
@@ -103,7 +121,8 @@ public class ImageNode2D : SceneNode2D {
         return new Size2F(Math.Max(0, Width * DpiScale), Math.Max(0, Height * DpiScale));
     }
 
-protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
+    /// <inheritdoc />
+    protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
         hitResult = null;
         if (LayoutBoundWithTransform.Contains(mousePoint)) {
             hitResult = new HitTest2DResult(this);

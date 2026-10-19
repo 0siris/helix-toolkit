@@ -21,6 +21,18 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>Retains the lazily created 2D render core.</summary>
     private RenderCore2D? renderCore;
 
+    /// <summary>Borrows the current frame permission only while executing a scene operation.</summary>
+    private Func<bool>? scenePreparationPermission;
+
+    /// <summary>Retains update arguments for allocation-free updates with an unchanged context.</summary>
+    private UpdateEventArgs? updateArguments;
+
+    /// <summary>Gets the permission inherited by nested attachment and layout operations.</summary>
+    internal Func<bool>? ScenePreparationPermission => scenePreparationPermission ?? Parent?.ScenePreparationPermission;
+
+    /// <summary>Gets whether the current scene operation may continue accessing rendering resources.</summary>
+    protected bool CanContinueScenePreparation => ScenePreparationPermission?.Invoke() != false;
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="SceneNode2D" /> class.
     /// </summary>
@@ -178,6 +190,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
             if (Set(ref field, value)) {
                 for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].ParentMatrix = field;
                 TransformChanged(ref value);
+                if (!CanContinueScenePreparation) return;
                 OnTransformChanged?.Invoke(this, new Transform2DArgs(ref value));
             }
         }
@@ -251,12 +264,31 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     </para>
     /// </summary>
     /// <param name="dpiScale">The physical-pixel scale.</param>
-    public void Attach(float dpiScale = 1) {
-        if (IsAttached) return;
+    public void Attach(float dpiScale = 1) => Attach(dpiScale, ScenePreparationPermission);
+
+    /// <summary>Attaches with a borrowed frame permission inherited by nested children.</summary>
+    /// <param name="dpiScale">The physical-pixel scale.</param>
+    /// <param name="canContinue">The retained permission, or null for independent native callers.</param>
+    internal void Attach(float dpiScale, Func<bool>? canContinue) {
+        var previous = scenePreparationPermission;
+        scenePreparationPermission = canContinue;
+        try {
+            AttachCore(dpiScale);
+        } finally {
+            scenePreparationPermission = previous;
+        }
+    }
+
+    /// <summary>Runs the original attachment hooks while the frame retains resource permission.</summary>
+    /// <param name="dpiScale">The physical-pixel scale.</param>
+    private void AttachCore(float dpiScale) {
+        if (!CanContinueScenePreparation || IsAttached) return;
         if (!float.IsFinite(dpiScale) || dpiScale <= 0) throw new ArgumentOutOfRangeException(nameof(dpiScale));
         DpiScale = dpiScale;
         IsAttached = OnAttach();
+        if (!CanContinueScenePreparation) return;
         if (IsAttached) Attached?.Invoke(this, EventArgs.Empty);
+        if (!CanContinueScenePreparation) return;
         InvalidateAll();
     }
 
@@ -273,6 +305,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     Detaches this instance.
     /// </summary>
     public void Detach() {
+        updateArguments = null;
         if (IsAttached) {
             IsAttached = false;
             RenderCore.Detach();
@@ -292,8 +325,30 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </summary>
     /// <param name="context">The context.</param>
     public virtual void Update(RenderContext2D context) {
-        UpdateRequested?.Invoke(this, new UpdateEventArgs(context));
-        IsRenderable = CanRender(context);
+        if (!CanContinueScenePreparation) {
+            IsRenderable = false;
+            return;
+        }
+        if (UpdateRequested is { } update) {
+            if (updateArguments is null || !ReferenceEquals(updateArguments.Context, context))
+                updateArguments = new UpdateEventArgs(context);
+            update(this, updateArguments);
+        }
+        IsRenderable = CanContinueScenePreparation && CanRender(context) && CanContinueScenePreparation;
+    }
+
+    /// <summary>Runs virtual update hooks while retaining permission even if a callback reparents this node.</summary>
+    /// <param name="context">The original Scene2D update context.</param>
+    /// <param name="canContinue">The retained frame permission, or null for independent native callers.</param>
+    internal void Update(RenderContext2D context, Func<bool>? canContinue) {
+        var previous = scenePreparationPermission;
+        scenePreparationPermission = canContinue;
+        try {
+            if (CanContinueScenePreparation) Update(context);
+            if (!CanContinueScenePreparation) IsRenderable = false;
+        } finally {
+            scenePreparationPermission = previous;
+        }
     }
 
     /// <summary>
@@ -337,6 +392,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <inheritdoc />
     protected override void OnDispose(bool disposeManagedResources) {
         RenderInvalidated = null;
+        updateArguments = null;
         renderCore?.Dispose();
         renderCore = null;
         base.OnDispose(disposeManagedResources);
@@ -476,16 +532,33 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     Updates the shared layout transform before either Direct2D or Direct3D 12 records the node.
     /// </summary>
-    internal void UpdateTransform() {
+    internal void UpdateTransform() => UpdateTransform(ScenePreparationPermission);
+
+    /// <summary>Updates transforms while retaining permission across application transform callbacks.</summary>
+    /// <param name="canContinue">The retained frame permission, or null for independent native callers.</param>
+    internal void UpdateTransform(Func<bool>? canContinue) {
+        var previous = scenePreparationPermission;
+        scenePreparationPermission = canContinue;
+        try {
+            if (CanContinueScenePreparation) UpdateTransformCore();
+        } finally {
+            scenePreparationPermission = previous;
+        }
+    }
+
+    /// <summary>Updates cached transforms without continuing past a revoking callback.</summary>
+    private void UpdateTransformCore() {
         if (IsTransformDirty) {
             RelativeMatrix = Matrix3X2.Translation(-RenderSize * RenderTransformOrigin)
                              * ModelMatrix * Matrix3X2.Translation(RenderSize * RenderTransformOrigin)
                              * LayoutTranslate;
             TotalModelMatrix = RelativeMatrix * ParentMatrix;
+            if (!CanContinueScenePreparation) return;
             IsTransformDirty = false;
             InvalidateVisual();
         }
 
+        if (!CanContinueScenePreparation) return;
         LayoutBoundWithTransform = LayoutBound.Translate(TotalModelMatrix.TranslationVector);
     }
 

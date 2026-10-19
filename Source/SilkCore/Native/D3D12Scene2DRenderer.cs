@@ -161,7 +161,18 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="layoutContext">The original update context, or null for already prepared native callers.</param>
     /// <returns>The number of prepared draws.</returns>
     internal int Prepare(IEnumerable<SceneNode2D> roots, uint width, uint height, float dpiScale,
-        RenderContext2D? layoutContext = null) {
+        RenderContext2D? layoutContext = null) => Prepare(roots, width, height, dpiScale, layoutContext, null);
+
+    /// <summary>Prepares the original Scene2D lifecycle while the caller retains resource permission.</summary>
+    /// <param name="roots">The existing Scene2D roots.</param>
+    /// <param name="width">The physical viewport width.</param>
+    /// <param name="height">The physical viewport height.</param>
+    /// <param name="dpiScale">The physical-pixel scale.</param>
+    /// <param name="layoutContext">The original update context, or null for prepared native callers.</param>
+    /// <param name="canContinue">The retained permission, or null for independent native callers.</param>
+    /// <returns>The prepared draw count, or zero when permission is revoked.</returns>
+    internal int Prepare(IEnumerable<SceneNode2D> roots, uint width, uint height, float dpiScale,
+        RenderContext2D? layoutContext, Func<bool>? canContinue) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         roots.AsGuardNotNull();
         ArgumentOutOfRangeException.ThrowIfZero(width);
@@ -171,6 +182,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         isPreparing = true;
         draws.Clear();
         try {
+            if (canContinue?.Invoke() == false) return 0;
             var viewport = new RectangleF(0, 0, width, height);
             if (roots is IList<SceneNode2D> indexedRoots) {
                 for (var index = 0; index < indexedRoots.Count; index++) preparationRoots.Add(indexedRoots[index]);
@@ -178,24 +190,32 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
                 foreach (var root in roots) preparationRoots.Add(root);
             }
             foreach (var root in attachedRoots) {
+                if (canContinue?.Invoke() == false) return 0;
                 if (!root.IsDisposed && preparationRoots.Contains(root)) continue;
                 attachedRoots.Remove(root);
                 root.Detach();
             }
             foreach (var root in preparationRoots) {
+                if (canContinue?.Invoke() == false) return 0;
                 if (root.IsDisposed) continue;
                 if (layoutContext is not null) {
                     if (root.IsAttached && root.DpiScale != dpiScale) root.Detach();
-                    root.Attach(dpiScale);
+                    if (canContinue?.Invoke() == false) return 0;
                     attachedRoots.Add(root);
-                    root.Measure(new Size2F(width, height));
-                    root.Arrange(viewport);
-                    UpdateSceneGraph(root, layoutContext);
+                    root.Attach(dpiScale, canContinue);
+                    if (canContinue?.Invoke() == false) return 0;
+                    root.Measure(new Size2F(width, height), canContinue);
+                    if (canContinue?.Invoke() == false) return 0;
+                    root.Arrange(viewport, canContinue);
+                    if (canContinue?.Invoke() == false) return 0;
+                    UpdateSceneGraph(root, layoutContext, canContinue);
                 }
-                Traverse(root, viewport, viewport, dpiScale);
+                if (canContinue?.Invoke() == false) return 0;
+                Traverse(root, viewport, viewport, dpiScale, canContinue);
             }
-            return draws.Count;
+            return canContinue?.Invoke() == false ? 0 : draws.Count;
         } finally {
+            if (canContinue?.Invoke() == false) draws.Clear();
             preparationRoots.Clear();
             isPreparing = false;
         }
@@ -288,11 +308,13 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// </summary>
     /// <param name="node">The current node.</param>
     /// <param name="context">The current Scene2D context.</param>
-    private static void UpdateSceneGraph(SceneNode2D node, RenderContext2D context) {
-        if (node.IsDisposed) return;
-        node.Update(context);
-        if (!node.IsRenderable) return;
-        for (var index = 0; index < node.Items.Count; index++) UpdateSceneGraph(node.Items[index], context);
+    /// <param name="canContinue">The retained frame permission.</param>
+    private static void UpdateSceneGraph(SceneNode2D node, RenderContext2D context, Func<bool>? canContinue) {
+        if (canContinue?.Invoke() == false || node.IsDisposed) return;
+        node.Update(context, canContinue);
+        if (canContinue?.Invoke() == false || !node.IsRenderable) return;
+        for (var index = 0; index < node.Items.Count && canContinue?.Invoke() != false; index++)
+            UpdateSceneGraph(node.Items[index], context, canContinue);
     }
 
     /// <summary>
@@ -302,17 +324,21 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="inheritedClip">The parent clip.</param>
     /// <param name="viewport">The full viewport.</param>
     /// <param name="dpiScale">The physical text scale.</param>
-    private void Traverse(SceneNode2D node, RectangleF inheritedClip, RectangleF viewport, float dpiScale) {
-        if (node.IsDisposed) return;
+    /// <param name="canContinue">The retained frame permission.</param>
+    private void Traverse(SceneNode2D node, RectangleF inheritedClip, RectangleF viewport, float dpiScale,
+        Func<bool>? canContinue) {
+        if (canContinue?.Invoke() == false || node.IsDisposed) return;
         if (node.Visibility != Visibility.Visible) return;
-        node.UpdateTransform();
+        node.UpdateTransform(canContinue);
+        if (canContinue?.Invoke() == false) return;
         var clip = inheritedClip;
         if (node.ClipEnabled || node.ClipToBound)
             clip = Intersect(clip, TransformBounds(node.LayoutClipBound, node.TotalModelMatrix));
         clip = Intersect(clip, viewport);
         if (clip.Width <= 0 || clip.Height <= 0) return;
         AddNode(node, clip, dpiScale);
-        for (var index = 0; index < node.Items.Count; index++) Traverse(node.Items[index], clip, viewport, dpiScale);
+        for (var index = 0; index < node.Items.Count && canContinue?.Invoke() != false; index++)
+            Traverse(node.Items[index], clip, viewport, dpiScale, canContinue);
     }
 
     /// <summary>

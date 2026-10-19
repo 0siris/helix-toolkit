@@ -285,8 +285,25 @@ public partial class SceneNode2D {
 
     /// <summary>Measures the node against a physical-size constraint, reusing clean layout state.</summary>
     /// <param name="size">The physical measurement constraint.</param>
-    public void Measure(Size2F size) {
-        if (!IsAttached || Visibility == Visibility.Collapsed ||
+    public void Measure(Size2F size) => Measure(size, ScenePreparationPermission);
+
+    /// <summary>Measures with a borrowed permission inherited by nested layout operations.</summary>
+    /// <param name="size">The physical measurement constraint.</param>
+    /// <param name="canContinue">The retained frame permission, or null for independent native callers.</param>
+    internal void Measure(Size2F size, Func<bool>? canContinue) {
+        var previous = scenePreparationPermission;
+        scenePreparationPermission = canContinue;
+        try {
+            MeasureCore(size);
+        } finally {
+            scenePreparationPermission = previous;
+        }
+    }
+
+    /// <summary>Runs measurement while permission protects virtual callbacks and their following work.</summary>
+    /// <param name="size">The physical measurement constraint.</param>
+    private void MeasureCore(Size2F size) {
+        if (!CanContinueScenePreparation || !IsAttached || Visibility == Visibility.Collapsed ||
             (!IsMeasureDirty && previousMeasureSize == size)) return;
         previousMeasureSize = size;
         var availableSize = size.ToVector2();
@@ -298,6 +315,7 @@ public partial class SceneNode2D {
         availableSizeWithoutMargin.Y = Math.Max(minSize.Y, Math.Min(availableSizeWithoutMargin.Y, maxSize.Y));
 
         var desiredSize = MeasureOverride(availableSizeWithoutMargin.ToSize2F()).ToVector2();
+        if (!CanContinueScenePreparation) return;
 
         var unclippedDesiredSize = desiredSize;
 
@@ -330,7 +348,8 @@ public partial class SceneNode2D {
             UnclippedDesiredSize = new Vector2(-1, -1);
         if (DesiredSize != clippedDesiredSize) {
             DesiredSize = clippedDesiredSize;
-            for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].InvalidateMeasure();
+            for (var i = 0; i < ItemsInternal.Count && CanContinueScenePreparation; ++i)
+                ItemsInternal[i].InvalidateMeasure();
         } else {
             IsMeasureDirty = false;
         }
@@ -338,9 +357,27 @@ public partial class SceneNode2D {
 
     /// <summary>Arranges the node within a physical rectangle without allocating an ancestor-search callback.</summary>
     /// <param name="rect">The physical arrangement rectangle.</param>
-    public void Arrange(RectangleF rect) {
-        if (!IsAttached || Visibility == Visibility.Collapsed) return;
+    public void Arrange(RectangleF rect) => Arrange(rect, ScenePreparationPermission);
+
+    /// <summary>Arranges with a borrowed permission inherited by nested layout operations.</summary>
+    /// <param name="rect">The physical arrangement rectangle.</param>
+    /// <param name="canContinue">The retained frame permission, or null for independent native callers.</param>
+    internal void Arrange(RectangleF rect, Func<bool>? canContinue) {
+        var previous = scenePreparationPermission;
+        scenePreparationPermission = canContinue;
+        try {
+            ArrangeCore(rect);
+        } finally {
+            scenePreparationPermission = previous;
+        }
+    }
+
+    /// <summary>Runs arrangement while permission protects virtual callbacks and their following work.</summary>
+    /// <param name="rect">The physical arrangement rectangle.</param>
+    private void ArrangeCore(RectangleF rect) {
+        if (!CanContinueScenePreparation || !IsAttached || Visibility == Visibility.Collapsed) return;
         if (IsMeasureDirty) Measure(previousMeasureSize ?? rect.Size);
+        if (!CanContinueScenePreparation) return;
         var ancestorDirty = false;
         for (var ancestor = Parent; ancestor is not null; ancestor = ancestor.Parent)
             if (ancestor.IsArrangeDirty) {
@@ -403,10 +440,14 @@ public partial class SceneNode2D {
                                                                arrangeSize.Y - MarginWidthHeight.Y * DpiScale))
             .ToVector2();
 
+        if (!CanContinueScenePreparation) return;
+
         var arrangeSizeChanged = arrangeResultSize != oldRenderSize;
         if (arrangeSizeChanged) InvalidateAll();
+        if (!CanContinueScenePreparation) return;
 
         RenderSize = arrangeResultSize;
+        if (!CanContinueScenePreparation) return;
 
         var clippedArrangeResultSize = new Vector2(Math.Min(arrangeResultSize.X, maxSize.X),
                                                    Math.Min(arrangeResultSize.Y, maxSize.Y));
@@ -453,7 +494,9 @@ public partial class SceneNode2D {
         if (ClipEnabled || ClipToBound) LayoutClipBound = new RectangleF(0, 0, clientSize.X, clientSize.Y);
 
         LayoutOffsets = layoutOffset;
+        if (!CanContinueScenePreparation) return;
         UpdateLayoutInternal();
+        if (!CanContinueScenePreparation) return;
         IsArrangeDirty = false;
     }
 
@@ -493,10 +536,12 @@ public partial class SceneNode2D {
     /// <summary>Updates cached layout bounds from the current render size and margins.</summary>
     private void UpdateLayoutInternal() {
         LayoutBound = new RectangleF(Margin.Left * DpiScale, Margin.Top * DpiScale, RenderSize.X, RenderSize.Y);
+        if (!CanContinueScenePreparation) return;
         LayoutClipBound = new RectangleF(0,
                                          0,
                                          RenderSize.X + MarginWidthHeight.X * DpiScale,
                                          RenderSize.Y + MarginWidthHeight.Y * DpiScale);
+        if (!CanContinueScenePreparation) return;
         LayoutTranslate = Matrix3X2.Translation((float)Math.Round(LayoutOffsets.X),
                                                 (float)Math.Round(LayoutOffsets.Y));
     }
@@ -505,7 +550,8 @@ public partial class SceneNode2D {
     /// <param name="finalSize">The available physical arrangement rectangle.</param>
     /// <returns>The resulting physical content size.</returns>
     protected virtual RectangleF ArrangeOverride(RectangleF finalSize) {
-        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Arrange(finalSize);
+        for (var i = 0; i < ItemsInternal.Count && CanContinueScenePreparation; ++i)
+            ItemsInternal[i].Arrange(finalSize);
         return finalSize;
     }
 
@@ -513,7 +559,8 @@ public partial class SceneNode2D {
     /// <param name="availableSize">The available physical measurement size.</param>
     /// <returns>The requested physical content size.</returns>
     protected virtual Size2F MeasureOverride(Size2F availableSize) {
-        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Measure(availableSize);
+        for (var i = 0; i < ItemsInternal.Count && CanContinueScenePreparation; ++i)
+            ItemsInternal[i].Measure(availableSize);
         return availableSize;
     }
 

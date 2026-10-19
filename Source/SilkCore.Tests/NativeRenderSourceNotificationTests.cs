@@ -264,10 +264,12 @@ public sealed class NativeRenderSourceNotificationTests {
             renderer.BeginFrame();
             renderer.Prepare(roots, 16, 16, 1);
         }
+
         var withoutLayoutAllocated = GC.GetAllocatedBytesForCurrentThread() - before;
         TestContext.Current.TestOutputHelper?.WriteLine(
             $"Scene2D / 1000 frames: cleanup={cleanupAllocated}, preparation={preparationAllocated}, " +
-            $"cleanup plus preparation without layout={withoutLayoutAllocated}.");
+            $"cleanup plus preparation without layout={withoutLayoutAllocated}."
+        );
         Assert.Equal(0, allocated);
         Assert.Equal(0, withoutLayoutAllocated);
         Assert.Equal(6_000, preparedDraws);

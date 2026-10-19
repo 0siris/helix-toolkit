@@ -64,7 +64,8 @@ public class MeshNode : MaterialGeometryNode, IDynamicReflectable {
         IsScissorEnabled = !IsThrowingShadow && IsScissorEnabled
     };
 
-    protected override bool OnCheckGeometry(Geometry3D? geometry) => base.OnCheckGeometry(geometry) && geometry is MeshGeometry3D;
+    protected override bool OnCheckGeometry(Geometry3D? geometry)
+        => base.OnCheckGeometry(geometry) && geometry is MeshGeometry3D { Indices.Count: > 0 };
 
     protected override bool OnHitTest(
         HitTestContext context,

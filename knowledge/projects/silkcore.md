@@ -9,7 +9,7 @@ timestamp: 2026-07-08T00:00:00+02:00
 
 # Project
 
-`SilkCore` targets `net10.0` and provides the core rendering/runtime layer used by the toolkit and examples.
+`SilkCore` targets `net10.0-windows` and provides the core rendering/runtime layer used by the toolkit and examples.
 
 # Dependencies
 
@@ -20,6 +20,23 @@ Per-core mesh, point/line, volume, particle and screen-capture caches release en
 `D3D12SceneRenderer.BeginFrame()`, after the presentation host has completed the preceding GPU fence. Live cores
 retain their descriptor tables. This prevents repeated scene replacement from exhausting contiguous descriptor
 ranges; increasing heap capacity does not replace correct ownership cleanup.
+
+# Native scene readiness and camera fitting
+
+Native scene preparation respects the scene owner's geometry eligibility and `IsRenderable`, not just an
+attached render core. Indexed meshes with no indices remain nonrenderable; replacing or updating indices
+revalidates eligibility and its bounds. Attachment is idempotent for an already-owned core while geometry nodes
+can complete their own readiness after gaining first primitives. Already-attached resources remain tracked for
+teardown even when the node is not ready. Malformed nonempty data still fails strict GPU-buffer validation.
+
+Actual WARP pixel readback covers initial empty geometry becoming ready and attached geometry transitioning
+empty/populated through both collection replacement and in-place notification. The visible standalone MeshMixer
+viewport also exercises native sparse picking and empty/restored selection highlights without render errors.
+
+Perspective framing converts the inward-facing frustum normals to outward support directions before selecting
+extreme bounding-box corners. Front and rotated portrait cases failed before this correction; both now preserve
+the view direction and project every corner inside the viewport. Actual original MIX and two-object scenes frame
+correctly. Full current SilkCore suite:425passed; this finite visible proof is not general toolkit/UI parity.
 
 # Related Concepts
 

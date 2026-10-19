@@ -215,20 +215,23 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     /// <param name="roots">The original scene hierarchy roots.</param>
     /// <param name="context">The current frame context passed to each original node's update hook.</param>
-    /// <returns>Visible nodes in preorder, excluding every subtree beneath an invisible or disposed ancestor.</returns>
+    /// <returns>Renderable nodes in preorder, excluding every subtree beneath an invisible or disposed ancestor.</returns>
     /// <exception cref="ObjectDisposedException">The renderer has been disposed.</exception>
     internal FastList<SceneNode> PrepareScene(IEnumerable<SceneNode> roots, RenderContext context) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         var snapshot = roots.ToArray();
         foreach (var node in snapshot.PreorderDft(node => !node.IsDisposed)) {
-            if (!node.RenderCore.IsAttached && !node.Attach()) continue;
-            attachedNodes.Add(node);
+            // A core can be attached before geometry gains its first primitives; readiness belongs to the node.
+            var ready = node.Attach();
+            // Even an unready node may already own native core resources that require teardown.
+            if (node.RenderCore.IsAttached) attachedNodes.Add(node);
+            if (!ready) continue;
             node.Update(context);
         }
         var prepared = new FastList<SceneNode>();
         foreach (var node in snapshot.PreorderDft(node =>
                      !node.IsDisposed && node.Visible && node.RenderCore.IsAttached))
-            prepared.Add(node);
+            if (node.IsRenderable) prepared.Add(node);
         return prepared;
     }
 

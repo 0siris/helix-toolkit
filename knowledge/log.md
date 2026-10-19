@@ -1,5 +1,18 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-19
+
+* **Fix**: Distinguish native render-core ownership, geometry readiness and actual renderability. Mesh eligibility
+  requires indices and reacts to index replacement/in-place updates. Native preparation uses IsRenderable,
+  completes later-ready nodes and retains unready but already-owned resources for cleanup; GPU validation stays strict.
+* **Fix**: Interpret inward frustum-plane normals as outward support directions at the perspective-fit boundary,
+  avoiding reversed/too-close camera framing. No application-specific camera override or shader workaround.
+* **Verification**: Actual MeshMixer viewport reproduced empty-highlight failure and bad framing before changes.
+  WARP readback now covers empty/populated transitions and initial readiness; two new framing cases fail before
+  and pass after. Full425SilkCore tests pass. Real original MIX and sparse two-object scenes render/frame correctly,
+  including actual native face25 picking and cleared/restored highlights. Complete original/remake finite output
+  comparison remains scoped to the application report, not general toolkit parity.
+
 ## 2026-10-17
 
 * **Fix**: Filled material passes now use the owning mesh rasterizer state, including front-face convention,

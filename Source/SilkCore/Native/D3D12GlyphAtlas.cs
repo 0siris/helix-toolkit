@@ -228,7 +228,7 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
         foreach (var resource in retiredResources) resource.Dispose();
         retiredResources.Clear();
         var removed = false;
-        foreach (var (owner, registration) in owners.ToArray()) {
+        foreach (var (owner, registration) in owners) {
             var key = registration.Key;
             if (owner.IsDisposed || !owner.IsAttached || owner.RenderCore is not TextRenderCore2D core
                 || core.Text != key.Text || core.FontFamily != key.FontFamily

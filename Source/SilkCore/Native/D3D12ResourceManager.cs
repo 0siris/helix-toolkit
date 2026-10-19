@@ -298,21 +298,23 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
         lock (syncRoot) {
             foreach (var texture in retiredTextures) texture.Dispose();
             retiredTextures.Clear();
-            foreach (var id in textures.Keys.Where(id => !textureReferences.ContainsKey(id)).ToArray()) {
-                textures[id].Dispose();
-                textures.Remove(id);
+            foreach (var pair in textures) {
+                if (textureReferences.ContainsKey(pair.Key)) continue;
+                textures.Remove(pair.Key);
+                pair.Value.Dispose();
             }
-            foreach (var source in geometries.Keys.Where(source => source is IDisposeObject { IsDisposed: true }).ToArray())
-                Remove(source);
-            foreach (var source in instances.Keys.ToArray()) {
-                var entry = instances[source];
+            foreach (var pair in geometries)
+                if (pair.Key is IDisposeObject { IsDisposed: true }) Remove(pair.Key);
+            foreach (var pair in instances) {
+                var source = pair.Key;
+                var entry = pair.Value;
                 var hadOwners = entry.Owners.Count != 0;
-                entry.Owners.RemoveWhere(owner => owner.IsDisposed || !owner.IsAttached
-                    || !ReferenceEquals(source, owner switch {
+                foreach (var owner in entry.Owners)
+                    if (owner.IsDisposed || !owner.IsAttached || !ReferenceEquals(source, owner switch {
                         GeometryRenderCore geometry => geometry.InstanceBuffer,
                         ParticleRenderCore particle => particle.InstanceBuffer,
                         _ => null
-                    }));
+                    })) entry.Owners.Remove(owner);
                 if (!source.Initialized || !source.HasElements || source is IDisposeObject { IsDisposed: true }
                     || hadOwners && entry.Owners.Count == 0)
                     Remove(source);

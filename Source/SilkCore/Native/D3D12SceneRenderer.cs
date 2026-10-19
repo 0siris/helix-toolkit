@@ -113,6 +113,21 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     private readonly FastList<SceneNode> visibleNodes = [];
 
+    /// <summary>Retains the root snapshot capacity without retaining roots between preparations.</summary>
+    private readonly FastList<SceneNode> preparationRoots = [];
+
+    /// <summary>Retains successful update candidates until the maintenance pass has completed.</summary>
+    private readonly FastList<SceneNode> updatedNodes = [];
+
+    /// <summary>Owns the prepared candidates until the next preparation, independently of draw selection.</summary>
+    private readonly FastList<SceneNode> preparedNodes = [];
+
+    /// <summary>Reuses depth traversal state without allocating enumerators for each scene group.</summary>
+    private readonly Stack<(int Index, int Depth, IList<SceneNode> Nodes)> preparationStack = new();
+
+    /// <summary>Rejects nested preparation before reusable snapshot and traversal state can be overwritten.</summary>
+    private bool isPreparing;
+
     /// <summary>
     ///     The host-lifetime size-adjustable shadow depth resource.
     /// </summary>
@@ -247,36 +262,71 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     internal FastList<SceneNode> PrepareScene(IEnumerable<SceneNode> roots, RenderContext context,
         IEffectsManager? effectsManager = null, IRenderHost? host = null) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        var snapshot = roots.ToArray();
-        var updated = new FastList<SceneNode>();
-        foreach (var entry in PerFrameFlattenedScene)
-            if (ReferenceEquals(entry.Value.RenderHost, renderHost)) entry.Value.RenderHost = null;
-        PerFrameFlattenedScene.Clear();
-        renderHost = host;
-        snapshot.PreorderDft(context, (node, frameContext) => {
-            if (node.IsDisposed) return false;
-            node.RenderHost = host;
-            if (effectsManager is not null) {
-                node.Attach(effectsManager);
-                if (!node.IsAttached) return true;
-            } else if (!node.RenderCore.IsAttached && !node.Attach()) return true;
-            attachedNodes.Add(node);
-            node.Update(frameContext);
-            updated.Add(node);
-            return true;
-        }, PerFrameFlattenedScene);
-
-        foreach (var node in updated) {
-            if (!node.IsDisposed && node.RenderCore.IsAttached)
-                node.UpdateNotRender(context);
+        if (isPreparing) throw new InvalidOperationException("Scene preparation cannot be nested.");
+        isPreparing = true;
+        preparedNodes.Clear();
+        try {
+            if (roots is IList<SceneNode> indexedRoots) {
+                for (var index = 0; index < indexedRoots.Count; index++) preparationRoots.Add(indexedRoots[index]);
+            } else {
+                foreach (var root in roots) preparationRoots.Add(root);
+            }
+            foreach (var entry in PerFrameFlattenedScene)
+                if (ReferenceEquals(entry.Value.RenderHost, renderHost)) entry.Value.RenderHost = null;
+            PerFrameFlattenedScene.Clear();
+            renderHost = host;
+            WalkPreparation(context, effectsManager, host, update: true);
+            foreach (var node in updatedNodes)
+                if (!node.IsDisposed && node.RenderCore.IsAttached)
+                    node.UpdateNotRender(context);
+            PerFrameFlattenedScene.RemoveAll(static entry => entry.Value.IsDisposed);
+            WalkPreparation(context, effectsManager, host, update: false);
+            return preparedNodes;
+        } finally {
+            preparationRoots.Clear();
+            updatedNodes.Clear();
+            preparationStack.Clear();
+            isPreparing = false;
         }
+    }
 
-        PerFrameFlattenedScene.RemoveAll(entry => entry.Value.IsDisposed);
-        var prepared = new FastList<SceneNode>();
-        foreach (var node in snapshot.PreorderDft(node =>
-                                                      !node.IsDisposed && node.Visible && node.RenderCore.IsAttached))
-            prepared.Add(node);
-        return prepared;
+    /// <summary>Walks current child lists in preorder while retaining the original root snapshot.</summary>
+    /// <param name="context">The context shared by the update and maintenance passes.</param>
+    /// <param name="effectsManager">The optional original attachment owner.</param>
+    /// <param name="host">The actual host receiving node invalidations.</param>
+    /// <param name="update">Whether to update all live nodes or collect only visible attached subtrees.</param>
+    private void WalkPreparation(RenderContext context, IEffectsManager? effectsManager, IRenderHost? host, bool update) {
+        IList<SceneNode> nodes = preparationRoots;
+        var index = 0;
+        var depth = 0;
+        while (true) {
+            if (index >= nodes.Count) {
+                if (!preparationStack.TryPop(out var parent)) return;
+                (index, depth, nodes) = parent;
+                continue;
+            }
+            var node = nodes[index++];
+            if (node.IsDisposed) continue;
+            if (update) {
+                node.RenderHost = host;
+                if (effectsManager is not null) node.Attach(effectsManager);
+                var attached = effectsManager is not null ? node.IsAttached : node.RenderCore.IsAttached || node.Attach();
+                if (attached) {
+                    attachedNodes.Add(node);
+                    node.Update(context);
+                    updatedNodes.Add(node);
+                }
+                PerFrameFlattenedScene.Add(new KeyValuePair<int, SceneNode>(depth, node));
+            } else {
+                if (!node.Visible || !node.RenderCore.IsAttached) continue;
+                preparedNodes.Add(node);
+            }
+            if (node.ItemsInternal.Count == 0) continue;
+            preparationStack.Push((index, depth, nodes));
+            nodes = node.ItemsInternal;
+            index = 0;
+            depth++;
+        }
     }
 
     /// <summary>
@@ -287,7 +337,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         postProcessResources?.BeginFrame();
         bloomHalfResources?.BeginFrame();
         bloomQuarterResources?.BeginFrame();
-        attachedNodes.RemoveWhere(node => node.IsDisposed || !node.RenderCore.IsAttached);
+        attachedNodes.RemoveWhere(static node => node.IsDisposed || !node.RenderCore.IsAttached);
         outlineResources?.BeginFrame();
         outlineBlurResources?.BeginFrame();
         effectStencil?.BeginFrame();
@@ -295,16 +345,18 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         effectLineIndex = 0;
         scene2DRenderer.BeginFrame();
         ReleaseDisposedResources(meshBindings);
-        foreach (var texture in _peelingMeshBindings.Keys.ToArray()) {
-            var cache = _peelingMeshBindings[texture];
+        foreach (var pair in _peelingMeshBindings) {
+            var texture = pair.Key;
+            var cache = pair.Value;
             ReleaseDisposedResources(cache);
             if (!texture.IsDisposed) continue;
             if (!ReferenceEquals(cache, meshBindings))
                 foreach (var binding in cache.Values) binding.Dispose();
             _peelingMeshBindings.Remove(texture);
         }
-        foreach (var texture in _peelingPointLineBindings.Keys.ToArray()) {
-            var cache = _peelingPointLineBindings[texture];
+        foreach (var pair in _peelingPointLineBindings) {
+            var texture = pair.Key;
+            var cache = pair.Value;
             ReleaseDisposedResources(cache);
             if (!texture.IsDisposed) continue;
             if (!ReferenceEquals(cache, pointLineBindings))
@@ -316,19 +368,23 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         ReleaseDisposedResources(particleResources);
         ReleaseDisposedResources(screenCaptureResources);
         ReleaseDisposedResources(intersectionResources);
-        foreach (var core in intersectionResources.Keys.Where(core => !core.IsAttached).ToArray()) {
-            intersectionResources[core].Dispose();
-            intersectionResources.Remove(core);
+        foreach (var pair in intersectionResources) {
+            if (pair.Key.IsAttached) continue;
+            intersectionResources.Remove(pair.Key);
+            pair.Value.Dispose();
         }
         foreach (var retired in retiredIntersections) retired.Dispose();
         retiredIntersections.Clear();
-        foreach (var binding in meshBindings.Values.Concat(_peelingMeshBindings.Values.SelectMany(cache => cache.Values))
-            .Concat(effectMeshBindings).Distinct())
-            binding.ReleaseDisposedTextures();
-        foreach (var binding in pointLineBindings.Values
-            .Concat(_peelingPointLineBindings.Values.SelectMany(cache => cache.Values))
-            .Concat(effectLineBindings).Distinct())
-            binding.ReleaseDisposedTextures();
+        foreach (var binding in meshBindings.Values) binding.ReleaseDisposedTextures();
+        foreach (var cache in _peelingMeshBindings.Values)
+            if (!ReferenceEquals(cache, meshBindings))
+                foreach (var binding in cache.Values) binding.ReleaseDisposedTextures();
+        foreach (var binding in effectMeshBindings) binding.ReleaseDisposedTextures();
+        foreach (var binding in pointLineBindings.Values) binding.ReleaseDisposedTextures();
+        foreach (var cache in _peelingPointLineBindings.Values)
+            if (!ReferenceEquals(cache, pointLineBindings))
+                foreach (var binding in cache.Values) binding.ReleaseDisposedTextures();
+        foreach (var binding in effectLineBindings) binding.ReleaseDisposedTextures();
         foreach (var binding in volumeBindings.Values) binding.ReleaseDisposedTextures();
         foreach (var particle in particleResources.Values) particle.ReleaseDisposedTextures();
         resources.ReleaseDisposedResources();
@@ -344,10 +400,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     private static void ReleaseDisposedResources<TCore, TResource>(Dictionary<TCore, TResource> cache)
         where TCore : RenderCore
         where TResource : IDisposable {
-        foreach (var core in cache.Keys.Where(core => core.IsDisposed).ToArray()) {
-            var resource = cache[core];
-            cache.Remove(core);
-            resource.Dispose();
+        foreach (var pair in cache) {
+            if (!pair.Key.IsDisposed) continue;
+            cache.Remove(pair.Key);
+            pair.Value.Dispose();
         }
     }
 
@@ -882,6 +938,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         candidates.AsGuardNotNull();
         passSelector.AsGuardNotNull();
         visibleNodes.Clear();
+        preparationRoots.Clear();
+        updatedNodes.Clear();
+        preparedNodes.Clear();
+        preparationStack.Clear();
         SceneNodeFrustumSelector.AppendVisible(candidates, visibleNodes, testFrustum, ref frustum);
         context.SetDescriptorHeaps(resourceHeap, samplerHeap);
         var effectiveEnvironmentMap = lights is null

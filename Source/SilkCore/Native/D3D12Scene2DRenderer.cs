@@ -82,6 +82,12 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// The Scene2D roots attached by this renderer through the original lifecycle.
     private readonly HashSet<SceneNode2D> attachedRoots = [];
 
+    /// <summary>Retains root-snapshot capacity while layout callbacks may change the caller's roots.</summary>
+    private readonly List<SceneNode2D> preparationRoots = [];
+
+    /// <summary>Prevents nested layout from overwriting reusable root storage.</summary>
+    private bool isPreparing;
+
     /// <summary>
     ///     Next binding slot consumed in this frame.
     /// </summary>
@@ -124,9 +130,9 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         bindingSlotIndex = 0;
         draws.Clear();
         atlas.ReleaseDisposedResources();
-        foreach (var owner in imageOwners.Keys.Where(owner => owner.IsDisposed || !owner.IsAttached
-            || !ReferenceEquals(owner.ImageStream, imageOwners[owner])).ToArray())
-            ReleaseImage(owner);
+        foreach (var pair in imageOwners)
+            if (pair.Key.IsDisposed || !pair.Key.IsAttached || !ReferenceEquals(pair.Key.ImageStream, pair.Value))
+                ReleaseImage(pair.Key);
     }
 
     /// <summary>
@@ -145,26 +151,38 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         ArgumentOutOfRangeException.ThrowIfZero(width);
         ArgumentOutOfRangeException.ThrowIfZero(height);
         if (!(dpiScale > 0) || !float.IsFinite(dpiScale)) throw new ArgumentOutOfRangeException(nameof(dpiScale));
+        if (isPreparing) throw new InvalidOperationException("Scene2D preparation cannot be nested.");
+        isPreparing = true;
         draws.Clear();
-        var viewport = new RectangleF(0, 0, width, height);
-        var snapshot = roots.ToArray();
-        foreach (var root in attachedRoots.Where(root => root.IsDisposed || !snapshot.Contains(root)).ToArray()) {
-            root.Detach();
-            attachedRoots.Remove(root);
-        }
-        foreach (var root in snapshot) {
-            if (root.IsDisposed) continue;
-            if (layoutContext is not null) {
-                if (root.IsAttached && root.DpiScale != dpiScale) root.Detach();
-                root.Attach(dpiScale);
-                attachedRoots.Add(root);
-                root.Measure(new Size2F(width, height));
-                root.Arrange(viewport);
-                UpdateSceneGraph(root, layoutContext);
+        try {
+            var viewport = new RectangleF(0, 0, width, height);
+            if (roots is IList<SceneNode2D> indexedRoots) {
+                for (var index = 0; index < indexedRoots.Count; index++) preparationRoots.Add(indexedRoots[index]);
+            } else {
+                foreach (var root in roots) preparationRoots.Add(root);
             }
-            Traverse(root, viewport, viewport, dpiScale);
+            foreach (var root in attachedRoots) {
+                if (!root.IsDisposed && preparationRoots.Contains(root)) continue;
+                attachedRoots.Remove(root);
+                root.Detach();
+            }
+            foreach (var root in preparationRoots) {
+                if (root.IsDisposed) continue;
+                if (layoutContext is not null) {
+                    if (root.IsAttached && root.DpiScale != dpiScale) root.Detach();
+                    root.Attach(dpiScale);
+                    attachedRoots.Add(root);
+                    root.Measure(new Size2F(width, height));
+                    root.Arrange(viewport);
+                    UpdateSceneGraph(root, layoutContext);
+                }
+                Traverse(root, viewport, viewport, dpiScale);
+            }
+            return draws.Count;
+        } finally {
+            preparationRoots.Clear();
+            isPreparing = false;
         }
-        return draws.Count;
     }
 
     /// <summary>
@@ -231,6 +249,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         if (IsDisposed) return;
         foreach (var root in attachedRoots) root.Detach();
         attachedRoots.Clear();
+        preparationRoots.Clear();
         foreach (var slot in bindingSlots) slot.Dispose();
         bindingSlots.Clear();
         foreach (var registration in imageTextures.Values) registration.Dispose();

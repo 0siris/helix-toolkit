@@ -125,6 +125,34 @@ Phase 2 requires explicit user approval. The complete feature remains a draft un
 
 # Remaining scope
 
+## Phase 2 contracts and allocation gate
+
+Phase 2 is approved. The new coordination and stable-frame paths must minimize managed heap pressure.
+The independent review explicitly checks per-tick/frame allocations, cached delegates, retained context/list
+ownership, boxing, closures and LINQ. Warm-up, actual capacity growth and explicit capture allocations are
+reported separately from steady state. An unchanged scene and the demand coordinator must not allocate per tick.
+
+The shared renderer records into the borrowed value-type `D3D12FrameTarget` (color resource, RTV, pixel size,
+format), using an explicit DPI scale rather than reading a window. `D3D12FrameRenderer` owns scene/pass/depth
+resources and reusable preparation lists/contexts. It does not own an HWND or swap chain and does not present,
+submit, wait on a GPU fence or publish to WPF. Callers guarantee the preceding GPU work is complete before
+recording, resizing or replacing its resources. The existing HWND surface retains device/queue/command-context/
+fence/swap-chain lifetime, final resource transitions, synchronous capture and completion notifications.
+
+Render demand is a separate thread-safe internal coordinator with a six-frame default budget and distinct
+render, scene-graph and renderables invalidation flags. Reserve existing demand before scene updates; retain
+any new request arriving during preparation, submission, pending GPU work or completion events. Commit only
+an actually submitted frame, and restore a canceled reservation without overwriting newer invalidations.
+Publication/recovery work is independent of a clean scene. Existing HWND calls keep their current behavior;
+an internal opt-in demand consumer prepares integration without introducing the public presentation switch
+or the production WPF canvas before their planned phases.
+
+Writing ownership: agent A owns only the new demand coordinator and its tests; agent B owns the shared frame
+renderer, the HWND surface and its dedicated tests; integration owns Viewport files, existing reflection-based
+consumer tests, Core hot-path allocation fixes, documentation, project files and generated output. Agent C
+reviews attachment/continuous-source/DPI/recovery and allocation risks read-only. Integration runs builds and
+GPU checks serially. All writing children start from the same committed contract.
+
 The plan maps findings F01–F13 to later tasks: property invalidation, continuous sources, demand preservation,
 frame budgets, manager events, shared scene consumers, DPI, Scene2D, lifecycle/input and capture pixel contracts.
 Existing ineffective MSAA and CPU-scaled requested capture dimensions remain explicitly documented limits.

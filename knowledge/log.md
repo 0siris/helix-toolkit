@@ -1,5 +1,11 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-19 — Phase 2 renderer and allocation contracts
+
+- Approved the shared borrowed frame-target boundary and separate render-demand coordinator.
+- Made low managed heap pressure an explicit implementation and independent review requirement, with
+  warm-state allocation measurements and separate accounting for initialization, growth and capture.
+
 ## 2026-10-19 — WPF composition proof started
 
 - Linked the approved phased composition plan and its historical review findings.

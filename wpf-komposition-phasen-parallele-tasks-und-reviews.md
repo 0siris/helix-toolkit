@@ -5,6 +5,7 @@
 - **Standard:** `EnableSwapChainRendering = false`, entsprechend dem ursprünglichen HelixToolkit. `true` aktiviert den bestehenden HWND-Pfad.
 - Auswahl ausschließlich vor der ersten erfolgreichen Präsentationsinitialisierung; danach abweichende Änderungen eindeutig ablehnen. Reload und Template-Neuaufbau behalten die Auswahl.
 - Ein gemeinsamer D3D12-Renderer ohne duplizierte Szenen-, Material- oder Effektlogik. Bestehende öffentliche APIs und Namespaces erhalten.
+- **Geringe Heap-Belastung:** Neue Steuerungs- und Renderpfade erzeugen nach dem Aufwärmen keine vermeidbaren Allokationen pro Tick/Frame. Puffer, Listen, Delegates und Kontexte wiederverwenden; LINQ, Closures, Boxing und neue Task-/Event-Objekte im häufigen Pfad vermeiden. Messungen trennen Initialisierung, Kapazitätswachstum und explizites Capture vom stabilen Rendering.
 - **WPF rendert bedarfsgesteuert:** Ohne Änderungsbedarf keine Szenenvorbereitung, GPU-Renderarbeit, Interop-Kopie oder erneute Bildveröffentlichung.
 - `MinimumUpdateCount` bleibt standardmäßig **6**: sechs Frames insgesamt pro isolierter Invalidierung. `0` und negative Werte erlauben weiterhin einen angeforderten Frame; negative Werte werden historisch auf null begrenzt.
 - Laufende Animationen, Partikel, Desktop-Capture und `ContinuousRenderNode` dürfen ausdrücklich weitere Frames anfordern.
@@ -23,6 +24,7 @@
 - Builds, GPU-Prüfungen und sichtbare Tests führt I seriell auf dem integrierten Stand aus.
 - Delegation über `delegate_task` mit `isolation: "worktree"`; Provider und Modell aus dem aktuellen Orchestrator-Katalog.
 - **Jede Phase endet mit Integration, Prüfungen, unabhängigem Review und lokalem Commit. Danach auf deine ausdrückliche Freigabe warten.**
+- Das unabhängige Review enthält ab Phase 2 ausdrücklich einen Heap-/Allokationscheck mit Messnachweisen und Grenzen; der ruhende Pfad ist gesondert zu prüfen.
 
 ## Phase 0 – Arbeitsbasis und historische Verträge
 
@@ -83,6 +85,7 @@
 - Laufende GPU-Arbeit schützt Commands, Bindings und Ressourcen; bestehender endlicher Timeout bleibt erhalten.
 - Ruhender WPF-Pfad führt keine Renderarbeit aus.
 - Ausstehende Veröffentlichung und Recovery bleiben auch ohne neue Szenenänderung bearbeitbar.
+- Bedarfspflege und ruhende Tick-Prüfung allokieren nach dem Aufwärmen nicht; gemeinsame Renderlisten wachsen nur bei tatsächlichem Kapazitätsbedarf. Allokationen der realen Szenenvorbereitung und des HWND-Frames messen und vermeidbare neue Kosten ausschließen.
 
 **Haltepunkt nach Review:** Freigabe für Phase 3.
 

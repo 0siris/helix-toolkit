@@ -33,6 +33,9 @@ cbuffer cbTransforms : register(b0) {
     float DpiScale;
 };
 
+// The native presentation profile shares a reserved OIT-mode bit; public constant layouts stay unchanged.
+bool IsPremultipliedOutput() { return (OITWeightMode & 0x40000000) != 0; }
+
 #if defined(MESHSIMPLE)
 cbuffer cbMeshSimple : register(b1) {
     // Common Parameters

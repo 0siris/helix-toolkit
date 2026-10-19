@@ -49,6 +49,7 @@ float4 main(VolumePS_INPUT input) : SV_Target {
                 color *= texColorStripe1DX.SampleLevel(samplerVolume, value, 0);
             }
             src = float4(color.rgb * value, color.a * value);
+            if (IsPremultipliedOutput()) src.rgb *= color.a;
             //src.a *= .5f; //reduce the alpha to have a more transparent result 
 
             //Front to back blending

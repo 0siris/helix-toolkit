@@ -10,13 +10,15 @@ using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
-/// <summary>
-/// </summary>
+/// <summary>Provides renderer-independent 2D scene state, layout and invalidation.</summary>
 public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
+    /// <summary>Gets the logger used for optional 2D rendering diagnostics.</summary>
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
+    /// <summary>Weakly references the owning scene parent without extending its lifetime.</summary>
     private WeakReference<SceneNode2D>? parent;
 
+    /// <summary>Retains the lazily created 2D render core.</summary>
     private RenderCore2D? renderCore;
 
     /// <summary>
@@ -208,6 +210,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
         set => RenderCore.IsMouseOver = value;
     }
 
+    /// <summary>Gets the physical-pixel scale selected during scene attachment.</summary>
     public float DpiScale { get; private set; } = 1;
 
     /// <summary>
@@ -223,7 +226,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </summary>
     /// <param name="mousePoint">The mouse point.</param>
     /// <param name="hitResult">The hit result.</param>
-    /// <returns></returns>
+    /// <returns>The resulting hit test value.</returns>
     public bool HitTest(Vector2 mousePoint, out HitTest2DResult? hitResult) {
         if (Parent == null) mousePoint *= DpiScale;
 
@@ -236,7 +239,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     Creates the render core.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The resulting create render core value.</returns>
     protected virtual RenderCore2D CreateRenderCore() => new EmptyRenderCore2D();
 
     /// <summary>
@@ -306,7 +309,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </summary>
     /// <param name="mousePoint">The mouse point.</param>
     /// <param name="hitResult">The hit result.</param>
-    /// <returns></returns>
+    /// <returns>The resulting on hit test value.</returns>
     protected abstract bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult);
 
     /// <summary>
@@ -318,32 +321,32 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
         InvalidateVisual();
     }
 
-    /// <summary>
-    ///     Marks this node and its ancestors for repaint by the continuous native presentation loop.
-    /// </summary>
+    /// <summary>Notifies attached consumers that this node or a descendant needs repainting.</summary>
+    /// <remarks>Notifications carry no event arguments and never re-enter layout.</remarks>
+    internal event Action? RenderInvalidated;
+
+    /// <summary>Marks this node and every ancestor dirty and notifies attached consumers, even if already dirty.</summary>
     /// <remarks>Render invalidation must not call back into layout invalidation.</remarks>
     public void InvalidateRender() {
-        IsVisualDirty = true;
-        TraverseUp(this,
-                   ancestor => {
-                       if (ancestor.IsVisualDirty) return false;
-                       ancestor.IsVisualDirty = true;
-                       return true;
-                   });
+        for (SceneNode2D? node = this; node is not null; node = node.Parent) {
+            node.IsVisualDirty = true;
+            if (node.IsAttached) node.RenderInvalidated?.Invoke();
+        }
     }
 
+    /// <inheritdoc />
     protected override void OnDispose(bool disposeManagedResources) {
+        RenderInvalidated = null;
         renderCore?.Dispose();
         renderCore = null;
         base.OnDispose(disposeManagedResources);
     }
 
-    /// <summary>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="backingField"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <summary>Updates a value and requests repaint only when its value changes.</summary>
+    /// <typeparam name="T">The retained value type.</typeparam>
+    /// <param name="backingField">The retained value updated when it differs.</param>
+    /// <param name="value">The new requested value.</param>
+    /// <returns>Whether the value changed and requested repaint.</returns>
     protected bool SetAffectsRender<T>(ref T backingField, T value) {
         if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
@@ -352,12 +355,11 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
         return true;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="backingField"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <summary>Updates a value and invalidates measurement only when its value changes.</summary>
+    /// <typeparam name="T">The retained value type.</typeparam>
+    /// <param name="backingField">The retained value updated when it differs.</param>
+    /// <param name="value">The new requested value.</param>
+    /// <returns>Whether the value changed and invalidated measurement.</returns>
     protected bool SetAffectsMeasure<T>(ref T backingField, T value) {
         if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
@@ -366,11 +368,15 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
         return true;
     }
 
+    /// <summary>Carries the original 2D update context for public update subscribers.</summary>
     public sealed class UpdateEventArgs : EventArgs {
+        /// <summary>Carries the original 2D update context for public update subscribers.</summary>
+        /// <param name="context">The original rendering or native callback context.</param>
         public UpdateEventArgs(RenderContext2D context) {
             Context = context;
         }
 
+        /// <summary>Gets the original context shared with the 2D update callback.</summary>
         public RenderContext2D Context { get; private set; }
     }
 
@@ -413,8 +419,8 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     <para>Determine if this can be rendered.</para>
     /// </summary>
-    /// <param name="context"></param>
-    /// <returns></returns>
+    /// <param name="context">The original rendering or native callback context.</param>
+    /// <returns>The resulting can render value.</returns>
     protected virtual bool CanRender(RenderContext2D context) => Visibility == Visibility.Visible && IsAttached;
 
     /// <summary>

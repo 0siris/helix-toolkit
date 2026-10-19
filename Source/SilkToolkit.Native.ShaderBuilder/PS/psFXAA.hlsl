@@ -1,3 +1,7 @@
+#define BORDEREFFECTS
+#include"..\Common\DataStructs.hlsl"
+#include"..\Common\CommonBuffers.hlsl"
+
 #define FXAA_PC 1
 //#define FXAA_HLSL_4 1
 #define FXAA_HLSL_5 1
@@ -734,7 +738,12 @@ struct FxaaTex {
                    GREEN AS LUMA OPTION SUPPORT FUNCTION
 ============================================================================*/
 #if (FXAA_GREEN_AS_LUMA == 0)
-FxaaFloat FxaaLuma(FxaaFloat4 rgba) { return rgba.w; }
+FxaaFloat FxaaLuma(FxaaFloat4 rgba) {
+    if (!IsPremultipliedOutput()) return rgba.w;
+    // Keep luminance independent of stored coverage, and detect black-on-transparent coverage edges too.
+    FxaaFloat luminance = sqrt(max(0.0, dot(rgba.rgb, float3(0.299, 0.587, 0.114))));
+    return 0.5 * (luminance + rgba.a);
+}
 #else
 FxaaFloat FxaaLuma(FxaaFloat4 rgba) { return rgba.y; }
 #endif
@@ -913,7 +922,7 @@ FxaaFloat4 FxaaPixelShader(
     #if (FXAA_DISCARD == 0)
     FxaaFloat4 rgbyM = FxaaTexTop(tex, posM);
     #if (FXAA_GREEN_AS_LUMA == 0)
-    #define lumaM rgbyM.w
+    #define lumaM FxaaLuma(rgbyM)
     #else
     #define lumaM rgbyM.y
     #endif
@@ -921,6 +930,19 @@ FxaaFloat4 FxaaPixelShader(
     #if (FXAA_GREEN_AS_LUMA == 0)
     FxaaFloat4 luma4A = FxaaTexAlpha4(tex, posM);
     FxaaFloat4 luma4B = FxaaTexOffAlpha4(tex, posM, FxaaInt2(-1, -1));
+    if (IsPremultipliedOutput()) {
+        // Alpha is coverage in this profile, so gather the independent RGB-derived luma signal.
+        luma4A = FxaaFloat4(
+            FxaaLuma(FxaaTexOff(tex, posM, FxaaInt2(0, 1), fxaaQualityRcpFrame.xy)),
+            FxaaLuma(FxaaTexOff(tex, posM, FxaaInt2(1, 1), fxaaQualityRcpFrame.xy)),
+            FxaaLuma(FxaaTexOff(tex, posM, FxaaInt2(1, 0), fxaaQualityRcpFrame.xy)),
+            FxaaLuma(FxaaTexTop(tex, posM)));
+        luma4B = FxaaFloat4(
+            FxaaLuma(FxaaTexOff(tex, posM, FxaaInt2(-1, 0), fxaaQualityRcpFrame.xy)),
+            FxaaLuma(FxaaTexTop(tex, posM)),
+            FxaaLuma(FxaaTexOff(tex, posM, FxaaInt2(0, -1), fxaaQualityRcpFrame.xy)),
+            FxaaLuma(FxaaTexOff(tex, posM, FxaaInt2(-1, -1), fxaaQualityRcpFrame.xy)));
+    }
     #else
     FxaaFloat4 luma4A = FxaaTexGreen4(tex, posM);
     FxaaFloat4 luma4B = FxaaTexOffGreen4(tex, posM, FxaaInt2(-1, -1));
@@ -937,7 +959,7 @@ FxaaFloat4 FxaaPixelShader(
     #else
     FxaaFloat4 rgbyM = FxaaTexTop(tex, posM);
     #if (FXAA_GREEN_AS_LUMA == 0)
-    #define lumaM rgbyM.w
+    #define lumaM FxaaLuma(rgbyM)
     #else
     #define lumaM rgbyM.y
     #endif
@@ -1266,6 +1288,8 @@ FxaaFloat4 FxaaPixelShader(
         #if (FXAA_DISCARD == 1)
         return FxaaTexTop(tex, posM);
         #else
+        // Sample all four premultiplied channels at the same filtered coordinate.
+        if (IsPremultipliedOutput()) return FxaaTexTop(tex, posM);
         return FxaaFloat4(FxaaTexTop(tex, posM).xyz, lumaM);
         #endif
     }
@@ -2084,9 +2108,7 @@ bool twoTap = twoTapLt || twoTapGt;
 /*==========================================================================*/
 #endif
 
-#define BORDEREFFECTS
-#include"..\Common\DataStructs.hlsl"
-#include"..\Common\CommonBuffers.hlsl"
+
 
 /*
 cbuffer cbFxaa : register(b1) {
@@ -2129,6 +2151,6 @@ float4 main(MeshOutlinePS_INPUT Input) : SV_Target {
         0.0f,                               // FxaaFloat fxaaConsoleEdgeThresholdMin,
         FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f)  // FxaaFloat fxaaConsole360ConstDir,
     );
-    c.a = 1;
+    if (!IsPremultipliedOutput()) c.a = 1;
     return c;
 }

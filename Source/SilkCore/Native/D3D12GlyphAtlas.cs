@@ -55,10 +55,10 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// </summary>
     private readonly Dictionary<GlyphKey, D3D12GlyphAtlasEntry> entries = [];
 
-    /// The current layout registration and physical scale of each text owner.
+    /// <summary>The current layout registration and physical scale of each text owner.</summary>
     private readonly Dictionary<SceneNode2D, (GlyphKey Key, float DpiScale)> owners = [];
 
-    /// The original empty atlas extent used when reclaiming obsolete text pixels.
+    /// <summary>The original empty atlas extent used when reclaiming obsolete text pixels.</summary>
     private readonly int initialSize;
 
     /// <summary>
@@ -101,7 +101,7 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// </summary>
     private SilkD3D12Resource? upload;
 
-    /// Atlas allocations retained until the next completed presentation fence.
+    /// <summary>Atlas allocations retained until the next completed presentation fence.</summary>
     private readonly List<SilkD3D12Resource> retiredResources = [];
 
     /// <summary>
@@ -253,12 +253,13 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <param name="owner">The original text owner.</param>
     /// <returns>Whether obsolete pixels need to be reclaimed.</returns>
     private bool Release(SceneNode2D owner) {
-        if (!owners.Remove(owner, out var registration)
-            || owners.Values.Any(value => value.Key == registration.Key)) return false;
+        if (!owners.Remove(owner, out var registration)) return false;
+        foreach (var value in owners.Values)
+            if (value.Key == registration.Key) return false;
         return entries.Remove(registration.Key);
     }
 
-    /// Reclaims obsolete text storage while retaining the shaped pixels and entry identities of live shared text.
+    /// <summary>Reclaims obsolete text storage while retaining the shaped pixels and entry identities of live shared text.</summary>
     private void Repack() {
         var previousPixels = pixels;
         var previousWidth = width;
@@ -458,6 +459,10 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <summary>
     ///     Supports the IUnknown and text-renderer interface queries made by DirectWrite.
     /// </summary>
+    /// <param name="self">The borrowed COM callback instance.</param>
+    /// <param name="iid">The requested COM interface identifier.</param>
+    /// <param name="result">The retained destination storage or native output pointer.</param>
+    /// <returns>The COM success or unsupported-interface HRESULT.</returns>
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static int QueryInterface(TextRendererCom* self, Guid* iid, void** result) {
         if (iid == null || result == null) return unchecked((int) 0x80004003);
@@ -473,18 +478,26 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <summary>
     ///     Increments the synchronous callback reference count.
     /// </summary>
+    /// <param name="self">The borrowed COM callback instance.</param>
+    /// <returns>The callback reference count.</returns>
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static uint AddRef(TextRendererCom* self) => ++self->ReferenceCount;
 
     /// <summary>
     ///     Decrements the synchronous callback reference count.
     /// </summary>
+    /// <param name="self">The borrowed COM callback instance.</param>
+    /// <returns>The callback reference count.</returns>
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static uint Release(TextRendererCom* self) => self->ReferenceCount == 0 ? 0 : --self->ReferenceCount;
 
     /// <summary>
     ///     Enables DirectWrite pixel snapping.
     /// </summary>
+    /// <param name="self">The borrowed COM callback instance.</param>
+    /// <param name="context">The original rendering or native callback context.</param>
+    /// <param name="disabled">Receives whether pixel snapping is disabled.</param>
+    /// <returns>The callback HRESULT after writing the snapping flag.</returns>
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static int IsPixelSnappingDisabled(TextRendererCom* self, void* context, int* disabled) {
         if (disabled == null) return unchecked((int) 0x80004003);
@@ -495,6 +508,10 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <summary>
     ///     Returns the identity transform used for atlas rasterization.
     /// </summary>
+    /// <param name="self">The borrowed COM callback instance.</param>
+    /// <param name="context">The original rendering or native callback context.</param>
+    /// <param name="transform">The accumulated affine transform or native output pointer.</param>
+    /// <returns>The callback HRESULT after writing the current transform.</returns>
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static int GetCurrentTransform(TextRendererCom* self, void* context, DWriteMatrix* transform) {
         if (transform == null) return unchecked((int) 0x80004003);
@@ -507,6 +524,10 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <summary>
     ///     Returns one physical pixel per device-independent pixel.
     /// </summary>
+    /// <param name="self">The borrowed COM callback instance.</param>
+    /// <param name="context">The original rendering or native callback context.</param>
+    /// <param name="pixelsPerDip">Receives the physical scale used by glyph analysis.</param>
+    /// <returns>The callback HRESULT after writing the physical scale.</returns>
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static int GetPixelsPerDip(TextRendererCom* self, void* context, float* pixelsPerDip) {
         if (pixelsPerDip == null) return unchecked((int) 0x80004003);
@@ -517,6 +538,15 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <summary>
     ///     Rasterizes one already-shaped DirectWrite glyph run.
     /// </summary>
+    /// <param name="self">The borrowed COM callback instance.</param>
+    /// <param name="context">The original rendering or native callback context.</param>
+    /// <param name="baselineOriginX">The horizontal glyph baseline origin.</param>
+    /// <param name="baselineOriginY">The vertical glyph baseline origin.</param>
+    /// <param name="measuringMode">The DirectWrite glyph measuring mode.</param>
+    /// <param name="glyphRun">The borrowed shaped glyph run.</param>
+    /// <param name="description">The optional glyph-run description.</param>
+    /// <param name="drawingEffect">The optional borrowed drawing effect.</param>
+    /// <returns>The callback HRESULT, retaining any rasterization failure for managed propagation.</returns>
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static int DrawGlyphRun(
         TextRendererCom* self,
@@ -540,6 +570,13 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <summary>
     ///     Accepts underline callbacks; underline geometry is outside the glyph atlas contract.
     /// </summary>
+    /// <param name="self">The borrowed COM callback instance.</param>
+    /// <param name="context">The original rendering or native callback context.</param>
+    /// <param name="baselineOriginX">The horizontal glyph baseline origin.</param>
+    /// <param name="baselineOriginY">The vertical glyph baseline origin.</param>
+    /// <param name="underline">The borrowed underline description.</param>
+    /// <param name="drawingEffect">The optional borrowed drawing effect.</param>
+    /// <returns>The success HRESULT for the unsupported decoration callback.</returns>
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static int DrawUnderline(TextRendererCom* self,
         void* context,
@@ -551,6 +588,13 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <summary>
     ///     Accepts strikethrough callbacks; decoration geometry is outside the glyph atlas contract.
     /// </summary>
+    /// <param name="self">The borrowed COM callback instance.</param>
+    /// <param name="context">The original rendering or native callback context.</param>
+    /// <param name="baselineOriginX">The horizontal glyph baseline origin.</param>
+    /// <param name="baselineOriginY">The vertical glyph baseline origin.</param>
+    /// <param name="strikethrough">The borrowed strikethrough description.</param>
+    /// <param name="drawingEffect">The optional borrowed drawing effect.</param>
+    /// <returns>The success HRESULT for the unsupported decoration callback.</returns>
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static int DrawStrikethrough(TextRendererCom* self,
         void* context,
@@ -562,6 +606,15 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <summary>
     ///     Accepts inline-object callbacks that contain no glyph data.
     /// </summary>
+    /// <param name="self">The borrowed COM callback instance.</param>
+    /// <param name="context">The original rendering or native callback context.</param>
+    /// <param name="originX">The horizontal inline-object origin.</param>
+    /// <param name="originY">The vertical inline-object origin.</param>
+    /// <param name="inlineObject">The borrowed DirectWrite inline object.</param>
+    /// <param name="isSideways">Whether the object is drawn sideways.</param>
+    /// <param name="isRightToLeft">Whether the object follows right-to-left reading order.</param>
+    /// <param name="drawingEffect">The optional borrowed drawing effect.</param>
+    /// <returns>The success HRESULT for the unsupported inline-object callback.</returns>
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static int DrawInlineObject(TextRendererCom* self,
         void* context,

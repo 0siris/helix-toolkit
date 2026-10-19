@@ -190,7 +190,7 @@ public sealed class NativeRenderSourceNotificationTests {
     [Fact]
     [Trait("Category", "Warp")]
     public void WarmPassLookupsAndScene2DGeometryRetainStorage() {
-        Assert.Equal(false, AppContext.GetData("System.GC.Concurrent"));
+        Assert.Equal("false", AppContext.GetData("System.GC.Concurrent")?.ToString(), ignoreCase: true);
         using var device = SilkD3D12DeviceFactory.CreateDefault(driverType: SilkDriverType.Warp);
         using var resources = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 512, true);
         using var samplers = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 40, true);

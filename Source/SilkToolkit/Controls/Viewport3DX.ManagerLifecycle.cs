@@ -21,7 +21,7 @@ public partial class Viewport3DX {
     /// <summary>Remembers shared mutations at notification unload without consuming retained scene demand.</summary>
     private long sharedSceneNotificationRevision;
 
-    /// <summary>Blocks new scene preparation between resource disposal and reinitialization.</summary>
+    /// <summary>Tracks event-based availability for managers without a live resource-availability state.</summary>
     private bool effectsResourcesUnavailable;
 
     /// <summary>Retains a required renderer retirement until all application frame callbacks have unwound.</summary>
@@ -49,8 +49,10 @@ public partial class Viewport3DX {
     internal bool IsPreparingPresentationFrame => isD3D12FrameUpdating || wpfPresentation is { IsUpdating: true };
 
     /// <summary>Gets whether the current manager and shared-scene transaction allow new scene preparation.</summary>
-    private bool CanRenderWithEffectsManager => !effectsResourcesUnavailable && !managerResourcesResetPending &&
-                                                EffectsManager is not EffectsManager { ResourcesAvailable: false } &&
+    /// <remarks>Concrete managers restore live availability when a disposal observer rejects retirement.</remarks>
+    private bool CanRenderWithEffectsManager => (EffectsManager is EffectsManager manager
+                                                    ? manager.ResourcesAvailable
+                                                    : !effectsResourcesUnavailable) && !managerResourcesResetPending &&
                                                 !(EnableSharedModelMode && SharedModelContainerInternal is ModelContainer3DX {
                                                     IsSynchronizingEffectsManager: true
                                                 });

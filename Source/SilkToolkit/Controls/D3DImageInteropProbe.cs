@@ -25,10 +25,10 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 /// </remarks>
 internal sealed unsafe class D3DImageInteropProbe : IDisposable {
     /// <summary>Keeps D3D11 exports loaded while their COM objects remain alive.</summary>
-    private static readonly D11.D3D11 D3D11Api = D11.D3D11.GetApi();
+    private static readonly D11.D3D11 D3D11Api = D11.D3D11.GetApi(window: null!);
 
     /// <summary>Keeps D3D9 exports loaded while WPF can access their COM objects.</summary>
-    private static readonly D9.D3D9 D3D9Api = D9.D3D9.GetApi();
+    private static readonly D9.D3D9 D3D9Api = D9.D3D9.GetApi(window: null!);
 
     /// <summary>Bounds explicit teardown waits; ordinary polling never waits.</summary>
     private static readonly TimeSpan TeardownTimeout = TimeSpan.FromSeconds(5);
@@ -184,10 +184,12 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
         commands12!.Reset();
         Transition(D12.ResourceStates.Common, D12.ResourceStates.RenderTarget);
         float* color = stackalloc float[4] { r * a, g * a, b * a, a };
-        commands12.CommandList.Handle->ClearRenderTargetView(rtvHeap12.Handle->GetCPUDescriptorHandleForHeapStart(),
-            color, 0, null);
+        commands12.CommandList.Handle->ClearRenderTargetView(
+            rtvHeap12.Handle->GetCPUDescriptorHandleForHeapStart(),
+            color, 0, null
+        );
         Transition(D12.ResourceStates.RenderTarget, D12.ResourceStates.Common);
-        commands12.Close();
+        commands12!.Close();
         // A failed signal must not allow allocator reuse; teardown can signal again to cover this submission.
         hasFrame = false;
         stopping = true;
@@ -212,8 +214,10 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
         copyPending = true;
         hasFrame = false;
         copySlot = (copySlot + 1) % destinations11.Length;
-        context11.Handle->CopyResource((D11.ID3D11Resource*) destinations11[copySlot].Handle,
-            (D11.ID3D11Resource*) source11.Handle);
+        context11.Handle->CopyResource(
+            (D11.ID3D11Resource*) destinations11[copySlot].Handle,
+            (D11.ID3D11Resource*) source11.Handle
+        );
         context11.Handle->End((D11.ID3D11Asynchronous*) copyQuery11.Handle);
         context11.Handle->Flush();
     }
@@ -238,6 +242,7 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
                 throw new TimeoutException("D3D11 copy did not complete; native resources remain owned.");
             Thread.Sleep(1);
         }
+
         ReleaseResources();
         disposed = true;
     }
@@ -246,14 +251,18 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
     /// <param name="hwnd">The D3D9Ex focus window.</param>
     /// <param name="adapterIndex">The requested DXGI adapter, or minus one.</param>
     private void InitializeDevices(nint hwnd, int adapterIndex) {
-        SilkMarshal.ThrowHResult(SilkD3D12DeviceFactory.DxgiApi.CreateDXGIFactory2(0,
-            out ComPtr<Dxgi.IDXGIFactory4> factory));
+        SilkMarshal.ThrowHResult(
+            SilkD3D12DeviceFactory.DxgiApi.CreateDXGIFactory2(
+                0,
+                out ComPtr<Dxgi.IDXGIFactory4> factory
+            )
+        );
         using (factory) {
             if (adapterIndex == -1)
                 device12 = SilkD3D12DeviceFactory.CreateDefault();
             else {
-                var result = factory.Handle->EnumAdapters1((uint) adapterIndex,
-                    out ComPtr<Dxgi.IDXGIAdapter1> selected);
+                ComPtr<Dxgi.IDXGIAdapter1> selected = default;
+                var result = factory.Handle->EnumAdapters1((uint) adapterIndex, ref selected);
                 using (selected) {
                     if (result == unchecked((int) 0x887A0002))
                         throw new ArgumentOutOfRangeException(nameof(adapterIndex), "No such DXGI adapter exists.");
@@ -262,8 +271,12 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
                     SilkMarshal.ThrowHResult(selected.Handle->GetDesc1(&description));
                     if (((Dxgi.AdapterFlag) description.Flags & Dxgi.AdapterFlag.Software) != 0)
                         throw new PlatformNotSupportedException("The probe requires a D3D9Ex hardware adapter.");
-                    SilkMarshal.ThrowHResult(SilkD3D12DeviceFactory.Api.CreateDevice(selected,
-                        D3DFeatureLevel.Level110, out ComPtr<D12.ID3D12Device> nativeDevice));
+                    SilkMarshal.ThrowHResult(
+                        SilkD3D12DeviceFactory.Api.CreateDevice(
+                            selected,
+                            D3DFeatureLevel.Level110, out ComPtr<D12.ID3D12Device> nativeDevice
+                        )
+                    );
                     device12 = new SilkD3D12Device(nativeDevice, SilkFeatureLevel.Level110);
                 }
             }
@@ -286,23 +299,35 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
             D11.ID3D11Device* native11 = null;
             D11.ID3D11DeviceContext* immediate11 = null;
             var level = D3DFeatureLevel.Level110;
-            var create11 = D3D11Api.CreateDevice((Dxgi.IDXGIAdapter*) actual.Handle, D3DDriverType.Unknown, 0,
+            var create11 = D3D11Api.CreateDevice(
+                (Dxgi.IDXGIAdapter*) actual.Handle, D3DDriverType.Unknown, 0,
                 (uint) D11.CreateDeviceFlag.BgraSupport, &level, 1, D11.D3D11.SdkVersion,
-                &native11, null, &immediate11);
+                &native11, null, &immediate11
+            );
             device11 = new ComPtr<D11.ID3D11Device>(native11);
             context11 = new ComPtr<D11.ID3D11DeviceContext>(immediate11);
             SilkMarshal.ThrowHResult(create11);
 
-            SilkMarshal.ThrowHResult(D3D9Api.Direct3DCreate9Ex(D9.D3D9.SdkVersion, out direct3D9));
+            SilkMarshal.ThrowHResult(D3D9Api.Direct3DCreate9Ex((uint) D9.D3D9.SdkVersion, ref direct3D9));
             var adapter9 = FindD3D9Adapter(luid);
             var present = new D9.PresentParameters {
-                Windowed = true, HDeviceWindow = hwnd, BackBufferWidth = 1, BackBufferHeight = 1,
-                BackBufferCount = 1, SwapEffect = D9.Swapeffect.Discard, BackBufferFormat = D9.Format.Unknown
+                Windowed = true,
+                HDeviceWindow = hwnd,
+                BackBufferWidth = 1,
+                BackBufferHeight = 1,
+                BackBufferCount = 1,
+                SwapEffect = D9.Swapeffect.Discard,
+                BackBufferFormat = D9.Format.Unknown
             };
-            SilkMarshal.ThrowHResult(direct3D9.Handle->CreateDeviceEx(adapter9, D9.Devtype.Hal, hwnd,
-                D9.D3D9.CreateMultithreaded | D9.D3D9.CreateFpuPreserve | D9.D3D9.CreateSoftwareVertexprocessing,
-                &present, null, out device9));
+            SilkMarshal.ThrowHResult(
+                direct3D9.Handle->CreateDeviceEx(
+                    adapter9, D9.Devtype.Hal, hwnd,
+                    (uint) (D9.D3D9.CreateMultithreaded | D9.D3D9.CreateFpuPreserve | D9.D3D9.CreateSoftwareVertexprocessing),
+                    &present, null, ref device9
+                )
+            );
         }
+
         queue12 = device12.CreateCommandQueue();
         commands12 = device12.CreateCommandContext();
         fence12 = device12.CreateFence();
@@ -312,25 +337,40 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
     private void InitializeTextures() {
         var heap = new D12.HeapProperties { Type = D12.HeapType.Default, CreationNodeMask = 1, VisibleNodeMask = 1 };
         var description = new D12.ResourceDesc {
-            Dimension = D12.ResourceDimension.Texture2D, Width = Width, Height = Height, DepthOrArraySize = 1,
-            MipLevels = 1, Format = Dxgi.Format.FormatB8G8R8A8Unorm, SampleDesc = new Dxgi.SampleDesc(1, 0),
-            Layout = D12.TextureLayout.Unknown,
+            Dimension = D12.ResourceDimension.Texture2D,
+            Width = Width,
+            Height = Height,
+            DepthOrArraySize = 1,
+            MipLevels = 1,
+            Format = Dxgi.Format.FormatB8G8R8A8Unorm,
+            SampleDesc = new Dxgi.SampleDesc(1, 0),
+            Layout = D12.TextureLayout.LayoutUnknown,
             Flags = D12.ResourceFlags.AllowRenderTarget | D12.ResourceFlags.AllowSimultaneousAccess
         };
-        SilkMarshal.ThrowHResult(device12!.NativeDevice.CreateCommittedResource(in heap, D12.HeapFlags.Shared,
-            in description, D12.ResourceStates.Common, null, out renderTarget12));
+        SilkMarshal.ThrowHResult(
+            device12!.NativeDevice.CreateCommittedResource(
+                in heap, D12.HeapFlags.Shared,
+                in description, D12.ResourceStates.Common, null, out renderTarget12
+            )
+        );
         var rtvDescription = new D12.DescriptorHeapDesc { Type = D12.DescriptorHeapType.Rtv, NumDescriptors = 1 };
         SilkMarshal.ThrowHResult(device12.NativeDevice.CreateDescriptorHeap(in rtvDescription, out rtvHeap12));
-        device12.Handle->CreateRenderTargetView(renderTarget12.Handle, null,
-            rtvHeap12.Handle->GetCPUDescriptorHandleForHeapStart());
+        device12.Handle->CreateRenderTargetView(
+            renderTarget12.Handle, null,
+            rtvHeap12.Handle->GetCPUDescriptorHandleForHeapStart()
+        );
 
         SilkMarshal.ThrowHResult(device11.QueryInterface(out ComPtr<D11.ID3D11Device1> device11v1));
         using (device11v1) {
             void* ntHandle = null;
             try {
                 // This is a real NT handle. D3D11 retains the allocation after opening it.
-                SilkMarshal.ThrowHResult(device12.Handle->CreateSharedHandle((D12.ID3D12DeviceChild*) renderTarget12.Handle,
-                    null, 0x10000000, (char*) null, &ntHandle));
+                SilkMarshal.ThrowHResult(
+                    device12.Handle->CreateSharedHandle(
+                        (D12.ID3D12DeviceChild*) renderTarget12.Handle,
+                        null, 0x10000000, (char*) null, &ntHandle
+                    )
+                );
                 SilkMarshal.ThrowHResult(device11v1.OpenSharedResource1(ntHandle, out source11));
             } finally {
                 if (ntHandle != null) CloseHandle((nint) ntHandle);
@@ -341,8 +381,12 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
         // https://learn.microsoft.com/windows/win32/api/d3d11/nf-d3d11-id3d11device-opensharedresource
         for (var slot = 0; slot < destinations11.Length; slot++) {
             void* legacyHandle = null;
-            SilkMarshal.ThrowHResult(device9.Handle->CreateTexture(Width, Height, 1, D9.D3D9.UsageRendertarget,
-                D9.Format.A8R8G8B8, D9.Pool.Default, out textures9[slot], &legacyHandle));
+            SilkMarshal.ThrowHResult(
+                device9.Handle->CreateTexture(
+                    Width, Height, 1, (uint) D9.D3D9.UsageRendertarget,
+                    D9.Format.A8R8G8B8, D9.Pool.Default, ref textures9[slot], &legacyHandle
+                )
+            );
             if (legacyHandle == null)
                 throw new PlatformNotSupportedException("D3D9Ex did not provide a legacy texture sharing token.");
             SilkMarshal.ThrowHResult(device11.OpenSharedResource(legacyHandle, out destinations11[slot]));
@@ -352,10 +396,11 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
                 destinationDescription.Height != Height || destinationDescription.SampleDesc.Count != 1 ||
                 destinationDescription.MipLevels != 1)
                 throw new PlatformNotSupportedException("The legacy destination is not a matching single-sample BGRA texture.");
-            SilkMarshal.ThrowHResult(textures9[slot].Handle->GetSurfaceLevel(0, out surfaces9[slot]));
+            SilkMarshal.ThrowHResult(textures9[slot].Handle->GetSurfaceLevel(0, ref surfaces9[slot]));
         }
+
         var query = new D11.QueryDesc { Query = D11.Query.Event };
-        SilkMarshal.ThrowHResult(device11.Handle->CreateQuery(&query, out copyQuery11));
+        SilkMarshal.ThrowHResult(device11.Handle->CreateQuery(&query, ref copyQuery11));
     }
 
     /// <summary>Finds a DXGI index by identity rather than equating it with a D3D9 index.</summary>
@@ -364,7 +409,8 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
     /// <returns>The matching DXGI index.</returns>
     private static int FindDxgiAdapter(ComPtr<Dxgi.IDXGIFactory4> factory, Luid luid) {
         for (uint index = 0;; index++) {
-            var result = factory.Handle->EnumAdapters1(index, out ComPtr<Dxgi.IDXGIAdapter1> candidate);
+            ComPtr<Dxgi.IDXGIAdapter1> candidate = default;
+            var result = factory.Handle->EnumAdapters1(index, ref candidate);
             using (candidate) {
                 if (result == unchecked((int) 0x887A0002)) break;
                 SilkMarshal.ThrowHResult(result);
@@ -373,6 +419,7 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
                 if (SameLuid(luid, description.AdapterLuid)) return checked((int) index);
             }
         }
+
         throw new PlatformNotSupportedException("The actual D3D12 adapter is missing from DXGI enumeration.");
     }
 
@@ -385,6 +432,7 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
             SilkMarshal.ThrowHResult(direct3D9.Handle->GetAdapterLUID(index, &candidate));
             if (SameLuid(luid, candidate)) return index;
         }
+
         throw new PlatformNotSupportedException("No D3D9Ex adapter matches the actual D3D12 adapter LUID.");
     }
 
@@ -463,6 +511,6 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
     /// <param name="handle">The NT handle; never a D3D9 legacy sharing token.</param>
     /// <returns>Whether Windows closed the handle.</returns>
     [DllImport("kernel32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
+    [return: MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
     private static extern bool CloseHandle(nint handle);
 }

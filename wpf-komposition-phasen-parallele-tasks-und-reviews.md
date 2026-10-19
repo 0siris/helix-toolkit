@@ -56,6 +56,8 @@
 - NT-Handles und ältere Sharing-Handles getrennt behandeln.
 - Historisches `enableSoftwareFallback: true` berücksichtigen; daraus keine ungeprüfte WARP-/Remote-Desktop-Zusage ableiten.
 - Keine konkurrierenden Schreibzugriffe auf veröffentlichte Oberflächen. Normale Dispatcher-Ticks warten nicht blockierend auf die GPU.
+- Zwei wechselnde Legacy-Sharing-Ziele halten die an WPF gebundene Oberfläche unverändert. Erst nach GPU-Abschluss wird das fertige andere Ziel unter kurzem WPF-Lock veröffentlicht; vor Wiederverwendung muss das vorherige Ziel abgebunden sein.
+- Jede normal zurückgekehrte `D3DImage.TryLock`-Anfrage wird gemäß geprüftem .NET-10-Verhalten mit `Unlock` ausgeglichen, auch bei `false`. Dann erfolgen weder Backbuffer-Wechsel noch Dirty-Publikation.
 
 **Review:** Bildübergabe, Alpha, Synchronisation und Freigabe nachgewiesen. Bei Scheitern mit reproduzierbarem Befund stoppen.
 
@@ -96,6 +98,7 @@
 **Zusätzliche Verträge:**
 
 - WPF veröffentlicht ausschließlich neue, vollständig fertige Bilder. Eine erforderliche Wiederanbindung nach Frontbuffer-Verlust ist davon getrennt.
+- Das in Phase 1 geprüfte Wechseln unveränderlicher Präsentationsoberflächen auch für Software-Snapshots/Fallback beibehalten; keinen über Dispatcher-Callbacks laufenden Schreibzugriff auf die gebundene Oberfläche einführen.
 - Frontbuffer-Rückkehr, Reload und Resize können eine Wiederherstellung auch bei sauberer Szene anfordern.
 - `EnableDpiScale` im Canvas berücksichtigen: effektive Renderauflösung bei deaktivierter Skalierung mit Faktor `1`; Eingabe bleibt in korrekten DIP-Koordinaten.
 - Kontinuierliche Quellen fordern nur während ihrer aktiven Nutzung weitere Arbeit an. Capture-Timeout und Quellenneustart müssen ohne Kameraeingabe weiterlaufen können.

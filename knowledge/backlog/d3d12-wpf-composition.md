@@ -1,13 +1,12 @@
 ---
 type: ImplementationPlan
 title: D3D12 WPF composition proof and phased integration
-generated: 2026-10-19
-verified: 2026-10-19
-status: in-progress
+generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T11:10:00Z }
+status: draft
 sources:
-  - ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
-  - ../../Source/SilkToolkit/SilkToolkit.csproj
-  - ../../Source/SilkToolkit/Controls/D3D12PresentationSurface.cs
+  - resource: ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
+  - resource: ../../Source/SilkToolkit/SilkToolkit.csproj
+  - resource: ../../Source/SilkToolkit/Controls/D3D12PresentationSurface.cs
 ---
 
 # Scope
@@ -56,11 +55,19 @@ Creating the destination in D3D9Ex follows the documented D3D9-to-D3D11 sharing 
 NT handles are closed by their owner; legacy sharing handles are not NT handles. Adapter ordinals from
 different APIs are never treated as identities. Explicit adapter selection must still resolve to the same LUID.
 
-The caller polls GPU completion without blocking the dispatcher. It obtains the WPF image lock before
-starting a copy into the shared destination and retains the lock until the copy is complete. Only then may it
-publish a dirty rectangle and unlock. Before native disposal, it detaches the WPF backbuffer. Explicit teardown
-may use a bounded completion wait. No scene renderer changes, CPU presentation loop or silent HWND fallback
-are part of this proof.
+The caller polls GPU completion without blocking the dispatcher. Two legacy-shared destination slots alternate:
+the currently attached WPF surface stays immutable while D3D11 copies into the detached slot. After copy
+completion, the caller obtains the WPF image lock, replaces the backbuffer, publishes a dirty rectangle and
+unlocks. It must publish the completed slot before the next copy may reuse the previously detached slot.
+Before native disposal, it detaches the WPF backbuffer. Explicit teardown may use a bounded completion wait.
+No scene renderer changes, CPU presentation loop or silent HWND fallback are part of this proof.
+
+The independent synchronization review identified two WPF details that affect later integration as well:
+`TryLock` increments the internal lock count even when returning false in the inspected .NET 10 source, so
+each normally returning attempt is balanced with `Unlock`; software snapshot/fallback paths can read the user
+surface outside the managed lock-count gate. The latter implies a potential race if the attached surface is
+written across dispatcher callbacks; immutable attached slots avoid relying on that unproven synchronization.
+See the [versioned WPF implementation](https://github.com/dotnet/wpf/blob/v10.0.0/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/InterOp/D3DImage.cs).
 
 Target hardware: NVIDIA GeForce GTX 1070, driver `32.0.15.6094`. Passing here will not establish WARP,
 Remote Desktop, other-adapter or device-loss support. Historical WPF software fallback is not such a guarantee.

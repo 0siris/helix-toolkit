@@ -16,36 +16,42 @@ public sealed class D3DImageInteropNativeTests {
     [Trait("Category", "Hardware")]
     [Trait("Category", "Wpf")]
     public Task SharedD3D12ColorsReachD3D9SurfaceTest() => StaThread.RunAsync(() => {
-        using var window = new HwndSource(new HwndSourceParameters(nameof(D3DImageInteropNativeTests)) {
-            Width = 16, Height = 16, WindowStyle = unchecked((int) 0x80000000)
-        });
-        int selectedIndex;
-        long selectedLuid;
-        using (var probe = new D3DImageInteropProbe(window.Handle, 8, 6)) {
-            selectedIndex = probe.AdapterIndex;
-            selectedLuid = probe.AdapterLuid;
-            Assert.NotEqual(0, probe.D3D9Surface);
-            Assert.True(probe.IsRenderComplete);
-            Assert.True(probe.IsCopyComplete);
-            Assert.Throws<InvalidOperationException>(probe.BeginCopyToSurface);
-            Assert.Throws<ArgumentOutOfRangeException>(() => probe.SubmitColor(float.NaN, 0, 0, 1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => probe.SubmitColor(0, 0, 0, 2));
+            using var window = new HwndSource(
+                new HwndSourceParameters(nameof(D3DImageInteropNativeTests)) {
+                    Width = 16, Height = 16, WindowStyle = unchecked((int) 0x80000000)
+                }
+            );
+            int selectedIndex;
+            long selectedLuid;
+            using (var probe = new D3DImageInteropProbe(window.Handle, 8, 6)) {
+                selectedIndex = probe.AdapterIndex;
+                selectedLuid = probe.AdapterLuid;
+                Assert.NotEqual(0, probe.D3D9Surface);
+                Assert.True(probe.IsRenderComplete);
+                Assert.True(probe.IsCopyComplete);
+                Assert.Throws<InvalidOperationException>(probe.BeginCopyToSurface);
+                Assert.Throws<ArgumentOutOfRangeException>(() => probe.SubmitColor(float.NaN, 0, 0, 1));
+                Assert.Throws<ArgumentOutOfRangeException>(() => probe.SubmitColor(0, 0, 0, 2));
 
-            var firstSlot = CheckColor(probe, 1, 0.5f, 0.25f, 0.5f, [32, 64, 128, 128]);
-            var secondSlot = CheckColor(probe, 0, 0, 1, 1, [255, 0, 0, 255]);
-            Assert.NotEqual(firstSlot, secondSlot);
-            Assert.Equal(firstSlot, CheckColor(probe, 1, 1, 1, 0, [0, 0, 0, 0]));
+                var firstSlot = CheckColor(probe, 1, 0.5f, 0.25f, 0.5f, [32, 64, 128, 128]);
+                var secondSlot = CheckColor(probe, 0, 0, 1, 1, [255, 0, 0, 255]);
+                Assert.NotEqual(firstSlot, secondSlot);
+                Assert.Equal(firstSlot, CheckColor(probe, 1, 1, 1, 0, [0, 0, 0, 0]));
+            }
+
+            using (var resized = new D3DImageInteropProbe(window.Handle, 13, 9, selectedIndex)) {
+                Assert.Equal(selectedIndex, resized.AdapterIndex);
+                Assert.Equal(selectedLuid, resized.AdapterLuid);
+                CheckColor(resized, 0, 1, 0, 1, [0, 255, 0, 255]);
+                // Dispose must also quiesce a submitted clear that the caller has not polled or copied.
+                resized.SubmitColor(1, 0, 0, 1);
+            }
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                new D3DImageInteropProbe(window.Handle, 8, 6, int.MaxValue)
+            );
         }
-        using (var resized = new D3DImageInteropProbe(window.Handle, 13, 9, selectedIndex)) {
-            Assert.Equal(selectedIndex, resized.AdapterIndex);
-            Assert.Equal(selectedLuid, resized.AdapterLuid);
-            CheckColor(resized, 0, 1, 0, 1, [0, 255, 0, 255]);
-            // Dispose must also quiesce a submitted clear that the caller has not polled or copied.
-            resized.SubmitColor(1, 0, 0, 1);
-        }
-        Assert.Throws<ArgumentOutOfRangeException>(() =>
-            new D3DImageInteropProbe(window.Handle, 8, 6, int.MaxValue));
-    });
+    );
 
     /// <summary>Submits a clear and copies to a detached slot before explicit test-only readback.</summary>
     /// <param name="probe">The native owner under test.</param>
@@ -68,6 +74,7 @@ public sealed class D3DImageInteropNativeTests {
             Assert.InRange((int) first[channel], expected[channel] - 1, expected[channel] + 1);
             Assert.InRange((int) last[channel], expected[channel] - 1, expected[channel] + 1);
         }
+
         return probe.D3D9Surface;
     }
 
@@ -95,12 +102,18 @@ public sealed class D3DImageInteropNativeTests {
         Marshal.ThrowExceptionForHR(Method<GetDevice>(surface, 3)(surface, out var device));
         nint staging = 0;
         try {
-            Marshal.ThrowExceptionForHR(Method<CreateOffscreenSurface>(device, 36)(device, width, height,
-                Format.A8R8G8B8, Pool.Systemmem, out staging, 0));
+            Marshal.ThrowExceptionForHR(
+                Method<CreateOffscreenSurface>(device, 36)(
+                    device, width, height,
+                    Format.A8R8G8B8, Pool.Systemmem, out staging, 0
+                )
+            );
             Marshal.ThrowExceptionForHR(Method<CopyRenderTarget>(device, 32)(device, surface, staging));
             Marshal.ThrowExceptionForHR(Method<LockSurface>(staging, 13)(staging, out var locked, 0, 0x10));
             try {
-                var offset = last ? checked((int) (height - 1) * locked.Pitch + (int) (width - 1) * 4) : 0;
+                var offset = last
+                    ? checked((int) (height - 1) * locked.Pitch + (int) (width - 1) * 4)
+                    : 0;
                 var pixel = new byte[4];
                 Marshal.Copy(locked.Bits + offset, pixel, 0, pixel.Length);
                 return pixel;
@@ -155,8 +168,15 @@ public sealed class D3DImageInteropNativeTests {
     /// <param name="sharedHandle">A null sharing-handle output pointer.</param>
     /// <returns>The native HRESULT.</returns>
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    private delegate int CreateOffscreenSurface(nint self, uint width, uint height, Format format, Pool pool,
-        out nint surface, nint sharedHandle);
+    private delegate int CreateOffscreenSurface(
+        nint self,
+        uint width,
+        uint height,
+        Format format,
+        Pool pool,
+        out nint surface,
+        nint sharedHandle
+    );
 
     /// <summary>Calls IDirect3DDevice9::GetRenderTargetData in this explicit test-only readback path.</summary>
     /// <param name="self">The native device.</param>

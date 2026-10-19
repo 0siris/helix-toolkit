@@ -28,52 +28,55 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
     [Trait("Category", "DX12")]
     [Trait("Category", "Wpf")]
     public Task HiddenHardwarePublishesResizesAndDisposes() => StaThread.RunAsync(async () => {
-        using var window = new HwndSource(new HwndSourceParameters(nameof(D3DImageInteropWpfTests)) {
-            Width = 64, Height = 48, WindowStyle = unchecked((int)0x80000000)
-        });
-        ProbeDriver? driver = null;
-        try {
-            driver = new ProbeDriver(window.Handle, 64, 48, output);
-            window.RootVisual = new Image { Source = driver.Image };
-            for (var repeat = 0; repeat < 2; repeat++) {
-                foreach (var color in new[] { (1f, 0f, 0f), (0f, 1f, 0f), (0f, 0f, 1f) }) {
-                    var publication = driver.PublishAsync(color.Item1, color.Item2, color.Item3, 1);
-                    var dispatcherRan = false;
-                    await Dispatcher.CurrentDispatcher.InvokeAsync(() => dispatcherRan = true, DispatcherPriority.Input);
-                    await publication;
-                    Assert.True(dispatcherRan, "Input dispatch did not run during asynchronous publication.");
+            using var window = new HwndSource(
+                new HwndSourceParameters(nameof(D3DImageInteropWpfTests)) {
+                    Width = 64, Height = 48, WindowStyle = unchecked((int) 0x80000000)
+                }
+            );
+            ProbeDriver? driver = null;
+            try {
+                driver = new ProbeDriver(window.Handle, 64, 48, output);
+                window.RootVisual = new Image { Source = driver.Image };
+                for (var repeat = 0; repeat < 2; repeat++) {
+                    foreach (var color in new[] { (1f, 0f, 0f), (0f, 1f, 0f), (0f, 0f, 1f) }) {
+                        var publication = driver.PublishAsync(color.Item1, color.Item2, color.Item3, 1);
+                        var dispatcherRan = false;
+                        await Dispatcher.CurrentDispatcher.InvokeAsync(() => dispatcherRan = true, DispatcherPriority.Input);
+                        await publication;
+                        Assert.True(dispatcherRan, "Input dispatch did not run during asynchronous publication.");
+                    }
+                }
+
+                Assert.Equal((6, 6, 6), driver.Counts);
+                Assert.Equal(64, driver.Image.PixelWidth);
+                Assert.Equal(48, driver.Image.PixelHeight);
+                await AssertDriverIdleAsync(driver);
+
+                var selectedAdapter = driver.AdapterIndex;
+                var selectedLuid = driver.AdapterLuid;
+                await driver.DisposeAsync();
+                Assert.True(driver.IsDisposed);
+                window.RootVisual = null;
+                driver = new ProbeDriver(window.Handle, 96, 72, output, selectedAdapter);
+                Assert.Equal(selectedLuid, driver.AdapterLuid);
+                window.RootVisual = new Image { Source = driver.Image };
+                await driver.PublishAsync(0, 1, 0, 0.5f);
+                Assert.Equal(96, driver.Image.PixelWidth);
+                Assert.Equal(72, driver.Image.PixelHeight);
+                Assert.Equal((1, 1, 1), driver.Counts);
+                await driver.DisposeAsync();
+                Assert.True(driver.IsDisposed);
+                await driver.DisposeAsync();
+            } finally {
+                try {
+                    if (driver is not null)
+                        await driver.DisposeAsync();
+                } finally {
+                    window.RootVisual = null;
                 }
             }
-
-            Assert.Equal((6, 6, 6), driver.Counts);
-            Assert.Equal(64, driver.Image.PixelWidth);
-            Assert.Equal(48, driver.Image.PixelHeight);
-            await AssertDriverIdleAsync(driver);
-
-            var selectedAdapter = driver.AdapterIndex;
-            var selectedLuid = driver.AdapterLuid;
-            await driver.DisposeAsync();
-            Assert.True(driver.IsDisposed);
-            window.RootVisual = null;
-            driver = new ProbeDriver(window.Handle, 96, 72, output, selectedAdapter);
-            Assert.Equal(selectedLuid, driver.AdapterLuid);
-            window.RootVisual = new Image { Source = driver.Image };
-            await driver.PublishAsync(0, 1, 0, 0.5f);
-            Assert.Equal(96, driver.Image.PixelWidth);
-            Assert.Equal(72, driver.Image.PixelHeight);
-            Assert.Equal((1, 1, 1), driver.Counts);
-            await driver.DisposeAsync();
-            Assert.True(driver.IsDisposed);
-            await driver.DisposeAsync();
-        } finally {
-            try {
-                if (driver is not null)
-                    await driver.DisposeAsync();
-            } finally {
-                window.RootVisual = null;
-            }
         }
-    });
+    );
 
     /// <summary>
     ///     Samples actual desktop composition for RGB, straight alpha 0/0.5/1, repeat publication and resize.
@@ -86,86 +89,100 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
     [Trait("Category", "Wpf")]
     [Trait("Category", "VisibleUI")]
     public Task VisibleHardwareComposesColorsAndAlphaOverWhite() => StaThread.RunAsync(async () => {
-        output.WriteLine($"Interactive={Environment.UserInteractive}; remote={SystemParameters.IsRemoteSession}; " +
-            $"WPF tier={RenderCapability.Tier >> 16}; work area={SystemParameters.WorkArea}; adapterIndex=-1.");
-        Assert.True(Environment.UserInteractive, "The desktop pixel proof requires an interactive Windows session.");
-        var area = SystemParameters.WorkArea;
-        var bounds = new Rect(area.Left + 24, area.Top + 24, 192, 144);
-        Assert.True(area.Contains(bounds), $"The fixed proof window {bounds} does not fit work area {area}.");
-        var image = new Image { Stretch = Stretch.Fill };
-        var window = new Window {
-            Title = "D3DImage hardware composition proof",
-            WindowStartupLocation = WindowStartupLocation.Manual,
-            Left = bounds.Left, Top = bounds.Top, Width = bounds.Width, Height = bounds.Height,
-            WindowStyle = WindowStyle.None, ResizeMode = ResizeMode.NoResize,
-            ShowActivated = false, ShowInTaskbar = false, Topmost = true,
-            Background = Brushes.White, Content = image
-        };
-        ProbeDriver? driver = null;
-        try {
-            window.Show();
-            window.UpdateLayout();
-            await AssertComposedPixelAsync(image, window, 1, 1, 1, 1, "white desktop baseline");
-            var hwnd = new WindowInteropHelper(window).Handle;
-            driver = new ProbeDriver(hwnd, 64, 48, output);
-            image.Source = driver.Image;
+            output.WriteLine(
+                $"Interactive={Environment.UserInteractive}; remote={SystemParameters.IsRemoteSession}; " +
+                $"WPF tier={RenderCapability.Tier >> 16}; work area={SystemParameters.WorkArea}; adapterIndex=-1."
+            );
+            Assert.True(Environment.UserInteractive, "The desktop pixel proof requires an interactive Windows session.");
+            var area = SystemParameters.WorkArea;
+            var bounds = new Rect(area.Left + 24, area.Top + 24, 192, 144);
+            Assert.True(area.Contains(bounds), $"The fixed proof window {bounds} does not fit work area {area}.");
+            var image = new Image { Stretch = Stretch.Fill };
+            var window = new Window {
+                Title = "D3DImage hardware composition proof",
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = bounds.Left,
+                Top = bounds.Top,
+                Width = bounds.Width,
+                Height = bounds.Height,
+                WindowStyle = WindowStyle.None,
+                ResizeMode = ResizeMode.NoResize,
+                ShowActivated = false,
+                ShowInTaskbar = false,
+                Topmost = true,
+                Background = Brushes.White,
+                Content = image
+            };
+            ProbeDriver? driver = null;
+            try {
+                window.Show();
+                window.UpdateLayout();
+                await AssertComposedPixelAsync(image, window, 1, 1, 1, 1, "white desktop baseline");
+                var hwnd = new WindowInteropHelper(window).Handle;
+                driver = new ProbeDriver(hwnd, 64, 48, output);
+                image.Source = driver.Image;
 
-            await driver.PublishAsync(1, 0, 0, 1);
-            await AssertComposedPixelAsync(image, window, 1, 0, 0, 1, "attached red before detached copy");
-            await driver.PublishAsync(0, 1, 0, 1, async () => {
-                await AssertComposedPixelAsync(image, window, 1, 0, 0, 1,
-                    "reentrant desktop snapshot before green publication retains attached red");
-                AssertAttachedRedSnapshot(image);
-            });
-            await AssertComposedPixelAsync(image, window, 0, 1, 0, 1, "completed green publication");
+                await driver.PublishAsync(1, 0, 0, 1);
+                await AssertComposedPixelAsync(image, window, 1, 0, 0, 1, "attached red before detached copy");
+                await driver.PublishAsync(
+                    0, 1, 0, 1, async () => {
+                        await AssertComposedPixelAsync(
+                            image, window, 1, 0, 0, 1,
+                            "reentrant desktop snapshot before green publication retains attached red"
+                        );
+                        AssertAttachedRedSnapshot(image);
+                    }
+                );
+                await AssertComposedPixelAsync(image, window, 0, 1, 0, 1, "completed green publication");
 
-            // Every sample is a one-off diagnostic read of the composed desktop, never a presentation source.
-            foreach (var color in new[] {
-                (Name: "red", R: 1f, G: 0f, B: 0f),
-                (Name: "green", R: 0f, G: 1f, B: 0f),
-                (Name: "blue", R: 0f, G: 0f, B: 1f)
-            }) {
-                foreach (var alpha in new[] { 1f, 0f, 0.5f, 1f }) {
-                    await driver.PublishAsync(color.R, color.G, color.B, alpha);
-                    await AssertComposedPixelAsync(image, window, color.R, color.G, color.B, alpha,
-                        $"{color.Name}, alpha={alpha}");
+                // Every sample is a one-off diagnostic read of the composed desktop, never a presentation source.
+                foreach (var color in new[] {
+                             (Name: "red", R: 1f, G: 0f, B: 0f), (Name: "green", R: 0f, G: 1f, B: 0f), (Name: "blue", R: 0f, G: 0f, B: 1f)
+                         }) {
+                    foreach (var alpha in new[] { 1f, 0f, 0.5f, 1f }) {
+                        await driver.PublishAsync(color.R, color.G, color.B, alpha);
+                        await AssertComposedPixelAsync(
+                            image, window, color.R, color.G, color.B, alpha,
+                            $"{color.Name}, alpha={alpha}"
+                        );
+                    }
+                }
+
+                await driver.PublishAsync(1, 0, 0, 1);
+                await driver.PublishAsync(1, 0, 0, 1);
+                await AssertComposedPixelAsync(image, window, 1, 0, 0, 1, "repeated red publication");
+                Assert.Equal((16, 16, 16), driver.Counts);
+                await AssertDriverIdleAsync(driver);
+                await AssertComposedPixelAsync(image, window, 1, 0, 0, 1, "idle retains red");
+
+                var selectedAdapter = driver.AdapterIndex;
+                var selectedLuid = driver.AdapterLuid;
+                await driver.DisposeAsync();
+                Assert.True(driver.IsDisposed);
+                image.Source = null;
+                driver = new ProbeDriver(hwnd, 96, 72, output, selectedAdapter);
+                Assert.Equal(selectedLuid, driver.AdapterLuid);
+                image.Source = driver.Image;
+                await driver.PublishAsync(0, 1, 0, 0.5f);
+                Assert.Equal(96, driver.Image.PixelWidth);
+                Assert.Equal(72, driver.Image.PixelHeight);
+                await AssertComposedPixelAsync(image, window, 0, 1, 0, 0.5f, "resized translucent green");
+                await driver.DisposeAsync();
+                Assert.True(driver.IsDisposed);
+                image.Source = null;
+                await AssertComposedPixelAsync(image, window, 1, 1, 1, 1, "disposed surface leaves white");
+            } finally {
+                try {
+                    if (driver is not null)
+                        await driver.DisposeAsync();
+                } finally {
+                    image.Source = null;
+                    window.Content = null;
+                    window.Close();
                 }
             }
-
-            await driver.PublishAsync(1, 0, 0, 1);
-            await driver.PublishAsync(1, 0, 0, 1);
-            await AssertComposedPixelAsync(image, window, 1, 0, 0, 1, "repeated red publication");
-            Assert.Equal((16, 16, 16), driver.Counts);
-            await AssertDriverIdleAsync(driver);
-            await AssertComposedPixelAsync(image, window, 1, 0, 0, 1, "idle retains red");
-
-            var selectedAdapter = driver.AdapterIndex;
-            var selectedLuid = driver.AdapterLuid;
-            await driver.DisposeAsync();
-            Assert.True(driver.IsDisposed);
-            image.Source = null;
-            driver = new ProbeDriver(hwnd, 96, 72, output, selectedAdapter);
-            Assert.Equal(selectedLuid, driver.AdapterLuid);
-            image.Source = driver.Image;
-            await driver.PublishAsync(0, 1, 0, 0.5f);
-            Assert.Equal(96, driver.Image.PixelWidth);
-            Assert.Equal(72, driver.Image.PixelHeight);
-            await AssertComposedPixelAsync(image, window, 0, 1, 0, 0.5f, "resized translucent green");
-            await driver.DisposeAsync();
-            Assert.True(driver.IsDisposed);
-            image.Source = null;
-            await AssertComposedPixelAsync(image, window, 1, 1, 1, 1, "disposed surface leaves white");
-        } finally {
-            try {
-                if (driver is not null)
-                    await driver.DisposeAsync();
-            } finally {
-                image.Source = null;
-                window.Content = null;
-                window.Close();
-            }
         }
-    });
+    );
 
     /// <summary>Checks that this explicit-update test driver performs no submissions, copies or publications at idle.</summary>
     /// <param name="driver">The driver whose completed frame remains attached.</param>
@@ -176,25 +193,29 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
         await Task.Delay(200);
         await Dispatcher.Yield(DispatcherPriority.Input);
         Assert.Equal(counts, driver.Counts);
-        output.WriteLine($"Explicit test driver idle for {clock.Elapsed.TotalMilliseconds:F1} ms: " +
-            $"submissions/copies/publications={counts}; no automatic render timer is installed.");
+        output.WriteLine(
+            $"Explicit test driver idle for {clock.Elapsed.TotalMilliseconds:F1} ms: " +
+            $"submissions/copies/publications={counts}; no automatic render timer is installed."
+        );
     }
 
     /// <summary>Forces one diagnostic WPF software snapshot of the old attached image during a detached-slot copy.</summary>
     /// <param name="image">The image still publishing opaque red while the alternate slot receives green.</param>
     private void AssertAttachedRedSnapshot(Image image) {
-        var width = checked((int)Math.Ceiling(image.ActualWidth));
-        var height = checked((int)Math.Ceiling(image.ActualHeight));
+        var width = checked((int) Math.Ceiling(image.ActualWidth));
+        var height = checked((int) Math.Ceiling(image.ActualHeight));
         var snapshot = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
         snapshot.Render(image);
         var pixel = new byte[4];
         snapshot.CopyPixels(new Int32Rect(width / 2, height / 2, 1, 1), pixel, 4, 0);
-        output.WriteLine($"Reentrant diagnostic WPF snapshot BGRA=({string.Join(",", pixel)}); " +
-            "expected attached red=(0,0,255,255), tolerance=24/channel; snapshot is never presented.");
-        Assert.InRange((int)pixel[0], 0, 24);
-        Assert.InRange((int)pixel[1], 0, 24);
-        Assert.InRange((int)pixel[2], 231, 255);
-        Assert.InRange((int)pixel[3], 231, 255);
+        output.WriteLine(
+            $"Reentrant diagnostic WPF snapshot BGRA=({string.Join(",", pixel)}); " +
+            "expected attached red=(0,0,255,255), tolerance=24/channel; snapshot is never presented."
+        );
+        Assert.InRange((int) pixel[0], 0, 24);
+        Assert.InRange((int) pixel[1], 0, 24);
+        Assert.InRange((int) pixel[2], 231, 255);
+        Assert.InRange((int) pixel[3], 231, 255);
     }
 
     /// <summary>Allows WPF/DWM to settle, then compares one physical desktop pixel with premultiplied alpha over white.</summary>
@@ -206,21 +227,32 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
     /// <param name="alpha">The submitted straight alpha channel.</param>
     /// <param name="label">The measurement description recorded with actual and expected channels.</param>
     /// <returns>The asynchronous compositor settling and diagnostic comparison.</returns>
-    private async Task AssertComposedPixelAsync(Image image, Window window,
-        float red, float green, float blue, float alpha, string label) {
+    private async Task AssertComposedPixelAsync(
+        Image image,
+        Window window,
+        float red,
+        float green,
+        float blue,
+        float alpha,
+        string label
+    ) {
         window.UpdateLayout();
         await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
         await Task.Delay(250);
         Assert.True(image.ActualWidth > 0 && image.ActualHeight > 0, "The proof image has no visible layout area.");
         var center = image.PointToScreen(new Point(image.ActualWidth / 2, image.ActualHeight / 2));
-        var point = new NativePoint { X = (int)Math.Round(center.X), Y = (int)Math.Round(center.Y) };
+        var point = new NativePoint { X = (int) Math.Round(center.X), Y = (int) Math.Round(center.Y) };
         var expectedWindow = new WindowInteropHelper(window).Handle;
         var actualWindow = WindowFromPoint(point);
-        output.WriteLine($"{label}: screen=({point.X},{point.Y}); owner=0x{actualWindow:X}; " +
-            $"expected owner=0x{expectedWindow:X}; DPI={VisualTreeHelper.GetDpi(image)}.");
-        Assert.True(actualWindow == expectedWindow,
+        output.WriteLine(
+            $"{label}: screen=({point.X},{point.Y}); owner=0x{actualWindow:X}; " +
+            $"expected owner=0x{expectedWindow:X}; DPI={VisualTreeHelper.GetDpi(image)}."
+        );
+        Assert.True(
+            actualWindow == expectedWindow,
             $"{label}: screen center is obscured or outside the proof window; " +
-            $"WindowFromPoint=0x{actualWindow:X}, expected=0x{expectedWindow:X} at {center}.");
+            $"WindowFromPoint=0x{actualWindow:X}, expected=0x{expectedWindow:X} at {center}."
+        );
 
         var dc = GetDC(0);
         Assert.True(dc != 0, $"{label}: GetDC(screen) failed; Win32 error={Marshal.GetLastWin32Error()}.");
@@ -230,17 +262,26 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
         } finally {
             _ = ReleaseDC(0, dc);
         }
-        Assert.True(pixel != uint.MaxValue,
-            $"{label}: GetPixel returned CLR_INVALID at {center}; desktop may be locked or unavailable.");
-        var actual = new[] { (int)(pixel & 255), (int)((pixel >> 8) & 255), (int)((pixel >> 16) & 255) };
+
+        Assert.True(
+            pixel != uint.MaxValue,
+            $"{label}: GetPixel returned CLR_INVALID at {center}; desktop may be locked or unavailable."
+        );
+        var actual = new[] { (int) (pixel & 255), (int) ((pixel >> 8) & 255), (int) ((pixel >> 16) & 255) };
         var expected = new[] { red, green, blue }.Select(channel =>
-            (int)Math.Round(255 * (channel * alpha + 1 - alpha))).ToArray();
-        output.WriteLine($"{label}: desktop RGB=({string.Join(",", actual)}), " +
-            $"expected=({string.Join(",", expected)}), tolerance=24/channel.");
+                (int) Math.Round(255 * (channel * alpha + 1 - alpha))
+            )
+            .ToArray();
+        output.WriteLine(
+            $"{label}: desktop RGB=({string.Join(",", actual)}), " +
+            $"expected=({string.Join(",", expected)}), tolerance=24/channel."
+        );
         for (var channel = 0; channel < 3; channel++)
-            Assert.True(Math.Abs(actual[channel] - expected[channel]) <= 24,
+            Assert.True(
+                Math.Abs(actual[channel] - expected[channel]) <= 24,
                 $"{label}: channel {channel} measured {actual[channel]}, expected {expected[channel]} +/-24; " +
-                "check channel order, premultiplication, GPU copy and desktop composition.");
+                "check channel order, premultiplication, GPU copy and desktop composition."
+            );
     }
 
     /// <summary>Polls a nonblocking completion query without starving the STA dispatcher or exceeding its deadline.</summary>
@@ -290,8 +331,10 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
                 Assert.True(AdapterIndex >= 0, $"The native probe reported invalid DXGI index {AdapterIndex}.");
                 if (adapterIndex >= 0)
                     Assert.Equal(adapterIndex, AdapterIndex);
-                output.WriteLine($"Created hardware probe {width}x{height}; D3D9 surface=0x{probe.D3D9Surface:X}; " +
-                    $"requested adapter={adapterIndex}; actual DXGI index={AdapterIndex}; LUID=0x{AdapterLuid:X16}.");
+                output.WriteLine(
+                    $"Created hardware probe {width}x{height}; D3D9 surface=0x{probe.D3D9Surface:X}; " +
+                    $"requested adapter={adapterIndex}; actual DXGI index={AdapterIndex}; LUID=0x{AdapterLuid:X16}."
+                );
             } catch {
                 // Construction has not attached a WPF back buffer, so this native owner can be released directly.
                 probe.Dispose();
@@ -322,8 +365,13 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
         /// <param name="alpha">The straight alpha; premultiplication belongs to the native D3D12 clear.</param>
         /// <param name="afterCopyStarted">An optional reentrant observation before the new slot is published.</param>
         /// <returns>The completion of exactly one explicit publication.</returns>
-        internal async Task PublishAsync(float red, float green, float blue, float alpha,
-            Func<Task>? afterCopyStarted = null) {
+        internal async Task PublishAsync(
+            float red,
+            float green,
+            float blue,
+            float alpha,
+            Func<Task>? afterCopyStarted = null
+        ) {
             var current = probe ?? throw new ObjectDisposedException(nameof(ProbeDriver));
             var clock = Stopwatch.StartNew();
             current.SubmitColor(red, green, blue, alpha);
@@ -344,17 +392,24 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
             var copyTime = clock.Elapsed - renderTime;
 
             // Complete this publication before the next BeginCopyToSurface can reuse the previously attached slot.
-            await PollAsync(() => TryWithImageLock(() => {
-                Assert.True(Image.IsFrontBufferAvailable, "WPF has no front buffer in this desktop/session.");
-                Image.SetBackBuffer(D3DResourceType.IDirect3DSurface9, selectedSurface,
-                    enableSoftwareFallback: true);
-                Image.AddDirtyRect(new Int32Rect(0, 0, checked((int)current.Width), checked((int)current.Height)));
-                counts.Publications++;
-                publishedSurface = selectedSurface;
-            }), "D3DImage.TryLock for publication");
-            output.WriteLine($"Published RGBA=({red},{green},{blue},{alpha}); render={renderTime.TotalMilliseconds:F1} ms; " +
+            await PollAsync(
+                () => TryWithImageLock(() => {
+                        Assert.True(Image.IsFrontBufferAvailable, "WPF has no front buffer in this desktop/session.");
+                        Image.SetBackBuffer(
+                            D3DResourceType.IDirect3DSurface9, selectedSurface,
+                            enableSoftwareFallback: true
+                        );
+                        Image.AddDirtyRect(new Int32Rect(0, 0, checked((int) current.Width), checked((int) current.Height)));
+                        counts.Publications++;
+                        publishedSurface = selectedSurface;
+                    }
+                ), "D3DImage.TryLock for publication"
+            );
+            output.WriteLine(
+                $"Published RGBA=({red},{green},{blue},{alpha}); render={renderTime.TotalMilliseconds:F1} ms; " +
                 $"copy/observation={copyTime.TotalMilliseconds:F1} ms; total={clock.Elapsed.TotalMilliseconds:F1} ms; " +
-                $"surface=0x{selectedSurface:X}; test driver counts={counts}.");
+                $"surface=0x{selectedSurface:X}; test driver counts={counts}."
+            );
         }
 
         /// <summary>Detaches under a brief WPF lock before bounded native teardown, including after a failed copy.</summary>
@@ -362,16 +417,21 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
         public async ValueTask DisposeAsync() {
             if (probe is not { } current)
                 return;
-            await PollAsync(() => TryWithImageLock(() => {
-                Image.SetBackBuffer(D3DResourceType.IDirect3DSurface9, 0);
-                publishedSurface = 0;
-            }), "D3DImage.TryLock for detachment");
+            await PollAsync(
+                () => TryWithImageLock(() => {
+                        Image.SetBackBuffer(D3DResourceType.IDirect3DSurface9, 0);
+                        publishedSurface = 0;
+                    }
+                ), "D3DImage.TryLock for detachment"
+            );
             var clock = Stopwatch.StartNew();
             current.Dispose();
             probe = null;
             clock.Stop();
-            output.WriteLine($"Detached and disposed native probe in {clock.Elapsed.TotalMilliseconds:F1} ms; " +
-                $"final test driver counts={counts}.");
+            output.WriteLine(
+                $"Detached and disposed native probe in {clock.Elapsed.TotalMilliseconds:F1} ms; " +
+                $"final test driver counts={counts}."
+            );
             Assert.True(clock.Elapsed < TeardownTimeout, $"Native teardown took {clock.Elapsed}.");
         }
 

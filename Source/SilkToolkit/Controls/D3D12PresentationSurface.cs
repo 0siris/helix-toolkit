@@ -51,6 +51,38 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     private readonly SilkDriverType driverType;
     /// <summary>The borrowed current effects manager.</summary>
     private IEffectsManager? effectsManager;
+
+    /// <summary>Controls render resolution independently of physical native pointer decoding.</summary>
+    private bool enableDpiScale = true;
+
+    /// <summary>Retains an explicit render scale until a monitor DPI transition replaces it.</summary>
+    private double? dpiScale;
+
+    /// <summary>Gets or sets whether render targets scale with DPI; native input always uses the physical DPI.</summary>
+    internal bool EnableDpiScale {
+        get => enableDpiScale;
+        set {
+            Dispatcher.VerifyAccess();
+            if (enableDpiScale == value) return;
+            enableDpiScale = value;
+            QueueResize();
+        }
+    }
+
+    /// <summary>Gets or sets the desired render scale without changing child-window input coordinates.</summary>
+    internal double DpiScale {
+        get => dpiScale ?? windowHost.DpiScale;
+        set {
+            Dispatcher.VerifyAccess();
+            if (!(value > 0) || !double.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (dpiScale == value) return;
+            dpiScale = value;
+            QueueResize();
+        }
+    }
+
+    /// <summary>Gets the render target scale independently of the native window's physical input scale.</summary>
+    internal double EffectiveDpiScale => enableDpiScale ? DpiScale : 1;
     /// <summary>The pending dispatcher operation for a physical resize.</summary>
     private DispatcherOperation? resizeOperation;
     /// <summary>The device owned by the presentation lifetime.</summary>
@@ -287,7 +319,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         var target = CreateFrameTarget(currentSwapChain);
         int recorded;
         try {
-            recorded = renderer.RecordViewportFrame(currentContext, in target, (float)windowHost.DpiScale,
+            recorded = renderer.RecordViewportFrame(currentContext, in target, (float)EffectiveDpiScale,
                 clearColor, roots, camera, testFrustum, enableShadows, oitRenderType, oitDepthPeelingIterations,
                 oitWeightPower, oitWeightDepthSlope, oitWeightMode, fxaaLevel, enableSsao, ssaoRadius,
                 ssaoIntensity, ssaoQuality, roots2D, autoUpdateOctree, enableRenderOrder, RenderHost);
@@ -464,7 +496,10 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="dpiScale">The new DPI scale.</param>
-    private void OnDpiScaleChanged(object? sender, double dpiScale) => QueueResize();
+    private void OnDpiScaleChanged(object? sender, double dpiScale) {
+        this.dpiScale = null;
+        QueueResize();
+    }
 
     /// <summary>
     ///     Creates the device, queue, command context, fence, and swap chain once.
@@ -473,9 +508,10 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         Dispatcher.VerifyAccess();
         if (IsDisposed || swapChain is not null || !windowHost.IsHandleCreated) return;
 
-        var size = D3D12PresentationSize.Calculate(ActualWidth, ActualHeight, windowHost.DpiScale);
+        var size = D3D12PresentationSize.Calculate(ActualWidth, ActualHeight, EffectiveDpiScale);
         try {
-            device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, driverType);
+            var selectedDriverType = effectsManager?.EnableSoftwareRendering == true ? SilkDriverType.Warp : driverType;
+            device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, selectedDriverType);
             commandQueue = device.CreateCommandQueue();
             commandContext = device.CreateCommandContext();
             fence = device.CreateFence();
@@ -487,6 +523,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             frameRenderer = new D3D12FrameRenderer(device, swapChain.Format, effectsManager);
             frameRenderer.Resize(size.Width, size.Height);
             _effectsManagerDirty = false;
+            if (RenderHost is Viewport3DX viewport) viewport.MarkPresentationInitialized();
         } catch {
             StopNative();
             throw;
@@ -587,7 +624,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     internal void Resize(double width, double height) {
         Dispatcher.VerifyAccess();
         if (IsDisposed) return;
-        var size = D3D12PresentationSize.Calculate(width, height, windowHost.DpiScale);
+        var size = D3D12PresentationSize.Calculate(width, height, EffectiveDpiScale);
         if (!resizeQueue.Request(size.Width, size.Height)) return;
 
         resizeOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action) ApplyDeferredResize);

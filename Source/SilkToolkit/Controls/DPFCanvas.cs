@@ -41,6 +41,9 @@ internal sealed class DPFCanvas : Grid, IDisposable {
     /// <summary>Enables physical DPI resolution by default without changing DIP input.</summary>
     private bool enableDpiScale = true;
 
+    /// <summary>Retains an explicit render scale until the monitor DPI changes.</summary>
+    private double? dpiScale;
+
     /// <summary>Suppresses duplicate WPF timestamps, including TimeSpan.Zero after the first tick.</summary>
     private TimeSpan lastRenderingTime;
 
@@ -58,7 +61,8 @@ internal sealed class DPFCanvas : Grid, IDisposable {
         notifyPresentationChanged = NotifyPresentationChanged;
         renderingCallback = OnRendering;
         sourceChangedCallback = OnSourceChanged;
-        image = new Image { Source = ImageSource.NativeImage, Stretch = Stretch.Fill };
+        Background = Brushes.Transparent;
+        image = new Image { Source = ImageSource.NativeImage, Stretch = Stretch.Fill, IsHitTestVisible = false };
         Children.Add(image);
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
@@ -78,6 +82,20 @@ internal sealed class DPFCanvas : Grid, IDisposable {
             if (enableDpiScale == value)
                 return;
             enableDpiScale = value;
+            RefreshPresentation();
+            QueueNotification();
+        }
+    }
+
+    /// <summary>Gets or sets the render scale without modifying WPF layout or pointer coordinates.</summary>
+    internal double DpiScale {
+        get => dpiScale ?? VisualTreeHelper.GetDpi(this).DpiScaleX;
+        set {
+            VerifyAccess();
+            ObjectDisposedException.ThrowIf(stopping, this);
+            if (!(value > 0) || !double.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (dpiScale == value) return;
+            dpiScale = value;
             RefreshPresentation();
             QueueNotification();
         }
@@ -150,6 +168,7 @@ internal sealed class DPFCanvas : Grid, IDisposable {
     /// <param name="newDpi">The current monitor DPI.</param>
     protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi) {
         base.OnDpiChanged(oldDpi, newDpi);
+        dpiScale = null;
         RefreshPresentation();
         QueueNotification();
     }
@@ -215,10 +234,10 @@ internal sealed class DPFCanvas : Grid, IDisposable {
             return;
         var dpi = VisualTreeHelper.GetDpi(this);
         var scaleX = enableDpiScale
-            ? dpi.DpiScaleX
+            ? dpiScale ?? dpi.DpiScaleX
             : 1;
         var scaleY = enableDpiScale
-            ? dpi.DpiScaleY
+            ? dpiScale ?? dpi.DpiScaleY
             : 1;
         var width = ToPixelDimension(ActualWidth, scaleX);
         var height = ToPixelDimension(ActualHeight, scaleY);

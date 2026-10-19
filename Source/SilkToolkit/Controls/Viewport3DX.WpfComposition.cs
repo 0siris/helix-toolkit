@@ -6,9 +6,9 @@ using HelixToolkit.Wpf.SharpDX.Controls;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
-/// <summary>Connects the productive WPF presentation owner without changing public backend selection.</summary>
+/// <summary>Connects the productive WPF presentation owner to the selected viewport backend.</summary>
 public partial class Viewport3DX {
-    /// <summary>The internal composited owner selected by the integration harness before public Phase 4 wiring.</summary>
+    /// <summary>The composited owner selected by the public template or an internal presentation harness.</summary>
     private D3D12WpfPresentation? wpfPresentation;
 
     /// <summary>Gets whether automatic rendering is enabled for this actual host.</summary>
@@ -27,10 +27,16 @@ public partial class Viewport3DX {
     ) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (EnableSwapChainRendering)
+            throw new InvalidOperationException("WPF presentation requires EnableSwapChainRendering to be false.");
         if (d3d12Surface is not null || wpfPresentation is not null)
             throw new InvalidOperationException("A viewport presentation owner has already been selected.");
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
+        canvas.EnableDpiScale = EnableDpiScale;
+        canvas.DpiScale = DpiScale;
         wpfPresentation = new D3D12WpfPresentation(this, canvas, driverType);
+        RenderOnDemand = true;
+        canvas.PresentationChanged += CanvasPresentationChanged;
         return wpfPresentation;
     }
 

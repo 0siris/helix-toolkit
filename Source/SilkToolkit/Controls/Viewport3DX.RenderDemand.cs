@@ -136,7 +136,9 @@ public partial class Viewport3DX {
 
         if (viewCube is { } cube) frameRoots.Add(cube.SceneNode);
         if (coordinateView is { } coordinate) frameRoots.Add(coordinate.SceneNode);
-        frameRoots2D.Add(Overlay2D.SceneNode);
-        if (frameStatisticModel is { } statistics) frameRoots2D.Add(statistics.SceneNode);
+        if (EnableD2DRendering) {
+            frameRoots2D.Add(Overlay2D.SceneNode);
+            if (frameStatisticModel is { } statistics) frameRoots2D.Add(statistics.SceneNode);
+        }
     }
 }

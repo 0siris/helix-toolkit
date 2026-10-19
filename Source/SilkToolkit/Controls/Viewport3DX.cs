@@ -169,8 +169,11 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     Initializes static members of the <see cref="Viewport3DX" /> class.
     /// </summary>
     static Viewport3DX() {
+        imageProperties = CreateImagePropertySet();
         DefaultStyleKeyProperty.OverrideMetadata(typeof(Viewport3DX),
             new FrameworkPropertyMetadata(typeof(Viewport3DX)));
+        TemplateProperty.OverrideMetadata(typeof(Viewport3DX),
+            new FrameworkPropertyMetadata(null, null, CoercePresentationTemplate));
     }
 
     /// <summary>
@@ -271,6 +274,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
 
     public IEnumerable<SceneNode2D> D2DRenderables {
         get {
+            if (!EnableD2DRendering) yield break;
             yield return Overlay2D.SceneNode;
             if (frameStatisticModel is { } statistics) yield return statistics.SceneNode;
         }
@@ -582,44 +586,48 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     /// <exception cref="HelixToolkitException">{0} is missing from the template.</exception>
     public override void OnApplyTemplate() {
+        Dispatcher.VerifyAccess();
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        VerifyPresentationReplacement();
         base.OnApplyTemplate();
         if (IsInDesignMode && !EnableDesignModeRendering) return;
-        d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        if (d3d12Surface is { } previousSurface) {
-            previousSurface.WindowHost.PointerInput -= D3D12PointerInput;
-            previousSurface.DeferredRenderException -= HandleRenderException;
-        }
-        d3d12Surface?.Dispose();
-        d3d12Surface = null;
         var presenter = GetTemplateChild("PART_Canvas") as ContentPresenter ??
                         throw new HelixToolkitException("{0} is missing from the template.", "PART_Canvas");
+        var nextCoordinateView = Template.FindName(PartCoordinateView, this) as ScreenSpacedElement3D ??
+                                 throw new HelixToolkitException("{0} is missing from the template.", PartCoordinateView);
+        var nextViewCube = Template.FindName(PartViewCube, this) as ScreenSpacedElement3D ??
+                           throw new HelixToolkitException("{0} is missing from the template.", PartViewCube);
+        var nextStatistics = Template.FindName(PartFrameStatisticView, this) as FrameStatisticsModel2D ??
+                             throw new HelixToolkitException("{0} is missing from the template.", PartFrameStatisticView);
+        var nextItems = Template.FindName(PartItems, this) as ItemsControl ??
+                        throw new HelixToolkitException("{0} is missing from the template.", PartItems);
+
+        RetirePresentation();
+        if (partItemsControl is { } previousItems)
+            foreach (var item in Items) previousItems.Items.Remove(item);
         hostPresenter = presenter;
-
-        var source = PresentationSource.FromVisual(this);
-        if (source?.CompositionTarget is { } compositionTarget)
-            DpiScale = Math.Max(DpiScale,
-                Math.Max(compositionTarget.TransformToDevice.M11,
-                    compositionTarget.TransformToDevice.M22));
+        coordinateView = nextCoordinateView;
+        viewCube = nextViewCube;
+        frameStatisticModel = nextStatistics;
+        partItemsControl = nextItems;
         var effectsManager = EffectsManager;
-        var driverType = effectsManager?.EnableSoftwareRendering == true
-            ? SilkDriverType.Warp
-            : D3D12DriverType;
-        d3d12Surface = new D3D12PresentationSurface(driverType, effectsManager) { RenderHost = this };
-        d3d12Surface.WindowHost.PointerInput += D3D12PointerInput;
-        d3d12Surface.DeferredRenderException += HandleRenderException;
-        presenter.Content = d3d12Surface;
-        if (renderingEnabled) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
-
-        coordinateView ??= Template.FindName(PartCoordinateView, this) as ScreenSpacedElement3D;
-        if (coordinateView == null)
-            throw new HelixToolkitException("{0} is missing from the template.", PartCoordinateView);
-        viewCube ??= Template.FindName(PartViewCube, this) as ScreenSpacedElement3D;
-        if (viewCube == null) throw new HelixToolkitException("{0} is missing from the template.", PartViewCube);
-        frameStatisticModel ??= Template.FindName(PartFrameStatisticView, this) as FrameStatisticsModel2D;
-        if (frameStatisticModel == null)
-            throw new HelixToolkitException("{0} is missing from the template.", PartFrameStatisticView);
-        partItemsControl ??= Template.FindName(PartItems, this) as ItemsControl;
-        if (partItemsControl == null) throw new HelixToolkitException("{0} is missing from the template.", PartItems);
+        if (ReadLocalValue(DpiScaleProperty) == DependencyProperty.UnsetValue)
+            SetCurrentValue(DpiScaleProperty, VisualTreeHelper.GetDpi(this).DpiScaleX);
+        if (EnableSwapChainRendering) {
+            d3d12Surface = new D3D12PresentationSurface(D3D12DriverType, effectsManager) {
+                RenderHost = this, EnableDpiScale = EnableDpiScale, DpiScale = DpiScale
+            };
+            RenderOnDemand = false;
+            d3d12Surface.WindowHost.PointerInput += D3D12PointerInput;
+            d3d12Surface.DeferredRenderException += HandleRenderException;
+            presenter.Content = d3d12Surface;
+            if (renderingEnabled) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
+        } else {
+            var canvas = new DPFCanvas { EnableDpiScale = EnableDpiScale };
+            InitializeWpfPresentation(canvas, D3D12DriverType);
+            presenter.Content = canvas;
+        }
+        RefreshRenderDpi();
 
         foreach (var item in Items) partItemsControl.Items.Remove(item);
         foreach (var item in Items) partItemsControl.Items.Add(item);
@@ -631,6 +639,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         Overlay2D.Children.Add(viewCube.MoverCanvas);
         Overlay2D.Children.Add(coordinateView.MoverCanvas);
         if (Content2D != null) Overlay2D.Children.Add(Content2D);
+        InvalidateSceneGraph();
     }
 
     /// <summary>
@@ -1086,7 +1095,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     The event arguments.
     /// </param>
     private void ControlLoaded(object? sender, RoutedEventArgs e) {
+        if (IsDisposed) return;
         if (!hasBeenLoadedBefore) {
+            if (ReadLocalValue(DpiScaleProperty) == DependencyProperty.UnsetValue)
+                SetCurrentValue(DpiScaleProperty, VisualTreeHelper.GetDpi(this).DpiScaleX);
             if (DefaultCamera != null) {
                 DefaultCamera.CopyTo(perspectiveCamera);
                 DefaultCamera.CopyTo(orthographicCamera);
@@ -1096,6 +1108,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         }
 
         if (BelongsToParentWindow) {
+            if (parentWindow is { } previousWindow) previousWindow.Closed -= ParentWindow_Closed;
             parentWindow = FindVisualAncestor<Window>(this);
             parentWindow?.Closed += ParentWindow_Closed;
         }
@@ -1103,16 +1116,13 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (ZoomExtentsWhenLoaded)
             Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() => { ZoomExtents(); }));
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        if (renderingEnabled) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
+        if (renderingEnabled && d3d12Surface is not null)
+            d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
     }
 
     private void ParentWindow_Closed(object? sender, EventArgs e) {
         ControlUnloaded(sender, new RoutedEventArgs());
-
-        if (hostPresenter?.Content is IDisposable d) {
-            hostPresenter.Content = null;
-            d.Dispose();
-        }
+        Dispose();
     }
 
     /// <summary>
@@ -1126,7 +1136,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </param>
     private void ControlUnloaded(object? sender, RoutedEventArgs e) {
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        if (BelongsToParentWindow && parentWindow != null) parentWindow.Closed -= ParentWindow_Closed;
+        if (parentWindow is { } window) window.Closed -= ParentWindow_Closed;
+        parentWindow = null;
     }
 
     /// <summary>
@@ -1261,6 +1272,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <param name="sender">The event source.</param>
     /// <param name="e">The event arguments.</param>
     internal void HandleRenderException(object? sender, RelayExceptionEventArgs e) {
+        var failedWpf = wpfPresentation;
+        var failedSurface = d3d12Surface;
         LoggerLib.Logger.Error(e.Exception, "Viewport rendering failed");
         var bindingExpression = GetBindingExpression(RenderExceptionProperty);
         if (bindingExpression != null) {
@@ -1279,14 +1292,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             e.Handled = true;
         }
 
-        if (hostPresenter is { } presenter) presenter.Content = null;
-        d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        if (d3d12Surface is { } surface) {
-            surface.WindowHost.PointerInput -= D3D12PointerInput;
-            surface.DeferredRenderException -= HandleRenderException;
-        }
-        d3d12Surface?.Dispose();
-        d3d12Surface = null;
+        if (ReferenceEquals(wpfPresentation, failedWpf) && ReferenceEquals(d3d12Surface, failedSurface))
+            RetirePresentation();
     }
 
     /// <summary>
@@ -1627,6 +1634,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     protected virtual void Dispose(bool disposing) {
         if (disposedValue) return;
         if (disposing && wpfPresentation?.DeferViewportDisposalIfRecording() == true) return;
+        if (disposing) VerifyPresentationReplacement();
         if (disposing) wpfPresentation?.PrepareForDisposal();
         disposedValue = true;
         if (!disposing) return;
@@ -1640,20 +1648,16 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         }
         finally {
             Disposing = null;
-            d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-            d3d12CompositionTarget.Dispose();
-            if (d3d12Surface is { } surface) {
-                surface.WindowHost.PointerInput -= D3D12PointerInput;
-                surface.DeferredRenderException -= HandleRenderException;
-            }
-            d3d12Surface?.Dispose();
-            d3d12Surface = null;
-            try { wpfPresentation?.Dispose(); }
+            try { RetirePresentation(); }
             catch {
                 disposedValue = false;
                 throw;
             }
-            wpfPresentation = null;
+            d3d12CompositionTarget.Dispose();
+            Loaded -= ControlLoaded;
+            Unloaded -= ControlUnloaded;
+            if (parentWindow is { } window) window.Closed -= ParentWindow_Closed;
+            parentWindow = null;
             if (!BelongsToParentWindow) {
                 if (hostPresenter?.Content is IDisposable d) {
                     hostPresenter.Content = null;

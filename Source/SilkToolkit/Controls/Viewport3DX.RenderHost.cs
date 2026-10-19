@@ -30,14 +30,11 @@ public partial class Viewport3DX : IRenderHost {
     public RenderContext? RenderContext => wpfPresentation?.RenderContext ?? d3d12Surface?.RenderContext;
 
     float IRenderHost.DpiScale {
-        get => wpfPresentation?.Canvas.EffectiveDpiScale ?? (float)(d3d12Surface?.WindowHost.DpiScale ?? DpiScale);
+        get => wpfPresentation?.Canvas.EffectiveDpiScale ??
+            (float) (d3d12Surface?.EffectiveDpiScale ?? (EnableDpiScale ? DpiScale : 1));
         set {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
             if (!float.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
-            if (wpfPresentation is { } composited && value != composited.Canvas.EffectiveDpiScale)
-                throw new NotSupportedException("Composited DPI is controlled by the actual WPF canvas");
-            if (d3d12Surface is { } surface && value != (float)surface.WindowHost.DpiScale)
-                throw new NotSupportedException("Native DPI is controlled by the actual WPF presentation owner");
             DpiScale = value;
             InvalidateRender();
         }
@@ -90,7 +87,7 @@ public partial class Viewport3DX : IRenderHost {
     public void StartRendering() {
         renderingEnabled = true;
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        if (wpfPresentation is null) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
+        if (d3d12Surface is not null) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
         InvalidateRender();
     }
 

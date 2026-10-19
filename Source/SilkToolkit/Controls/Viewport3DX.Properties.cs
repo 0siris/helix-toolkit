@@ -1356,7 +1356,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("DpiScale",
                                     typeof(double),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(1.0));
+                                    new PropertyMetadata(1.0, RenderDpiChanged), IsValidRenderDpi);
 
     /// <summary>
     ///     Background WpfColor

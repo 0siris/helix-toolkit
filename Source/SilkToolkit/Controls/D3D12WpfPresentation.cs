@@ -10,7 +10,6 @@ using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Silk.NET.Direct3D12;
-using Silk.NET.DXGI;
 
 namespace HelixToolkit.Wpf.SharpDX.Controls;
 
@@ -293,7 +292,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
                 if (captureFrame) {
                     captureFootprint = device!.GetCopyableFootprint(target.ColorResource, out captureBytes);
-                    captureReadback = device.CreateBuffer(captureBytes, HeapType.Readback);
+                    captureReadback = device!.CreateBuffer(captureBytes, HeapType.Readback);
                     currentCommands.Transition(target.ColorResource, ResourceStates.CopySource);
                     currentCommands.CopyTextureToBuffer(captureReadback, target.ColorResource, in captureFootprint);
                 }
@@ -303,7 +302,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 recording = false;
                 unfencedExecution = true;
                 queue!.Execute(currentCommands);
-                pendingFence = queue.Signal(fence!);
+                pendingFence = queue!.Signal(fence!);
                 unfencedExecution = false;
                 pendingScene = true;
                 stageStarted = Now();

@@ -118,6 +118,8 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
     /// <summary>Stops new submissions during an explicit, retryable teardown.</summary>
     private bool stopping;
+    /// <summary>Records successful drain, image unlock/detachment and bridge retirement for disposal retry.</summary>
+    private bool disposalPrepared;
 
     /// <summary>The last automatic WPF timestamp already processed.</summary>
     private TimeSpan lastRenderingTime;
@@ -169,6 +171,8 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
     /// <summary>Gets the canonical straight-BGRA capture produced only by an explicit request.</summary>
     internal D3D12CapturedFrame? LastCapturedFrame { get; private set; }
+    /// <summary>Gets the accepted serial whose explicit readback completed, or zero after a new capture attempt.</summary>
+    internal ulong CapturedSerial { get; private set; }
 
     /// <summary>Gets whether final native teardown completed.</summary>
     internal bool IsDisposed { get; private set; }
@@ -261,6 +265,10 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             if (IsDisposed || stopping || !viewport.CanRenderWpfScene) return 0;
             if (!reserved && !demand.TryBeginFrame(out _)) return 0;
             reserved = true;
+            if (captureFrame) {
+                LastCapturedFrame = null;
+                CapturedSerial = 0;
+            }
             var currentCommands = commands!;
             var target = bridge!.Target;
             currentCommands.Reset();
@@ -319,9 +327,11 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Returns a new explicit capture, rejecting a publication-blocked request rather than returning stale pixels.</summary>
     /// <returns>The newly completed, normalized scene pixels.</returns>
     internal D3D12CapturedFrame CaptureFrame() {
-        var previous = SubmittedFrames;
+        var requestedSerial = SubmittedFrames + 1;
+        LastCapturedFrame = null;
+        CapturedSerial = 0;
         _ = RenderFrame(TimeSpan.Zero, true, true);
-        if (SubmittedFrames == previous || LastCapturedFrame is not { } captured)
+        if (CapturedSerial != requestedSerial || LastCapturedFrame is not { } captured)
             throw new InvalidOperationException("The WPF transport is not available for a new captured scene.");
         return captured;
     }
@@ -374,13 +384,17 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             }
 
             pendingFence = 0;
+            var completedScene = pendingScene;
             if (pendingScene) CompletedFrames++;
             pendingScene = false;
             if (captureReadback is not null) {
-                LastCapturedFrame = D3D12PresentationSurface.CreateCapturedFrame(
-                    captureReadback.Read(checked((int) captureBytes)), captureFootprint.Offset,
-                    captureFootprint.Footprint.RowPitch, width, height, Format.FormatB8G8R8A8Unorm, true
-                );
+                if (completedScene) {
+                    LastCapturedFrame = D3D12PresentationSurface.CreateCapturedFrame(
+                        captureReadback.Read(checked((int) captureBytes)), captureFootprint.Offset,
+                        captureFootprint.Footprint.RowPitch, width, height, Format.FormatB8G8R8A8Unorm, true
+                    );
+                    CapturedSerial = transportSerial;
+                }
                 captureReadback.Dispose();
                 captureReadback = null;
             }
@@ -521,7 +535,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Drains and detaches before the viewport begins irreversible application-scene disposal.</summary>
     internal void PrepareForDisposal() {
         canvas.Dispatcher.VerifyAccess();
-        if (IsDisposed) return;
+        if (IsDisposed || disposalPrepared) return;
         stopping = true;
         if (device is not null) {
             if (device.Handle->GetDeviceRemovedReason() >= 0) {
@@ -531,13 +545,12 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
             pendingFence = 0;
             unfencedExecution = false;
-            if (bridge is not null && bridge.IsCopyPending) {
-                stageStarted = Now();
-                _ = CompleteCopy(true);
-            }
         }
 
         if (!TryDetach()) throw new TimeoutException("The WPF image is still bound; native resources remain owned for disposal retry.");
+        bridge?.Dispose();
+        bridge = null;
+        disposalPrepared = true;
     }
 
     /// <summary>Defers viewport/application disposal until a reentrant scene-recording request has unwound.</summary>

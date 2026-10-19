@@ -1648,7 +1648,11 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             }
             d3d12Surface?.Dispose();
             d3d12Surface = null;
-            wpfPresentation?.Dispose();
+            try { wpfPresentation?.Dispose(); }
+            catch {
+                disposedValue = false;
+                throw;
+            }
             wpfPresentation = null;
             if (!BelongsToParentWindow) {
                 if (hostPresenter?.Content is IDisposable d) {

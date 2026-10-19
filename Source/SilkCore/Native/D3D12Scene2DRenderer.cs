@@ -617,8 +617,8 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             for (var index = 0; index < outer.Count; index++) center += outer[index];
             center /= outer.Count;
             vertices.Add(CreateVertex(center, node.TotalModelMatrix, atlasUv, vertexColor));
-            foreach (var point in outer)
-                vertices.Add(CreateVertex(point, node.TotalModelMatrix, atlasUv, vertexColor));
+            for (var index = 0; index < outer.Count; index++)
+                vertices.Add(CreateVertex(outer[index], node.TotalModelMatrix, atlasUv, vertexColor));
             for (var index = 0; index < outer.Count; index++) {
                 indices.Add(0);
                 indices.Add(checked((uint) index + 1));
@@ -804,16 +804,22 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="transform">The accumulated affine transform or native output pointer.</param>
     /// <returns>The axis-aligned physical bounds of the transformed corners.</returns>
     internal static RectangleF TransformBounds(RectangleF bounds, Matrix3X2 transform) {
-        var points = new[] {
+        ReadOnlySpan<Vector2> points = stackalloc Vector2[4] {
             Matrix3X2.TransformPoint(transform, bounds.TopLeft),
             Matrix3X2.TransformPoint(transform, bounds.TopRight),
             Matrix3X2.TransformPoint(transform, bounds.BottomRight),
             Matrix3X2.TransformPoint(transform, bounds.BottomLeft)
         };
-        var left = points.Min(point => point.X);
-        var top = points.Min(point => point.Y);
-        var right = points.Max(point => point.X);
-        var bottom = points.Max(point => point.Y);
+        var left = points[0].X;
+        var top = points[0].Y;
+        var right = left;
+        var bottom = top;
+        for (var index = 1; index < points.Length; index++) {
+            left = MathF.Min(left, points[index].X);
+            top = MathF.Min(top, points[index].Y);
+            right = MathF.Max(right, points[index].X);
+            bottom = MathF.Max(bottom, points[index].Y);
+        }
         return new RectangleF(left, top, right - left, bottom - top);
     }
 

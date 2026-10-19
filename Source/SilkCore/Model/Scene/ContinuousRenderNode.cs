@@ -38,9 +38,9 @@ public sealed class ContinuousRenderNode : SceneNode {
     /// <inheritdoc />
     public override void Update(RenderContext context) {
         base.Update(context);
-        if (!IsRenderable) return;
+        if (!Visible || IsDisposed || !RenderCore.IsAttached || !IsRenderable) return;
         for (var ancestor = Parent; ancestor is not null; ancestor = ancestor.Parent)
-            if (!ancestor.Visible || ancestor.IsDisposed) return;
+            if (!ancestor.Visible || ancestor.IsDisposed || !ancestor.RenderCore.IsAttached) return;
         RenderHost?.InvalidateRender();
     }
 

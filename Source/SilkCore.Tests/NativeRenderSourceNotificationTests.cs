@@ -68,16 +68,69 @@ public sealed class NativeRenderSourceNotificationTests {
         host.Requests = 0;
         node.Update(update);
         Assert.Equal(0, host.Requests);
+        Assert.Equal(1, host.PerFrameRenderableRequests);
+        node.Update(update);
+        Assert.Equal(0, host.Requests);
+        Assert.Equal(1, host.PerFrameRenderableRequests);
         node.Visible = true;
         root.Visible = false;
         host.Requests = 0;
         node.Update(update);
         Assert.Equal(0, host.Requests);
+        Assert.Equal(2, host.PerFrameRenderableRequests);
         root.Visible = true;
+        root.Detach();
+        host.Requests = 0;
+        node.Update(update);
+        Assert.Equal(0, host.Requests);
         node.Detach();
         host.Requests = 0;
         node.Update(update);
         Assert.Equal(0, host.Requests);
+        Assert.Equal(2, host.PerFrameRenderableRequests);
+        Assert.Equal(0, host.SceneGraphRequests);
+    }
+
+    /// <summary>Checks transform callbacks cannot leave a stale renderability flag requesting another frame.</summary>
+    /// <param name="detach">Whether the callback detaches the node instead of hiding it.</param>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    [Trait("Category", "Unit")]
+    public void ContinuousSourceRechecksStateAfterTransformNotification(bool detach) {
+        using var node = new ContinuousRenderNode();
+        using var update = new RenderContext(new PerspectiveCameraCore(), 16, 16);
+        var host = new CountingHost();
+        node.Attach();
+        node.RenderHost = host;
+        node.TransformChanged += (_, _) => {
+            if (detach) {
+                node.Detach();
+                node.RenderHost = host;
+            } else {
+                node.Visible = false;
+            }
+        };
+        node.Update(update);
+        Assert.True(node.IsRenderable);
+        Assert.Equal(detach, node.Visible);
+        Assert.Equal(!detach, node.RenderCore.IsAttached);
+        Assert.Equal(detach ? 0 : 1, host.Requests);
+        Assert.Equal(0, host.PerFrameRenderableRequests);
+        host.Requests = 0;
+        node.Update(update);
+        Assert.Equal(0, host.Requests);
+        Assert.Equal(1, host.PerFrameRenderableRequests);
+    }
+
+    /// <summary>Checks clipping bounds include every corner after rotation, scale and translation.</summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Scene2DClippingBoundsIncludeTransformedCorners() {
+        var bounds = new RectangleF(1, 2, 4, 5);
+        var transform = new Matrix3X2(0, 2, -3, 0, 11, 13);
+        var transformed = D3D12Scene2DRenderer.TransformBounds(bounds, transform);
+        Assert.Equal(new RectangleF(-10, 15, 15, 8), transformed);
     }
 
     /// <summary>Checks real renderer capture use requests follow-up frames on reset and timeout, then stops hidden capture.</summary>
@@ -114,11 +167,17 @@ public sealed class NativeRenderSourceNotificationTests {
         Assert.Empty(renderer.PrepareScene(roots, update, host: host));
         Assert.False(((ScreenCloneRenderCore)node.RenderCore).IsCaptureStarted);
         Assert.Equal(0, host.Requests);
+        Assert.Equal(1, host.PerFrameRenderableRequests);
+        renderer.BeginFrame();
+        Assert.Empty(renderer.PrepareScene(roots, update, host: host));
+        Assert.Equal(0, host.Requests);
+        Assert.Equal(1, host.PerFrameRenderableRequests);
+        Assert.Equal(0, host.SceneGraphRequests);
         Assert.Equal(2, source.Starts);
         Assert.Equal(2, source.Stops);
     }
 
-    /// <summary>Checks pass hits and actual repeatedly prepared 2D geometry retain their managed capacity.</summary>
+    /// <summary>Checks pass hits and clipped rectangle, ellipse and rounded-border layout retain managed capacity.</summary>
     [Fact]
     [Trait("Category", "Warp")]
     public void WarmPassLookupsAndScene2DGeometryRetainStorage() {
@@ -134,28 +193,46 @@ public sealed class NativeRenderSourceNotificationTests {
         using var effects = new EffectsManager();
         using var layout = new RenderContext2D(d2d, effects, 16, 16);
         using var rectangle = new RectangleNode2D {
-            Fill = brush, Stroke = brush, StrokeThickness = 1, Width = 14, Height = 14
+            Fill = brush, Stroke = brush, StrokeThickness = 1, Width = 14, Height = 14, ClipToBound = true
         };
-        SceneNode2D[] roots = [rectangle];
+        using var ellipse = new EllipseNode2D {
+            Fill = brush, Stroke = brush, StrokeThickness = 1, Width = 14, Height = 14, ClipToBound = true
+        };
+        using var border = new BorderNode2D {
+            Background = brush, BorderBrush = brush, BorderThickness = new Thickness(1), CornerRadius = 3,
+            Width = 14, Height = 14, ClipToBound = true
+        };
+        SceneNode2D[] roots = [rectangle, ellipse, border];
         for (var index = 0; index < 64; index++) {
             renderer.BeginFrame();
             renderer.Prepare(roots, 16, 16, 1, layout);
             catalog.ResolveSprite2D();
         }
-        var vertexStorage = renderer.Draws[0].Vertices;
-        var indexStorage = renderer.Draws[0].Indices;
+        Assert.Equal(6, renderer.Draws.Count);
+        var drawStorage = renderer.Draws.ToArray();
+        var vertexStorage = drawStorage.Select(draw => draw.Vertices).ToArray();
+        var indexStorage = drawStorage.Select(draw => draw.Indices).ToArray();
         var before = GC.GetAllocatedBytesForCurrentThread();
+        for (var index = 0; index < 1_000; index++) catalog.ResolveSprite2D();
+        var passAllocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.Equal(0, passAllocated);
+        before = GC.GetAllocatedBytesForCurrentThread();
+        var preparedDraws = 0;
         for (var index = 0; index < 1_000; index++) {
             renderer.BeginFrame();
-            renderer.Prepare(roots, 16, 16, 1, layout);
-            catalog.ResolveSprite2D();
+            preparedDraws += renderer.Prepare(roots, 16, 16, 1, layout);
         }
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Equal(0, allocated);
-        Assert.NotEmpty(renderer.Draws);
-        Assert.Same(vertexStorage, renderer.Draws[0].Vertices);
-        Assert.Same(indexStorage, renderer.Draws[0].Indices);
-        Assert.True(renderer.Draws[0].VertexCount > 0);
+        Assert.Equal(6_000, preparedDraws);
+        Assert.Equal(drawStorage.Length, renderer.Draws.Count);
+        for (var index = 0; index < drawStorage.Length; index++) {
+            Assert.Same(drawStorage[index], renderer.Draws[index]);
+            Assert.Same(vertexStorage[index], renderer.Draws[index].Vertices);
+            Assert.Same(indexStorage[index], renderer.Draws[index].Indices);
+            Assert.True(renderer.Draws[index].VertexCount > 0);
+            Assert.True(renderer.Draws[index].IndexCount > 0);
+        }
     }
 
     /// <summary>Injects deterministic capture reset/timeout responses through the productive node boundary.</summary>
@@ -205,8 +282,14 @@ public sealed class NativeRenderSourceNotificationTests {
 
     /// <summary>Counts the original host invalidation API without allocating request objects.</summary>
     private sealed class CountingHost : IRenderHost {
-        /// <summary>Gets or sets the consumed request count.</summary>
+        /// <summary>Gets or sets the source/paint render requests, excluding scene preparation invalidations.</summary>
         internal int Requests { get; set; }
+
+        /// <summary>Gets the notifications caused by changes to the prepared renderable set.</summary>
+        internal int PerFrameRenderableRequests { get; private set; }
+
+        /// <summary>Gets the notifications caused by structural scene changes.</summary>
+        internal int SceneGraphRequests { get; private set; }
 
         /// <inheritdoc />
         public IViewport3DX Viewport { get; set; } = null!;
@@ -242,9 +325,9 @@ public sealed class NativeRenderSourceNotificationTests {
         public void InvalidateRender() => Requests++;
 
         /// <inheritdoc />
-        public void InvalidateSceneGraph() => Requests++;
+        public void InvalidateSceneGraph() => SceneGraphRequests++;
 
         /// <inheritdoc />
-        public void InvalidatePerFrameRenderables() => Requests++;
+        public void InvalidatePerFrameRenderables() => PerFrameRenderableRequests++;
     }
 }

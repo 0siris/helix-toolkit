@@ -1338,7 +1338,7 @@ public partial class Viewport3DX {
         DependencyProperty.Register("MinimumUpdateCount",
                                     typeof(int),
                                     typeof(Viewport3DX),
-                                    new PropertyMetadata(6));
+                                    new PropertyMetadata(6, MinimumUpdateCountChanged, CoerceMinimumUpdateCount));
 
     /// <summary>
     ///     The belongs to parent window property

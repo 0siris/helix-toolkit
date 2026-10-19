@@ -177,6 +177,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     Initializes a new instance of the <see cref="Viewport3DX" /> class.
     /// </summary>
     public Viewport3DX() {
+        invalidateVisualCallback = ApplyRenderVisualInvalidation;
         Items.CollectionChanged += Items_CollectionChanged;
         perspectiveCamera = new PerspectiveCamera();
         orthographicCamera = new OrthographicCamera();
@@ -284,21 +285,15 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void InvalidateRender() {
-        if (IsDisposed || Dispatcher.HasShutdownStarted) return;
-        if (!Dispatcher.CheckAccess()) {
-            Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action)InvalidateRender);
-            return;
-        }
-        InvalidateVisual();
-        d3d12Surface?.InvalidateVisual();
-        d3d12Surface?.WindowHost.InvalidateVisual();
+        RequestD3D12Render(D3D12RenderInvalidation.Render);
     }
 
     /// <summary>
     ///     Invalidates the scene graph.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void InvalidateSceneGraph() => InvalidateRender();
+    public void InvalidateSceneGraph() => RequestD3D12Render(D3D12RenderInvalidation.SceneGraph |
+        D3D12RenderInvalidation.PerFrameRenderables | D3D12RenderInvalidation.Render);
 
     /// <summary>
     /// </summary>
@@ -1188,25 +1183,21 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     }
 
     /// <summary>
-    ///     Updates the camera and records a frame only when its reusable GPU resources are available.
+    ///     Records the actual viewport roots after the frame consumer has reserved demand and GPU ownership.
     /// </summary>
-    /// <param name="renderingTime">The WPF rendering timestamp.</param>
+    /// <param name="surface">The current presentation owner protected against nested rendering.</param>
+    /// <param name="camera">The current camera after lightweight updates.</param>
     /// <param name="captureFrame">Whether to synchronously read back the completed frame.</param>
     /// <param name="waitForCompletion">Whether an explicit caller may wait for GPU completion.</param>
     /// <returns>The number of recorded scene draws, or zero when no frame is ready.</returns>
-    internal int RenderD3D12Frame(TimeSpan renderingTime, bool captureFrame = false, bool waitForCompletion = true) {
-        var surface = d3d12Surface;
-        var camera = CameraCore;
-        if (surface is not {IsInitialized: true} || camera is null || Visibility != Visibility.Visible) return 0;
-        cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
-        if (!surface.CompletePendingFrame(waitForCompletion || captureFrame)) return 0;
-        RaiseCompletedD3D12Frames(surface);
-        if (!ReferenceEquals(d3d12Surface, surface) || surface.IsDisposed) return 0;
+    private int RecordD3D12ViewportFrame(D3D12PresentationSurface surface, CameraCore camera,
+        bool captureFrame, bool waitForCompletion) {
         surface.RenderHost = this;
         surface.SetEffectsManager(EffectsManager);
+        FillD3D12FrameRoots();
         var clearColor = BackgroundColor.ToColor4();
         var recorded = surface.RenderViewportOnce([clearColor.X, clearColor.Y, clearColor.Z, clearColor.W],
-            Renderables,
+            frameRoots,
             camera,
             EnableRenderFrustum,
             IsShadowMappingEnabled,
@@ -1220,12 +1211,11 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
             (float) SsaoSamplingRadius,
             (float) SsaoIntensity,
             SsaoQuality,
-            D2DRenderables,
+            frameRoots2D,
             captureFrame,
             waitForCompletion,
             EnableAutoOctreeUpdate,
             EnableRenderOrder);
-        RaiseCompletedD3D12Frames(surface);
         return recorded;
     }
 

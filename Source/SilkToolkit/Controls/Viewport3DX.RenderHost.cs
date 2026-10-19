@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX.Controls;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
@@ -90,5 +91,6 @@ public partial class Viewport3DX : IRenderHost {
     private bool renderingEnabled = true;
 
     /// Requests preparation of current per-frame renderables on the next real frame.
-    public void InvalidatePerFrameRenderables() => InvalidateRender();
+    public void InvalidatePerFrameRenderables() => RequestD3D12Render(
+        D3D12RenderInvalidation.PerFrameRenderables | D3D12RenderInvalidation.Render);
 }

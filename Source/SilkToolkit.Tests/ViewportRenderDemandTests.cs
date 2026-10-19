@@ -24,22 +24,24 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
     [Fact]
     [Trait("Category", "Warp")]
     public Task FailedPreparationDiscardsRecordingAndPreservesDemand() => StaThread.RunAsync(() => {
-        using var driver = new FrameDriver();
-        _ = driver.Drain();
-        var oldRenderer = driver.Surface.FrameRenderer!;
-        var presented = driver.Surface.PresentedFrames;
-        var completed = driver.RenderedCount;
-        driver.Node.ThrowOnNextUpdate = true;
-        driver.Viewport.InvalidateRender();
-        Assert.Throws<InvalidOperationException>(() => driver.Viewport.RenderD3D12Frame(FrameTime));
-        Assert.Equal(presented, driver.Surface.PresentedFrames);
-        Assert.Equal(completed, driver.RenderedCount);
-        Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-        Assert.True(oldRenderer.IsDisposed);
-        Assert.NotSame(oldRenderer, driver.Surface.FrameRenderer);
-        AssertImage(driver.Viewport.CaptureD3D12Frame(), driver.Surface);
-        _ = driver.Drain();
-    });
+            using var driver = new FrameDriver();
+            _ = driver.Drain();
+            var oldRenderer = driver.Surface.FrameRenderer!;
+            var presented = driver.Surface.PresentedFrames;
+            var completed = driver.RenderedCount;
+            driver.Node.ThrowOnNextUpdate = true;
+            driver.Viewport.InvalidateRender();
+            var failure = Assert.Throws<InvalidOperationException>(() => driver.Viewport.RenderD3D12Frame(FrameTime));
+            Assert.True(failure.Message == "Injected preparation failure.", failure.ToString());
+            Assert.Equal(presented, driver.Surface.PresentedFrames);
+            Assert.Equal(completed, driver.RenderedCount);
+            Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+            Assert.True(oldRenderer.IsDisposed);
+            Assert.NotSame(oldRenderer, driver.Surface.FrameRenderer);
+            AssertImage(driver.Viewport.CaptureD3D12Frame(), driver.Surface);
+            _ = driver.Drain();
+        }
+    );
 
     /// <summary>Uses one stable timestamp without allocating frame inputs or advancing the camera.</summary>
     private static readonly TimeSpan FrameTime = TimeSpan.FromSeconds(1);
@@ -421,7 +423,7 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
             Assert.Equal(rendered + frames, driver.RenderedCount);
             Assert.Equal(onRendered + frames, driver.OnRenderedCount);
             Assert.True(draws >= frames);
-        Assert.InRange(allocated, 0L, 2048L * frames);
+            Assert.InRange(allocated, 0L, 2048L * frames);
             AssertImage(viewport.CaptureD3D12Frame(), driver.Surface);
         }
     );
@@ -620,6 +622,7 @@ public sealed class ViewportRenderDemandTests(ITestOutputHelper output) {
                 ThrowOnNextUpdate = false;
                 throw new InvalidOperationException("Injected preparation failure.");
             }
+
             var viewport = InvalidateOnNextUpdate;
             InvalidateOnNextUpdate = null;
             viewport?.InvalidateRender();

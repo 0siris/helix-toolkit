@@ -2,7 +2,7 @@
 type: ImplementationPlan
 title: D3D12 WPF composition proof and phased integration
 generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T11:17:00Z }
-verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T11:17:00Z }
+verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T12:00:00Z }
 status: draft
 sources:
   - resource: ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
@@ -11,6 +11,12 @@ sources:
   - resource: ../../Source/SilkToolkit/Controls/D3DImageInteropProbe.cs
   - resource: ../../Source/SilkToolkit.Tests/D3DImageInteropNativeTests.cs
   - resource: ../../Source/SilkToolkit.Tests/D3DImageInteropWpfTests.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12FrameRenderer.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12RenderDemand.cs
+  - resource: ../../Source/SilkToolkit/Controls/Viewport3DX.RenderDemand.cs
+  - resource: ../../Source/SilkToolkit.Tests/D3D12FrameRendererTests.cs
+  - resource: ../../Source/SilkToolkit.Tests/ViewportRenderDemandTests.cs
+  - resource: ../../Source/SilkCore.Tests/NativeFrameAllocationTests.cs
 ---
 
 # Scope
@@ -121,7 +127,7 @@ long-duration stress, multi-adapter hardware, RDP or WARP. These are separate in
 The probe's alternating-slot API relies on its documented caller publication/detachment precondition.
 Test-only staging readback and desktop sampling never supply presentation pixels.
 
-Phase 2 requires explicit user approval. The complete feature remains a draft until later phases are integrated.
+Phase 2 was subsequently approved and is recorded below. The complete feature remains a draft until later phases are integrated.
 
 # Remaining scope
 
@@ -156,6 +162,79 @@ GPU checks serially. All writing children start from the same committed contract
 The plan maps findings F01–F13 to later tasks: property invalidation, continuous sources, demand preservation,
 frame budgets, manager events, shared scene consumers, DPI, Scene2D, lifecycle/input and capture pixel contracts.
 Existing ineffective MSAA and CPU-scaled requested capture dimensions remain explicitly documented limits.
+
+# Phase 2 results
+
+P2.1–P2.5 are complete. Demand and shared-recorder implementation used separate worktrees; attachment research,
+an early Core/demand review and two independent integration review rounds were read-only. The common recorder
+is integrated at `096adec81`; the final reviewed recovery change is `d4042daee`. The HWND surface uses the common
+renderer productively. Existing HWND rendering remains continuous; `RenderOnDemand` is internal opt-in only.
+No public presentation switch or production D3DImage canvas is introduced in this phase.
+
+The demand coordinator reserves a frame before updates and commits only an actual presentation submission.
+New invalidations during updates, completion callbacks or busy GPU work survive; cancellation restores old
+reasons without replacing a newer budget. The public minimum is connected to future requests, with six total
+frames and at least one explicit frame for zero/negative settings. Publication/recovery flags remain independent.
+Worker requests record demand immediately and coalesce dispatcher notification through a cached callback.
+
+The recorder borrows the target, context and device. It retains pass selectors, scene lists, traversal storage,
+light payload and unchanged 3D/2D contexts. Core preparation snapshots roots before updates, observes children
+after parent updates, runs all updates before maintenance, and clears scratch references in `finally`.
+Frame-cache cleanup avoids LINQ/key snapshots and preserves independently owned versus aliased bindings.
+Environment lookup delegates are cached rather than created per mesh draw.
+
+Independent review found and resolved two correctness issues:
+
+- `RenderVisible` cleared the retained `PrepareScene` result before consuming it. Cleanup now occurs at disposal,
+  with an actual offscreen direct-candidate mesh/pixel regression.
+- Opening command recording before preparation made a throwing node update leave an open command list.
+  The HWND owner now closes and discards unsubmitted recording and recreates the native stack, dropping
+  tracked resource states with their allocations. No failed frame is presented or counted. This exceptional
+  recovery can allocate; its previous GPU frame is complete before teardown. The actual HWND retry regression
+  checks retained demand, unchanged submission/completion counts, old-owner disposal and captured mesh pixels.
+
+The second integration review accepted both fixes and found no unresolved blockers. The offscreen Scene2D
+failure test explicitly completes its caller-owned partial recording before resetting the context. Initial
+attachment can legitimately invalidate inside the first update; budget tests warm attachment before checking
+exact isolated requests. These fixture corrections preserve rather than suppress follow-up demand.
+
+Final Rider build `ed31acd2-0327-43fc-b34c-15657e292682` succeeded. The standard filtered suite is recorded by
+TRX prefix `wpf-phase2-verified`: **674 passed / 682 total, the same eight baseline failures**. Failure-name
+comparisons remain unchanged: Assimp 76/78, Core 444/447, Toolkit 154/157. All **57 new cases pass**, including
+six offscreen WARP cases, nineteen actual viewport cases, twenty-nine demand cases and three Core preparation
+cases. They cover pixels/depth, borrowed ownership, context replacement, exceptions, empty submitted frames,
+runtime budgets, worker bursts, update/completion reentrancy, real queue stalls and idle capture.
+Rider's terminal response sometimes returned HTTP 404 after process completion; the completed TRX files,
+not a duplicate fallback run, establish results. Hardware/DX12 tests were not rerun in this phase.
+
+Warm allocation evidence uses `GC.GetAllocatedBytesForCurrentThread` synchronously on the same thread,
+excluding assertions/logging/capture from measured intervals:
+
+| Measured path | Evidence | Managed allocation |
+| --- | --- | --- |
+| Coordinator, idle and active | Repeated actual request/reserve/complete operations | 0 bytes |
+| Actual idle STA viewport | 1,000 calls; unchanged submissions, updates and completions | 0 bytes |
+| Actual Core preparation and cleanup | 1,000 two-node iterations; actual update counts verified | 0 bytes |
+| Actual continuous HWND mesh | 128 submitted frames; draws, updates and both completions verified | 223,720 bytes; 1,747.81 bytes/frame |
+
+Earlier mesh runs measured 1,758–1,770 bytes/frame. The regression ceiling is **2,048 bytes/frame**, tightened
+from the provisional 4,096 after measurement. This is a bounded low-allocation mesh baseline, not a claim of
+zero-allocation GPU rendering. Initialization, growing capacities, capture, exceptional recovery, active Scene2D,
+optional effect passes, animation and arbitrary application callbacks are outside that measurement. Remaining
+Scene2D geometry/effect allocations require their own scene-specific evidence before stronger claims.
+
+ReSharper formatting and warning diagnostics were inspected. Some diagnostic requests timed out; completed
+requests reported style/interop warnings, and the complete Rider build is the compilation gate. Broad formatting
+churn in existing files was discarded while retaining scoped semantic changes. No global cleanup was applied.
+
+Graphify completed locally after the final source changes: **1,021 source files, 9,841 nodes, 17,265 edges and
+2,884 communities**, with zero model tokens. The existing 17 partial parser results remain a limitation.
+`graphify-out/graph.json` exists; the staging corpus was removed and generated output was not hand-edited.
+
+Phase 3 remains unstarted pending explicit user approval. Production WPF publication/rebinding/frontbuffer
+recovery and continuous-source scheduling remain P3 work; public default-false selection, complete property
+invalidations, shared-scene lifetime and input/DPI integration remain mapped to P4. The global eight-failure
+baseline remains open independently of the successful Phase 2 regressions.
 
 # References
 

@@ -217,6 +217,19 @@ Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
 - Grenzen: ein GPU-/Treiber-/Desktop-Setup, kurze Beobachtung; keine Zusage für WARP, RDP, zweiten Hardwareadapter, injizierte GPU-Stalls oder Geräteverlust. Der Testtreiber arbeitet nur auf Anforderung; die produktive Viewport-Bedarfssteuerung folgt in Phase 2.
 - **Haltepunkt erreicht: Phase 2 startet erst nach ausdrücklicher Freigabe.** Ausführlicher [Phasenbericht und Befunde](knowledge/backlog/d3d12-wpf-composition.md).
 
+### Stand 2026-10-19 · Phase 2 abgeschlossen
+
+- **P2.1–P2.5 erledigt:** Gemeinsamer `D3D12FrameRenderer` mit geliehenem Werttyp-Ziel; HWND verwendet ihn produktiv. Demand-Koordinator und interner Viewport-Verbraucher integriert. Öffentliches HWND-Verhalten bleibt kontinuierlich; produktiver WPF-Canvas und öffentliche Auswahl folgen in P3/P4.
+- Parallele Implementierung in getrennten Worktrees, separates Anschlussreview, frühes Core-/Demand-Review und zwei unabhängige Integrationsreviews mit ausdrücklichem Heap-Fokus.
+- Reviewbefunde behoben: direkte Kandidatenliste vor Nutzung geleert; offene Command-Liste nach fehlgeschlagener Vorbereitung. Fehlerpfad verwirft ungesendete Commands samt nativen Ressourcen/Zuständen; echter HWND-Retry prüft Mesh-Pixel und erhaltenen Bedarf.
+- Letzter geprüfter Implementierungscommit `d4042daee`; finales Delta-Review ohne offene Blocker. Rider-Build erfolgreich.
+- **57 neue Fälle bestanden.** Gesamtsuite: **674/682 bestanden**, dieselben acht bekannten Baseline-Fehler; keine neuen fehlschlagenden Testnamen.
+- Heap-Messungen nach Warm-up: Koordinator aktiv/ruhend **0 Bytes**, 1.000 ruhende echte Viewport-Aufrufe **0 Bytes**, 1.000 Zwei-Node-Vorbereitungen samt Cleanup **0 Bytes**. 128 tatsächlich eingereichte HWND-Mesh-Frames: **1.747,81 Bytes/Frame**, Regressiongrenze **2.048 Bytes/Frame**.
+- Messgrenzen: Initialisierung, Kapazitätswachstum, Capture, Fehler-Recovery, aktive Scene2D und optionale Effektpässe gesondert; keine pauschale Null-Allokationsaussage für vollständiges Rendering. Hardware-/DX12-Proben aus P1 wurden nicht erneut ausgeführt.
+- Einzelheiten, Prüfartefakte und Reviewantworten im [Phasenbericht](knowledge/backlog/d3d12-wpf-composition.md).
+- Graphify nach finalen Quelländerungen erfolgreich: 1.021 Dateien, 9.841 Knoten, 17.265 Kanten, 2.884 Communities; bestehende 17 partielle Parser-Ergebnisse bleiben dokumentiert.
+- **Haltepunkt erreicht: Phase 3 startet erst nach ausdrücklicher Freigabe.**
+
 Jeder Phasenbericht enthält:
 
 - Phasenstatus, integrierten Commit und erledigte Task-IDs.

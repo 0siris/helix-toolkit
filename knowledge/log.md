@@ -1,5 +1,16 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-19 — WPF composition Phase 2 verified
+
+- Integrated the shared native frame recorder and bounded demand coordinator through the actual HWND viewport.
+- Reused scene preparation/cleanup storage and delegates; idle, coordinator and two-node preparation measure zero
+  warmed allocations. Actual submitted mesh frames measure about 1.75 KB/frame under a tightened 2 KB ceiling.
+- Independent reviews found and resolved candidate-list aliasing and failed-recording recovery; final delta has no
+  unresolved blockers. The Rider build passes; all 57 new cases pass, with 674/682 standard cases passing and the
+  same eight baseline failures. Production WPF and public default-false selection remain later phases.
+- Graphify regenerated 1,021 files into 9,841 nodes, 17,265 edges and 2,884 communities, with zero model tokens;
+  the existing 17 partial parser results remain disclosed. Phase 3 awaits explicit approval.
+
 ## 2026-10-19 — Phase 2 renderer and allocation contracts
 
 - Approved the shared borrowed frame-target boundary and separate render-demand coordinator.

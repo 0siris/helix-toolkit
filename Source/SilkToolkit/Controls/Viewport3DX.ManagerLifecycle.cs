@@ -266,6 +266,7 @@ public partial class Viewport3DX {
     /// <summary>Retires the old generation, transfers subscriptions to the latest value and preserves pending scene demand.</summary>
     private void ApplyManagerLifecycle() {
         RetireSceneResourcesForManagerChange();
+        if (IsDisposed) return;
         SetSubscribedEffectsManager(EffectsManager);
         d3d12Surface?.SetEffectsManager(EffectsManager);
         managerResourcesResetPending = false;

@@ -19,6 +19,8 @@ Baseline: `619feb80d`; 729/737 standard cases passing, eight known failures. See
   Write contract tests before implementation where needed; integrate T002 findings. Can run alongside T003.
 - [ ] T005 P4.3: Integrate T003, manager invalidation/disposal/reinitialization, external ownership and functional
   2D selection; establish one committed integration point after T003/T004 for the test wave.
+- [ ] T005a [P] Complete safe HWND retirement/reinitialization and reentrant unload/disposal in
+  `Source/SilkToolkit/Controls/D3D12PresentationSurface.cs` after T004; coordinate integrator frame guards.
 
 ## Parallel test wave (depends on T005)
 

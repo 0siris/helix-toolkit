@@ -304,7 +304,7 @@ public partial class Viewport3DX {
     public static readonly DependencyProperty EffectsManagerProperty = DependencyProperty.Register("EffectsManager",
         typeof(IEffectsManager),
         typeof(Viewport3DX),
-        new PropertyMetadata(null));
+        new PropertyMetadata(null, EffectsManagerChanged));
 
     /// <summary>
     ///     The field of view text property.
@@ -1120,7 +1120,7 @@ public partial class Viewport3DX {
         = DependencyProperty.Register("EnableSharedModelMode",
                                       typeof(bool),
                                       typeof(Viewport3DX),
-        new PropertyMetadata(false));
+        new PropertyMetadata(false, SharedSceneSelectionChanged));
 
     /// <summary>
     ///     Binding to the element inherit with <see cref="IModelContainer" />
@@ -1129,9 +1129,7 @@ public partial class Viewport3DX {
         = DependencyProperty.Register("SharedModelContainer",
                                       typeof(IModelContainer),
                                       typeof(Viewport3DX),
-                                      new PropertyMetadata(null,
-                                                           (d, e) => ((Viewport3DX)d).SharedModelContainerInternal =
-                                                               (IModelContainer?)e.NewValue));
+                                      new PropertyMetadata(null, SharedSceneSelectionChanged));
 
     /// <summary>
     ///     The content2 d property

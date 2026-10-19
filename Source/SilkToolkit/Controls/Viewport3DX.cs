@@ -181,6 +181,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     public Viewport3DX() {
         invalidateVisualCallback = ApplyRenderVisualInvalidation;
+        InitializeHostContracts();
         Items.CollectionChanged += Items_CollectionChanged;
         perspectiveCamera = new PerspectiveCamera();
         orthographicCamera = new OrthographicCamera();
@@ -1247,6 +1248,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// </summary>
     /// <returns>The captured frame.</returns>
     internal D3D12CapturedFrame CaptureD3D12Frame() {
+        if (!CanRenderWithEffectsManager)
+            throw new InvalidOperationException("The effects-manager resource transition has not completed.");
         if (wpfPresentation is { } composited) return composited.CaptureFrame();
         _ = RenderD3D12Frame(TimeSpan.Zero, true);
         return d3d12Surface?.LastCapturedFrame
@@ -1633,6 +1636,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <remarks>All listeners run and required cleanup executes even when a listener throws.</remarks>
     protected virtual void Dispose(bool disposing) {
         if (disposedValue) return;
+        if (disposing && DeferNativeViewportDisposalIfUpdating()) return;
         if (disposing && wpfPresentation?.DeferViewportDisposalIfRecording() == true) return;
         if (disposing) VerifyPresentationReplacement();
         if (disposing) wpfPresentation?.PrepareForDisposal();
@@ -1653,6 +1657,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
                 disposedValue = false;
                 throw;
             }
+            DetachHostContracts();
             d3d12CompositionTarget.Dispose();
             Loaded -= ControlLoaded;
             Unloaded -= ControlUnloaded;

@@ -284,6 +284,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     ) {
         canvas.Dispatcher.VerifyAccess();
         if (IsDisposed || stopping) return 0;
+        if (canvas.IsActive && !updating) viewport.PrepareHostFrameContracts();
         if (updating) {
             demand.Request(D3D12RenderInvalidation.Render);
             return 0;

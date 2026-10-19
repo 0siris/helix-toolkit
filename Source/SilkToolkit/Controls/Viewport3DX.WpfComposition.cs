@@ -15,7 +15,8 @@ public partial class Viewport3DX {
     internal bool WpfRenderingEnabled => renderingEnabled;
 
     /// <summary>Gets whether a new WPF scene frame may update the actual viewport.</summary>
-    internal bool CanRenderWpfScene => !IsDisposed && Visibility == System.Windows.Visibility.Visible && CameraCore is not null;
+    internal bool CanRenderWpfScene => !IsDisposed && CanRenderWithEffectsManager &&
+        Visibility == System.Windows.Visibility.Visible && CameraCore is not null;
 
     /// <summary>Attaches one internal composited owner before any HWND owner has been initialized.</summary>
     /// <param name="canvas">The actual borrowed WPF presentation canvas.</param>

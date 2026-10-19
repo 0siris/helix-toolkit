@@ -79,11 +79,17 @@ public partial class Viewport3DX {
             return composited.RenderFrame(renderingTime, captureFrame, waitForCompletion);
         var surface = d3d12Surface;
         var camera = CameraCore;
-        if (surface is not { IsInitialized: true } || camera is null || Visibility != Visibility.Visible) return 0;
         if (isD3D12FrameUpdating) {
             renderDemand.Request(D3D12RenderInvalidation.Render);
             return 0;
         }
+
+        ScheduleManagerLifecycle();
+        if (surface is null || camera is null || Visibility != Visibility.Visible || !CanSubmitNativeScene) return 0;
+        PrepareHostFrameContracts();
+        if (!CanSubmitNativeScene) return 0;
+        surface.EnsureNativeInitialized();
+        if (!surface.IsInitialized) return 0;
 
         isD3D12FrameUpdating = true;
         var reserved = false;
@@ -116,6 +122,9 @@ public partial class Viewport3DX {
             frameRoots.Clear();
             frameRoots2D.Clear();
             isD3D12FrameUpdating = false;
+            surface.SchedulePendingRetirement();
+            ScheduleNativeViewportDisposal();
+            ScheduleManagerLifecycle();
         }
     }
 

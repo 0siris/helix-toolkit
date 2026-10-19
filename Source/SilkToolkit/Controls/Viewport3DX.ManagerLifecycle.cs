@@ -27,12 +27,30 @@ public partial class Viewport3DX {
     /// <summary>Retains the callback used only for deferred manager lifecycle transitions.</summary>
     private Action? applyManagerLifecycle;
 
+    /// <summary>Retains final viewport disposal requested from an HWND frame callback.</summary>
+    private bool nativeViewportDisposalRequested;
+
+    /// <summary>Owns the one deferred HWND viewport-disposal callback.</summary>
+    private DispatcherOperation? nativeViewportDisposalOperation;
+
+    /// <summary>Retains the final HWND disposal delegate outside the frequent frame path.</summary>
+    private Action? finishNativeViewportDisposal;
+
     /// <summary>Gets whether any application frame callback currently borrows presentation resources.</summary>
     internal bool IsPreparingPresentationFrame => isD3D12FrameUpdating || wpfPresentation is { IsUpdating: true };
 
     /// <summary>Gets whether the current manager and shared-scene transaction allow new scene preparation.</summary>
     private bool CanRenderWithEffectsManager => !effectsResourcesUnavailable && !managerResourcesResetPending &&
         !(EnableSharedModelMode && SharedModelContainerInternal is ModelContainer3DX { IsSynchronizingEffectsManager: true });
+
+    /// <summary>Gets whether an HWND recording may still be submitted after application callbacks return.</summary>
+    internal bool CanSubmitNativeScene => !IsDisposed && !nativeViewportDisposalRequested && CanRenderWithEffectsManager;
+
+    /// <summary>Refreshes shared membership before borrowing any scene and services only pending lifecycle work.</summary>
+    internal void PrepareHostFrameContracts() {
+        UpdateSharedSceneSubscription(true);
+        ScheduleManagerLifecycle();
+    }
 
     /// <summary>Retires every renderer lease belonging to this consumer after bounded native completion.</summary>
     /// <exception cref="InvalidOperationException">An application frame callback still owns the renderer.</exception>
@@ -41,7 +59,11 @@ public partial class Viewport3DX {
         if (IsPreparingPresentationFrame)
             throw new InvalidOperationException("Scene resources cannot retire while a presentation frame is active.");
         wpfPresentation?.RetireSceneResources();
-        d3d12Surface?.RetireSceneResources();
+        if (d3d12Surface is { } surface) {
+            _ = surface.CompletePendingFrame(true);
+            RaiseCompletedD3D12Frames(surface);
+            if (ReferenceEquals(surface, d3d12Surface) && !surface.IsDisposed) surface.RetireSceneResources();
+        }
     }
 
     /// <summary>Connects lifecycle handlers once without taking ownership of a supplied manager or scene container.</summary>
@@ -55,6 +77,8 @@ public partial class Viewport3DX {
     private void DetachHostContracts() {
         managerLifecycleOperation?.Abort();
         managerLifecycleOperation = null;
+        nativeViewportDisposalOperation?.Abort();
+        nativeViewportDisposalOperation = null;
         Loaded -= HostContractsLoaded;
         Unloaded -= HostContractsUnloaded;
         SetSubscribedEffectsManager(null);
@@ -82,6 +106,41 @@ public partial class Viewport3DX {
     /// <param name="sender">The unloaded viewport.</param>
     /// <param name="args">The original lifecycle event.</param>
     private void HostContractsUnloaded(object sender, RoutedEventArgs args) => UpdateSharedSceneSubscription(false);
+
+    /// <summary>Updates shared notification membership immediately when either selection property changes.</summary>
+    /// <param name="owner">The viewport changing shared-scene selection.</param>
+    /// <param name="args">The original dependency-property change.</param>
+    private static void SharedSceneSelectionChanged(DependencyObject owner, DependencyPropertyChangedEventArgs args) {
+        var viewport = (Viewport3DX) owner;
+        if (args.Property == SharedModelContainerProperty)
+            viewport.SharedModelContainerInternal = (IModelContainer?) args.NewValue;
+        viewport.UpdateSharedSceneSubscription(viewport.IsLoaded);
+        viewport.InvalidateSceneGraph();
+    }
+
+    /// <summary>Defers final application-scene cleanup until an HWND frame no longer borrows its nodes.</summary>
+    /// <returns>Whether disposal was retained for the end of the current frame.</returns>
+    private bool DeferNativeViewportDisposalIfUpdating() {
+        if (!isD3D12FrameUpdating) return false;
+        nativeViewportDisposalRequested = true;
+        ScheduleNativeViewportDisposal();
+        return true;
+    }
+
+    /// <summary>Posts one retained final-disposal callback, including after a nested dispatcher pump deferred it.</summary>
+    private void ScheduleNativeViewportDisposal() {
+        if (!nativeViewportDisposalRequested || IsDisposed || Dispatcher.HasShutdownStarted ||
+            nativeViewportDisposalOperation is { Status: DispatcherOperationStatus.Pending or DispatcherOperationStatus.Executing })
+            return;
+        finishNativeViewportDisposal ??= FinishNativeViewportDisposal;
+        nativeViewportDisposalOperation = Dispatcher.BeginInvoke(DispatcherPriority.Send, finishNativeViewportDisposal);
+    }
+
+    /// <summary>Completes final viewport disposal after the native caller has unwound.</summary>
+    private void FinishNativeViewportDisposal() {
+        nativeViewportDisposalOperation = null;
+        if (!isD3D12FrameUpdating) Dispose();
+    }
 
     /// <summary>Queues or applies a new manager only after its predecessor's renderer resources have retired.</summary>
     /// <param name="owner">The actual viewport.</param>
@@ -194,6 +253,7 @@ public partial class Viewport3DX {
     private void ApplyManagerLifecycle() {
         RetireSceneResourcesForManagerChange();
         SetSubscribedEffectsManager(EffectsManager);
+        d3d12Surface?.SetEffectsManager(EffectsManager);
         managerResourcesResetPending = false;
         InvalidateSceneGraph();
     }

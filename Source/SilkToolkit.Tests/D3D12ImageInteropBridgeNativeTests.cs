@@ -461,7 +461,7 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
     /// <param name="description">The surface format and dimensions.</param>
     /// <returns>The native HRESULT.</returns>
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    private delegate int GetDescription(nint self, out SurfaceDesc description);
+    private delegate int GetDescription(nint self, out Silk.NET.Direct3D9.SurfaceDesc description);
 
     /// <summary>Calls IDirect3DSurface9::GetDevice.</summary>
     /// <param name="self">The native surface.</param>

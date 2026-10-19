@@ -236,8 +236,10 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="renderingTime">The WPF timestamp used by lightweight camera updates.</param>
     /// <param name="captureFrame">Whether this explicit caller requires a new captured scene.</param>
     /// <param name="waitForCompletion">Whether an explicit caller permits bounded native waits.</param>
+    /// <param name="renderScene">Whether this caller permits new scene submissions after servicing accepted transport.</param>
     /// <returns>The actual scene draw count, or zero when idle, suspended, or transport-owned.</returns>
-    internal int RenderFrame(TimeSpan renderingTime, bool captureFrame = false, bool waitForCompletion = false) {
+    internal int RenderFrame(TimeSpan renderingTime, bool captureFrame = false, bool waitForCompletion = false,
+        bool renderScene = true) {
         canvas.Dispatcher.VerifyAccess();
         if (IsDisposed || stopping) return 0;
         if (updating) {
@@ -252,12 +254,12 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             _ = demand.TryTakeRecoveryRequest();
             DetectPresentationChanges();
             if (!ServiceTransport(waitForCompletion || captureFrame)) {
-                if (canvas.IsActive) viewport.UpdateWpfCamera(renderingTime);
+                if (renderScene && canvas.IsActive) viewport.UpdateWpfCamera(renderingTime);
                 return 0;
             }
 
             viewport.RaiseCompletedWpfFrames(this);
-            if (IsDisposed || stopping || !viewport.CanRenderWpfScene || !canvas.IsActive) return 0;
+            if (!renderScene || IsDisposed || stopping || !viewport.CanRenderWpfScene || !canvas.IsActive) return 0;
             if (bridge is null) CreateNative();
             if (captureFrame) demand.Request(D3D12RenderInvalidation.Render);
             reserved = demand.TryBeginFrame(out _);
@@ -590,12 +592,12 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="sender">The canvas forwarding the original WPF tick.</param>
     /// <param name="args">The original WPF frame timestamp.</param>
     private void OnRendering(object? sender, RenderingEventArgs args) {
-        if (!viewport.WpfRenderingEnabled || IsDisposed || stopping ||
+        if (IsDisposed || stopping ||
             (hasRenderingTime && args.RenderingTime == lastRenderingTime)) return;
         hasRenderingTime = true;
         lastRenderingTime = args.RenderingTime;
         try {
-            _ = RenderFrame(args.RenderingTime);
+            _ = RenderFrame(args.RenderingTime, renderScene: viewport.WpfRenderingEnabled);
         } catch (Exception exception) {
             viewport.StopRendering();
             viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));

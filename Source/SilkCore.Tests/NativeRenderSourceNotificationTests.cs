@@ -96,7 +96,7 @@ public sealed class NativeRenderSourceNotificationTests {
         var source = new TimeoutSource { ResetNext = true };
         using var node = new CaptureNode(source);
         SceneNode[] roots = [node];
-        var transforms = new HelixToolkit.SharpDX.Core.Model.GlobalTransformStruct();
+        var transforms = new GlobalTransformStruct();
         var frustum = new BoundingFrustum(Matrix.Identity);
         for (var index = 0; index < 3; index++) {
             renderer.BeginFrame();

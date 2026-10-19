@@ -11,15 +11,15 @@ Baseline: `619feb80d`; 729/737 standard cases passing, eight known failures. See
 
 ## Integration wave
 
-- [ ] T003 [P] P4.2: Implement shared-consumer invalidation and node lifetime in
+- [X] T003 [P] P4.2: Implement shared-consumer invalidation and node lifetime in
   `Source/SilkToolkit/Controls/ModelContainer3DX.cs`, necessary Core ownership paths and dedicated shared-scene tests.
   Coordinate exact integrator hooks before changing callers. Preserve other consumers across unload/disposal.
-- [ ] T004 [P] P4.1: Add public default-false backend selection, initialization lock, template wiring, DPI and complete
+- [X] T004 [P] P4.1: Add public default-false backend selection, initialization lock, template wiring, DPI and complete
   image-property/alias invalidation in `Source/SilkToolkit/Controls/Viewport3DX*` and relevant canvas/template files.
   Write contract tests before implementation where needed; integrate T002 findings. Can run alongside T003.
-- [ ] T005 P4.3: Integrate T003, manager invalidation/disposal/reinitialization, external ownership and functional
+- [X] T005 P4.3: Integrate T003, manager invalidation/disposal/reinitialization, external ownership and functional
   2D selection; establish one committed integration point after T003/T004 for the test wave.
-- [ ] T005a [P] Complete safe HWND retirement/reinitialization and reentrant unload/disposal in
+- [X] T005a [P] Complete safe HWND retirement/reinitialization and reentrant unload/disposal in
   `Source/SilkToolkit/Controls/D3D12PresentationSurface.cs` after T004; coordinate integrator frame guards.
 
 ## Parallel test wave (depends on T005)

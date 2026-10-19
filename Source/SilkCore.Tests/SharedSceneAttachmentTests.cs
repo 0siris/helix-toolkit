@@ -21,10 +21,11 @@ public sealed class SharedSceneAttachmentTests {
         Assert.False(root.IsAttached);
         Assert.False(child.IsAttached);
         var notifications = 0;
-        root.Invalidated += (_, kind) => {
+        EventHandler<InvalidateTypes> invalidated = (_, kind) => {
             Assert.Equal(InvalidateTypes.SceneGraph, kind);
             notifications++;
         };
+        root.Invalidated += invalidated;
 
         if (clear) root.Clear();
         else Assert.True(root.RemoveChildNode(child));
@@ -35,6 +36,7 @@ public sealed class SharedSceneAttachmentTests {
         Assert.True(child.RenderCore.IsAttached);
         Assert.False(root.RemoveChildNode(child));
         Assert.Equal(1, notifications);
+        root.Invalidated -= invalidated;
         child.ReleaseNativeAttachment(owner);
         root.ReleaseNativeAttachment(owner);
         Assert.False(child.RenderCore.IsAttached);

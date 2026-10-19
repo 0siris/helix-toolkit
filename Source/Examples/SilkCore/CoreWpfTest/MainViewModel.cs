@@ -7,13 +7,13 @@ using HelixToolkit.Wpf.SharpDX;
 //   Copyright (c) 2014 Helix Toolkit contributors
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using HelixToolkit.SharpDX.Core.Assimp;
+using Exporter = HelixToolkit.SharpDX.Core.Assimp.Exporter;
 using HelixToolkit.Wpf.SharpDX.Controls;
 using HelixToolkit.Wpf.SharpDX.Extensions;
 using Microsoft.Win32;
@@ -48,7 +48,7 @@ public class MainViewModel : ObservableObject {
         set {
             if (Set(ref field, value) && scene?.Root is { } root) {
                 foreach (var node in root.Traverse()) {
-                    if (node is MaterialGeometryNode {Material: PBRMaterialCore material}) {
+                    if (node is MaterialGeometryNode { Material: PBRMaterialCore material }) {
                         material.RenderEnvironmentMap = value;
                     }
                 }
@@ -129,12 +129,13 @@ public class MainViewModel : ObservableObject {
             NearPlaneDistance = 0.1f
         };
         ResetCameraCommand = new DelegateCommand(() => {
-            if (Camera is OrthographicCamera camera) {
-                camera.Reset();
-                camera.FarPlaneDistance = 5000;
-                camera.NearPlaneDistance = 0.1f;
+                if (Camera is OrthographicCamera camera) {
+                    camera.Reset();
+                    camera.FarPlaneDistance = 5000;
+                    camera.NearPlaneDistance = 0.1f;
+                }
             }
-        });
+        );
         ExportCommand = new DelegateCommand(ExportFile);
         EnvironmentMap = LoadFileToMemory("Cubemap_Grandcanyon.dds");
     }
@@ -153,13 +154,15 @@ public class MainViewModel : ObservableObject {
 
         IsLoading = true;
         Task.Run(() => {
-                var loader = new Importer();
-                return loader.Load(path)
-                       ?? throw new InvalidOperationException("The selected file did not contain a scene.");
-            })
-            .ContinueWith((result) => {
+                    var loader = new Importer();
+                    return loader.Load(path)
+                           ?? throw new InvalidOperationException("The selected file did not contain a scene.");
+                }
+            )
+            .ContinueWith(
+                (result) => {
                     IsLoading = false;
-                    if (result is {Status: TaskStatus.RanToCompletion, Result: { } loadedScene}) {
+                    if (result is { Status: TaskStatus.RanToCompletion, Result: { } loadedScene }) {
                         scene = loadedScene;
                         Animations.Clear();
                         GroupModel.Clear();
@@ -183,11 +186,12 @@ public class MainViewModel : ObservableObject {
                         foreach (var n in loadedScene.Root.Traverse()) {
                             n.Tag = new AttachedNodeViewModel(n);
                         }
-                    } else if (result is {IsFaulted: true, Exception: { } exception}) {
+                    } else if (result is { IsFaulted: true, Exception: { } exception }) {
                         MessageBox.Show(exception.Message);
                     }
                 },
-                TaskScheduler.FromCurrentSynchronizationContext());
+                TaskScheduler.FromCurrentSynchronizationContext()
+            );
     }
 
     public void StartAnimation() {
@@ -228,9 +232,7 @@ public class MainViewModel : ObservableObject {
     }
 
     private int SaveFileDialog(string filter, out string path) {
-        var d = new SaveFileDialog {
-            Filter = filter
-        };
+        var d = new SaveFileDialog { Filter = filter };
         if (d.ShowDialog() == true) {
             path = d.FileName;
             return d.FilterIndex - 1; //This is tarting from 1. So must minus 1

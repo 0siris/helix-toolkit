@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-19 — WPF composition proof started
+
+- Linked the approved phased composition plan and its historical review findings.
+- Fast-forwarded to the requested local toolkit baseline and corrected four example import/namespace blockers.
+- Rider build passes; standard baseline tests retain eight failures (617 passed / 625 total), documented separately
+  from the new interoperability proof. No renderer integration or application changes are part of Phase 1.
+
 ## 2026-10-18 — Shared viewport widget overlay
 
 * Moved the existing WPF/Win32 widget host into SilkToolkit with its public namespace and class body retained.

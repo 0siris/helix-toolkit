@@ -194,6 +194,16 @@ Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
 
 ## Phasenbericht und Freigabe
 
+### Stand 2026-10-19 · Phase 1 gestartet
+
+- P0.1: Fast-forward auf `72557068603fbe3017dc045782e24631970a4fb1` abgeschlossen; fremde Änderungen im MeshMeister-Checkout erhalten.
+- Der historische Reviewbestand P0.2–P0.4 ist über F01–F13 zugeordnet. Native HWND-Testanpassungen folgen erst mit dem neuen Standard in P4.5.
+- P0.5: Rider-Build nach Korrektur von sieben vorhandenen Import-/Namespacefehlern in vier Beispieldateien erfolgreich.
+- Standard-Baseline: **617 bestanden, 8 fehlgeschlagen, 625 insgesamt**. Die vorhandenen Fehler betreffen glTF-Materialien (2), Ressourcen-Maintenance (2), zufällige Postprocess-Samples (1) und Octree-Annahmen in Eingabe-/Frame-Tests (3). Einzelheiten im [Wissensstand](knowledge/backlog/d3d12-wpf-composition.md).
+- Die ausdrückliche Freigabe „starte Phase 1“ wird für den isolierten Interop-Nachweis umgesetzt. Das allgemeine Baseline-Testgate bleibt als offener Befund sichtbar.
+- P1.1/P1.2/P1.3 laufen in getrennten Worktrees. GPU- und sichtbare Prüfungen erfolgen ausschließlich nach Integration durch I.
+- Vor Phase 2 bleiben unabhängiges Review und ausdrückliche Freigabe erforderlich.
+
 Jeder Phasenbericht enthält:
 
 - Phasenstatus, integrierten Commit und erledigte Task-IDs.

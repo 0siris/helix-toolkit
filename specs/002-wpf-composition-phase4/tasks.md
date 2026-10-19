@@ -5,7 +5,7 @@ Baseline: `619feb80d`; 729/737 standard cases passing, eight known failures. See
 
 ## Setup and original contracts
 
-- [ ] T001 Resolve this feature context, check hooks/checklists, verify repository ignores and record baseline evidence.
+- [X] T001 Resolve this feature context, check hooks/checklists, verify repository ignores and record baseline evidence.
 - [ ] T002 [P] Audit original property aliases, initialization/lifecycle and WPF input against `c59fcc424` and
   `6215e5c0b^`; return concrete sites/requirements without editing source.
 
@@ -14,7 +14,7 @@ Baseline: `619feb80d`; 729/737 standard cases passing, eight known failures. See
 - [ ] T003 [P] P4.2: Implement shared-consumer invalidation and node lifetime in
   `Source/SilkToolkit/Controls/ModelContainer3DX.cs`, necessary Core ownership paths and dedicated shared-scene tests.
   Coordinate exact integrator hooks before changing callers. Preserve other consumers across unload/disposal.
-- [ ] T004 P4.1: Add public default-false backend selection, initialization lock, template wiring, DPI and complete
+- [ ] T004 [P] P4.1: Add public default-false backend selection, initialization lock, template wiring, DPI and complete
   image-property/alias invalidation in `Source/SilkToolkit/Controls/Viewport3DX*` and relevant canvas/template files.
   Write contract tests before implementation where needed; integrate T002 findings. Can run alongside T003.
 - [ ] T005 P4.3: Integrate T003, manager invalidation/disposal/reinitialization, external ownership and functional

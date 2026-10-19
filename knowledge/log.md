@@ -7,6 +7,15 @@
 - Rider build passes; standard baseline tests retain eight failures (617 passed / 625 total), documented separately
   from the new interoperability proof. No renderer integration or application changes are part of Phase 1.
 
+## 2026-10-19 — WPF composition Phase 1 verified
+
+- Proved D3D12 NT-shared BGRA through D3D11 GPU copies into two alternating D3D9Ex legacy-shared surfaces.
+- All three explicit GTX 1070 tests pass, including actual WPF desktop RGB/alpha, immutable attached-image
+  snapshots, resize/recreation and disposal. Independent integration and final-delta reviews found no blockers.
+- Final standard suite preserves exactly the eight baseline failures (617/625 passed); no new failing test names.
+- Graphify completed after final source formatting: 1,013 files, 9,691 nodes, 16,858 edges, 2,847 communities,
+  zero model tokens. Existing 17 partial parser results remain disclosed. Phase 2 awaits explicit approval.
+
 ## 2026-10-18 — Shared viewport widget overlay
 
 * Moved the existing WPF/Win32 widget host into SilkToolkit with its public namespace and class body retained.

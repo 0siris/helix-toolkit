@@ -197,15 +197,22 @@ Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
 
 ## Phasenbericht und Freigabe
 
-### Stand 2026-10-19 · Phase 1 gestartet
+### Stand 2026-10-19 · Phase 1 abgeschlossen
 
 - P0.1: Fast-forward auf `72557068603fbe3017dc045782e24631970a4fb1` abgeschlossen; fremde Änderungen im MeshMeister-Checkout erhalten.
 - Der historische Reviewbestand P0.2–P0.4 ist über F01–F13 zugeordnet. Native HWND-Testanpassungen folgen erst mit dem neuen Standard in P4.5.
 - P0.5: Rider-Build nach Korrektur von sieben vorhandenen Import-/Namespacefehlern in vier Beispieldateien erfolgreich.
 - Standard-Baseline: **617 bestanden, 8 fehlgeschlagen, 625 insgesamt**. Die vorhandenen Fehler betreffen glTF-Materialien (2), Ressourcen-Maintenance (2), zufällige Postprocess-Samples (1) und Octree-Annahmen in Eingabe-/Frame-Tests (3). Einzelheiten im [Wissensstand](knowledge/backlog/d3d12-wpf-composition.md).
 - Die ausdrückliche Freigabe „starte Phase 1“ wird für den isolierten Interop-Nachweis umgesetzt. Das allgemeine Baseline-Testgate bleibt als offener Befund sichtbar.
-- P1.1/P1.2/P1.3 laufen in getrennten Worktrees. GPU- und sichtbare Prüfungen erfolgen ausschließlich nach Integration durch I.
-- Vor Phase 2 bleiben unabhängiges Review und ausdrückliche Freigabe erforderlich.
+- **P1.1 erledigt:** Native GPU-Brücke mit einer D3D12-Quelle und zwei wechselnden D3D9Ex-Zielen; LUID-Abgleich, explizite Adapterwahl, getrennte Handle-Typen und begrenzter Teardown.
+- **P1.2 erledigt:** STA-Proben für Farbwechsel, Alpha, Veröffentlichung, unveränderliches gebundenes Bild, WPF-Snapshot, Resize und Freigabe. Quellloses Testbild misst für die weiße Ausgangs-/Endkontrolle das Fenster; tatsächliche Bildprüfungen messen immer das Image.
+- **P1.3 erledigt:** Separates Synchronisationsreview führte zu unveränderlichen gebundenen Oberflächen und ausgeglichenen `TryLock`-Aufrufen. Unabhängiges Integrationsreview und abschließendes Delta-Review melden keine weiteren Blocker.
+- **P1.4 erledigt:** GTX 1070, Treiber `32.0.15.6094`, DXGI-Adapter `0`, LUID `0x000000000001456C`; Standard- und explizite Auswahl stimmen überein. **Alle drei neuen Hardwaretests bestanden, keine übersprungen.** Sichtbare Pixel bestätigen RGB und Alpha `0/0.5/1`; auch der alte Bildinhalt während einer neuen Kopie bleibt korrekt.
+- Integrierter Implementierungsstand: `54bb684c7`, vorheriger Integrationspunkt `81ebc066b`; ausschließlich lokale Commits, kein Push.
+- Abschließender Rider-Build erfolgreich. Standardtests unverändert **617/625 bestanden**, dieselben acht vorhandenen Fehler; keine neuen fehlschlagenden Testnamen.
+- Graphify nach finaler Formatierung erfolgreich: 1.013 Dateien, 9.691 Knoten, 16.858 Kanten, 2.847 Communities. Die bestehenden 17 partiellen Parser-Ergebnisse bleiben dokumentiert.
+- Grenzen: ein GPU-/Treiber-/Desktop-Setup, kurze Beobachtung; keine Zusage für WARP, RDP, zweiten Hardwareadapter, injizierte GPU-Stalls oder Geräteverlust. Der Testtreiber arbeitet nur auf Anforderung; die produktive Viewport-Bedarfssteuerung folgt in Phase 2.
+- **Haltepunkt erreicht: Phase 2 startet erst nach ausdrücklicher Freigabe.** Ausführlicher [Phasenbericht und Befunde](knowledge/backlog/d3d12-wpf-composition.md).
 
 Jeder Phasenbericht enthält:
 

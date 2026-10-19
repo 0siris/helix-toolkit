@@ -1,12 +1,16 @@
 ---
 type: ImplementationPlan
 title: D3D12 WPF composition proof and phased integration
-generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T11:10:00Z }
+generated: { by: "agent:gpt-6.1-sol", at: 2026-10-19T11:17:00Z }
+verified: { by: "agent:gpt-6.1-sol", at: 2026-10-19T11:17:00Z }
 status: draft
 sources:
   - resource: ../../wpf-komposition-phasen-parallele-tasks-und-reviews.md
   - resource: ../../Source/SilkToolkit/SilkToolkit.csproj
   - resource: ../../Source/SilkToolkit/Controls/D3D12PresentationSurface.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3DImageInteropProbe.cs
+  - resource: ../../Source/SilkToolkit.Tests/D3DImageInteropNativeTests.cs
+  - resource: ../../Source/SilkToolkit.Tests/D3DImageInteropWpfTests.cs
 ---
 
 # Scope
@@ -71,6 +75,53 @@ See the [versioned WPF implementation](https://github.com/dotnet/wpf/blob/v10.0.
 
 Target hardware: NVIDIA GeForce GTX 1070, driver `32.0.15.6094`. Passing here will not establish WARP,
 Remote Desktop, other-adapter or device-loss support. Historical WPF software fallback is not such a guarantee.
+
+# Phase 1 results
+
+P1.1–P1.4 are complete. The integrated code is at `54bb684c7`; the previous integration checkpoint was
+`81ebc066b`. Native implementation and WPF tests were developed in separate worktrees. A separate research
+review identified the immutable-surface and lock-count requirements. Independent code review found no
+additional Phase 1 blockers; a second review of `81ebc066b..54bb684c7` accepted the final visible-test correction.
+
+The final Rider build (`2e1ce8e6-2e92-45e7-a337-3d8217df3a2e`) succeeded. The explicit hardware run passed
+all three new tests without skips, recorded in `Source/SilkToolkit.Tests/TestResults/` with the TRX prefix
+`wpf-phase1-proof-final`:
+
+- Native sharing: actual D3D9 pixels match premultiplied BGRA, including alpha zero/half/one, distinct red/blue,
+  both destination slots, recreation and pending-clear teardown. Invalid adapter selection fails explicitly.
+- Hidden WPF: six publications, responsive dispatcher, unchanged explicit-driver counts during idle, safe
+  detachment, recreation from 64×48 to 96×72 and repeated disposal.
+- Visible WPF: actual desktop RGB values match red `(255,0,0)`, green `(0,255,0)` and blue `(0,0,255)`;
+  half-alpha over white produces `(255,128,128)`, `(128,255,128)` and `(128,128,255)`, respectively. Alpha zero
+  reveals white. The attached red image and its `RenderTargetBitmap` snapshot remain red while copying green
+  into the other slot. Sixteen explicit publications settle without additional driver submissions, copies or
+  publications during the approximately 200 ms observation. Resizing/recreation and disposal also pass.
+
+Both default selection and explicit DXGI adapter `0` resolve to the actual LUID `0x000000000001456C` on
+this machine. No second physical adapter was available. Polling timings in test output include dispatcher
+scheduling and intentional screenshot delays; they are not GPU performance benchmarks.
+
+The first visible test failed before creating the probe because a source-less `Image` had no layout area.
+The correction gives the test image explicit dimensions and samples the window only for the source-less
+white baseline and disposed state. Every actual RGB/alpha/retained-image/resize measurement still samples
+the image itself, and the software snapshot renders that image directly.
+
+The final standard suite still reports exactly 617 passed and the same 8 failed out of 625; per-project TRX
+failure-name comparisons against the baseline have zero differences. These pre-existing failures remain open.
+ReSharper formatting and warning-level diagnostics were inspected; no compilation or semantic diagnostic
+errors remain in the probe files. Stylistic/interop inspection warnings remain and were not globally cleaned up.
+
+Graphify completed locally after the final C# formatting: 1,013 source files, 9,691 nodes, 16,858 edges and
+2,847 communities, with zero model tokens. Its existing 17 partially extracted files remain a parser limitation.
+The staging corpus was removed and generated output was not manually edited.
+
+This proves the isolated transport on one GPU/driver and desktop session. It does not yet implement production
+Viewport selection, demand gating, frontbuffer/device recovery, forced lock contention, injected GPU stalls,
+long-duration stress, multi-adapter hardware, RDP or WARP. These are separate integration/validation work.
+The probe's alternating-slot API relies on its documented caller publication/detachment precondition.
+Test-only staging readback and desktop sampling never supply presentation pixels.
+
+Phase 2 requires explicit user approval. The complete feature remains a draft until later phases are integrated.
 
 # Remaining scope
 

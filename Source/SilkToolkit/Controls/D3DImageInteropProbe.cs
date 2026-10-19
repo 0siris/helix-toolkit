@@ -194,7 +194,7 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
         hasFrame = false;
         stopping = true;
         queue12!.Execute(commands12);
-        renderFenceValue = queue12.Signal(fence12!);
+        renderFenceValue = queue12!.Signal(fence12!);
         stopping = false;
         hasFrame = true;
     }

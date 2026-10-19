@@ -97,7 +97,7 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
             var area = SystemParameters.WorkArea;
             var bounds = new Rect(area.Left + 24, area.Top + 24, 192, 144);
             Assert.True(area.Contains(bounds), $"The fixed proof window {bounds} does not fit work area {area}.");
-            var image = new Image { Stretch = Stretch.Fill };
+            var image = new Image { Stretch = Stretch.Fill, Width = bounds.Width, Height = bounds.Height };
             var window = new Window {
                 Title = "D3DImage hardware composition proof",
                 WindowStartupLocation = WindowStartupLocation.Manual,
@@ -239,8 +239,14 @@ public sealed class D3DImageInteropWpfTests(ITestOutputHelper output) {
         window.UpdateLayout();
         await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
         await Task.Delay(250);
-        Assert.True(image.ActualWidth > 0 && image.ActualHeight > 0, "The proof image has no visible layout area.");
-        var center = image.PointToScreen(new Point(image.ActualWidth / 2, image.ActualHeight / 2));
+        FrameworkElement sampleTarget = image.Source is null
+            ? window
+            : image;
+        Assert.True(
+            sampleTarget.ActualWidth > 0 && sampleTarget.ActualHeight > 0,
+            $"{label}: no visible layout area; window={window.RenderSize}, image={image.RenderSize}."
+        );
+        var center = sampleTarget.PointToScreen(new Point(sampleTarget.ActualWidth / 2, sampleTarget.ActualHeight / 2));
         var point = new NativePoint { X = (int) Math.Round(center.X), Y = (int) Math.Round(center.Y) };
         var expectedWindow = new WindowInteropHelper(window).Handle;
         var actualWindow = WindowFromPoint(point);

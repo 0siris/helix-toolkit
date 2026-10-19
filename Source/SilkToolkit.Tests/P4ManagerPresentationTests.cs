@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Threading;
 using HelixToolkit.SharpDX.Core;
@@ -148,6 +149,181 @@ public sealed class P4ManagerPresentationTests {
         Assert.False(effects.IsDisposed);
     });
 
+    /// <summary>Preflights every shared resource owner without blocking identity assignment on actual GPU use.</summary>
+    /// <param name="secondHwnd">Whether the busy second consumer explicitly selects the HWND backend.</param>
+    /// <returns>The genuine queue gate, retained barrier and automatic latest-value fanout verification.</returns>
+    [Theory(Explicit = true)]
+    [InlineData(false)]
+    [InlineData(true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task SharedManagerIdentityChangeDoesNotWaitForBusyPeer(bool secondHwnd) => StaThread.RunAsync(async () => {
+        using var original = new DefaultEffectsManager();
+        using var intermediate = new DefaultEffectsManager();
+        using var latest = new DefaultEffectsManager();
+        using var mesh = P4PresentationDriver.CreateMesh();
+        var container = new ModelContainer3DX { EffectsManager = original };
+        container.Items.Add(mesh);
+        await using var first = new P4PresentationDriver(false, original);
+        await using var second = new P4PresentationDriver(secondHwnd, original);
+        foreach (var driver in new[] { first, second }) {
+            driver.Viewport.EnableSharedModelMode = true;
+            driver.Viewport.SharedModelContainer = container;
+            await driver.WarmAsync();
+        }
+        var firstContext = first.Context!;
+        var secondContext = second.Context!;
+        using (var gate = new P4NativeQueueGate(second)) {
+            second.Viewport.InvalidateRender();
+            _ = second.Tick();
+            var probeValue = gate.Queue.Signal(gate.Probe);
+            Assert.True(gate.Probe.CompletedValue < probeValue);
+            var started = Stopwatch.GetTimestamp();
+            container.EffectsManager = intermediate;
+            container.EffectsManager = latest;
+            Assert.True(Stopwatch.GetElapsedTime(started) < TimeSpan.FromSeconds(1),
+                "Ordinary shared manager assignment waited for the gated native queue.");
+            Assert.True(container.IsSynchronizingEffectsManager);
+            Assert.True(P4PresentationDriver.ReadField<DispatcherTimer>(container, "managerRetryTimer").IsEnabled);
+            Assert.False(first.Viewport.CanSubmitNativeScene);
+            Assert.False(second.Viewport.CanSubmitNativeScene);
+            var firstBefore = first.Counts;
+            var secondBefore = second.Counts;
+            _ = first.Tick();
+            _ = second.Tick();
+            await Task.Delay(150);
+            Assert.Equal(firstBefore, first.Counts);
+            Assert.Equal(secondBefore, second.Counts);
+            Assert.Same(original, first.Viewport.EffectsManager);
+            Assert.Same(original, second.Viewport.EffectsManager);
+            Assert.Same(firstContext, first.Context);
+            Assert.Same(secondContext, second.Context);
+            Assert.NotNull(firstContext.Camera);
+            Assert.NotNull(secondContext.Camera);
+            Assert.True(mesh.SceneNode.RenderCore.IsAttached);
+            Assert.Equal(2, P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers").Length);
+            gate.Release();
+            // The retained timer must recover without another render tick or scheduling request.
+            await P4PresentationDriver.PollAsync(() => !container.IsSynchronizingEffectsManager,
+                "automatic shared manager retirement after GPU gate release");
+            Assert.True(gate.Probe.CompletedValue >= probeValue);
+        }
+        Assert.Same(latest, first.Viewport.EffectsManager);
+        Assert.Same(latest, second.Viewport.EffectsManager);
+        Assert.Null(firstContext.Camera);
+        Assert.Null(secondContext.Camera);
+        Assert.Empty(P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers"));
+        Assert.False(P4PresentationDriver.ReadField<DispatcherTimer>(container, "managerRetryTimer").IsEnabled);
+        await first.DrainAsync();
+        await second.DrainAsync();
+        await AssertPresentationPixelAsync(first, 0, 255, 0);
+        await AssertPresentationPixelAsync(second, 0, 255, 0);
+        Assert.Same(latest, mesh.SceneNode.EffectsManager);
+        Assert.False(original.IsDisposed);
+        Assert.False(intermediate.IsDisposed);
+        Assert.False(latest.IsDisposed);
+    });
+
+    /// <summary>Drains an unloaded peer's actual queued GPU use before a shared manager frees its resources.</summary>
+    /// <returns>The synchronous disposal and retained inactive-owner verification.</returns>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task SharedManagerDisposalDrainsUnloadedPeerGpuUse() => StaThread.RunAsync(async () => {
+        using var disposalStarted = new ManualResetEventSlim();
+        using var effects = new DefaultEffectsManager();
+        effects.DisposingResources += (_, _) => disposalStarted.Set();
+        using var mesh = P4PresentationDriver.CreateMesh();
+        var container = new ModelContainer3DX { EffectsManager = effects };
+        container.Items.Add(mesh);
+        await using var first = new P4PresentationDriver(false, effects);
+        await using var second = new P4PresentationDriver(false, effects);
+        foreach (var driver in new[] { first, second }) {
+            driver.Viewport.EnableSharedModelMode = true;
+            driver.Viewport.SharedModelContainer = container;
+            await driver.WarmAsync();
+        }
+        using (var gate = new P4NativeQueueGate(second)) {
+            second.Viewport.InvalidateRender();
+            _ = second.Tick();
+            var probeValue = gate.Queue.Signal(gate.Probe);
+            second.Root.Children.Remove(second.Viewport);
+            await P4PresentationDriver.PollAsync(() => !second.Viewport.IsLoaded, "shared peer unload");
+            Assert.True(gate.Probe.CompletedValue < probeValue);
+            Assert.Null(P4PresentationDriver.ReadField<ModelContainer3DX?>(second.Viewport, "registeredModelContainer"));
+            Assert.Same(container,
+                P4PresentationDriver.ReadField<ModelContainer3DX?>(second.Viewport, "resourceModelContainer"));
+            var release = Task.Run(async () => {
+                Assert.True(disposalStarted.Wait(P4PresentationDriver.Timeout));
+                await Task.Delay(50);
+                gate.Release();
+            });
+            try {
+                effects.DisposeAllResources();
+                Assert.True(gate.Probe.CompletedValue >= probeValue,
+                    "Shared manager disposal returned before the unloaded peer's actual queue was quiescent.");
+            } finally {
+                gate.Release();
+                await release;
+            }
+        }
+        Assert.Empty(P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers"));
+        Assert.False(first.Viewport.CanSubmitNativeScene);
+        Assert.False(second.Viewport.CanSubmitNativeScene);
+        Assert.False(mesh.SceneNode.RenderCore.IsAttached);
+        effects.Reinitialize();
+        await first.DrainAsync();
+        await AssertPresentationPixelAsync(first, 0, 255, 0);
+        Assert.False(effects.IsDisposed);
+    });
+
+    /// <summary>Rebinds an unchanged shared WPF generation across real unload without scene or copy work.</summary>
+    /// <returns>The actual retained context, generation, image and final registration release verification.</returns>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task UnchangedSharedReloadRebindsRetainedTransportWithoutSceneWork() => StaThread.RunAsync(async () => {
+        using var effects = new DefaultEffectsManager();
+        using var mesh = P4PresentationDriver.CreateMesh();
+        var container = new ModelContainer3DX { EffectsManager = effects };
+        container.Items.Add(mesh);
+        await using var driver = new P4PresentationDriver(false, effects);
+        driver.Viewport.EnableSharedModelMode = true;
+        driver.Viewport.SharedModelContainer = container;
+        await driver.WarmAsync();
+        var owner = driver.Wpf!;
+        var context = driver.Context;
+        var before = driver.Counts;
+        var copied = owner.CopiedFrames;
+        var published = owner.PublishedFrames;
+        var rebound = owner.ReboundFrames;
+        var generation = owner.Generation;
+        driver.Root.Children.Remove(driver.Viewport);
+        await P4PresentationDriver.PollAsync(() => !driver.Viewport.IsLoaded, "unchanged shared viewport unload");
+        await driver.FinishTransportAsync();
+        Assert.Equal(nint.Zero, driver.Canvas!.ImageSource.BoundSurface);
+        Assert.Same(context, owner.RenderContext);
+        Assert.Contains(driver.Viewport, P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers"));
+        Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+        driver.Root.Children.Add(driver.Viewport);
+        driver.Root.UpdateLayout();
+        await P4PresentationDriver.PollAsync(() => driver.Viewport.IsLoaded, "unchanged shared viewport reload");
+        await driver.DrainAsync();
+        Assert.Equal(before, driver.Counts);
+        Assert.Equal(copied, owner.CopiedFrames);
+        Assert.Equal(published, owner.PublishedFrames);
+        Assert.True(owner.ReboundFrames > rebound);
+        Assert.Equal(generation, owner.Generation);
+        Assert.Same(context, owner.RenderContext);
+        Assert.NotEqual(nint.Zero, driver.Canvas.ImageSource.BoundSurface);
+        P4PresentationDriver.AssertPixel(driver.Snapshot(), 32, 24, 0, 255, 0, 255);
+        await driver.DisposeAsync();
+        Assert.Empty(P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers"));
+        Assert.Null(P4PresentationDriver.ReadField<ModelContainer3DX?>(driver.Viewport, "resourceModelContainer"));
+        Assert.False(mesh.SceneNode.IsDisposed);
+        Assert.False(effects.IsDisposed);
+    });
+
     /// <summary>Prevents a real retirement-completion listener from resubscribing a viewport it has just disposed.</summary>
     /// <param name="hwnd">Whether to explicitly select the HWND backend.</param>
     /// <returns>The reentrant final-disposal subscription regression.</returns>
@@ -171,7 +347,7 @@ public sealed class P4ManagerPresentationTests {
             };
             gate.Release();
             driver.Viewport.EffectsManager = replacement;
-            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            await P4PresentationDriver.PollAsync(() => driver.Viewport.IsDisposed, "retirement completion disposal");
             Assert.Equal(1, calls);
             Assert.True(driver.Viewport.IsDisposed);
             Assert.Null(P4PresentationDriver.ReadField<IEffectsManager?>(driver.Viewport, "subscribedEffectsManager"));
@@ -248,12 +424,21 @@ public sealed class P4ManagerPresentationTests {
 
             var leaving = leaveSecond ? second : first;
             var survivor = leaveSecond ? first : second;
+            var leavingContext = leaving.Context;
             if (dispose) await leaving.DisposeAsync();
             else {
                 leaving.Root.Children.Remove(leaving.Viewport);
                 await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
                 Assert.False(leaving.Viewport.IsLoaded);
-                leaving.Viewport.RetireSceneResourcesForManagerChange();
+                Assert.Null(P4PresentationDriver.ReadField<ModelContainer3DX?>(leaving.Viewport, "registeredModelContainer"));
+                if (leaving.Wpf is not null) {
+                    Assert.Same(leavingContext, leaving.Context);
+                    Assert.NotNull(leavingContext!.Camera);
+                    Assert.Same(container,
+                        P4PresentationDriver.ReadField<ModelContainer3DX?>(leaving.Viewport, "resourceModelContainer"));
+                    Assert.Contains(leaving.Viewport,
+                        P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers"));
+                }
             }
             Assert.True(mesh.SceneNode.IsAttached);
             Assert.False(mesh.SceneNode.IsDisposed);
@@ -287,7 +472,12 @@ public sealed class P4ManagerPresentationTests {
             await survivor.DrainAsync();
             await AssertPresentationPixelAsync(survivor, 0, 255, 0);
             container.EffectsManager = replacement;
-            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            await P4PresentationDriver.PollAsync(() => !container.IsSynchronizingEffectsManager,
+                "shared manager replacement after peer departure");
+            Assert.Empty(P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers"));
+            Assert.Null(P4PresentationDriver.ReadField<ModelContainer3DX?>(leaving.Viewport, "resourceModelContainer"));
+            Assert.Null(leavingContext!.Camera);
+            Assert.False(mesh.SceneNode.RenderCore.IsAttached);
             await survivor.DrainAsync();
             Assert.Same(replacement, survivor.Viewport.EffectsManager);
             Assert.Same(replacement, mesh.SceneNode.EffectsManager);

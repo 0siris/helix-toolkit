@@ -23,6 +23,125 @@ namespace SilkToolkit.Tests;
 /// <summary>Checks shared root notifications and actual independent native consumers of application-owned nodes.</summary>
 [Collection(WpfCollection.Name)]
 public sealed class SharedSceneConsumerTests {
+    /// <summary>Retains mutation observation across notification unload and restores only genuinely stale scene demand.</summary>
+    /// <returns>The worker-thread revision, stable reload and retained pending-demand verification.</returns>
+    [Fact]
+    public Task RetainedSharedOwnerObservesWorkerInvalidationWithoutReloadRedraw() => StaThread.RunAsync(async () => {
+        using var viewport = new Viewport3DX { EnableSharedModelMode = true };
+        using var root = new GroupModel3D();
+        using var child = new MeshGeometryModel3D();
+        root.Children.Add(child);
+        var container = new ModelContainer3DX();
+        container.Items.Add(root);
+        viewport.SharedModelContainer = container;
+        viewport.PrepareHostFrameContracts();
+        Drain(viewport);
+        viewport.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent));
+        var revision = container.SceneRevision;
+        Assert.Null(PrivateField<ModelContainer3DX?>(viewport, "registeredModelContainer"));
+        Assert.Same(container, PrivateField<ModelContainer3DX?>(viewport, "resourceModelContainer"));
+        viewport.PrepareHostFrameContracts();
+        Assert.False(viewport.RenderDemand.HasRenderDemand);
+        Assert.Equal(revision, container.SceneRevision);
+
+        viewport.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent));
+        viewport.InvalidateRender();
+        viewport.PrepareHostFrameContracts();
+        Assert.True(viewport.RenderDemand.HasRenderDemand);
+        Drain(viewport);
+        viewport.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent));
+        await Task.Run(child.SceneNode.InvalidateRender);
+        Assert.NotEqual(revision, container.SceneRevision);
+        Assert.False(viewport.RenderDemand.HasRenderDemand);
+        viewport.PrepareHostFrameContracts();
+        Assert.True(viewport.RenderDemand.HasRenderDemand);
+        viewport.Dispose();
+        Assert.Empty(PrivateField<Viewport3DX[]>(container, "resourceConsumers"));
+        Assert.Null(PrivateField<ModelContainer3DX?>(viewport, "resourceModelContainer"));
+        revision = container.SceneRevision;
+        child.SceneNode.InvalidateRender();
+        Assert.Equal(revision, container.SceneRevision);
+    });
+
+    /// <summary>Preserves an old container's resource membership until deferred selection retirement actually succeeds.</summary>
+    /// <param name="disableSharedMode">Whether to disable sharing rather than replace the selected container.</param>
+    /// <returns>The retained preparation barrier, old-reference release and new-owner registration verification.</returns>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public Task SharedSelectionChangeRetiresOldResourceMembership(bool disableSharedMode) => StaThread.RunAsync(async () => {
+        using var viewport = new Viewport3DX { EnableSharedModelMode = true };
+        var original = new ModelContainer3DX();
+        var replacement = new ModelContainer3DX();
+        viewport.SharedModelContainer = original;
+        viewport.PrepareHostFrameContracts();
+        viewport.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent));
+        var preparing = typeof(Viewport3DX).GetField("isD3D12FrameUpdating", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        try {
+            preparing.SetValue(viewport, true);
+            if (disableSharedMode) viewport.EnableSharedModelMode = false;
+            else viewport.SharedModelContainer = replacement;
+            Assert.Same(original, PrivateField<ModelContainer3DX?>(viewport, "resourceModelContainer"));
+            Assert.Contains(viewport, PrivateField<Viewport3DX[]>(original, "resourceConsumers"));
+            Assert.False(viewport.CanSubmitNativeScene);
+            preparing.SetValue(viewport, false);
+            viewport.ScheduleManagerLifecycle();
+            await PollAsync(() => viewport.CanSubmitNativeScene);
+            Assert.Empty(PrivateField<Viewport3DX[]>(original, "resourceConsumers"));
+            Assert.Null(PrivateField<ModelContainer3DX?>(viewport, "resourceModelContainer"));
+            viewport.PrepareHostFrameContracts();
+            if (disableSharedMode)
+                Assert.Null(PrivateField<ModelContainer3DX?>(viewport, "resourceModelContainer"));
+            else
+                Assert.Same(replacement, PrivateField<ModelContainer3DX?>(viewport, "resourceModelContainer"));
+            viewport.Dispose();
+            Assert.Empty(PrivateField<Viewport3DX[]>(original, "resourceConsumers"));
+            Assert.Empty(PrivateField<Viewport3DX[]>(replacement, "resourceConsumers"));
+        } finally {
+            preparing.SetValue(viewport, false);
+        }
+    });
+
+    /// <summary>Waits for an unloaded resource owner's frame exit despite its absent notification membership.</summary>
+    /// <returns>The resource-snapshot preparation barrier and one-pass retirement completion verification.</returns>
+    [Fact]
+    public Task PreparingUnloadedResourceOwnerStillBlocksSharedManagerChange() => StaThread.RunAsync(async () => {
+        using var original = new DefaultEffectsManager(new EffectsManagerConfiguration { EnableSoftwareRendering = true });
+        using var replacement = new DefaultEffectsManager(new EffectsManagerConfiguration { EnableSoftwareRendering = true });
+        using var active = new Viewport3DX { EnableSharedModelMode = true, EffectsManager = original };
+        using var unloaded = new Viewport3DX { EnableSharedModelMode = true, EffectsManager = original };
+        var container = new ModelContainer3DX { EffectsManager = original };
+        foreach (var viewport in new[] { active, unloaded }) {
+            viewport.SharedModelContainer = container;
+            viewport.PrepareHostFrameContracts();
+        }
+        unloaded.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent));
+        var preparing = typeof(Viewport3DX).GetField("isD3D12FrameUpdating", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        try {
+            preparing.SetValue(unloaded, true);
+            container.EffectsManager = replacement;
+            container.SchedulePendingEffectsManagerSynchronization();
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            Assert.True(container.IsSynchronizingEffectsManager);
+            Assert.Same(original, active.EffectsManager);
+            Assert.Same(original, unloaded.EffectsManager);
+            Assert.Equal(2, PrivateField<Viewport3DX[]>(container, "resourceConsumers").Length);
+            Assert.False(PrivateField<bool>(container, "managerChangeQueued"));
+            preparing.SetValue(unloaded, false);
+            unloaded.ScheduleManagerLifecycle();
+            await PollAsync(() => !container.IsSynchronizingEffectsManager);
+            Assert.Same(replacement, active.EffectsManager);
+            Assert.Same(original, unloaded.EffectsManager);
+            Assert.Empty(PrivateField<Viewport3DX[]>(container, "resourceConsumers"));
+            Assert.Null(PrivateField<ModelContainer3DX?>(unloaded, "resourceModelContainer"));
+            Assert.False(PrivateField<bool>(container, "managerChangeQueued"));
+            Assert.False(original.IsDisposed);
+            Assert.False(replacement.IsDisposed);
+        } finally {
+            preparing.SetValue(unloaded, false);
+        }
+    });
+
     /// <summary>Retains real bound native resources across lock timeouts and automatically completes the latest fanout.</summary>
     /// <returns>The genuine WPF write-lock failure, contained callback timeout and automatic timer recovery verification.</returns>
     [Fact(Explicit = true)]

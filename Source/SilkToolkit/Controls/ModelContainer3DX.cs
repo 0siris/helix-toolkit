@@ -19,7 +19,16 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <summary>Publishes immutable consumer snapshots without allocating during node invalidation.</summary>
     private IRenderHost[] consumers = [];
 
-    /// <summary>Retains the unique subscribed roots while at least one consumer is registered.</summary>
+    /// <summary>Retains native resource owners independently of loaded notification membership.</summary>
+    private Viewport3DX[] resourceConsumers = [];
+
+    /// <summary>Records shared mutations even while every notification consumer is temporarily unloaded.</summary>
+    private long sceneRevision;
+
+    /// <summary>Gets the shared mutation revision published by dispatcher or worker-thread invalidations.</summary>
+    internal long SceneRevision => Interlocked.Read(ref sceneRevision);
+
+    /// <summary>Retains unique root subscriptions while notifications or native attachment owners remain.</summary>
     private readonly HashSet<SceneNode> observedRoots = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>Reuses the dispatcher callback for a manager change deferred by an active scene frame.</summary>
@@ -71,7 +80,12 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
 
     /// <summary>Registers an active host once and observes each shared root without taking application ownership.</summary>
     /// <param name="host">The actual viewport host receiving shared scene invalidation.</param>
-    internal void RegisterConsumer(IRenderHost host) {
+    internal void RegisterConsumer(IRenderHost host) => RegisterConsumer(host, null);
+
+    /// <summary>Restores notifications without redrawing an unchanged retained shared generation.</summary>
+    /// <param name="host">The actual viewport host receiving shared scene invalidation.</param>
+    /// <param name="retainedSceneRevision">The revision observed at unload, or null for a new resource owner.</param>
+    internal void RegisterConsumer(IRenderHost host, long? retainedSceneRevision) {
         VerifyAccess();
         var previous = consumers;
         foreach (var consumer in previous)
@@ -80,10 +94,11 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         Array.Copy(previous, next, previous.Length);
         next[^1] = host;
         Volatile.Write(ref consumers, next);
-        if (previous.Length == 0) RefreshRootSubscriptions();
+        if (previous.Length == 0 && resourceConsumers.Length == 0) RefreshRootSubscriptions();
         if (EffectsManager is { } manager && !ReferenceEquals(host.EffectsManager, manager))
             RequestEffectsManagerSynchronization();
-        host.InvalidateSceneGraph();
+        // Publish membership before comparing revisions so a concurrent invalidation cannot fall between both checks.
+        if (retainedSceneRevision != SceneRevision) host.InvalidateSceneGraph();
     }
 
     /// <summary>Stops notifications to one host without releasing another renderer's node attachments.</summary>
@@ -98,7 +113,35 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         Array.Copy(previous, next, index);
         Array.Copy(previous, index + 1, next, index, previous.Length - index - 1);
         Volatile.Write(ref consumers, next);
-        if (next.Length == 0) RefreshRootSubscriptions();
+        if (next.Length == 0 && resourceConsumers.Length == 0) RefreshRootSubscriptions();
+        SchedulePendingEffectsManagerSynchronization();
+    }
+
+    /// <summary>Registers a viewport before its renderer can borrow shared scene attachment leases.</summary>
+    /// <param name="viewport">The actual native resource owner, retained across temporary unload.</param>
+    internal void RegisterResourceConsumer(Viewport3DX viewport) {
+        VerifyAccess();
+        foreach (var consumer in resourceConsumers)
+            if (ReferenceEquals(consumer, viewport)) return;
+        var next = new Viewport3DX[resourceConsumers.Length + 1];
+        Array.Copy(resourceConsumers, next, resourceConsumers.Length);
+        next[^1] = viewport;
+        resourceConsumers = next;
+        if (consumers.Length == 0 && next.Length == 1) RefreshRootSubscriptions();
+    }
+
+    /// <summary>Releases an owner only after its old renderer and submitted GPU work have retired successfully.</summary>
+    /// <param name="viewport">The viewport whose shared attachment leases no longer exist.</param>
+    internal void UnregisterResourceConsumer(Viewport3DX viewport) {
+        VerifyAccess();
+        var previous = resourceConsumers;
+        var index = Array.IndexOf(previous, viewport);
+        if (index < 0) return;
+        var next = new Viewport3DX[previous.Length - 1];
+        Array.Copy(previous, next, index);
+        Array.Copy(previous, index + 1, next, index, previous.Length - index - 1);
+        resourceConsumers = next;
+        if (consumers.Length == 0 && next.Length == 0) RefreshRootSubscriptions();
         SchedulePendingEffectsManagerSynchronization();
     }
 
@@ -110,11 +153,11 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         InvalidateConsumers(null, InvalidateTypes.SceneGraph);
     }
 
-    /// <summary>Rebuilds subscriptions only when the item collection or first/last consumer changes.</summary>
+    /// <summary>Rebuilds subscriptions when items change or the first/last notification or resource owner changes.</summary>
     private void RefreshRootSubscriptions() {
         foreach (var root in observedRoots) root.Invalidated -= RootInvalidated;
         observedRoots.Clear();
-        if (consumers.Length == 0) return;
+        if (consumers.Length == 0 && resourceConsumers.Length == 0) return;
         for (var index = 0; index < Items.Count; index++)
             if (Items[index] is Element3D element && observedRoots.Add(element.SceneNode))
                 element.SceneNode.Invalidated += RootInvalidated;
@@ -130,6 +173,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <param name="alreadyNotified">The node's current native host, or null for a collection mutation.</param>
     /// <param name="type">The original invalidation kind.</param>
     private void InvalidateConsumers(IRenderHost? alreadyNotified, InvalidateTypes type) {
+        Interlocked.Increment(ref sceneRevision);
         foreach (var host in Volatile.Read(ref consumers)) {
             if (ReferenceEquals(host, alreadyNotified)) continue;
             switch (type) {
@@ -161,19 +205,36 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         VerifyAccess();
         resourceRetirementPending = true;
         IsSynchronizingEffectsManager = true;
-        SynchronizeEffectsManager();
+        // The manager frees borrowed resources as soon as its notification returns, even inside CPU preparation.
+        try {
+            foreach (var viewport in resourceConsumers) viewport.DrainSubmittedWorkForManagerDisposal();
+            SynchronizeEffectsManager(forceRetirement: true);
+        } catch (TimeoutException) {
+            ScheduleManagerRetirementRetry();
+            throw;
+        }
     }
 
     /// <summary>Retires all old native owners before assigning a replacement manager to any registered host.</summary>
+    /// <param name="forceRetirement">Whether a synchronous manager disposal requires bounded GPU draining.</param>
     /// <exception cref="TimeoutException">Retirement timed out; the barrier and resources remain owned for retry.</exception>
-    private void SynchronizeEffectsManager() {
+    private void SynchronizeEffectsManager(bool forceRetirement = false) {
         if (!managerIdentityChangePending && !resourceRetirementPending) return;
         var snapshot = consumers;
+        var resources = resourceConsumers;
         if (isApplyingManagerChange) return;
         managerRetryTimer?.Stop();
-        if (HasPreparingConsumer(snapshot)) {
+        if (HasPreparingConsumer(snapshot) || HasPreparingConsumer(resources)) {
             // The last consumer's frame exit resumes this transaction without polling a nested dispatcher pump.
             return;
+        }
+
+        if (!forceRetirement) {
+            foreach (var viewport in resources)
+                if (!viewport.CanRetireManagerWithoutWaiting()) {
+                    ScheduleManagerRetirementRetry();
+                    return;
+                }
         }
 
         var manager = EffectsManager;
@@ -184,11 +245,11 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         isApplyingManagerChange = true;
         var completed = false;
         try {
-            foreach (var host in snapshot)
-                if (host is Viewport3DX viewport)
-                    viewport.RetireSceneResourcesForManagerChange();
+            foreach (var viewport in resources) viewport.RetireSceneResourcesForManagerChange();
             // Retirement can invoke application callbacks that change the requested manager or consumer set.
-            if ((assignManager && !ReferenceEquals(manager, EffectsManager)) || !ReferenceEquals(snapshot, consumers)) {
+            // Successful retirement removes resource owners; that expected shrink must not restart the transaction.
+            if ((assignManager && !ReferenceEquals(manager, EffectsManager)) ||
+                !ReferenceEquals(snapshot, consumers) || resourceConsumers.Length != 0) {
                 managerIdentityChangePending |= assignManager;
                 resourceRetirementPending |= retireAll;
                 completed = true;
@@ -230,8 +291,8 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         }
     }
 
-    /// <summary>Checks the entire consumer set before any presentation resources or host managers change.</summary>
-    /// <param name="snapshot">The immutable dispatcher-owned consumer snapshot.</param>
+    /// <summary>Checks notification or retained-resource membership before any presentation resources or managers change.</summary>
+    /// <param name="snapshot">The immutable dispatcher-owned notification or resource snapshot.</param>
     /// <returns>Whether any actual viewport is currently preparing a presentation frame.</returns>
     private static bool HasPreparingConsumer(IRenderHost[] snapshot) {
         foreach (var host in snapshot)
@@ -244,11 +305,12 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         if (!IsSynchronizingEffectsManager || isApplyingManagerChange || managerChangeQueued ||
             managerRetryTimer is { IsEnabled: true } || Dispatcher.HasShutdownStarted || HasPreparingConsumer(consumers))
             return;
+        if (HasPreparingConsumer(resourceConsumers)) return;
         managerChangeQueued = true;
         Dispatcher.BeginInvoke(DispatcherPriority.Background, synchronizeEffectsManagerCallback);
     }
 
-    /// <summary>Retries only exceptional retirement failures, retaining one timer and no periodic idle callback.</summary>
+    /// <summary>Retries pending GPU work or exceptional retirement failures with one timer and no periodic idle callback.</summary>
     private void ScheduleManagerRetirementRetry() {
         if (Dispatcher.HasShutdownStarted) return;
         if (managerRetryTimer is null) {

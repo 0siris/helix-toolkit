@@ -15,6 +15,12 @@ public partial class Viewport3DX {
     /// <summary>The container in which this viewport currently registers for invalidation fanout.</summary>
     private ModelContainer3DX? registeredModelContainer;
 
+    /// <summary>Retains shared native ownership across unload until this renderer generation retires.</summary>
+    private ModelContainer3DX? resourceModelContainer;
+
+    /// <summary>Remembers shared mutations at notification unload without consuming retained scene demand.</summary>
+    private long sharedSceneNotificationRevision;
+
     /// <summary>Blocks new scene preparation between resource disposal and reinitialization.</summary>
     private bool effectsResourcesUnavailable;
 
@@ -62,6 +68,10 @@ public partial class Viewport3DX {
     internal void PrepareHostFrameContracts() {
         UpdateSharedSceneSubscription(true);
         ScheduleManagerLifecycle();
+        if (CanRenderWithEffectsManager && resourceModelContainer is null && registeredModelContainer is { } container) {
+            resourceModelContainer = container;
+            container.RegisterResourceConsumer(this);
+        }
     }
 
     /// <summary>Retires every renderer lease belonging to this consumer after bounded native completion.</summary>
@@ -76,6 +86,21 @@ public partial class Viewport3DX {
             RaiseCompletedD3D12Frames(surface);
             if (ReferenceEquals(surface, d3d12Surface) && !surface.IsDisposed) surface.RetireSceneResources();
         }
+        ReleaseSharedSceneResourceRegistration();
+    }
+
+    /// <summary>Forgets shared resource ownership only after successful renderer or full presentation retirement.</summary>
+    internal void ReleaseSharedSceneResourceRegistration() {
+        var container = resourceModelContainer;
+        resourceModelContainer = null;
+        container?.UnregisterResourceConsumer(this);
+    }
+
+    /// <summary>Drains all submitted GPU use before a borrowed manager frees resources, including during CPU preparation.</summary>
+    internal void DrainSubmittedWorkForManagerDisposal() {
+        Dispatcher.VerifyAccess();
+        wpfPresentation?.DrainSubmittedWorkForManagerDisposal();
+        _ = d3d12Surface?.CompletePendingFrame(true);
     }
 
     /// <summary>Connects lifecycle handlers once without taking ownership of a supplied manager or scene container.</summary>
@@ -97,18 +122,29 @@ public partial class Viewport3DX {
         SetSubscribedEffectsManager(null);
         registeredModelContainer?.UnregisterConsumer(this);
         registeredModelContainer = null;
+        ReleaseSharedSceneResourceRegistration();
     }
 
     /// <summary>Registers an active shared-scene consumer and transfers notification ownership when its container changes.</summary>
     /// <param name="active">Whether this viewport is loaded or explicitly preparing an actual frame.</param>
     private void UpdateSharedSceneSubscription(bool active) {
-        var selected = active && !IsDisposed && EnableSharedModelMode
+        var configured = !IsDisposed && EnableSharedModelMode
             ? SharedModelContainerInternal as ModelContainer3DX
             : null;
+        if (resourceModelContainer is { } resources && !ReferenceEquals(resources, configured)) {
+            managerResourcesResetPending = true;
+            ScheduleManagerLifecycle();
+        }
+        var selected = active ? configured : null;
         if (ReferenceEquals(selected, registeredModelContainer)) return;
-        registeredModelContainer?.UnregisterConsumer(this);
+        if (registeredModelContainer is { } previous) {
+            sharedSceneNotificationRevision = previous.SceneRevision;
+            previous.UnregisterConsumer(this);
+        }
         registeredModelContainer = selected;
-        selected?.RegisterConsumer(this);
+        selected?.RegisterConsumer(this, ReferenceEquals(selected, resourceModelContainer)
+            ? sharedSceneNotificationRevision
+            : null);
     }
 
     /// <summary>Restores shared notification membership after reload.</summary>
@@ -232,11 +268,10 @@ public partial class Viewport3DX {
         effectsResourcesUnavailable = !available;
         managerResourcesResetPending = true;
         if (!available) {
-            wpfPresentation?.DrainSubmittedWorkForManagerDisposal();
-            _ = d3d12Surface?.CompletePendingFrame(true);
+            DrainSubmittedWorkForManagerDisposal();
         }
 
-        registeredModelContainer?.RequestSharedResourceRetirement();
+        (resourceModelContainer ?? registeredModelContainer)?.RequestSharedResourceRetirement();
         InvalidateSceneGraph();
         if (IsPreparingPresentationFrame) {
             // Submitted GPU work is complete; live permission checks discard any open CPU recording before submission.
@@ -250,7 +285,7 @@ public partial class Viewport3DX {
     /// <summary>Schedules at most one deferred resource transition; settled frames take only a field check.</summary>
     internal void ScheduleManagerLifecycle() {
         if (!IsDisposed && !IsPreparingPresentationFrame)
-            registeredModelContainer?.SchedulePendingEffectsManagerSynchronization();
+            (resourceModelContainer ?? registeredModelContainer)?.SchedulePendingEffectsManagerSynchronization();
         if (!managerResourcesResetPending || IsDisposed || Dispatcher.HasShutdownStarted ||
             managerLifecycleRetryTimer is { IsEnabled: true } ||
             managerLifecycleOperation is { Status: DispatcherOperationStatus.Pending or DispatcherOperationStatus.Executing })
@@ -277,7 +312,7 @@ public partial class Viewport3DX {
 
     /// <summary>Polls accepted work without blocking an ordinary manager identity change or dispatcher callback.</summary>
     /// <returns>Whether the preceding GPU and cross-device copy no longer borrow resources.</returns>
-    private bool CanRetireManagerWithoutWaiting() =>
+    internal bool CanRetireManagerWithoutWaiting() =>
         wpfPresentation is not { HasPendingGpuWork: true } &&
         (d3d12Surface is null || d3d12Surface.CompletePendingFrame());
 

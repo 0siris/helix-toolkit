@@ -247,12 +247,27 @@ public sealed class NativeRenderSourceNotificationTests {
         Assert.Equal(0, passAllocated);
         before = GC.GetAllocatedBytesForCurrentThread();
         var preparedDraws = 0;
+        long cleanupAllocated = 0;
+        long preparationAllocated = 0;
         for (var index = 0; index < 1_000; index++) {
+            var frameBefore = GC.GetAllocatedBytesForCurrentThread();
             renderer.BeginFrame();
+            var afterCleanup = GC.GetAllocatedBytesForCurrentThread();
+            cleanupAllocated += afterCleanup - frameBefore;
             preparedDraws += renderer.Prepare(roots, 16, 16, 1, layout);
+            preparationAllocated += GC.GetAllocatedBytesForCurrentThread() - afterCleanup;
         }
 
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        before = GC.GetAllocatedBytesForCurrentThread();
+        for (var index = 0; index < 1_000; index++) {
+            renderer.BeginFrame();
+            renderer.Prepare(roots, 16, 16, 1);
+        }
+        var withoutLayoutAllocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        TestContext.Current.TestOutputHelper?.WriteLine(
+            $"Scene2D / 1000 frames: cleanup={cleanupAllocated}, preparation={preparationAllocated}, " +
+            $"cleanup plus preparation without layout={withoutLayoutAllocated}.");
         Assert.Equal(0, allocated);
         Assert.Equal(6_000, preparedDraws);
         Assert.Equal(drawStorage.Length, renderer.Draws.Count);

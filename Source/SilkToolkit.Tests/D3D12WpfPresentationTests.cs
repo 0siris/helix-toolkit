@@ -194,6 +194,27 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output)
             var captured = driver.Owner.CaptureFrame();
             AssertPixel(captured.Pixels, captured.Width, 8, 8, 0, 255, 0, 128, 8);
             await driver.DrainAsync();
+            for (var frame = 0; frame < 64; frame++)
+            {
+                driver.Viewport.InvalidateRender();
+                _ = driver.Owner.RenderFrame(FrameTime, waitForCompletion: true);
+                await driver.DrainAsync();
+            }
+
+            const int frames = 128;
+            var before = driver.Counts;
+            var start = GC.GetAllocatedBytesForCurrentThread();
+            for (var frame = 0; frame < frames; frame++)
+            {
+                driver.Viewport.InvalidateRender();
+                _ = driver.Owner.RenderFrame(FrameTime, waitForCompletion: true);
+            }
+            var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
+            output.WriteLine($"Actual WPF mesh + FXAA + Scene2D: {allocated} bytes / {frames} frames = " +
+                $"{(double)allocated / frames:F2} bytes/frame.");
+            driver.AssertAdvanced(before, frames);
+            Assert.InRange(allocated, 0L, 2048L * frames);
+            AssertPixel(driver.Snapshot(), driver.Canvas.PixelWidth, 8, 8, 0, 128, 0, 128, 8);
         }
         finally
         {
@@ -765,7 +786,7 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output)
     [Fact(Explicit = true)]
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
-    public Task WarmedMeshFramesPublishAndStayWithinTheInitialHeapCeiling() => StaThread.RunAsync(async () =>
+    public Task WarmedMeshFramesPublishWithinTheMeasuredHeapCeiling() => StaThread.RunAsync(async () =>
     {
         await using var driver = new FrameDriver();
         await driver.WarmAsync();
@@ -798,7 +819,7 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output)
         Assert.False(owner.HasPendingTransport);
         Assert.False(viewport.RenderDemand.HasRenderDemand);
         Assert.True(draws >= frames);
-        Assert.InRange(allocated, 0L, 8192L * frames);
+        Assert.InRange(allocated, 0L, 1024L * frames);
         AssertDominantMeshPixel(driver.Snapshot(), driver.Canvas.PixelWidth, driver.Canvas.PixelHeight, red: true);
         var captured = owner.CaptureFrame();
         AssertDominantMeshPixel(captured.Pixels, captured.Width, captured.Height, red: true);

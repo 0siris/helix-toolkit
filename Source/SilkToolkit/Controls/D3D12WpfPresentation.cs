@@ -652,7 +652,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="args">The retained timer event arguments.</param>
     private void ServiceSuspendedTransport(object? sender, EventArgs args) {
         try {
-            _ = RenderFrame(TimeSpan.Zero);
+            _ = RenderFrame(TimeSpan.Zero, automaticFrame: true);
         } catch (Exception exception) {
             serviceTimer.Stop();
             viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));

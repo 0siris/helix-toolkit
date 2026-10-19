@@ -369,6 +369,46 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
         }
     );
 
+    /// <summary>Retires suspended transport without bypassing StopRendering when a completion listener restores visibility.</summary>
+    /// <returns>The actual queue, suspended-service callback and explicit restart verification.</returns>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task SuspendedServiceRespectsStopAfterCompletionRestoresVisibility() => StaThread.RunAsync(async () => {
+        await using var driver = new FrameDriver();
+        await driver.WarmAsync();
+        var before = driver.Counts;
+        var service = typeof(D3D12WpfPresentation)
+            .GetMethod("ServiceSuspendedTransport", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .CreateDelegate<EventHandler>(driver.Owner);
+        using (var gate = new NativeQueueGate(driver.Owner)) {
+            driver.Viewport.InvalidateRender();
+            Assert.True(driver.Owner.RenderFrame(FrameTime) > 0);
+            driver.Viewport.StopRendering();
+            driver.Canvas.Visibility = Visibility.Hidden;
+            driver.Owner.RequestRecreation();
+            driver.Viewport.Rendered += (_, _) => {
+                driver.Canvas.Visibility = Visibility.Visible;
+                driver.Root.UpdateLayout();
+            };
+            service(null, EventArgs.Empty);
+            Assert.Equal(before.Completed, driver.Owner.CompletedFrames);
+            gate.Release();
+        }
+        await PollAsync(() => {
+            service(null, EventArgs.Empty);
+            return !driver.Owner.HasPendingTransport && !driver.Owner.IsInitialized;
+        }, "stopped suspended transport retirement");
+        Assert.True(driver.Canvas.IsActive);
+        Assert.Equal(before.Submitted + 1, driver.Owner.SubmittedFrames);
+        Assert.Equal(before.Completed + 1, driver.Owner.CompletedFrames);
+        Assert.Equal(before.Published, driver.Owner.PublishedFrames);
+        Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
+        await driver.DrainAsync();
+        Assert.True(driver.Owner.SubmittedFrames > before.Submitted + 1);
+        AssertDominantMeshPixel(driver.Snapshot(), driver.Canvas.PixelWidth, driver.Canvas.PixelHeight, red: true);
+    });
+
     /// <summary>Discards commands recorded by an automatic scene update that stops rendering reentrantly.</summary>
     /// <returns>The unsubmitted recording and successful explicit retry verification.</returns>
     [Fact(Explicit = true)]

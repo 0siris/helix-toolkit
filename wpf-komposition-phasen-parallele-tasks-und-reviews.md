@@ -1,0 +1,203 @@
+# WPF-Komposition: Phasen, parallele Tasks und Reviews
+
+## Verbindliche Anforderungen
+
+- **Standard:** `EnableSwapChainRendering = false`, entsprechend dem ursprünglichen HelixToolkit. `true` aktiviert den bestehenden HWND-Pfad.
+- Auswahl ausschließlich vor der ersten erfolgreichen Präsentationsinitialisierung; danach abweichende Änderungen eindeutig ablehnen. Reload und Template-Neuaufbau behalten die Auswahl.
+- Ein gemeinsamer D3D12-Renderer ohne duplizierte Szenen-, Material- oder Effektlogik. Bestehende öffentliche APIs und Namespaces erhalten.
+- **WPF rendert bedarfsgesteuert:** Ohne Änderungsbedarf keine Szenenvorbereitung, GPU-Renderarbeit, Interop-Kopie oder erneute Bildveröffentlichung.
+- `MinimumUpdateCount` bleibt standardmäßig **6**: sechs Frames insgesamt pro isolierter Invalidierung. `0` und negative Werte erlauben weiterhin einen angeforderten Frame; negative Werte werden historisch auf null begrenzt.
+- Laufende Animationen, Partikel, Desktop-Capture und `ContinuousRenderNode` dürfen ausdrücklich weitere Frames anfordern.
+- Das heutige HWND-Verhalten bleibt erhalten. Historisch verwendeten beide Präsentationswege eine Renderbedarfsprüfung.
+- Normale WPF-Ticks dürfen zur Kameraaktualisierung sowie zur begrenzten Prüfung laufender Arbeit bestehen bleiben. Permanente GPU-Ausgabe ist daraus nicht abzuleiten.
+- Keine regelmäßigen CPU-Readbacks für die neue Präsentation und kein stiller HWND-Ersatzpfad.
+- Gezielte sichtbare Testfenster sind freigegeben. Keine Änderungen an MeshMeister-Anwendungscode und kein Push.
+- Bestehende MSAA- und hochauflösende Capture-Abweichungen werden dokumentiert; ihre vollständige Rendererimplementierung gehört nicht zu diesem Präsentationsumbau.
+
+### Arbeitsteilung und Reviews
+
+- Ein Integrationsverantwortlicher **I**, höchstens drei gleichzeitig schreibende Subagenten **A/B/C**, anschließend unabhängiger Reviewer **R**.
+- Schreibende Tasks verwenden getrennte Worktrees vom selben freigegebenen Phasencommit. Jede Datei besitzt genau einen verantwortlichen Bearbeiter.
+- I besitzt zentrale Viewport-Dateien, Projektdateien, Dokumentation und generierte Ausgabe.
+- Gemeinsame Schnittstellen vor parallelen Implementierungen festlegen. Änderungen außerhalb des Dateibesitzes mit I koordinieren.
+- Builds, GPU-Prüfungen und sichtbare Tests führt I seriell auf dem integrierten Stand aus.
+- Delegation über `delegate_task` mit `isolation: "worktree"`; Provider und Modell aus dem aktuellen Orchestrator-Katalog.
+- **Jede Phase endet mit Integration, Prüfungen, unabhängigem Review und lokalem Commit. Danach auf deine ausdrückliche Freigabe warten.**
+
+## Phase 0 – Arbeitsbasis und historische Verträge
+
+**Ziel:** Geprüfte Ausgangsbasis und vollständige Zuordnung der Review-Findings.
+
+- **P0.1 · I · Repository aktualisieren:** Arbeitsbaum, Index und Submodule prüfen; Branch per Fast-forward auf `72557068603fbe3017dc045782e24631970a4fb1` bringen. Bei Divergenz stoppen. Fremde Änderungen einschließlich MeshMeisters uncommittierter Dokumentation erhalten.
+- **P0.2 · A · Historische Verträge bestätigen:** Original `c59fcc424` und Altpfad `6215e5c0b^` anhand der Review-Fundstellen prüfen: Renderbedarf, DPI-Abschaltung, Canvas, Frontbuffer, Eingabe und Ressourcenbesitz.
+- **P0.3 · B · Integrationsstellen erfassen:** Gemeinsamen Renderdurchlauf, Invalidierungsquellen, EffectsManager-Ereignisse, kontinuierliche Bildquellen und gemeinsam genutzte Szenen zuordnen.
+- **P0.4 · C · Prüf- und Fähigkeitsbestand erfassen:** Bestehende Tests zuordnen; HWND-spezifische Tests mit künftig explizitem `true` markieren. MSAA, angeforderte Capture-Auflösung und Software-/WARP-Unterstützung als bestehende Grenzen erfassen.
+- **P0.5 · I · Baseline und Aufgaben festhalten:** Build und Standardtests ausführen; Ergebnisse, Schnittstellenverantwortung und Dateibesitz dokumentieren. Gespeicherten Phasenplan und OKF-Verweise konsistent halten.
+
+**Parallel:** P0.2–P0.4 nach P0.1, ausschließlich lesend.
+
+**Review:** Ausgangscommit und vorhandene Änderungen stimmen; jedes Finding besitzt einen Task oder eine ausdrücklich dokumentierte Grenze.
+
+**Haltepunkt:** Freigabe für Phase 1.
+
+## Phase 1 – GPU-Interop nachweisen
+
+**Ziel:** Funktionierende GPU-Übergabe vor dem Rendererumbau.
+
+- **P1.1 · A · Native Probe:** D3D12-BGRA-Textur mit NT-Shared-Handle in D3D11 öffnen; GPU-Kopie in eine separat mit D3D9Ex geteilte BGRA-Textur; Veröffentlichung über `D3DImage`. Native Komponenten und eigene Tests gehören A.
+- **P1.2 · C · WPF-Probe:** Nach Bereitstellung der nativen Probe Farbwechsel, Alpha, wiederholte Veröffentlichung, Resize und Freigabe auf STA prüfen. Eigene WPF-Testdateien gehören C.
+- **P1.3 · B · Synchronisationsreview:** Parallel Ressourcen- und Handle-Besitz, GPU-Abschluss, WPF-Lock und sichere Wiederverwendung untersuchen. Keine Rendereränderungen.
+- **P1.4 · I · Hardwareprüfung:** Silk-D3D9-Paketreferenz ergänzen und Probe seriell auf der GTX 1070 prüfen. Formate, Kopien und Grenzen dokumentieren.
+
+**Verbindliche Ergänzungen:**
+
+- Brückenadapter aus dem tatsächlich verwendeten D3D12-Gerät ableiten. DXGI- und D3D9-Indexnummern nicht gleichsetzen; LUIDs vergleichen.
+- Konfigurierte Adapterauswahl ausdrücklich berücksichtigen und prüfen.
+- NT-Handles und ältere Sharing-Handles getrennt behandeln.
+- Historisches `enableSoftwareFallback: true` berücksichtigen; daraus keine ungeprüfte WARP-/Remote-Desktop-Zusage ableiten.
+- Keine konkurrierenden Schreibzugriffe auf veröffentlichte Oberflächen. Normale Dispatcher-Ticks warten nicht blockierend auf die GPU.
+
+**Review:** Bildübergabe, Alpha, Synchronisation und Freigabe nachgewiesen. Bei Scheitern mit reproduzierbarem Befund stoppen.
+
+**Haltepunkt:** Freigabe für Phase 2.
+
+## Phase 2 – Gemeinsamer Renderer und Renderbedarf
+
+**Ziel:** Stabile Schnittstellen für die parallele Implementierung.
+
+- **P2.1 · I · Verträge festlegen:** Minimale Zielbeschreibung aus Farbressource, RTV, Größe und Format. Renderanforderung, GPU-Einreichung, Fertigstellung und WPF-Veröffentlichung getrennt definieren.
+- **P2.2 · B · Renderer extrahieren:** Gemeinsame Szenenvorbereitung, Renderpässe und Ressourcen aus `D3D12PresentationSurface` herauslösen. Bestehenden HWND-Pfad produktiv über diese Grenze führen.
+- **P2.3 · A · Renderbedarfssteuerung:** Separaten internen Zustand samt Tests implementieren. Bestehende Anforderungen vor der Framevorbereitung verbrauchen; später eintreffende Invalidierungen für Folgeframes erhalten. Unterschiedliche Invalidierungsarten für Bild, Szenengraph und Renderables berücksichtigen.
+- **P2.4 · C · Anschlussreview:** WPF-Anschluss, kontinuierliche Quellen, DPI und Recovery gegen die festgelegten Verträge prüfen.
+- **P2.5 · I · Integration und HWND-Gate:** Ergebnisse integrieren; Capture, RenderHost, Frame-Ereignisse und bisheriges HWND-Verhalten prüfen.
+
+**Parallel:** P2.2/P2.3 nach P2.1 mit getrenntem Dateibesitz; P2.4 lesend parallel.
+
+**Abnahme:**
+
+- `MinimumUpdateCount`: tatsächliche Frames zählen, keine Busy-Ticks oder bloßen Veröffentlichungswiederholungen.
+- Neue Invalidierung startet das Folgeframe-Budget erneut.
+- Invalidierungen während Kamera-/Node-Update, GPU-Arbeit und Abschlussereignissen bleiben erhalten.
+- Laufende GPU-Arbeit schützt Commands, Bindings und Ressourcen; bestehender endlicher Timeout bleibt erhalten.
+- Ruhender WPF-Pfad führt keine Renderarbeit aus.
+- Ausstehende Veröffentlichung und Recovery bleiben auch ohne neue Szenenänderung bearbeitbar.
+
+**Haltepunkt nach Review:** Freigabe für Phase 3.
+
+## Phase 3 – Drei Implementierungspakete parallel
+
+**Gemeinsame Basis:** Freigegebener Commit aus Phase 2.
+
+- **P3.1 · A · Produktive GPU-Brücke:** Adapterzuordnung, Ressourcenwechsel, GPU-Abschluss, Handle-Lebensdauer und native Fehlerpfade ausbauen. Besitz: native Interop-Dateien und eigene Tests.
+- **P3.2 · B · Ausgabe und dynamische Quellen:** BGRA-Ausgabe und konsistentes vormultipliziertes Alpha herstellen; insbesondere FXAAs bisheriges `c.a = 1` behandeln. `ContinuousRenderNode`, Partikel und Desktop-Capture an weitere Renderanforderungen anschließen. Besitz: betroffene Core-/Shaderdateien und eigene Tests.
+- **P3.3 · C · WPF-Canvas:** `DPFCanvas` und ImageSource mit Layout, `Stretch.Fill`, DPI, Sichtbarkeit, Resize, Frontbuffer-Verlust und sicherer Veröffentlichung implementieren. Besitz: Canvas-/ImageSource-Dateien und eigene Tests.
+- **P3.4 · I · Integration:** Projekt-/Shaderregistrierungen ergänzen; Builds und fokussierte Prüfungen seriell ausführen.
+
+**Zusätzliche Verträge:**
+
+- WPF veröffentlicht ausschließlich neue, vollständig fertige Bilder. Eine erforderliche Wiederanbindung nach Frontbuffer-Verlust ist davon getrennt.
+- Frontbuffer-Rückkehr, Reload und Resize können eine Wiederherstellung auch bei sauberer Szene anfordern.
+- `EnableDpiScale` im Canvas berücksichtigen: effektive Renderauflösung bei deaktivierter Skalierung mit Faktor `1`; Eingabe bleibt in korrekten DIP-Koordinaten.
+- Kontinuierliche Quellen fordern nur während ihrer aktiven Nutzung weitere Arbeit an. Capture-Timeout und Quellenneustart müssen ohne Kameraeingabe weiterlaufen können.
+- Bestehender Desktop-Capture-Readback wird nicht mit einem neuen CPU-Präsentationsweg verwechselt.
+- Kanonische Capture-Darstellung und vormultiplizierte WPF-Ausgabe getrennt halten; keine doppelte Kanalvertauschung oder Alpha-Multiplikation.
+- Vor Ressourcenfreigabe WPF vom Backbuffer lösen und GPU-/Interop-Nutzung abschließen.
+- Unload von endgültigem Dispose unterscheiden: wiederverwendbare Szene und extern bereitgestellte Ressourcen erhalten, Subscriptions und ausstehende Dispatcher-Arbeit sicher behandeln.
+
+**Review:** Sichere Ressourcenlebensdauer, korrekte Farben/Alpha, funktionierende dynamische Quellen und anschließende Rückkehr zum Ruhezustand.
+
+**Haltepunkt:** Freigabe für Phase 4.
+
+## Phase 4 – Viewport, Invalidierung und Kompatibilität
+
+**Ziel:** Beide Wege über den echten Viewport integrieren und die gefundenen Vertragslücken schließen.
+
+### Integrationswelle
+
+- **P4.1 · I · Viewport anschließen:** Default `false`, Initialisierungssperre, Template-Anbindung und `EnableDpiScale` ergänzen. Alle bildrelevanten Property-Änderungen einschließlich Original-Aliasnamen invalidieren zuverlässig. Reine Diagnose-/Statusänderungen erzeugen keinen unbeabsichtigten Render-Dauerlauf.
+- **P4.2 · B · Gemeinsam genutzte Szenen:** Invalidierungen an alle angeschlossenen Viewports verteilen und gemeinsame Nodes bis zum letzten Verbraucher erhalten. Besitz: ModelContainer-/gemeinsame Szenenverwaltung und notwendige Rendereranpassungen; zentrale Viewport-Dateien bleiben bei I.
+- **P4.3 · I · Host-Verträge integrieren:** EffectsManager-Ereignisse `InvalidateRender`, `DisposingResources` und `Reinitialized` abonnieren und abmelden; Dispatcher- und GPU-sichere Verarbeitung gewährleisten. Externen Manager nicht entsorgen. `EnableD2DRendering` tatsächlich auswerten und Änderungen invalidieren.
+
+P4.1 und P4.2 dürfen mit getrennten Dateien parallel laufen. Danach integriert I P4.3 und erstellt den gemeinsamen Testausgang.
+
+### Testwelle
+
+- **P4.4 · A · Host-/Frame-Tests:** Echte RenderHost-Identität, RenderContext, FlattenedScene, Capture und genau einmal ausgelöste Abschlussereignisse prüfen, einschließlich leerer und übersprungener Frames. Managerwechsel/-neustart und gemeinsame Szenen einschließen.
+- **P4.5 · B · HWND-Regressionen:** Native Tests und gezielt HWND-basierte Beispiele ausdrücklich auf `true` setzen. Native Eingaberoute und bisheriges Verhalten absichern.
+- **P4.6 · C · WPF-Verhalten:** Default, XAML, Initialisierungssperre, DPI, Eingabe, Renderbedarf, 2D-Auswahl und Wiederanlauf testen.
+- **P4.7 · I · Sichtbare Abnahme:** Bedienbares WPF-Control ohne Popup über echter D3D12-Ausgabe; ZIndex, Clipping, VisualBrush, Blur und Adorner prüfen.
+
+**Parallel:** P4.4–P4.6 vom gemeinsamen Integrationscommit; getrennte Testdateien.
+
+**Verbindliche Prüffälle:**
+
+- `MinimumUpdateCount`: `6`, `1`, `0`, negativ und Änderung zur Laufzeit; statische Szene kommt zur Ruhe.
+- Änderungen an Hintergrund, Kamera, Geometrie, Material, Licht, FXAA/SSAO und Effektmanager aktualisieren eine ruhende Szene.
+- Während Kamera-/Node-Update, GPU-Arbeit und aus einem Abschlussereignis invalidieren; jede neue Anforderung erzeugt zuverlässig einen Folgeframe.
+- `ContinuousRenderNode`, Partikel und Capture laufen weiter; Entfernen beziehungsweise Deaktivieren beendet die Folgeanforderungen.
+- Zwei WPF-Viewports und ein WPF/HWND-Paar teilen eine Szene: beide aktualisieren sich; Unload eines Verbrauchers beeinträchtigt den anderen nicht.
+- Zwei Viewports teilen einen EffectsManager: Austausch, Ressourcenfreigabe, Reinitialisierung und Schließen eines Viewports lassen den anderen funktionsfähig.
+- Frontbuffer-Rückkehr, Reload, Resize und Manager-Reinitialisierung funktionieren ohne zusätzliche Benutzeraktion.
+- DPI bei 200 %, jeweils mit und ohne Skalierung: erwartete Pixelauflösung bei unveränderten Picking-Koordinaten.
+- `EnableD2DRendering=false/true` schaltet Scene2D einschließlich Capture; normale WPF-Controls und der separat gesteuerte 3D-ViewCube bleiben unabhängig.
+- Hit-Test-Priorität: 2D-Overlay vor ViewCube vor Szenenpicking. Konsumierte Eingabe erzeugt keine zusätzliche Kamerageste; abgeschaltetes Szenenpicking deaktiviert nicht Overlay und ViewCube.
+- Touch-Selektion erfolgt trotz Mouse-Promotion genau einmal; Manipulationen funktionieren und bereinigen fehlendes TouchUp.
+- Abgeleitete Viewports erhalten Preview/Bubble genau einmal; CameraTarget und ZoomRectangle bleiben bei DPI/Resize korrekt positioniert und verschwinden nach Gestenende.
+- Capture prüft getrennte Rot-/Blauwerte, Alpha `0/0.5/1`, Ausgabeformate und angeforderte Bildabmessungen; Skalierung nicht als echtes Neurendern ausweisen.
+- Laden, Unload/Reload und Template-Neuaufbau erzeugen keine mehrfachen Renderloop-/Ereignisregistrierungen. Gleiche WPF-Rendering-Zeitstempel werden nicht mehrfach verarbeitet.
+
+**Review und Haltepunkt:** Freigabe für Phase 5. `ViewportWidgetOverlay` bleibt erhalten.
+
+## Phase 5 – Gesamtabnahme und Übergabe
+
+- **P5.1 · I · Qualitätsgate:** Formatierung, ReSharper-Diagnostik, Rider-Build und Standardtests. Hardware-/DX12- und sichtbare Prüfungen getrennt und seriell.
+- **P5.2 · A · Renderingaudit:** Schatten, OIT, SSAO, FXAA, Postprocessing, Screen-Space/2D, dynamische Quellen und GPU-Kollisionen für beide Wege gegen die Ergebnisse prüfen.
+- **P5.3 · B · Lebensdaueraudit:** Minimieren, Reload, Frontbuffer-/Geräteverlust, Monitorwechsel, Managerwechsel, gemeinsame Verbraucher und Ressourcenfreigabe prüfen.
+- **P5.4 · C · Dokumentationsaudit:** Standardwerte, historische Verträge, unterstützte Konfigurationen, Capture und ausdrücklich verbleibende Grenzen abgleichen. MSAA und lediglich skalierte Capture-Auflösung nicht als wiederhergestellte Fähigkeiten ausweisen.
+- **P5.5 · I · Leistung und Abschluss:** Identische Szene/Kamera/Auflösung vergleichen; CPU-/GPU-Zeiten, Eingabelatenz, Speicher und Kopien dokumentieren. Zusätzlich Ruhezustand gegen aktive Animation messen: keine zusätzlichen Render-/Kopie-/Veröffentlichungsframes nach dem Einpendeln.
+
+**Parallel:** P5.2–P5.4 ausschließlich lesend. Messungen und Werkzeugläufe seriell durch I.
+
+OKF-Konzepte, Index und Wissenslog aktualisieren; Graphify lokal regenerieren; Dokumentationsprüfung und `git diff --check` abschließen.
+
+**Abschlussreview:** WPF-Komposition funktioniert sichtbar und bedarfsgesteuert, dynamische Inhalte laufen korrekt, HWND-Regressionsgate besteht, Grenzen und lokale Commits sind vollständig dokumentiert.
+
+## Review-Findings und Nachverfolgung
+
+Die folgenden Befunde stammen aus der statischen Prüfung des Originals `c59fcc424`, des letzten Altpfads `6215e5c0b^` und des vorgesehenen Implementierungsstands `725570686`. Sie sind keine Aussage über bereits ausgeführte Implementierungs- oder Hardwaretests.
+
+- **F01 · Renderoptionen invalidieren nicht zuverlässig:** Hintergrundfarbe, FXAA/SSAO und weitere Optionen werden heute teilweise nur während ohnehin laufender Frames gelesen. Ruhende Viewports müssen durch relevante Property-Änderungen aufwachen. **Tasks:** P0.3, P2.3, P4.1, P4.6.
+- **F02 · ContinuousRenderNode ist wirkungslos:** Der heutige `InvalidRendererCore` ist leer; im Original forderte er weitere Frames an. **Tasks:** P3.2, P4.6, P5.2.
+- **F03 · Desktop-Capture braucht Folgeanforderungen:** Auch nach Timeout oder Quellenneustart muss die aktive Quelle ohne fremde Eingabe weiter geprüft werden. **Tasks:** P2.1, P3.2, P4.6.
+- **F04 · Neue Invalidierungen dürfen nicht verloren gehen:** Anforderungen aus Updates, GPU-Wartezeit oder Abschlussereignissen dürfen nicht durch das Abschließen eines älteren Frames gelöscht werden. **Tasks:** P2.3, P4.4, P4.6.
+- **F05 · MinimumUpdateCount ist bisher ohne Verbraucher:** Initialwert, Änderungen zur Laufzeit und historisches Verhalten für null/negative Werte wieder funktional anschließen. Sechs bedeutet sechs Frames insgesamt. **Tasks:** P2.3, P4.1, P4.6.
+- **F06 · EffectsManager-Ereignisse fehlen:** Renderinvalidierung und Ressourcen-Reinitialisierung müssen ruhende Hosts erreichen; externe Ressourcenbesitzer nicht eigenmächtig entsorgen. **Tasks:** P4.3, P4.4, P5.3.
+- **F07 · Gemeinsame Szenen brauchen mehrere Verbraucher:** Historische Invalidierungsverteilung und Lebensdauer bis zum letzten Host fehlen im heutigen renderables-only Container. **Tasks:** P4.2, P4.4, P5.3.
+- **F08 · Adapterindizes sind keine gemeinsame Identität:** D3D12-Gerätewahl und D3D9Ex-Gerät dürfen nicht unabhängig oder anhand vermeintlich gleicher Ordinalwerte verbunden werden. **Tasks:** P1.1, P1.3, P1.4, P3.1.
+- **F09 · EnableDpiScale fehlt als öffentlicher Vertrag:** Historischen Auflösungs-/Leistungsschalter additiv wiederherstellen und von Eingabekoordinaten trennen. **Tasks:** P3.3, P4.1, P4.6.
+- **F10 · EnableD2DRendering wird ignoriert:** Scene2D-Ausgabe muss tatsächlich schaltbar sein; Propertyänderungen müssen einen ruhenden Viewport aktualisieren. **Tasks:** P4.3, P4.6.
+- **F11 · Lifecycle und Eingabe brauchen konkrete Regressionen:** Wiederanlauf einer sauberen Szene, Unload/Dispose, Overlay-/ViewCube-Priorität, Touch-Promotion, eigene Viewports und Adorner ausdrücklich absichern. Bereits vorhandene korrekte Eingaberouten wiederverwenden. **Tasks:** P3.3, P4.6, P4.7, P5.3.
+- **F12 · Capture- und WPF-Pixelverträge unterscheiden sich:** Die bisherige R/B-Vertauschung nicht blind auf bereits BGRA-/vormultiplizierte Interop-Ausgabe anwenden. **Tasks:** P3.2, P4.4.
+- **F13 · Bestehende Paritätsgrenzen separat ausweisen:** MSAA ist derzeit ohne produktive Wirkung; `RenderBitmap(width, height)` skaliert aktuell das vorhandene Bild statt in der Zielauflösung neu zu rendern. Beides wird nicht durch den Präsentationsumbau stillschweigend als gelöst bezeichnet. **Tasks:** P0.4, P5.4.
+
+Historische Referenzstellen, jeweils per `git show <Revision>:<Pfad>` prüfbar:
+
+- `c59fcc424:Source/HelixToolkit.SharpDX.Shared/Render/RenderHost/RenderHostBase.cs`: Zeilen 244–253 für EffectsManager-Ereignisse, 708–779 für Invalidierung und Framebudget.
+- `c59fcc424:Source/HelixToolkit.SharpDX.Shared/Model/Scene/ContinuousRenderNode.cs`: Zeilen 51–53 für kontinuierliche Renderanforderungen.
+- `c59fcc424:Source/HelixToolkit.SharpDX.Shared/Core/ScreenCloneRenderCore.cs`: Zeilen 238 und 303 für Capture-Folgeanforderungen.
+- `c59fcc424:Source/HelixToolkit.SharpDX.SharedModel/Controls/ModelContainer3DX.cs`: Zeilen 309–340 für Invalidierungsverteilung, 645–681 für gemeinsame Lebensdauer.
+- `c59fcc424:Source/HelixToolkit.Wpf.SharpDX.Shared/Controls/Viewport3DX.Properties.cs`: Zeilen 1105–1112 für Scene2D, 1297–1304 für das Framebudget und 1329–1335 für DPI-Skalierung.
+- `c59fcc424:Source/HelixToolkit.Wpf.SharpDX.Shared/Controls/DX11ImageSourceRenderHost.cs`: Zeile 88 für die historische Adapterwahl und Zeilen 120–167 für Frontbuffer-Recovery.
+- `c59fcc424:Source/HelixToolkit.Wpf.SharpDX.Shared/Controls/DPFCanvas.cs`: Zeilen 194–232 für Unload und Renderloop.
+- `c59fcc424:Source/HelixToolkit.Wpf.SharpDX.Shared/Controls/Viewport3DX.cs`: Zeilen 872–915 für Adorner und 1715–1738 für Eingabepriorität.
+- `c59fcc424:Source/HelixToolkit.Wpf.SharpDX.Shared/Extensions/ViewportExtensions.cs`: Zeilen 431–439 für Rendering bei angeforderter Capture-Auflösung.
+
+## Phasenbericht und Freigabe
+
+Jeder Phasenbericht enthält:
+
+- Phasenstatus, integrierten Commit und erledigte Task-IDs.
+- Wesentliche Änderungen und zugehörige Review-Findings.
+- Bestandene, fehlgeschlagene und nicht ausgeführte Prüfungen.
+- Behobene Reviewbefunde und verbleibende Grenzen.
+- Nächste Phase mit ausdrücklichem Halt bis zu deiner Freigabe.

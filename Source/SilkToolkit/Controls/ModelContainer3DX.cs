@@ -37,6 +37,12 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <summary>Coalesces deferred manager changes into one dispatcher callback.</summary>
     private bool managerChangeQueued;
 
+    /// <summary>Owns the queued shared transaction so failure can cancel a reentrant membership-triggered retry.</summary>
+    private DispatcherOperation? managerSynchronizationOperation;
+
+    /// <summary>Retains a failed transaction until an explicit manager or resource request permits another attempt.</summary>
+    private bool managerSynchronizationFailed;
+
     /// <summary>Retains a retry timer allocated only after a bounded native retirement times out.</summary>
     private DispatcherTimer? managerRetryTimer;
 
@@ -196,6 +202,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <summary>Requests a latest-value manager fanout and blocks scene entry until every old owner retires.</summary>
     /// <exception cref="TimeoutException">Retirement timed out; the pending identity and owners remain retained.</exception>
     private void RequestEffectsManagerSynchronization() {
+        managerSynchronizationFailed = false;
         managerIdentityChangePending = true;
         IsSynchronizingEffectsManager = true;
         try {
@@ -211,6 +218,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     /// <exception cref="TimeoutException">Retirement timed out; the barrier and owners remain retained.</exception>
     internal void RequestSharedResourceRetirement() {
         VerifyAccess();
+        managerSynchronizationFailed = false;
         resourceRetirementPending = true;
         IsSynchronizingEffectsManager = true;
         // The manager frees borrowed resources as soon as its notification returns, even inside CPU preparation.
@@ -225,8 +233,9 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
 
     /// <summary>Retires all old native owners before assigning a replacement manager to any registered host.</summary>
     /// <param name="forceRetirement">Whether a synchronous manager disposal requires bounded GPU draining.</param>
+    /// <param name="reportQueuedFailures">Whether consumer failures belong to the bounded automatic owner boundary.</param>
     /// <exception cref="TimeoutException">Retirement timed out; the barrier and resources remain owned for retry.</exception>
-    private void SynchronizeEffectsManager(bool forceRetirement = false) {
+    private void SynchronizeEffectsManager(bool forceRetirement = false, bool reportQueuedFailures = false) {
         if (!managerIdentityChangePending && !resourceRetirementPending) return;
         var snapshot = consumers;
         var resources = resourceConsumers;
@@ -238,11 +247,17 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         }
 
         if (!forceRetirement) {
-            foreach (var viewport in resources)
-                if (!viewport.CanRetireManagerWithoutWaiting()) {
-                    ScheduleManagerRetirementRetry();
-                    return;
+            foreach (var viewport in resources) {
+                try {
+                    if (!viewport.CanRetireManagerWithoutWaiting()) {
+                        ScheduleManagerRetirementRetry();
+                        return;
+                    }
+                } catch (Exception exception) when (reportQueuedFailures && exception is not TimeoutException) {
+                    ReportConsumerSynchronizationFailure(viewport, exception);
+                    throw;
                 }
+            }
         }
 
         var manager = EffectsManager;
@@ -253,7 +268,14 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         isApplyingManagerChange = true;
         var completed = false;
         try {
-            foreach (var viewport in resources) viewport.RetireSceneResourcesForManagerChange();
+            foreach (var viewport in resources) {
+                try {
+                    viewport.RetireSceneResourcesForManagerChange();
+                } catch (Exception exception) when (reportQueuedFailures && exception is not TimeoutException) {
+                    ReportConsumerSynchronizationFailure(viewport, exception);
+                    throw;
+                }
+            }
             // Retirement can invoke application callbacks that change the requested manager or consumer set.
             // Successful retirement removes resource owners; that expected shrink must not restart the transaction.
             if ((assignManager && !ReferenceEquals(manager, EffectsManager)) ||
@@ -293,15 +315,37 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         }
     }
 
-    /// <summary>Releases the queued callback slot and contains asynchronous retirement timeouts without clearing the barrier.</summary>
+    /// <summary>Contains queued failures while preserving timeout retries and failed transaction ownership.</summary>
     private void ProcessManagerSynchronization() {
+        managerSynchronizationOperation = null;
         managerChangeQueued = false;
+        if (managerSynchronizationFailed) return;
         try {
-            SynchronizeEffectsManager();
+            SynchronizeEffectsManager(reportQueuedFailures: true);
         } catch (TimeoutException exception) {
             ScheduleManagerRetirementRetry();
             LoggerLib.Logger.Error(exception, "Shared scene resources remain owned for retirement retry");
+        } catch (Exception exception) {
+            SuspendAutomaticManagerSynchronization();
+            LoggerLib.Logger.Error(exception, "Shared manager transition failed; resources remain owned for explicit retry");
         }
+    }
+
+    /// <summary>Reports only the failing consumer and blocks membership callbacks before its bounded teardown retry.</summary>
+    /// <param name="viewport">The actual owner whose preflight or retirement failed.</param>
+    /// <param name="exception">The consumer's non-timeout automatic failure.</param>
+    private void ReportConsumerSynchronizationFailure(Viewport3DX viewport, Exception exception) {
+        SuspendAutomaticManagerSynchronization();
+        viewport.ReportAutomaticPresentationFailure(exception);
+    }
+
+    /// <summary>Cancels automatic retries while retaining the manager identity, resource request and barrier.</summary>
+    private void SuspendAutomaticManagerSynchronization() {
+        managerSynchronizationFailed = true;
+        managerRetryTimer?.Stop();
+        managerSynchronizationOperation?.Abort();
+        managerSynchronizationOperation = null;
+        managerChangeQueued = false;
     }
 
     /// <summary>Checks notification or retained-resource membership before any presentation resources or managers change.</summary>
@@ -316,17 +360,17 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
 
     /// <summary>Resumes pending shared work after the last consumer frame exits, without allocating on settled frames.</summary>
     internal void SchedulePendingEffectsManagerSynchronization() {
-        if (!IsSynchronizingEffectsManager || isApplyingManagerChange || managerChangeQueued ||
+        if (!IsSynchronizingEffectsManager || managerSynchronizationFailed || isApplyingManagerChange || managerChangeQueued ||
             managerRetryTimer is { IsEnabled: true } || Dispatcher.HasShutdownStarted || HasPreparingConsumer(consumers))
             return;
         if (HasPreparingConsumer(resourceConsumers)) return;
         managerChangeQueued = true;
-        Dispatcher.BeginInvoke(DispatcherPriority.Background, synchronizeEffectsManagerCallback);
+        managerSynchronizationOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, synchronizeEffectsManagerCallback);
     }
 
     /// <summary>Retries pending GPU work or exceptional retirement failures with one timer and no periodic idle callback.</summary>
     private void ScheduleManagerRetirementRetry() {
-        if (Dispatcher.HasShutdownStarted) return;
+        if (managerSynchronizationFailed || Dispatcher.HasShutdownStarted) return;
         if (managerRetryTimer is null) {
             managerRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) {
                 Interval = TimeSpan.FromMilliseconds(100)

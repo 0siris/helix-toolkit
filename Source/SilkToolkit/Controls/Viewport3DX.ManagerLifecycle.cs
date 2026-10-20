@@ -30,6 +30,9 @@ public partial class Viewport3DX {
     /// <summary>Coalesces rare manager lifecycle transitions into one retained dispatcher operation.</summary>
     private DispatcherOperation? managerLifecycleOperation;
 
+    /// <summary>Suspends automatic manager retries after failure until an explicit manager or resource request.</summary>
+    private bool managerLifecycleFailed;
+
     /// <summary>Retains the callback used only for deferred manager lifecycle transitions.</summary>
     private Action? applyManagerLifecycle;
 
@@ -208,6 +211,7 @@ public partial class Viewport3DX {
     private static void EffectsManagerChanged(DependencyObject owner, DependencyPropertyChangedEventArgs args) {
         var viewport = (Viewport3DX) owner;
         if (viewport.IsDisposed) return;
+        viewport.managerLifecycleFailed = false;
         viewport.managerResourcesResetPending = true;
         viewport.InvalidateSceneGraph();
         if (viewport.IsPreparingPresentationFrame || !viewport.CanRetireManagerWithoutWaiting()) {
@@ -276,6 +280,7 @@ public partial class Viewport3DX {
     private void ApplyManagerResourceChange(object? sender, bool available) {
         if (IsDisposed || !ReferenceEquals(sender, subscribedEffectsManager)) return;
         effectsResourcesUnavailable = !available;
+        managerLifecycleFailed = false;
         managerResourcesResetPending = true;
         if (!available) {
             DrainSubmittedWorkForManagerDisposal();
@@ -296,7 +301,7 @@ public partial class Viewport3DX {
     internal void ScheduleManagerLifecycle() {
         if (!IsDisposed && !IsPreparingPresentationFrame)
             (resourceModelContainer ?? registeredModelContainer)?.SchedulePendingEffectsManagerSynchronization();
-        if (!managerResourcesResetPending || IsDisposed || Dispatcher.HasShutdownStarted ||
+        if (!managerResourcesResetPending || managerLifecycleFailed || IsDisposed || Dispatcher.HasShutdownStarted ||
             managerLifecycleRetryTimer is { IsEnabled: true } ||
             managerLifecycleOperation is { Status: DispatcherOperationStatus.Pending or DispatcherOperationStatus.Executing })
             return;
@@ -307,7 +312,7 @@ public partial class Viewport3DX {
     /// <summary>Retries a deferred bounded retirement while retaining owners and demand after failure.</summary>
     private void ApplyQueuedManagerLifecycle() {
         managerLifecycleOperation = null;
-        if (IsDisposed || !managerResourcesResetPending || IsPreparingPresentationFrame) return;
+        if (IsDisposed || managerLifecycleFailed || !managerResourcesResetPending || IsPreparingPresentationFrame) return;
         try {
             if (!CanRetireManagerWithoutWaiting()) {
                 ScheduleManagerLifecycleRetry();
@@ -318,7 +323,35 @@ public partial class Viewport3DX {
         } catch (TimeoutException exception) {
             ScheduleManagerLifecycleRetry();
             LoggerLib.Logger.Error(exception, "Viewport manager resources remain owned for retirement retry");
+        } catch (Exception exception) {
+            ReportAutomaticPresentationFailure(exception);
         }
+    }
+
+    /// <summary>Reports queued manager failure through the bounded current owner while retaining pending resources.</summary>
+    /// <param name="exception">The automatic lifecycle failure whose immediate teardown retry may also fail.</param>
+    internal void ReportAutomaticPresentationFailure(Exception exception) {
+        StopRendering();
+        SuspendAutomaticManagerLifecycle();
+        try {
+            if (wpfPresentation is { } wpf) wpf.ReportAutomaticRenderFailure(exception);
+            else if (d3d12Surface is { } surface) surface.ReportDeferredFailure(exception);
+            else {
+                LoggerLib.Logger.Error(exception, "Viewport manager transition failed without a presentation owner");
+                SetCurrentValue(RenderExceptionProperty, exception);
+            }
+        } finally {
+            // Error observers and retirement can reenter lifecycle scheduling before the bounded retry returns.
+            SuspendAutomaticManagerLifecycle();
+        }
+    }
+
+    /// <summary>Stops automatic manager callbacks without clearing pending ownership or application disposal intent.</summary>
+    private void SuspendAutomaticManagerLifecycle() {
+        managerLifecycleFailed = true;
+        managerLifecycleOperation?.Abort();
+        managerLifecycleOperation = null;
+        managerLifecycleRetryTimer?.Stop();
     }
 
     /// <summary>Polls accepted work without blocking an ordinary manager identity change or dispatcher callback.</summary>
@@ -329,7 +362,7 @@ public partial class Viewport3DX {
 
     /// <summary>Retains one exceptional timer until pending GPU work or a transient lock permits retirement.</summary>
     private void ScheduleManagerLifecycleRetry() {
-        if (IsDisposed || Dispatcher.HasShutdownStarted) return;
+        if (managerLifecycleFailed || IsDisposed || Dispatcher.HasShutdownStarted) return;
         if (managerLifecycleRetryTimer is null) {
             managerLifecycleRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) {
                 Interval = TimeSpan.FromMilliseconds(100)

@@ -678,8 +678,10 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             var selectedDriverType = effectsManager?.EnableSoftwareRendering == true
                 ? SilkDriverType.Warp
                 : driverType;
-            device = SilkD3D12DeviceFactory.CreateForAdapter(effectsManager?.AdapterIndex ?? -1,
-                SilkFeatureLevel.Level110, selectedDriverType);
+            device = SilkD3D12DeviceFactory.CreateForAdapter(
+                effectsManager?.AdapterIndex ?? -1,
+                SilkFeatureLevel.Level110, selectedDriverType
+            );
             commandQueue = device.CreateCommandQueue();
             commandContext = device.CreateCommandContext();
             fence = device.CreateFence();

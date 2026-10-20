@@ -78,7 +78,7 @@ public static unsafe class SilkD3D12DeviceFactory {
                 SilkMarshal.ThrowHResult(factory.Handle->EnumAdapters1((uint) selectedIndex, &hardwareAdapter));
                 AdapterDesc1 description;
                 SilkMarshal.ThrowHResult(hardwareAdapter->GetDesc1(&description));
-                if (((AdapterFlag) description.Flags & AdapterFlag.Software) != 0)
+                if ((description.Flags & (uint) AdapterFlag.Software) != 0)
                     throw new PlatformNotSupportedException("Select WARP explicitly instead of a software adapter index.");
             }
 

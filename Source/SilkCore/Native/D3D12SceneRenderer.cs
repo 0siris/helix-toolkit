@@ -838,8 +838,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         SilkD3D12Descriptor mainDepthStencil,
         uint width,
         uint height
-    )  => RenderPostEffects(
-        context, candidates, effects, catalog, in transforms, testFrustum, ref frustum, mainColor, mainRenderTarget, sceneDepth, mainDepthStencil, width, height, null
+    ) => RenderPostEffects(
+        context, candidates, effects, catalog, in transforms, testFrustum, ref frustum,
+        mainColor, mainRenderTarget, sceneDepth, mainDepthStencil, width, height, null
     );
 
     /// <summary>
@@ -1084,8 +1085,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         OutlineMode drawMode = OutlineMode.Merged,
         bool useBlurCore = false,
         Func<SceneNode, ShaderPass?>? boneSkinningPassSelector = null
-    )  => RenderOutline(
-        context, nodes, maskPassSelector, verticalBlurPass, horizontalBlurPass, compositionPass, in parameters, blurPasses, in transforms, testFrustum, ref frustum, mainColor, mainRenderTarget, mainDepthStencil, width, height, stencilPass, effectName, drawMode, useBlurCore, boneSkinningPassSelector, null
+    ) => RenderOutline(
+        context, nodes, maskPassSelector, verticalBlurPass, horizontalBlurPass, compositionPass,
+        in parameters, blurPasses, in transforms, testFrustum, ref frustum, mainColor, mainRenderTarget,
+        mainDepthStencil, width, height, stencilPass, effectName, drawMode, useBlurCore, boneSkinningPassSelector, null
     );
 
     /// <summary>
@@ -1251,8 +1254,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         string? effectName = null,
         SilkD3D12Resource? sceneDepth = null,
         Func<SceneNode, ShaderPass?>? boneSkinningPassSelector = null
-    )  => RenderXRay(
-        context, nodes, passSelectors, in parameters, in transforms, testFrustum, ref frustum, mainRenderTarget, mainDepthStencil, width, height, effectName, sceneDepth, boneSkinningPassSelector, null
+    ) => RenderXRay(
+        context, nodes, passSelectors, in parameters, in transforms, testFrustum, ref frustum,
+        mainRenderTarget, mainDepthStencil, width, height, effectName, sceneDepth, boneSkinningPassSelector, null
     );
 
     /// <summary>

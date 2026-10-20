@@ -749,10 +749,13 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             var selectedDriverType = effectsManager?.EnableSoftwareRendering == true
                 ? SilkDriverType.Warp
                 : driverType;
-            device = SilkD3D12DeviceFactory.CreateForAdapter(effectsManager?.AdapterIndex ?? -1,
-                SilkFeatureLevel.Level110, selectedDriverType);
+            device = SilkD3D12DeviceFactory.CreateForAdapter(
+                effectsManager?.AdapterIndex ?? -1,
+                SilkFeatureLevel.Level110, selectedDriverType
+            );
             recoveryRegistration = new D3D12PresentationDeviceRecovery(
-                device.NativePointer, Dispatcher, retireRemovedDevice);
+                device.NativePointer, Dispatcher, retireRemovedDevice
+            );
             if (ObserveDeviceRemoval()) return;
             commandQueue = device.CreateCommandQueue();
             commandContext = device.CreateCommandContext();
@@ -770,7 +773,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             recoveryBarrier = null;
             if (RenderHost is Viewport3DX viewport) viewport.MarkPresentationInitialized();
         } catch (System.Runtime.InteropServices.COMException exception) when (device is null &&
-            D3D12PresentationDeviceRecovery.IsRemovalFailure(exception)) {
+                                                                              D3D12PresentationDeviceRecovery.IsRemovalFailure(exception)) {
             D3D12PresentationDeviceRecovery.ProbeForRemoval();
             if (RenderHost is Viewport3DX viewport) viewport.RenderDemand.RequestRecovery();
         } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {

@@ -132,6 +132,22 @@ public sealed class P5DeviceRecoveryTests(ITestOutputHelper output) {
         Assert.Throws<COMException>(() => SilkD3D12DeviceFactory.CreateForAdapter(int.MaxValue));
     }
 
+    /// <summary>Keeps a removed automatic-selection candidate distinct from unsupported hardware.</summary>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public void AutomaticAdapterProbePreservesRemovedSingletonError() {
+        using (var removed = SilkD3D12DeviceFactory.CreateForAdapter(0)) {
+            RemoveDevice(removed);
+            var error = Assert.Throws<COMException>(() => SilkD3D12DeviceFactory.CreateDefault());
+            Assert.Equal(unchecked((int) 0x887A0005), error.HResult);
+            Assert.True(removed.GetDeviceRemovedReason() < 0);
+        }
+
+        using var recovered = SilkD3D12DeviceFactory.CreateForAdapter(0);
+        Assert.True(recovered.GetDeviceRemovedReason() >= 0);
+    }
+
     /// <summary>Reports removal on one isolated test-owned device; this does not reset the physical adapter.</summary>
     /// <param name="device">The device whose accepted queue is to be invalidated.</param>
     private static void RemoveDevice(SilkD3D12Device device) {

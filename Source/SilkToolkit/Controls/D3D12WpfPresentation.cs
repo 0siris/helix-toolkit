@@ -631,10 +631,13 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             var selectedDriver = viewport.EffectsManager?.EnableSoftwareRendering == true
                 ? SilkDriverType.Warp
                 : driverType;
-            device = SilkD3D12DeviceFactory.CreateForAdapter(viewport.EffectsManager?.AdapterIndex ?? -1,
-                driverType: selectedDriver);
+            device = SilkD3D12DeviceFactory.CreateForAdapter(
+                viewport.EffectsManager?.AdapterIndex ?? -1,
+                driverType: selectedDriver
+            );
             recoveryRegistration = new D3D12PresentationDeviceRecovery(
-                device.NativePointer, canvas.Dispatcher, retireRemovedDevice);
+                device.NativePointer, canvas.Dispatcher, retireRemovedDevice
+            );
             if (device.GetDeviceRemovedReason() < 0) {
                 recoveryBarrier = recoveryRegistration;
                 recoveryRegistration.RequestRemoval();
@@ -655,7 +658,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             viewport.MarkPresentationInitialized();
             return true;
         } catch (System.Runtime.InteropServices.COMException exception) when (device is null &&
-            D3D12PresentationDeviceRecovery.IsRemovalFailure(exception)) {
+                                                                              D3D12PresentationDeviceRecovery.IsRemovalFailure(exception)) {
             D3D12PresentationDeviceRecovery.ProbeForRemoval();
             demand.RequestRecovery();
             return false;
@@ -851,7 +854,9 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     private void UpdateServiceTimer() {
         if (!IsDisposed && !stopping && !updating &&
             (recoveryRegistration is { IsRemovalRequested: true } || (!canvas.IsActive &&
-             (pendingFence != 0 || unfencedExecution || bridge is { IsCopyPending: true } || canvas.ImageSource.BoundSurface != 0))))
+                                                                      (pendingFence != 0 || unfencedExecution ||
+                                                                       bridge is { IsCopyPending: true } ||
+                                                                       canvas.ImageSource.BoundSurface != 0))))
             serviceTimer.Start();
         else serviceTimer.Stop();
     }

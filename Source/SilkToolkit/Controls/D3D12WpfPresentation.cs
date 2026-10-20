@@ -49,6 +49,15 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>The sole owned D3D12 device.</summary>
     private SilkD3D12Device? device;
 
+    /// <summary>The weak registry membership of the current native generation.</summary>
+    private D3D12PresentationDeviceRecovery? recoveryRegistration;
+
+    /// <summary>Retains the removed singleton barrier until all productive peer generations have retired.</summary>
+    private D3D12PresentationDeviceRecovery? recoveryBarrier;
+
+    /// <summary>The retained generation-removal callback, also used for cross-dispatcher notification.</summary>
+    private readonly Action retireRemovedDevice;
+
     /// <summary>The sole owned native submission queue.</summary>
     private SilkD3D12CommandQueue? queue;
 
@@ -146,9 +155,19 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     internal bool HasPendingTransport => pendingFence != 0 || unfencedExecution || transportSerial != 0;
 
     /// <summary>Gets whether accepted GPU or cross-device copy work still borrows the current generation.</summary>
-    internal bool HasPendingGpuWork => unfencedExecution ||
-                                       (pendingFence != 0 && fence!.CompletedValue < pendingFence) ||
-                                       (bridge is { IsCopyPending: true } copying && !copying.IsCopyComplete);
+    internal bool HasPendingGpuWork {
+        get {
+            if (device is not null && device.GetDeviceRemovedReason() < 0) {
+                recoveryBarrier ??= recoveryRegistration;
+                recoveryRegistration?.RequestRemoval();
+                OnDeviceRemoval();
+                return device is not null;
+            }
+
+            return unfencedExecution || (pendingFence != 0 && fence!.CompletedValue < pendingFence) ||
+                   (bridge is { IsCopyPending: true } copying && !copying.IsCopyComplete);
+        }
+    }
 
     /// <summary>Gets the current native generation.</summary>
     internal ulong Generation { get; private set; }
@@ -244,6 +263,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         demand = viewport.RenderDemand;
         invalidateScene2D = viewport.InvalidateRender;
         disposeViewport = FinishViewportDisposal;
+        retireRemovedDevice = OnDeviceRemoval;
         serviceTimer = new DispatcherTimer(DispatcherPriority.Background, canvas.Dispatcher) { Interval = TimeSpan.FromMilliseconds(16) };
         serviceTimer.Tick += ServiceSuspendedTransport;
         canvas.Rendering += OnRendering;
@@ -311,7 +331,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
             viewport.RaiseCompletedWpfFrames(this);
             if (!CanRecordScene(automaticFrame)) return 0;
-            if (bridge is null) CreateNative();
+            if (bridge is null && !CreateNative()) return 0;
             if (captureFrame) demand.Request(D3D12RenderInvalidation.Render);
             reserved = demand.TryBeginFrame(out _);
             viewport.UpdateWpfCamera(renderingTime);
@@ -329,6 +349,11 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             recording = true;
             try {
                 var draws = viewport.RecordWpfScene(renderer!, currentCommands, in target, canvas.EffectiveDpiScale);
+                if (device!.GetDeviceRemovedReason() < 0) {
+                    recoveryBarrier ??= recoveryRegistration;
+                    recoveryRegistration?.RequestRemoval();
+                }
+
                 if (!CanRecordScene(automaticFrame)) {
                     currentCommands.Close();
                     recording = false;
@@ -355,7 +380,8 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 transportSerial = ++SubmittedFrames;
                 copyStarted = false;
                 accepted = true;
-                if (waitForCompletion || captureFrame) _ = ServiceTransport(true);
+                if ((waitForCompletion || captureFrame) && !ServiceTransport(true) && recoveryBarrier is not null)
+                    return 0;
                 viewport.RaiseCompletedWpfFrames(this);
                 return draws;
             } catch {
@@ -364,6 +390,11 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 if (recording) currentCommands.Close();
                 throw;
             }
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            recoveryBarrier ??= recoveryRegistration;
+            recoveryRegistration?.RequestRemoval();
+            demand.RequestRecovery();
+            return 0;
         } catch {
             recreateRequested = true;
             demand.RequestRecovery();
@@ -372,6 +403,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             recording = false;
             if (reserved) demand.CompleteFrame(accepted);
             updating = false;
+            if (recoveryRegistration is { IsRemovalRequested: true }) OnDeviceRemoval();
             UpdateServiceTimer();
             viewport.ScheduleManagerLifecycle();
             if (disposeRequested && deferredDisposal is null && !canvas.Dispatcher.HasShutdownStarted)
@@ -383,7 +415,8 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="automaticFrame">Whether automatic rendering must still be enabled.</param>
     /// <returns>Whether a scene may be recorded or submitted at this boundary.</returns>
     private bool CanRecordScene(bool automaticFrame) =>
-        !IsDisposed && !stopping && !recreateRequested && viewport.CanRenderWpfScene && canvas.IsActive &&
+        !IsDisposed && !stopping && !recreateRequested &&
+        recoveryRegistration is not { IsRemovalRequested: true } && viewport.CanRenderWpfScene && canvas.IsActive &&
         (!automaticFrame || viewport.WpfRenderingEnabled);
 
     /// <summary>Returns a new explicit capture, rejecting a publication-blocked request rather than returning stale pixels.</summary>
@@ -415,6 +448,12 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     private bool ServiceTransport(bool wait) {
         try {
             return ServiceTransportCore(wait);
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            recoveryBarrier ??= recoveryRegistration;
+            recoveryRegistration?.RequestRemoval();
+            _ = TryRetireRemovedDevice();
+            demand.RequestRecovery();
+            return false;
         } catch (System.Runtime.InteropServices.COMException) when (bridge is { IsDeviceRemoved: true }) {
             // Only confirmed D3D11 removal permits retiring its failed query; live-device failures retain ownership.
             DrainSubmittedWorkForManagerDisposal();
@@ -431,24 +470,21 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <returns>Whether a new scene may be recorded.</returns>
     private bool ServiceTransportCore(bool wait) {
         if (device is null) {
+            if (recoveryBarrier is { CanRecreate: false }) {
+                demand.RequestRecovery();
+                return false;
+            }
+
             recreateRequested = false;
             return canvas.IsActive && canvas.NativeHandle != 0 && canvas.PixelWidth != 0 && canvas.PixelHeight != 0;
         }
 
-        if (device.Handle->GetDeviceRemovedReason() < 0) {
-            if (bridge is { IsCopyPending: true }) {
-                try {
-                    if (!bridge.IsCopyComplete) return false;
-                } catch (System.Runtime.InteropServices.COMException) {
-                    // Bridge disposal separately confirms whether its own D3D11 device was removed.
-                }
-            }
-
-            if (!TryDetach()) return false;
-            ReleaseNative();
-            recreateRequested = false;
-            demand.Request(D3D12RenderInvalidation.SceneGraph);
-            return canvas.IsActive;
+        if (recoveryRegistration is { IsRemovalRequested: true } || device.GetDeviceRemovedReason() < 0) {
+            recoveryBarrier ??= recoveryRegistration;
+            recoveryRegistration?.RequestRemoval();
+            demand.RequestRecovery();
+            _ = TryRetireRemovedDevice();
+            return false;
         }
 
         if (unfencedExecution) {
@@ -460,10 +496,17 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
         if (pendingFence != 0) {
             device.ThrowIfDeviceRemoved();
-            if (fence!.CompletedValue < pendingFence) {
+            var completedValue = fence!.CompletedValue;
+            if (completedValue == ulong.MaxValue) {
+                device.ThrowIfDeviceRemoved();
+                throw new InvalidOperationException("The Direct3D 12 device stopped reporting valid frame completion.");
+            }
+
+            if (completedValue < pendingFence) {
                 CheckDeadline();
                 if (!wait) return false;
                 fence.Wait(pendingFence, CompletionTimeout - (Now() - stageStarted));
+                device.ThrowIfDeviceRemoved();
             }
 
             pendingFence = 0;
@@ -572,7 +615,13 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     }
 
     /// <summary>Creates one complete submission/recording lifetime over the bridge's canonical target.</summary>
-    private void CreateNative() {
+    /// <returns>Whether a complete live generation was created.</returns>
+    private bool CreateNative() {
+        if (recoveryBarrier is { CanRecreate: false }) {
+            demand.RequestRecovery();
+            return false;
+        }
+
         nativeHandle = canvas.NativeHandle;
         width = canvas.PixelWidth;
         height = canvas.PixelHeight;
@@ -582,10 +631,17 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             var selectedDriver = viewport.EffectsManager?.EnableSoftwareRendering == true
                 ? SilkDriverType.Warp
                 : driverType;
-            device = SilkD3D12DeviceFactory.CreateForAdapter(
-                viewport.EffectsManager?.AdapterIndex ?? -1,
-                driverType: selectedDriver
-            );
+            device = SilkD3D12DeviceFactory.CreateForAdapter(viewport.EffectsManager?.AdapterIndex ?? -1,
+                driverType: selectedDriver);
+            recoveryRegistration = new D3D12PresentationDeviceRecovery(
+                device.NativePointer, canvas.Dispatcher, retireRemovedDevice);
+            if (device.GetDeviceRemovedReason() < 0) {
+                recoveryBarrier = recoveryRegistration;
+                recoveryRegistration.RequestRemoval();
+                _ = TryRetireRemovedDevice();
+                return false;
+            }
+
             queue = device.CreateCommandQueue();
             commands = device.CreateCommandContext();
             fence = device.CreateFence();
@@ -595,11 +651,69 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 D3D12ColorOutputMode.Premultiplied
             );
             Generation++;
+            recoveryBarrier = null;
             viewport.MarkPresentationInitialized();
+            return true;
+        } catch (System.Runtime.InteropServices.COMException exception) when (device is null &&
+            D3D12PresentationDeviceRecovery.IsRemovalFailure(exception)) {
+            demand.RequestRecovery();
+            return false;
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            recoveryBarrier ??= recoveryRegistration;
+            recoveryRegistration?.RequestRemoval();
+            _ = TryRetireRemovedDevice();
+            demand.RequestRecovery();
+            return false;
         } catch {
             ReleaseNative();
             throw;
         }
+    }
+
+    /// <summary>Retains removal while CPU callbacks borrow this generation, otherwise retires it immediately.</summary>
+    private void OnDeviceRemoval() {
+        canvas.Dispatcher.VerifyAccess();
+        if (IsDisposed || recoveryRegistration is not { IsRemovalRequested: true }) return;
+        recoveryBarrier ??= recoveryRegistration;
+        recreateRequested = true;
+        demand.RequestRecovery();
+        try {
+            if (!updating && !stopping) {
+                updating = true;
+                try {
+                    _ = TryRetireRemovedDevice();
+                } finally {
+                    updating = false;
+                }
+            }
+        } finally {
+            UpdateServiceTimer();
+        }
+    }
+
+    /// <summary>Releases a removed generation only after actual copy completion and actual WPF detachment.</summary>
+    /// <returns>Whether this owner has released every native reference.</returns>
+    private bool TryRetireRemovedDevice() {
+        if (recording) return false;
+        if (bridge is { IsCopyPending: true }) {
+            try {
+                if (!bridge.IsCopyComplete) return false;
+            } catch (TimeoutException) {
+                // A live D3D11 copy still owns the bridge; retain it and poll through the recovery timer.
+                return false;
+            } catch (System.Runtime.InteropServices.COMException) when (bridge.IsDeviceRemoved) {
+                // Only confirmed D3D11 removal permits abandoning its query.
+            }
+        }
+
+        if (!TryDetach()) return false;
+        ReleaseNative();
+        LastCapturedFrame = null;
+        CapturedSerial = 0;
+        recreateRequested = false;
+        demand.Request(D3D12RenderInvalidation.SceneGraph);
+        demand.RequestRecovery();
+        return true;
     }
 
     /// <summary>Releases a quiescent and detached generation without disposing application-owned objects.</summary>
@@ -618,6 +732,8 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         queue = null;
         device?.Dispose();
         device = null;
+        recoveryRegistration?.Unregister();
+        recoveryRegistration = null;
         pendingFence = transportSerial = publishedSerial = 0;
         publishedSurface = 0;
         copyStarted = pendingScene = unfencedExecution = false;
@@ -713,10 +829,11 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         if (publishedSurface != 0) demand.RequestPublication();
     }
 
-    /// <summary>Runs only while an inactive canvas retains actual pending GPU/copy/binding ownership.</summary>
+    /// <summary>Retries retained removal or services inactive GPU/copy/binding ownership without scene submission.</summary>
     private void UpdateServiceTimer() {
-        if (!IsDisposed && !stopping && !canvas.IsActive &&
-            (pendingFence != 0 || unfencedExecution || bridge is { IsCopyPending: true } || canvas.ImageSource.BoundSurface != 0))
+        if (!IsDisposed && !stopping && !updating &&
+            (recoveryRegistration is { IsRemovalRequested: true } || (!canvas.IsActive &&
+             (pendingFence != 0 || unfencedExecution || bridge is { IsCopyPending: true } || canvas.ImageSource.BoundSurface != 0))))
             serviceTimer.Start();
         else serviceTimer.Stop();
     }

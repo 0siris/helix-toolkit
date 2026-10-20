@@ -137,6 +137,15 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <summary>The device owned by the presentation lifetime.</summary>
     private SilkD3D12Device? device;
 
+    /// <summary>The weak registry membership of this native generation.</summary>
+    private D3D12PresentationDeviceRecovery? recoveryRegistration;
+
+    /// <summary>The removed singleton whose productive owners must all retire before recreation.</summary>
+    private D3D12PresentationDeviceRecovery? recoveryBarrier;
+
+    /// <summary>The retained callback for same-thread retirement and asynchronous peer notification.</summary>
+    private readonly Action retireRemovedDevice;
+
     /// <summary>The queue retained for submission and native completion.</summary>
     private SilkD3D12CommandQueue? commandQueue;
 
@@ -164,6 +173,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         this.driverType = driverType;
         this.effectsManager = effectsManager;
         retireNativeCallback = ApplyPendingRetirement;
+        retireRemovedDevice = OnDeviceRemoval;
         _resizeRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) { Interval = TimeSpan.FromMilliseconds(16) };
         _resizeRetryTimer.Tick += RetryPendingResize;
         Children.Add(windowHost);
@@ -219,8 +229,35 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         if (IsDisposed || disposeRequested || retiringNative || HasActiveFrame || suspended ||
             !(loaded || IsLoaded) || !windowHost.IsHandleCreated) return;
         if (RenderHost is Viewport3DX { CanSubmitNativeScene: false }) return;
+        if (ObserveDeviceRemoval()) return;
+        if (recoveryBarrier is { CanRecreate: false }) return;
         if (retireRequested) RetireSceneResources();
         StartNative();
+    }
+
+    /// <summary>Recognizes removal before completion polling, initialization, or command submission.</summary>
+    /// <returns>Whether the current call must cancel its borrowed frame.</returns>
+    private bool ObserveDeviceRemoval() {
+        if (device is null || (recoveryRegistration is not { IsRemovalRequested: true } &&
+                               device.GetDeviceRemovedReason() >= 0)) return false;
+        recoveryBarrier ??= recoveryRegistration;
+        recoveryRegistration?.RequestRemoval();
+        OnDeviceRemoval();
+        return true;
+    }
+
+    /// <summary>Retires a removed generation immediately when no CPU callback still borrows its context.</summary>
+    private void OnDeviceRemoval() {
+        Dispatcher.VerifyAccess();
+        if (IsDisposed || recoveryRegistration is not { IsRemovalRequested: true }) return;
+        recoveryBarrier ??= recoveryRegistration;
+        retireRequested = true;
+        if (RenderHost is Viewport3DX viewport) {
+            viewport.RenderDemand.Request(D3D12RenderInvalidation.SceneGraph);
+            viewport.RenderDemand.RequestRecovery();
+        }
+
+        if (!HasActiveFrame && !retiringNative) RetireSceneResources();
     }
 
     /// <summary>Schedules one retained retirement callback after both surface and viewport frame stacks unwind.</summary>
@@ -250,7 +287,12 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         retireRequested = true;
         LastCapturedFrame = null;
         if (!commandsOpen) return;
-        commandContext!.Close();
+        try {
+            commandContext!.Close();
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
+        }
+
         commandsOpen = false;
     }
 
@@ -273,18 +315,25 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <exception cref="InvalidOperationException">The pending frame has lost its native fence or device.</exception>
     internal bool CompletePendingFrame(bool waitForCompletion = false) {
         Dispatcher.VerifyAccess();
+        if (ObserveDeviceRemoval()) return false;
+        if (device is null && recoveryBarrier is { CanRecreate: false }) return false;
         if (!_frameSubmission.IsPending) return true;
         var currentFence = fence
                            ?? throw new InvalidOperationException("The pending Direct3D 12 frame has no completion fence");
-        var currentDevice = device
-                            ?? throw new InvalidOperationException("The pending Direct3D 12 frame has no device");
-        currentDevice.ThrowIfDeviceRemoved();
+        if (device is null) throw new InvalidOperationException("The pending Direct3D 12 frame has no device");
         var completed = currentFence.CompletedValue;
+        if (completed == ulong.MaxValue && ObserveDeviceRemoval()) return false;
         if (completed == ulong.MaxValue)
             throw new InvalidOperationException("The Direct3D 12 device stopped reporting valid frame completion");
         if (_frameSubmission.TryComplete(completed, FrameTimestamp())) return true;
         if (!waitForCompletion) return false;
-        currentFence.Wait(_frameSubmission.PendingFenceValue, _frameSubmission.RemainingWait(FrameTimestamp()));
+        try {
+            currentFence.Wait(_frameSubmission.PendingFenceValue, _frameSubmission.RemainingWait(FrameTimestamp()));
+        } catch (Exception) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
+            return false;
+        }
+
         return CompletePendingFrame();
     }
 
@@ -324,8 +373,9 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (frameActive || !CanSubmitFrame) return;
-        _ = CompletePendingFrame(true);
+        if (!CompletePendingFrame(true)) return;
         ApplyPendingResize();
+        if (!IsInitialized || !CanSubmitFrame) return;
         frameActive = true;
         try {
             var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
@@ -334,6 +384,10 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                            ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
             renderer.RecordClearFrame(currentContext, in target, clearColor);
             _ = EndFrame(currentContext, currentSwapChain, backBuffer);
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
+            DiscardRecordedFrame();
+            return;
         } catch {
             DiscardRecordedFrame();
             throw;
@@ -364,8 +418,9 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (frameActive || !CanSubmitFrame) return 0;
-        _ = CompletePendingFrame(true);
+        if (!CompletePendingFrame(true)) return 0;
         ApplyPendingResize();
+        if (!IsInitialized || !CanSubmitFrame) return 0;
         ApplyPendingEffectsManager();
         frameActive = true;
         try {
@@ -380,6 +435,10 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             return EndFrame(currentContext, currentSwapChain, backBuffer)
                 ? recorded
                 : 0;
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
+            DiscardRecordedFrame();
+            return 0;
         } catch {
             DiscardRecordedFrame();
             throw;
@@ -444,6 +503,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         if (frameActive || !CanSubmitFrame) return 0;
         if (!CompletePendingFrame(waitForCompletion || captureFrame)) return 0;
         ApplyPendingResize();
+        if (!IsInitialized || !CanSubmitFrame) return 0;
         ApplyPendingEffectsManager();
         frameActive = true;
         try {
@@ -485,6 +545,10 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             }
 
             return recorded;
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
+            DiscardRecordedFrame();
+            return 0;
         } catch {
             DiscardRecordedFrame();
             throw;
@@ -671,17 +735,18 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     private void StartNative() {
         Dispatcher.VerifyAccess();
         if (IsDisposed || disposeRequested || retireRequested || retiringNative || HasActiveFrame ||
-            swapChain is not null || !windowHost.IsHandleCreated) return;
+            swapChain is not null || !windowHost.IsHandleCreated || recoveryBarrier is { CanRecreate: false }) return;
 
         var size = D3D12PresentationSize.Calculate(ActualWidth, ActualHeight, EffectiveDpiScale);
         try {
             var selectedDriverType = effectsManager?.EnableSoftwareRendering == true
                 ? SilkDriverType.Warp
                 : driverType;
-            device = SilkD3D12DeviceFactory.CreateForAdapter(
-                effectsManager?.AdapterIndex ?? -1,
-                SilkFeatureLevel.Level110, selectedDriverType
-            );
+            device = SilkD3D12DeviceFactory.CreateForAdapter(effectsManager?.AdapterIndex ?? -1,
+                SilkFeatureLevel.Level110, selectedDriverType);
+            recoveryRegistration = new D3D12PresentationDeviceRecovery(
+                device.NativePointer, Dispatcher, retireRemovedDevice);
+            if (ObserveDeviceRemoval()) return;
             commandQueue = device.CreateCommandQueue();
             commandContext = device.CreateCommandContext();
             fence = device.CreateFence();
@@ -695,7 +760,13 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             frameRenderer = new D3D12FrameRenderer(device, swapChain.Format, effectsManager);
             frameRenderer.Resize(size.Width, size.Height);
             _effectsManagerDirty = false;
+            recoveryBarrier = null;
             if (RenderHost is Viewport3DX viewport) viewport.MarkPresentationInitialized();
+        } catch (System.Runtime.InteropServices.COMException exception) when (device is null &&
+            D3D12PresentationDeviceRecovery.IsRemovalFailure(exception)) {
+            if (RenderHost is Viewport3DX viewport) viewport.RenderDemand.RequestRecovery();
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
         } catch {
             StopNative();
             throw;
@@ -713,6 +784,11 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
 
         retiringNative = true;
         try {
+            if (device is not null && device.GetDeviceRemovedReason() < 0) {
+                recoveryBarrier ??= recoveryRegistration;
+                recoveryRegistration?.RequestRemoval();
+            }
+
             _resizeRetryTimer.Stop();
             if (resizeOperation is { Status: DispatcherOperationStatus.Pending }) resizeOperation.Abort();
             resizeOperation = null;
@@ -745,6 +821,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             fence = null;
             commandQueue = null;
             device = null;
+            recoveryRegistration?.Unregister();
+            recoveryRegistration = null;
             commandsOpen = false;
             if (RenderHost is Viewport3DX viewport) viewport.ObserveNativeRetirement(this);
         } finally {
@@ -796,7 +874,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         SilkD3D12Resource backBuffer,
         bool waitForCompletion = true
     ) {
-        if (!CanSubmitFrame) {
+        if (ObserveDeviceRemoval() || !CanSubmitFrame) {
             DiscardRecordedFrame();
             return false;
         }
@@ -813,7 +891,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         var fenceValue = currentQueue.Signal(currentFence);
         _frameSubmission.Submit(fenceValue, FrameTimestamp());
         PresentedFrames++;
-        if (waitForCompletion) _ = CompletePendingFrame(true);
+        if (waitForCompletion && !CompletePendingFrame(true)) return false;
         return true;
     }
 

@@ -1218,11 +1218,12 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <param name="eventArgs">The WPF rendering timestamp.</param>
     private void D3D12CompositionTargetRendering(object? sender, RenderingEventArgs eventArgs) {
         var surface = d3d12Surface;
+        if (surface is null) return;
         try {
             _ = RenderD3D12Frame(eventArgs.RenderingTime, waitForCompletion: false);
         } catch (Exception exception) {
             d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-            HandleRenderException(surface, new RelayExceptionEventArgs(exception));
+            surface.ReportDeferredFailure(exception);
         }
     }
 

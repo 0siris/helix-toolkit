@@ -260,8 +260,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     }
 
     /// <summary>Reports an automatic failure and contains a second teardown failure without losing native ownership.</summary>
-    /// <param name="exception">The failure from queued recovery, retirement, or resize work.</param>
-    private void ReportDeferredFailure(Exception exception) {
+    /// <param name="exception">The failure from automatic viewport rendering, queued recovery, retirement, or resize work.</param>
+    internal void ReportDeferredFailure(Exception exception) {
         try {
             if (DeferredRenderException is { } handler) handler(this, new RelayExceptionEventArgs(exception));
             else LoggerLib.Logger.Error(exception, "Native recovery failed; resources remain owned for retry");

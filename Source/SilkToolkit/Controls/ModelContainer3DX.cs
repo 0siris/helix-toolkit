@@ -276,6 +276,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
                     throw;
                 }
             }
+
             // Retirement can invoke application callbacks that change the requested manager or consumer set.
             // Successful retirement removes resource owners; that expected shrink must not restart the transaction.
             if ((assignManager && !ReferenceEquals(manager, EffectsManager)) ||

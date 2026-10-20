@@ -139,6 +139,10 @@ public static unsafe class SilkD3D12DeviceFactory {
                     (void**) &testDevice
                 );
                 if (testDevice != null) testDevice->Release();
+                // A retained removed singleton is recoverable; it is not evidence that the adapter lacks D3D12.
+                if (createResult is unchecked((int) 0x887A0005) or
+                    unchecked((int) 0x887A0006) or unchecked((int) 0x887A0007))
+                    SilkMarshal.ThrowHResult(createResult);
                 candidates.Add(
                     new D3D12AdapterCandidate(
                         (int) index,

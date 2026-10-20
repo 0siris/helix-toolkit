@@ -63,8 +63,8 @@ public sealed class P5ScreenSpacePostEffectTests {
                     withEffect.Pixels[offset + 2] < 16)
                     continue;
 
-                // An additive red outline must retain the contrasting blue background and opaque coverage.
-                Assert.InRange((int) withEffect.Pixels[offset], 253, 255);
+                // The blurred red mask has R = A. One/InverseSourceAlpha over blue gives R + B = 1.
+                Assert.InRange(withEffect.Pixels[offset] + withEffect.Pixels[offset + 2], 254, 256);
                 Assert.InRange((int) withEffect.Pixels[offset + 1], 0, 2);
                 outlinedBackgroundPixels++;
             }

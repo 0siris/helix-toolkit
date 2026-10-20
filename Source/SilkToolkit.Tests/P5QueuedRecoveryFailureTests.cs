@@ -474,18 +474,27 @@ public sealed class P5QueuedRecoveryFailureTests {
                     // Actual viewport disposal releases its retained resource membership during failed preflight.
                     peer.Viewport.Dispose();
                     Assert.True(peer.Viewport.IsDisposed);
-                    reentrantOperation = P4PresentationDriver.ReadField<DispatcherOperation>(
+                    reentrantOperation = P4PresentationDriver.ReadField<DispatcherOperation?>(
                         container, "managerSynchronizationOperation"
                     );
-                    Assert.Equal(DispatcherOperationStatus.Pending, reentrantOperation.Status);
+                    // WPF's active removal scope already prevents repost; HWND's queued repost must be aborted.
+                    if (hwnd) Assert.Equal(DispatcherOperationStatus.Pending, reentrantOperation!.Status);
+                    else Assert.Null(reentrantOperation);
                 };
+                var automaticRendering = driver.Wpf is { } composition
+                    ? typeof(D3D12WpfPresentation).GetMethod("OnRendering", BindingFlags.Instance | BindingFlags.NonPublic)!
+                        .CreateDelegate<EventHandler<RenderingEventArgs>>(composition)
+                    : null;
                 firstMesh.SceneNode.Detached += unregisterHealthyPeer;
                 secondMesh.SceneNode.Detached += unregisterHealthyPeer;
                 try {
+                    // Isolate the real shared retry timer from the higher-priority composition recovery entry.
+                    if (automaticRendering is not null) driver.Canvas!.Rendering -= automaticRendering;
                     await AssertQueuedFailureAsync(
                         driver, [firstMesh.SceneNode, secondMesh.SceneNode], true, () => RemoveDevice(device), () => {
                             Assert.True(observedPreflight);
-                            Assert.Equal(DispatcherOperationStatus.Aborted, reentrantOperation!.Status);
+                            if (hwnd) Assert.Equal(DispatcherOperationStatus.Aborted, reentrantOperation!.Status);
+                            else Assert.Null(reentrantOperation);
                             Assert.True(container.IsSynchronizingEffectsManager);
                             Assert.True(P4PresentationDriver.ReadField<bool>(container, "managerIdentityChangePending"));
                             Assert.True(P4PresentationDriver.ReadField<bool>(container, "managerSynchronizationFailed"));
@@ -525,6 +534,8 @@ public sealed class P5QueuedRecoveryFailureTests {
                     Assert.False(replacement.IsDisposed);
                     await AssertFreshPixelsAsync(hwnd, replacement);
                 } finally {
+                    if (automaticRendering is not null && driver.Wpf is { IsDisposed: false })
+                        driver.Canvas!.Rendering += automaticRendering;
                     firstMesh.SceneNode.Detached -= unregisterHealthyPeer;
                     secondMesh.SceneNode.Detached -= unregisterHealthyPeer;
                 }
@@ -567,8 +578,10 @@ public sealed class P5QueuedRecoveryFailureTests {
                 cold.Root.UpdateLayout();
                 await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
                 Assert.True(cold.Viewport.IsLoaded);
-                Assert.Same(container,
-                    P4PresentationDriver.ReadField<ModelContainer3DX>(cold.Viewport, "registeredModelContainer"));
+                Assert.Same(
+                    container,
+                    P4PresentationDriver.ReadField<ModelContainer3DX>(cold.Viewport, "registeredModelContainer")
+                );
                 Assert.Contains(cold.Viewport, P4PresentationDriver.ReadField<IRenderHost[]>(container, "consumers"));
                 Assert.NotSame(original, container.EffectsManager);
                 Assert.Same(original, cold.Viewport.EffectsManager);
@@ -592,11 +605,16 @@ public sealed class P5QueuedRecoveryFailureTests {
                 Assert.True(P4PresentationDriver.ReadField<bool>(container, "managerSynchronizationFailed"));
                 Assert.False(P4PresentationDriver.ReadField<bool>(container, "managerChangeQueued"));
                 Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(container, "managerSynchronizationOperation"));
-                Assert.False(P4PresentationDriver.ReadField<DispatcherTimer>(container, "managerRetryTimer").IsEnabled);
+                Assert.False(
+                    P4PresentationDriver.ReadField<DispatcherTimer>(container, "managerRetryTimer")
+                        .IsEnabled
+                );
                 Assert.False(device.IsDisposed);
                 Assert.NotNull(context.Camera);
-                Assert.Same(registration,
-                    P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration"));
+                Assert.Same(
+                    registration,
+                    P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration")
+                );
                 Assert.True(registration.IsRemovalRequested);
                 Assert.False(registration.CanRecreate);
                 Assert.Equal(before, failed.Counts);
@@ -613,20 +631,32 @@ public sealed class P5QueuedRecoveryFailureTests {
         Assert.True(P4PresentationDriver.ReadField<bool>(container, "managerSynchronizationFailed"));
         Assert.False(P4PresentationDriver.ReadField<bool>(container, "managerChangeQueued"));
         Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(container, "managerSynchronizationOperation"));
-        Assert.False(P4PresentationDriver.ReadField<DispatcherTimer>(container, "managerRetryTimer").IsEnabled);
-        Assert.Same(failed.Viewport,
-            Assert.Single(P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers")));
-        Assert.Same(failed.Viewport,
-            Assert.Single(P4PresentationDriver.ReadField<IRenderHost[]>(container, "consumers")));
+        Assert.False(
+            P4PresentationDriver.ReadField<DispatcherTimer>(container, "managerRetryTimer")
+                .IsEnabled
+        );
+        Assert.Same(
+            failed.Viewport,
+            Assert.Single(P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers"))
+        );
+        Assert.Same(
+            failed.Viewport,
+            Assert.Single(P4PresentationDriver.ReadField<IRenderHost[]>(container, "consumers"))
+        );
         Assert.False(device.IsDisposed);
         Assert.NotNull(context.Camera);
-        Assert.Same(registration,
-            P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration"));
+        Assert.Same(
+            registration,
+            P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration")
+        );
         Assert.False(registration.CanRecreate);
         Assert.Equal(before, failed.Counts);
         Assert.Equal(0, coldErrors);
         if (failed.Wpf is { } wpf)
-            Assert.False(P4PresentationDriver.ReadField<DispatcherTimer>(wpf, "serviceTimer").IsEnabled);
+            Assert.False(
+                P4PresentationDriver.ReadField<DispatcherTimer>(wpf, "serviceTimer")
+                    .IsEnabled
+            );
         else Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(failed.Native!, "retirementOperation"));
     }
 
@@ -697,6 +727,7 @@ public sealed class P5QueuedRecoveryFailureTests {
             await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
             Assert.Null(escaped);
             Assert.Equal(1, errorCount);
+            if (failRetry) Assert.Same(retryFailure, driver.Viewport.RenderException);
             Assert.Equal(
                 failRetry
                     ? 2
@@ -704,7 +735,6 @@ public sealed class P5QueuedRecoveryFailureTests {
             );
             Assert.Equal(before, driver.Counts);
             if (failRetry) {
-                Assert.Same(retryFailure, driver.Viewport.RenderException);
                 Assert.False(device.IsDisposed);
                 Assert.Same(
                     registration,

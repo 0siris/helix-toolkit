@@ -9,6 +9,8 @@ Windows/WPF, .NET 10, Silk.NET D3D12/11/9Ex, PowerShell 7. Use existing fixtures
 add only the measurement/regression coverage needed by concrete audit findings. No speculative product instrumentation.
 The three read-only children audit rendering, lifetime and documentation in isolated worktrees. They run no build,
 test, GPU, IDE formatting/diagnostics or Graphify operations. Parent executes those gates serially and integrates fixes.
+After the read-only audits, disjoint corrective packages may use separate implementation children; those children
+also perform only source/static work. Native lifetime, adapter selection and measurement integration stay with the parent.
 
 Measurements use identical settings and scene on each actual backend. Report warmup/sample counts, adapter identity,
 wall versus process CPU versus GPU-clock interval semantics, capture/presentation boundaries and memory scope.

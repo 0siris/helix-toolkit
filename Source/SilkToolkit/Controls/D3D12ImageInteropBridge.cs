@@ -229,6 +229,14 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
         }
     }
 
+    /// <summary>Gets confirmed D3D11 removal without treating a live-device timeout as permission to release resources.</summary>
+    internal bool IsDeviceRemoved {
+        get {
+            VerifyAlive();
+            return device11.Handle->GetDeviceRemovedReason() < 0;
+        }
+    }
+
     /// <summary>Copies the completed COMMON source into a destination that is neither bound nor unpublished.</summary>
     /// <param name="frameSerial">A nonzero serial strictly greater than the last accepted copy serial.</param>
     /// <remarks>

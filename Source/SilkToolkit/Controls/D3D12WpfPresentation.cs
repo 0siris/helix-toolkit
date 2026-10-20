@@ -413,6 +413,22 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <param name="wait">Whether an explicit caller permits bounded GPU and query waits.</param>
     /// <returns>Whether transport is idle and scene recording may be considered.</returns>
     private bool ServiceTransport(bool wait) {
+        try {
+            return ServiceTransportCore(wait);
+        } catch (System.Runtime.InteropServices.COMException) when (bridge is { IsDeviceRemoved: true }) {
+            // Only confirmed D3D11 removal permits retiring its failed query; live-device failures retain ownership.
+            if (!TryDetach()) return false;
+            ReleaseNative();
+            recreateRequested = false;
+            demand.Request(D3D12RenderInvalidation.SceneGraph);
+            return canvas.IsActive && canvas.NativeHandle != 0;
+        }
+    }
+
+    /// <summary>Advances normal transport while retaining all resources until completion or confirmed device removal.</summary>
+    /// <param name="wait">Whether the caller permits bounded completion waits.</param>
+    /// <returns>Whether a new scene may be recorded.</returns>
+    private bool ServiceTransportCore(bool wait) {
         if (device is null) {
             recreateRequested = false;
             return canvas.IsActive && canvas.NativeHandle != 0 && canvas.PixelWidth != 0 && canvas.PixelHeight != 0;

@@ -713,10 +713,17 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             _resizeRetryTimer.Stop();
             if (resizeOperation is { Status: DispatcherOperationStatus.Pending }) resizeOperation.Abort();
             resizeOperation = null;
-            if (commandQueue is not null && fence is not null) {
-                var fenceValue = commandQueue.Signal(fence);
-                fence.Wait(fenceValue, TimeSpan.FromSeconds(5));
-                _ = _frameSubmission.TryComplete(fence.CompletedValue, FrameTimestamp());
+            if (device is not null && commandQueue is not null && fence is not null) {
+                try {
+                    device.ThrowIfDeviceRemoved();
+                    var fenceValue = commandQueue.Signal(fence);
+                    fence.Wait(fenceValue, TimeSpan.FromSeconds(5));
+                    device.ThrowIfDeviceRemoved();
+                    _ = _frameSubmission.TryComplete(fence.CompletedValue, FrameTimestamp());
+                } catch (System.Runtime.InteropServices.COMException) when (device.Handle->GetDeviceRemovedReason() < 0) {
+                    // Removed queues cannot drain; completed old frames remain claimable, pending work is abandoned.
+                    _frameSubmission.AbandonRemovedDeviceSubmission();
+                }
             }
 
             // Keep undelivered completions across retirement; already claimed serials remain claimed.

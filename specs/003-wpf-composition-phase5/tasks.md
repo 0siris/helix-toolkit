@@ -10,6 +10,9 @@ Baseline: `acc913f22`; 830/838 standard cases, eight known failures, 151/151 sel
 - [ ] T004 [P] P5.4 read-only documentation audit: reconcile defaults, original contracts, supported configuration,
   capture/MSAA limits and claims against source plus runtime evidence.
 - [ ] T005 Resolve concrete audit findings and add focused regression/measurement coverage using existing fixtures.
+- [ ] T005a [P] Correct additive RGB effect parity while preserving premultiplied coverage; add contrasting-color GPU checks.
+- [ ] T005b [P] Restore postprocessing of screen-space children through both backends; add a focused actual-viewport check.
+- [ ] T005c [P] Remove warm GPU-collision reuse traversal allocations while preserving complete geometry validation.
 - [ ] T006 P5.1 serial quality gate: formatting/diagnostics, fresh solution build, standard comparison and selected
   hardware/DX12 plus visible acceptance. Keep exact baseline failures and allocation limits visible.
 - [ ] T007 P5.5 compare matched actual backends: CPU/GPU-clock evidence, update-to-published/capture latency,

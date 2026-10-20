@@ -72,4 +72,10 @@ internal sealed class D3D12FrameSubmission {
 
     /// <summary>Discards notifications belonging to a detached presentation lifetime after its GPU work is drained.</summary>
     internal void DiscardCompletions() => _notifiedFrames = CompletedFrames;
+
+    /// <summary>Releases an outstanding submission only after confirmed device removal, without inventing completion.</summary>
+    internal void AbandonRemovedDeviceSubmission() {
+        PendingFenceValue = 0;
+        _submittedAt = TimeSpan.Zero;
+    }
 }

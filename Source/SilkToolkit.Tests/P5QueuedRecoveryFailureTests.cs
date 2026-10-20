@@ -1,5 +1,7 @@
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
@@ -132,17 +134,112 @@ public sealed class P5QueuedRecoveryFailureTests {
             }
         );
 
+    /// <summary>Contains two teardown failures after actual removal inside a productive CPU scene update.</summary>
+    /// <param name="hwnd">Whether to exercise HWND deferred retirement instead of WPF's automatic rendering boundary.</param>
+    /// <returns>The canceled recording, bounded automatic failure and successful explicit ownership retry verification.</returns>
+    [Theory(Explicit = true)]
+    [InlineData(false)]
+    [InlineData(true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task CpuBorrowRemovalContainsDeferredTeardownFailures(bool hwnd) => StaThread.RunAsync(async () => {
+            using var effects = new DefaultEffectsManager();
+            await using var driver = new P4PresentationDriver(hwnd, effects);
+            using var firstMesh = P4PresentationDriver.CreateMesh();
+            using var secondMesh = P4PresentationDriver.CreateMesh();
+            driver.Viewport.Items.Add(firstMesh);
+            driver.Viewport.Items.Add(secondMesh);
+            await driver.WarmAsync();
+            var first = Assert.IsType<P4ObservedMeshNode>(firstMesh.SceneNode);
+            var second = Assert.IsType<P4ObservedMeshNode>(secondMesh.SceneNode);
+            var owner = (object?) driver.Wpf ?? driver.Native!;
+            var device = Device(driver);
+            var commands = P4PresentationDriver.ReadField<SilkD3D12CommandContext>(owner, hwnd ? "commandContext" : "commands");
+            var registration = P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration");
+            var context = driver.Context!;
+            var before = driver.Counts;
+            var callbackReturned = false;
+            EventHandler detachedAfterCallback = (_, _) => Assert.True(callbackReturned);
+            first.Detached += detachedAfterCallback;
+            second.Detached += detachedAfterCallback;
+            first.OnNextUpdate = current => {
+                Assert.Same(context, current);
+                RemoveDevice(device);
+                if (hwnd) Assert.False(driver.Native!.CompletePendingFrame());
+                else Assert.True(driver.Wpf!.HasPendingGpuWork);
+                Assert.True(registration.IsRemovalRequested);
+                Assert.False(registration.CanRecreate);
+                Assert.False(device.IsDisposed);
+                Assert.False(commands.IsDisposed);
+                Assert.NotNull(current.Camera);
+                Assert.True(first.RenderCore.IsAttached);
+                Assert.True(second.RenderCore.IsAttached);
+                Assert.Same(registration,
+                    P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration"));
+                Assert.Equal(before, driver.Counts);
+                callbackReturned = true;
+            };
+            try {
+                await AssertQueuedFailureAsync(
+                    driver, [first, second], true, () => {
+                        if (hwnd) {
+                            driver.Viewport.InvalidateRender();
+                            Assert.Equal(0, driver.Tick());
+                            Assert.True(callbackReturned);
+                            Assert.False(device.IsDisposed);
+                            Assert.Equal(DispatcherOperationStatus.Pending,
+                                P4PresentationDriver.ReadField<DispatcherOperation>(driver.Native!, "retirementOperation").Status);
+                        } else {
+                            var automaticTick = typeof(D3D12WpfPresentation)
+                                .GetMethod("OnRendering", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                .CreateDelegate<EventHandler<RenderingEventArgs>>(driver.Wpf!);
+                            driver.Viewport.StartRendering();
+                            driver.Viewport.InvalidateRender();
+                            automaticTick(driver.Canvas, CreateRenderingArgs(TimeSpan.FromSeconds(2)));
+                        }
+
+                        Assert.True(callbackReturned);
+                        Assert.Equal(before, driver.Counts);
+                    }, () => {
+                        Assert.True(callbackReturned);
+                        Assert.False(device.IsDisposed);
+                        Assert.False(commands.IsDisposed);
+                        Assert.NotNull(context.Camera);
+                        Assert.Same(registration,
+                            P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration"));
+                        Assert.False(registration.CanRecreate);
+                        Assert.Equal(before, driver.Counts);
+                        if (hwnd)
+                            Assert.False(P4PresentationDriver.ReadField<D3D12FrameSubmission>(driver.Native!, "_frameSubmission").IsPending);
+                    }
+                );
+                Assert.True(callbackReturned);
+                Assert.True(commands.IsDisposed);
+                Assert.False(effects.IsDisposed);
+                Assert.False(first.IsDisposed);
+                Assert.False(second.IsDisposed);
+                await AssertFreshPixelsAsync(hwnd, effects);
+            } finally {
+                first.OnNextUpdate = null;
+                first.Detached -= detachedAfterCallback;
+                second.Detached -= detachedAfterCallback;
+            }
+        }
+    );
+
     /// <summary>Observes real queued detachment failures, ensuring the existing boundary sees retained native ownership.</summary>
-    /// <param name="driver">The initialized and inactive presentation owner.</param>
+    /// <param name="driver">The productive owner whose queued or automatic retirement is under test.</param>
     /// <param name="nodes">Real productive nodes whose one-shot detach callbacks may fail.</param>
     /// <param name="failRetry">Whether the second node fails during the boundary's immediate retry.</param>
-    /// <param name="begin">Requests a queued probe or exposes the ready peer to its removal initiator.</param>
+    /// <param name="begin">Requests discovery, exposes a peer, or renders the frame that must retire after its CPU callback.</param>
+    /// <param name="inspectRetainedOwnership">The optional check after another dispatcher turn, before explicit retry.</param>
     /// <returns>The completed boundary notification and verified, explicit native ownership retry.</returns>
     private static async Task AssertQueuedFailureAsync(
         P4PresentationDriver driver,
         SceneNode[] nodes,
         bool failRetry,
-        Action begin
+        Action begin,
+        Action? inspectRetainedOwnership = null
     ) {
         var owner = (object?) driver.Wpf ?? driver.Native!;
         var device = Device(driver);
@@ -209,6 +306,14 @@ public sealed class P5QueuedRecoveryFailureTests {
                     P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration")
                 );
                 Assert.False(registration.CanRecreate);
+                if (inspectRetainedOwnership is not null) {
+                    await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    inspectRetainedOwnership();
+                    Assert.Null(escaped);
+                    Assert.Equal(1, errorCount);
+                    Assert.Equal(2, detachFailures);
+                }
+
                 if (driver.Wpf is { } wpf) {
                     Assert.False(
                         P4PresentationDriver.ReadField<DispatcherTimer>(wpf, "serviceTimer")
@@ -268,6 +373,15 @@ public sealed class P5QueuedRecoveryFailureTests {
     /// <returns>The borrowed native device wrapper.</returns>
     private static SilkD3D12Device Device(P4PresentationDriver driver) =>
         P4PresentationDriver.ReadField<SilkD3D12Device>((object?) driver.Wpf ?? driver.Native!, "device");
+
+    /// <summary>Creates ordinary WPF frame arguments using the framework constructor used by existing automatic-callback tests.</summary>
+    /// <param name="timestamp">The distinct rendering timestamp.</param>
+    /// <returns>The actual framework rendering arguments.</returns>
+    private static RenderingEventArgs CreateRenderingArgs(TimeSpan timestamp) =>
+        (RenderingEventArgs) Activator.CreateInstance(
+            typeof(RenderingEventArgs),
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, [timestamp], null
+        )!;
 
     /// <summary>Invokes actual process-device removal while balancing the queried extended COM reference.</summary>
     /// <param name="device">The productive device whose native singleton is removed.</param>

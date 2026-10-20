@@ -678,7 +678,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             var selectedDriverType = effectsManager?.EnableSoftwareRendering == true
                 ? SilkDriverType.Warp
                 : driverType;
-            device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, selectedDriverType);
+            device = SilkD3D12DeviceFactory.CreateForAdapter(effectsManager?.AdapterIndex ?? -1,
+                SilkFeatureLevel.Level110, selectedDriverType);
             commandQueue = device.CreateCommandQueue();
             commandContext = device.CreateCommandContext();
             fence = device.CreateFence();
@@ -720,7 +721,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                     fence.Wait(fenceValue, TimeSpan.FromSeconds(5));
                     device.ThrowIfDeviceRemoved();
                     _ = _frameSubmission.TryComplete(fence.CompletedValue, FrameTimestamp());
-                } catch (System.Runtime.InteropServices.COMException) when (device.Handle->GetDeviceRemovedReason() < 0) {
+                } catch (Exception) when (device.GetDeviceRemovedReason() < 0) {
                     // Removed queues cannot drain; completed old frames remain claimable, pending work is abandoned.
                     _frameSubmission.AbandonRemovedDeviceSubmission();
                 }

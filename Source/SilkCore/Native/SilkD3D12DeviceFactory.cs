@@ -41,6 +41,17 @@ public static unsafe class SilkD3D12DeviceFactory {
     public static SilkD3D12Device CreateDefault(
         SilkFeatureLevel minimumFeatureLevel = SilkFeatureLevel.Level110,
         SilkDriverType driverType = SilkDriverType.Hardware
+    ) => CreateForAdapter(-1, minimumFeatureLevel, driverType);
+
+    /// <summary>Creates a device on the configured DXGI adapter, retaining automatic selection for negative indices.</summary>
+    /// <param name="adapterIndex">The requested DXGI index, or a negative value for ranked hardware selection.</param>
+    /// <param name="minimumFeatureLevel">The minimum requested feature level.</param>
+    /// <param name="driverType">The hardware or explicit WARP policy; WARP does not select a hardware index.</param>
+    /// <returns>The created device on the requested adapter, without silently falling back to another adapter.</returns>
+    internal static SilkD3D12Device CreateForAdapter(
+        int adapterIndex,
+        SilkFeatureLevel minimumFeatureLevel = SilkFeatureLevel.Level110,
+        SilkDriverType driverType = SilkDriverType.Hardware
     ) {
         if (driverType is not (SilkDriverType.Hardware or SilkDriverType.Warp))
             throw new ArgumentOutOfRangeException(nameof(driverType),
@@ -59,8 +70,12 @@ public static unsafe class SilkD3D12DeviceFactory {
                 SilkMarshal.ThrowHResult(factory.EnumWarpAdapter(out adapter));
             } else {
                 SilkMarshal.ThrowHResult(DxgiApi.CreateDXGIFactory2(0, out factory));
-                var adapterIndex = SelectHardwareAdapter(factory, minimumFeatureLevel);
-                SilkMarshal.ThrowHResult(factory.Handle->EnumAdapters1((uint) adapterIndex, &hardwareAdapter));
+                var selectedIndex = adapterIndex < 0 ? SelectHardwareAdapter(factory, minimumFeatureLevel) : adapterIndex;
+                SilkMarshal.ThrowHResult(factory.Handle->EnumAdapters1((uint) selectedIndex, &hardwareAdapter));
+                AdapterDesc1 description;
+                SilkMarshal.ThrowHResult(hardwareAdapter->GetDesc1(&description));
+                if (((AdapterFlag) description.Flags & AdapterFlag.Software) != 0)
+                    throw new PlatformNotSupportedException("Select WARP explicitly instead of a software adapter index.");
             }
 
             var nativeAdapter = driverType == SilkDriverType.Warp

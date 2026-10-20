@@ -11,6 +11,7 @@ using HelixToolkit.Wpf.SharpDX;
 using Silk.NET.Direct3D12;
 using Xunit;
 using DiffuseMaterial = HelixToolkit.Wpf.SharpDX.DiffuseMaterial;
+using Luid = Silk.NET.Core.Native.Luid;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
@@ -28,6 +29,7 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
     public Task MatchedBackendsExposeGpuDrawAndPublicationCosts() => StaThread.RunAsync(async () => {
             const int warmup = 32;
             const int samples = 64;
+            long? adapterLuid = null;
             foreach (var hwnd in new[] { false, true }) {
                 using var effects = new DefaultEffectsManager();
                 await using var driver = new P4PresentationDriver(hwnd, effects);
@@ -47,6 +49,8 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
                         : "queue"
                 );
                 using var timestamps = new DrawTimestamps(device, queue);
+                if (adapterLuid is { } expectedAdapter) Assert.Equal(expectedAdapter, timestamps.AdapterLuid);
+                adapterLuid = timestamps.AdapterLuid;
                 var core = Assert.IsType<TimestampedMeshCore>(mesh.SceneNode.RenderCore);
                 core.Timestamps = timestamps;
                 try {
@@ -114,6 +118,7 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
                         $"extra-cross-device-copies={copyDelta}; new-publications={publicationDelta}; " +
                         $"GPU-timestamp-Hz={timestamps.Frequency}; draw-query-pairs={timestamps.Pairs}."
                     );
+                    output.WriteLine($"P5 adapter-LUID=0x{timestamps.AdapterLuid:X16}; requested-DXGI-index={effects.AdapterIndex}.");
                     output.WriteLine(
                         "GPU timestamps cover this mesh's native bindings/draw commands, excluding clear, FXAA, D3D11 copy, DWM and scanout. " +
                         "Caller wall time includes explicit fence/interop waits; process CPU time is the CPU-work metric. " +
@@ -242,6 +247,10 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
 
         /// <summary>Owns two resolved 64-bit timestamps.</summary>
         private readonly SilkD3D12Resource readback;
+        /// <summary>Borrows the queue until all timestamp resources have been drained and released.</summary>
+        private readonly SilkD3D12CommandQueue queue;
+        /// <summary>Owns an independent final drain fence for test resources even if an assertion fails.</summary>
+        private readonly SilkD3D12Fence drainFence;
 
         /// <summary>Retains the native end-query entry point outside measured calls.</summary>
         private EndQuery? endQuery;
@@ -253,6 +262,7 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
         /// <param name="device">The exact borrowed productive D3D12 device.</param>
         /// <param name="queue">The exact productive D3D12 queue.</param>
         internal DrawTimestamps(SilkD3D12Device device, SilkD3D12CommandQueue queue) {
+            this.queue = queue;
             var desc = new QueryHeapDesc { Type = QueryHeapType.Timestamp, Count = 2 };
             var id = ID3D12QueryHeap.Guid;
             Marshal.ThrowExceptionForHR(Method<CreateQueryHeap>(device.NativePointer, 39)(device.NativePointer, in desc, in id, out heap));
@@ -260,8 +270,13 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
                 Marshal.ThrowExceptionForHR(Method<GetFrequency>(queue.NativePointer, 16)(queue.NativePointer, out var frequency));
                 Assert.True(frequency > 0);
                 Frequency = frequency;
+                _ = Method<GetLuid>(device.NativePointer, 43)(device.NativePointer, out var luid);
+                AdapterLuid = unchecked((long) ((ulong) (uint) luid.High << 32 | luid.Low));
                 readback = device.CreateBuffer(16, HeapType.Readback);
+                drainFence = device.CreateFence();
             } catch {
+                readback?.Dispose();
+                drainFence?.Dispose();
                 Marshal.Release(heap);
                 heap = 0;
                 throw;
@@ -270,6 +285,8 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
 
         /// <summary>Gets the actual productive queue's timestamp ticks per second.</summary>
         internal ulong Frequency { get; }
+        /// <summary>Gets the exact productive device's adapter identity for matched-backend comparison.</summary>
+        internal long AdapterLuid { get; }
 
         /// <summary>Gets the number of original mesh command ranges measured.</summary>
         internal int Pairs { get; private set; }
@@ -303,6 +320,8 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
         /// <summary>Releases only test-owned query resources after the caller has drained productive work.</summary>
         public void Dispose() {
             if (heap == 0) return;
+            drainFence.Wait(queue.Signal(drainFence), P4PresentationDriver.Timeout);
+            drainFence.Dispose();
             readback.Dispose();
             Marshal.Release(heap);
             heap = 0;
@@ -331,6 +350,12 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
         /// <returns>The HRESULT.</returns>
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate int GetFrequency(nint queue, out ulong frequency);
+        /// <summary>Reads the adapter identity through the exact Silk 2.23 native struct-return ABI.</summary>
+        /// <param name="device">The productive device.</param>
+        /// <param name="luid">Receives the adapter identity.</param>
+        /// <returns>The native result-buffer address.</returns>
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate nint GetLuid(nint device, out Luid luid);
 
         /// <summary>Writes one timestamp into the native query heap.</summary>
         /// <param name="commands">The actual command list.</param>

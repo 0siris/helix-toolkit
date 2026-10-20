@@ -2608,7 +2608,7 @@ public partial class Viewport3DX {
     }
 
     /// <summary>
-    ///     Set MSAA level. If set to Two/Four/Eight, the actual level is set to minimum between Maximum and Two/Four/Eight
+    ///     Gets or sets the retained MSAA compatibility option. The current D3D12 recorder uses single-sample targets.
     /// </summary>
     public MSAALevel Msaa {
         get => (MSAALevel) GetValue(MsaaProperty);
@@ -2803,7 +2803,7 @@ public partial class Viewport3DX {
     }
 
     /// <summary>
-    ///     Gets or sets the fxaa. If MSAA is set, FXAA will be disabled automatically
+    ///     Gets or sets the active FXAA quality independently of the retained MSAA compatibility option.
     /// </summary>
     /// <value>
     ///     The enable fxaa.

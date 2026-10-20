@@ -417,6 +417,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             return ServiceTransportCore(wait);
         } catch (System.Runtime.InteropServices.COMException) when (bridge is { IsDeviceRemoved: true }) {
             // Only confirmed D3D11 removal permits retiring its failed query; live-device failures retain ownership.
+            DrainSubmittedWorkForManagerDisposal();
             if (!TryDetach()) return false;
             ReleaseNative();
             recreateRequested = false;
@@ -581,7 +582,8 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             var selectedDriver = viewport.EffectsManager?.EnableSoftwareRendering == true
                 ? SilkDriverType.Warp
                 : driverType;
-            device = SilkD3D12DeviceFactory.CreateDefault(driverType: selectedDriver);
+            device = SilkD3D12DeviceFactory.CreateForAdapter(viewport.EffectsManager?.AdapterIndex ?? -1,
+                driverType: selectedDriver);
             queue = device.CreateCommandQueue();
             commands = device.CreateCommandContext();
             fence = device.CreateFence();

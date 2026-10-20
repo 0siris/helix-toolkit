@@ -838,6 +838,43 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         SilkD3D12Descriptor mainDepthStencil,
         uint width,
         uint height
+    )  => RenderPostEffects(
+        context, candidates, effects, catalog, in transforms, testFrustum, ref frustum, mainColor, mainRenderTarget, sceneDepth, mainDepthStencil, width, height, null
+    );
+
+    /// <summary>
+    ///     Dispatches registered outline, border and XRay nodes using their actual attributes and source pass policies.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    /// <param name="candidates">Opaque and transparent geometry in original scene traversal order.</param>
+    /// <param name="effects">The registered post-effect nodes in draw order.</param>
+    /// <param name="catalog">The existing registered pass catalog.</param>
+    /// <param name="transforms">The global camera and viewport constants.</param>
+    /// <param name="testFrustum">Whether camera-frustum culling is enabled.</param>
+    /// <param name="frustum">The current camera frustum.</param>
+    /// <param name="mainColor">The presentation color resource.</param>
+    /// <param name="mainRenderTarget">The presentation RTV.</param>
+    /// <param name="sceneDepth">The original scene depth/stencil resource, preserved by each effect.</param>
+    /// <param name="mainDepthStencil">The original scene DSV.</param>
+    /// <param name="width">The physical width.</param>
+    /// <param name="height">The physical height.</param>
+    /// <param name="geometryViewport">The optional local geometry viewport; effect intermediates remain full target size.</param>
+    /// <returns>The number of recorded custom geometry draws.</returns>
+    internal int RenderPostEffects(
+        SilkD3D12CommandContext context,
+        FastList<SceneNode> candidates,
+        FastList<SceneNode> effects,
+        D3D12ScenePassCatalog catalog,
+        in GlobalTransformStruct transforms,
+        bool testFrustum,
+        ref BoundingFrustum frustum,
+        SilkD3D12Resource mainColor,
+        SilkD3D12Descriptor mainRenderTarget,
+        SilkD3D12Resource sceneDepth,
+        SilkD3D12Descriptor mainDepthStencil,
+        uint width,
+        uint height,
+        ViewportF? geometryViewport
     ) {
         using var profile = D3D12Profiler.Begin(context, "Silk.SelectionEffects");
         var recorded = 0;
@@ -878,7 +915,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                                 ? border.DrawMode
                                 : OutlineMode.Merged,
                             outline is not NodePostEffectBorderHighlight,
-                            selectionBoneSelector
+                            selectionBoneSelector, geometryViewport
                         );
                         break;
                     }
@@ -908,7 +945,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                             mainRenderTarget,
                             mainDepthStencil,
                             width,
-                            height, effectName, sceneDepth, selectionBoneSelector
+                            height, effectName, sceneDepth, selectionBoneSelector, geometryViewport
                         );
                         break;
                     }
@@ -939,7 +976,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                             mainRenderTarget,
                             mainDepthStencil,
                             width,
-                            height, effectName, sceneDepth, selectionBoneSelector
+                            height, effectName, sceneDepth, selectionBoneSelector, geometryViewport
                         );
                         break;
                     }
@@ -953,6 +990,20 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         }
 
         return recorded;
+    }
+
+    /// <summary>Restores only local geometry mapping after a full-target effect allocation or bind.</summary>
+    /// <param name="context">The open productive command context.</param>
+    /// <param name="viewport">The optional screen-space geometry viewport.</param>
+    /// <param name="width">The full target width.</param>
+    /// <param name="height">The full target height.</param>
+    private static void ApplyEffectGeometryViewport(SilkD3D12CommandContext context, ViewportF? viewport,
+        uint width, uint height) {
+        if (viewport is not { } local) return;
+        context.SetViewport(local.X, local.Y, local.Width, local.Height);
+        context.SetScissorRectangle(Math.Max(0, (int) local.X), Math.Max(0, (int) local.Y),
+            Math.Min((int) width, (int) Math.Ceiling(local.X + local.Width)),
+            Math.Min((int) height, (int) Math.Ceiling(local.Y + local.Height)));
     }
 
     /// <summary>Resolves retained selection callback 0.</summary>
@@ -1033,6 +1084,60 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         OutlineMode drawMode = OutlineMode.Merged,
         bool useBlurCore = false,
         Func<SceneNode, ShaderPass?>? boneSkinningPassSelector = null
+    )  => RenderOutline(
+        context, nodes, maskPassSelector, verticalBlurPass, horizontalBlurPass, compositionPass, in parameters, blurPasses, in transforms, testFrustum, ref frustum, mainColor, mainRenderTarget, mainDepthStencil, width, height, stencilPass, effectName, drawMode, useBlurCore, boneSkinningPassSelector, null
+    );
+
+    /// <summary>
+    ///     Renders matching geometry into a mask, blurs it, and composites an outline onto the presentation target.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    /// <param name="nodes">Scene geometry carrying the selected effect.</param>
+    /// <param name="maskPassSelector">Selects the existing outline mask pass.</param>
+    /// <param name="verticalBlurPass">The vertical blur pass.</param>
+    /// <param name="horizontalBlurPass">The horizontal blur pass.</param>
+    /// <param name="compositionPass">The final outline composition pass.</param>
+    /// <param name="parameters">The b6 outline constants.</param>
+    /// <param name="blurPasses">The non-negative number of blur pairs.</param>
+    /// <param name="transforms">The current global constants.</param>
+    /// <param name="testFrustum">Whether camera-frustum culling is enabled.</param>
+    /// <param name="frustum">The current camera frustum.</param>
+    /// <param name="mainColor">The presentation color resource.</param>
+    /// <param name="mainRenderTarget">The presentation RTV.</param>
+    /// <param name="mainDepthStencil">The presentation DSV.</param>
+    /// <param name="width">The physical width.</param>
+    /// <param name="height">The physical height.</param>
+    /// <param name="geometryViewport">The optional local geometry viewport; effect intermediates remain full target size.</param>
+    /// <param name="stencilPass">The original stencil-tested full-screen interior-exclusion pass.</param>
+    /// <param name="effectName">The selected effect identity used to resolve per-node attributes.</param>
+    /// <param name="drawMode">Whether mask interiors are merged or excluded separately per node.</param>
+    /// <param name="useBlurCore">Whether to use the source half-resolution glow blur policy.</param>
+    /// <param name="boneSkinningPassSelector">The original GPU skinning precompute selector.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The blur count is negative.</exception>
+    /// <returns>The number of recorded outline-mask draws.</returns>
+    internal int RenderOutline(
+        SilkD3D12CommandContext context,
+        FastList<SceneNode> nodes,
+        Func<SceneNode, ShaderPass?> maskPassSelector,
+        ShaderPass verticalBlurPass,
+        ShaderPass horizontalBlurPass,
+        ShaderPass compositionPass,
+        in BorderEffectStruct parameters,
+        int blurPasses,
+        in GlobalTransformStruct transforms,
+        bool testFrustum,
+        ref BoundingFrustum frustum,
+        SilkD3D12Resource mainColor,
+        SilkD3D12Descriptor mainRenderTarget,
+        SilkD3D12Descriptor mainDepthStencil,
+        uint width,
+        uint height,
+        ShaderPass? stencilPass,
+        string? effectName,
+        OutlineMode drawMode,
+        bool useBlurCore,
+        Func<SceneNode, ShaderPass?>? boneSkinningPassSelector,
+        ViewportF? geometryViewport
     ) {
         ArgumentOutOfRangeException.ThrowIfNegative(blurPasses);
         outlineResources ??= new SilkD3D12PostProcessResources(
@@ -1066,6 +1171,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
 
             var stencil = effectStencil.Begin(context, width, height);
             outlineResources.BeginTarget(context, 0, width, height, stencil);
+            ApplyEffectGeometryViewport(context, geometryViewport, width, height);
             var count = RenderVisible(
                 context, group, maskPassSelector, in transforms, testFrustum, ref frustum,
                 boneSkinningPassSelector: boneSkinningPassSelector, effectParameters: parameters,
@@ -1145,6 +1251,45 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         string? effectName = null,
         SilkD3D12Resource? sceneDepth = null,
         Func<SceneNode, ShaderPass?>? boneSkinningPassSelector = null
+    )  => RenderXRay(
+        context, nodes, passSelectors, in parameters, in transforms, testFrustum, ref frustum, mainRenderTarget, mainDepthStencil, width, height, effectName, sceneDepth, boneSkinningPassSelector, null
+    );
+
+    /// <summary>
+    ///     Records an ordered set of existing XRay custom geometry passes directly into the presentation target.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    /// <param name="nodes">Scene geometry carrying the selected effect.</param>
+    /// <param name="passSelectors">The ordered custom-pass selectors.</param>
+    /// <param name="parameters">The b6 XRay constants.</param>
+    /// <param name="transforms">The current global constants.</param>
+    /// <param name="testFrustum">Whether camera-frustum culling is enabled.</param>
+    /// <param name="frustum">The current camera frustum.</param>
+    /// <param name="mainRenderTarget">The presentation RTV.</param>
+    /// <param name="mainDepthStencil">The presentation DSV.</param>
+    /// <param name="width">The physical width.</param>
+    /// <param name="height">The physical height.</param>
+    /// <param name="geometryViewport">The optional local geometry viewport; effect intermediates remain full target size.</param>
+    /// <param name="effectName">The selected effect identity used to resolve per-node attributes.</param>
+    /// <param name="sceneDepth">The scene depth copied into isolated stencil ownership when supplied.</param>
+    /// <param name="boneSkinningPassSelector">The original GPU skinning precompute selector.</param>
+    /// <returns>The number of custom-pass geometry draws.</returns>
+    internal int RenderXRay(
+        SilkD3D12CommandContext context,
+        FastList<SceneNode> nodes,
+        IReadOnlyList<Func<SceneNode, ShaderPass?>> passSelectors,
+        in BorderEffectStruct parameters,
+        in GlobalTransformStruct transforms,
+        bool testFrustum,
+        ref BoundingFrustum frustum,
+        SilkD3D12Descriptor mainRenderTarget,
+        SilkD3D12Descriptor mainDepthStencil,
+        uint width,
+        uint height,
+        string? effectName,
+        SilkD3D12Resource? sceneDepth,
+        Func<SceneNode, ShaderPass?>? boneSkinningPassSelector,
+        ViewportF? geometryViewport
     ) {
         var recorded = 0;
         var stencil = mainDepthStencil;
@@ -1156,6 +1301,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         foreach (var selector in passSelectors) {
             context.SetRenderTargets(mainRenderTarget, stencil);
             context.SetViewport(width, height);
+            ApplyEffectGeometryViewport(context, geometryViewport, width, height);
             recorded += RenderVisible(
                 context,
                 nodes,

@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Windows.Input;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model;
@@ -185,6 +186,44 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
             );
         }
     );
+
+    /// <summary>Times genuine WPF routed wheel handling through camera mutation and accepted presentation.</summary>
+    /// <param name="hwnd">Whether to select the HWND output for the same managed input route.</param>
+    /// <returns>The dispatcher-owned input-to-output measurement, excluding OS delivery and physical scanout.</returns>
+    [Theory(Explicit = true)]
+    [InlineData(false)]
+    [InlineData(true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task RoutedWheelChangesCameraBeforeMeasuredOutput(bool hwnd) => StaThread.RunAsync(async () => {
+        using var effects = new DefaultEffectsManager();
+        await using var driver = new P4PresentationDriver(hwnd, effects);
+        using var mesh = P4PresentationDriver.CreateMesh();
+        driver.Viewport.Items.Add(mesh);
+        driver.Viewport.IsInertiaEnabled = false;
+        driver.Viewport.ZoomAroundMouseDownPoint = false;
+        await driver.WarmAsync();
+        var latency = new double[64];
+        var before = driver.Counts;
+        for (var index = 0; index < latency.Length; index++) {
+            var wheel = new MouseWheelEventArgs(Mouse.PrimaryDevice, index + 1, index % 2 == 0 ? 120 : -120) {
+                RoutedEvent = Mouse.MouseWheelEvent
+            };
+            var width = driver.Camera.Width;
+            var start = Stopwatch.GetTimestamp();
+            driver.Viewport.RaiseEvent(wheel);
+            Assert.True(wheel.Handled);
+            Assert.NotEqual(width, driver.Camera.Width);
+            Assert.True(driver.Tick(wait: true) > 0);
+            await driver.FinishTransportAsync();
+            latency[index] = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+        }
+        driver.AssertAdvanced(before, latency.Length);
+        P4PresentationDriver.AssertPixel(await driver.CaptureAsync(), 32, 24, 0, 255, 0, 255);
+        output.WriteLine($"P5 routed-wheel backend={(hwnd ? "HWND" : "WPF")}; samples={latency.Length}; " +
+            $"input-to-output-p50-ms={Percentile(latency, .5):F6}; input-to-output-p95-ms={Percentile(latency, .95):F6}. " +
+            "Starts at managed routed-event dispatch; includes camera change and accepted output, not OS delivery or scanout.");
+    });
 
     /// <summary>Reads a diagnostic percentile from retained sample storage outside the measured region.</summary>
     /// <param name="samples">The finite timing samples.</param>

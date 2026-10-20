@@ -74,7 +74,15 @@ public sealed class P5DeviceRecoveryTests(ITestOutputHelper output) {
             if (driver.Native is { } native)
                 Assert.False(P4PresentationDriver.ReadField<D3D12FrameSubmission>(native, "_frameSubmission").IsPending);
         }
-        await driver.DrainAsync();
+        var recovery = driver.Counts;
+        if (hwnd) {
+            await P4PresentationDriver.PollAsync(() => driver.Viewport.CanSubmitNativeScene, "replacement native eligibility");
+            Assert.True(driver.Tick(wait: true) > 0);
+            driver.AssertAdvanced(recovery, 1);
+        } else {
+            await driver.DrainAsync();
+        }
+        Assert.Equal(driver.Completed + 1, driver.Submitted);
         Assert.NotSame(oldContext, driver.Context);
         Assert.True(driver.Submitted > before.Submitted + 1);
         P4PresentationDriver.AssertPixel(await driver.CaptureAsync(), 32, 24, 0, 255, 0, 255);

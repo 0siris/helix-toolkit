@@ -154,7 +154,11 @@ public sealed class P5QueuedRecoveryFailureTests {
             var second = Assert.IsType<P4ObservedMeshNode>(secondMesh.SceneNode);
             var owner = (object?) driver.Wpf ?? driver.Native!;
             var device = Device(driver);
-            var commands = P4PresentationDriver.ReadField<SilkD3D12CommandContext>(owner, hwnd ? "commandContext" : "commands");
+            var commands = P4PresentationDriver.ReadField<SilkD3D12CommandContext>(
+                owner, hwnd
+                    ? "commandContext"
+                    : "commands"
+            );
             var registration = P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration");
             var context = driver.Context!;
             var before = driver.Counts;
@@ -174,8 +178,10 @@ public sealed class P5QueuedRecoveryFailureTests {
                 Assert.NotNull(current.Camera);
                 Assert.True(first.RenderCore.IsAttached);
                 Assert.True(second.RenderCore.IsAttached);
-                Assert.Same(registration,
-                    P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration"));
+                Assert.Same(
+                    registration,
+                    P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration")
+                );
                 Assert.Equal(before, driver.Counts);
                 callbackReturned = true;
             };
@@ -187,8 +193,11 @@ public sealed class P5QueuedRecoveryFailureTests {
                             Assert.Equal(0, driver.Tick());
                             Assert.True(callbackReturned);
                             Assert.False(device.IsDisposed);
-                            Assert.Equal(DispatcherOperationStatus.Pending,
-                                P4PresentationDriver.ReadField<DispatcherOperation>(driver.Native!, "retirementOperation").Status);
+                            Assert.Equal(
+                                DispatcherOperationStatus.Pending,
+                                P4PresentationDriver.ReadField<DispatcherOperation>(driver.Native!, "retirementOperation")
+                                    .Status
+                            );
                         } else {
                             var automaticTick = typeof(D3D12WpfPresentation)
                                 .GetMethod("OnRendering", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -205,12 +214,17 @@ public sealed class P5QueuedRecoveryFailureTests {
                         Assert.False(device.IsDisposed);
                         Assert.False(commands.IsDisposed);
                         Assert.NotNull(context.Camera);
-                        Assert.Same(registration,
-                            P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration"));
+                        Assert.Same(
+                            registration,
+                            P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration")
+                        );
                         Assert.False(registration.CanRecreate);
                         Assert.Equal(before, driver.Counts);
                         if (hwnd)
-                            Assert.False(P4PresentationDriver.ReadField<D3D12FrameSubmission>(driver.Native!, "_frameSubmission").IsPending);
+                            Assert.False(
+                                P4PresentationDriver.ReadField<D3D12FrameSubmission>(driver.Native!, "_frameSubmission")
+                                    .IsPending
+                            );
                     }
                 );
                 Assert.True(callbackReturned);

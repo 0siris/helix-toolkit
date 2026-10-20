@@ -5,11 +5,24 @@ description: Core Silk.NET rendering and runtime project.
 resource: ../../Source/SilkCore/SilkCore.csproj
 tags: [project, core, silknet]
 timestamp: 2026-07-08T00:00:00+02:00
+generated: { by: "agent:gpt-6.1-sol", at: 2026-10-20T07:15:06Z }
+status: stable
+sources:
+  - resource: ../../Source/SilkCore/SilkCore.csproj
+  - resource: ../../Source/SilkToolkit/Controls/D3D12PresentationSurface.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12WpfPresentation.cs
+  - resource: ../testing/wpf-composition-phase4.md
 ---
 
 # Project
 
 `SilkCore` targets `net10.0` and provides the core rendering/runtime layer used by the toolkit and examples.
+
+Phase 4 (2026-10-19) shares the D3D12 scene renderer between the continuous native HWND owner and the bounded,
+demand-driven WPF/D3DImage owner. WPF is the public default (`EnableSwapChainRendering=false`); explicit `true`
+selects HWND presentation. The 2026-10-20 documentation correction uses source/static evidence only;
+the dated checks below remain historical and do not establish Phase 5 runtime success. See
+[presentation limits](/projects/silktoolkit.md#current-presentation-contracts).
 
 # Dependencies
 
@@ -130,7 +143,8 @@ PIX capture tooling remains a separate installation; marker execution is not evi
 
 The visible Desktop startup exposed a recursive InvalidateRender/InvalidateVisual cycle introduced during the
 D3D12 cutover. Render invalidation now directly marks the node and ancestors dirty; visual invalidation delegates
-to it once. The continuous presentation loop consumes that state, without re-entering layout invalidation.
+to it once. The native HWND continuous loop consumes that state without re-entering layout invalidation;
+the WPF owner instead wakes bounded demand and settles after pending transport completes.
 Two device-free attached-panel regressions cover both entry points and the startup attachment path.
 
 ## Original host scene boundary

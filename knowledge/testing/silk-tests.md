@@ -4,6 +4,14 @@ title: Silk test strategy
 description: xUnit v3 test layout, categories, coverage, and local commands for the Silk projects.
 tags: [testing, xunit, coverage, silkcore, silktoolkit, silkassimp]
 timestamp: 2026-07-20T00:00:00+02:00
+generated: { by: "agent:gpt-6.1-sol", at: 2026-10-20T07:15:06Z }
+status: stable
+sources:
+  - resource: ../../AGENTS.md
+  - resource: ../../Source/SilkCore.Tests/SilkCore.Tests.csproj
+  - resource: ../../Source/SilkToolkit.Tests/SilkToolkit.Tests.csproj
+  - resource: ../../Source/SilkAssimp.Tests/SilkAssimp.Tests.csproj
+  - resource: wpf-composition-phase4.md
 ---
 
 # Silk Test Strategy
@@ -14,8 +22,13 @@ The solution contains one xUnit v3 project per production assembly:
 * `Source/SilkToolkit.Tests`
 * `Source/SilkAssimp.Tests`
 
-Tests use only xUnit assertions. `Unit`, `Warp`, `Wpf`, and DX12 WARP tests run by default. Only `Hardware`
-smokes remain opt-in so the normal suite is deterministic on machines without suitable hardware.
+Tests use only xUnit assertions. The standard command excludes both `Hardware` and `DX12` categories;
+those checks remain opt-in, including WARP cases also marked `DX12`. Other `Unit`, `Warp` and `Wpf` cases
+remain eligible under the standard filter.
+
+This 2026-10-20 Phase 5 documentation correction is source/static only; no commands below were run for it.
+The dated [Phase 4 results](/testing/wpf-composition-phase4.md) retain their original scope and counts;
+parent Phase 5 build, test and runtime gates are pending.
 
 ## Local Commands
 
@@ -24,7 +37,7 @@ smokes remain opt-in so the normal suite is deterministic on machines without su
 After a successful Rider build, run the deterministic standard suite through `rider_execute_terminal_command` with `rootFolder: "F:/Repositories/helix-toolkit/Source"`, `executeInShell: false`, and:
 
 ```powershell
-dotnet test SilkToolkit.slnx --no-build --filter "Category!=Hardware"
+dotnet test SilkToolkit.slnx --no-build --filter "Category!=Hardware&Category!=DX12"
 ```
 
 The discovered `SilkCore.Tests`, `SilkToolkit.Tests`, and `SilkAssimp.Tests` Rider configurations do not support dynamic launch overrides, so the terminal route preserves the repository's category filter. Use `rider_get_run_configurations` plus `rider_execute_run_configuration` only for targeted projects or run points.
@@ -35,11 +48,11 @@ If Rider is unavailable before the test process starts, run the same standard su
 
 ```powershell
 dotnet build Source\SilkToolkit.slnx
-dotnet test Source\SilkToolkit.slnx --no-build --filter "Category!=Hardware"
+dotnet test Source\SilkToolkit.slnx --no-build --filter "Category!=Hardware&Category!=DX12"
 ```
 
-Do not rerun a started Rider test process through the fallback after a test failure. Only `Hardware` remains an
-explicit opt-in category; a `DX12` trait no longer excludes a WARP-capable test from the standard suite.
+Do not rerun a started Rider test process through the fallback after a test failure. Both `Hardware` and `DX12`
+require a separate opt-in run. Core WARP evidence does not imply support for the WPF bridge, which rejects WARP.
 
 Run explicit smokes locally through the VSTest RunSettings option:
 

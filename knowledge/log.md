@@ -7,8 +7,16 @@
 - Corrected default/backend, deferred-rendering, MSAA/capture and demo-automation claims while preserving dated
   earlier evidence. The old swap-chain-canvas proposal is marked superseded.
 - The [Phase 5 report](/testing/wpf-composition-phase5.md) records intermediate serial acceptance and actual
-  GPU-clock/input/counter evidence. Multi-owner removed-device corrective review and final gates are in progress;
-  physical monitor/RDP/touch/device-reset qualification remains explicitly unavailable.
+  GPU-clock/input/counter evidence, final multi-owner/queued recovery corrections and their qualification limits.
+- Independent R8 closes the product delta without open P1/P2 findings. The fresh final build succeeds;
+  195/195 final affected acceptance cases pass. Standard results are 854/862 with exactly the eight baseline
+  failures, and all 24 additional standard cases pass. Allocation assertions and exclusions remain unchanged.
+- WPF mesh and FXAA/Scene2D remain 160 bytes/frame; 1,000 idle calls and 1,024 settled generation polls allocate
+  zero. Removing a continuous source leaves zero scene/copy/publication work across 64 more WPF pulses.
+- Regenerated Graphify locally: 1,064 files, 10,888 nodes, 19,850 edges and 3,150 communities; zero model tokens,
+  the same 17 partial-parser warnings and no remaining staging corpus. Updated plan, tasks and graph snapshot.
+- Phase 5 is complete within the authorized feasible scope. Physical monitor/RDP/touch/device-reset qualification
+  remains explicitly unavailable, alongside documented MSAA, scaled-capture and deferred-rendering limitations.
 
 ## 2026-10-19 — WPF composition Phase 4 verified
 

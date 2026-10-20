@@ -9,16 +9,26 @@ Baseline: `acc913f22`; 830/838 standard cases, eight known failures, 151/151 sel
   bounded detach/drain and native ownership; return actionable findings and physical-environment limits.
 - [X] T004 [P] P5.4 read-only documentation audit: reconcile defaults, original contracts, supported configuration,
   capture/MSAA limits and claims against source plus runtime evidence.
-- [ ] T005 Resolve concrete audit findings and add focused regression/measurement coverage using existing fixtures.
+- [X] T005 Resolve concrete audit findings and add focused regression/measurement coverage using existing fixtures.
 - [X] T005a [P] Correct additive RGB effect parity while preserving premultiplied coverage; add contrasting-color GPU checks.
 - [X] T005b [P] Restore postprocessing of screen-space children through both backends; add a focused actual-viewport check.
 - [X] T005c [P] Remove warm GPU-collision reuse traversal allocations while preserving complete geometry validation.
-- [ ] T005d Coordinate confirmed removed singleton retirement across suspended/mixed owners and normal HWND polling;
+- [X] T005d Coordinate confirmed removed singleton retirement across suspended/mixed owners and normal HWND polling;
   preserve CPU borrowing, bounded detachment, real completions and zero warm allocations.
-- [ ] T006 P5.1 serial quality gate: formatting/diagnostics, fresh solution build, standard comparison and selected
+- [X] T005e Resolve R3 recovery boundaries: standalone public-render initialization retry and queued recovery
+  exceptions routed through the existing renderer error boundary, retaining failed ownership for retry.
+- [X] T005f Resolve R4's deferred CPU-borrow teardown error boundary and equivalent automatic WPF paths;
+  contain a second teardown failure with retained ownership and actual cancellation/retry regressions.
+- [X] T005g Resolve R5's between-frame automatic HWND composition catch through the same bounded owner reporter;
+  preserve explicit synchronous errors and qualify the actual automatic composition entry.
+- [X] T005h Resolve R6's queued manager/shared preflight removal boundary with owner-aware bounded reporting,
+  retained transactions and no failure repost; preserve synchronous and application-requested disposal semantics.
+- [X] T005i Resolve R7's automatic membership fault reset: new mismatched consumers retain the stopped shared
+  transaction until an explicit manager/resource request; registration discovery uses the bounded owner boundary.
+- [X] T006 P5.1 serial quality gate: formatting/diagnostics, fresh solution build, standard comparison and selected
   hardware/DX12 plus visible acceptance. Keep exact baseline failures and allocation limits visible.
-- [ ] T007 P5.5 compare matched actual backends: CPU/GPU-clock evidence, update-to-published/capture latency,
+- [X] T007 P5.5 compare matched actual backends: CPU/GPU-clock evidence, update-to-published/capture latency,
   process/managed memory, warm heap, copies, settled idle and active animation; document all measurement boundaries.
-- [ ] T008 Obtain an independent final review, resolve must-fix findings and review corrective deltas in fresh tasks.
-- [ ] T009 Update phase plan, OKF report/index/log and graph snapshot; regenerate Graphify locally, validate links/XML/
+- [X] T008 Obtain an independent final review, resolve must-fix findings and review corrective deltas in fresh tasks.
+- [X] T009 Update phase plan, OKF report/index/log and graph snapshot; regenerate Graphify locally, validate links/XML/
   whitespace, inspect post-execution hooks, commit locally and report actual outcomes plus remaining limits.

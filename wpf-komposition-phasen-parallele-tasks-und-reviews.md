@@ -349,13 +349,44 @@ nach den lesenden Audits getrennt integriert, alle Build-/GPU-/Test-/Messwerkzeu
 - **F40 – Native Übernahme behält zusätzliche COM-Referenzen:** Raw-Acquisitions nach addierendem `ComPtr`-Konstruktor
   freigeben; Factory und beide Interop-Varianten korrigieren. Ohne vollständige Freigabe bleibt der entfernte Singleton bestehen.
 - **F41 – Mehrere Owner teilen einen entfernten Singleton:** Auch pausierte/ausgeladene und gemischte Verbraucher
-  vor Neuerstellung koordinieren; keine wartenden Dispatcher-Aufrufe oder Allokationen im normalen Framepfad. Korrektur läuft.
+  vor Neuerstellung koordinieren; keine wartenden Dispatcher-Aufrufe oder Allokationen im normalen Framepfad. Korrektur im finalen Recovery-Gate bestätigt.
 - **F42 – Normaler HWND-Poll erreicht Retirement nicht:** Bestätigten Verlust an der Completion-/Lifecycle-Grenze
-  behandeln und laufenden Aufrufer abbrechen, bevor er freigegebene Befehlsressourcen benutzt. Korrektur läuft.
+  behandeln und laufenden Aufrufer abbrechen, bevor er freigegebene Befehlsressourcen benutzt. Korrektur im finalen Recovery-Gate bestätigt.
 
-Zwischenstand: 851/859 Standardfälle mit exakt acht bekannten Baseline-Fehlern; 39/39 fokussierte Core-/Viewportfälle,
-3/3 Frontbuffer-/Minimize-Fälle und 10/10 zusätzliche Partikel-/Transparenzfälle bestehen. WPF erzeugt nach dem
-Einpendeln bei 64 Pulsen keine neuen Szenen-, Kopier- oder Veröffentlichungsframes; der gewählte HWND-Weg bleibt kontinuierlich.
+- **F43 – Nur der neue Owner entdeckt den Fehler:** Nach fehlgeschlagener Geräteerstellung registrierte Owner mit koaleszierten Dispatcher-Probes prüfen lassen; nur bestätigten Verlust verteilen. Auch Dispose entdeckt und meldet entfernte Generationen.
+- **F44 – Automatische Auswahl verschluckt Geräteverlust:** Entfernten Singleton bei Capability-Probes als nativen Fehler weitergeben, statt den Adapter dauerhaft als inkompatibel einzustufen. Explizite Auswahl und Auto-Retry behalten ihre Policy.
+- **F45 – Eigenständige Surface startet nach recoverbarem Fehler nicht erneut:** Öffentliche Renderaufrufe müssen
+  die Initialisierung wieder versuchen; der Nachweis ruft tatsächlich `RenderOnce` auf. Öffentlicher Wiederanlauf besteht.
+- **F46 – Verzögerte Recovery-Ausnahme umgeht Viewport-Fehlerbehandlung:** Gequeuete Probe-/Retirement-Aufrufe
+  über die vorhandene Renderfehlergrenze führen; fehlgeschlagenes Eigentum und Retry-Barriere erhalten.
+  Korrektur integriert, synchrone/gequeuete Fehlerfälle bestehen.
+- **F47 – Nach CPU-Aufzeichnung verzögertes Retirement umgeht den begrenzten Fehlerpfad:** Auch automatisch
+  fortgesetzte Freigabe/Resize und WPF-Frame-/Transportfehler über dieselbe Begrenzung führen. Zwei aufeinanderfolgende
+  Detach-Fehler müssen ohne Dispatcher-Absturz Eigentum und expliziten Retry erhalten. Beide Backends bestehen die Regression.
+- **F48 – Automatischer HWND-Kompositionstick umgeht die Begrenzung vor Framebeginn:** Den vorhandenen
+  Owner-Reporter auch im Viewport-Catch verwenden. Echte Komposition zwischen Frames mit zwei Detach-Fehlern
+  prüfen; explizite synchrone Aufrufe behalten ihre Fehlerweitergabe. Automatischer Einstieg besteht.
+- **F49 – Verzögerter Managerwechsel entdeckt Geräteverlust außerhalb der Renderfehlergrenze:** Asynchrone
+  Manager- und Shared-Preflights an den betroffenen Owner-Reporter anschließen; Transaktion/Barriere behalten und
+  fehlerhafte Wiederholungen stoppen. Synchrone Manageraufrufe und explizites Dispose behalten ihren Fehlervertrag.
+- **F50 – Neue Shared-Mitgliedschaft hebt die Fehlersperre auf:** Consumer-Anmeldung von explizitem Managerrequest
+  unterscheiden. Neue abweichende Consumer müssen nach fehlgeschlagener Freigabe die Sperre, Ressourcen und
+  gestoppten Timer erhalten; nur ein expliziter Manager-/Ressourcenrequest setzt die Transaktion fort.
+
+Finaler Build auf `c292739b0` erfolgreich; das unabhängige R8-Review des Produktstands `4a404f0c9` hat keine
+offenen P1/P2-Findings. F35–F50 sind umgesetzt. **195/195 finale gezielte Fälle bestehen**, einschließlich aller
+P5-Fälle sowie betroffener Manager-/Shared-/Lifetime-/Bridge-/Heap-Regressionen. Die vorherige breite Abnahme
+bestand 342/342 Fälle; die späteren Korrekturen werden durch das finale gezielte Gate abgedeckt.
+
+**854/862 Standardfälle bestehen:** exakt dieselben acht bekannten Baseline-Fehler, alle 24 neuen Standardfälle
+grün. Aktive WPF-Meshframes und FXAA/Scene2D bleiben bei **160 Bytes/Frame**, 1.000 Idle-Aufrufe und
+1.024 ruhende Generation-Polls bei **0 Bytes**. Bei 64 Pulsen nach Ende der kontinuierlichen Szene entstehen
+keine neuen WPF-Szenen-, Kopier- oder Veröffentlichungsframes; der gewählte HWND-Weg bleibt kontinuierlich.
 
 Messung und Grenzen: [Phase-5-Prüfbericht](knowledge/testing/wpf-composition-phase5.md).
-Der finale Haltepunkt folgt erst nach Korrektur-Review, frischem Gesamtgate und Graphify.
+Physischer Geräte-/Monitorwechsel, RDP und OS-Touch-Promotion bleiben ausdrücklich unqualifiziert;
+MSAA, skalierte Capture-Auflösung und Deferred Rendering werden nicht als wiederhergestellte Fähigkeiten ausgegeben.
+
+Graphify lokal erfolgreich: **1.064 Dateien, 10.888 Knoten, 19.850 Kanten, 3.150 Communities**; unverändert
+17 partielle Parser-Ergebnisse, null Modelltokens und temporärer Korpus entfernt. Alle Tasks T001–T009 samt
+Korrekturtasks sind erledigt. **Phase 5 abgeschlossen; die dokumentierten physischen und funktionalen Grenzen bleiben bestehen.**

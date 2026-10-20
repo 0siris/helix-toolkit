@@ -104,7 +104,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         Volatile.Write(ref consumers, next);
         if (previous.Length == 0 && resourceConsumers.Length == 0) RefreshRootSubscriptions();
         if (EffectsManager is { } manager && !ReferenceEquals(host.EffectsManager, manager))
-            RequestEffectsManagerSynchronization();
+            RequestEffectsManagerSynchronization(explicitRequest: false);
         // Publish membership before comparing revisions so a concurrent invalidation cannot fall between both checks.
         if (retainedSceneRevision != SceneRevision) host.InvalidateSceneGraph();
     }
@@ -200,16 +200,21 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
         ((ModelContainer3DX) owner).RequestEffectsManagerSynchronization();
 
     /// <summary>Requests a latest-value manager fanout and blocks scene entry until every old owner retires.</summary>
+    /// <param name="explicitRequest">Whether an application manager change may resume a previously failed transaction.</param>
     /// <exception cref="TimeoutException">Retirement timed out; the pending identity and owners remain retained.</exception>
-    private void RequestEffectsManagerSynchronization() {
-        managerSynchronizationFailed = false;
+    private void RequestEffectsManagerSynchronization(bool explicitRequest = true) {
+        if (explicitRequest) managerSynchronizationFailed = false;
         managerIdentityChangePending = true;
         IsSynchronizingEffectsManager = true;
+        if (managerSynchronizationFailed) return;
         try {
-            SynchronizeEffectsManager();
+            SynchronizeEffectsManager(reportQueuedFailures: !explicitRequest);
         } catch (TimeoutException) {
             ScheduleManagerRetirementRetry();
             throw;
+        } catch (Exception exception) when (!explicitRequest) {
+            SuspendAutomaticManagerSynchronization();
+            LoggerLib.Logger.Error(exception, "Shared consumer synchronization failed; resources remain owned for explicit retry");
         }
     }
 

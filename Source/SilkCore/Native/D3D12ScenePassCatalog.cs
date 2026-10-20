@@ -531,13 +531,16 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         result.RenderTarget = (RenderTargetBlendDescription[])result.RenderTarget.Clone();
         var target = result.RenderTarget[0];
         if (target.RenderTargetWriteMask == 0) return original;
+        var additive = target.IsBlendEnabled && target.SourceBlend == BlendOption.One &&
+            target.DestinationBlend == BlendOption.One && target.BlendOperation == BlendOperation.Add;
         target.IsBlendEnabled = true;
         target.SourceBlend = postEffect || technique == DefaultRenderTechniqueNames.Volume3D
             ? BlendOption.One : BlendOption.SourceAlpha;
-        target.DestinationBlend = BlendOption.InverseSourceAlpha;
+        target.DestinationBlend = additive ? BlendOption.One : BlendOption.InverseSourceAlpha;
         target.BlendOperation = BlendOperation.Add;
         target.SourceAlphaBlend = BlendOption.One;
-        target.DestinationAlphaBlend = BlendOption.InverseSourceAlpha;
+        // Summed coverage also bounds summed RGB when additive layers overlap on transparent targets.
+        target.DestinationAlphaBlend = additive ? BlendOption.One : BlendOption.InverseSourceAlpha;
         target.AlphaBlendOperation = BlendOperation.Add;
         target.RenderTargetWriteMask = ColorWriteMaskFlags.All;
         result.RenderTarget[0] = target;

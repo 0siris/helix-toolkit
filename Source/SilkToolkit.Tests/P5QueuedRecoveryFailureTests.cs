@@ -7,6 +7,7 @@ using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
+using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.Wpf.SharpDX.Controls;
 using Silk.NET.Direct3D12;
 using Xunit;
@@ -238,6 +239,57 @@ public sealed class P5QueuedRecoveryFailureTests {
                 first.Detached -= detachedAfterCallback;
                 second.Detached -= detachedAfterCallback;
             }
+        }
+    );
+
+    /// <summary>Contains two teardown failures when actual native removal precedes an automatic HWND composition tick.</summary>
+    /// <returns>The genuine automatic entry, retained failed generation and successful explicit retry qualification.</returns>
+    [Fact(Explicit = true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task HwndAutomaticTickContainsRemovalBetweenFramesTeardownFailures() => StaThread.RunAsync(async () => {
+            using var effects = new DefaultEffectsManager();
+            await using var driver = new P4PresentationDriver(true, effects);
+            using var firstMesh = P4PresentationDriver.CreateMesh();
+            using var secondMesh = P4PresentationDriver.CreateMesh();
+            driver.Viewport.Items.Add(firstMesh);
+            driver.Viewport.Items.Add(secondMesh);
+            await driver.WarmAsync();
+            var surface = driver.Native!;
+            var device = Device(driver);
+            var commands = P4PresentationDriver.ReadField<SilkD3D12CommandContext>(surface, "commandContext");
+            var registration = P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(surface, "recoveryRegistration");
+            var context = driver.Context!;
+            var before = driver.Counts;
+            var automaticTick = typeof(Viewport3DX)
+                .GetMethod("D3D12CompositionTargetRendering", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .CreateDelegate<EventHandler<RenderingEventArgs>>(driver.Viewport);
+            await AssertQueuedFailureAsync(
+                driver, [firstMesh.SceneNode, secondMesh.SceneNode], true, () => {
+                    driver.Viewport.StartRendering();
+                    driver.Viewport.InvalidateRender();
+                    RemoveDevice(device);
+                    Assert.Equal(before, driver.Counts);
+                    automaticTick(surface, CreateRenderingArgs(TimeSpan.FromSeconds(2)));
+                    Assert.Equal(before, driver.Counts);
+                }, () => {
+                    Assert.False(device.IsDisposed);
+                    Assert.False(commands.IsDisposed);
+                    Assert.NotNull(context.Camera);
+                    Assert.Same(registration,
+                        P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(surface, "recoveryRegistration"));
+                    Assert.True(registration.IsRemovalRequested);
+                    Assert.False(registration.CanRecreate);
+                    Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(surface, "retirementOperation"));
+                    Assert.False(P4PresentationDriver.ReadField<D3D12FrameSubmission>(surface, "_frameSubmission").IsPending);
+                    Assert.Equal(before, driver.Counts);
+                }
+            );
+            Assert.True(commands.IsDisposed);
+            Assert.False(effects.IsDisposed);
+            Assert.False(firstMesh.SceneNode.IsDisposed);
+            Assert.False(secondMesh.SceneNode.IsDisposed);
+            await AssertFreshPixelsAsync(true, effects);
         }
     );
 

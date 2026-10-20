@@ -65,15 +65,15 @@ PSOITOutput calculateOIT(in float4 color, float z, float zw) {
     PSOITOutput output = (PSOITOutput)0;
     float weight = 1;
     z = z - vFrustum.z;
-    if (OITWeightMode == WeightModes_LinearA) weight = max(
+    if ((OITWeightMode & ~0x40000000) == WeightModes_LinearA) weight = max(
         0.01f, min(3000.0f,
                    100 / (0.00001f + pow(abs(z) / 5.0f, abs(OITPower)) + pow(abs(z) / 200.0f, abs(OITPower) * 2))));
-    else if (OITWeightMode == WeightModes_LinearB) weight = max(
+    else if ((OITWeightMode & ~0x40000000) == WeightModes_LinearB) weight = max(
         0.01f, min(3000.0f,
                    100 / (0.00001f + pow(abs(z) / 10.0f, abs(OITPower)) + pow(abs(z) / 200.0f, abs(OITPower) * 2))));
-    else if (OITWeightMode == WeightModes_LinearC) weight = max(
+    else if ((OITWeightMode & ~0x40000000) == WeightModes_LinearC) weight = max(
         0.01f, min(3000.0f, 0.3f / (0.00001f + pow(abs(z) / 200.0f, abs(OITPower)))));
-    else if (OITWeightMode == WeightModes_NonLinear) weight = max(
+    else if ((OITWeightMode & ~0x40000000) == WeightModes_NonLinear) weight = max(
         0.01f, 3e3 * pow(clamp(1.0f - zw * max(OITSlope, 1), 0, 1), abs(OITPower)));
 
     output.color = float4(color.rgb * color.a, color.a) * (color.a * weight);

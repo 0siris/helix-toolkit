@@ -41,11 +41,24 @@ public static unsafe class SilkD3D12DeviceFactory {
     public static SilkD3D12Device CreateDefault(
         SilkFeatureLevel minimumFeatureLevel = SilkFeatureLevel.Level110,
         SilkDriverType driverType = SilkDriverType.Hardware
+    ) => CreateForAdapter(-1, minimumFeatureLevel, driverType);
+
+    /// <summary>Creates a device on the configured DXGI adapter, retaining automatic selection for negative indices.</summary>
+    /// <param name="adapterIndex">The requested DXGI index, or a negative value for ranked hardware selection.</param>
+    /// <param name="minimumFeatureLevel">The minimum requested feature level.</param>
+    /// <param name="driverType">The hardware or explicit WARP policy; WARP does not select a hardware index.</param>
+    /// <returns>The created device on the requested adapter, without silently falling back to another adapter.</returns>
+    internal static SilkD3D12Device CreateForAdapter(
+        int adapterIndex,
+        SilkFeatureLevel minimumFeatureLevel = SilkFeatureLevel.Level110,
+        SilkDriverType driverType = SilkDriverType.Hardware
     ) {
         if (driverType is not (SilkDriverType.Hardware or SilkDriverType.Warp))
-            throw new ArgumentOutOfRangeException(nameof(driverType),
+            throw new ArgumentOutOfRangeException(
+                nameof(driverType),
                 driverType,
-                "Direct3D 12 device creation supports hardware and WARP drivers.");
+                "Direct3D 12 device creation supports hardware and WARP drivers."
+            );
 
         SilkDxgiFactory4Ptr factory = default;
         SilkDxgiAdapterPtr adapter = default;
@@ -59,21 +72,36 @@ public static unsafe class SilkD3D12DeviceFactory {
                 SilkMarshal.ThrowHResult(factory.EnumWarpAdapter(out adapter));
             } else {
                 SilkMarshal.ThrowHResult(DxgiApi.CreateDXGIFactory2(0, out factory));
-                var adapterIndex = SelectHardwareAdapter(factory, minimumFeatureLevel);
-                SilkMarshal.ThrowHResult(factory.Handle->EnumAdapters1((uint) adapterIndex, &hardwareAdapter));
+                var selectedIndex = adapterIndex < 0
+                    ? SelectHardwareAdapter(factory, minimumFeatureLevel)
+                    : adapterIndex;
+                SilkMarshal.ThrowHResult(factory.Handle->EnumAdapters1((uint) selectedIndex, &hardwareAdapter));
+                AdapterDesc1 description;
+                SilkMarshal.ThrowHResult(hardwareAdapter->GetDesc1(&description));
+                if ((description.Flags & (uint) AdapterFlag.Software) != 0)
+                    throw new PlatformNotSupportedException("Select WARP explicitly instead of a software adapter index.");
             }
 
             var nativeAdapter = driverType == SilkDriverType.Warp
                 ? (IUnknown*) adapter.Handle
                 : (IUnknown*) hardwareAdapter;
-            SilkMarshal.ThrowHResult(Api.CreateDevice(nativeAdapter,
-                ToSilkFeatureLevel(minimumFeatureLevel),
-                &deviceGuid,
-                (void**) &nativeDevice));
+            SilkMarshal.ThrowHResult(
+                Api.CreateDevice(
+                    nativeAdapter,
+                    ToSilkFeatureLevel(minimumFeatureLevel),
+                    &deviceGuid,
+                    (void**) &nativeDevice
+                )
+            );
 
-            return new SilkD3D12Device(new SilkD3D12DevicePtr(nativeDevice), minimumFeatureLevel,
-                driverType == SilkDriverType.Warp ? WarpSubmissionSync : null);
+            return new SilkD3D12Device(
+                new SilkD3D12DevicePtr(nativeDevice), minimumFeatureLevel,
+                driverType == SilkDriverType.Warp
+                    ? WarpSubmissionSync
+                    : null
+            );
         } finally {
+            if (nativeDevice != null) nativeDevice->Release();
             if (hardwareAdapter != null) hardwareAdapter->Release();
             adapter.Dispose();
             factory.Dispose();
@@ -104,15 +132,25 @@ public static unsafe class SilkD3D12DeviceFactory {
                 candidate->GetDesc1(&description);
                 ID3D12Device* testDevice = null;
                 var deviceGuid = ID3D12Device.Guid;
-                var createResult = Api.CreateDevice((IUnknown*) candidate,
+                var createResult = Api.CreateDevice(
+                    (IUnknown*) candidate,
                     ToSilkFeatureLevel(minimumFeatureLevel),
                     &deviceGuid,
-                    (void**) &testDevice);
+                    (void**) &testDevice
+                );
                 if (testDevice != null) testDevice->Release();
-                candidates.Add(new D3D12AdapterCandidate((int) index,
-                    ((AdapterFlag) description.Flags).HasFlag(AdapterFlag.Software),
-                    description.DedicatedVideoMemory,
-                    createResult >= 0));
+                // A retained removed singleton is recoverable; it is not evidence that the adapter lacks D3D12.
+                if (createResult is unchecked((int) 0x887A0005) or
+                    unchecked((int) 0x887A0006) or unchecked((int) 0x887A0007))
+                    SilkMarshal.ThrowHResult(createResult);
+                candidates.Add(
+                    new D3D12AdapterCandidate(
+                        (int) index,
+                        ((AdapterFlag) description.Flags).HasFlag(AdapterFlag.Software),
+                        description.DedicatedVideoMemory,
+                        createResult >= 0
+                    )
+                );
             } finally {
                 if (candidate != null) candidate->Release();
             }

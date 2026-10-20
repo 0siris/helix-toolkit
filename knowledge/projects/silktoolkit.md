@@ -5,11 +5,38 @@ description: Windows/WPF-facing toolkit layer built on SilkCore.
 resource: ../../Source/SilkToolkit/SilkToolkit.csproj
 tags: [project, wpf, windows, silknet]
 timestamp: 2026-07-08T00:00:00+02:00
+generated: { by: "agent:gpt-6.1-sol", at: 2026-10-20T07:15:06Z }
+status: stable
+sources:
+  - resource: ../../Source/SilkToolkit/Controls/Viewport3DX.PresentationSelection.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12WpfPresentation.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3D12ImageInteropBridge.cs
+  - resource: ../../Source/SilkToolkit/Extensions/ViewportExtensions.cs
+  - resource: ../testing/wpf-composition-phase4.md
 ---
 
 # Project
 
 `SilkToolkit` targets `net10.0-windows` and references [SilkCore](/projects/silkcore.md).
+
+## Current presentation contracts
+
+As of Phase 4 (2026-10-19), `EnableSwapChainRendering=false` is the public default: the passive `DPFCanvas`
+publishes D3DImage pixels through the demand-driven WPF owner. Static scenes settle after pending render,
+copy and publication work completes. Explicit `true` selects the existing continuous HWND swap chain.
+Both owners share the D3D12 scene renderer. The first successful native initialization fixes this choice
+across unload/reload and template replacement; failed initialization does not fix it.
+
+The 2026-10-20 Phase 5 documentation correction is source/static only. The dated
+[Phase 4 evidence](/testing/wpf-composition-phase4.md) remains historical; parent Phase 5 runtime gates are pending.
+Current limits are:
+
+- The WPF bridge explicitly rejects WARP/software adapters; Core WARP checks do not certify WPF composition.
+- Sized/high-resolution capture scales the actual captured image; it does not rerender at a larger scene resolution.
+- The retained MSAA setting currently uses single-sample rendering. `EnableDeferredRendering` remains an API/XAML
+  compatibility flag, without a productive D3D12 deferred shading path.
+- Physical monitor transitions, RDP, physical touch/pinch and physical device removal/reset remain unverified.
+  Managed input, controlled DPI and manager-reinitialization evidence do not establish those physical scenarios.
 
 # Dependencies
 
@@ -80,7 +107,7 @@ and six native intersection cases. Full application and visible case acceptance 
 PhongMaterials.DefaultVRML preserves original source spelling and delegates to the existing independently mutable
 DefaultVrml factory. The palette/namespace filter now passes 14 headless cases.
 
-## Shared application widget overlays
+## Shared application widget overlays (pre-Phase 4 history)
 
 The existing ViewportWidgetOverlay helper moved from MeshDesktop into this assembly with its original
 MeshDesktop.UI.Controls namespace and unchanged class body. Only the explicit System import required by the
@@ -89,4 +116,6 @@ The library depends only on WPF/Win32 for this helper and has no productive appl
 
 Its bounded popup retains the original widget's logical inheritance, resource/name lookup, routed commands,
 owner clipping, DPI placement and modal enable state above the native D3D12 HWND. The managed boundary test
-and all four unchanged native overlay tests pass. This does not restore the removed DPFCanvas/D3DImage path.
+and all four unchanged native overlay tests pass. At that pre-Phase 4 checkpoint, this helper did not restore
+the removed DPFCanvas/D3DImage path. Phase 4 restored WPF/D3DImage as the public default on 2026-10-19,
+as described above; this earlier HWND overlay evidence is retained as history.

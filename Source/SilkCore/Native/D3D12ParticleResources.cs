@@ -50,6 +50,15 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
     /// <summary>The complete root descriptor tables.</summary>
     private readonly SilkD3D12GraphicsBindings bindings;
 
+    /// <summary>The current particle owner read by the retained texture callbacks.</summary>
+    private ParticleRenderCore? textureOwner;
+
+    /// <summary>The optional texture-property callback reused after initialization.</summary>
+    private readonly Func<TextureModel?> textureSource;
+
+    /// <summary>The owner-liveness predicate restored after each detach/reattach cleanup cycle.</summary>
+    private readonly Func<bool> textureOwnerSource;
+
     /// <summary>The b0 upload constant buffer.</summary>
     private readonly SilkD3D12ConstantBuffer globalTransforms;
 
@@ -107,6 +116,9 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
         this.device = device;
         Capacity = capacity;
         bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
+        textureOwnerSource = HasCurrentTextureOwner;
+        bindings.HasCurrentTextureOwner = textureOwnerSource;
+        textureSource = GetCurrentTexture;
         var fallback = device.CreateBuffer(256, HeapType.Upload);
         try {
             fallback.Write(new byte[256]);
@@ -304,9 +316,10 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
         SilkD3D12ResourceManager resources,
         ParticleRenderCore core
     ) {
-        bindings.HasCurrentTextureOwner = () => !core.IsDisposed && core.IsAttached;
+        textureOwner = core;
+        bindings.HasCurrentTextureOwner = textureOwnerSource;
         var texture = bindings.GetTexture(context, resources, core.ParticleTexture, TextureRegister,
-            () => core.ParticleTexture);
+            textureSource);
         if (texture is not null) {
             device.CreateShaderResourceView(texture.Resource, bindings.ShaderResource(TextureRegister));
         } else {
@@ -317,6 +330,14 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
 
     /// Relinquishes textures whose particle owner was detached, disposed, or replaced its texture property.
     internal void ReleaseDisposedTextures() => bindings.ReleaseDisposedTextures();
+
+    /// <summary>Checks whether the retained texture property still belongs to an active particle core.</summary>
+    /// <returns>Whether the current particle owner remains attached and undisposed.</returns>
+    private bool HasCurrentTextureOwner() => textureOwner is { IsDisposed: false, IsAttached: true };
+
+    /// <summary>Reads the current particle texture without a new closure per draw.</summary>
+    /// <returns>The retained owner's current texture, or null after disposal.</returns>
+    private TextureModel? GetCurrentTexture() => textureOwner?.ParticleTexture;
 
     /// <summary>
     ///     Returns one unmanaged structure as bytes for upload writes.
@@ -346,6 +367,7 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
         model?.Dispose();
         globalTransforms?.Dispose();
         bindings?.Dispose();
+        textureOwner = null;
         IsDisposed = true;
     }
 }

@@ -66,8 +66,14 @@ float4 blendingPS(ScreenDupVS_INPUT IN) : SV_TARGET {
 
 float4 finalPS(ScreenDupVS_INPUT IN) : SV_TARGET {
     float4 frontColor = tFrontBlender.Load(int3(IN.Pos.xy, 0));
-    float3 backColor = tBackBlender.Load(int3(IN.Pos.xy, 0)).xyz;
+    float4 back = tBackBlender.Load(int3(IN.Pos.xy, 0));
+    float3 backColor = back.xyz;
     float3 final = frontColor.xyz + backColor * frontColor.w;
+    if (IsPremultipliedOutput()) {
+        float coverage = saturate(1 - frontColor.w * (1 - back.a));
+        // Separate BGRA8 color/transmittance rounding can otherwise exceed coverage by one byte.
+        return float4(min(final, coverage), coverage);
+    }
     return float4(final, 1);
 }
 

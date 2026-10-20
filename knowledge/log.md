@@ -7,6 +7,116 @@
 - The focused headless assertion-integration test passes, and CrossSectionDemo builds successfully with the pinned
   package. Main consuming application builds and Debug/Release migration regressions also pass; no visible UI ran.
 
+## 2026-10-20 — WPF composition Phase 5 qualification
+
+- Audited both presentation backends and original rendering contracts. Corrected additive coverage, omitted
+  screen-space effects, collision reuse allocations, configured adapter selection and leaked native references.
+- Corrected default/backend, deferred-rendering, MSAA/capture and demo-automation claims while preserving dated
+  earlier evidence. The old swap-chain-canvas proposal is marked superseded.
+- The [Phase 5 report](/testing/wpf-composition-phase5.md) records intermediate serial acceptance and actual
+  GPU-clock/input/counter evidence, final multi-owner/queued recovery corrections and their qualification limits.
+- Independent R8 closes the product delta without open P1/P2 findings. The fresh final build succeeds;
+  195/195 final affected acceptance cases pass. Standard results are 854/862 with exactly the eight baseline
+  failures, and all 24 additional standard cases pass. Allocation assertions and exclusions remain unchanged.
+- WPF mesh and FXAA/Scene2D remain 160 bytes/frame; 1,000 idle calls and 1,024 settled generation polls allocate
+  zero. Removing a continuous source leaves zero scene/copy/publication work across 64 more WPF pulses.
+- Regenerated Graphify locally: 1,064 files, 10,888 nodes, 19,850 edges and 3,150 communities; zero model tokens,
+  the same 17 partial-parser warnings and no remaining staging corpus. Updated plan, tasks and graph snapshot.
+- Phase 5 is complete within the authorized feasible scope. Physical monitor/RDP/touch/device-reset qualification
+  remains explicitly unavailable, alongside documented MSAA, scaled-capture and deferred-rendering limitations.
+
+## 2026-10-19 — WPF composition Phase 4 verified
+
+- Completed the public default-false presentation integration, original aliases/DPI/input contracts, borrowed
+  manager resource epochs and retained shared-scene ownership. Findings F26–F34 and independent R6/R7 closure
+  are documented in the [Phase 4 report](/testing/wpf-composition-phase4.md).
+- A fresh full Rider build passed. Standard results are 830/838 with exactly the eight known baseline failures;
+  all 101 additional standard cases pass. All 151 selected acceptance cases pass, including explicit hardware.
+- Visible production-template composition, actual OS Button input, ZIndex, clipping, VisualBrush, Blur and Adorner
+  pass while native counters remain idle. WPF mesh and FXAA/Scene2D measure 160 bytes/frame; idle, bridge and
+  native Scene2D warm measurements remain zero. Existing assertions and allocation ceilings were preserved.
+- Regenerated Graphify locally: 1,054 prepared files, 10,703 nodes, 20,095 edges and 2,819 communities; zero model
+  tokens, the same 17 partial-parser warnings, staging removed. Updated the graph snapshot and architecture.
+- The final hook check found no extension file. The unrelated Assimp feature pointer remains unchanged.
+  Phase 5 remains unstarted, with physical fault/monitor/touch and full parity/performance limits disclosed.
+
+## 2026-10-19 — WPF composition Phase 4 started
+
+- User approved Phase 4 with parallel delegated tasks. Resolved the WPF-specific Spec-Kit context under
+  `specs/002-wpf-composition-phase4`; the unrelated Assimp feature pointer remains unchanged.
+- Integrated the public default-false backend, successful-initialization selection lock, DPI policy, shared
+  renderer attachment leases and borrowed-manager resource epochs. The first integrated Rider build passed.
+- Independent reviews identified shared removal invalidation, bounded retirement retry, nested dispatcher
+  rescheduling and reentrant manager/capture findings. Corrections and serial runtime verification are in progress;
+  the initial dedicated run passed 32/35 cases and exposed binding-coercion and layout-fixture corrections.
+- Phase 5 remains outside this implementation authorization.
+- Added the [Phase 4 verification report](/testing/wpf-composition-phase4.md) with actual visible composition
+  measurements, review findings and the pending final gates; extended the phase plan with F26–F32.
+
+## 2026-10-19 — WPF composition Phase 3 verified
+
+- Integrated the productive borrowed-device GPU bridge, passive canvas and serial-aware presentation owner.
+  Kept scene demand separate from GPU completion, copy and WPF publication; retained ready slots across retries.
+- Preserved BGRA premultiplied coverage through geometry, OIT, effects, FXAA and Scene2D; isolated thirteen
+  compiled shader variants to retain legacy descriptor contracts and application shader readers.
+- Closed independent lifecycle, reentrancy, attachment and heap findings. Actual warm WPF mesh frames measure
+  184 bytes/frame, FXAA/Scene2D 208, idle and native Scene2D preparation zero; lock retries match framework cost.
+- Qualified exact allocation counters only in the Core test host, with nonconcurrent GC and a positive control;
+  the documented runtime accounting defect is a plausible explanation for earlier intermittent extra bytes.
+- Rider build passes; 729/737 standard cases pass with exactly the same eight baseline failures. All 82 new
+  cases pass, including 27 explicit hardware cases. Physical fault, RDP and multi-adapter limits remain disclosed.
+- Updated contracts and plan with F21–F25. Phase 4 public default-false selection remains behind approval.
+- Regenerated the local source graph: 1,038 files, 10,230 nodes, 18,893 edges and 2,756 communities; zero
+  model tokens, the same 17 partial-parser warnings, staging removed. Updated the durable graph snapshot.
+
+## 2026-10-19 — WPF composition Phase 3 started
+
+- User approved the productive bridge/output/canvas implementation and serial integration after P3.0.
+- Froze bridge, passive canvas, output-mode and Scene2D notification APIs and disjoint child ownership before
+  parallel work. Existing public HWND selection/default remains unchanged until Phase 4.
+
+## 2026-10-19 — WPF composition P3.0 architecture contracts
+
+- Recorded one D3D12 presentation owner and borrowed bridge/renderer boundaries before parallel implementation.
+- Defined frame serials, strict render/copy/publication backpressure, alpha/capture/format contracts, generation-safe
+  recovery, scene ownership and Scene2D notifications. Mapped architecture findings F14–F20 to tasks and checks.
+- Kept P3.1–P3.4 behind the implementation gate; no source or runtime behavior changed.
+- Independent contract review accepted `1913dab60` without must-fix findings; documentation/link/whitespace checks
+  passed. P3.0 is complete and the parallel implementation packages remain unstarted.
+
+## 2026-10-19 — WPF composition Phase 2 verified
+
+- Integrated the shared native frame recorder and bounded demand coordinator through the actual HWND viewport.
+- Reused scene preparation/cleanup storage and delegates; idle, coordinator and two-node preparation measure zero
+  warmed allocations. Actual submitted mesh frames measure about 1.75 KB/frame under a tightened 2 KB ceiling.
+- Independent reviews found and resolved candidate-list aliasing and failed-recording recovery; final delta has no
+  unresolved blockers. The Rider build passes; all 57 new cases pass, with 674/682 standard cases passing and the
+  same eight baseline failures. Production WPF and public default-false selection remain later phases.
+- Graphify regenerated 1,021 files into 9,841 nodes, 17,265 edges and 2,884 communities, with zero model tokens;
+  the existing 17 partial parser results remain disclosed. Phase 3 awaits explicit approval.
+
+## 2026-10-19 — Phase 2 renderer and allocation contracts
+
+- Approved the shared borrowed frame-target boundary and separate render-demand coordinator.
+- Made low managed heap pressure an explicit implementation and independent review requirement, with
+  warm-state allocation measurements and separate accounting for initialization, growth and capture.
+
+## 2026-10-19 — WPF composition proof started
+
+- Linked the approved phased composition plan and its historical review findings.
+- Fast-forwarded to the requested local toolkit baseline and corrected four example import/namespace blockers.
+- Rider build passes; standard baseline tests retain eight failures (617 passed / 625 total), documented separately
+  from the new interoperability proof. No renderer integration or application changes are part of Phase 1.
+
+## 2026-10-19 — WPF composition Phase 1 verified
+
+- Proved D3D12 NT-shared BGRA through D3D11 GPU copies into two alternating D3D9Ex legacy-shared surfaces.
+- All three explicit GTX 1070 tests pass, including actual WPF desktop RGB/alpha, immutable attached-image
+  snapshots, resize/recreation and disposal. Independent integration and final-delta reviews found no blockers.
+- Final standard suite preserves exactly the eight baseline failures (617/625 passed); no new failing test names.
+- Graphify completed after final source formatting: 1,013 files, 9,691 nodes, 16,858 edges, 2,847 communities,
+  zero model tokens. Existing 17 partial parser results remain disclosed. Phase 2 awaits explicit approval.
+
 ## 2026-10-18 — Shared viewport widget overlay
 
 * Moved the existing WPF/Win32 widget host into SilkToolkit with its public namespace and class body retained.

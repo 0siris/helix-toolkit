@@ -28,7 +28,7 @@ Read the base URL from `%TEMP%/helix-demo-automation/<pid>.url` (one file per de
 | `GET /api/render`, `POST /api/render/technique {"name"}` | Real FPS, triangles, active and known techniques |
 | `GET /api/logs[?level&limit]`, `POST /api/logs/level {"level"}` | Ring buffer (500, from demo start), level: verbose/debug/info/warn/error/fatal |
 
-Errors: 404 file/node, 409 `no-scene-host`, 422 validation (`unknown-technique`, `unknown-level`, `no-bound`), 503 surface/attach gap, 500 fallback. Bodies are `{error}`, never stack traces.
+Errors: 404 file/node, 409 `no-scene-host`, 422 validation (`unknown-technique`, `unknown-level`, `no-bound`), 503 `InvalidOperationException` (inspect the response body for the actual state), 500 fallback. Bodies are `{error}`, never stack traces.
 
 ## MCP
 
@@ -43,9 +43,10 @@ Tools: `DemoStatus`, `camera_get|set`, `camera_zoom_extents|reset`, `scene_stats
 - Circle misbehavior: `logs_get` (raise to `debug` if quiet) + `render_info` (FPS collapsed? wrong technique?).
 - Camera suspicion: `camera_get`, move or `scene_focus` the node, compare screenshots.
 - Technique suspicion: list `techniques` from `render_info`, set one, confirm the name reflects back.
+- Model-load failure: record the HTTP status and `{error}` body, then inspect `status`, `logs`, `scene/stats` and `scene/tree`. Check the model path and scene-host support (404/409), importer/validation response (422), or the reported initialization/attachment state (503). After a successful response, verify the returned counts/bounds against the tree and screenshot; source inspection alone does not prove a load or render succeeded.
 
 ## Limits
 
-- `model/load` currently returns 503: `EffectsManager.geometryBufferManager` is unassigned repo-wide since the DX12 cutover (SilkCore backlog, not an automation bug).
+- Phase 4 creates `GeometryBufferManager` in `EffectsManager.InitializeResources`; the old repo-wide unassigned-manager diagnosis is obsolete. A 503 is not a unique manager diagnosis: the HTTP wrapper maps any `InvalidOperationException` to it. Diagnose the actual response and logs; no universal model-load success is implied.
 - Setting the viewport technique writes the DP; visual effect in the Silk path is unverified — confirm via screenshot, not assumption.
 - Picking empty space returns `[]`; the log buffer starts at demo attach; demos without a scene host answer 409 on scene/model routes.

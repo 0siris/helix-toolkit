@@ -3,21 +3,35 @@ using HelixToolkit.SharpDX.Core;
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Utilities;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
-/// <summary>
-/// </summary>
+
+/// <summary>Provides renderer-independent 2D scene state, layout and invalidation.</summary>
 public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
+    /// <summary>Gets the logger used for optional 2D rendering diagnostics.</summary>
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
+    /// <summary>Weakly references the owning scene parent without extending its lifetime.</summary>
     private WeakReference<SceneNode2D>? parent;
 
+    /// <summary>Retains the lazily created 2D render core.</summary>
     private RenderCore2D? renderCore;
+
+    /// <summary>Borrows the current frame permission only while executing a scene operation.</summary>
+    private Func<bool>? scenePreparationPermission;
+
+    /// <summary>Retains update arguments for allocation-free updates with an unchanged context.</summary>
+    private UpdateEventArgs? updateArguments;
+
+    /// <summary>Gets the permission inherited by nested attachment and layout operations.</summary>
+    internal Func<bool>? ScenePreparationPermission => scenePreparationPermission ?? Parent?.ScenePreparationPermission;
+
+    /// <summary>Gets whether the current scene operation may continue accessing rendering resources.</summary>
+    protected bool CanContinueScenePreparation => ScenePreparationPermission?.Invoke() != false;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SceneNode2D" /> class.
@@ -42,12 +56,16 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </value>
     public SceneNode2D? Parent {
         get {
-            return parent is { } weak && weak.TryGetTarget(out var target) ? target : null;
+            return parent is { } weak && weak.TryGetTarget(out var target)
+                ? target
+                : null;
         }
         set {
             var current = Parent;
             if (Set(ref current, value))
-                parent = value is { } node ? new WeakReference<SceneNode2D>(node) : null;
+                parent = value is { } node
+                    ? new WeakReference<SceneNode2D>(node)
+                    : null;
         }
     }
 
@@ -176,6 +194,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
             if (Set(ref field, value)) {
                 for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].ParentMatrix = field;
                 TransformChanged(ref value);
+                if (!CanContinueScenePreparation) return;
                 OnTransformChanged?.Invoke(this, new Transform2DArgs(ref value));
             }
         }
@@ -208,6 +227,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
         set => RenderCore.IsMouseOver = value;
     }
 
+    /// <summary>Gets the physical-pixel scale selected during scene attachment.</summary>
     public float DpiScale { get; private set; } = 1;
 
     /// <summary>
@@ -223,7 +243,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </summary>
     /// <param name="mousePoint">The mouse point.</param>
     /// <param name="hitResult">The hit result.</param>
-    /// <returns></returns>
+    /// <returns>The resulting hit test value.</returns>
     public bool HitTest(Vector2 mousePoint, out HitTest2DResult? hitResult) {
         if (Parent == null) mousePoint *= DpiScale;
 
@@ -236,7 +256,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     Creates the render core.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The resulting create render core value.</returns>
     protected virtual RenderCore2D CreateRenderCore() => new EmptyRenderCore2D();
 
     /// <summary>
@@ -248,12 +268,31 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     </para>
     /// </summary>
     /// <param name="dpiScale">The physical-pixel scale.</param>
-    public void Attach(float dpiScale = 1) {
-        if (IsAttached) return;
+    public void Attach(float dpiScale = 1) => Attach(dpiScale, ScenePreparationPermission);
+
+    /// <summary>Attaches with a borrowed frame permission inherited by nested children.</summary>
+    /// <param name="dpiScale">The physical-pixel scale.</param>
+    /// <param name="canContinue">The retained permission, or null for independent native callers.</param>
+    internal void Attach(float dpiScale, Func<bool>? canContinue) {
+        var previous = scenePreparationPermission;
+        scenePreparationPermission = canContinue;
+        try {
+            AttachCore(dpiScale);
+        } finally {
+            scenePreparationPermission = previous;
+        }
+    }
+
+    /// <summary>Runs the original attachment hooks while the frame retains resource permission.</summary>
+    /// <param name="dpiScale">The physical-pixel scale.</param>
+    private void AttachCore(float dpiScale) {
+        if (!CanContinueScenePreparation || IsAttached) return;
         if (!float.IsFinite(dpiScale) || dpiScale <= 0) throw new ArgumentOutOfRangeException(nameof(dpiScale));
         DpiScale = dpiScale;
         IsAttached = OnAttach();
+        if (!CanContinueScenePreparation) return;
         if (IsAttached) Attached?.Invoke(this, EventArgs.Empty);
+        if (!CanContinueScenePreparation) return;
         InvalidateAll();
     }
 
@@ -270,6 +309,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     ///     Detaches this instance.
     /// </summary>
     public void Detach() {
+        updateArguments = null;
         if (IsAttached) {
             IsAttached = false;
             RenderCore.Detach();
@@ -289,8 +329,32 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </summary>
     /// <param name="context">The context.</param>
     public virtual void Update(RenderContext2D context) {
-        UpdateRequested?.Invoke(this, new UpdateEventArgs(context));
-        IsRenderable = CanRender(context);
+        if (!CanContinueScenePreparation) {
+            IsRenderable = false;
+            return;
+        }
+
+        if (UpdateRequested is { } update) {
+            if (updateArguments is null || !ReferenceEquals(updateArguments.Context, context))
+                updateArguments = new UpdateEventArgs(context);
+            update(this, updateArguments);
+        }
+
+        IsRenderable = CanContinueScenePreparation && CanRender(context) && CanContinueScenePreparation;
+    }
+
+    /// <summary>Runs virtual update hooks while retaining permission even if a callback reparents this node.</summary>
+    /// <param name="context">The original Scene2D update context.</param>
+    /// <param name="canContinue">The retained frame permission, or null for independent native callers.</param>
+    internal void Update(RenderContext2D context, Func<bool>? canContinue) {
+        var previous = scenePreparationPermission;
+        scenePreparationPermission = canContinue;
+        try {
+            if (CanContinueScenePreparation) Update(context);
+            if (!CanContinueScenePreparation) IsRenderable = false;
+        } finally {
+            scenePreparationPermission = previous;
+        }
     }
 
     /// <summary>
@@ -306,7 +370,7 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// </summary>
     /// <param name="mousePoint">The mouse point.</param>
     /// <param name="hitResult">The hit result.</param>
-    /// <returns></returns>
+    /// <returns>The resulting on hit test value.</returns>
     protected abstract bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult);
 
     /// <summary>
@@ -318,32 +382,33 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
         InvalidateVisual();
     }
 
-    /// <summary>
-    ///     Marks this node and its ancestors for repaint by the continuous native presentation loop.
-    /// </summary>
+    /// <summary>Notifies attached consumers that this node or a descendant needs repainting.</summary>
+    /// <remarks>Notifications carry no event arguments and never re-enter layout.</remarks>
+    internal event Action? RenderInvalidated;
+
+    /// <summary>Marks this node and every ancestor dirty and notifies attached consumers, even if already dirty.</summary>
     /// <remarks>Render invalidation must not call back into layout invalidation.</remarks>
     public void InvalidateRender() {
-        IsVisualDirty = true;
-        TraverseUp(this,
-                   ancestor => {
-                       if (ancestor.IsVisualDirty) return false;
-                       ancestor.IsVisualDirty = true;
-                       return true;
-                   });
+        for (SceneNode2D? node = this; node is not null; node = node.Parent) {
+            node.IsVisualDirty = true;
+            if (node.IsAttached) node.RenderInvalidated?.Invoke();
+        }
     }
 
+    /// <inheritdoc />
     protected override void OnDispose(bool disposeManagedResources) {
+        RenderInvalidated = null;
+        updateArguments = null;
         renderCore?.Dispose();
         renderCore = null;
         base.OnDispose(disposeManagedResources);
     }
 
-    /// <summary>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="backingField"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <summary>Updates a value and requests repaint only when its value changes.</summary>
+    /// <typeparam name="T">The retained value type.</typeparam>
+    /// <param name="backingField">The retained value updated when it differs.</param>
+    /// <param name="value">The new requested value.</param>
+    /// <returns>Whether the value changed and requested repaint.</returns>
     protected bool SetAffectsRender<T>(ref T backingField, T value) {
         if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
@@ -352,12 +417,11 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
         return true;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="backingField"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <summary>Updates a value and invalidates measurement only when its value changes.</summary>
+    /// <typeparam name="T">The retained value type.</typeparam>
+    /// <param name="backingField">The retained value updated when it differs.</param>
+    /// <param name="value">The new requested value.</param>
+    /// <returns>Whether the value changed and invalidated measurement.</returns>
     protected bool SetAffectsMeasure<T>(ref T backingField, T value) {
         if (EqualityComparer<T>.Default.Equals(backingField, value)) return false;
 
@@ -366,11 +430,15 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
         return true;
     }
 
+    /// <summary>Carries the original 2D update context for public update subscribers.</summary>
     public sealed class UpdateEventArgs : EventArgs {
+        /// <summary>Carries the original 2D update context for public update subscribers.</summary>
+        /// <param name="context">The original rendering or native callback context.</param>
         public UpdateEventArgs(RenderContext2D context) {
             Context = context;
         }
 
+        /// <summary>Gets the original context shared with the 2D update callback.</summary>
         public RenderContext2D Context { get; private set; }
     }
 
@@ -413,8 +481,8 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     <para>Determine if this can be rendered.</para>
     /// </summary>
-    /// <param name="context"></param>
-    /// <returns></returns>
+    /// <param name="context">The original rendering or native callback context.</param>
+    /// <returns>The resulting can render value.</returns>
     protected virtual bool CanRender(RenderContext2D context) => Visibility == Visibility.Visible && IsAttached;
 
     /// <summary>
@@ -431,10 +499,14 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
 #if DISABLEBITMAPCACHE
         IsBitmapCacheValid = false;
 #else
-        EnsureBitmapCache(context,
-                          new Size2((int)Math.Ceiling(LayoutClipBound.Width),
-                                    (int)Math.Ceiling(LayoutClipBound.Height)),
-                          context.DeviceContext.MaximumBitmapSize);
+        EnsureBitmapCache(
+            context,
+            new Size2(
+                (int) Math.Ceiling(LayoutClipBound.Width),
+                (int) Math.Ceiling(LayoutClipBound.Height)
+            ),
+            context.DeviceContext.MaximumBitmapSize
+        );
 #endif
         if (EnableBitmapCache && IsBitmapCacheValid && bitmapCache is { } cache) {
             if (IsVisualDirty) {
@@ -470,16 +542,33 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <summary>
     ///     Updates the shared layout transform before either Direct2D or Direct3D 12 records the node.
     /// </summary>
-    internal void UpdateTransform() {
+    internal void UpdateTransform() => UpdateTransform(ScenePreparationPermission);
+
+    /// <summary>Updates transforms while retaining permission across application transform callbacks.</summary>
+    /// <param name="canContinue">The retained frame permission, or null for independent native callers.</param>
+    internal void UpdateTransform(Func<bool>? canContinue) {
+        var previous = scenePreparationPermission;
+        scenePreparationPermission = canContinue;
+        try {
+            if (CanContinueScenePreparation) UpdateTransformCore();
+        } finally {
+            scenePreparationPermission = previous;
+        }
+    }
+
+    /// <summary>Updates cached transforms without continuing past a revoking callback.</summary>
+    private void UpdateTransformCore() {
         if (IsTransformDirty) {
             RelativeMatrix = Matrix3X2.Translation(-RenderSize * RenderTransformOrigin)
                              * ModelMatrix * Matrix3X2.Translation(RenderSize * RenderTransformOrigin)
                              * LayoutTranslate;
             TotalModelMatrix = RelativeMatrix * ParentMatrix;
+            if (!CanContinueScenePreparation) return;
             IsTransformDirty = false;
             InvalidateVisual();
         }
 
+        if (!CanContinueScenePreparation) return;
         LayoutBoundWithTransform = LayoutBound.Translate(TotalModelMatrix.TranslationVector);
     }
 
@@ -491,9 +580,11 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
         if (IsRenderable && EnableBitmapCache && IsBitmapCacheValid && !IsVisualDirty
             && context.HasTarget && bitmapCache is { } cache) {
             context.DeviceContext.Transform = RelativeMatrix;
-            context.DeviceContext.DrawImage(cache,
-                                            new Vector2(0, 0),
-                                            new RectangleF(0, 0, RenderSize.X, RenderSize.Y));
+            context.DeviceContext.DrawImage(
+                cache,
+                new Vector2(0, 0),
+                new RectangleF(0, 0, RenderSize.X, RenderSize.Y)
+            );
         } else {
             Render(context);
         }
@@ -505,7 +596,9 @@ public abstract partial class SceneNode2D : DisposeObject, IHitable2D {
     /// <param name="context">The context.</param>
     protected virtual void OnRender(RenderContext2D context) {
         RenderCore.Render(context);
-        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Render(context);
+        for (var i = 0; i < ItemsInternal.Count; ++i)
+            ItemsInternal[i]
+                .Render(context);
     }
 
     #endregion Rendering

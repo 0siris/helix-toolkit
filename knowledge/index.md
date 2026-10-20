@@ -17,6 +17,7 @@ with MeshMeister consumers; this package pin changes no renderer behavior.
 ## Architecture
 
 * [Current Solution](/architecture/current-solution.md) - `Source/SilkToolkit.slnx` and the main project graph.
+* [WPF Composition Contracts](/architecture/wpf-composition-contracts.md) - P3.0 ownership, transport, pixels, recovery and parallel integration boundaries.
 
 ## Projects
 
@@ -31,9 +32,12 @@ with MeshMeister consumers; this package pin changes no renderer behavior.
 ## Testing
 
 * [Silk Test Strategy](/testing/silk-tests.md) - xUnit v3 projects, categories, local commands, and non-blocking coverage reporting.
+* [WPF Composition Phase 4](/testing/wpf-composition-phase4.md) - Public presentation integration, original-contract reviews and serial acceptance evidence.
+* [WPF Composition Phase 5](/testing/wpf-composition-phase5.md) - Rendering/lifetime audits, actual backend measurements and recovery qualification limits.
 
 ## Backlog
 
+* [D3D12 WPF Composition](/backlog/d3d12-wpf-composition.md) - Phased demand-driven composition plan and isolated GPU interoperability proof.
 * [DX12 Migration Plan](/backlog/dx12-migration-plan.md) - Resumable phased Direct3D12 and DXC cutover plan.
 * [AddTube Reimplementation](/backlog/addtube-reimplementation.md) - Port of upstream #2251 to Silk.NET math.
 * [WPF Swap-Chain Canvas Plan](/backlog/wpf-swapchain-canvas-plan.md) - Rein WPF basierte IRenderCanvas-Implementierung als schaltbare Alternative zur WinForms-basierten Variante.

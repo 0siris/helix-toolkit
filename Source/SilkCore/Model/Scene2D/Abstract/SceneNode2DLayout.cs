@@ -7,8 +7,8 @@ using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Native;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
-/// <summary>
-/// </summary>
+
+/// <summary>Provides renderer-independent 2D scene state, layout and invalidation.</summary>
 public partial class SceneNode2D {
     #region layout management
 
@@ -46,6 +46,7 @@ public partial class SceneNode2D {
     /// </value>
     public bool IsVisualDirty { get; set; } = true;
 
+    /// <summary>Gets or sets the device-independent space surrounding the node.</summary>
     public Thickness Margin {
         get;
         set {
@@ -56,10 +57,13 @@ public partial class SceneNode2D {
         }
     }
 
+    /// <summary>Gets the summed horizontal and vertical margins.</summary>
     protected Vector2 MarginWidthHeight { get; private set; }
 
+    /// <summary>Retains the requested device-independent width, or NaN for automatic measurement.</summary>
     private float width = float.PositiveInfinity;
 
+    /// <summary>Gets or sets the requested width; NaN selects automatic measurement.</summary>
     public float Width {
         get => width;
         set {
@@ -67,8 +71,10 @@ public partial class SceneNode2D {
         }
     }
 
+    /// <summary>Retains the requested device-independent height, or NaN for automatic measurement.</summary>
     private float height = float.PositiveInfinity;
 
+    /// <summary>Gets or sets the requested height; NaN selects automatic measurement.</summary>
     public float Height {
         get => height;
         set {
@@ -76,6 +82,7 @@ public partial class SceneNode2D {
         }
     }
 
+    /// <summary>Gets or sets the minimum measured width.</summary>
     public float MinimumWidth {
         get;
         set {
@@ -83,6 +90,7 @@ public partial class SceneNode2D {
         }
     }
 
+    /// <summary>Gets or sets the minimum measured height.</summary>
     public float MinimumHeight {
         get;
         set {
@@ -90,6 +98,7 @@ public partial class SceneNode2D {
         }
     }
 
+    /// <summary>Gets or sets the maximum measured width.</summary>
     public float MaximumWidth {
         get;
         set {
@@ -97,6 +106,7 @@ public partial class SceneNode2D {
         }
     } = float.PositiveInfinity;
 
+    /// <summary>Gets or sets the maximum measured height.</summary>
     public float MaximumHeight {
         get;
         set {
@@ -104,6 +114,7 @@ public partial class SceneNode2D {
         }
     } = float.PositiveInfinity;
 
+    /// <summary>Gets or sets horizontal placement within the arranged rectangle.</summary>
     public HorizontalAlignment HorizontalAlignment {
         get;
         set {
@@ -111,6 +122,7 @@ public partial class SceneNode2D {
         }
     } = HorizontalAlignment.Stretch;
 
+    /// <summary>Gets or sets vertical placement within the arranged rectangle.</summary>
     public VerticalAlignment VerticalAlignment {
         get;
         set {
@@ -118,6 +130,7 @@ public partial class SceneNode2D {
         }
     } = VerticalAlignment.Stretch;
 
+    /// <summary>Gets or sets the physical translation assigned by layout.</summary>
     public Vector2 LayoutOffsets {
         get;
         private set {
@@ -138,6 +151,7 @@ public partial class SceneNode2D {
         }
     } = Vector2.Zero;
 
+    /// <summary>Gets or sets the normalized origin used by the render transform.</summary>
     public Vector2 RenderTransformOrigin {
         get;
         set {
@@ -161,10 +175,13 @@ public partial class SceneNode2D {
     /// </value>
     public Vector2 UnclippedDesiredSize { get; private set; } = new(-1, -1);
 
+    /// <summary>Gets the measured physical render size.</summary>
     private Vector2 Size => new(width, height);
 
+    /// <summary>Gets whether layout currently requires clipping.</summary>
     public bool ClipEnabled { get; private set; }
 
+    /// <summary>Gets or sets whether drawing is clipped to the layout bounds.</summary>
     public bool ClipToBound { get; set; } = false;
 
     /// <summary>
@@ -186,32 +203,41 @@ public partial class SceneNode2D {
         private set => RenderCore.LayoutBound = value;
     }
 
+    /// <summary>Retains the previous measurement constraint for unchanged-layout reuse.</summary>
     private Size2F? previousMeasureSize;
+
+    /// <summary>Retains the previous arranged rectangle for unchanged-layout reuse.</summary>
     private RectangleF? previousArrange;
 
     #endregion Properties
 
+    /// <summary>Marks this node and its ancestors for measurement and notifies attached render consumers.</summary>
     public void InvalidateMeasure() {
         IsArrangeDirty = true;
         IsMeasureDirty = true;
-        TraverseUp(this,
-                   p => {
-                       if (p is {IsArrangeDirty: true, IsMeasureDirty: true}) return false;
-                       p.IsArrangeDirty = true;
-                       p.IsMeasureDirty = true;
-                       return true;
-                   });
+        TraverseUp(
+            this,
+            p => {
+                if (p is { IsArrangeDirty: true, IsMeasureDirty: true }) return false;
+                p.IsArrangeDirty = true;
+                p.IsMeasureDirty = true;
+                return true;
+            }
+        );
         if (IsAttached) InvalidateRender();
     }
 
+    /// <summary>Marks this node and its ancestors for arrangement and notifies attached render consumers.</summary>
     public void InvalidateArrange() {
         IsArrangeDirty = true;
-        TraverseUp(this,
-                   p => {
-                       if (p.IsArrangeDirty) return false;
-                       p.IsArrangeDirty = true;
-                       return true;
-                   });
+        TraverseUp(
+            this,
+            p => {
+                if (p.IsArrangeDirty) return false;
+                p.IsArrangeDirty = true;
+                return true;
+            }
+        );
         if (IsAttached) InvalidateRender();
     }
 
@@ -220,35 +246,44 @@ public partial class SceneNode2D {
     /// </summary>
     public void InvalidateVisual() => InvalidateRender();
 
+    /// <summary>Marks this node and its ancestors for transform updates and notifies attached consumers.</summary>
     public void InvalidateTransform() {
         IsTransformDirty = true;
-        TraverseUp(this,
-                   e => {
-                       if (e.IsTransformDirty) return false;
-                       e.IsTransformDirty = true;
-                       return true;
-                   });
+        TraverseUp(
+            this,
+            e => {
+                if (e.IsTransformDirty) return false;
+                e.IsTransformDirty = true;
+                return true;
+            }
+        );
         if (IsAttached) InvalidateRender();
     }
 
+    /// <summary>Marks transform, measurement, arrangement and paint state dirty and notifies attached consumers.</summary>
     public void InvalidateAll() {
         IsTransformDirty = true;
         IsMeasureDirty = true;
         IsArrangeDirty = true;
         IsVisualDirty = true;
-        TraverseUp(this,
-                   p => {
-                       if (p is {IsTransformDirty: true, IsMeasureDirty: true, IsArrangeDirty: true, IsVisualDirty: true})
-                           return false;
-                       p.IsTransformDirty = true;
-                       p.IsMeasureDirty = true;
-                       p.IsArrangeDirty = true;
-                       p.IsVisualDirty = true;
-                       return true;
-                   });
+        TraverseUp(
+            this,
+            p => {
+                if (p is { IsTransformDirty: true, IsMeasureDirty: true, IsArrangeDirty: true, IsVisualDirty: true })
+                    return false;
+                p.IsTransformDirty = true;
+                p.IsMeasureDirty = true;
+                p.IsArrangeDirty = true;
+                p.IsVisualDirty = true;
+                return true;
+            }
+        );
         if (IsAttached) InvalidateRender();
     }
 
+    /// <summary>Visits ancestors until the supplied action stops traversal.</summary>
+    /// <param name="core">The source render core or starting scene node.</param>
+    /// <param name="action">The visitor; returning false stops ancestor traversal.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void TraverseUp(SceneNode2D core, Func<SceneNode2D, bool> action) {
         var ancestor = core.Parent;
@@ -258,19 +293,41 @@ public partial class SceneNode2D {
         }
     }
 
-    public void Measure(Size2F size) {
-        if (!IsAttached || Visibility == Visibility.Collapsed ||
+    /// <summary>Measures the node against a physical-size constraint, reusing clean layout state.</summary>
+    /// <param name="size">The physical measurement constraint.</param>
+    public void Measure(Size2F size) => Measure(size, ScenePreparationPermission);
+
+    /// <summary>Measures with a borrowed permission inherited by nested layout operations.</summary>
+    /// <param name="size">The physical measurement constraint.</param>
+    /// <param name="canContinue">The retained frame permission, or null for independent native callers.</param>
+    internal void Measure(Size2F size, Func<bool>? canContinue) {
+        var previous = scenePreparationPermission;
+        scenePreparationPermission = canContinue;
+        try {
+            MeasureCore(size);
+        } finally {
+            scenePreparationPermission = previous;
+        }
+    }
+
+    /// <summary>Runs measurement while permission protects virtual callbacks and their following work.</summary>
+    /// <param name="size">The physical measurement constraint.</param>
+    private void MeasureCore(Size2F size) {
+        if (!CanContinueScenePreparation || !IsAttached || Visibility == Visibility.Collapsed ||
             (!IsMeasureDirty && previousMeasureSize == size)) return;
         previousMeasureSize = size;
         var availableSize = size.ToVector2();
         var availableSizeWithoutMargin = availableSize - MarginWidthHeight * DpiScale;
-        Vector2 maxSize = Vector2.Zero, minSize = Vector2.Zero;
+        Vector2 maxSize = Vector2.Zero,
+            minSize = Vector2.Zero;
         CalculateMinMax(ref minSize, ref maxSize);
 
         availableSizeWithoutMargin.X = Math.Max(minSize.X, Math.Min(availableSizeWithoutMargin.X, maxSize.X));
         availableSizeWithoutMargin.Y = Math.Max(minSize.Y, Math.Min(availableSizeWithoutMargin.Y, maxSize.Y));
 
-        var desiredSize = MeasureOverride(availableSizeWithoutMargin.ToSize2F()).ToVector2();
+        var desiredSize = MeasureOverride(availableSizeWithoutMargin.ToSize2F())
+            .ToVector2();
+        if (!CanContinueScenePreparation) return;
 
         var unclippedDesiredSize = desiredSize;
 
@@ -303,25 +360,43 @@ public partial class SceneNode2D {
             UnclippedDesiredSize = new Vector2(-1, -1);
         if (DesiredSize != clippedDesiredSize) {
             DesiredSize = clippedDesiredSize;
-            for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].InvalidateMeasure();
+            for (var i = 0; i < ItemsInternal.Count && CanContinueScenePreparation; ++i)
+                ItemsInternal[i]
+                    .InvalidateMeasure();
         } else {
             IsMeasureDirty = false;
         }
     }
 
-    public void Arrange(RectangleF rect) {
-        if (!IsAttached || Visibility == Visibility.Collapsed) return;
-        if (IsMeasureDirty) Measure(previousMeasureSize ?? rect.Size);
-        var ancestorDirty = false;
-        TraverseUp(this,
-                   parent => {
-                       if (parent.IsArrangeDirty) {
-                           ancestorDirty = true;
-                           return false;
-                       }
+    /// <summary>Arranges the node within a physical rectangle without allocating an ancestor-search callback.</summary>
+    /// <param name="rect">The physical arrangement rectangle.</param>
+    public void Arrange(RectangleF rect) => Arrange(rect, ScenePreparationPermission);
 
-                       return true;
-                   });
+    /// <summary>Arranges with a borrowed permission inherited by nested layout operations.</summary>
+    /// <param name="rect">The physical arrangement rectangle.</param>
+    /// <param name="canContinue">The retained frame permission, or null for independent native callers.</param>
+    internal void Arrange(RectangleF rect, Func<bool>? canContinue) {
+        var previous = scenePreparationPermission;
+        scenePreparationPermission = canContinue;
+        try {
+            ArrangeCore(rect);
+        } finally {
+            scenePreparationPermission = previous;
+        }
+    }
+
+    /// <summary>Runs arrangement while permission protects virtual callbacks and their following work.</summary>
+    /// <param name="rect">The physical arrangement rectangle.</param>
+    private void ArrangeCore(RectangleF rect) {
+        if (!CanContinueScenePreparation || !IsAttached || Visibility == Visibility.Collapsed) return;
+        if (IsMeasureDirty) Measure(previousMeasureSize ?? rect.Size);
+        if (!CanContinueScenePreparation) return;
+        var ancestorDirty = false;
+        for (var ancestor = Parent; ancestor is not null; ancestor = ancestor.Parent)
+            if (ancestor.IsArrangeDirty) {
+                ancestorDirty = true;
+                break;
+            }
 
         var rectWidthHeight = new Vector2(rect.Width, rect.Height);
 
@@ -355,7 +430,8 @@ public partial class SceneNode2D {
 
         if (VerticalAlignment != VerticalAlignment.Stretch) arrangeSize.Y = desiredSize.Y;
 
-        Vector2 minSize = Vector2.Zero, maxSize = Vector2.Zero;
+        Vector2 minSize = Vector2.Zero,
+            maxSize = Vector2.Zero;
 
         CalculateMinMax(ref minSize, ref maxSize);
 
@@ -372,25 +448,37 @@ public partial class SceneNode2D {
         }
 
         var oldRenderSize = RenderSize;
-        var arrangeResultSize = ArrangeOverride(new RectangleF(Margin.Left * DpiScale,
-                                                               Margin.Top * DpiScale,
-                                                               arrangeSize.X - MarginWidthHeight.X * DpiScale,
-                                                               arrangeSize.Y - MarginWidthHeight.Y * DpiScale))
+        var arrangeResultSize = ArrangeOverride(
+                new RectangleF(
+                    Margin.Left * DpiScale,
+                    Margin.Top * DpiScale,
+                    arrangeSize.X - MarginWidthHeight.X * DpiScale,
+                    arrangeSize.Y - MarginWidthHeight.Y * DpiScale
+                )
+            )
             .ToVector2();
+
+        if (!CanContinueScenePreparation) return;
 
         var arrangeSizeChanged = arrangeResultSize != oldRenderSize;
         if (arrangeSizeChanged) InvalidateAll();
+        if (!CanContinueScenePreparation) return;
 
         RenderSize = arrangeResultSize;
+        if (!CanContinueScenePreparation) return;
 
-        var clippedArrangeResultSize = new Vector2(Math.Min(arrangeResultSize.X, maxSize.X),
-                                                   Math.Min(arrangeResultSize.Y, maxSize.Y));
+        var clippedArrangeResultSize = new Vector2(
+            Math.Min(arrangeResultSize.X, maxSize.X),
+            Math.Min(arrangeResultSize.Y, maxSize.Y)
+        );
         if (!ClipEnabled)
             ClipEnabled = clippedArrangeResultSize.X < arrangeResultSize.X ||
                           clippedArrangeResultSize.Y < arrangeResultSize.Y;
 
-        var clientSize = new Vector2(Math.Max(0, rectWidthHeight.X - MarginWidthHeight.X * DpiScale),
-                                     Math.Max(0, rectWidthHeight.Y - MarginWidthHeight.Y * DpiScale));
+        var clientSize = new Vector2(
+            Math.Max(0, rectWidthHeight.X - MarginWidthHeight.X * DpiScale),
+            Math.Max(0, rectWidthHeight.Y - MarginWidthHeight.Y * DpiScale)
+        );
 
         if (!ClipEnabled)
             ClipEnabled = clientSize.X < clippedArrangeResultSize.X ||
@@ -428,10 +516,15 @@ public partial class SceneNode2D {
         if (ClipEnabled || ClipToBound) LayoutClipBound = new RectangleF(0, 0, clientSize.X, clientSize.Y);
 
         LayoutOffsets = layoutOffset;
+        if (!CanContinueScenePreparation) return;
         UpdateLayoutInternal();
+        if (!CanContinueScenePreparation) return;
         IsArrangeDirty = false;
     }
 
+    /// <summary>Computes the physical minimum and maximum sizes including the configured DPI scale.</summary>
+    /// <param name="minSize">Receives the physical minimum size.</param>
+    /// <param name="maxSize">Receives the physical maximum size.</param>
     private void CalculateMinMax(ref Vector2 minSize, ref Vector2 maxSize) {
         maxSize.Y = MaximumHeight;
         minSize.Y = MinimumHeight;
@@ -442,7 +535,9 @@ public partial class SceneNode2D {
 
         maxSize.Y = Math.Max(Math.Min(height, maxSize.Y), minSize.Y);
 
-        height = float.IsInfinity(dimensionLength) ? 0 : dimensionLength;
+        height = float.IsInfinity(dimensionLength)
+            ? 0
+            : dimensionLength;
 
         minSize.Y = Math.Max(Math.Min(maxSize.Y, height), minSize.Y);
 
@@ -455,30 +550,49 @@ public partial class SceneNode2D {
 
         maxSize.X = Math.Max(Math.Min(width, maxSize.X), minSize.X);
 
-        width = float.IsInfinity(dimensionLength) ? 0 : dimensionLength;
+        width = float.IsInfinity(dimensionLength)
+            ? 0
+            : dimensionLength;
 
         minSize.X = Math.Max(Math.Min(maxSize.X, width), minSize.X);
         minSize *= DpiScale;
         maxSize *= DpiScale;
     }
 
+    /// <summary>Updates cached layout bounds from the current render size and margins.</summary>
     private void UpdateLayoutInternal() {
         LayoutBound = new RectangleF(Margin.Left * DpiScale, Margin.Top * DpiScale, RenderSize.X, RenderSize.Y);
-        LayoutClipBound = new RectangleF(0,
-                                         0,
-                                         RenderSize.X + MarginWidthHeight.X * DpiScale,
-                                         RenderSize.Y + MarginWidthHeight.Y * DpiScale);
-        LayoutTranslate = Matrix3X2.Translation((float)Math.Round(LayoutOffsets.X),
-                                                (float)Math.Round(LayoutOffsets.Y));
+        if (!CanContinueScenePreparation) return;
+        LayoutClipBound = new RectangleF(
+            0,
+            0,
+            RenderSize.X + MarginWidthHeight.X * DpiScale,
+            RenderSize.Y + MarginWidthHeight.Y * DpiScale
+        );
+        if (!CanContinueScenePreparation) return;
+        LayoutTranslate = Matrix3X2.Translation(
+            (float) Math.Round(LayoutOffsets.X),
+            (float) Math.Round(LayoutOffsets.Y)
+        );
     }
 
+    /// <summary>Provides the node-specific arrangement calculation.</summary>
+    /// <param name="finalSize">The available physical arrangement rectangle.</param>
+    /// <returns>The resulting physical content size.</returns>
     protected virtual RectangleF ArrangeOverride(RectangleF finalSize) {
-        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Arrange(finalSize);
+        for (var i = 0; i < ItemsInternal.Count && CanContinueScenePreparation; ++i)
+            ItemsInternal[i]
+                .Arrange(finalSize);
         return finalSize;
     }
 
+    /// <summary>Provides the node-specific measurement calculation.</summary>
+    /// <param name="availableSize">The available physical measurement size.</param>
+    /// <returns>The requested physical content size.</returns>
     protected virtual Size2F MeasureOverride(Size2F availableSize) {
-        for (var i = 0; i < ItemsInternal.Count; ++i) ItemsInternal[i].Measure(availableSize);
+        for (var i = 0; i < ItemsInternal.Count && CanContinueScenePreparation; ++i)
+            ItemsInternal[i]
+                .Measure(availableSize);
         return availableSize;
     }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.Wpf.SharpDX.Controls;
 
 namespace HelixToolkit.Wpf.SharpDX;
 
@@ -20,21 +21,22 @@ public partial class Viewport3DX : IRenderHost {
 
     /// Gets the actual native hierarchy; no scene is prepared before the first native frame.
     public FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene =>
-        d3d12Surface?.PerFrameFlattenedScene ?? emptyFlattenedScene;
+        wpfPresentation?.PerFrameFlattenedScene ?? d3d12Surface?.PerFrameFlattenedScene ?? emptyFlattenedScene;
 
     /// The empty pre-initialization result; it never owns or prepares scene nodes.
     private readonly FastList<KeyValuePair<int, SceneNode>> emptyFlattenedScene = [];
 
     /// Gets the retained actual native update context, or null before the first frame.
-    public RenderContext? RenderContext => d3d12Surface?.RenderContext;
+    public RenderContext? RenderContext => wpfPresentation?.RenderContext ?? d3d12Surface?.RenderContext;
 
     float IRenderHost.DpiScale {
-        get => (float)(d3d12Surface?.WindowHost.DpiScale ?? DpiScale);
+        get => wpfPresentation?.Canvas.EffectiveDpiScale ??
+               (float) (d3d12Surface?.EffectiveDpiScale ?? (EnableDpiScale
+                   ? DpiScale
+                   : 1));
         set {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
             if (!float.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
-            if (d3d12Surface is { } surface && value != (float)surface.WindowHost.DpiScale)
-                throw new NotSupportedException("Native DPI is controlled by the actual WPF presentation owner");
             DpiScale = value;
             InvalidateRender();
         }
@@ -48,11 +50,27 @@ public partial class Viewport3DX : IRenderHost {
     /// </summary>
     /// <returns>Whether a real frame was submitted or completed, including zero-draw frames.</returns>
     public bool UpdateAndRender() {
+        if (wpfPresentation is { } composited) {
+            var submitted = composited.SubmittedFrames;
+            var completedCount = completedD3D12Frames;
+            _ = composited.RenderFrame(
+                TimeSpan.FromSeconds(
+                    (double) System.Diagnostics.Stopwatch.GetTimestamp() /
+                    System.Diagnostics.Stopwatch.Frequency
+                ), waitForCompletion: true
+            );
+            return composited.SubmittedFrames != submitted || completedD3D12Frames != completedCount;
+        }
+
         var surface = d3d12Surface;
         var presented = surface?.PresentedFrames ?? 0;
         var completed = completedD3D12Frames;
-        _ = RenderD3D12Frame(TimeSpan.FromSeconds((double)System.Diagnostics.Stopwatch.GetTimestamp() /
-            System.Diagnostics.Stopwatch.Frequency), waitForCompletion: true);
+        _ = RenderD3D12Frame(
+            TimeSpan.FromSeconds(
+                (double) System.Diagnostics.Stopwatch.GetTimestamp() /
+                System.Diagnostics.Stopwatch.Frequency
+            ), waitForCompletion: true
+        );
         return completedD3D12Frames != completed || (surface is not null && surface.PresentedFrames != presented);
     }
 
@@ -69,6 +87,11 @@ public partial class Viewport3DX : IRenderHost {
         ArgumentOutOfRangeException.ThrowIfNegative(width);
         ArgumentOutOfRangeException.ThrowIfNegative(height);
         d3d12Surface?.Resize(width, height);
+        if (wpfPresentation is { } composited) {
+            composited.Canvas.Width = width;
+            composited.Canvas.Height = height;
+        }
+
         InvalidateRender();
     }
 
@@ -76,7 +99,7 @@ public partial class Viewport3DX : IRenderHost {
     public void StartRendering() {
         renderingEnabled = true;
         d3d12CompositionTarget.Rendering -= D3D12CompositionTargetRendering;
-        d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
+        if (EnableSwapChainRendering) d3d12CompositionTarget.Rendering += D3D12CompositionTargetRendering;
         InvalidateRender();
     }
 
@@ -90,5 +113,7 @@ public partial class Viewport3DX : IRenderHost {
     private bool renderingEnabled = true;
 
     /// Requests preparation of current per-frame renderables on the next real frame.
-    public void InvalidatePerFrameRenderables() => InvalidateRender();
+    public void InvalidatePerFrameRenderables() => RequestD3D12Render(
+        D3D12RenderInvalidation.PerFrameRenderables | D3D12RenderInvalidation.Render
+    );
 }

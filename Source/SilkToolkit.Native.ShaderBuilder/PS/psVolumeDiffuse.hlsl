@@ -63,6 +63,7 @@ float4 main(VolumePS_INPUT input) : SV_Target {
 
             //diffuse shading + fake ambient lighting
             src.rgb = s * src.rgb + .1f * src.rgb;
+            if (IsPremultipliedOutput()) src.rgb = saturate(src.rgb);
 
             //Front to back blending
             // dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb

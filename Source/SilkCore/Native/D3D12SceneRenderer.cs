@@ -4,7 +4,6 @@ using HelixToolkit.SharpDX.Core.Model.Scene2D;
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
-
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
@@ -19,19 +18,33 @@ namespace HelixToolkit.SharpDX.Core.Native;
 ///     Records visible existing geometry scene nodes through the productive Direct3D 12 render-core paths.
 /// </summary>
 internal sealed class SilkD3D12SceneRenderer : IDisposable {
-    /// The renderer's reference to the current shared environment texture.
+    /// <summary>The immutable color-intermediate format selected by the presentation owner.</summary>
+    private readonly Format colorFormat;
+
+    /// <summary>The immutable shader and blend coverage contract.</summary>
+    private readonly D3D12ColorOutputMode outputMode;
+
+    /// <summary>The renderer's reference to the current shared environment texture.</summary>
     private SilkD3D12ResourceManager.TextureRegistration? environmentTexture;
 
-    /// The current environment property shared with mesh and effect texture bindings.
+    /// <summary>The current environment property shared with mesh and effect texture bindings.</summary>
     private TextureModel? currentEnvironmentMap;
-    /// Per-core immutable GPU intersection generations, owned by this render host.
+
+    /// <summary>Reuses the environment lookup delegate shared by all mesh bindings.</summary>
+    private readonly Func<TextureModel?> environmentSource;
+
+    /// <summary>Per-core immutable GPU intersection generations, owned by this render host.</summary>
     private readonly Dictionary<MeshIntersectionRenderCore, SilkD3D12IntersectionResources> intersectionResources = [];
-    /// Replaced generations retained until the next completed host fence.
+
+    /// <summary>Replaced generations retained until the next completed host fence.</summary>
     private readonly List<SilkD3D12IntersectionResources> retiredIntersections = [];
-    /// The host-lifetime compute root signature shared by intersection generations.
+
+    /// <summary>The host-lifetime compute root signature shared by intersection generations.</summary>
     private SilkD3D12RootSignature? intersectionRoot;
-    /// The host-lifetime compute pipeline cache shared by intersection generations.
+
+    /// <summary>The host-lifetime compute pipeline cache shared by intersection generations.</summary>
     private readonly D3D12PipelineStateCache intersectionPipelines = new();
+
     /// <summary>
     ///     Gets the actual native resources used for selected-pair dispatch and indirect drawing.
     /// </summary>
@@ -39,6 +52,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <returns>The current resources, or <see langword="null"/> before rendering.</returns>
     internal SilkD3D12IntersectionResources? FindIntersectionResources(MeshIntersectionRenderCore core) =>
         intersectionResources.GetValueOrDefault(core);
+
     /// <summary>
     ///     The shared shader-visible resource heap.
     /// </summary>
@@ -49,10 +63,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     private readonly SilkD3D12DescriptorHeap samplerHeap;
 
-    /// Shader-visible descriptor pages shared by all immutable transient effect draws in this renderer.
+    /// <summary>Shader-visible descriptor pages shared by all immutable transient effect draws in this renderer.</summary>
     private readonly D3D12EffectBindingPool _effectBindings;
 
-    /// Shader-visible pages for ordinary and peeling mesh/line tables, separate from transient effects.
+    /// <summary>Shader-visible pages for ordinary and peeling mesh/line tables, separate from transient effects.</summary>
     private readonly D3D12EffectBindingPool _sceneBindings;
 
     /// <summary>
@@ -71,11 +85,11 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     private readonly Dictionary<MeshRenderCore, SilkD3D12MeshBindings> meshBindings =
         new(ReferenceEqualityComparer.Instance);
 
-    /// Mesh bindings with fixed peeling inputs; the first input borrows the ordinary per-core cache.
+    /// <summary>Mesh bindings with fixed peeling inputs; the first input borrows the ordinary per-core cache.</summary>
     private readonly Dictionary<SilkD3D12Resource, Dictionary<MeshRenderCore, SilkD3D12MeshBindings>>
         _peelingMeshBindings = [];
 
-    /// Point, line and billboard peeling bindings; the first input borrows the ordinary per-core cache.
+    /// <summary>Point, line and billboard peeling bindings; the first input borrows the ordinary per-core cache.</summary>
     private readonly Dictionary<SilkD3D12Resource, Dictionary<PointLineRenderCore, SilkD3D12PointLineBindings>>
         _peelingPointLineBindings = [];
 
@@ -108,10 +122,28 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     private readonly HashSet<SceneNode> attachedNodes = new(ReferenceEqualityComparer.Instance);
 
+    /// <summary>Retains the current hierarchy's attachment membership without per-frame snapshots.</summary>
+    private readonly HashSet<SceneNode> preparationAttachments = new(ReferenceEqualityComparer.Instance);
+
     /// <summary>
     ///     Reused visible-node list for allocation-free per-frame selection.
     /// </summary>
     private readonly FastList<SceneNode> visibleNodes = [];
+
+    /// <summary>Retains the root snapshot capacity without retaining roots between preparations.</summary>
+    private readonly FastList<SceneNode> preparationRoots = [];
+
+    /// <summary>Retains successful update candidates until the maintenance pass has completed.</summary>
+    private readonly FastList<SceneNode> updatedNodes = [];
+
+    /// <summary>Owns the prepared candidates until the next preparation, independently of draw selection.</summary>
+    private readonly FastList<SceneNode> preparedNodes = [];
+
+    /// <summary>Reuses depth traversal state without allocating enumerators for each scene group.</summary>
+    private readonly Stack<(int Index, int Depth, IList<SceneNode> Nodes)> preparationStack = new();
+
+    /// <summary>Rejects nested preparation before reusable snapshot and traversal state can be overwritten.</summary>
+    private bool isPreparing;
 
     /// <summary>
     ///     The host-lifetime size-adjustable shadow depth resource.
@@ -133,26 +165,34 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     private SilkD3D12PostProcessResources? postProcessResources;
 
-    /// The original half-resolution Bloom blur target.
+    /// <summary>The original half-resolution Bloom blur target.</summary>
     private SilkD3D12PostProcessResources? bloomHalfResources;
-    /// The original quarter-resolution Bloom blur target.
+
+    /// <summary>The original quarter-resolution Bloom blur target.</summary>
     private SilkD3D12PostProcessResources? bloomQuarterResources;
 
-    /// Full-resolution outline mask and stencil-excluded result.
+    /// <summary>Full-resolution outline mask and stencil-excluded result.</summary>
     private SilkD3D12PostProcessResources? outlineResources;
-    /// Source glow's half-resolution vertical blur target.
+
+    /// <summary>Source glow's half-resolution vertical blur target.</summary>
     private SilkD3D12PostProcessResources? outlineBlurResources;
-    /// Isolated outline and XRay stencil ownership.
+
+    /// <summary>Isolated outline and XRay stencil ownership.</summary>
     private D3D12PostEffectStencil? effectStencil;
-    /// Compatibility catalog for callers of the original low-level outline method.
+
+    /// <summary>Compatibility catalog for callers of the original low-level outline method.</summary>
     private D3D12ScenePassCatalog? outlineCatalog;
-    /// Frame-local mesh effect bindings whose constants remain immutable until submission completes.
+
+    /// <summary>Frame-local mesh effect bindings whose constants remain immutable until submission completes.</summary>
     private readonly List<SilkD3D12MeshBindings> effectMeshBindings = [];
-    /// Frame-local point/line effect bindings whose constants remain immutable until submission completes.
+
+    /// <summary>Frame-local point/line effect bindings whose constants remain immutable until submission completes.</summary>
     private readonly List<SilkD3D12PointLineBindings> effectLineBindings = [];
-    /// The next unused mesh effect binding in this completed-fence frame.
+
+    /// <summary>The next unused mesh effect binding in this completed-fence frame.</summary>
     private int effectMeshIndex;
-    /// The next unused point/line effect binding in this completed-fence frame.
+
+    /// <summary>The next unused point/line effect binding in this completed-fence frame.</summary>
     private int effectLineIndex;
 
     /// <summary>
@@ -160,29 +200,78 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     private SilkD3D12SsaoResources? ssaoResources;
 
+    /// <summary>The catalog borrowed during selection recording.</summary>
+    private D3D12ScenePassCatalog? selectionCatalog;
+
+    /// <summary>The active effect identity.</summary>
+    private string? selectionEffectName;
+
+    /// <summary>The first active selection pass.</summary>
+    private string? selectionPass0;
+
+    /// <summary>The second active selection pass.</summary>
+    private string? selectionPass1;
+
+    /// <summary>The third active selection pass.</summary>
+    private string? selectionPass2;
+
+    /// <summary>The optional second-pass stencil reference.</summary>
+    private int? selectionStencil1;
+
+    /// <summary>The retained selection callback for pass 0.</summary>
+    private readonly Func<SceneNode, ShaderPass?> selectionSelector0;
+
+    /// <summary>The retained selection callback for pass 1.</summary>
+    private readonly Func<SceneNode, ShaderPass?> selectionSelector1;
+
+    /// <summary>The retained selection callback for pass 2.</summary>
+    private readonly Func<SceneNode, ShaderPass?> selectionSelector2;
+
+    /// <summary>The retained selection bone-precompute callback.</summary>
+    private readonly Func<SceneNode, ShaderPass?> selectionBoneSelector;
+
+    /// <summary>Retains the ordered selection callbacks across frames.</summary>
+    private readonly List<Func<SceneNode, ShaderPass?>> selectionSelectors = [];
+
+    /// <summary>Retains one node for separated outline recording.</summary>
+    private readonly FastList<SceneNode> outlineGroup = [];
+
     /// <summary>
     ///     Initializes one scene renderer over host-owned descriptor heaps.
     /// </summary>
     /// <param name="device">The Direct3D 12 device.</param>
     /// <param name="resourceHeap">The shader-visible CBV/SRV/UAV heap.</param>
     /// <param name="samplerHeap">The shader-visible sampler heap.</param>
+    /// <param name="colorFormat">The presentation and color-intermediate format.</param>
+    /// <param name="outputMode">The immutable output coverage contract.</param>
     internal SilkD3D12SceneRenderer(
         SilkD3D12Device device,
         SilkD3D12DescriptorHeap resourceHeap,
-        SilkD3D12DescriptorHeap samplerHeap
+        SilkD3D12DescriptorHeap samplerHeap,
+        Format colorFormat = Format.FormatR8G8B8A8Unorm,
+        D3D12ColorOutputMode outputMode = D3D12ColorOutputMode.Legacy
     ) {
         device.AsGuardNotNull();
         resourceHeap.AsGuardNotNull();
         samplerHeap.AsGuardNotNull();
+        this.colorFormat = colorFormat;
+        this.outputMode = outputMode;
         this.resourceHeap = resourceHeap;
         this.samplerHeap = samplerHeap;
+        environmentSource = GetCurrentEnvironmentMap;
+        selectionSelector0 = ResolveSelection0;
+        selectionSelector1 = ResolveSelection1;
+        selectionSelector2 = ResolveSelection2;
+        selectionBoneSelector = ResolveSelectionBones;
         _effectBindings = new D3D12EffectBindingPool(device);
         _sceneBindings = new D3D12EffectBindingPool(device);
         resources = new SilkD3D12ResourceManager(device, resourceHeap);
-        scene2DRenderer = new D3D12Scene2DRenderer(device,
+        scene2DRenderer = new D3D12Scene2DRenderer(
+            device,
             resources,
             resourceHeap,
-            samplerHeap);
+            samplerHeap
+        );
         Device = device;
     }
 
@@ -190,6 +279,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     ///     Gets the Direct3D 12 device used to allocate per-core bindings.
     /// </summary>
     private SilkD3D12Device Device { get; }
+
+    /// <summary>Reads the current environment without allocating a new per-draw closure.</summary>
+    /// <returns>The current environment texture model.</returns>
+    private TextureModel? GetCurrentEnvironmentMap() => currentEnvironmentMap;
 
     /// <summary>
     ///     Gets the number of nodes selected by the most recent camera-frustum pass.
@@ -219,16 +312,16 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// </summary>
     internal bool IsDisposed { get; private set; }
 
-    /// Gets the full hierarchy from actual native preparation, including hidden and attach-failed nodes.
+    /// <summary>Gets the full hierarchy from actual native preparation, including hidden and attach-failed nodes.</summary>
     internal FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene { get; } = [];
 
-    /// The host owning the most recent actual frame preparation.
+    /// <summary>The host owning the most recent actual frame preparation.</summary>
     private IRenderHost? renderHost;
 
-    /// Gets the descriptor pages used by recorded effects for native capacity and lifetime verification.
+    /// <summary>Gets the descriptor pages used by recorded effects for native capacity and lifetime verification.</summary>
     internal D3D12EffectBindingPool EffectBindings => _effectBindings;
 
-    /// Gets the paged scene-table owner for descriptor accounting and headless lifetime verification.
+    /// <summary>Gets the paged scene-table owner for descriptor accounting and headless lifetime verification.</summary>
     internal D3D12EffectBindingPool SceneBindings => _sceneBindings;
 
     /// <summary>
@@ -244,39 +337,137 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     ///     nodes disposed or detached after updating are excluded from that phase.
     /// </remarks>
     /// <exception cref="ObjectDisposedException">The renderer has been disposed.</exception>
-    internal FastList<SceneNode> PrepareScene(IEnumerable<SceneNode> roots, RenderContext context,
-        IEffectsManager? effectsManager = null, IRenderHost? host = null) {
+    internal FastList<SceneNode> PrepareScene(
+        IEnumerable<SceneNode> roots,
+        RenderContext context,
+        IEffectsManager? effectsManager = null,
+        IRenderHost? host = null
+    ) =>
+        PrepareScene(roots, context, effectsManager, host, null);
+
+    /// <summary>Prepares the live scene while allowing its owner to revoke resource access from application callbacks.</summary>
+    /// <param name="roots">The original scene hierarchy roots.</param>
+    /// <param name="context">The retained update and maintenance context.</param>
+    /// <param name="effectsManager">The optional original attachment owner.</param>
+    /// <param name="host">The actual host receiving node invalidations.</param>
+    /// <param name="canContinue">The cached live permission predicate, or null for an independent native caller.</param>
+    /// <returns>The prepared nodes, ignored by the caller when permission has been revoked.</returns>
+    /// <exception cref="ObjectDisposedException">The renderer has been disposed.</exception>
+    /// <exception cref="InvalidOperationException">Scene preparation is already active.</exception>
+    internal FastList<SceneNode> PrepareScene(
+        IEnumerable<SceneNode> roots,
+        RenderContext context,
+        IEffectsManager? effectsManager,
+        IRenderHost? host,
+        Func<bool>? canContinue
+    ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        var snapshot = roots.ToArray();
-        var updated = new FastList<SceneNode>();
-        foreach (var entry in PerFrameFlattenedScene)
-            if (ReferenceEquals(entry.Value.RenderHost, renderHost)) entry.Value.RenderHost = null;
-        PerFrameFlattenedScene.Clear();
-        renderHost = host;
-        snapshot.PreorderDft(context, (node, frameContext) => {
-            if (node.IsDisposed) return false;
-            node.RenderHost = host;
-            if (effectsManager is not null) {
-                node.Attach(effectsManager);
-                if (!node.IsAttached) return true;
-            } else if (!node.RenderCore.IsAttached && !node.Attach()) return true;
-            attachedNodes.Add(node);
-            node.Update(frameContext);
-            updated.Add(node);
-            return true;
-        }, PerFrameFlattenedScene);
+        if (isPreparing) throw new InvalidOperationException("Scene preparation cannot be nested.");
+        isPreparing = true;
+        preparedNodes.Clear();
+        try {
+            if (roots is IList<SceneNode> indexedRoots) {
+                for (var index = 0; index < indexedRoots.Count; index++) preparationRoots.Add(indexedRoots[index]);
+            } else {
+                foreach (var root in roots) preparationRoots.Add(root);
+            }
 
-        foreach (var node in updated) {
-            if (!node.IsDisposed && node.RenderCore.IsAttached)
-                node.UpdateNotRender(context);
+            foreach (var entry in PerFrameFlattenedScene)
+                entry.Value.ClearNativeRenderHost(this);
+            PerFrameFlattenedScene.Clear();
+            renderHost = host;
+            WalkPreparation(context, effectsManager, host, update: true, canContinue);
+            foreach (var node in updatedNodes) {
+                if (canContinue?.Invoke() == false) return preparedNodes;
+                if (!node.IsDisposed && node.RenderCore.IsAttached)
+                    node.UpdateNotRender(context);
+            }
+
+            if (canContinue?.Invoke() == false) return preparedNodes;
+            PerFrameFlattenedScene.RemoveAll(static entry => entry.Value.IsDisposed);
+            WalkPreparation(context, effectsManager, host, update: false, canContinue);
+            if (canContinue?.Invoke() == false) return preparedNodes;
+            foreach (var node in attachedNodes)
+                if (node.RenderCore is ScreenCloneRenderCore capture && !preparedNodes.Contains(node) &&
+                    (preparationAttachments.Contains(node) || !node.HasOtherNativeAttachments(this)))
+                    capture.StopCapture();
+            updatedNodes.Clear();
+            foreach (var node in attachedNodes)
+                if (!preparationAttachments.Contains(node))
+                    updatedNodes.Add(node);
+            foreach (var node in updatedNodes) {
+                node.ReleaseNativeAttachment(this);
+                attachedNodes.Remove(node);
+            }
+
+            return preparedNodes;
+        } finally {
+            preparationRoots.Clear();
+            updatedNodes.Clear();
+            preparationStack.Clear();
+            preparationAttachments.Clear();
+            isPreparing = false;
         }
+    }
 
-        PerFrameFlattenedScene.RemoveAll(entry => entry.Value.IsDisposed);
-        var prepared = new FastList<SceneNode>();
-        foreach (var node in snapshot.PreorderDft(node =>
-                                                      !node.IsDisposed && node.Visible && node.RenderCore.IsAttached))
-            prepared.Add(node);
-        return prepared;
+    /// <summary>Walks current child lists in preorder while retaining the original root snapshot.</summary>
+    /// <param name="context">The context shared by the update and maintenance passes.</param>
+    /// <param name="effectsManager">The optional original attachment owner.</param>
+    /// <param name="host">The actual host receiving node invalidations.</param>
+    /// <param name="update">Whether to update all live nodes or collect only visible attached subtrees.</param>
+    /// <param name="canContinue">The owner's optional cached resource-lifetime predicate.</param>
+    private void WalkPreparation(
+        RenderContext context,
+        IEffectsManager? effectsManager,
+        IRenderHost? host,
+        bool update,
+        Func<bool>? canContinue
+    ) {
+        IList<SceneNode> nodes = preparationRoots;
+        var index = 0;
+        var depth = 0;
+        while (true) {
+            if (canContinue?.Invoke() == false) return;
+            if (index >= nodes.Count) {
+                if (!preparationStack.TryPop(out var parent)) return;
+                (index, depth, nodes) = parent;
+                continue;
+            }
+
+            var node = nodes[index++];
+            if (node.IsDisposed) continue;
+            if (update) {
+                preparationAttachments.Add(node);
+                RetainNodeAttachment(node, host);
+                if (effectsManager is not null) node.Attach(effectsManager, canContinue);
+                var attached = effectsManager is not null
+                    ? node.IsAttached
+                    : node.RenderCore.IsAttached || node.Attach();
+                if (canContinue?.Invoke() == false) return;
+                if (attached) {
+                    node.Update(context);
+                    updatedNodes.Add(node);
+                }
+
+                PerFrameFlattenedScene.Add(new KeyValuePair<int, SceneNode>(depth, node));
+            } else {
+                if (!node.Visible || !node.RenderCore.IsAttached) continue;
+                preparedNodes.Add(node);
+            }
+
+            if (node.ItemsInternal.Count == 0) continue;
+            preparationStack.Push((index, depth, nodes));
+            nodes = node.ItemsInternal;
+            index = 0;
+            depth++;
+        }
+    }
+
+    /// <summary>Tracks one renderer lease per original node, retaining capacity across completed frames.</summary>
+    /// <param name="node">The application-owned node used by this renderer.</param>
+    /// <param name="host">The active host for this frame, or null for offscreen rendering.</param>
+    private void RetainNodeAttachment(SceneNode node, IRenderHost? host) {
+        if (attachedNodes.Add(node) || isPreparing) node.RetainNativeAttachment(this, host);
     }
 
     /// <summary>
@@ -287,7 +478,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         postProcessResources?.BeginFrame();
         bloomHalfResources?.BeginFrame();
         bloomQuarterResources?.BeginFrame();
-        attachedNodes.RemoveWhere(node => node.IsDisposed || !node.RenderCore.IsAttached);
+        attachedNodes.RemoveWhere(static node => node.IsDisposed);
         outlineResources?.BeginFrame();
         outlineBlurResources?.BeginFrame();
         effectStencil?.BeginFrame();
@@ -295,45 +486,57 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         effectLineIndex = 0;
         scene2DRenderer.BeginFrame();
         ReleaseDisposedResources(meshBindings);
-        foreach (var texture in _peelingMeshBindings.Keys.ToArray()) {
-            var cache = _peelingMeshBindings[texture];
+        foreach (var pair in _peelingMeshBindings) {
+            var texture = pair.Key;
+            var cache = pair.Value;
             ReleaseDisposedResources(cache);
             if (!texture.IsDisposed) continue;
             if (!ReferenceEquals(cache, meshBindings))
-                foreach (var binding in cache.Values) binding.Dispose();
+                foreach (var binding in cache.Values)
+                    binding.Dispose();
             _peelingMeshBindings.Remove(texture);
         }
-        foreach (var texture in _peelingPointLineBindings.Keys.ToArray()) {
-            var cache = _peelingPointLineBindings[texture];
+
+        foreach (var pair in _peelingPointLineBindings) {
+            var texture = pair.Key;
+            var cache = pair.Value;
             ReleaseDisposedResources(cache);
             if (!texture.IsDisposed) continue;
             if (!ReferenceEquals(cache, pointLineBindings))
-                foreach (var binding in cache.Values) binding.Dispose();
+                foreach (var binding in cache.Values)
+                    binding.Dispose();
             _peelingPointLineBindings.Remove(texture);
         }
+
         ReleaseDisposedResources(pointLineBindings);
         ReleaseDisposedResources(volumeBindings);
         ReleaseDisposedResources(particleResources);
         ReleaseDisposedResources(screenCaptureResources);
         ReleaseDisposedResources(intersectionResources);
-        foreach (var core in intersectionResources.Keys.Where(core => !core.IsAttached).ToArray()) {
-            intersectionResources[core].Dispose();
-            intersectionResources.Remove(core);
+        foreach (var pair in intersectionResources) {
+            if (pair.Key.IsAttached) continue;
+            intersectionResources.Remove(pair.Key);
+            pair.Value.Dispose();
         }
+
         foreach (var retired in retiredIntersections) retired.Dispose();
         retiredIntersections.Clear();
-        foreach (var binding in meshBindings.Values.Concat(_peelingMeshBindings.Values.SelectMany(cache => cache.Values))
-            .Concat(effectMeshBindings).Distinct())
-            binding.ReleaseDisposedTextures();
-        foreach (var binding in pointLineBindings.Values
-            .Concat(_peelingPointLineBindings.Values.SelectMany(cache => cache.Values))
-            .Concat(effectLineBindings).Distinct())
-            binding.ReleaseDisposedTextures();
+        foreach (var binding in meshBindings.Values) binding.ReleaseDisposedTextures();
+        foreach (var cache in _peelingMeshBindings.Values)
+            if (!ReferenceEquals(cache, meshBindings))
+                foreach (var binding in cache.Values)
+                    binding.ReleaseDisposedTextures();
+        foreach (var binding in effectMeshBindings) binding.ReleaseDisposedTextures();
+        foreach (var binding in pointLineBindings.Values) binding.ReleaseDisposedTextures();
+        foreach (var cache in _peelingPointLineBindings.Values)
+            if (!ReferenceEquals(cache, pointLineBindings))
+                foreach (var binding in cache.Values)
+                    binding.ReleaseDisposedTextures();
+        foreach (var binding in effectLineBindings) binding.ReleaseDisposedTextures();
         foreach (var binding in volumeBindings.Values) binding.ReleaseDisposedTextures();
         foreach (var particle in particleResources.Values) particle.ReleaseDisposedTextures();
         resources.ReleaseDisposedResources();
     }
-
 
     /// <summary>
     ///     Releases cached resources belonging to disposed cores after the completed presentation fence.
@@ -344,10 +547,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     private static void ReleaseDisposedResources<TCore, TResource>(Dictionary<TCore, TResource> cache)
         where TCore : RenderCore
         where TResource : IDisposable {
-        foreach (var core in cache.Keys.Where(core => core.IsDisposed).ToArray()) {
-            var resource = cache[core];
-            cache.Remove(core);
-            resource.Dispose();
+        foreach (var pair in cache) {
+            if (!pair.Key.IsDisposed) continue;
+            cache.Remove(pair.Key);
+            pair.Value.Dispose();
         }
     }
 
@@ -372,9 +575,34 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         uint height,
         float dpiScale,
         RenderContext2D? layoutContext = null
+    ) => Render2D(context, roots, pass, target, width, height, dpiScale, layoutContext, null);
+
+    /// <summary>Prepares and draws the original overlay only while the frame retains resource permission.</summary>
+    /// <param name="context">The open command context.</param>
+    /// <param name="roots">The existing Scene2D roots.</param>
+    /// <param name="pass">The existing Sprite2D pass.</param>
+    /// <param name="target">The presentation render-target descriptor.</param>
+    /// <param name="width">The physical target width.</param>
+    /// <param name="height">The physical target height.</param>
+    /// <param name="dpiScale">The physical-pixel scale.</param>
+    /// <param name="layoutContext">The original Scene2D update context.</param>
+    /// <param name="canContinue">The retained permission, or null for independent native callers.</param>
+    /// <returns>The recorded draw count, or zero when permission is revoked.</returns>
+    internal int Render2D(
+        SilkD3D12CommandContext context,
+        IEnumerable<SceneNode2D> roots,
+        ShaderPass pass,
+        SilkD3D12Descriptor target,
+        uint width,
+        uint height,
+        float dpiScale,
+        RenderContext2D? layoutContext,
+        Func<bool>? canContinue
     ) {
+        if (canContinue?.Invoke() == false) return 0;
         using var profile = D3D12Profiler.Begin(context, "Silk.Overlay2D");
-        scene2DRenderer.Prepare(roots, width, height, dpiScale, layoutContext);
+        scene2DRenderer.Prepare(roots, width, height, dpiScale, layoutContext, canContinue);
+        if (canContinue?.Invoke() == false) return 0;
         return scene2DRenderer.RenderPrepared(context, pass, target, width, height);
     }
 
@@ -408,17 +636,22 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     ) {
         using var profile = D3D12Profiler.Begin(context, "Silk.FXAA");
         if (level == FXAALevel.None) return;
-        postProcessResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
+        postProcessResources ??= new SilkD3D12PostProcessResources(
+            Device, resourceHeap, samplerHeap,
+            _effectBindings, mainColor.Description.Format, outputMode
+        );
         var parameters = CreateFxaaParameters(level, width, height);
         postProcessResources.Capture(context, mainColor, width, height);
         postProcessResources.Draw(context, lumaPass, 0, 1, in transforms, in parameters);
         context.Transition(mainColor, Silk.NET.Direct3D12.ResourceStates.RenderTarget);
-        postProcessResources.DrawToPresentation(context,
+        postProcessResources.DrawToPresentation(
+            context,
             fxaaPass,
             1,
             mainRenderTarget,
             in transforms,
-            in parameters);
+            in parameters
+        );
     }
 
     /// <summary>
@@ -452,33 +685,53 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     ) {
         using var profile = D3D12Profiler.Begin(context, "Silk.Bloom");
         ArgumentOutOfRangeException.ThrowIfNegative(blurPasses);
-        postProcessResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
+        postProcessResources ??= new SilkD3D12PostProcessResources(
+            Device, resourceHeap, samplerHeap,
+            _effectBindings, mainColor.Description.Format, outputMode
+        );
         postProcessResources.Capture(context, mainColor, width, height);
         postProcessResources.Draw(context, extractPass, 0, 1, in transforms, in parameters);
         var blurParameters = parameters;
         for (var index = 0; index < blurPasses; index++) {
-            bloomHalfResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
-            bloomQuarterResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
+            bloomHalfResources ??= new SilkD3D12PostProcessResources(
+                Device, resourceHeap, samplerHeap,
+                _effectBindings, mainColor.Description.Format, outputMode
+            );
+            bloomQuarterResources ??= new SilkD3D12PostProcessResources(
+                Device, resourceHeap, samplerHeap,
+                _effectBindings, mainColor.Description.Format, outputMode
+            );
             blurParameters.ViewportScale = 2;
-            bloomHalfResources.DrawSource(context, verticalBlurPass, postProcessResources.Second, 0,
-                Math.Max(1u, width / 2), Math.Max(1u, height / 2), in transforms, in blurParameters);
+            bloomHalfResources.DrawSource(
+                context, verticalBlurPass, postProcessResources.Second, 0,
+                Math.Max(1u, width / 2), Math.Max(1u, height / 2), in transforms, in blurParameters
+            );
             blurParameters.ViewportScale = 4;
-            bloomQuarterResources.DrawSource(context, verticalBlurPass, bloomHalfResources.First, 0,
-                Math.Max(1u, width / 4), Math.Max(1u, height / 4), in transforms, in blurParameters);
+            bloomQuarterResources.DrawSource(
+                context, verticalBlurPass, bloomHalfResources.First, 0,
+                Math.Max(1u, width / 4), Math.Max(1u, height / 4), in transforms, in blurParameters
+            );
             blurParameters.ViewportScale = 2;
-            bloomHalfResources.DrawSource(context, horizontalBlurPass, bloomQuarterResources.First, 0,
-                Math.Max(1u, width / 2), Math.Max(1u, height / 2), in transforms, in blurParameters);
+            bloomHalfResources.DrawSource(
+                context, horizontalBlurPass, bloomQuarterResources.First, 0,
+                Math.Max(1u, width / 2), Math.Max(1u, height / 2), in transforms, in blurParameters
+            );
             blurParameters.ViewportScale = 1;
-            postProcessResources.DrawSource(context, horizontalBlurPass, bloomHalfResources.First, 1,
-                width, height, in transforms, in blurParameters);
+            postProcessResources.DrawSource(
+                context, horizontalBlurPass, bloomHalfResources.First, 1,
+                width, height, in transforms, in blurParameters
+            );
         }
+
         context.Transition(mainColor, Silk.NET.Direct3D12.ResourceStates.RenderTarget);
-        postProcessResources.DrawToPresentation(context,
+        postProcessResources.DrawToPresentation(
+            context,
             combinePass,
             1,
             mainRenderTarget,
             in transforms,
-            in parameters);
+            in parameters
+        );
     }
 
     /// <summary>
@@ -535,18 +788,22 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         float radius
     ) {
         using var profile = D3D12Profiler.Begin(context, "Silk.SSAO");
-        var scale = quality == SSAOQuality.High ? 1 : 2;
-        var targetWidth = Math.Max(1u, width / (uint)scale);
-        var targetHeight = Math.Max(1u, height / (uint)scale);
+        var scale = quality == SSAOQuality.High
+            ? 1
+            : 2;
+        var targetWidth = Math.Max(1u, width / (uint) scale);
+        var targetHeight = Math.Max(1u, height / (uint) scale);
         ssaoResources ??= new SilkD3D12SsaoResources(Device, resourceHeap, samplerHeap);
         ssaoResources.BeginGeometry(context, targetWidth, targetHeight);
-        _ = RenderVisible(context,
+        _ = RenderVisible(
+            context,
             nodes,
             geometryPassSelector,
             in transforms,
             testFrustum,
             ref frustum,
-            boneSkinningPassSelector: boneSkinningPassSelector);
+            boneSkinningPassSelector: boneSkinningPassSelector
+        );
         return ssaoResources.Complete(context, ssaoPass, blurPass, in transforms, radius, scale);
     }
 
@@ -567,126 +824,218 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <param name="width">The physical width.</param>
     /// <param name="height">The physical height.</param>
     /// <returns>The number of recorded custom geometry draws.</returns>
-    internal int RenderPostEffects(SilkD3D12CommandContext context, FastList<SceneNode> candidates,
-        FastList<SceneNode> effects, D3D12ScenePassCatalog catalog, in GlobalTransformStruct transforms,
-        bool testFrustum, ref BoundingFrustum frustum, SilkD3D12Resource mainColor,
-        SilkD3D12Descriptor mainRenderTarget, SilkD3D12Resource sceneDepth,
-        SilkD3D12Descriptor mainDepthStencil, uint width, uint height) {
+    internal int RenderPostEffects(
+        SilkD3D12CommandContext context,
+        FastList<SceneNode> candidates,
+        FastList<SceneNode> effects,
+        D3D12ScenePassCatalog catalog,
+        in GlobalTransformStruct transforms,
+        bool testFrustum,
+        ref BoundingFrustum frustum,
+        SilkD3D12Resource mainColor,
+        SilkD3D12Descriptor mainRenderTarget,
+        SilkD3D12Resource sceneDepth,
+        SilkD3D12Descriptor mainDepthStencil,
+        uint width,
+        uint height
+    ) => RenderPostEffects(
+        context, candidates, effects, catalog, in transforms, testFrustum, ref frustum,
+        mainColor, mainRenderTarget, sceneDepth, mainDepthStencil, width, height, null
+    );
+
+    /// <summary>
+    ///     Dispatches registered outline, border and XRay nodes using their actual attributes and source pass policies.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    /// <param name="candidates">Opaque and transparent geometry in original scene traversal order.</param>
+    /// <param name="effects">The registered post-effect nodes in draw order.</param>
+    /// <param name="catalog">The existing registered pass catalog.</param>
+    /// <param name="transforms">The global camera and viewport constants.</param>
+    /// <param name="testFrustum">Whether camera-frustum culling is enabled.</param>
+    /// <param name="frustum">The current camera frustum.</param>
+    /// <param name="mainColor">The presentation color resource.</param>
+    /// <param name="mainRenderTarget">The presentation RTV.</param>
+    /// <param name="sceneDepth">The original scene depth/stencil resource, preserved by each effect.</param>
+    /// <param name="mainDepthStencil">The original scene DSV.</param>
+    /// <param name="width">The physical width.</param>
+    /// <param name="height">The physical height.</param>
+    /// <param name="geometryViewport">The optional local geometry viewport; effect intermediates remain full target size.</param>
+    /// <returns>The number of recorded custom geometry draws.</returns>
+    internal int RenderPostEffects(
+        SilkD3D12CommandContext context,
+        FastList<SceneNode> candidates,
+        FastList<SceneNode> effects,
+        D3D12ScenePassCatalog catalog,
+        in GlobalTransformStruct transforms,
+        bool testFrustum,
+        ref BoundingFrustum frustum,
+        SilkD3D12Resource mainColor,
+        SilkD3D12Descriptor mainRenderTarget,
+        SilkD3D12Resource sceneDepth,
+        SilkD3D12Descriptor mainDepthStencil,
+        uint width,
+        uint height,
+        ViewportF? geometryViewport
+    ) {
         using var profile = D3D12Profiler.Begin(context, "Silk.SelectionEffects");
         var recorded = 0;
-        foreach (var effectNode in effects)
-            switch (effectNode) {
-                case NodePostEffectMeshOutlineBlur outline: {
-                    var technique = effectNode is NodePostEffectBorderHighlight
-                        ? DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight
-                        : DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur;
-                    var effectName = outline.EffectName;
-                    var outlineParameters = new BorderEffectStruct {
-                        Color = outline.Color,
-                        Param = new Matrix { M11 = outline.ScaleX, M12 = outline.ScaleY },
-                        ViewportScale = 1
-                    };
-                    recorded += RenderOutline(context,
-                        candidates,
-                        node => node.TryGetPostEffect(effectName, out _)
-                            ? catalog.ResolvePostEffectGeometry(node,
-                                DefaultPassNames.EffectOutlineP1,
-                                Format.FormatD32FloatS8X24Uint)
-                            : null,
-                        catalog.ResolvePostProcess(technique, DefaultPassNames.EffectBlurVertical),
-                        catalog.ResolvePostProcess(technique, DefaultPassNames.EffectBlurHorizontal),
-                        catalog.ResolvePostProcess(technique, DefaultPassNames.MeshOutline),
-                        in outlineParameters,
-                        outline.NumberOfBlurPass,
-                        in transforms,
-                        testFrustum,
-                        ref frustum,
-                        mainColor,
-                        mainRenderTarget,
-                        mainDepthStencil,
-                        width,
-                        height,
-                        catalog.ResolvePostProcess(technique, DefaultPassNames.ScreenQuad),
-                        effectName,
-                        outline is NodePostEffectBorderHighlight border ? border.DrawMode : OutlineMode.Merged,
-                        outline is not NodePostEffectBorderHighlight,
-                        catalog.ResolveBoneSkinning);
-                    break;
+        selectionCatalog = catalog;
+        try {
+            foreach (var effectNode in effects)
+                switch (effectNode) {
+                    case NodePostEffectMeshOutlineBlur outline: {
+                        var technique = effectNode is NodePostEffectBorderHighlight
+                            ? DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight
+                            : DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur;
+                        var effectName = outline.EffectName;
+                        selectionEffectName = effectName;
+                        selectionPass0 = DefaultPassNames.EffectOutlineP1;
+                        var outlineParameters = new BorderEffectStruct {
+                            Color = outline.Color, Param = new Matrix { M11 = outline.ScaleX, M12 = outline.ScaleY }, ViewportScale = 1
+                        };
+                        recorded += RenderOutline(
+                            context,
+                            candidates,
+                            selectionSelector0,
+                            catalog.ResolvePostProcess(technique, DefaultPassNames.EffectBlurVertical),
+                            catalog.ResolvePostProcess(technique, DefaultPassNames.EffectBlurHorizontal),
+                            catalog.ResolvePostProcess(technique, DefaultPassNames.MeshOutline),
+                            in outlineParameters,
+                            outline.NumberOfBlurPass,
+                            in transforms,
+                            testFrustum,
+                            ref frustum,
+                            mainColor,
+                            mainRenderTarget,
+                            mainDepthStencil,
+                            width,
+                            height,
+                            catalog.ResolvePostProcess(technique, DefaultPassNames.ScreenQuad),
+                            effectName,
+                            outline is NodePostEffectBorderHighlight border
+                                ? border.DrawMode
+                                : OutlineMode.Merged,
+                            outline is not NodePostEffectBorderHighlight,
+                            selectionBoneSelector, geometryViewport
+                        );
+                        break;
+                    }
+                    case NodePostEffectXRay xray: {
+                        var effectName = xray.EffectName;
+                        var xrayParameters = new BorderEffectStruct {
+                            Color = xray.Color, Param = new Matrix { M11 = xray.OutlineFadingFactor }
+                        };
+                        selectionEffectName = effectName;
+                        selectionPass0 = DefaultPassNames.EffectMeshXRayP1;
+                        selectionPass1 = DefaultPassNames.EffectMeshXRayP2;
+                        selectionStencil1 = xray.EnableDoublePass
+                            ? null
+                            : 0;
+                        var selectors = selectionSelectors;
+                        selectors.Clear();
+                        if (xray.EnableDoublePass) selectors.Add(selectionSelector0);
+                        selectors.Add(selectionSelector1);
+                        recorded += RenderXRay(
+                            context,
+                            candidates,
+                            selectors,
+                            in xrayParameters,
+                            in transforms,
+                            testFrustum,
+                            ref frustum,
+                            mainRenderTarget,
+                            mainDepthStencil,
+                            width,
+                            height, effectName, sceneDepth, selectionBoneSelector, geometryViewport
+                        );
+                        break;
+                    }
+                    case NodePostEffectXRayGrid grid: {
+                        var effectName = grid.EffectName;
+                        var gridParameters = new BorderEffectStruct {
+                            Color = grid.Color,
+                            Param = new Matrix { M11 = grid.GridDensity, M12 = grid.DimmingFactor, M13 = grid.BlendingFactor }
+                        };
+                        selectionEffectName = effectName;
+                        selectionPass0 = DefaultPassNames.EffectMeshXRayGridP1;
+                        selectionPass1 = DefaultPassNames.EffectMeshXRayGridP2;
+                        selectionPass2 = grid.XRayDrawingPassName;
+                        selectionStencil1 = null;
+                        var selectors = selectionSelectors;
+                        selectors.Clear();
+                        selectors.Add(selectionSelector0);
+                        if (grid.UseDepthOcclusion) selectors.Add(selectionSelector1);
+                        selectors.Add(selectionSelector2);
+                        recorded += RenderXRay(
+                            context,
+                            candidates,
+                            selectors,
+                            in gridParameters,
+                            in transforms,
+                            testFrustum,
+                            ref frustum,
+                            mainRenderTarget,
+                            mainDepthStencil,
+                            width,
+                            height, effectName, sceneDepth, selectionBoneSelector, geometryViewport
+                        );
+                        break;
+                    }
                 }
-                case NodePostEffectXRay xray: {
-                    var effectName = xray.EffectName;
-                    var xrayParameters = new BorderEffectStruct {
-                        Color = xray.Color,
-                        Param = new Matrix { M11 = xray.OutlineFadingFactor }
-                    };
-                    List<Func<SceneNode, HelixToolkit.SharpDX.Core.Shaders.ShaderPass?>> selectors = [];
-                    if (xray.EnableDoublePass)
-                        selectors.Add(node => node.TryGetPostEffect(effectName, out _)
-                            ? catalog.ResolvePostEffectGeometry(node,
-                                DefaultPassNames.EffectMeshXRayP1,
-                                Format.FormatD32FloatS8X24Uint)
-                            : null);
-                    selectors.Add(node => node.TryGetPostEffect(effectName, out _)
-                        ? catalog.ResolvePostEffectGeometry(node,
-                            DefaultPassNames.EffectMeshXRayP2,
-                            Format.FormatD32FloatS8X24Uint,
-                            xray.EnableDoublePass ? null : 0)
-                        : null);
-                    recorded += RenderXRay(context,
-                        candidates,
-                        selectors,
-                        in xrayParameters,
-                        in transforms,
-                        testFrustum,
-                        ref frustum,
-                        mainRenderTarget,
-                        mainDepthStencil,
-                        width,
-                        height, effectName, sceneDepth, catalog.ResolveBoneSkinning);
-                    break;
-                }
-                case NodePostEffectXRayGrid grid: {
-                    var effectName = grid.EffectName;
-                    var gridParameters = new BorderEffectStruct {
-                        Color = grid.Color,
-                        Param = new Matrix {
-                            M11 = grid.GridDensity,
-                            M12 = grid.DimmingFactor,
-                            M13 = grid.BlendingFactor
-                        }
-                    };
-                    List<Func<SceneNode, HelixToolkit.SharpDX.Core.Shaders.ShaderPass?>> selectors = [
-                        node => node.TryGetPostEffect(effectName, out _)
-                            ? catalog.ResolvePostEffectGeometry(node,
-                                DefaultPassNames.EffectMeshXRayGridP1,
-                                Format.FormatD32FloatS8X24Uint)
-                            : null
-                    ];
-                    if (grid.UseDepthOcclusion)
-                        selectors.Add(node => node.TryGetPostEffect(effectName, out _)
-                            ? catalog.ResolvePostEffectGeometry(node,
-                                DefaultPassNames.EffectMeshXRayGridP2,
-                                Format.FormatD32FloatS8X24Uint)
-                            : null);
-                    selectors.Add(node => node.TryGetPostEffect(effectName, out _)
-                        ? catalog.ResolvePostEffectGeometry(node, grid.XRayDrawingPassName, Format.FormatD32FloatS8X24Uint)
-                        : null);
-                    recorded += RenderXRay(context,
-                        candidates,
-                        selectors,
-                        in gridParameters,
-                        in transforms,
-                        testFrustum,
-                        ref frustum,
-                        mainRenderTarget,
-                        mainDepthStencil,
-                        width,
-                        height, effectName, sceneDepth, catalog.ResolveBoneSkinning);
-                    break;
-                }
-            }
+        } finally {
+            selectionCatalog = null;
+            selectionEffectName = null;
+            selectionPass0 = selectionPass1 = selectionPass2 = null;
+            selectionStencil1 = null;
+            selectionSelectors.Clear();
+        }
+
         return recorded;
     }
+
+    /// <summary>Restores only local geometry mapping after a full-target effect allocation or bind.</summary>
+    /// <param name="context">The open productive command context.</param>
+    /// <param name="viewport">The optional screen-space geometry viewport.</param>
+    /// <param name="width">The full target width.</param>
+    /// <param name="height">The full target height.</param>
+    private static void ApplyEffectGeometryViewport(SilkD3D12CommandContext context, ViewportF? viewport,
+        uint width, uint height) {
+        if (viewport is not { } local) return;
+        context.SetViewport(local.X, local.Y, local.Width, local.Height);
+        context.SetScissorRectangle(Math.Max(0, (int) local.X), Math.Max(0, (int) local.Y),
+            Math.Min((int) width, (int) Math.Ceiling(local.X + local.Width)),
+            Math.Min((int) height, (int) Math.Ceiling(local.Y + local.Height)));
+    }
+
+    /// <summary>Resolves retained selection callback 0.</summary>
+    /// <param name="node">The candidate scene node.</param>
+    /// <returns>The selected pass or null.</returns>
+    private ShaderPass? ResolveSelection0(SceneNode node) => ResolveSelection(node, selectionPass0);
+
+    /// <summary>Resolves retained selection callback 1.</summary>
+    /// <param name="node">The candidate scene node.</param>
+    /// <returns>The selected pass or null.</returns>
+    private ShaderPass? ResolveSelection1(SceneNode node) => ResolveSelection(node, selectionPass1, selectionStencil1);
+
+    /// <summary>Resolves retained selection callback 2.</summary>
+    /// <param name="node">The candidate scene node.</param>
+    /// <returns>The selected pass or null.</returns>
+    private ShaderPass? ResolveSelection2(SceneNode node) => ResolveSelection(node, selectionPass2);
+
+    /// <summary>Resolves GPU skinning through the borrowed selection catalog.</summary>
+    /// <param name="node">The candidate scene node.</param>
+    /// <returns>The optional precompute pass.</returns>
+    private ShaderPass? ResolveSelectionBones(SceneNode node) => selectionCatalog!.ResolveBoneSkinning(node);
+
+    /// <summary>Resolves an active selection pass without capturing per-frame state.</summary>
+    /// <param name="node">The candidate scene node.</param>
+    /// <param name="pass">The active pass name.</param>
+    /// <param name="stencil">The optional stencil reference.</param>
+    /// <returns>The selected pass or null.</returns>
+    private ShaderPass? ResolveSelection(SceneNode node, string? pass, int? stencil = null) =>
+        pass is not null && selectionEffectName is not null && node.TryGetPostEffect(selectionEffectName, out _)
+            ? selectionCatalog!.ResolvePostEffectGeometry(node, pass, Format.FormatD32FloatS8X24Uint, stencil)
+            : null;
 
     /// <summary>
     ///     Renders matching geometry into a mask, blurs it, and composites an outline onto the presentation target.
@@ -736,50 +1085,138 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         OutlineMode drawMode = OutlineMode.Merged,
         bool useBlurCore = false,
         Func<SceneNode, ShaderPass?>? boneSkinningPassSelector = null
+    ) => RenderOutline(
+        context, nodes, maskPassSelector, verticalBlurPass, horizontalBlurPass, compositionPass,
+        in parameters, blurPasses, in transforms, testFrustum, ref frustum, mainColor, mainRenderTarget,
+        mainDepthStencil, width, height, stencilPass, effectName, drawMode, useBlurCore, boneSkinningPassSelector, null
+    );
+
+    /// <summary>
+    ///     Renders matching geometry into a mask, blurs it, and composites an outline onto the presentation target.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    /// <param name="nodes">Scene geometry carrying the selected effect.</param>
+    /// <param name="maskPassSelector">Selects the existing outline mask pass.</param>
+    /// <param name="verticalBlurPass">The vertical blur pass.</param>
+    /// <param name="horizontalBlurPass">The horizontal blur pass.</param>
+    /// <param name="compositionPass">The final outline composition pass.</param>
+    /// <param name="parameters">The b6 outline constants.</param>
+    /// <param name="blurPasses">The non-negative number of blur pairs.</param>
+    /// <param name="transforms">The current global constants.</param>
+    /// <param name="testFrustum">Whether camera-frustum culling is enabled.</param>
+    /// <param name="frustum">The current camera frustum.</param>
+    /// <param name="mainColor">The presentation color resource.</param>
+    /// <param name="mainRenderTarget">The presentation RTV.</param>
+    /// <param name="mainDepthStencil">The presentation DSV.</param>
+    /// <param name="width">The physical width.</param>
+    /// <param name="height">The physical height.</param>
+    /// <param name="geometryViewport">The optional local geometry viewport; effect intermediates remain full target size.</param>
+    /// <param name="stencilPass">The original stencil-tested full-screen interior-exclusion pass.</param>
+    /// <param name="effectName">The selected effect identity used to resolve per-node attributes.</param>
+    /// <param name="drawMode">Whether mask interiors are merged or excluded separately per node.</param>
+    /// <param name="useBlurCore">Whether to use the source half-resolution glow blur policy.</param>
+    /// <param name="boneSkinningPassSelector">The original GPU skinning precompute selector.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The blur count is negative.</exception>
+    /// <returns>The number of recorded outline-mask draws.</returns>
+    internal int RenderOutline(
+        SilkD3D12CommandContext context,
+        FastList<SceneNode> nodes,
+        Func<SceneNode, ShaderPass?> maskPassSelector,
+        ShaderPass verticalBlurPass,
+        ShaderPass horizontalBlurPass,
+        ShaderPass compositionPass,
+        in BorderEffectStruct parameters,
+        int blurPasses,
+        in GlobalTransformStruct transforms,
+        bool testFrustum,
+        ref BoundingFrustum frustum,
+        SilkD3D12Resource mainColor,
+        SilkD3D12Descriptor mainRenderTarget,
+        SilkD3D12Descriptor mainDepthStencil,
+        uint width,
+        uint height,
+        ShaderPass? stencilPass,
+        string? effectName,
+        OutlineMode drawMode,
+        bool useBlurCore,
+        Func<SceneNode, ShaderPass?>? boneSkinningPassSelector,
+        ViewportF? geometryViewport
     ) {
         ArgumentOutOfRangeException.ThrowIfNegative(blurPasses);
-        outlineResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
+        outlineResources ??= new SilkD3D12PostProcessResources(
+            Device, resourceHeap, samplerHeap,
+            _effectBindings, mainColor.Description.Format, outputMode
+        );
         effectStencil ??= new D3D12PostEffectStencil(Device);
         if (stencilPass is null) {
-            outlineCatalog ??= new D3D12ScenePassCatalog(Device, mainColor.Description.Format,
-                Format.FormatD32FloatS8X24Uint);
-            stencilPass = outlineCatalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur,
-                DefaultPassNames.ScreenQuad);
+            outlineCatalog ??= new D3D12ScenePassCatalog(
+                Device, mainColor.Description.Format,
+                Format.FormatD32FloatS8X24Uint, outputMode: outputMode
+            );
+            stencilPass = outlineCatalog.ResolvePostProcess(
+                DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur,
+                DefaultPassNames.ScreenQuad
+            );
         }
+
         var recorded = 0;
         // Separated mode excludes only this object's interior before composing it, as the source does.
-        var groups = drawMode == OutlineMode.Separated
-            ? nodes.Select(node => new FastList<SceneNode> { node })
-            : new[] { nodes };
-        foreach (var group in groups) {
+        var groupCount = drawMode == OutlineMode.Separated
+            ? nodes.Count
+            : 1;
+        for (var groupIndex = 0; groupIndex < groupCount; groupIndex++) {
+            var group = nodes;
+            if (drawMode == OutlineMode.Separated) {
+                outlineGroup.Clear();
+                outlineGroup.Add(nodes.Items[groupIndex]);
+                group = outlineGroup;
+            }
+
             var stencil = effectStencil.Begin(context, width, height);
             outlineResources.BeginTarget(context, 0, width, height, stencil);
-            var count = RenderVisible(context, group, maskPassSelector, in transforms, testFrustum, ref frustum,
+            ApplyEffectGeometryViewport(context, geometryViewport, width, height);
+            var count = RenderVisible(
+                context, group, maskPassSelector, in transforms, testFrustum, ref frustum,
                 boneSkinningPassSelector: boneSkinningPassSelector, effectParameters: parameters,
-                effectName: effectName);
+                effectName: effectName
+            );
             recorded += count;
             if (count == 0) continue;
             for (var index = 0; index < blurPasses; index++) {
                 var blurParameters = parameters;
                 if (useBlurCore) {
-                    outlineBlurResources ??= new SilkD3D12PostProcessResources(Device, resourceHeap, samplerHeap, _effectBindings);
+                    outlineBlurResources ??= new SilkD3D12PostProcessResources(
+                        Device, resourceHeap, samplerHeap,
+                        _effectBindings, mainColor.Description.Format, outputMode
+                    );
                     blurParameters.ViewportScale = 2;
-                    outlineBlurResources.DrawSource(context, verticalBlurPass, outlineResources.First, 0,
-                        Math.Max(1u, width / 2), Math.Max(1u, height / 2), in transforms, in blurParameters);
+                    outlineBlurResources.DrawSource(
+                        context, verticalBlurPass, outlineResources.First, 0,
+                        Math.Max(1u, width / 2), Math.Max(1u, height / 2), in transforms, in blurParameters
+                    );
                     blurParameters.ViewportScale = 1;
-                    outlineResources.DrawSource(context, horizontalBlurPass, outlineBlurResources.First, 0,
-                        width, height, in transforms, in blurParameters);
+                    outlineResources.DrawSource(
+                        context, horizontalBlurPass, outlineBlurResources.First, 0,
+                        width, height, in transforms, in blurParameters
+                    );
                 } else {
                     outlineResources.Draw(context, horizontalBlurPass, 0, 1, in transforms, in blurParameters);
                     outlineResources.Draw(context, verticalBlurPass, 1, 0, in transforms, in blurParameters);
                 }
             }
-            outlineResources.DrawSource(context, stencilPass, outlineResources.First, 1, width, height,
-                in transforms, in parameters, stencil);
+
+            outlineResources.DrawSource(
+                context, stencilPass, outlineResources.First, 1, width, height,
+                in transforms, in parameters, stencil
+            );
             context.Transition(mainColor, Silk.NET.Direct3D12.ResourceStates.RenderTarget);
-            outlineResources.DrawToPresentation(context, compositionPass, 1, mainRenderTarget,
-                in transforms, in parameters);
+            outlineResources.DrawToPresentation(
+                context, compositionPass, 1, mainRenderTarget,
+                in transforms, in parameters
+            );
         }
+
+        outlineGroup.Clear();
         context.SetRenderTargets(mainRenderTarget, mainDepthStencil);
         return recorded;
     }
@@ -817,6 +1254,46 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         string? effectName = null,
         SilkD3D12Resource? sceneDepth = null,
         Func<SceneNode, ShaderPass?>? boneSkinningPassSelector = null
+    ) => RenderXRay(
+        context, nodes, passSelectors, in parameters, in transforms, testFrustum, ref frustum,
+        mainRenderTarget, mainDepthStencil, width, height, effectName, sceneDepth, boneSkinningPassSelector, null
+    );
+
+    /// <summary>
+    ///     Records an ordered set of existing XRay custom geometry passes directly into the presentation target.
+    /// </summary>
+    /// <param name="context">The open command context.</param>
+    /// <param name="nodes">Scene geometry carrying the selected effect.</param>
+    /// <param name="passSelectors">The ordered custom-pass selectors.</param>
+    /// <param name="parameters">The b6 XRay constants.</param>
+    /// <param name="transforms">The current global constants.</param>
+    /// <param name="testFrustum">Whether camera-frustum culling is enabled.</param>
+    /// <param name="frustum">The current camera frustum.</param>
+    /// <param name="mainRenderTarget">The presentation RTV.</param>
+    /// <param name="mainDepthStencil">The presentation DSV.</param>
+    /// <param name="width">The physical width.</param>
+    /// <param name="height">The physical height.</param>
+    /// <param name="geometryViewport">The optional local geometry viewport; effect intermediates remain full target size.</param>
+    /// <param name="effectName">The selected effect identity used to resolve per-node attributes.</param>
+    /// <param name="sceneDepth">The scene depth copied into isolated stencil ownership when supplied.</param>
+    /// <param name="boneSkinningPassSelector">The original GPU skinning precompute selector.</param>
+    /// <returns>The number of custom-pass geometry draws.</returns>
+    internal int RenderXRay(
+        SilkD3D12CommandContext context,
+        FastList<SceneNode> nodes,
+        IReadOnlyList<Func<SceneNode, ShaderPass?>> passSelectors,
+        in BorderEffectStruct parameters,
+        in GlobalTransformStruct transforms,
+        bool testFrustum,
+        ref BoundingFrustum frustum,
+        SilkD3D12Descriptor mainRenderTarget,
+        SilkD3D12Descriptor mainDepthStencil,
+        uint width,
+        uint height,
+        string? effectName,
+        SilkD3D12Resource? sceneDepth,
+        Func<SceneNode, ShaderPass?>? boneSkinningPassSelector,
+        ViewportF? geometryViewport
     ) {
         var recorded = 0;
         var stencil = mainDepthStencil;
@@ -824,18 +1301,23 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             effectStencil ??= new D3D12PostEffectStencil(Device);
             stencil = effectStencil.Begin(context, width, height, sceneDepth);
         }
+
         foreach (var selector in passSelectors) {
             context.SetRenderTargets(mainRenderTarget, stencil);
             context.SetViewport(width, height);
-            recorded += RenderVisible(context,
+            ApplyEffectGeometryViewport(context, geometryViewport, width, height);
+            recorded += RenderVisible(
+                context,
                 nodes,
                 selector,
                 in transforms,
                 testFrustum,
                 ref frustum,
                 boneSkinningPassSelector: boneSkinningPassSelector,
-                effectParameters: parameters, effectName: effectName);
+                effectParameters: parameters, effectName: effectName
+            );
         }
+
         context.SetRenderTargets(mainRenderTarget, mainDepthStencil);
         return recorded;
     }
@@ -876,6 +1358,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         BorderEffectStruct? effectParameters = null,
         string? effectName = null
     ) {
+        var outputTransforms = D3D12ColorOutputProfile.Apply(in transforms, outputMode);
         using var profile = D3D12Profiler.Begin(context, "Silk.Scene.Draws");
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.AsGuardNotNull();
@@ -892,32 +1375,45 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         for (var index = 0; index < visibleNodes.Count; index++) {
             var node = visibleNodes.Items[index];
             if (!node.RenderCore.IsAttached && !node.Attach()) continue;
-            attachedNodes.Add(node);
+            RetainNodeAttachment(node, renderHost);
             if (node.RenderCore is MeshRenderCore meshOwner) meshOwner.D3D12SceneNode = node;
             node.ComputeTransformMatrix();
             node.RenderCore.ModelMatrix = node.TotalModelMatrixInternal;
             var pass = passSelector(node);
             if (pass is null || pass.IsNull) continue;
+            if (node.RenderCore is ScreenCloneRenderCore) node.RenderHost?.InvalidateRender();
             // A recorded descriptor table must retain its depth input while later layers record the other input.
             var drawMeshBindings = node.RenderCore is MeshRenderCore meshCore
-                ? effectParameters.HasValue ? NextEffectMeshBindings()
-                    : GetBindings(meshCore, passTextureRegister == 100 ? passTexture : null)
+                ? effectParameters.HasValue
+                    ? NextEffectMeshBindings()
+                    : GetBindings(
+                        meshCore, passTextureRegister == 100
+                            ? passTexture
+                            : null
+                    )
                 : null;
             var drawPointLineBindings = node.RenderCore is PointLineRenderCore pointLineCore
-                ? effectParameters.HasValue ? NextEffectLineBindings()
-                    : GetBindings(pointLineCore, passTextureRegister == 100 ? passTexture : null)
+                ? effectParameters.HasValue
+                    ? NextEffectLineBindings()
+                    : GetBindings(
+                        pointLineCore, passTextureRegister == 100
+                            ? passTexture
+                            : null
+                    )
                 : null;
             if (drawMeshBindings is not null) {
-                drawMeshBindings.Owner = (MeshRenderCore)node.RenderCore;
-                drawMeshBindings.EnvironmentSource = () => currentEnvironmentMap;
+                drawMeshBindings.Owner = (MeshRenderCore) node.RenderCore;
+                drawMeshBindings.EnvironmentSource = environmentSource;
             }
+
             if (drawPointLineBindings is not null)
-                drawPointLineBindings.Owner = (PointLineRenderCore)node.RenderCore;
+                drawPointLineBindings.Owner = (PointLineRenderCore) node.RenderCore;
             if (passTexture is not null) {
                 if (passTextureRegister < 0) throw new ArgumentOutOfRangeException(nameof(passTextureRegister));
                 drawMeshBindings?.BindPassTexture(passTexture, passTextureRegister);
                 drawPointLineBindings?.BindPassTexture(passTexture, passTextureRegister);
             }
+
             if (effectParameters.HasValue) {
                 var value = effectParameters.GetValueOrDefault();
                 if (effectName is not null && node.TryGetPostEffect(effectName, out var attributes) &&
@@ -927,55 +1423,75 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 drawMeshBindings?.UpdateEffect(in value);
                 drawPointLineBindings?.UpdateEffect(in value);
             }
+
             if (node.RenderCore is MeshRenderCore shadowedMesh) {
                 var usesShadow = shadowParameters.HasValue && shadowedMesh.D3D12Material is
                     ID3D12MeshMaterial { RenderShadowMap: true } or
                     PhongMaterialCore { RenderShadowMap: true } or PBRMaterialCore { RenderShadowMap: true };
-                var parameters = usesShadow ? shadowParameters.GetValueOrDefault() : default;
-                drawMeshBindings!.UpdateShadow(in parameters,
-                    usesShadow ? shadowMap?.Resource : null);
+                var parameters = usesShadow
+                    ? shadowParameters.GetValueOrDefault()
+                    : default;
+                drawMeshBindings!.UpdateShadow(
+                    in parameters,
+                    usesShadow
+                        ? shadowMap?.Resource
+                        : null
+                );
             }
+
             drawMeshBindings?.BindHeaps(context);
             drawPointLineBindings?.BindHeaps(context);
             recorded += node.RenderCore switch {
-                BoneSkinRenderCore bone => bone.TryRenderD3D12(context,
+                BoneSkinRenderCore bone => bone.TryRenderD3D12(
+                    context,
                     resources,
                     pass,
                     drawMeshBindings!,
-                    in transforms,
+                    in outputTransforms,
                     lights,
                     effectiveEnvironmentMap,
-                    boneSkinningPassSelector?.Invoke(node))
+                    boneSkinningPassSelector?.Invoke(node)
+                )
                     ? 1
                     : 0,
-                MeshRenderCore mesh => mesh.TryRenderD3D12(context,
+                MeshRenderCore mesh => mesh.TryRenderD3D12(
+                    context,
                     resources,
                     pass,
                     drawMeshBindings!,
-                    in transforms,
+                    in outputTransforms,
                     lights,
-                    effectiveEnvironmentMap)
+                    effectiveEnvironmentMap
+                )
                     ? 1
                     : 0,
                 MeshIntersectionRenderCore { UseGpu: true } intersection =>
-                    RenderIntersection(context, intersection, pass, in transforms, drawPointLineBindings) ? 1 : 0,
-                PointLineRenderCore pointLine => pointLine.TryRenderD3D12(context,
+                    RenderIntersection(context, intersection, pass, in outputTransforms, drawPointLineBindings)
+                        ? 1
+                        : 0,
+                PointLineRenderCore pointLine => pointLine.TryRenderD3D12(
+                    context,
                     resources,
                     pass,
                     drawPointLineBindings!,
-                    in transforms)
+                    in outputTransforms
+                )
                     ? 1
                     : 0,
-                ScreenCloneRenderCore screen => GetScreenCaptureResources(screen).TryRender(context,
-                    pass,
-                    screen,
-                    checked((uint)Math.Max(1, transforms.Viewport.X)),
-                    checked((uint)Math.Max(1, transforms.Viewport.Y)))
+                ScreenCloneRenderCore screen => GetScreenCaptureResources(screen)
+                    .TryRender(
+                        context,
+                        pass,
+                        screen,
+                        checked((uint) Math.Max(1, transforms.Viewport.X)),
+                        checked((uint) Math.Max(1, transforms.Viewport.Y))
+                    )
                     ? 1
                     : 0,
                 _ => 0
             };
         }
+
         return recorded;
     }
 
@@ -1017,9 +1533,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     ) {
         using var profile = D3D12Profiler.Begin(context, "Silk.Transparency.Weighted");
         if (nodes.Count == 0) return 0;
-        transparencyResources ??= new SilkD3D12TransparencyResources(Device, resourceHeap, samplerHeap);
+        transparencyResources ??= new SilkD3D12TransparencyResources(Device, resourceHeap, samplerHeap, colorFormat, outputMode);
         transparencyResources.BeginWeighted(context, width, height, mainDepthStencil);
-        var recorded = RenderVisible(context,
+        var recorded = RenderVisible(
+            context,
             nodes,
             passSelector,
             in transforms,
@@ -1028,13 +1545,16 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             lights,
             environmentMap,
             boneSkinningPassSelector,
-            shadowParameters);
-        transparencyResources.CompositeWeighted(context,
+            shadowParameters
+        );
+        transparencyResources.CompositeWeighted(
+            context,
             compositionPass,
             in transforms,
             mainRenderTarget,
             width,
-            height);
+            height
+        );
         context.SetRenderTargets(mainRenderTarget, mainDepthStencil);
         return recorded;
     }
@@ -1084,9 +1604,10 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         using var profile = D3D12Profiler.Begin(context, "Silk.Transparency.DepthPeeling");
         if (nodes.Count == 0) return 0;
         if (iterations < 1) throw new ArgumentOutOfRangeException(nameof(iterations));
-        transparencyResources ??= new SilkD3D12TransparencyResources(Device, resourceHeap, samplerHeap);
+        transparencyResources ??= new SilkD3D12TransparencyResources(Device, resourceHeap, samplerHeap, colorFormat, outputMode);
         transparencyResources.BeginDepthPeeling(context, mainColor, mainDepthStencil, width, height);
-        var recorded = RenderVisible(context,
+        var recorded = RenderVisible(
+            context,
             nodes,
             initialPassSelector,
             in transforms,
@@ -1095,12 +1616,14 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             lights,
             environmentMap,
             boneSkinningPassSelector,
-            shadowParameters);
+            shadowParameters
+        );
         var lastLayer = 0;
         for (var layer = 1; layer < iterations; layer++) {
             using var layerProfile = D3D12Profiler.Begin(context, "Silk.DepthPeeling.Layer");
             var previousDepth = transparencyResources.BeginDepthPeelingLayer(context, layer, mainDepthStencil);
-            recorded += RenderVisible(context,
+            recorded += RenderVisible(
+                context,
                 nodes,
                 peelingPassSelector,
                 in transforms,
@@ -1111,16 +1634,20 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 boneSkinningPassSelector,
                 shadowParameters,
                 previousDepth,
-                100);
+                100
+            );
             lastLayer = layer;
         }
-        transparencyResources.CompositeDepthPeeling(context,
+
+        transparencyResources.CompositeDepthPeeling(
+            context,
             compositionPass,
             lastLayer,
             in transforms,
             mainRenderTarget,
             width,
-            height);
+            height
+        );
         context.SetRenderTargets(mainRenderTarget, mainDepthStencil);
         return recorded;
     }
@@ -1151,8 +1678,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         candidates.AsGuardNotNull();
         passSelector.AsGuardNotNull();
         boneSkinningPassSelector.AsGuardNotNull();
-        var width = checked((uint)parameters.ShadowMapSize.X);
-        var height = checked((uint)parameters.ShadowMapSize.Y);
+        var width = checked((uint) parameters.ShadowMapSize.X);
+        var height = checked((uint) parameters.ShadowMapSize.Y);
         shadowMap ??= new SilkD3D12ShadowMap(Device, width, height);
         shadowMap.Resize(width, height);
         shadowMap.BeginDepthWrite(context);
@@ -1164,27 +1691,32 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         for (var index = 0; index < visibleNodes.Count; index++) {
             var node = visibleNodes.Items[index];
             if (!node.RenderCore.IsThrowingShadow || !node.Attach()) continue;
-            attachedNodes.Add(node);
+            RetainNodeAttachment(node, renderHost);
             if (node.RenderCore is MeshRenderCore meshOwner) meshOwner.D3D12SceneNode = node;
             node.ComputeTransformMatrix();
             node.RenderCore.ModelMatrix = node.TotalModelMatrixInternal;
             var pass = passSelector(node);
             if (pass is null || pass.IsNull) continue;
             recorded += node.RenderCore switch {
-                BoneSkinRenderCore bone => RenderShadowBone(context,
+                BoneSkinRenderCore bone => RenderShadowBone(
+                    context,
                     bone,
                     pass,
                     boneSkinningPassSelector(node),
                     in transforms,
-                    in parameters),
-                MeshRenderCore mesh => RenderShadowMesh(context,
+                    in parameters
+                ),
+                MeshRenderCore mesh => RenderShadowMesh(
+                    context,
                     mesh,
                     pass,
                     in transforms,
-                    in parameters),
+                    in parameters
+                ),
                 _ => 0
             };
         }
+
         shadowMap.EndDepthWrite(context);
         return recorded;
     }
@@ -1223,6 +1755,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         uint width,
         uint height
     ) {
+        var outputTransforms = D3D12ColorOutputProfile.Apply(in transforms, outputMode);
         using var profile = D3D12Profiler.Begin(context, "Silk.Volumes");
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (volumes.Count == 0) return 0;
@@ -1233,7 +1766,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             if (node is not VolumeTextureNode || !node.Attach() ||
                 node.RenderCore is not VolumeRenderCore core)
                 continue;
-            attachedNodes.Add(node);
+            RetainNodeAttachment(node, renderHost);
             if (node.RenderCore is MeshRenderCore meshOwner) meshOwner.D3D12SceneNode = node;
             node.ComputeTransformMatrix();
             core.ModelMatrix = node.TotalModelMatrixInternal;
@@ -1243,26 +1776,30 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
 
             volumeResources.BeginBackPositions(context, width, height);
             var bindings = GetBindings(core);
-            if (!core.PrepareD3D12(context, resources, bindings, volumeResources, in transforms)) {
+            if (!core.PrepareD3D12(context, resources, bindings, volumeResources, in outputTransforms)) {
                 volumeResources.EndBackPositions(context);
                 context.SetRenderTargets(mainRenderTarget, mainDepthStencil);
                 context.SetViewport(width, height);
                 continue;
             }
+
             VolumeRenderCore.DrawD3D12(context, backPass, bindings, volumeResources);
-            _ = RenderVisible(context,
+            _ = RenderVisible(
+                context,
                 opaqueNodes,
                 positionPassSelector,
-                in transforms,
+                in outputTransforms,
                 testFrustum,
                 ref frustum,
-                boneSkinningPassSelector: boneSkinningPassSelector);
+                boneSkinningPassSelector: boneSkinningPassSelector
+            );
             volumeResources.EndBackPositions(context);
             context.SetRenderTargets(mainRenderTarget, mainDepthStencil);
             context.SetViewport(width, height);
             VolumeRenderCore.DrawD3D12(context, volumePass, bindings, volumeResources);
             recorded++;
         }
+
         return recorded;
     }
 
@@ -1288,6 +1825,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         bool testFrustum,
         ref BoundingFrustum frustum
     ) {
+        var outputTransforms = D3D12ColorOutputProfile.Apply(in transforms, outputMode);
         using var profile = D3D12Profiler.Begin(context, "Silk.Particles");
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         visibleNodes.Clear();
@@ -1298,7 +1836,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             if (node is not ParticleStormNode || !node.Attach() ||
                 node.RenderCore is not ParticleRenderCore core)
                 continue;
-            attachedNodes.Add(node);
+            RetainNodeAttachment(node, renderHost);
             if (node.RenderCore is MeshRenderCore meshOwner) meshOwner.D3D12SceneNode = node;
             node.ComputeTransformMatrix();
             core.ModelMatrix = node.TotalModelMatrixInternal;
@@ -1309,15 +1847,18 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 renderPass is null || renderPass.IsNull)
                 continue;
             var particle = GetParticleResources(core);
-            if (particle.Render(context,
+            if (particle.Render(
+                    context,
                     resources,
                     core,
                     updatePass,
                     insertPass,
                     renderPass,
-                    in transforms))
+                    in outputTransforms
+                ))
                 recorded++;
         }
+
         return recorded;
     }
 
@@ -1340,7 +1881,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         var bindings = GetBindings(mesh);
         bindings.BindHeaps(context);
         bindings.UpdateShadow(in parameters, shadowMap?.Resource);
-        return mesh.TryRenderD3D12(context, resources, pass, bindings, in transforms) ? 1 : 0;
+        return mesh.TryRenderD3D12(context, resources, pass, bindings, in transforms)
+            ? 1
+            : 0;
     }
 
     /// <summary>
@@ -1364,14 +1907,16 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         var bindings = GetBindings(bone);
         bindings.BindHeaps(context);
         bindings.UpdateShadow(in parameters, shadowMap?.Resource);
-        return bone.TryRenderD3D12(context,
+        return bone.TryRenderD3D12(
+            context,
             resources,
             pass,
             bindings,
             in transforms,
             null,
             null,
-            preComputePass)
+            preComputePass
+        )
             ? 1
             : 0;
     }
@@ -1394,10 +1939,13 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         lights.EnvironmentMapMipLevels = 0;
         currentEnvironmentMap = environmentMap;
         if (environmentTexture?.Id != environmentMap?.Guid) {
-            var replacement = environmentMap is null ? null : resources.Register(context, environmentMap);
+            var replacement = environmentMap is null
+                ? null
+                : resources.Register(context, environmentMap);
             environmentTexture?.Dispose();
             environmentTexture = replacement;
         }
+
         if (environmentTexture is null) return null;
         var texture = environmentTexture.Texture;
         if (!texture.IsCubeMap) return null;
@@ -1424,10 +1972,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 continue;
             }
 
-            var light = new LightStruct {
-                LightType = (int)node.LightType,
-                LightColor = node.Color
-            };
+            var light = new LightStruct { LightType = (int) node.LightType, LightColor = node.Color };
             switch (node) {
                 case DirectionalLightNode directional:
                     light.LightDir = -SilkMath.TransformNormal(directional.Direction, node.TotalModelMatrixInternal)
@@ -1439,10 +1984,12 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                     light.LightDir = SilkMath.TransformNormal(spot.Direction, node.TotalModelMatrixInternal)
                         .Normalized()
                         .ToVector4(0);
-                    light.LightSpot = new Vector4((float)Math.Cos(spot.OuterAngle / 360f * Math.PI),
-                        (float)Math.Cos(spot.InnerAngle / 360f * Math.PI),
+                    light.LightSpot = new Vector4(
+                        (float) Math.Cos(spot.OuterAngle / 360f * Math.PI),
+                        (float) Math.Cos(spot.InnerAngle / 360f * Math.PI),
                         spot.FallOff,
-                        0);
+                        0
+                    );
                     break;
                 case PointLightNode point:
                     ApplyPoint(ref light, point, node.TotalModelMatrixInternal);
@@ -1497,12 +2044,14 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         var cache = meshBindings;
         if (peelingTexture is not null && !_peelingMeshBindings.TryGetValue(peelingTexture, out cache)) {
             var primaryInUse = _peelingMeshBindings.Any(entry =>
-                !entry.Key.IsDisposed && ReferenceEquals(entry.Value, meshBindings));
+                !entry.Key.IsDisposed && ReferenceEquals(entry.Value, meshBindings)
+            );
             cache = primaryInUse
                 ? new Dictionary<MeshRenderCore, SilkD3D12MeshBindings>(ReferenceEqualityComparer.Instance)
                 : meshBindings;
             _peelingMeshBindings.Add(peelingTexture, cache);
         }
+
         if (cache.TryGetValue(core, out var bindings)) return bindings;
         bindings = new SilkD3D12MeshBindings(Device, resourceHeap, samplerHeap, _sceneBindings);
         cache.Add(core, bindings);
@@ -1518,17 +2067,25 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <param name="transforms">The current camera constants.</param>
     /// <param name="effectBindings">The immutable selected post-effect bindings, when rendering a custom pass.</param>
     /// <returns>Whether the GPU indirect line draw was recorded.</returns>
-    private bool RenderIntersection(SilkD3D12CommandContext context, MeshIntersectionRenderCore core,
-        ShaderPass pass, in GlobalTransformStruct transforms, SilkD3D12PointLineBindings? effectBindings = null) {
+    private bool RenderIntersection(
+        SilkD3D12CommandContext context,
+        MeshIntersectionRenderCore core,
+        ShaderPass pass,
+        in GlobalTransformStruct transforms,
+        SilkD3D12PointLineBindings? effectBindings = null
+    ) {
         if (core.D3D12Material is null) return false;
         if (!intersectionResources.TryGetValue(core, out var native) ||
             !ReferenceEquals(native.Inputs, core.Inputs) || !native.CanReuse()) {
             intersectionRoot ??= Device.CreateDefaultRootSignature();
-            var replacement = new SilkD3D12IntersectionResources(Device, resourceHeap, samplerHeap, resources,
-                core.Inputs, intersectionRoot, intersectionPipelines);
+            var replacement = new SilkD3D12IntersectionResources(
+                Device, resourceHeap, samplerHeap, resources,
+                core.Inputs, intersectionRoot, intersectionPipelines
+            );
             if (native is not null) retiredIntersections.Add(native);
             intersectionResources[core] = native = replacement;
         }
+
         var bindings = effectBindings ?? GetBindings(core);
         var model = new PointLineModelStruct { World = Matrix.Identity };
         bindings.Update(context, resources, in transforms, in model, core.D3D12Material);
@@ -1541,17 +2098,21 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <param name="core">The existing point/line core.</param>
     /// <param name="peelingTexture">The depth texture kept immutable across recorded peeling draws.</param>
     /// <returns>The core's host-lifetime bindings.</returns>
-    private SilkD3D12PointLineBindings GetBindings(PointLineRenderCore core,
-        SilkD3D12Resource? peelingTexture = null) {
+    private SilkD3D12PointLineBindings GetBindings(
+        PointLineRenderCore core,
+        SilkD3D12Resource? peelingTexture = null
+    ) {
         var cache = pointLineBindings;
         if (peelingTexture is not null && !_peelingPointLineBindings.TryGetValue(peelingTexture, out cache)) {
             var primaryInUse = _peelingPointLineBindings.Any(entry =>
-                !entry.Key.IsDisposed && ReferenceEquals(entry.Value, pointLineBindings));
+                !entry.Key.IsDisposed && ReferenceEquals(entry.Value, pointLineBindings)
+            );
             cache = primaryInUse
                 ? new Dictionary<PointLineRenderCore, SilkD3D12PointLineBindings>(ReferenceEqualityComparer.Instance)
                 : pointLineBindings;
             _peelingPointLineBindings.Add(peelingTexture, cache);
         }
+
         if (cache.TryGetValue(core, out var bindings)) return bindings;
         bindings = new SilkD3D12PointLineBindings(Device, resourceHeap, samplerHeap, _sceneBindings);
         cache.Add(core, bindings);
@@ -1583,10 +2144,13 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
             particle.Dispose();
             particleResources.Remove(core);
         }
-        particle = new SilkD3D12ParticleResources(Device,
+
+        particle = new SilkD3D12ParticleResources(
+            Device,
             resourceHeap,
             samplerHeap,
-            checked((uint)core.ParticleCount));
+            checked((uint) core.ParticleCount)
+        );
         particleResources.Add(core, particle);
         core.CompleteD3D12Recreate();
         return particle;
@@ -1599,7 +2163,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     /// <returns>The core's host-lifetime resources.</returns>
     private SilkD3D12ScreenCaptureResources GetScreenCaptureResources(ScreenCloneRenderCore core) {
         if (screenCaptureResources.TryGetValue(core, out var capture)) return capture;
-        capture = new SilkD3D12ScreenCaptureResources(Device, resourceHeap, samplerHeap);
+        capture = new SilkD3D12ScreenCaptureResources(Device, resourceHeap, samplerHeap, outputMode);
         screenCaptureResources.Add(core, capture);
         return capture;
     }
@@ -1612,16 +2176,16 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         environmentTexture?.Dispose();
         foreach (var cache in _peelingMeshBindings.Values)
             if (!ReferenceEquals(cache, meshBindings))
-                foreach (var binding in cache.Values) binding.Dispose();
+                foreach (var binding in cache.Values)
+                    binding.Dispose();
         _peelingMeshBindings.Clear();
         foreach (var cache in _peelingPointLineBindings.Values)
             if (!ReferenceEquals(cache, pointLineBindings))
-                foreach (var binding in cache.Values) binding.Dispose();
+                foreach (var binding in cache.Values)
+                    binding.Dispose();
         _peelingPointLineBindings.Clear();
         foreach (var node in attachedNodes)
-            if (node.RenderHost is null || ReferenceEquals(node.RenderHost, renderHost)) node.Detach();
-        foreach (var entry in PerFrameFlattenedScene)
-            if (ReferenceEquals(entry.Value.RenderHost, renderHost)) entry.Value.RenderHost = null;
+            node.ReleaseNativeAttachment(this);
         PerFrameFlattenedScene.Clear();
         renderHost = null;
         foreach (var intersection in intersectionResources.Values) intersection.Dispose();
@@ -1636,12 +2200,17 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         foreach (var particle in particleResources.Values) particle.Dispose();
         foreach (var capture in screenCaptureResources.Values) capture.Dispose();
         attachedNodes.Clear();
+        preparationAttachments.Clear();
         meshBindings.Clear();
         pointLineBindings.Clear();
         volumeBindings.Clear();
         particleResources.Clear();
         screenCaptureResources.Clear();
         visibleNodes.Clear();
+        preparationRoots.Clear();
+        updatedNodes.Clear();
+        preparedNodes.Clear();
+        preparationStack.Clear();
         shadowMap?.Dispose();
         shadowMap = null;
         volumeResources?.Dispose();

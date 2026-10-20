@@ -16,9 +16,18 @@ namespace HelixToolkit.SharpDX.Core.Native;
 /// </summary>
 internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// <summary>
-    ///     The format shared with the WPF swap chain.
+    ///     The default legacy RGBA color-intermediate format.
     /// </summary>
     internal const Format TargetFormat = Format.FormatR8G8B8A8Unorm;
+
+    /// <summary>The configured format, adopted from capture only by the original convenience constructor.</summary>
+    private Format colorFormat;
+
+    /// <summary>Preserves the original convenience constructor's capture-format adoption behavior.</summary>
+    private readonly bool followsCapturedFormat;
+
+    /// <summary>The immutable shader coverage profile.</summary>
+    private readonly D3D12ColorOutputMode outputMode;
 
     /// <summary>
     ///     The native device.
@@ -35,7 +44,7 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// </summary>
     private readonly SilkD3D12DescriptorHeap samplerHeap;
 
-    /// The renderer-owned descriptor pages shared by transient geometry and full-screen effects.
+    /// <summary>The renderer-owned descriptor pages shared by transient geometry and full-screen effects.</summary>
     private readonly D3D12EffectBindingPool? _effectBindings;
 
     /// <summary>
@@ -58,7 +67,7 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// </summary>
     private readonly SilkD3D12Descriptor[] renderTargetViews;
 
-    /// Replaced textures and RTV allocations kept alive until the completed host fence.
+    /// <summary>Replaced textures and RTV allocations kept alive until the completed host fence.</summary>
     private readonly List<(SilkD3D12Resource Resource, SilkD3D12Descriptor View)> retired = [];
 
     /// <summary>
@@ -76,7 +85,7 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
         SilkD3D12Device device,
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap
-    ) : this(device, resourceHeap, samplerHeap, null) { }
+    ) : this(device, resourceHeap, samplerHeap, null, Format.FormatUnknown) { }
 
     /// <summary>
     ///     Creates post-process resources whose immutable draw tables may use shared effect descriptor pages.
@@ -85,12 +94,19 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
     /// <param name="resourceHeap">The ordinary shader-visible resource heap.</param>
     /// <param name="samplerHeap">The ordinary shader-visible sampler heap.</param>
     /// <param name="effectBindings">The shared effect page owner, or <see langword="null"/> for fixed heaps.</param>
+    /// <param name="colorFormat">The immutable color-intermediate format.</param>
+    /// <param name="outputMode">The immutable coverage profile.</param>
     internal SilkD3D12PostProcessResources(
         SilkD3D12Device device,
         SilkD3D12DescriptorHeap resourceHeap,
         SilkD3D12DescriptorHeap samplerHeap,
-        D3D12EffectBindingPool? effectBindings
+        D3D12EffectBindingPool? effectBindings,
+        Format colorFormat = TargetFormat,
+        D3D12ColorOutputMode outputMode = D3D12ColorOutputMode.Legacy
     ) {
+        followsCapturedFormat = colorFormat == Format.FormatUnknown;
+        this.colorFormat = followsCapturedFormat ? TargetFormat : colorFormat;
+        this.outputMode = outputMode;
         this.device = device;
         _effectBindings = effectBindings;
         this.resourceHeap = resourceHeap;
@@ -145,11 +161,12 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
         SilkD3D12Descriptor? depthStencil = null
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        Resize(width, height);
+        Resize(width, height, colorFormat);
         var target = Target(index);
         context.Transition(target, ResourceStates.RenderTarget);
         context.ClearRenderTarget(target, renderTargetViews[index], [0, 0, 0, 0]);
-        context.SetRenderTargets([renderTargetViews[index]], depthStencil);
+        if (depthStencil is null) context.SetRenderTarget(renderTargetViews[index]);
+        else context.SetRenderTargets(renderTargetViews[index], depthStencil);
         context.SetViewport(width, height);
         return target;
     }
@@ -168,7 +185,10 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
         uint height
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        Resize(width, height, source.Description.Format);
+        if (followsCapturedFormat) colorFormat = source.Description.Format;
+        if (source.Description.Format != colorFormat)
+            throw new ArgumentException("The captured color must match the immutable intermediate format.", nameof(source));
+        Resize(width, height, colorFormat);
         context.Transition(source, ResourceStates.CopySource);
         context.Transition(Target(0), ResourceStates.CopyDest);
         context.CopyTexture(Target(0), source);
@@ -277,9 +297,11 @@ internal sealed class SilkD3D12PostProcessResources : IDisposable {
         var slot = NextBindingSlot();
         context.Transition(source, ResourceStates.PixelShaderResource);
         device.CreateShaderResourceView(source, slot.Bindings.ShaderResource(0));
-        slot.GlobalTransforms.Write(in transforms);
+        var outputTransforms = D3D12ColorOutputProfile.Apply(in transforms, outputMode);
+        slot.GlobalTransforms.Write(in outputTransforms);
         slot.EffectConstants.Write(in effect);
-        context.SetRenderTargets([destination], depthStencil);
+        if (depthStencil is null) context.SetRenderTarget(destination);
+        else context.SetRenderTargets(destination, depthStencil);
         context.SetViewport(width ?? checked((uint)source.Description.Width), height ?? source.Description.Height);
         pass.BindShader(context);
         slot.Bindings.BindGraphics(context);

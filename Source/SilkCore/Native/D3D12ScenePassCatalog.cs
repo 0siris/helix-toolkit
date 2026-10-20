@@ -4,7 +4,6 @@ using HelixToolkit.SharpDX.Core.Model;
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
-
 using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Interface;
@@ -52,6 +51,24 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// </summary>
     private readonly Format renderTargetFormat;
 
+    /// <summary>The immutable output coverage profile.</summary>
+    private readonly D3D12ColorOutputMode outputMode;
+
+    /// <summary>Pass descriptions indexed once, avoiding closures during warmed lookups.</summary>
+    private readonly Dictionary<(string Technique, string Pass), ShaderPassDescription> descriptions = [];
+
+    /// <summary>The retained weighted accumulation formats.</summary>
+    private readonly Format[] weightedFormats = [
+        SilkD3D12TransparencyResources.WeightedColorFormat,
+        SilkD3D12TransparencyResources.WeightedAlphaFormat
+    ];
+
+    /// <summary>The retained depth-peeling initialization format.</summary>
+    private readonly Format[] initializationFormats = [SilkD3D12TransparencyResources.PeelingDepthFormat];
+
+    /// <summary>The retained depth-peeling MRT formats.</summary>
+    private readonly Format[] peelingFormats;
+
     /// <summary>
     ///     The presentation depth/stencil format.
     /// </summary>
@@ -63,18 +80,24 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="device">The Direct3D 12 device.</param>
     /// <param name="renderTargetFormat">The swap-chain render-target format.</param>
     /// <param name="depthStencilFormat">The presentation depth/stencil format.</param>
+    /// <param name="customTechniques">Optional application technique descriptions.</param>
+    /// <param name="effectsManager">The optional application effects manager.</param>
+    /// <param name="outputMode">The immutable shader and blend coverage contract.</param>
     internal D3D12ScenePassCatalog(
         SilkD3D12Device device,
         Format renderTargetFormat,
         Format depthStencilFormat,
         IEnumerable<TechniqueDescription>? customTechniques = null,
-        IEffectsManager? effectsManager = null
+        IEffectsManager? effectsManager = null,
+        D3D12ColorOutputMode outputMode = D3D12ColorOutputMode.Legacy
     ) {
         device.AsGuardNotNull();
         if (renderTargetFormat == Format.FormatUnknown)
             throw new ArgumentOutOfRangeException(nameof(renderTargetFormat));
         if (depthStencilFormat == Format.FormatUnknown)
             throw new ArgumentOutOfRangeException(nameof(depthStencilFormat));
+        this.outputMode = outputMode;
+        peelingFormats = [SilkD3D12TransparencyResources.PeelingDepthFormat, renderTargetFormat, renderTargetFormat];
         this.device = device;
         this.renderTargetFormat = renderTargetFormat;
         this.depthStencilFormat = depthStencilFormat;
@@ -87,6 +110,10 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
                 if (description.Name is { } name)
                     descriptions[name] = description;
         techniques = descriptions;
+        foreach (var technique in descriptions.Values)
+            if (technique.PassDescriptions is { } registeredPasses)
+                foreach (var pass in registeredPasses)
+                    this.descriptions.Add((technique.Name!, pass.Name!), pass);
     }
 
     /// <summary>
@@ -105,10 +132,12 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         if (node.RenderCore is MeshIntersectionRenderCore { UseGpu: true })
             return Resolve("MeshIntersect", DefaultPassNames.Default, PrimitiveTopology.LineList);
         if (node is ScreenDuplicationNode)
-            return Resolve(DefaultRenderTechniqueNames.ScreenDuplication,
+            return Resolve(
+                DefaultRenderTechniqueNames.ScreenDuplication,
                 DefaultPassNames.Default,
-                PrimitiveTopology.TriangleStrip);
-        if (node.RenderCore is not GeometryRenderCore {GeometryBuffer: not EmptyGeometryBufferModel and { } geometryBuffer}) return null;
+                PrimitiveTopology.TriangleStrip
+            );
+        if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometryBuffer }) return null;
         var (defaultTechniqueName, passName) = GetSelection(node);
         var techniqueName = effectsManager is null
             ? defaultTechniqueName
@@ -124,14 +153,16 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <returns>The native wireframe pass, or <see langword="null" /> when no overlay is requested.</returns>
     internal ShaderPass? ResolveWireframe(SceneNode node) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometryBuffer } geometryCore ||
+        if (node.RenderCore is not GeometryRenderCore {
+                GeometryBuffer: not EmptyGeometryBufferModel and { } geometryBuffer
+            } geometryCore ||
             geometryCore is not IMeshRenderParams { RenderWireframe: true })
             return null;
         var techniqueName = effectsManager is null
             ? DefaultRenderTechniqueNames.Mesh
             : node.ResolveD3D12TechniqueName(effectsManager);
         if (techniqueName is null || !techniques.TryGetValue(techniqueName, out var technique) ||
-            technique.PassDescriptions?.Any(description => description.Name == DefaultPassNames.Wireframe) != true)
+            !descriptions.ContainsKey((techniqueName, DefaultPassNames.Wireframe)))
             return null;
         return Resolve(techniqueName, DefaultPassNames.Wireframe, geometryBuffer.Topology);
     }
@@ -145,9 +176,11 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         node.AsGuardNotNull();
         if (node.RenderCore is not BoneSkinRenderCore) return null;
-        return Resolve(DefaultRenderTechniqueNames.Mesh,
+        return Resolve(
+            DefaultRenderTechniqueNames.Mesh,
             DefaultPassNames.PreComputeMeshBoneSkinned,
-            PrimitiveTopology.PointList);
+            PrimitiveTopology.PointList
+        );
     }
 
     /// <summary>
@@ -159,12 +192,14 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         node.AsGuardNotNull();
         if (node is not MeshNode ||
-            node.RenderCore is not GeometryRenderCore {GeometryBuffer: not EmptyGeometryBufferModel and { } geometryBuffer})
+            node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometryBuffer })
             return null;
-        return Resolve(DefaultRenderTechniqueNames.Mesh,
+        return Resolve(
+            DefaultRenderTechniqueNames.Mesh,
             DefaultPassNames.ShadowPass,
             geometryBuffer.Topology,
-            true);
+            true
+        );
     }
 
     /// <summary>
@@ -175,11 +210,13 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     internal ShaderPass? ResolveVolumeBack(SceneNode node) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (node is not VolumeTextureNode) return null;
-        return Resolve(DefaultRenderTechniqueNames.Volume3D,
+        return Resolve(
+            DefaultRenderTechniqueNames.Volume3D,
             DefaultPassNames.Backface,
             PrimitiveTopology.TriangleList,
             targetFormat: Format.FormatR16G16B16A16Float,
-            depthFormat: Format.FormatD32FloatS8X24Uint);
+            depthFormat: Format.FormatD32FloatS8X24Uint
+        );
     }
 
     /// <summary>
@@ -190,9 +227,11 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     internal ShaderPass? ResolveVolume(SceneNode node) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (node is not VolumeTextureNode || node.RenderCore is not VolumeRenderCore core) return null;
-        return Resolve(DefaultRenderTechniqueNames.Volume3D,
+        return Resolve(
+            DefaultRenderTechniqueNames.Volume3D,
             core.D3D12MaterialPassName,
-            PrimitiveTopology.TriangleList);
+            PrimitiveTopology.TriangleList
+        );
     }
 
     /// <summary>
@@ -202,13 +241,17 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <returns>The native offscreen position pass, or <see langword="null" /> for unsupported nodes.</returns>
     internal ShaderPass? ResolveVolumePositions(SceneNode node) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (node is not MeshNode || node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometry })
+        if (node is not MeshNode || node.RenderCore is not GeometryRenderCore {
+                GeometryBuffer: not EmptyGeometryBufferModel and { } geometry
+            })
             return null;
-        return Resolve(DefaultRenderTechniqueNames.Mesh,
+        return Resolve(
+            DefaultRenderTechniqueNames.Mesh,
             DefaultPassNames.Positions,
             geometry.Topology,
             targetFormat: Format.FormatR16G16B16A16Float,
-            depthFormat: Format.FormatD32FloatS8X24Uint);
+            depthFormat: Format.FormatD32FloatS8X24Uint
+        );
     }
 
     /// <summary>
@@ -217,9 +260,11 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="node">The existing particle node.</param>
     /// <returns>The native compute pass, or <see langword="null" /> for unsupported nodes.</returns>
     internal ShaderPass? ResolveParticleUpdate(SceneNode node) => node is ParticleStormNode
-        ? Resolve(DefaultRenderTechniqueNames.ParticleStorm,
+        ? Resolve(
+            DefaultRenderTechniqueNames.ParticleStorm,
             DefaultParticlePassNames.Update,
-            PrimitiveTopology.PointList)
+            PrimitiveTopology.PointList
+        )
         : null;
 
     /// <summary>
@@ -228,9 +273,11 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="node">The existing particle node.</param>
     /// <returns>The native compute pass, or <see langword="null" /> for unsupported nodes.</returns>
     internal ShaderPass? ResolveParticleInsert(SceneNode node) => node is ParticleStormNode
-        ? Resolve(DefaultRenderTechniqueNames.ParticleStorm,
+        ? Resolve(
+            DefaultRenderTechniqueNames.ParticleStorm,
             DefaultParticlePassNames.Insert,
-            PrimitiveTopology.PointList)
+            PrimitiveTopology.PointList
+        )
         : null;
 
     /// <summary>
@@ -239,9 +286,11 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="node">The existing particle node.</param>
     /// <returns>The native graphics pass, or <see langword="null" /> for unsupported nodes.</returns>
     internal ShaderPass? ResolveParticle(SceneNode node) => node is ParticleStormNode
-        ? Resolve(DefaultRenderTechniqueNames.ParticleStorm,
+        ? Resolve(
+            DefaultRenderTechniqueNames.ParticleStorm,
             DefaultParticlePassNames.Default,
-            PrimitiveTopology.PointList)
+            PrimitiveTopology.PointList
+        )
         : null;
 
     /// <summary>
@@ -271,23 +320,29 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="node">The opaque scene node.</param>
     /// <returns>The native SSAO geometry pass, or <see langword="null" /> when unsupported.</returns>
     internal ShaderPass? ResolveSsaoGeometry(SceneNode node) {
-        if (node is not MeshNode || node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometry })
+        if (node is not MeshNode || node.RenderCore is not GeometryRenderCore {
+                GeometryBuffer: not EmptyGeometryBufferModel and { } geometry
+            })
             return null;
-        return Resolve(DefaultRenderTechniqueNames.Mesh,
+        return Resolve(
+            DefaultRenderTechniqueNames.Mesh,
             DefaultPassNames.MeshSsaoPass,
             geometry.Topology,
             targetFormat: SilkD3D12SsaoResources.NormalFormat,
-            depthFormat: Format.FormatD32Float);
+            depthFormat: Format.FormatD32Float
+        );
     }
 
     /// <summary>
     ///     Resolves the weighted-OIT full-screen composition pass.
     /// </summary>
     /// <returns>The native full-screen pass.</returns>
-    internal ShaderPass ResolveWeightedComposition() => Resolve(DefaultRenderTechniqueNames.MeshOitQuad,
+    internal ShaderPass ResolveWeightedComposition() => Resolve(
+        DefaultRenderTechniqueNames.MeshOitQuad,
         DefaultPassNames.Default,
         PrimitiveTopology.TriangleStrip,
-        depthFormat: Format.FormatUnknown);
+        depthFormat: Format.FormatUnknown
+    );
 
     /// <summary>
     ///     Resolves the depth-peeling full-screen composition pass.
@@ -297,7 +352,8 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         DefaultRenderTechniqueNames.MeshOitDepthPeeling,
         DefaultPassNames.OitDepthPeelingFinal,
         PrimitiveTopology.TriangleStrip,
-        depthFormat: Format.FormatUnknown);
+        depthFormat: Format.FormatUnknown
+    );
 
     /// <summary>
     ///     Resolves a full-screen pass for its actual intermediate or presentation render-target format.
@@ -309,32 +365,36 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         var format = renderTargetFormat;
         if (techniqueName == DefaultRenderTechniqueNames.Ssao)
             format = SilkD3D12SsaoResources.OcclusionFormat;
-        else if (techniqueName is DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur or
-                 DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight && passName != DefaultPassNames.MeshOutline)
-            format = SilkD3D12PostProcessResources.TargetFormat;
-        return Resolve(techniqueName, passName, PrimitiveTopology.TriangleStrip,
+        return Resolve(
+            techniqueName, passName, PrimitiveTopology.TriangleStrip,
             targetFormat: format, depthFormat: passName == DefaultPassNames.ScreenQuad &&
-                techniqueName is DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur or
-                    DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight
-                ? Format.FormatD32FloatS8X24Uint : Format.FormatUnknown);
+                                               techniqueName is DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur or
+                                                   DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight
+                ? Format.FormatD32FloatS8X24Uint
+                : Format.FormatUnknown
+        );
     }
 
     /// <summary>
     ///     Resolves the existing alpha-blended Sprite2D pass for native overlay rendering.
     /// </summary>
     /// <returns>The cached sprite pass.</returns>
-    internal ShaderPass ResolveSprite2D() => Resolve(DefaultRenderTechniqueNames.Sprite2D,
+    internal ShaderPass ResolveSprite2D() => Resolve(
+        DefaultRenderTechniqueNames.Sprite2D,
         DefaultPassNames.Default,
         PrimitiveTopology.TriangleList,
-        depthFormat: Format.FormatUnknown);
+        depthFormat: Format.FormatUnknown
+    );
 
     /// <summary>
     ///     Resolves the existing full-screen desktop-duplication pass.
     /// </summary>
     /// <returns>The native screen-duplication pass.</returns>
-    internal ShaderPass ResolveScreenDuplication() => Resolve(DefaultRenderTechniqueNames.ScreenDuplication,
+    internal ShaderPass ResolveScreenDuplication() => Resolve(
+        DefaultRenderTechniqueNames.ScreenDuplication,
         DefaultPassNames.Default,
-        PrimitiveTopology.TriangleStrip);
+        PrimitiveTopology.TriangleStrip
+    );
 
     /// <summary>
     ///     Resolves a geometry custom pass for its outline-mask or presentation render-target format.
@@ -344,26 +404,32 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="depthFormat">The bound depth/stencil format.</param>
     /// <param name="stencilReference">The source single-pass XRay stencil reference override.</param>
     /// <returns>The native custom pass, or <see langword="null" /> when the node or pass is unsupported.</returns>
-    internal ShaderPass? ResolvePostEffectGeometry(SceneNode node, string passName, Format depthFormat,
-        int? stencilReference = null) {
+    internal ShaderPass? ResolvePostEffectGeometry(
+        SceneNode node,
+        string passName,
+        Format depthFormat,
+        int? stencilReference = null
+    ) {
         if (node.RenderCore is MeshIntersectionRenderCore { UseGpu: true })
-            return techniques["MeshIntersect"].PassDescriptions!.Any(pass => pass.Name == passName)
-                ? Resolve("MeshIntersect", passName, PrimitiveTopology.LineList, depthFormat: depthFormat,
-                    stencilReference: stencilReference)
+            return descriptions.ContainsKey(("MeshIntersect", passName))
+                ? Resolve(
+                    "MeshIntersect", passName, PrimitiveTopology.LineList, depthFormat: depthFormat,
+                    stencilReference: stencilReference
+                )
                 : null;
         if (node.RenderCore is not GeometryRenderCore { GeometryBuffer: not EmptyGeometryBufferModel and { } geometry } core) return null;
         var (techniqueName, _) = GetSelection(node);
         if (effectsManager is not null) techniqueName = ResolveTechniqueName(node);
         if (techniqueName is null || !techniques.TryGetValue(techniqueName, out var technique) ||
-            technique.PassDescriptions?.Any(description => description.Name == passName) != true)
+            !descriptions.ContainsKey((techniqueName, passName)))
             return null;
-        return Resolve(techniqueName,
+        return Resolve(
+            techniqueName,
             passName,
             geometry.Topology,
-            targetFormat: passName == DefaultPassNames.EffectOutlineP1
-                ? SilkD3D12PostProcessResources.TargetFormat
-                : renderTargetFormat,
-            depthFormat: depthFormat, stencilReference: stencilReference, rasterOverride: core.RasterDescription);
+            targetFormat: renderTargetFormat,
+            depthFormat: depthFormat, stencilReference: stencilReference, rasterOverride: core.RasterDescription
+        );
     }
 
     /// <summary>
@@ -395,30 +461,49 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     ) {
         if (!techniques.TryGetValue(techniqueName, out var technique))
             throw new InvalidOperationException($"DX12 technique '{techniqueName}' is not registered.");
-        var passDescription = technique.PassDescriptions?
-            .SingleOrDefault(description => description.Name == passName)
-            ?? throw new InvalidOperationException($"DX12 pass '{passName}' is not registered by '{techniqueName}'.");
+        if (!descriptions.TryGetValue((techniqueName, passName), out var passDescription))
+            throw new InvalidOperationException($"DX12 pass '{passName}' is not registered by '{techniqueName}'.");
         var topology = passDescription.Topology == PrimitiveTopology.Undefined
             ? fallbackTopology
             : passDescription.Topology;
-        var selectedTargetFormats = depthOnly
-            ? Array.Empty<Format>()
-            : targetFormats?.ToArray() ?? [targetFormat ?? renderTargetFormat];
-        var selectedDepthFormat = depthOnly ? Format.FormatD32Float : depthFormat ?? depthStencilFormat;
-        var key = new D3D12ScenePassKey(techniqueName,
+        var targetCount = depthOnly
+            ? 0
+            : targetFormats?.Count ?? 1;
+        ulong targetBits = 0;
+        for (var index = 0; index < targetCount; index++) {
+            var format = targetFormats is null
+                ? targetFormat ?? renderTargetFormat
+                : targetFormats[index];
+            targetBits |= (ulong) format << (index * 8);
+        }
+
+        var selectedDepthFormat = depthOnly
+            ? Format.FormatD32Float
+            : depthFormat ?? depthStencilFormat;
+        var key = new D3D12ScenePassKey(
+            techniqueName,
             passName,
             topology,
-            string.Join(',', selectedTargetFormats),
+            targetBits,
+            targetCount,
             selectedDepthFormat,
-            rasterOverride,
+            CreateRasterKey(rasterOverride),
             wireframePass,
-            stencilReference);
+            stencilReference
+        );
         if (passes.TryGetValue(key, out var pass)) return pass;
-        if (rasterOverride.HasValue || stencilReference.HasValue)
+        var selectedTargetFormats = new Format[targetCount];
+        for (var index = 0; index < targetCount; index++)
+            selectedTargetFormats[index] = (Format) ((targetBits >> (index * 8)) & 255);
+        var blend = SelectOutputBlend(
+            passDescription.BlendStateDescription, techniqueName, passName,
+            selectedTargetFormats
+        );
+        if (rasterOverride.HasValue || stencilReference.HasValue || outputMode == D3D12ColorOutputMode.Premultiplied)
             passDescription = new ShaderPassDescription(passDescription.Name!) {
-                ShaderList = passDescription.ShaderList,
+                ShaderList = SelectOutputShaders(passDescription.ShaderList),
                 InputLayoutDescription = passDescription.InputLayoutDescription,
-                BlendStateDescription = passDescription.BlendStateDescription,
+                BlendStateDescription = blend,
                 DepthStencilStateDescription = passDescription.DepthStencilStateDescription,
                 RasterStateDescription = rasterOverride ?? passDescription.RasterStateDescription,
                 BlendFactor = passDescription.BlendFactor,
@@ -426,16 +511,109 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
                 StencilRef = stencilReference ?? passDescription.StencilRef,
                 Topology = passDescription.Topology
             };
-        pass = passDescription.CreateD3D12(device,
+        pass = passDescription.CreateD3D12(
+            device,
             rootSignature,
             pipelineCache,
             technique.InputLayoutDescription,
             fallbackTopology,
-            selectedTargetFormats.Where(format => format != Format.FormatUnknown).ToArray(),
-            selectedDepthFormat);
+            selectedTargetFormats.Where(format => format != Format.FormatUnknown)
+                .ToArray(),
+            selectedDepthFormat
+        );
         pass.D3D12WireframePass = wireframePass;
         passes.Add(key, pass);
         return pass;
+    }
+
+    /// <summary>Isolates profile-only global reads from each legacy shader's existing descriptor contract.</summary>
+    /// <param name="shaders">The existing pass stages, retained for legacy or application shaders.</param>
+    /// <returns>The original stages or private profile pixel-stage substitutions created on a pass-cache miss.</returns>
+    private IList<ShaderDescription>? SelectOutputShaders(IList<ShaderDescription>? shaders) {
+        if (outputMode != D3D12ColorOutputMode.Premultiplied || shaders is null) return shaders;
+        var result = new ShaderDescription[shaders.Count];
+        for (var index = 0; index < shaders.Count; index++) {
+            var shader = shaders[index];
+            var name = shader.ByteCodeName;
+            var builtInStage = name switch {
+                "psScreenDup" => DefaultPSShaderDescriptions.PsScreenDup,
+                "psLuma" => DefaultPSShaderDescriptions.PsEffectLuma,
+                "psFXAA" => DefaultPSShaderDescriptions.PsEffectFxaa,
+                "psEffectBloomExtract" => DefaultPSShaderDescriptions.PsEffectBloomExtract,
+                "psEffectBloomCombine" => DefaultPSShaderDescriptions.PsEffectBloomCombine,
+                "psEffectMeshXRay" => DefaultPSShaderDescriptions.PsEffectMeshXRay,
+                "psParticle" => DefaultPSShaderDescriptions.PsParticle,
+                "psParticleOIT" => DefaultPSShaderDescriptions.PsParticleOit,
+                "psParticleOITDP" => DefaultPSShaderDescriptions.PsParticleOitdp,
+                "psVolume" => DefaultPSShaderDescriptions.PsVolume3D,
+                "psVolumeDiffuse" => DefaultPSShaderDescriptions.PsVolumeDiffuse3D,
+                "psMeshBlinnPhongOITQuad" => DefaultPSShaderDescriptions.PsMeshBlinnPhongOitQuad,
+                "psMeshOITDPFinal" => DefaultPSShaderDescriptions.PsMeshOitdpFinal,
+                _ => null
+            };
+            var profileStage = shader.ShaderType == ShaderStage.Pixel && ReferenceEquals(shader, builtInStage);
+            result[index] = profileStage
+                ? new ShaderDescription(
+                    $"{name}Premultiplied", ShaderStage.Pixel,
+                    new ShaderReflector(), $"{name}Premultiplied"
+                )
+                : shader;
+        }
+
+        return result;
+    }
+
+    /// <summary>Selects coverage-correct blending while retaining explicitly typed non-color accumulators.</summary>
+    /// <param name="original">The existing pass blend state.</param>
+    /// <param name="technique">The technique identity.</param>
+    /// <param name="pass">The pass identity.</param>
+    /// <param name="formats">The actual ordered render-target formats.</param>
+    /// <returns>The original legacy state or an isolated premultiplied-output state.</returns>
+    private BlendStateDescription? SelectOutputBlend(
+        BlendStateDescription? original,
+        string technique,
+        string pass,
+        IReadOnlyList<Format> formats
+    ) {
+        if (outputMode != D3D12ColorOutputMode.Premultiplied) return original;
+        if (formats.Count == 3 && formats[0] == SilkD3D12TransparencyResources.PeelingDepthFormat) {
+            var peeling = original ?? new BlendStateDescription();
+            peeling.RenderTarget = (RenderTargetBlendDescription[]) peeling.RenderTarget.Clone();
+            peeling.RenderTarget[2].SourceAlphaBlend = BlendOption.One;
+            peeling.RenderTarget[2].DestinationAlphaBlend = BlendOption.InverseSourceAlpha;
+            return peeling;
+        }
+
+        if (formats.Count != 1 || formats[0] is not (Format.FormatR8G8B8A8Unorm or Format.FormatB8G8R8A8Unorm))
+            return original;
+        if (technique is DefaultRenderTechniqueNames.PostEffectFxaa or DefaultRenderTechniqueNames.MeshOitDepthPeeling)
+            return original;
+        var postEffect = technique is DefaultRenderTechniqueNames.PostEffectBloom or
+            DefaultRenderTechniqueNames.PostEffectMeshOutlineBlur or DefaultRenderTechniqueNames.PostEffectMeshBorderHighlight;
+        if (postEffect && pass != DefaultPassNames.MeshOutline) return original;
+        var result = original ?? new BlendStateDescription();
+        result.RenderTarget = (RenderTargetBlendDescription[]) result.RenderTarget.Clone();
+        var target = result.RenderTarget[0];
+        if (target.RenderTargetWriteMask == 0) return original;
+        var additive = target.IsBlendEnabled && target.SourceBlend == BlendOption.One &&
+                       target.DestinationBlend == BlendOption.One && target.BlendOperation == BlendOperation.Add;
+        target.IsBlendEnabled = true;
+        target.SourceBlend = postEffect || technique == DefaultRenderTechniqueNames.Volume3D
+            ? BlendOption.One
+            : BlendOption.SourceAlpha;
+        target.DestinationBlend = additive
+            ? BlendOption.One
+            : BlendOption.InverseSourceAlpha;
+        target.BlendOperation = BlendOperation.Add;
+        target.SourceAlphaBlend = BlendOption.One;
+        // Summed coverage also bounds summed RGB when additive layers overlap on transparent targets.
+        target.DestinationAlphaBlend = additive
+            ? BlendOption.One
+            : BlendOption.InverseSourceAlpha;
+        target.AlphaBlendOperation = BlendOperation.Add;
+        target.RenderTargetWriteMask = ColorWriteMaskFlags.All;
+        result.RenderTarget[0] = target;
+        return result;
     }
 
     /// <summary>
@@ -451,22 +629,13 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         if (effectsManager is not null) technique = ResolveTechniqueName(node);
         if (technique is null) return null;
         var passName = (effectsManager as ID3D12MeshShaderProvider)?.GetTransparencyPassName(
-            node, depthPeeling, initialize) ?? GetTransparencyPassName(node, depthPeeling, initialize);
+            node, depthPeeling, initialize
+        ) ?? GetTransparencyPassName(node, depthPeeling, initialize);
         if (passName is null) return null;
-        IReadOnlyList<Format> formats = initialize
-            ? [SilkD3D12TransparencyResources.PeelingDepthFormat]
-            : depthPeeling
-                ? [
-                    SilkD3D12TransparencyResources.PeelingDepthFormat,
-                    renderTargetFormat,
-                    renderTargetFormat
-                ]
-                : [
-                    SilkD3D12TransparencyResources.WeightedColorFormat,
-                    SilkD3D12TransparencyResources.WeightedAlphaFormat
-                ];
-        var wireframeName = initialize ? DefaultPassNames.OitDepthPeelingInit
-            : depthPeeling ? DefaultPassNames.WireframeOitdpPass : DefaultPassNames.WireframeOitPass;
+        IReadOnlyList<Format> formats = initialize ? initializationFormats :
+            depthPeeling ? peelingFormats : weightedFormats;
+        var wireframeName = initialize ? DefaultPassNames.OitDepthPeelingInit :
+            depthPeeling ? DefaultPassNames.WireframeOitdpPass : DefaultPassNames.WireframeOitPass;
         return ResolveMaterial(node, technique, passName, geometry.Topology, wireframeName, formats);
     }
 
@@ -480,23 +649,35 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="wireframeName">The wireframe pass for the active transparency stage.</param>
     /// <param name="targetFormats">The ordered transparency targets, or the main target when omitted.</param>
     /// <returns>The material pass borrowing its optional overlay from this catalog.</returns>
-    private ShaderPass ResolveMaterial(SceneNode node, string techniqueName, string passName,
-        PrimitiveTopology topology, string wireframeName, IReadOnlyList<Format>? targetFormats = null) {
+    private ShaderPass ResolveMaterial(
+        SceneNode node,
+        string techniqueName,
+        string passName,
+        PrimitiveTopology topology,
+        string wireframeName,
+        IReadOnlyList<Format>? targetFormats = null
+    ) {
         ShaderPass? wireframe = null;
         if (node.RenderCore is MeshRenderCore { RenderWireframe: true } mesh &&
-            techniques[techniqueName].PassDescriptions?.Any(description => description.Name == wireframeName) == true) {
+            descriptions.ContainsKey((techniqueName, wireframeName))) {
             var raster = mesh.RasterDescription;
             raster.FillMode = FillMode.Wireframe;
             raster.DepthBias = -100;
             raster.SlopeScaledDepthBias = -2f;
             raster.DepthBiasClamp = -0.00008f;
-            wireframe = Resolve(techniqueName, wireframeName, topology,
-                targetFormats: targetFormats, rasterOverride: raster);
+            wireframe = Resolve(
+                techniqueName, wireframeName, topology,
+                targetFormats: targetFormats, rasterOverride: raster
+            );
         }
+
         var materialRaster = node.RenderCore is MeshRenderCore materialMesh
-            ? materialMesh.RasterDescription : (RasterizerStateDescription?) null;
-        return Resolve(techniqueName, passName, topology,
-            targetFormats: targetFormats, rasterOverride: materialRaster, wireframePass: wireframe);
+            ? materialMesh.RasterDescription
+            : (RasterizerStateDescription?) null;
+        return Resolve(
+            techniqueName, passName, topology,
+            targetFormats: targetFormats, rasterOverride: materialRaster, wireframePass: wireframe
+        );
     }
 
     /// <summary>
@@ -508,8 +689,9 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         var selected = node.ResolveD3D12TechniqueName(effectsManager!);
         if (effectsManager is ID3D12MeshShaderProvider provider) return provider.GetTechniqueName(node, selected);
         return selected == DefaultRenderTechniqueNames.Mesh &&
-            node is MaterialGeometryNode { Material: ID3D12MeshMaterial material }
-                ? material.TechniqueName : selected;
+               node is MaterialGeometryNode { Material: ID3D12MeshMaterial material }
+            ? material.TechniqueName
+            : selected;
     }
 
     /// <summary>
@@ -520,25 +702,36 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <param name="initialize">Whether the min/max initialization pass is active.</param>
     /// <returns>The existing pass name, or <see langword="null" /> for unsupported nodes.</returns>
     internal static string? GetTransparencyPassName(SceneNode node, bool depthPeeling, bool initialize) {
-        if (initialize) return node is MeshNode or BillboardNode or LineNode or PointNode
-            ? DefaultPassNames.OitDepthPeelingInit
-            : null;
+        if (initialize)
+            return node is MeshNode or BillboardNode or LineNode or PointNode
+                ? DefaultPassNames.OitDepthPeelingInit
+                : null;
         if (node is MeshNode && node.RenderCore is MeshRenderCore mesh)
             return mesh.D3D12Material switch {
-                ID3D12MeshMaterial => depthPeeling ? DefaultPassNames.OitDepthPeeling : DefaultPassNames.OitPass,
-                DiffuseMaterialCore => depthPeeling ? DefaultPassNames.DiffuseOitdp : DefaultPassNames.DiffuseOit,
+                ID3D12MeshMaterial => depthPeeling
+                    ? DefaultPassNames.OitDepthPeeling
+                    : DefaultPassNames.OitPass,
+                DiffuseMaterialCore => depthPeeling
+                    ? DefaultPassNames.DiffuseOitdp
+                    : DefaultPassNames.DiffuseOit,
                 PBRMaterialCore { EnableTessellation: true } => depthPeeling
                     ? DefaultPassNames.MeshPbrTriTessellationOitdp
                     : DefaultPassNames.MeshPbrTriTessellationOit,
-                PBRMaterialCore => depthPeeling ? DefaultPassNames.PbroitdpPass : DefaultPassNames.PbroitPass,
+                PBRMaterialCore => depthPeeling
+                    ? DefaultPassNames.PbroitdpPass
+                    : DefaultPassNames.PbroitPass,
                 PhongMaterialCore { EnableTessellation: true } => depthPeeling
                     ? DefaultPassNames.MeshTriTessellationOitdp
                     : DefaultPassNames.MeshTriTessellationOit,
-                PhongMaterialCore => depthPeeling ? DefaultPassNames.OitDepthPeeling : DefaultPassNames.OitPass,
+                PhongMaterialCore => depthPeeling
+                    ? DefaultPassNames.OitDepthPeeling
+                    : DefaultPassNames.OitPass,
                 _ => null
             };
         return node is BillboardNode or LineNode or PointNode
-            ? depthPeeling ? DefaultPassNames.OitDepthPeeling : DefaultPassNames.OitPass
+            ? depthPeeling
+                ? DefaultPassNames.OitDepthPeeling
+                : DefaultPassNames.OitPass
             : null;
     }
 
@@ -572,13 +765,40 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         IsDisposed = true;
     }
 
+    /// <summary>Creates a semantic value key without boxing the legacy rasterizer description.</summary>
+    /// <param name="raster">The optional source rasterizer state.</param>
+    /// <returns>The exact flags, bias and slope used to identify the pipeline.</returns>
+    private static D3D12RasterKey CreateRasterKey(RasterizerStateDescription? raster) {
+        if (raster is not { } value) return default;
+        var flags = 1u << 31 | (uint) value.FillMode | (uint) value.CullMode << 4;
+        if (value.IsFrontCounterClockwise) flags |= 1 << 8;
+        if (value.IsDepthClipEnabled) flags |= 1 << 9;
+        if (value.IsScissorEnabled) flags |= 1 << 10;
+        if (value.IsMultisampleEnabled) flags |= 1 << 11;
+        if (value.IsAntialiasedLineEnabled) flags |= 1 << 12;
+        return new D3D12RasterKey(flags, value.DepthBias, value.DepthBiasClamp, value.SlopeScaledDepthBias);
+    }
+
+    /// <summary>Identifies a rasterizer without the legacy struct's object-based equality or hashing.</summary>
+    /// <param name="Flags">The presence, fill, culling and boolean state bits.</param>
+    /// <param name="DepthBias">The integer depth bias.</param>
+    /// <param name="DepthBiasClamp">The depth-bias clamp.</param>
+    /// <param name="SlopeScaledDepthBias">The slope-scaled depth bias.</param>
+    private readonly record struct D3D12RasterKey(
+        uint Flags,
+        int DepthBias,
+        float DepthBiasClamp,
+        float SlopeScaledDepthBias
+    );
+
     /// <summary>
     ///     Identifies one cached scene pass.
     /// </summary>
     /// <param name="Technique">The technique name.</param>
     /// <param name="Pass">The pass name.</param>
     /// <param name="Topology">The concrete draw topology.</param>
-    /// <param name="TargetFormats">The ordered native color target formats.</param>
+    /// <param name="TargetFormats">The packed ordered native color target formats.</param>
+    /// <param name="TargetCount">The number of packed target formats.</param>
     /// <param name="DepthFormat">The native depth/stencil format.</param>
     /// <param name="RasterOverride">The optional per-mesh material or wireframe rasterizer state.</param>
     /// <param name="WireframePass">The optional borrowed overlay identity.</param>
@@ -587,9 +807,10 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         string Technique,
         string Pass,
         PrimitiveTopology Topology,
-        string TargetFormats,
+        ulong TargetFormats,
+        int TargetCount,
         Format DepthFormat,
-        RasterizerStateDescription? RasterOverride,
+        D3D12RasterKey RasterOverride,
         ShaderPass? WireframePass,
         int? StencilReference
     );

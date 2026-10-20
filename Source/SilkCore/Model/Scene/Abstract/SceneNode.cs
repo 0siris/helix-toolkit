@@ -4,8 +4,6 @@ using HelixToolkit.SharpDX.Core.Animations;
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-
-
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using HelixToolkit.SharpDX.Core.Core;
@@ -39,18 +37,103 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// Gets or sets the actual native host assigned before attachment and frame updates.
     public virtual IRenderHost? RenderHost { get; set; }
 
+    /// <summary>Retains renderer identity and its active host independently of the most recent frame's host.</summary>
+    private List<KeyValuePair<object, IRenderHost?>>? nativeAttachments;
+
+    /// <summary>Gets the permission callback scoped to the current attachment, if any.</summary>
+    protected Func<bool>? AttachmentPermission { get; private set; }
+
+    /// <summary>Gets whether the current attachment may continue after a user callback.</summary>
+    protected bool CanContinueAttachment => AttachmentPermission?.Invoke() ?? true;
+
+    /// <summary>Retains or refreshes one renderer's native attachment without creating a per-frame lease object.</summary>
+    /// <param name="owner">The native renderer that releases this attachment after GPU completion.</param>
+    /// <param name="host">The renderer's active host, or null for an offscreen consumer.</param>
+    internal void RetainNativeAttachment(object owner, IRenderHost? host) {
+        nativeAttachments ??= [];
+        for (var index = 0; index < nativeAttachments.Count; index++) {
+            if (!ReferenceEquals(nativeAttachments[index].Key, owner)) continue;
+            nativeAttachments[index] = new KeyValuePair<object, IRenderHost?>(owner, host);
+            RenderHost = host;
+            return;
+        }
+
+        nativeAttachments.Add(new KeyValuePair<object, IRenderHost?>(owner, host));
+        RenderHost = host;
+    }
+
+    /// <summary>Clears an inactive frame host without discarding its renderer's outstanding resource ownership.</summary>
+    /// <param name="owner">The renderer replacing its previous hierarchy snapshot.</param>
+    internal void ClearNativeRenderHost(object owner) {
+        if (nativeAttachments is null) return;
+        for (var index = 0; index < nativeAttachments.Count; index++) {
+            var attachment = nativeAttachments[index];
+            if (!ReferenceEquals(attachment.Key, owner)) continue;
+            nativeAttachments[index] = new KeyValuePair<object, IRenderHost?>(owner, null);
+            if (ReferenceEquals(RenderHost, attachment.Value)) RestoreNativeRenderHost();
+            return;
+        }
+    }
+
+    /// <summary>Releases this renderer alone and detaches native bindings only after the final consumer retires.</summary>
+    /// <param name="owner">The quiescent native renderer releasing its attachment.</param>
+    internal void ReleaseNativeAttachment(object owner) {
+        if (nativeAttachments is null) return;
+        for (var index = 0; index < nativeAttachments.Count; index++) {
+            var attachment = nativeAttachments[index];
+            if (!ReferenceEquals(attachment.Key, owner)) continue;
+            nativeAttachments.RemoveAt(index);
+            if (nativeAttachments.Count == 0) {
+                if (!IsDisposed) Detach();
+            } else if (ReferenceEquals(RenderHost, attachment.Value)) {
+                RestoreNativeRenderHost();
+            }
+
+            return;
+        }
+    }
+
+    /// <summary>Restores an active surviving host after the current host releases or replaces its scene.</summary>
+    private void RestoreNativeRenderHost() {
+        RenderHost = null;
+        if (nativeAttachments is null) return;
+        for (var index = nativeAttachments.Count - 1; index >= 0; index--)
+            if (nativeAttachments[index].Value is { } host) {
+                RenderHost = host;
+                return;
+            }
+    }
+
+    /// <summary>Defers hierarchy-driven detachment while an independent native renderer still owns the node.</summary>
+    internal void DetachIfUnleased() {
+        if (nativeAttachments is not { Count: > 0 }) Detach();
+    }
+
+    /// <summary>Checks whether another native consumer still retains bindings or an active source on this node.</summary>
+    /// <param name="owner">The renderer considering its own source cleanup.</param>
+    /// <returns>Whether another renderer retains this node.</returns>
+    internal bool HasOtherNativeAttachments(object owner) {
+        if (nativeAttachments is null) return false;
+        foreach (var attachment in nativeAttachments)
+            if (!ReferenceEquals(attachment.Key, owner))
+                return true;
+        return false;
+    }
+
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SceneNode" /> class.
     /// </summary>
     public SceneNode() {
         WrapperSource = this;
-        renderCore = new Lazy<RenderCore>(() => {
-            var createdCore = OnCreateRenderCore();
-            createdCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
-            return createdCore;
-        },
-                                          true);
+        renderCore = new Lazy<RenderCore>(
+            () => {
+                var createdCore = OnCreateRenderCore();
+                createdCore.InvalidateRender += RenderCore_OnInvalidateRenderer;
+                return createdCore;
+            },
+            true
+        );
     }
 
     /// <summary>
@@ -61,8 +144,8 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
 
     public int CompareTo(SceneNode? other)
         => other is null
-               ? 1
-               : RenderOrderKey.CompareTo(other.RenderOrderKey);
+            ? 1
+            : RenderOrderKey.CompareTo(other.RenderOrderKey);
 
     /// <summary>
     ///     <para>Attaches the element to the specified effectsManager and initialize all necessary graphics resources.</para>
@@ -77,35 +160,51 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     ///     </para>
     /// </summary>
     /// <param name="effectsManager">The effectsManager.</param>
-    public void Attach(IEffectsManager? effectsManager) {
-        if (IsAttached && effectsManager != EffectsManager)
-            throw new InvalidOperationException("EffectsManager instances must be the same during attaching.");
+    public void Attach(IEffectsManager? effectsManager) => Attach(effectsManager, null);
 
-        if (IsAttached || effectsManager == null)
-            return;
+    /// <summary>Attaches while checking retained renderer permission across reentrant user callbacks.</summary>
+    /// <param name="effectsManager">The manager supplying attachment resources.</param>
+    /// <param name="canContinue">The retained permission callback, or null for legacy attachment behavior.</param>
+    internal void Attach(IEffectsManager? effectsManager, Func<bool>? canContinue) {
+        var previousPermission = AttachmentPermission;
+        AttachmentPermission = canContinue;
+        try {
+            if (!CanContinueAttachment) return;
+            if (IsAttached && effectsManager != EffectsManager)
+                throw new InvalidOperationException("EffectsManager instances must be the same during attaching.");
 
-        RenderHost ??= Parent?.RenderHost;
-        EffectsManager = effectsManager;
-        EffectTechnique = OnSetRenderTechnique is not null
-                              ? OnSetRenderTechnique(effectsManager)
-                              : OnCreateRenderTechnique(effectsManager);
-
-        if (EffectTechnique is null) {
-            var techniqueName = EffectsManager.RenderTechniques.FirstOrDefault();
-            if (string.IsNullOrEmpty(techniqueName))
+            if (IsAttached || effectsManager == null)
                 return;
 
-            EffectTechnique = EffectsManager[techniqueName];
-        }
+            RenderHost ??= Parent?.RenderHost;
+            EffectsManager = effectsManager;
+            EffectTechnique = OnSetRenderTechnique is not null
+                ? OnSetRenderTechnique(effectsManager)
+                : OnCreateRenderTechnique(effectsManager);
+            if (!CanContinueAttachment) return;
 
-        IsAttached = OnAttach(effectsManager);
-        if (IsAttached) {
-            NeedMatrixUpdate = true;
-            OnAttached();
-            Attached?.Invoke(this, EventArgs.Empty);
-        }
+            if (EffectTechnique is null) {
+                var techniqueName = EffectsManager.RenderTechniques.FirstOrDefault();
+                if (string.IsNullOrEmpty(techniqueName))
+                    return;
 
-        InvalidateSceneGraph();
+                EffectTechnique = EffectsManager[techniqueName];
+            }
+
+            if (!CanContinueAttachment) return;
+            IsAttached = OnAttach(effectsManager);
+            if (!CanContinueAttachment) return;
+            if (IsAttached) {
+                NeedMatrixUpdate = true;
+                OnAttached();
+                if (!CanContinueAttachment) return;
+                Attached?.Invoke(this, EventArgs.Empty);
+            }
+
+            if (CanContinueAttachment) InvalidateSceneGraph();
+        } finally {
+            AttachmentPermission = previousPermission;
+        }
     }
 
     /// <summary>
@@ -115,7 +214,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <returns>Return true if attached</returns>
     protected virtual bool OnAttach(IEffectsManager effectsManager) {
         RenderCore.Attach();
-        AssignDefaultValuesToCore(RenderCore);
+        if (CanContinueAttachment) AssignDefaultValuesToCore(RenderCore);
         return RenderCore.IsAttached;
     }
 
@@ -157,7 +256,6 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         else EffectsManager = null;
         EffectTechnique = null;
         Detached?.Invoke(this, EventArgs.Empty);
-        Invalidated = null;
     }
 
     /// <summary>
@@ -200,11 +298,9 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
             case InvalidateTypes.SceneGraph: RenderHost?.InvalidateSceneGraph(); break;
             case InvalidateTypes.PerFrameRenderables: RenderHost?.InvalidatePerFrameRenderables(); break;
         }
-        Invalidated?.Invoke(this, type);
-        if (!parent.TryGetTarget(out var target))
-            return;
 
-        foreach (var node in target.TraverseUp())
+        Invalidated?.Invoke(this, type);
+        for (var node = Parent; node is not null; node = node.Parent)
             node.Invalidated?.Invoke(this, type);
     }
 
@@ -252,6 +348,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
 
     protected override void OnDispose(bool disposeManagedResources) {
         Detach();
+        nativeAttachments?.Clear();
         RenderCore.Dispose();
         Invalidated = null;
         VisibleChanged = null;
@@ -437,7 +534,9 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     ///     The parent.
     /// </value>
     public SceneNode? Parent {
-        get => parent.TryGetTarget(out var target) ? target : null;
+        get => parent.TryGetTarget(out var target)
+            ? target
+            : null;
 
         internal set {
             parent.TryGetTarget(out var target);
@@ -461,7 +560,11 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
         get => visible;
         set {
             if (SetAffectsRender(ref visible, value))
-                VisibleChanged?.Invoke(this, value ? BoolArgs.TrueArgs : BoolArgs.FalseArgs);
+                VisibleChanged?.Invoke(
+                    this, value
+                        ? BoolArgs.TrueArgs
+                        : BoolArgs.FalseArgs
+                );
         }
     }
 
@@ -608,6 +711,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     #endregion Handling Transforms
 
     #region RenderCore
+
     private readonly Lazy<RenderCore> renderCore;
     public RenderCore RenderCore => renderCore.Value; // used ont Attached -> core is initialized in Lazy
 
@@ -985,7 +1089,6 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// <param name="effectName">Name of the effect.</param>
     /// <param name="effect">The effect.</param>
     /// <returns></returns>
-
     public bool TryGetPostEffect(string effectName, [NotNullWhen(true)] out IEffectAttributes? effect)
         => postEffectNames.TryGetValue(effectName, out effect);
 

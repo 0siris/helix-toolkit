@@ -5,8 +5,6 @@ using HelixToolkit.SharpDX.Core.Shaders;
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-
-
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Logger;
 using HelixToolkit.SharpDX.Core.Native;
@@ -14,6 +12,7 @@ using HelixToolkit.SharpDX.Core.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene;
+
 /// <summary>
 /// </summary>
 public class ViewBoxNode : ScreenSpacedNode {
@@ -38,12 +37,12 @@ public class ViewBoxNode : ScreenSpacedNode {
         EdgeInstances = new Matrix[count * 3];
 
         for (var i = 0; i < count; ++i)
-            EdgeInstances[i] = SilkMath.RotationZ((float)Math.PI / 2) *
+            EdgeInstances[i] = SilkMath.RotationZ((float) Math.PI / 2) *
                                SilkMath.Translation(XAligned[i] * halfSize * 0.95f);
         for (var i = count; i < count * 2; ++i)
             EdgeInstances[i] = SilkMath.Translation(YAligned[i % count] * halfSize * 0.95f);
         for (var i = count * 2; i < count * 3; ++i)
-            EdgeInstances[i] = SilkMath.RotationX((float)Math.PI / 2) *
+            EdgeInstances[i] = SilkMath.RotationX((float) Math.PI / 2) *
                                SilkMath.Translation(ZAligned[i % count] * halfSize * 0.95f);
     }
 
@@ -55,10 +54,7 @@ public class ViewBoxNode : ScreenSpacedNode {
         sampler.BorderColor = Color.Gray;
         sampler.AddressU = sampler.AddressV = sampler.AddressW = TextureAddressMode.Border;
         AddChildNode(viewBoxMeshModel);
-        viewBoxMeshModel.Material = new ViewCubeMaterialCore {
-            DiffuseColor = Color.White,
-            DiffuseMapSampler = sampler
-        };
+        viewBoxMeshModel.Material = new ViewCubeMaterialCore { DiffuseColor = Color.White, DiffuseMapSampler = sampler };
         viewBoxMeshModel.OnSetRenderTechnique = effectsManager => {
             EnsureViewBoxTexture(effectsManager);
             return effectsManager[DefaultRenderTechniqueNames.Mesh];
@@ -105,25 +101,26 @@ public class ViewBoxNode : ScreenSpacedNode {
             return;
 
         material.DiffuseMap ??= ViewBoxTexture ?? BitmapExtensions.CreateViewBoxTextureModel(
-                                  effectsManager,
-                                  "F",
-                                  "B",
-                                  "L",
-                                  "R",
-                                  "U",
-                                  "D",
-                                  Color.Red,
-                                  Color.Red,
-                                  Color.Blue,
-                                  Color.Blue,
-                                  Color.Green,
-                                  Color.Green,
-                                  Color.White,
-                                  Color.White,
-                                  Color.White,
-                                  Color.White,
-                                  Color.White,
-                                  Color.White);
+            effectsManager,
+            "F",
+            "B",
+            "L",
+            "R",
+            "U",
+            "D",
+            Color.Red,
+            Color.Red,
+            Color.Blue,
+            Color.Blue,
+            Color.Green,
+            Color.Green,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White
+        );
     }
 
     protected override void OnCoordinateSystemChanged(bool e) {
@@ -164,7 +161,7 @@ public class ViewBoxNode : ScreenSpacedNode {
         for (var i = 0; i < phi; i++) {
             double angle = 0 + 360 * i / (phi - 1);
             var angleRad = angle / 180 * Math.PI;
-            var dir = left * (float)Math.Cos(angleRad) + front * (float)Math.Sin(angleRad);
+            var dir = left * (float) Math.Cos(angleRad) + front * (float) Math.Sin(angleRad);
             pts.Add(center + dir * (Size - 0.75f));
             pts.Add(center + dir * (Size + 1.1f));
         }
@@ -196,7 +193,8 @@ public class ViewBoxNode : ScreenSpacedNode {
             }
 
         var textureCoordinates = new Vector2Collection(
-            [.. Enumerable.Repeat(new Vector2(-1, -1), piePositions.Count)]);
+            [.. Enumerable.Repeat(new Vector2(-1, -1), piePositions.Count)]
+        );
         textureCoordinates.AddRange(meshTextureCoordinates);
         newMesh.TextureCoordinates = textureCoordinates;
         newMesh.Colors = [.. Enumerable.Repeat(new Color4(1f, 1f, 1f, 1f), piePositions.Count)];
@@ -213,11 +211,16 @@ public class ViewBoxNode : ScreenSpacedNode {
             return;
 
         for (var i = 0; i < textureCoordinates.Count; ++i)
-            textureCoordinates[i] = new Vector2(textureCoordinates[i].X * inc + inc * (i / segment),
-                                                textureCoordinates[i].Y);
+            textureCoordinates[i] = new Vector2(
+                textureCoordinates[i].X * inc + inc * (i / segment),
+                textureCoordinates[i].Y
+            );
     }
 
-    protected override bool CanHitTest(HitTestContext? context) => context != null;
+    /// <summary>Allows cube picking only while its visible, interactive hierarchy is alive.</summary>
+    /// <param name="context">The actual viewport picking context.</param>
+    /// <returns>Whether the cube can consume a pointer event.</returns>
+    protected override bool CanHitTest(HitTestContext? context) => context != null && Visible && IsHitTestVisible && !IsDisposed;
 
     protected override bool OnHitTest(
         HitTestContext context,
@@ -226,10 +229,13 @@ public class ViewBoxNode : ScreenSpacedNode {
     ) {
         if (base.OnHitTest(context, totalModelMatrix, ref hitsInternal)) {
             if (Logger.IsEnabled(LogLevel.Debug)) Logger.Debug("View box hit.");
-            var hit = hitsInternal.OrderBy(x => x.Distance).FirstOrDefault();
+            var hit = hitsInternal.OrderBy(x => x.Distance)
+                .FirstOrDefault();
             if (hit == null) return false;
             var normal = Vector3.Zero;
-            var inv = isRightHanded ? 1 : -1;
+            var inv = isRightHanded
+                ? 1
+                : -1;
             if (hit.ModelHit == viewBoxMeshModel) {
                 normal = -hit.NormalAtHit * inv;
                 //Fix the normal if returned normal is reversed
@@ -299,7 +305,7 @@ public class ViewBoxNode : ScreenSpacedNode {
         }
     } = new(0, 1, 0);
 
-#endregion
+    #endregion
 
     #region Fields
 

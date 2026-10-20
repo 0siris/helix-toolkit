@@ -271,6 +271,50 @@
     <DxcShader Include="PS\psScreenDup.hlsl">
       <ShaderProfile>ps_6_0</ShaderProfile>
     </DxcShader>
+    <DxcShader Include="PS\psScreenDupPremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>mainPremultiplied</EntryPointName>
+    </DxcShader>
+    <DxcShader Include="PS\psLumaPremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psFXAAPremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psEffectBloomExtractPremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>psBloomExtract</EntryPointName>
+    </DxcShader>
+    <DxcShader Include="PS\psEffectBloomCombinePremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psEffectMeshXRayPremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psParticlePremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psParticleOITPremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>particleOIT</EntryPointName>
+    </DxcShader>
+    <DxcShader Include="PS\psParticleOITDPPremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>particleOITDP</EntryPointName>
+    </DxcShader>
+    <DxcShader Include="PS\psVolumePremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psVolumeDiffusePremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psMeshBlinnPhongOITQuadPremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psMeshOITDPFinalPremultiplied.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>finalPS</EntryPointName>
+    </DxcShader>
     <DxcShader Include="PS\psShadow.hlsl">
       <ShaderProfile>ps_6_0</ShaderProfile>
     </DxcShader>

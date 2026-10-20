@@ -24,6 +24,9 @@ internal sealed class SilkD3D12ScreenCaptureResources : IDisposable {
     /// <summary>The existing b9 screen-quad constants.</summary>
     private readonly SilkD3D12ConstantBuffer screenConstants;
 
+    /// <summary>Profile constants identifying opaque desktop pixels independently of captured DXGI alpha.</summary>
+    private readonly SilkD3D12ConstantBuffer? outputConstants;
+
     /// <summary>Zero-filled fallback constant storage.</summary>
     private readonly SilkD3D12Resource fallbackConstants;
 
@@ -34,9 +37,11 @@ internal sealed class SilkD3D12ScreenCaptureResources : IDisposable {
     /// <param name="device">The native device.</param>
     /// <param name="resourceHeap">The shared resource heap.</param>
     /// <param name="samplerHeap">The shared sampler heap.</param>
+    /// <param name="outputMode">The immutable output coverage contract.</param>
     internal SilkD3D12ScreenCaptureResources(SilkD3D12Device device,
         SilkD3D12DescriptorHeap resourceHeap,
-        SilkD3D12DescriptorHeap samplerHeap) {
+        SilkD3D12DescriptorHeap samplerHeap,
+        D3D12ColorOutputMode outputMode = D3D12ColorOutputMode.Legacy) {
         this.device = device;
         ResourceHeap = resourceHeap;
         bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);
@@ -46,6 +51,14 @@ internal sealed class SilkD3D12ScreenCaptureResources : IDisposable {
         fallbackConstants = device.CreateBuffer(256, HeapType.Upload);
         fallbackConstants.Write(new byte[256]);
         bindings.InitializeFallbackDescriptors(device, fallbackConstants, 9);
+        if (outputMode == D3D12ColorOutputMode.Premultiplied) {
+            outputConstants = new SilkD3D12ConstantBuffer(device, bindings.ConstantBuffer(0),
+                GlobalTransformStruct.SizeInBytes);
+            var output = new GlobalTransformStruct {
+                OITWeightMode = D3D12ColorOutputProfile.PremultipliedFlag | D3D12ColorOutputProfile.DesktopCaptureFlag
+            };
+            outputConstants.Write(in output);
+        }
         device.CreateSampler(bindings.Sampler(0), Filter.MinMagMipLinear, TextureAddressMode.Clamp);
     }
 
@@ -154,6 +167,7 @@ internal sealed class SilkD3D12ScreenCaptureResources : IDisposable {
     public void Dispose() {
         if (IsDisposed) return;
         texture?.Dispose();
+        outputConstants?.Dispose();
         fallbackConstants.Dispose();
         screenConstants.Dispose();
         bindings.Dispose();

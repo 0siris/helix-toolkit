@@ -31,6 +31,12 @@ public sealed class EffectsManagerConfiguration {
 ///     Shader and Technique manager
 /// </summary>
 public class EffectsManager : DisposeObject, IEffectsManager {
+    /// <summary>Publishes resource unavailability before disposal callbacks while preserving the public initialization flag.</summary>
+    private volatile bool resourcesAvailable;
+
+    /// <summary>Gets whether a complete resource generation is available outside a disposal notification.</summary>
+    internal bool ResourcesAvailable => resourcesAvailable;
+
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
 
     /// <summary>
@@ -155,9 +161,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     /// <param name="adapterIndex">Index of the adapter.</param>
     public EffectsManager(int adapterIndex)
-        : this(new EffectsManagerConfiguration {
-            AdapterIndex = adapterIndex
-        }) { }
+        : this(new EffectsManagerConfiguration { AdapterIndex = adapterIndex }) { }
 
     /// <summary>
     ///     Initializes the manager and its shared rendering resources.
@@ -169,14 +173,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
         DriverType = EnableSoftwareRendering
             ? DriverType.Warp
             : DriverType.Hardware;
-        geometryBufferManager = new GeometryBufferManager(this);
-        structArrayPool = new StructArrayPool();
-        factory2D = new D2DFactory();
-        device2D = new D2DDevice();
-        deviceContext2D = new D2DDeviceContext(device2D) { Factory = factory2D };
-        wicImgFactory = new WicImagingFactory();
-        directWriteFactory = new DirectWriteFactory();
-        Initialized = true;
+        InitializeResources();
     }
 
     /// <summary>
@@ -188,11 +185,15 @@ public class EffectsManager : DisposeObject, IEffectsManager {
         if (techniqueDict.ContainsKey(name))
             throw new ArgumentException($"Technique {name} already exists.");
         techniqueDescriptions.Add(name, description);
-        techniqueDict.Add(name,
-            new Lazy<IRenderTechnique?>(() => Initialized
+        techniqueDict.Add(
+            name,
+            new Lazy<IRenderTechnique?>(
+                () => Initialized
                     ? new Technique(description, null)
                     : null,
-                true));
+                true
+            )
+        );
     }
 
     /// <summary>
@@ -200,18 +201,40 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     /// </summary>
     public void Reinitialize() {
         if (!Initialized) {
+            InitializeResources();
+            Reinitialized?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>Creates a complete resource generation before publishing initialization or notifying consumers.</summary>
+    private void InitializeResources() {
+        try {
             geometryBufferManager = new GeometryBufferManager(this);
-            Initialized = true;
+            structArrayPool = new StructArrayPool();
+            factory2D = new D2DFactory();
+            device2D = new D2DDevice();
+            deviceContext2D = new D2DDeviceContext(device2D) { Factory = factory2D };
+            wicImgFactory = new WicImagingFactory();
+            directWriteFactory = new DirectWriteFactory();
             foreach (var tech in techniqueDescriptions.Values) {
                 var name = tech.Name.AsNotNull("Technique name must be initialized.");
-                techniqueDict.Add(name,
-                    new Lazy<IRenderTechnique?>(() => Initialized
+                techniqueDict.Add(
+                    name,
+                    new Lazy<IRenderTechnique?>(
+                        () => Initialized
                             ? new Technique(tech, null)
                             : null,
-                        true));
+                        true
+                    )
+                );
             }
 
-            Reinitialized?.Invoke(this, EventArgs.Empty);
+            Initialized = true;
+            resourcesAvailable = true;
+        } catch {
+            techniqueDict.Clear();
+            DisposeSharedResources();
+            throw;
         }
     }
 
@@ -268,10 +291,7 @@ public class EffectsManager : DisposeObject, IEffectsManager {
     public IRenderTechnique GetTechnique(string name) {
         if (!techniqueDict.TryGetValue(name, out var t)) {
             Logger.Warn("Technique {Value0} does not exist. Return a null technique", name);
-            return new Technique(new TechniqueDescription {
-                Name = name,
-                IsNull = true
-            }, this);
+            return new Technique(new TechniqueDescription { Name = name, IsNull = true }, this);
         }
 
         return t.Value ?? Technique.NullTechnique;
@@ -301,8 +321,17 @@ public class EffectsManager : DisposeObject, IEffectsManager {
 #endif
     }
 
+    /// <summary>Notifies consumers before releasing techniques and the current shared resource generation.</summary>
     private void DisposeResources() {
-        DisposingResources?.Invoke(this, EventArgs.Empty);
+        var wasAvailable = resourcesAvailable;
+        resourcesAvailable = false;
+        try {
+            DisposingResources?.Invoke(this, EventArgs.Empty);
+        } catch {
+            resourcesAvailable = wasAvailable;
+            throw;
+        }
+
         foreach (var technique in techniqueDict.Values.ToArray())
             if (technique.IsValueCreated) {
                 var t = technique.Value;
@@ -310,6 +339,15 @@ public class EffectsManager : DisposeObject, IEffectsManager {
             }
 
         techniqueDict.Clear();
+        DisposeSharedResources();
+#if DEBUGMEMORY
+            ReportResources();
+#endif
+    }
+
+    /// <summary>Releases complete or partially initialized shared resources without disposing their manager.</summary>
+    private void DisposeSharedResources() {
+        resourcesAvailable = false;
         RemoveAndDispose(ref geometryBufferManager);
         RemoveAndDispose(ref directWriteFactory);
         RemoveAndDispose(ref deviceContext2D);
@@ -318,9 +356,6 @@ public class EffectsManager : DisposeObject, IEffectsManager {
         RemoveAndDispose(ref wicImgFactory);
         RemoveAndDispose(ref structArrayPool);
         Initialized = false;
-#if DEBUGMEMORY
-            ReportResources();
-#endif
     }
 
 #if DEBUGMEMORY

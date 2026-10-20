@@ -6,11 +6,12 @@ SilkToolkit is a Direct3D 12 3D toolkit for WPF on .NET 10, built on
 [Silk.NET](https://github.com/dotnet/Silk.NET) instead of legacy SharpDX.
 It is developed from the Helix Toolkit codebase toward a fully native,
 dependency-light renderer: explicit DXC-built shaders (DXIL-only), a single
-productive D3D12 presentation path, and Silk.NET math throughout.
+shared D3D12 scene renderer for WPF composition and HWND presentation,
+and Silk.NET math throughout.
 
 ## Features
 
-- Direct3D 12 renderer: forward and deferred shading, GPU tessellation
+- Direct3D 12 renderer: forward shading, GPU tessellation
 - Screen-space ambient occlusion (SSAO), FXAA, shadow mapping
 - Transparency: weighted order-independent transparency (OIT) + depth peeling
 - Volume ray casting, GPU particle system, skeletal and morph animation
@@ -44,11 +45,11 @@ dotnet build Source\SilkToolkit.slnx
 ## Tests
 
 ```powershell
-dotnet test Source\SilkToolkit.slnx --no-build --filter "Category!=Hardware"
+dotnet test Source\SilkToolkit.slnx --no-build --filter "Category!=Hardware&Category!=DX12"
 ```
 
-`Hardware` and `DX12` test categories are opt-in. Every push and pull
-request runs the full gate on Windows via `.github/workflows/silk-tests.yml`.
+`Hardware` and `DX12` test categories are opt-in for this standard command.
+Windows CI checks are defined in `.github/workflows/silk-tests.yml`.
 
 ## Branch
 
@@ -62,8 +63,20 @@ SceneNode graph (SilkCore/Model/Scene)
   -> EffectsManager resolves techniques/passes per material
   -> D3D12ScenePassCatalog selects geometry, shadow, SSAO, OIT passes
   -> SilkD3D12SceneRenderer records draws into command lists
-  -> D3D12PresentationSurface presents via the flip-discard swap chain
+  -> EnableSwapChainRendering=false (default): demand-driven WPF/D3DImage composition
+     EnableSwapChainRendering=true: continuous HWND flip-discard swap-chain presentation
 ```
+
+Both presentation owners use the shared D3D12 scene renderer. WPF work is bounded by scene demand;
+static scenes settle after pending rendering, copying and publication complete. Choose the backend before
+the first successful native initialization; that choice is retained across reload and template replacement.
+
+`EnableDeferredRendering` is retained for API/XAML compatibility; it does not select a productive D3D12
+deferred shading path. The retained MSAA setting currently uses single-sample rendering. Sized/high-resolution
+capture scales the actual captured image rather than rerendering the scene at the requested resolution.
+The WPF bridge explicitly does not support WARP. Physical monitor transitions, RDP, physical touch and
+physical device removal/reset remain unverified; Phase 5 runtime gates are pending. See the
+[presentation contracts and limits](knowledge/projects/silktoolkit.md#current-presentation-contracts).
 
 Shaders live in `SilkToolkit.Native.ShaderBuilder` (HLSL) and are compiled
 to DXIL by DXC during the build, then embedded into `SilkCore`.

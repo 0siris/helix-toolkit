@@ -3,7 +3,6 @@ using HelixToolkit.SharpDX.Core;
 The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
-
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
@@ -12,13 +11,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace HelixToolkit.SharpDX.Core.Model.Scene2D;
+
 /// <summary>
 ///     Displays an encoded image and measures its decoded frame dimensions.
 /// </summary>
 public class ImageNode2D : SceneNode2D {
+    /// <summary>Gets the image-specific rendering state.</summary>
     private ImageRenderCore2D ImageCore => RenderCore as ImageRenderCore2D
-        ?? throw new InvalidOperationException("Image render core is not initialized.");
+                                           ?? throw new InvalidOperationException("Image render core is not initialized.");
 
+    /// <summary>Gets or sets the encoded source image stream.</summary>
     public Stream? ImageStream {
         get;
         set {
@@ -26,15 +28,19 @@ public class ImageNode2D : SceneNode2D {
         }
     }
 
+    /// <summary>Gets or sets the image opacity.</summary>
     public float Opacity {
         get => ImageCore.Opacity;
         set => ImageCore.Opacity = value;
     }
 
+    /// <summary>Gets whether the source bitmap needs to be reloaded.</summary>
     protected bool BitmapChanged { get; private set; } = true;
 
+    /// <inheritdoc />
     protected override RenderCore2D CreateRenderCore() => new ImageRenderCore2D();
 
+    /// <inheritdoc />
     protected override bool OnAttach() {
         if (base.OnAttach()) {
             BitmapChanged = true;
@@ -44,8 +50,19 @@ public class ImageNode2D : SceneNode2D {
         return false;
     }
 
+    /// <summary>Replaces the decoded bitmap while permission still allows resource access.</summary>
+    /// <param name="context">The original Scene2D update context.</param>
+    /// <param name="stream">The encoded image stream, or null to clear the bitmap.</param>
     private void LoadBitmap(RenderContext2D context, Stream? stream) {
-        ImageCore.Bitmap = stream is null ? null : OnLoadImage(context, stream);
+        var bitmap = stream is null
+            ? null
+            : OnLoadImage(context, stream);
+        if (!CanContinueScenePreparation) {
+            bitmap?.Dispose();
+            return;
+        }
+
+        ImageCore.Bitmap = bitmap;
     }
 
     /// <summary>
@@ -55,11 +72,15 @@ public class ImageNode2D : SceneNode2D {
     /// <param name="stream">The encoded image stream.</param>
     /// <returns>The decoded bitmap with the actual frame dimensions.</returns>
     protected virtual Bitmap OnLoadImage(RenderContext2D context, Stream stream) {
-        var position = stream.CanSeek ? stream.Position : 0;
+        var position = stream.CanSeek
+            ? stream.Position
+            : 0;
         try {
             if (stream.CanSeek) stream.Position = 0;
-            var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat,
-                BitmapCacheOption.OnLoad);
+            var decoder = BitmapDecoder.Create(
+                stream, BitmapCreateOptions.PreservePixelFormat,
+                BitmapCacheOption.OnLoad
+            );
             var frame = decoder.Frames[0];
             var converter = new FormatConvertedBitmap(frame, PixelFormats.Pbgra32, null, 0);
             var pixels = new byte[checked(frame.PixelWidth * frame.PixelHeight * 4)];
@@ -70,23 +91,29 @@ public class ImageNode2D : SceneNode2D {
         }
     }
 
+    /// <inheritdoc />
     public override void Update(RenderContext2D context) {
         base.Update(context);
+        if (!CanContinueScenePreparation) return;
         if (BitmapChanged) {
             LoadBitmap(context, ImageStream);
+            if (!CanContinueScenePreparation) return;
             BitmapChanged = false;
             InvalidateMeasure();
         }
     }
 
+    /// <inheritdoc />
     protected override Size2F MeasureOverride(Size2F availableSize) {
         if (ImageStream is not null) {
             var imageSize = ImageCore.ImageSize;
             imageSize.Width *= DpiScale;
             imageSize.Height *= DpiScale;
             if (Width == 0 && Height == 0)
-                return new Size2F(Math.Min(availableSize.Width, imageSize.Width),
-                                  Math.Min(availableSize.Height, imageSize.Height));
+                return new Size2F(
+                    Math.Min(availableSize.Width, imageSize.Width),
+                    Math.Min(availableSize.Height, imageSize.Height)
+                );
 
             if (imageSize.Width == 0 || imageSize.Height == 0) return availableSize;
 
@@ -103,7 +130,8 @@ public class ImageNode2D : SceneNode2D {
         return new Size2F(Math.Max(0, Width * DpiScale), Math.Max(0, Height * DpiScale));
     }
 
-protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
+    /// <inheritdoc />
+    protected override bool OnHitTest(ref Vector2 mousePoint, out HitTest2DResult? hitResult) {
         hitResult = null;
         if (LayoutBoundWithTransform.Contains(mousePoint)) {
             hitResult = new HitTest2DResult(this);

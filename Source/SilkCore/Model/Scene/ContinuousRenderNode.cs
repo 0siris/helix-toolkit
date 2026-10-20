@@ -21,10 +21,13 @@ namespace HelixToolkit.SharpDX.Core.Model.Scene;
 ///     </para>
 /// </summary>
 public sealed class ContinuousRenderNode : SceneNode {
+    /// <inheritdoc />
     protected override RenderCore OnCreateRenderCore() => new InvalidRendererCore();
 
+    /// <inheritdoc />
     protected override bool CanHitTest(HitTestContext? context) => false;
 
+    /// <inheritdoc />
     protected override bool OnHitTest(
         HitTestContext context,
         Matrix totalModelMatrix,
@@ -32,7 +35,18 @@ public sealed class ContinuousRenderNode : SceneNode {
     )
         => false;
 
+    /// <inheritdoc />
+    public override void Update(RenderContext context) {
+        base.Update(context);
+        if (!Visible || IsDisposed || !RenderCore.IsAttached || !IsRenderable) return;
+        for (var ancestor = Parent; ancestor is not null; ancestor = ancestor.Parent)
+            if (!ancestor.Visible || ancestor.IsDisposed || !ancestor.RenderCore.IsAttached) return;
+        RenderHost?.InvalidateRender();
+    }
+
+    /// <summary>Supplies the attached global-effect marker used by continuous source nodes.</summary>
     private sealed class InvalidRendererCore : RenderCore {
+        /// <summary>Initializes the global-effect marker without GPU draw resources.</summary>
         public InvalidRendererCore() : base(RenderType.GlobalEffect) { }
 
     }

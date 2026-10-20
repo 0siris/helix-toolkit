@@ -5,23 +5,18 @@ using HelixToolkit.SharpDX.Core.Model.Scene2D;
 The MIT License (MIT)
 Copyright (c) 2026 Helix Toolkit contributors
 */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model;
 using HelixToolkit.SharpDX.Core.Model.Scene;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.SharpDX.Core.Interface;
-using HelixToolkit.SharpDX.Core.Shaders;
 using HelixToolkit.SharpDX.Core.Utilities;
 using Silk.NET.Direct3D12;
-using Silk.NET.DXGI;
 
 namespace HelixToolkit.Wpf.SharpDX.Controls;
 
@@ -29,125 +24,161 @@ namespace HelixToolkit.Wpf.SharpDX.Controls;
 ///     Owns the pure-WPF HWND and the single-inflight, fence-safe Direct3D 12 presentation lifecycle.
 /// </summary>
 public sealed class D3D12PresentationSurface : Grid, IDisposable {
-    /// Gets or sets the actual viewport host without changing construction or rendering signatures.
+    /// <summary>Gets or sets the actual viewport host without changing construction or rendering signatures.</summary>
     internal IRenderHost? RenderHost { get; set; }
 
-    /// Gets the actual update context retained until replacement after fence completion or disposal.
-    internal RenderContext? RenderContext { get; private set; }
+    /// <summary>Gets the actual update context retained until replacement after fence completion or disposal.</summary>
+    internal RenderContext? RenderContext => frameRenderer?.RenderContext;
 
-    /// Gets the renderer-owned hierarchy, or null before native initialization.
-    internal FastList<KeyValuePair<int, SceneNode>>? PerFrameFlattenedScene => sceneRenderer?.PerFrameFlattenedScene;
+    /// <summary>Gets the renderer-owned hierarchy, or null before native initialization.</summary>
+    internal FastList<KeyValuePair<int, SceneNode>>? PerFrameFlattenedScene => frameRenderer?.PerFrameFlattenedScene;
 
-    /// <summary>
-    ///     The depth/stencil format shared by the presentation resource and graphics pipelines.
-    /// </summary>
-    private const Format DepthStencilFormat = Format.FormatD32FloatS8X24Uint;
+    /// <summary>Gets the shared renderer that owns the productive scene and depth resources.</summary>
+    internal D3D12FrameRenderer? FrameRenderer => frameRenderer;
 
+    /// <summary>Gets whether pending retirement or disposal must exclude this generation from scene submission.</summary>
+    internal bool IsRetirementPending => retireRequested || disposeRequested || retiringNative;
+
+    /// <summary>The native child-window transport host.</summary>
     private readonly HwndSwapChainHost windowHost = new();
+
+    /// <summary>The coalesced physical resize requests.</summary>
     private readonly D3D12ResizeQueue resizeQueue = new();
-    /// Protects the single reusable command context until its submitted GPU fence completes.
+
+    /// <summary>Protects the single reusable command context until its submitted GPU fence completes.</summary>
     private readonly D3D12FrameSubmission _frameSubmission = new();
-    /// Retries the latest queued resize without blocking or spinning while a frame is pending.
+
+    /// <summary>Retries the latest queued resize without blocking or spinning while a frame is pending.</summary>
     private readonly DispatcherTimer _resizeRetryTimer;
-    /// Records a requested effects-manager change until the preceding GPU frame has completed.
+
+    /// <summary>Records a requested effects-manager change until the preceding GPU frame has completed.</summary>
     private bool _effectsManagerDirty;
+
+    /// <summary>The requested hardware or WARP adapter type.</summary>
     private readonly SilkDriverType driverType;
+
+    /// <summary>The borrowed current effects manager.</summary>
     private IEffectsManager? effectsManager;
+
+    /// <summary>Protects borrowed renderer, command and target references until the surface frame unwinds.</summary>
+    private bool frameActive;
+
+    /// <summary>Tracks an open command list that must be closed before abandoning its native generation.</summary>
+    private bool commandsOpen;
+
+    /// <summary>Retains generation retirement requested by unload, a barrier or an abandoned recording.</summary>
+    private bool retireRequested;
+
+    /// <summary>Retains whole-surface disposal without releasing the HWND host during a scene callback.</summary>
+    private bool disposeRequested;
+
+    /// <summary>Prevents reentrant native retirement or initialization while a bounded drain is in progress.</summary>
+    private bool retiringNative;
+
+    /// <summary>Distinguishes unloaded surfaces from standalone surfaces that have not received their first load.</summary>
+    private bool suspended;
+
+    /// <summary>Records load permission independently of handle creation and nested routed lifecycle events.</summary>
+    private bool loaded;
+
+    /// <summary>Reuses the dispatcher callback for rare deferred retirement without allocating on frame ticks.</summary>
+    private readonly Action retireNativeCallback;
+
+    /// <summary>Retains at most one queued retirement callback across nested dispatcher pumps.</summary>
+    private DispatcherOperation? retirementOperation;
+
+    /// <summary>Retains explicit capture storage until submission is drained, including exceptional signal failures.</summary>
+    private SilkD3D12Resource? captureReadback;
+
+    /// <summary>Gets whether this surface or its owning viewport still borrows the generation on the CPU stack.</summary>
+    private bool HasActiveFrame => frameActive || RenderHost is Viewport3DX { IsPreparingPresentationFrame: true };
+
+    /// <summary>Gets live submission permission after all node callbacks and before command execution.</summary>
+    private bool CanSubmitFrame => !IsDisposed && !IsRetirementPending && !suspended &&
+                                   (RenderHost is not Viewport3DX viewport || viewport.CanSubmitNativeScene);
+
+    /// <summary>Controls render resolution independently of physical native pointer decoding.</summary>
+    private bool enableDpiScale = true;
+
+    /// <summary>Retains an explicit render scale until a monitor DPI transition replaces it.</summary>
+    private double? dpiScale;
+
+    /// <summary>Gets or sets whether render targets scale with DPI; native input always uses the physical DPI.</summary>
+    internal bool EnableDpiScale {
+        get => enableDpiScale;
+        set {
+            Dispatcher.VerifyAccess();
+            if (enableDpiScale == value) return;
+            enableDpiScale = value;
+            QueueResize();
+        }
+    }
+
+    /// <summary>Gets or sets the desired render scale without changing child-window input coordinates.</summary>
+    internal double DpiScale {
+        get => dpiScale ?? windowHost.DpiScale;
+        set {
+            Dispatcher.VerifyAccess();
+            if (!(value > 0) || !double.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (dpiScale == value) return;
+            dpiScale = value;
+            QueueResize();
+        }
+    }
+
+    /// <summary>Gets the render target scale independently of the native window's physical input scale.</summary>
+    internal double EffectiveDpiScale => enableDpiScale
+        ? DpiScale
+        : 1;
+
+    /// <summary>The pending dispatcher operation for a physical resize.</summary>
     private DispatcherOperation? resizeOperation;
+
+    /// <summary>The device owned by the presentation lifetime.</summary>
     private SilkD3D12Device? device;
+
+    /// <summary>The weak registry membership of this native generation.</summary>
+    private D3D12PresentationDeviceRecovery? recoveryRegistration;
+
+    /// <summary>The removed singleton whose productive owners must all retire before recreation.</summary>
+    private D3D12PresentationDeviceRecovery? recoveryBarrier;
+
+    /// <summary>The retained callback for synchronous native discovery and retirement.</summary>
+    private readonly Action retireRemovedDevice;
+
+    /// <summary>The retained error boundary for asynchronous device discovery and peer retirement.</summary>
+    private readonly Action queuedDeviceRemoval;
+
+    /// <summary>The queue retained for submission and native completion.</summary>
     private SilkD3D12CommandQueue? commandQueue;
+
+    /// <summary>The single reusable command context protected by the frame submission.</summary>
     private SilkD3D12CommandContext? commandContext;
+
+    /// <summary>The completion fence protecting commands and renderer resources.</summary>
     private SilkD3D12Fence? fence;
+
+    /// <summary>The HWND color buffers and presentation transport.</summary>
     private SilkD3D12SwapChain? swapChain;
-    private SilkD3D12DescriptorHeap? resourceHeap;
-    private SilkD3D12DescriptorHeap? samplerHeap;
-    private SilkD3D12SceneRenderer? sceneRenderer;
-    private D3D12ScenePassCatalog? passCatalog;
 
-    /// <summary>
-    ///     The non-shader-visible depth/stencil descriptor heap.
-    /// </summary>
-    private SilkD3D12DescriptorHeap? depthStencilHeap;
-
-    /// <summary>
-    ///     The stable depth/stencil descriptor allocation.
-    /// </summary>
-    private SilkD3D12Descriptor? depthStencilView;
-
-    /// <summary>
-    ///     The size-dependent presentation depth/stencil texture.
-    /// </summary>
-    private SilkD3D12Resource? depthStencilBuffer;
-
-    /// <summary>
-    ///     Reused opaque viewport candidates in scene traversal order.
-    /// </summary>
-    private readonly FastList<SceneNode> opaqueNodes = [];
-
-    /// <summary>
-    ///     Reused transparent viewport candidates in scene traversal order.
-    /// </summary>
-    private readonly FastList<SceneNode> transparentNodes = [];
-
-    /// Opaque and transparent post-effect candidates in original scene traversal order.
-    private readonly FastList<SceneNode> postEffectCandidates = [];
-
-    /// <summary>
-    ///     Reused volume nodes in scene traversal order.
-    /// </summary>
-    private readonly FastList<SceneNode> volumeNodes = [];
-
-    /// <summary>
-    ///     Reused particle nodes in scene traversal order.
-    /// </summary>
-    private readonly FastList<SceneNode> particleNodes = [];
-
-    /// <summary>
-    ///     Reused visible light nodes in scene traversal order.
-    /// </summary>
-    private readonly FastList<SceneNode> lightNodes = [];
-
-    /// <summary>
-    ///     Reused global post-effect nodes in scene traversal order.
-    /// </summary>
-    private readonly FastList<SceneNode> globalEffectNodes = [];
-
-    /// <summary>
-    ///     Reused object-level post-effect nodes in scene traversal order.
-    /// </summary>
-    private readonly FastList<SceneNode> postEffectNodes = [];
-
-    /// <summary>
-    ///     Reused screen-spaced root nodes in scene traversal order.
-    /// </summary>
-    private readonly FastList<ScreenSpacedNode> screenSpacedNodes = [];
-
-    /// <summary>
-    ///     Reused opaque children of the current screen-spaced root.
-    /// </summary>
-    private readonly FastList<SceneNode> screenSpacedOpaqueNodes = [];
-
-    /// <summary>
-    ///     Reused transparent children of the current screen-spaced root.
-    /// </summary>
-    private readonly FastList<SceneNode> screenSpacedTransparentNodes = [];
-
-    /// <summary>
-    ///     Shared light payload rebuilt before each viewport frame.
-    /// </summary>
-    private readonly LightsBufferModel lights = new();
+    /// <summary>The common scene recorder and its fence-protected native resource owners.</summary>
+    private D3D12FrameRenderer? frameRenderer;
 
     /// <summary>
     ///     Creates a presentation surface using hardware rendering by default.
     /// </summary>
     /// <param name="driverType">The hardware or WARP device type.</param>
-    public D3D12PresentationSurface(SilkDriverType driverType = SilkDriverType.Hardware,
-        IEffectsManager? effectsManager = null) {
+    /// <param name="effectsManager">The optional borrowed scene effects manager.</param>
+    public D3D12PresentationSurface(
+        SilkDriverType driverType = SilkDriverType.Hardware,
+        IEffectsManager? effectsManager = null
+    ) {
         this.driverType = driverType;
         this.effectsManager = effectsManager;
-        _resizeRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) {
-            Interval = TimeSpan.FromMilliseconds(16)
-        };
+        retireNativeCallback = ApplyPendingRetirement;
+        retireRemovedDevice = OnDeviceRemoval;
+        queuedDeviceRemoval = OnQueuedDeviceRemoval;
+        _resizeRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) { Interval = TimeSpan.FromMilliseconds(16) };
         _resizeRetryTimer.Tick += RetryPendingResize;
         Children.Add(windowHost);
         windowHost.HandleCreated += OnHandleCreated;
@@ -184,19 +215,130 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         _effectsManagerDirty = true;
     }
 
+    /// <summary>Drains and releases this generation while preserving the HWND host and borrowed application manager.</summary>
+    /// <remarks>The caller delivers preceding frame completions before requesting manager-resource retirement.</remarks>
+    /// <exception cref="TimeoutException">The bounded drain failed; ownership is retained for a controlled retry.</exception>
+    internal void RetireSceneResources() {
+        Dispatcher.VerifyAccess();
+        if (IsDisposed) return;
+        retireRequested = true;
+        if (HasActiveFrame || retiringNative) return;
+        StopNative();
+        retireRequested = false;
+    }
+
+    /// <summary>Recreates native resources lazily only when load, handle and live host permission allow it.</summary>
+    internal void EnsureNativeInitialized() {
+        Dispatcher.VerifyAccess();
+        if (IsDisposed || disposeRequested || retiringNative || HasActiveFrame || suspended ||
+            !(loaded || IsLoaded) || !windowHost.IsHandleCreated) return;
+        if (RenderHost is Viewport3DX { CanSubmitNativeScene: false }) return;
+        if (ObserveDeviceRemoval()) return;
+        if (recoveryBarrier is { CanRecreate: false }) return;
+        if (retireRequested) RetireSceneResources();
+        StartNative();
+    }
+
+    /// <summary>Recognizes removal before completion polling, initialization, or command submission.</summary>
+    /// <returns>Whether the current call must cancel its borrowed frame.</returns>
+    private bool ObserveDeviceRemoval() {
+        if (device is null || (recoveryRegistration is not { IsRemovalRequested: true } &&
+                               device.GetDeviceRemovedReason() >= 0)) return false;
+        recoveryBarrier ??= recoveryRegistration;
+        recoveryRegistration?.RequestRemoval();
+        OnDeviceRemoval();
+        return true;
+    }
+
+    /// <summary>Reports queued retirement failures while retaining failed native ownership for a controlled retry.</summary>
+    private void OnQueuedDeviceRemoval() {
+        try {
+            OnDeviceRemoval();
+        } catch (Exception exception) {
+            ReportDeferredFailure(exception);
+        }
+    }
+
+    /// <summary>Reports an automatic failure and contains a second teardown failure without losing native ownership.</summary>
+    /// <param name="exception">The failure from automatic viewport rendering, queued recovery, retirement, or resize work.</param>
+    internal void ReportDeferredFailure(Exception exception) {
+        try {
+            if (DeferredRenderException is { } handler) handler(this, new RelayExceptionEventArgs(exception));
+            else LoggerLib.Logger.Error(exception, "Native recovery failed; resources remain owned for retry");
+        } catch (Exception retryException) {
+            retirementOperation?.Abort();
+            retirementOperation = null;
+            LoggerLib.Logger.Error(retryException, "Native recovery teardown failed; resources remain owned for retry");
+            if (RenderHost is Viewport3DX viewport)
+                viewport.SetCurrentValue(Viewport3DX.RenderExceptionProperty, retryException);
+        }
+    }
+
+    /// <summary>Confirms requested discovery and retires removal when no CPU callback still borrows its context.</summary>
+    private void OnDeviceRemoval() {
+        Dispatcher.VerifyAccess();
+        if (IsDisposed || device is null || recoveryRegistration is null) return;
+        if (!recoveryRegistration.IsRemovalRequested) {
+            if (device.GetDeviceRemovedReason() >= 0) return;
+            recoveryBarrier ??= recoveryRegistration;
+            recoveryRegistration.RequestRemoval();
+            return;
+        }
+
+        recoveryBarrier ??= recoveryRegistration;
+        retireRequested = true;
+        if (RenderHost is Viewport3DX viewport) {
+            viewport.RenderDemand.Request(D3D12RenderInvalidation.SceneGraph);
+            viewport.RenderDemand.RequestRecovery();
+        }
+
+        if (!HasActiveFrame && !retiringNative) RetireSceneResources();
+    }
+
+    /// <summary>Schedules one retained retirement callback after both surface and viewport frame stacks unwind.</summary>
+    /// <remarks>A nested callback retains its request without reposting until a frame's finally calls this method.</remarks>
+    internal void SchedulePendingRetirement() {
+        Dispatcher.VerifyAccess();
+        if (IsDisposed || (!retireRequested && !disposeRequested) || HasActiveFrame || retiringNative ||
+            retirementOperation is not null || Dispatcher.HasShutdownStarted) return;
+        retirementOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, retireNativeCallback);
+    }
+
+    /// <summary>Applies deferred lifetime work once, preserving failed requests and all ownership for an explicit retry.</summary>
+    private void ApplyPendingRetirement() {
+        retirementOperation = null;
+        if (IsDisposed || HasActiveFrame || retiringNative) return;
+        try {
+            if (disposeRequested) Dispose();
+            else if (retireRequested) RetireSceneResources();
+        } catch (Exception exception) {
+            ReportDeferredFailure(exception);
+        }
+    }
+
+    /// <summary>Closes unsubmitted commands and prevents reuse of their speculative resource-state tracking.</summary>
+    private void DiscardRecordedFrame() {
+        retireRequested = true;
+        LastCapturedFrame = null;
+        if (!commandsOpen) return;
+        try {
+            commandContext!.Close();
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
+        }
+
+        commandsOpen = false;
+    }
+
     /// <summary>Replaces effect pipelines only after no submitted frame can still reference the old catalog.</summary>
     /// <exception cref="InvalidOperationException">A submitted frame still owns the effect pipelines.</exception>
     private void ApplyPendingEffectsManager() {
         if (!_effectsManagerDirty || device is null || swapChain is null) return;
         if (_frameSubmission.IsPending)
             throw new InvalidOperationException("Effect pipelines cannot change while a Direct3D 12 frame is pending");
-        var replacement = new D3D12ScenePassCatalog(device,
-            swapChain.Format,
-            DepthStencilFormat,
-            (effectsManager as EffectsManager)?.TechniqueDescriptions,
-            effectsManager);
-        passCatalog?.Dispose();
-        passCatalog = replacement;
+        var renderer = frameRenderer
+                       ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+        renderer.SetEffectsManager(effectsManager);
         _effectsManagerDirty = false;
     }
 
@@ -207,18 +349,25 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <exception cref="InvalidOperationException">The pending frame has lost its native fence or device.</exception>
     internal bool CompletePendingFrame(bool waitForCompletion = false) {
         Dispatcher.VerifyAccess();
+        if (ObserveDeviceRemoval()) return false;
+        if (device is null && recoveryBarrier is { CanRecreate: false }) return false;
         if (!_frameSubmission.IsPending) return true;
         var currentFence = fence
-            ?? throw new InvalidOperationException("The pending Direct3D 12 frame has no completion fence");
-        var currentDevice = device
-            ?? throw new InvalidOperationException("The pending Direct3D 12 frame has no device");
-        currentDevice.ThrowIfDeviceRemoved();
+                           ?? throw new InvalidOperationException("The pending Direct3D 12 frame has no completion fence");
+        if (device is null) throw new InvalidOperationException("The pending Direct3D 12 frame has no device");
         var completed = currentFence.CompletedValue;
+        if (completed == ulong.MaxValue && ObserveDeviceRemoval()) return false;
         if (completed == ulong.MaxValue)
             throw new InvalidOperationException("The Direct3D 12 device stopped reporting valid frame completion");
         if (_frameSubmission.TryComplete(completed, FrameTimestamp())) return true;
         if (!waitForCompletion) return false;
-        currentFence.Wait(_frameSubmission.PendingFenceValue, _frameSubmission.RemainingWait(FrameTimestamp()));
+        try {
+            currentFence.Wait(_frameSubmission.PendingFenceValue, _frameSubmission.RemainingWait(FrameTimestamp()));
+        } catch (Exception) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
+            return false;
+        }
+
         return CompletePendingFrame();
     }
 
@@ -245,7 +394,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// </summary>
     public bool IsDisposed { get; private set; }
 
-    /// Reports a deferred native resize failure through the owning viewport's existing renderer-error boundary.
+    /// <summary>Reports a deferred native resize failure through the viewport's existing renderer-error boundary.</summary>
     internal event EventHandler<RelayExceptionEventArgs>? DeferredRenderException;
 
     /// <summary>
@@ -257,10 +406,31 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     public void RenderOnce(ReadOnlySpan<float> clearColor) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        _ = CompletePendingFrame(true);
+        if (frameActive || !CanSubmitFrame) return;
+        if (!IsInitialized) EnsureNativeInitialized();
+        if (!IsInitialized || !CanSubmitFrame) return;
+        if (!CompletePendingFrame(true)) return;
         ApplyPendingResize();
-        var (currentContext, currentSwapChain, backBuffer) = BeginFrame(clearColor);
-        EndFrame(currentContext, currentSwapChain, backBuffer);
+        if (!IsInitialized || !CanSubmitFrame) return;
+        frameActive = true;
+        try {
+            var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
+            var target = CreateFrameTarget(currentSwapChain);
+            var renderer = frameRenderer
+                           ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+            renderer.RecordClearFrame(currentContext, in target, clearColor);
+            _ = EndFrame(currentContext, currentSwapChain, backBuffer);
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
+            DiscardRecordedFrame();
+            return;
+        } catch {
+            DiscardRecordedFrame();
+            throw;
+        } finally {
+            frameActive = false;
+            SchedulePendingRetirement();
+        }
     }
 
     /// <summary>
@@ -283,24 +453,37 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ) {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        _ = CompletePendingFrame(true);
+        if (frameActive || !CanSubmitFrame) return 0;
+        if (!IsInitialized) EnsureNativeInitialized();
+        if (!IsInitialized || !CanSubmitFrame) return 0;
+        if (!CompletePendingFrame(true)) return 0;
         ApplyPendingResize();
+        if (!IsInitialized || !CanSubmitFrame) return 0;
         ApplyPendingEffectsManager();
-        var renderer = sceneRenderer
-            ?? throw new InvalidOperationException("The Direct3D 12 scene renderer is unavailable.");
-        var catalog = passCatalog
-            ?? throw new InvalidOperationException("The Direct3D 12 pass catalog is unavailable.");
-        var (currentContext, currentSwapChain, backBuffer) = BeginFrame(clearColor);
-        var recorded = renderer.RenderVisible(currentContext,
-            candidates,
-            catalog.Resolve,
-            in transforms,
-            testFrustum,
-            ref frustum,
-            lights,
-            boneSkinningPassSelector: catalog.ResolveBoneSkinning);
-        EndFrame(currentContext, currentSwapChain, backBuffer);
-        return recorded;
+        frameActive = true;
+        try {
+            var renderer = frameRenderer
+                           ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+            var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
+            var target = CreateFrameTarget(currentSwapChain);
+            var recorded = renderer.RecordSceneFrame(
+                currentContext, in target, clearColor, candidates,
+                in transforms, testFrustum, ref frustum, lights
+            );
+            return EndFrame(currentContext, currentSwapChain, backBuffer)
+                ? recorded
+                : 0;
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
+            DiscardRecordedFrame();
+            return 0;
+        } catch {
+            DiscardRecordedFrame();
+            throw;
+        } finally {
+            frameActive = false;
+            SchedulePendingRetirement();
+        }
     }
 
     /// <summary>
@@ -355,390 +538,64 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         roots.AsGuardNotNull();
         camera.AsGuardNotNull();
+        if (frameActive || !CanSubmitFrame) return 0;
+        if (!IsInitialized) EnsureNativeInitialized();
+        if (!IsInitialized || !CanSubmitFrame) return 0;
         if (!CompletePendingFrame(waitForCompletion || captureFrame)) return 0;
         ApplyPendingResize();
+        if (!IsInitialized || !CanSubmitFrame) return 0;
         ApplyPendingEffectsManager();
-        var renderer = sceneRenderer
-            ?? throw new InvalidOperationException("The Direct3D 12 scene renderer is unavailable.");
-        var catalog = passCatalog
-            ?? throw new InvalidOperationException("The Direct3D 12 pass catalog is unavailable.");
-        opaqueNodes.Clear();
-        transparentNodes.Clear();
-        postEffectCandidates.Clear();
-        volumeNodes.Clear();
-        particleNodes.Clear();
-        lightNodes.Clear();
-        globalEffectNodes.Clear();
-        postEffectNodes.Clear();
-        screenSpacedNodes.Clear();
-        TextureModel? environmentMap = null;
-        ShadowMapNode? shadowNode = null;
-        var width = Math.Max(1, PixelWidth);
-        var height = Math.Max(1, PixelHeight);
-        var dpiScale = (float)windowHost.DpiScale;
-        if (RenderContext is not { } previous || !ReferenceEquals(previous.Camera, camera) ||
-            previous.ActualWidth != width || previous.ActualHeight != height || previous.DpiScale != dpiScale) {
-            RenderContext?.Dispose();
-            RenderContext = new RenderContext(camera, width, height, dpiScale);
-        }
-        var updateContext = RenderContext;
-        updateContext.RestoreGlobalTransform();
-        updateContext.EnableBoundingFrustum = testFrustum;
-        updateContext.AutoUpdateOctree = autoUpdateOctree;
-        updateContext.TimeStamp = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
-        var preparedNodes = renderer.PrepareScene(roots, updateContext, effectsManager, RenderHost);
-        foreach (var node in preparedNodes.Where(node => FindScreenSpacedAncestor(node) is null))
-            if (node is ScreenSpacedNode screenSpaced) {
-                screenSpacedNodes.Add(screenSpaced);
-            } else if (node is EnvironmentMapNode environment) {
-                environmentMap = environment.Texture;
-            } else if (node is ShadowMapNode shadow) {
-                shadowNode ??= shadow;
-            } else if (node is VolumeTextureNode) {
-                volumeNodes.Add(node);
-            } else if (node is ParticleStormNode) {
-                particleNodes.Add(node);
-            } else {
-                switch (node.RenderType) {
-                    case RenderType.Light:
-                        lightNodes.Add(node);
-                        break;
-                    case RenderType.Opaque:
-                        opaqueNodes.Add(node);
-                        postEffectCandidates.Add(node);
-                        break;
-                    case RenderType.Transparent:
-                        transparentNodes.Add(node);
-                        postEffectCandidates.Add(node);
-                        break;
-                    case RenderType.GlobalEffect:
-                        globalEffectNodes.Add(node);
-                        break;
-                    case RenderType.PostEffect:
-                        postEffectNodes.Add(node);
-                        break;
-                }
+        frameActive = true;
+        try {
+            var renderer = frameRenderer
+                           ?? throw new InvalidOperationException("The Direct3D 12 frame renderer is unavailable.");
+            var (currentContext, currentSwapChain, backBuffer) = BeginFrame();
+            var target = CreateFrameTarget(currentSwapChain);
+            var recorded = renderer.RecordViewportFrame(
+                currentContext, in target, (float) EffectiveDpiScale,
+                clearColor, roots, camera, testFrustum, enableShadows, oitRenderType, oitDepthPeelingIterations,
+                oitWeightPower, oitWeightDepthSlope, oitWeightMode, fxaaLevel, enableSsao, ssaoRadius,
+                ssaoIntensity, ssaoQuality, roots2D, autoUpdateOctree, enableRenderOrder, RenderHost
+            );
+            if (!CanSubmitFrame) {
+                DiscardRecordedFrame();
+                return 0;
             }
 
-        if (enableRenderOrder) {
-            foreach (var node in opaqueNodes) node.UpdateRenderOrderKey();
-            opaqueNodes.Sort();
-            foreach (var node in postEffectNodes) node.UpdateRenderOrderKey();
-            postEffectNodes.Sort();
-            foreach (var node in particleNodes) node.UpdateRenderOrderKey();
-            particleNodes.Sort();
-        }
-
-        SilkD3D12SceneRenderer.UpdateLights(lightNodes, lights);
-
-        var transforms = CreateViewportTransforms(camera,
-            PixelWidth,
-            PixelHeight,
-            (float) windowHost.DpiScale,
-            (float) Stopwatch.GetTimestamp() / Stopwatch.Frequency,
-            out var frustum);
-        transforms.OITWeightPower = oitWeightPower;
-        transforms.OITWeightDepthSlope = oitWeightDepthSlope;
-        transforms.OITWeightMode = (int) oitWeightMode;
-        transforms.SSAOEnabled = enableSsao ? 1u : 0u;
-        transforms.SSAOBias = 1e-3f;
-        transforms.SSAOIntensity = ssaoIntensity;
-        var (currentContext, currentSwapChain, backBuffer) = BeginFrame(clearColor);
-        renderer.BeginFrame();
-        ShadowMapParamStruct? shadowParameters = null;
-        if (enableShadows && shadowNode is not null &&
-            shadowNode.TryCreateD3D12Parameters(lightNodes,
-                opaqueNodes,
-                out var currentShadowParameters,
-                out var shadowFrustum)) {
-            renderer.RenderShadows(currentContext,
-                opaqueNodes,
-                catalog.ResolveShadow,
-                catalog.ResolveBoneSkinning,
-                in transforms,
-                in currentShadowParameters,
-                ref shadowFrustum);
-            var shadowDepthStencilView = depthStencilView
-                ?? throw new InvalidOperationException("The depth/stencil view is unavailable.");
-            currentContext.SetRenderTargets(currentSwapChain.CurrentRenderTargetView, shadowDepthStencilView);
-            currentContext.SetViewport(currentSwapChain.Width, currentSwapChain.Height);
-            shadowParameters = currentShadowParameters;
-        }
-        var currentDepthStencilView = depthStencilView
-            ?? throw new InvalidOperationException("The depth/stencil view is unavailable.");
-        SilkD3D12Resource? ssaoMap = null;
-        if (enableSsao && opaqueNodes.Count > 0) {
-            ssaoMap = renderer.RenderSsao(currentContext,
-                opaqueNodes,
-                catalog.ResolveSsaoGeometry,
-                catalog.ResolvePostProcess(DefaultRenderTechniqueNames.Ssao, DefaultPassNames.Default),
-                catalog.ResolvePostProcess(DefaultRenderTechniqueNames.Ssao, DefaultPassNames.EffectBlurHorizontal),
-                catalog.ResolveBoneSkinning,
-                in transforms,
-                testFrustum,
-                ref frustum,
-                currentSwapChain.Width,
-                currentSwapChain.Height,
-                ssaoQuality,
-                ssaoRadius);
-            currentContext.SetRenderTargets(currentSwapChain.CurrentRenderTargetView, currentDepthStencilView);
-            currentContext.SetViewport(currentSwapChain.Width, currentSwapChain.Height);
-        }
-        int recorded;
-        {
-            using var opaqueProfile = D3D12Profiler.Begin(currentContext, "Silk.Opaque");
-            recorded = renderer.RenderVisible(currentContext,
-                opaqueNodes,
-                catalog.Resolve,
-                in transforms,
-                testFrustum,
-                ref frustum,
-                lights,
-                environmentMap,
-                catalog.ResolveBoneSkinning,
-                shadowParameters,
-                ssaoMap,
-                ssaoMap is null ? -1 : 31);
-        }
-        recorded += renderer.RenderVisible(currentContext,
-            opaqueNodes,
-            catalog.ResolveWireframe,
-            in transforms,
-            testFrustum,
-            ref frustum,
-            boneSkinningPassSelector: catalog.ResolveBoneSkinning);
-        recorded += renderer.RenderVolumes(currentContext,
-            volumeNodes,
-            opaqueNodes,
-            catalog.ResolveVolumeBack,
-            catalog.ResolveVolume,
-            catalog.ResolveVolumePositions,
-            catalog.ResolveBoneSkinning,
-            in transforms,
-            testFrustum,
-            ref frustum,
-            currentSwapChain.CurrentRenderTargetView,
-            currentDepthStencilView,
-            currentSwapChain.Width,
-            currentSwapChain.Height);
-        recorded += renderer.RenderParticles(currentContext,
-            particleNodes,
-            catalog.ResolveParticleUpdate,
-            catalog.ResolveParticleInsert,
-            catalog.ResolveParticle,
-            in transforms,
-            testFrustum,
-            ref frustum);
-        recorded += oitRenderType switch {
-            OITRenderType.SinglePassWeighted => renderer.RenderWeightedTransparency(currentContext,
-                transparentNodes,
-                catalog.ResolveWeightedTransparency,
-                catalog.ResolveWeightedComposition(),
-                in transforms,
-                testFrustum,
-                ref frustum,
-                currentSwapChain.CurrentRenderTargetView,
-                currentDepthStencilView,
-                currentSwapChain.Width,
-                currentSwapChain.Height,
-                lights,
-                environmentMap,
-                catalog.ResolveBoneSkinning,
-                shadowParameters),
-            OITRenderType.DepthPeeling => renderer.RenderDepthPeeling(currentContext,
-                transparentNodes,
-                catalog.ResolveDepthPeelingInitialization,
-                catalog.ResolveDepthPeeling,
-                catalog.ResolveDepthPeelingComposition(),
-                oitDepthPeelingIterations,
-                in transforms,
-                testFrustum,
-                ref frustum,
-                backBuffer,
-                currentSwapChain.CurrentRenderTargetView,
-                currentDepthStencilView,
-                currentSwapChain.Width,
-                currentSwapChain.Height,
-                lights,
-                environmentMap,
-                catalog.ResolveBoneSkinning,
-                shadowParameters),
-            _ => renderer.RenderVisible(currentContext,
-                transparentNodes,
-                catalog.Resolve,
-                in transforms,
-                testFrustum,
-                ref frustum,
-                lights,
-                environmentMap,
-                catalog.ResolveBoneSkinning,
-                shadowParameters)
-        };
-        foreach (var effectNode in globalEffectNodes)
-            if (effectNode is NodePostEffectBloom bloom) {
-                var bloomParameters = new BorderEffectStruct {
-                    Color = bloom.ThresholdColor,
-                    Param = new Matrix {
-                        M11 = bloom.BloomExtractIntensity,
-                        M12 = bloom.BloomPassIntensity,
-                        M13 = bloom.BloomCombineSaturation,
-                        M14 = bloom.BloomCombineIntensity
-                    }
-                };
-                renderer.RenderBloom(currentContext,
-                    backBuffer,
-                    currentSwapChain.CurrentRenderTargetView,
-                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
-                        DefaultPassNames.ScreenQuad),
-                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
-                        DefaultPassNames.EffectBlurVertical),
-                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
-                        DefaultPassNames.EffectBlurHorizontal),
-                    catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectBloom,
-                        DefaultPassNames.MeshOutline),
-                    in bloomParameters,
-                    bloom.NumberOfBlurPass,
-                    in transforms,
-                    currentSwapChain.Width,
-                    currentSwapChain.Height);
-            }
-        recorded += renderer.RenderPostEffects(currentContext, postEffectCandidates, postEffectNodes,
-            catalog, in transforms, testFrustum, ref frustum, backBuffer,
-            currentSwapChain.CurrentRenderTargetView,
-            depthStencilBuffer ?? throw new InvalidOperationException("The depth/stencil resource is unavailable"),
-            currentDepthStencilView, currentSwapChain.Width, currentSwapChain.Height);
-        recorded += RenderScreenSpaced(currentContext,
-            renderer,
-            catalog,
-            camera,
-            in transforms,
-            currentSwapChain,
-            currentDepthStencilView,
-            lights,
-            environmentMap);
-        if (fxaaLevel != FXAALevel.None)
-            renderer.RenderFxaa(currentContext,
-                backBuffer,
-                currentSwapChain.CurrentRenderTargetView,
-                catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectFxaa, DefaultPassNames.LumaPass),
-                catalog.ResolvePostProcess(DefaultRenderTechniqueNames.PostEffectFxaa, DefaultPassNames.FxaaPass),
-                fxaaLevel,
-                in transforms,
-                currentSwapChain.Width,
-                currentSwapChain.Height);
-        if (roots2D is not null) {
-            using var context2D = effectsManager is null ? null : new RenderContext2D(
-                effectsManager.DeviceContext2D, effectsManager, PixelWidth, PixelHeight,
-                (float)windowHost.DpiScale);
-            recorded += renderer.Render2D(currentContext,
-                roots2D,
-                catalog.ResolveSprite2D(),
-                currentSwapChain.CurrentRenderTargetView,
-                currentSwapChain.Width,
-                currentSwapChain.Height,
-                (float) windowHost.DpiScale,
-                context2D);
-        }
-        SilkD3D12Resource? readback = null;
-        PlacedSubresourceFootprint footprint = default;
-        ulong totalBytes = 0;
-        if (captureFrame) {
-            var currentDevice = device
-                ?? throw new InvalidOperationException("The Direct3D 12 device is unavailable.");
-            footprint = currentDevice.GetCopyableFootprint(backBuffer, out totalBytes);
-            readback = currentDevice.CreateBuffer(totalBytes, HeapType.Readback);
-            currentContext.Transition(backBuffer, ResourceStates.CopySource);
-            currentContext.CopyTextureToBuffer(readback, backBuffer, in footprint);
-        }
-        D3D12Profiler.ReportDescriptors(renderer.SceneBindings, renderer.EffectBindings, resourceHeap!, samplerHeap!);
-        EndFrame(currentContext, currentSwapChain, backBuffer, waitForCompletion || captureFrame);
-        if (readback is not null) {
-            using (readback) {
-                LastCapturedFrame = CreateCapturedFrame(readback,
-                    in footprint,
-                    totalBytes,
-                    currentSwapChain.Width,
-                    currentSwapChain.Height);
-            }
-        }
-        return recorded;
-    }
-
-    /// <summary>
-    ///     Renders each screen-spaced root with its own fixed camera and corner viewport.
-    /// </summary>
-    private int RenderScreenSpaced(SilkD3D12CommandContext context,
-        SilkD3D12SceneRenderer renderer,
-        D3D12ScenePassCatalog catalog,
-        CameraCore camera,
-        in GlobalTransformStruct mainTransform,
-        SilkD3D12SwapChain currentSwapChain,
-        SilkD3D12Descriptor currentDepthStencilView,
-        LightsBufferModel lights,
-        TextureModel? environmentMap) {
-        var currentDepthStencilBuffer = depthStencilBuffer
-            ?? throw new InvalidOperationException("The depth/stencil buffer is unavailable.");
-        var recorded = 0;
-        foreach (var root in screenSpacedNodes) {
-            if (root.RenderCore is not ScreenSpacedMeshRenderCore screenCore ||
-                !screenCore.TryCreateD3D12Transform(camera,
-                    in mainTransform,
-                    currentSwapChain.Width,
-                    currentSwapChain.Height,
-                    (float) windowHost.DpiScale,
-                    out var screenTransform,
-                    out var viewport))
-                continue;
-
-            screenSpacedOpaqueNodes.Clear();
-            screenSpacedTransparentNodes.Clear();
-            foreach (var node in root.Items.PreorderDft(node => node.Visible && node is not ScreenSpacedNode)) {
-                if (node.RenderType == RenderType.Opaque) screenSpacedOpaqueNodes.Add(node);
-                else if (node.RenderType == RenderType.Transparent) screenSpacedTransparentNodes.Add(node);
+            PlacedSubresourceFootprint footprint = default;
+            ulong totalBytes = 0;
+            if (captureFrame) {
+                LastCapturedFrame = null;
+                var currentDevice = device
+                                    ?? throw new InvalidOperationException("The Direct3D 12 device is unavailable.");
+                footprint = currentDevice.GetCopyableFootprint(backBuffer, out totalBytes);
+                captureReadback = currentDevice.CreateBuffer(totalBytes, HeapType.Readback);
+                currentContext.Transition(backBuffer, ResourceStates.CopySource);
+                currentContext.CopyTextureToBuffer(captureReadback, backBuffer, in footprint);
             }
 
-            var scissorLeft = Math.Max(0, (int) viewport.X);
-            var scissorTop = Math.Max(0, (int) viewport.Y);
-            var scissorRight = Math.Min((int) currentSwapChain.Width,
-                (int) Math.Ceiling(viewport.X + viewport.Width));
-            var scissorBottom = Math.Min((int) currentSwapChain.Height,
-                (int) Math.Ceiling(viewport.Y + viewport.Height));
-            if (scissorRight <= scissorLeft || scissorBottom <= scissorTop) continue;
-            context.ClearDepthStencil(currentDepthStencilBuffer, currentDepthStencilView);
-            context.SetViewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
-            context.SetScissorRectangle(scissorLeft, scissorTop, scissorRight, scissorBottom);
-            var screenFrustum = new BoundingFrustum(screenTransform.ViewProjection);
-            recorded += renderer.RenderVisible(context,
-                screenSpacedOpaqueNodes,
-                catalog.Resolve,
-                in screenTransform,
-                false,
-                ref screenFrustum,
-                lights,
-                environmentMap,
-                catalog.ResolveBoneSkinning);
-            recorded += renderer.RenderVisible(context,
-                screenSpacedTransparentNodes,
-                catalog.Resolve,
-                in screenTransform,
-                false,
-                ref screenFrustum,
-                lights,
-                environmentMap,
-                catalog.ResolveBoneSkinning);
-        }
-        context.SetViewport(currentSwapChain.Width, currentSwapChain.Height);
-        return recorded;
-    }
+            if (!EndFrame(currentContext, currentSwapChain, backBuffer, waitForCompletion || captureFrame)) return 0;
+            if (captureReadback is { } readback) {
+                LastCapturedFrame = CreateCapturedFrame(
+                    readback, in footprint, totalBytes,
+                    currentSwapChain.Width, currentSwapChain.Height
+                );
+                readback.Dispose();
+                captureReadback = null;
+            }
 
-    /// <summary>
-    ///     Finds the screen-spaced group that owns a flattened scene node.
-    /// </summary>
-    private static ScreenSpacedNode? FindScreenSpacedAncestor(SceneNode node) {
-        for (var parent = node.Parent; parent is not null; parent = parent.Parent)
-            if (parent is ScreenSpacedNode screenSpaced)
-                return screenSpaced;
-        return null;
+            return recorded;
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
+            DiscardRecordedFrame();
+            return 0;
+        } catch {
+            DiscardRecordedFrame();
+            throw;
+        } finally {
+            frameActive = false;
+            SchedulePendingRetirement();
+        }
     }
 
     /// <summary>
@@ -755,15 +612,19 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <param name="width">The frame width.</param>
     /// <param name="height">The frame height.</param>
     /// <returns>The tightly packed WPF frame.</returns>
-    private static D3D12CapturedFrame CreateCapturedFrame(SilkD3D12Resource readback,
+    private static D3D12CapturedFrame CreateCapturedFrame(
+        SilkD3D12Resource readback,
         in PlacedSubresourceFootprint footprint,
         ulong totalBytes,
         uint width,
-        uint height) => CreateCapturedFrame(readback.Read(checked((int) totalBytes)),
+        uint height
+    ) => CreateCapturedFrame(
+        readback.Read(checked((int) totalBytes)),
         footprint.Offset,
         footprint.Footprint.RowPitch,
         width,
-        height);
+        height
+    );
 
     /// <summary>
     ///     Converts a padded RGBA readback allocation to tightly packed WPF BGRA pixels.
@@ -773,22 +634,42 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <param name="rowPitch">The padded native row size.</param>
     /// <param name="width">The frame width.</param>
     /// <param name="height">The frame height.</param>
+    /// <param name="sourceFormat">The channel order of the readback allocation.</param>
+    /// <param name="premultiplied">Whether RGB must be normalized from premultiplied to straight color.</param>
     /// <returns>The tightly packed WPF frame.</returns>
-    internal static D3D12CapturedFrame CreateCapturedFrame(byte[] padded,
+    internal static D3D12CapturedFrame CreateCapturedFrame(
+        byte[] padded,
         ulong offset,
         uint rowPitch,
         uint width,
-        uint height) {
+        uint height,
+        Silk.NET.DXGI.Format sourceFormat = Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm,
+        bool premultiplied = false
+    ) {
         padded.AsGuardNotNull();
+        if (sourceFormat is not (Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm or
+            Silk.NET.DXGI.Format.FormatB8G8R8A8Unorm))
+            throw new ArgumentException("Capture requires an RGBA8 or BGRA8 allocation.", nameof(sourceFormat));
         var rowBytes = checked((int) width * 4);
         var pixels = new byte[checked(rowBytes * (int) height)];
         for (var row = 0; row < height; row++) {
             var sourceOffset = checked((int) offset + (int) row * (int) rowPitch);
             var destinationOffset = checked((int) row * rowBytes);
-            padded.AsSpan(sourceOffset, rowBytes).CopyTo(pixels.AsSpan(destinationOffset, rowBytes));
+            padded.AsSpan(sourceOffset, rowBytes)
+                .CopyTo(pixels.AsSpan(destinationOffset, rowBytes));
         }
-        for (var index = 0; index < pixels.Length; index += 4)
-            (pixels[index], pixels[index + 2]) = (pixels[index + 2], pixels[index]);
+
+        for (var index = 0; index < pixels.Length; index += 4) {
+            if (sourceFormat == Silk.NET.DXGI.Format.FormatR8G8B8A8Unorm)
+                (pixels[index], pixels[index + 2]) = (pixels[index + 2], pixels[index]);
+            if (!premultiplied) continue;
+            var alpha = pixels[index + 3];
+            for (var channel = 0; channel < 3; channel++)
+                pixels[index + channel] = alpha == 0
+                    ? (byte) 0
+                    : (byte) Math.Min(255, (pixels[index + channel] * 255 + alpha / 2) / alpha);
+        }
+
         return new D3D12CapturedFrame(width, height, pixels);
     }
 
@@ -809,33 +690,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         float dpiScale,
         float timeStamp,
         out BoundingFrustum frustum
-    ) {
-        camera.AsGuardNotNull();
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
-        if (!float.IsFinite(dpiScale) || dpiScale <= 0) throw new ArgumentOutOfRangeException(nameof(dpiScale));
-        var aspectRatio = width / (float) height;
-        var view = camera.CreateViewMatrix();
-        var projection = camera.CreateProjectionMatrix(aspectRatio);
-        var viewProjection = view * projection;
-        var cameraParameters = camera.CreateCameraParams(aspectRatio);
-        frustum = new BoundingFrustum(viewProjection);
-        return new GlobalTransformStruct {
-            View = view,
-            Projection = projection,
-            ViewProjection = viewProjection,
-            Frustum = new Vector4(cameraParameters.Fov,
-                cameraParameters.AspectRatio,
-                cameraParameters.ZNear,
-                cameraParameters.ZFar),
-            Viewport = new Vector4(width, height, 1f / width, 1f / height),
-            Resolution = new Vector4(width, height, 1f / width, 1f / height),
-            EyePos = cameraParameters.Position,
-            IsPerspective = !frustum.IsOrthographic,
-            TimeStamp = timeStamp,
-            DpiScale = dpiScale
-        };
-    }
+    ) => D3D12FrameRenderer.CreateViewportTransforms(camera, width, height, dpiScale, timeStamp, out frustum);
 
     /// <inheritdoc />
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
@@ -847,7 +702,11 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ///     Releases all native and WPF-host resources.
     /// </summary>
     public void Dispose() {
+        Dispatcher.VerifyAccess();
         if (IsDisposed) return;
+        disposeRequested = retireRequested = true;
+        if (HasActiveFrame || retiringNative) return;
+        StopNative();
 
         Loaded -= OnLoaded;
         Unloaded -= OnUnloaded;
@@ -857,9 +716,11 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         if (resizeOperation is { Status: DispatcherOperationStatus.Pending }) resizeOperation.Abort();
         _resizeRetryTimer.Stop();
         _resizeRetryTimer.Tick -= RetryPendingResize;
-        StopNative();
+        retirementOperation?.Abort();
+        retirementOperation = null;
         windowHost.Dispose();
         IsDisposed = true;
+        disposeRequested = retireRequested = false;
     }
 
     /// <summary>
@@ -867,66 +728,89 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="eventArgs">The event arguments.</param>
-    private void OnLoaded(object sender, RoutedEventArgs eventArgs) => StartNative();
+    private void OnLoaded(object sender, RoutedEventArgs eventArgs) {
+        loaded = true;
+        suspended = false;
+        EnsureNativeInitialized();
+    }
 
     /// <summary>
     ///     Stops native presentation when WPF detaches the surface.
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="eventArgs">The event arguments.</param>
-    private void OnUnloaded(object sender, RoutedEventArgs eventArgs) => StopNative();
+    private void OnUnloaded(object sender, RoutedEventArgs eventArgs) {
+        loaded = false;
+        suspended = true;
+        RetireSceneResources();
+    }
 
     /// <summary>
     ///     Starts native presentation as soon as the child HWND exists.
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="eventArgs">The event arguments.</param>
-    private void OnHandleCreated(object? sender, EventArgs eventArgs) => StartNative();
+    private void OnHandleCreated(object? sender, EventArgs eventArgs) => EnsureNativeInitialized();
 
     /// <summary>
     ///     Stops native presentation before the child HWND is destroyed.
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="eventArgs">The event arguments.</param>
-    private void OnHandleDestroyed(object? sender, EventArgs eventArgs) => StopNative();
+    private void OnHandleDestroyed(object? sender, EventArgs eventArgs) => RetireSceneResources();
 
     /// <summary>
     ///     Queues a physical resize when WPF changes DPI.
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="dpiScale">The new DPI scale.</param>
-    private void OnDpiScaleChanged(object? sender, double dpiScale) => QueueResize();
+    private void OnDpiScaleChanged(object? sender, double dpiScale) {
+        this.dpiScale = null;
+        QueueResize();
+    }
 
     /// <summary>
     ///     Creates the device, queue, command context, fence, and swap chain once.
     /// </summary>
     private void StartNative() {
         Dispatcher.VerifyAccess();
-        if (IsDisposed || swapChain is not null || !windowHost.IsHandleCreated) return;
+        if (IsDisposed || disposeRequested || retireRequested || retiringNative || HasActiveFrame ||
+            swapChain is not null || !windowHost.IsHandleCreated || recoveryBarrier is { CanRecreate: false }) return;
 
-        var size = D3D12PresentationSize.Calculate(ActualWidth, ActualHeight, windowHost.DpiScale);
+        var size = D3D12PresentationSize.Calculate(ActualWidth, ActualHeight, EffectiveDpiScale);
         try {
-            device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, driverType);
+            var selectedDriverType = effectsManager?.EnableSoftwareRendering == true
+                ? SilkDriverType.Warp
+                : driverType;
+            device = SilkD3D12DeviceFactory.CreateForAdapter(
+                effectsManager?.AdapterIndex ?? -1,
+                SilkFeatureLevel.Level110, selectedDriverType
+            );
+            recoveryRegistration = new D3D12PresentationDeviceRecovery(
+                device.NativePointer, Dispatcher, retireRemovedDevice, queuedDeviceRemoval
+            );
+            if (ObserveDeviceRemoval()) return;
             commandQueue = device.CreateCommandQueue();
             commandContext = device.CreateCommandContext();
             fence = device.CreateFence();
-            swapChain = new SilkD3D12SwapChain(device,
+            swapChain = new SilkD3D12SwapChain(
+                device,
                 commandQueue,
                 windowHost.NativeHandle,
                 size.Width,
-                size.Height);
-            depthStencilHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
-            depthStencilView = depthStencilHeap.Allocate();
-            RecreateDepthStencil(size.Width, size.Height);
-            resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 16_384, true);
-            samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 2_048, true);
-            sceneRenderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
-            passCatalog = new D3D12ScenePassCatalog(device,
-                swapChain.Format,
-                DepthStencilFormat,
-                (effectsManager as EffectsManager)?.TechniqueDescriptions,
-                effectsManager);
+                size.Height
+            );
+            frameRenderer = new D3D12FrameRenderer(device, swapChain.Format, effectsManager);
+            frameRenderer.Resize(size.Width, size.Height);
             _effectsManagerDirty = false;
+            recoveryBarrier = null;
+            if (RenderHost is Viewport3DX viewport) viewport.MarkPresentationInitialized();
+        } catch (System.Runtime.InteropServices.COMException exception) when (device is null &&
+                                                                              D3D12PresentationDeviceRecovery.IsRemovalFailure(exception)) {
+            D3D12PresentationDeviceRecovery.ProbeForRemoval();
+            if (RenderHost is Viewport3DX viewport) viewport.RenderDemand.RequestRecovery();
+        } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
+            _ = ObserveDeviceRemoval();
         } catch {
             StopNative();
             throw;
@@ -937,69 +821,88 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ///     Waits for queued GPU work and releases the presentation stack in dependency order.
     /// </summary>
     private void StopNative() {
-        _resizeRetryTimer.Stop();
-        if (commandQueue is not null && fence is not null) {
-            var fenceValue = commandQueue.Signal(fence);
-            fence.Wait(fenceValue, TimeSpan.FromSeconds(5));
-            _ = _frameSubmission.TryComplete(fence.CompletedValue, FrameTimestamp());
+        if (HasActiveFrame || retiringNative) {
+            retireRequested = true;
+            return;
         }
 
-        _frameSubmission.DiscardCompletions();
-        passCatalog?.Dispose();
-        sceneRenderer?.Dispose();
-        RenderContext?.Dispose();
-        RenderContext = null;
-        samplerHeap?.Dispose();
-        resourceHeap?.Dispose();
-        depthStencilBuffer?.Dispose();
-        depthStencilView?.Dispose();
-        depthStencilHeap?.Dispose();
-        swapChain?.Dispose();
-        commandContext?.Dispose();
-        fence?.Dispose();
-        commandQueue?.Dispose();
-        device?.Dispose();
-        passCatalog = null;
-        sceneRenderer = null;
-        samplerHeap = null;
-        resourceHeap = null;
-        depthStencilBuffer = null;
-        depthStencilView = null;
-        depthStencilHeap = null;
-        swapChain = null;
-        commandContext = null;
-        fence = null;
-        commandQueue = null;
-        device = null;
+        retiringNative = true;
+        try {
+            if (device is not null && device.GetDeviceRemovedReason() < 0) {
+                recoveryBarrier ??= recoveryRegistration;
+                recoveryRegistration?.RequestRemoval();
+            }
+
+            _resizeRetryTimer.Stop();
+            if (resizeOperation is { Status: DispatcherOperationStatus.Pending }) resizeOperation.Abort();
+            resizeOperation = null;
+            if (device is not null && commandQueue is not null && fence is not null) {
+                try {
+                    device.ThrowIfDeviceRemoved();
+                    var fenceValue = commandQueue.Signal(fence);
+                    fence.Wait(fenceValue, TimeSpan.FromSeconds(5));
+                    device.ThrowIfDeviceRemoved();
+                    _ = _frameSubmission.TryComplete(fence.CompletedValue, FrameTimestamp());
+                } catch (Exception) when (device.GetDeviceRemovedReason() < 0) {
+                    recoveryBarrier ??= recoveryRegistration;
+                    recoveryRegistration?.RequestRemoval();
+                    // Removed queues cannot drain; completed old frames remain claimable, pending work is abandoned.
+                    _frameSubmission.AbandonRemovedDeviceSubmission();
+                }
+            }
+
+            // Keep undelivered completions across retirement; already claimed serials remain claimed.
+            captureReadback?.Dispose();
+            captureReadback = null;
+            LastCapturedFrame = null;
+            frameRenderer?.Dispose();
+            swapChain?.Dispose();
+            commandContext?.Dispose();
+            fence?.Dispose();
+            commandQueue?.Dispose();
+            device?.Dispose();
+            frameRenderer = null;
+            swapChain = null;
+            commandContext = null;
+            fence = null;
+            commandQueue = null;
+            device = null;
+            recoveryRegistration?.Unregister();
+            recoveryRegistration = null;
+            commandsOpen = false;
+            if (RenderHost is Viewport3DX viewport) viewport.ObserveNativeRetirement(this);
+        } finally {
+            retiringNative = false;
+            if (disposeRequested) SchedulePendingRetirement();
+        }
     }
 
     /// <summary>
-    ///     Resets the command context, binds the current back buffer, and clears it.
+    ///     Resets the command context after completion and borrows the current back buffer.
     /// </summary>
-    /// <param name="clearColor">Four RGBA clear components.</param>
     /// <returns>The open context, current swap chain, and render-target back buffer.</returns>
     /// <exception cref="InvalidOperationException">A frame is pending or a required native owner is unavailable.</exception>
     private (SilkD3D12CommandContext Context, SilkD3D12SwapChain SwapChain, SilkD3D12Resource BackBuffer)
-        BeginFrame(ReadOnlySpan<float> clearColor) {
+        BeginFrame() {
         if (_frameSubmission.IsPending)
             throw new InvalidOperationException("A pending Direct3D 12 frame still owns the command context");
         var currentSwapChain = swapChain
-            ?? throw new InvalidOperationException("The presentation surface is not attached to a window.");
+                               ?? throw new InvalidOperationException("The presentation surface is not attached to a window.");
         var currentContext = commandContext
-            ?? throw new InvalidOperationException("The command context is unavailable.");
+                             ?? throw new InvalidOperationException("The command context is unavailable.");
         var backBuffer = currentSwapChain.CurrentBackBuffer;
-        var currentDepthStencilBuffer = depthStencilBuffer
-            ?? throw new InvalidOperationException("The depth/stencil buffer is unavailable.");
-        var currentDepthStencilView = depthStencilView
-            ?? throw new InvalidOperationException("The depth/stencil view is unavailable.");
         currentContext.Reset();
-        currentContext.Transition(backBuffer, ResourceStates.RenderTarget);
-        currentContext.ClearRenderTarget(backBuffer, currentSwapChain.CurrentRenderTargetView, clearColor);
-        currentContext.ClearDepthStencil(currentDepthStencilBuffer, currentDepthStencilView);
-        currentContext.SetRenderTargets(currentSwapChain.CurrentRenderTargetView, currentDepthStencilView);
-        currentContext.SetViewport(currentSwapChain.Width, currentSwapChain.Height);
+        commandsOpen = true;
         return (currentContext, currentSwapChain, backBuffer);
     }
+
+    /// <summary>Describes the current borrowed color target without transferring native ownership.</summary>
+    /// <param name="currentSwapChain">The current transport allocation.</param>
+    /// <returns>The frame boundary metadata.</returns>
+    private static D3D12FrameTarget CreateFrameTarget(SilkD3D12SwapChain currentSwapChain) => new(
+        currentSwapChain.CurrentBackBuffer, currentSwapChain.CurrentRenderTargetView,
+        currentSwapChain.Width, currentSwapChain.Height, currentSwapChain.Format
+    );
 
     /// <summary>
     ///     Submits and presents one protected frame, waiting only for explicit synchronous consumers.
@@ -1010,24 +913,32 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <param name="waitForCompletion">Whether this explicit consumer requires completed GPU work.</param>
     /// <exception cref="InvalidOperationException">The native command queue or completion fence is unavailable.</exception>
     /// <exception cref="TimeoutException">The submitted frame exceeded its finite completion deadline.</exception>
-    private void EndFrame(
+    /// <returns>Whether commands were submitted; canceled recording retains retirement without consuming a frame.</returns>
+    private bool EndFrame(
         SilkD3D12CommandContext currentContext,
         SilkD3D12SwapChain currentSwapChain,
         SilkD3D12Resource backBuffer,
         bool waitForCompletion = true
     ) {
+        if (ObserveDeviceRemoval() || !CanSubmitFrame) {
+            DiscardRecordedFrame();
+            return false;
+        }
+
         var currentQueue = commandQueue
-            ?? throw new InvalidOperationException("The command queue is unavailable.");
+                           ?? throw new InvalidOperationException("The command queue is unavailable.");
         var currentFence = fence
-            ?? throw new InvalidOperationException("The presentation fence is unavailable.");
+                           ?? throw new InvalidOperationException("The presentation fence is unavailable.");
         currentContext.Transition(backBuffer, ResourceStates.Present);
         currentContext.Close();
+        commandsOpen = false;
         currentQueue.Execute(currentContext);
         currentSwapChain.Present(0);
         var fenceValue = currentQueue.Signal(currentFence);
         _frameSubmission.Submit(fenceValue, FrameTimestamp());
         PresentedFrames++;
-        if (waitForCompletion) _ = CompletePendingFrame(true);
+        if (waitForCompletion && !CompletePendingFrame(true)) return false;
+        return true;
     }
 
     /// <summary>
@@ -1044,7 +955,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     internal void Resize(double width, double height) {
         Dispatcher.VerifyAccess();
         if (IsDisposed) return;
-        var size = D3D12PresentationSize.Calculate(width, height, windowHost.DpiScale);
+        var size = D3D12PresentationSize.Calculate(width, height, EffectiveDpiScale);
         if (!resizeQueue.Request(size.Width, size.Height)) return;
 
         resizeOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action) ApplyDeferredResize);
@@ -1054,16 +965,17 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     ///     Applies the newest physical size after polling outstanding GPU work without blocking the dispatcher.
     /// </summary>
     private void ApplyPendingResize() {
-        if (IsDisposed || swapChain is null) return;
+        if (IsDisposed || disposeRequested || retireRequested || frameActive || swapChain is null) return;
         if (!CompletePendingFrame()) {
             _resizeRetryTimer.Start();
             return;
         }
+
         _resizeRetryTimer.Stop();
         if (!resizeQueue.TryTake(out var size)) return;
         if (swapChain.Width == size.Width && swapChain.Height == size.Height) return;
         swapChain.Resize(size.Width, size.Height);
-        RecreateDepthStencil(size.Width, size.Height);
+        frameRenderer?.Resize(size.Width, size.Height);
     }
 
     /// <summary>Retries the latest resize request once the preceding frame may have completed.</summary>
@@ -1076,39 +988,18 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
 
     /// <summary>Reports deferred resize failures at the same renderer boundary as ordinary composition failures.</summary>
     private void ApplyDeferredResize() {
+        if (HasActiveFrame) return;
         try {
             ApplyPendingResize();
         } catch (Exception exception) {
             _resizeRetryTimer.Stop();
-            if (DeferredRenderException is not { } handler) throw;
-            handler(this, new RelayExceptionEventArgs(exception));
+            ReportDeferredFailure(exception);
         }
-    }
-
-    /// <summary>
-    ///     Replaces the depth/stencil texture after initial attachment or a completed swap-chain resize.
-    /// </summary>
-    /// <param name="width">The physical width in pixels.</param>
-    /// <param name="height">The physical height in pixels.</param>
-    private void RecreateDepthStencil(uint width, uint height) {
-        var currentDevice = device ?? throw new InvalidOperationException("The Direct3D 12 device is unavailable.");
-        var currentView = depthStencilView
-            ?? throw new InvalidOperationException("The depth/stencil descriptor is unavailable.");
-        var replacement = currentDevice.CreateDepthStencilTexture2D(width, height, DepthStencilFormat);
-        try {
-            currentDevice.CreateDepthStencilView(replacement, currentView);
-        } catch {
-            replacement.Dispose();
-            throw;
-        }
-
-        depthStencilBuffer?.Dispose();
-        depthStencilBuffer = replacement;
     }
 }
 
 /// <summary>
-///     Contains one tightly packed BGRA viewport frame for WPF bitmap encoding.
+///     Contains one tightly packed straight BGRA viewport frame for WPF bitmap encoding.
 /// </summary>
 /// <param name="Width">The frame width.</param>
 /// <param name="Height">The frame height.</param>
@@ -1119,6 +1010,7 @@ internal readonly record struct D3D12CapturedFrame(uint Width, uint Height, byte
 ///     Retains only the newest pending presentation size and requests at most one dispatcher operation.
 /// </summary>
 internal sealed class D3D12ResizeQueue {
+    /// <summary>The most recent requested physical size.</summary>
     private (uint Width, uint Height)? pending;
 
     /// <summary>

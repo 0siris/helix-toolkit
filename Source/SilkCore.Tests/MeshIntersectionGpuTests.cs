@@ -13,8 +13,10 @@ using Vector4 = Silk.NET.Maths.Vector4D<float>;
 using Color4 = Silk.NET.Maths.Vector4D<float>;
 
 namespace SilkCore.Tests;
+
 /// <summary>Exercises actual selected-pair GPU intersections and indirect line rendering without desktop windows.</summary>
-public sealed class MeshIntersectionGpuTests {
+/// <param name="output">Receives warm allocation totals after the measured regions.</param>
+public sealed class MeshIntersectionGpuTests(ITestOutputHelper output) {
     /// <summary>Rejects invalid source identities and cancellation before replacing an immutable dispatch publication.</summary>
     [Fact]
     public void InputValidationAndCancellationRetainPriorGeneration() {
@@ -25,12 +27,104 @@ public sealed class MeshIntersectionGpuTests {
         using var cancellation = new CancellationTokenSource();
         cancellation.Cancel();
         Assert.Throws<OperationCanceledException>(() => core.SetInputs([], cancellation.Token));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new IntersectionDispatchInput(mesh, mesh,
-            Matrix.Identity, Matrix.Identity, [new IntersectionCandidate(1, 0)]));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new IntersectionDispatchInput(
+                mesh, mesh,
+                Matrix.Identity, Matrix.Identity, [new IntersectionCandidate(1, 0)]
+            )
+        );
         Assert.Throws<ArgumentException>(() => new IntersectionMeshSnapshot([new Vector3(float.NaN)], []));
         Assert.Throws<ArgumentException>(() => new IntersectionMeshSnapshot([new Vector3(0)], [0, 0]));
         Assert.Same(prior, core.Inputs);
     }
+
+    /// <summary>Validates every position and index, collection lengths and the borrowed owner's lifetime.</summary>
+    /// <param name="element">The original vertex and index to mutate without changing collection sizes.</param>
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void SharedSnapshotRejectsCompleteGeometryMutations(int element) {
+        var positions = new[] { new Vector3(0), new Vector3(1, 0, 0), new Vector3(0, 1, 0) };
+        var geometry = new MeshGeometry3D { Positions = new Vector3Collection(positions), Indices = new IntCollection([0, 1, 2]) };
+        using var buffer = new DefaultMeshGeometryBufferModel { Geometry = geometry };
+        var snapshot = new IntersectionMeshSnapshot(positions, [0, 1, 2], buffer);
+        Assert.True(snapshot.CanShare());
+        geometry.Positions[element] += Vector3.UnitZ;
+        Assert.False(snapshot.CanShare());
+        geometry.Positions[element] = positions[element];
+        Assert.True(snapshot.CanShare());
+        geometry.Indices[element] = (element + 1) % 3;
+        Assert.False(snapshot.CanShare());
+        geometry.Indices[element] = element;
+        Assert.True(snapshot.CanShare());
+        geometry.Positions.Add(Vector3.One);
+        Assert.False(snapshot.CanShare());
+        geometry.Positions.RemoveAt(3);
+        geometry.Indices.Add(0);
+        Assert.False(snapshot.CanShare());
+        geometry.Indices.RemoveAt(3);
+        Assert.True(snapshot.CanShare());
+        buffer.Dispose();
+        Assert.False(snapshot.CanShare());
+    }
+
+    /// <summary>Rejects truncated or extra batches, candidate-count changes and equal-geometry owner replacements.</summary>
+    /// <param name="replaceFirst">Whether to replace the first borrowed owner rather than the second.</param>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    [Trait("Category", "Warp")]
+    public void ReuseRequiresCompleteBatchesAndOriginalLiveOwners(bool replaceFirst) {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        using var heap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 1024, true);
+        using var samplers = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 128, true);
+        using var root = device.CreateDefaultRootSignature();
+        using var pipelines = new D3D12PipelineStateCache();
+        using var manager = new SilkD3D12ResourceManager(device, heap);
+        var positions = new[] { new Vector3(0), new Vector3(1, 0, 0), new Vector3(0, 1, 0) };
+        using var firstNode = new MeshNode {
+            Geometry = new MeshGeometry3D { Positions = new Vector3Collection(positions), Indices = new IntCollection([0, 1, 2]) }
+        };
+        using var secondNode = new MeshNode { Geometry = firstNode.Geometry };
+        Assert.True(firstNode.Attach());
+        Assert.True(secondNode.Attach());
+        var first = new IntersectionMeshSnapshot(positions, [0, 1, 2], renderNode: firstNode);
+        var second = new IntersectionMeshSnapshot(positions, [0, 1, 2], renderNode: secondNode);
+        var empty = new IntersectionDispatchInput(first, second, Matrix.Identity, Matrix.Identity, []);
+        var active = new IntersectionDispatchInput(
+            first, second, Matrix.Identity, Matrix.Identity,
+            [new IntersectionCandidate(0, 0)]
+        );
+        var inputs = new List<IntersectionDispatchInput> { empty, active, empty };
+        using var native = new SilkD3D12IntersectionResources(device, heap, samplers, manager, inputs, root, pipelines);
+        Assert.True(native.CanReuse());
+        inputs.Add(active);
+        Assert.False(native.CanReuse());
+        inputs.RemoveAt(3);
+        inputs[1] = empty;
+        Assert.False(native.CanReuse());
+        inputs[1] = new IntersectionDispatchInput(
+            first, second, Matrix.Identity, Matrix.Identity,
+            [new IntersectionCandidate(0, 0), new IntersectionCandidate(0, 0)]
+        );
+        Assert.False(native.CanReuse());
+        inputs[1] = active;
+        Assert.True(native.CanReuse());
+        var replaced = replaceFirst
+            ? first
+            : second;
+        var previousOwner = replaced.RenderBuffer;
+        (replaceFirst
+                ? firstNode
+                : secondNode).Geometry =
+            new MeshGeometry3D { Positions = new Vector3Collection(positions), Indices = new IntCollection([0, 1, 2]) };
+        Assert.NotSame(previousOwner, replaced.RenderBuffer);
+        Assert.True(first.CanShare());
+        Assert.True(second.CanShare());
+        Assert.False(native.CanReuse());
+        device.ThrowIfDeviceRemoved();
+    }
+
     /// <summary>Releases all partial allocations when the real descriptor allocator rejects an undersized host heap.</summary>
     [Fact]
     [Trait("Category", "Warp")]
@@ -43,14 +137,18 @@ public sealed class MeshIntersectionGpuTests {
         using var manager = new SilkD3D12ResourceManager(device, heap);
         var mesh = new IntersectionMeshSnapshot([new Vector3(0), new Vector3(1, 0, 0), new Vector3(0, 1, 0)], [0, 1, 2]);
         var input = new IntersectionDispatchInput(mesh, mesh, Matrix.Identity, Matrix.Identity, [new IntersectionCandidate(0, 0)]);
-        Assert.Throws<ArgumentOutOfRangeException>(() => new SilkD3D12IntersectionResources(device, heap, samplers,
-            manager, [input], root, pipelines));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new SilkD3D12IntersectionResources(
+                device, heap, samplers,
+                manager, [input], root, pipelines
+            )
+        );
         Assert.Equal(0, heap.Count);
         Assert.Equal(0, samplers.Count);
         device.ThrowIfDeviceRemoved();
     }
+
     /// <summary>
-    ///     Checks source layouts, independent transverse geometry, tail guarding and native line output.
+    ///     Checks source layouts, independent transverse geometry, tail guarding, warm reuse and native line output.
     /// </summary>
     /// <param name="shared">Whether both inputs borrow actual render index buffers.</param>
     /// <param name="rotated">Whether noncommuting independent local-to-world matrices are used.</param>
@@ -65,8 +163,10 @@ public sealed class MeshIntersectionGpuTests {
         using var queue = device.CreateCommandQueue();
         using var context = device.CreateCommandContext();
         using var fence = device.CreateFence();
-        using var catalog = new D3D12ScenePassCatalog(device, Format.FormatR8G8B8A8Unorm,
-            Format.FormatD32FloatS8X24Uint);
+        using var catalog = new D3D12ScenePassCatalog(
+            device, Format.FormatR8G8B8A8Unorm,
+            Format.FormatD32FloatS8X24Uint
+        );
         using var resourceHeap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 1024, true);
         using var samplerHeap = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 128, true);
         using var renderer = new SilkD3D12SceneRenderer(device, resourceHeap, samplerHeap);
@@ -81,37 +181,67 @@ public sealed class MeshIntersectionGpuTests {
         using var firstBuffer = new DefaultMeshGeometryBufferModel();
         using var secondBuffer = new DefaultMeshGeometryBufferModel();
         var firstPositions = new[] { new Vector3(-0.8f, -0.8f, 0.5f), new Vector3(0.8f, -0.8f, 0.5f), new Vector3(0, 0.8f, 0.5f) };
-        if (rotated) firstPositions = firstPositions.Select(position => position + new Vector3(10, 0, 0)).ToArray();
+        if (rotated)
+            firstPositions = firstPositions.Select(position => position + new Vector3(10, 0, 0))
+                .ToArray();
         var secondPositions = new[] { new Vector3(-0.5f, 0, 0), new Vector3(0.5f, 0, 0), new Vector3(0, 0, 1) };
-        firstBuffer.Geometry = new MeshGeometry3D { Positions = new Vector3Collection(firstPositions), Indices = new IntCollection([0, 1, 2]) };
-        secondBuffer.Geometry = new MeshGeometry3D { Positions = new Vector3Collection(secondPositions), Indices = new IntCollection([0, 1, 2]) };
+        firstBuffer.Geometry =
+            new MeshGeometry3D { Positions = new Vector3Collection(firstPositions), Indices = new IntCollection([0, 1, 2]) };
+        secondBuffer.Geometry =
+            new MeshGeometry3D { Positions = new Vector3Collection(secondPositions), Indices = new IntCollection([0, 1, 2]) };
         using var firstRenderNode = new MeshNode { Geometry = firstBuffer.Geometry };
         using var secondRenderNode = new MeshNode { Geometry = secondBuffer.Geometry };
         firstRenderNode.Attach();
         secondRenderNode.Attach();
-        var first = new IntersectionMeshSnapshot(firstPositions, [0, 1, 2], renderNode: shared ? firstRenderNode : null);
-        var second = new IntersectionMeshSnapshot(secondPositions, [0, 1, 2], renderNode: shared ? secondRenderNode : null);
+        var first = new IntersectionMeshSnapshot(
+            firstPositions, [0, 1, 2], renderNode: shared
+                ? firstRenderNode
+                : null
+        );
+        var second = new IntersectionMeshSnapshot(
+            secondPositions, [0, 1, 2], renderNode: shared
+                ? secondRenderNode
+                : null
+        );
         Assert.Equal(shared, first.CanShare());
         Assert.Equal(shared, second.CanShare());
         using var node = new GpuLineNode();
         node.Material = new LineMaterialCore { LineColor = new Color4(1, 0, 0, 1), Thickness = 3 };
-        var core = (MeshIntersectionRenderCore)node.RenderCore;
-        var candidates = Enumerable.Range(0, 513).Select(id => new IntersectionCandidate(0, 0, id + 1000)).ToArray();
+        var core = (MeshIntersectionRenderCore) node.RenderCore;
+        var candidates = Enumerable.Range(0, 513)
+            .Select(id => new IntersectionCandidate(0, 0, id + 1000))
+            .ToArray();
         var pose = Matrix.Identity;
         pose.M41 = 0.1f;
-        if (rotated) { pose.M11 = 0; pose.M12 = 1; pose.M21 = -1; pose.M22 = 0; }
+        if (rotated) {
+            pose.M11 = 0;
+            pose.M12 = 1;
+            pose.M21 = -1;
+            pose.M22 = 0;
+        }
+
         var firstPose = pose;
         if (rotated) firstPose.M42 = -10;
         var initialSeparatedPose = pose;
         initialSeparatedPose.M41 = 4;
-        core.SetInputs([new IntersectionDispatchInput(first, second, firstPose, pose, candidates),
-            new IntersectionDispatchInput(first, second, firstPose, initialSeparatedPose, [new IntersectionCandidate(0, 0, -500)])]);
+        var emptyInput = new IntersectionDispatchInput(first, second, firstPose, pose, []);
+        core.SetInputs(
+            [
+                emptyInput, new IntersectionDispatchInput(first, second, firstPose, pose, candidates), emptyInput,
+                new IntersectionDispatchInput(first, second, firstPose, initialSeparatedPose, [new IntersectionCandidate(0, 0, -500)]),
+                emptyInput
+            ]
+        );
         candidates[0] = new IntersectionCandidate(0, 0, -1);
         firstPositions[0] = new Vector3(999);
         var transforms = new GlobalTransformStruct {
-            View = Matrix.Identity, Projection = Matrix.Identity, ViewProjection = Matrix.Identity,
-            Viewport = new Vector4(32, 32, 1f / 32, 1f / 32), Resolution = new Vector4(32, 32, 1f / 32, 1f / 32),
-            EyePos = new Vector3(0, 0, 2), DpiScale = 1
+            View = Matrix.Identity,
+            Projection = Matrix.Identity,
+            ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(32, 32, 1f / 32, 1f / 32),
+            Resolution = new Vector4(32, 32, 1f / 32, 1f / 32),
+            EyePos = new Vector3(0, 0, 2),
+            DpiScale = 1
         };
         var frustum = new BoundingFrustum(Matrix.Identity);
         var nodes = new FastList<SceneNode> { node };
@@ -126,27 +256,35 @@ public sealed class MeshIntersectionGpuTests {
                 // Same counts are insufficient: this unrelated render edit must invalidate the borrowed shared path.
                 firstBuffer.Geometry.Positions[0] = new Vector3(-10, -10, -10);
             }
+
             if (frame == 4) {
                 core.SetInputs([new IntersectionDispatchInput(first, second, firstPose, pose, [new IntersectionCandidate(0, 0, 77)])]);
                 node.Material = new LineMaterialCore { LineColor = new Color4(0, 1, 0, 1), Thickness = 5 };
             }
+
             if (frame == 5) {
                 var separated = pose;
                 separated.M41 = 4;
                 core.SetInputs([new IntersectionDispatchInput(first, second, firstPose, separated, [new IntersectionCandidate(0, 0, 88)])]);
             }
+
             if (frame == 6)
                 core.SetInputs([new IntersectionDispatchInput(first, first, firstPose, firstPose, [new IntersectionCandidate(0, 0, 99)])]);
             if (frame == 7) {
                 node.Detach();
                 core.SetInputs([new IntersectionDispatchInput(first, second, firstPose, pose, [new IntersectionCandidate(0, 0, 77)])]);
             }
+
             renderer.BeginFrame();
             if (lastRetired is not null) Assert.True(lastRetired.IsDisposed);
             context.Reset();
             context.Transition(target, ResourceStates.RenderTarget);
             context.ClearRenderTarget(target, targetView, [0, 0, 1, 1]);
-            context.ClearDepthStencil(depth, depthView, frame is 1 or 7 ? 0 : 1);
+            context.ClearDepthStencil(
+                depth, depthView, frame is 1 or 7
+                    ? 0
+                    : 1
+            );
             context.SetRenderTargets(targetView, depthView);
             context.SetViewport(32, 32);
             var parameters = new BorderEffectStruct();
@@ -155,8 +293,10 @@ public sealed class MeshIntersectionGpuTests {
                 current => catalog.ResolvePostEffectGeometry(current, DefaultPassNames.EffectMeshXRayP2, Format.FormatD32FloatS8X24Uint)
             };
             var recorded = frame == 7
-                ? renderer.RenderXRay(context, nodes, selectors, in parameters, in transforms, false,
-                    ref frustum, targetView, depthView, 32, 32)
+                ? renderer.RenderXRay(
+                    context, nodes, selectors, in parameters, in transforms, false,
+                    ref frustum, targetView, depthView, 32, 32
+                )
                 : renderer.RenderVisible(context, nodes, catalog.Resolve, in transforms, false, ref frustum);
             var native = renderer.FindIntersectionResources(core)!;
             if (previous is not null) {
@@ -164,12 +304,12 @@ public sealed class MeshIntersectionGpuTests {
                     Assert.NotSame(previous, native);
                     Assert.Equal(frame == 7, previous.IsDisposed);
                     lastRetired = previous;
-                }
-                else Assert.Same(previous, native);
+                } else Assert.Same(previous, native);
             }
+
             previous = native;
             context.Transition(native.Segments, ResourceStates.CopySource);
-            context.CopyBuffer(segments, 0, native.Segments, 0, (ulong)native.Capacity * 28);
+            context.CopyBuffer(segments, 0, native.Segments, 0, (ulong) native.Capacity * 28);
             context.Transition(native.Arguments, ResourceStates.CopySource);
             context.CopyBuffer(arguments, 0, native.Arguments, 0, 16);
             context.Transition(target, ResourceStates.CopySource);
@@ -177,14 +317,26 @@ public sealed class MeshIntersectionGpuTests {
             context.Close();
             queue.Execute(context);
             fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(15));
-            var draw = MemoryMarshal.Cast<byte, uint>(arguments.Read(16)).ToArray();
-            var output = MemoryMarshal.Cast<byte, IntersectionSegment>(segments.Read(513 * 28)).ToArray();
-            Assert.Equal(frame == 7 ? 2 : 1, recorded);
-            var expectedCount = frame is 5 or 6 ? 0 : frame >= 4 ? 1 : 513;
-            Assert.Equal(new uint[] { 2, (uint)expectedCount, 0, 0 }, draw);
-            var validOutput = output.Take(expectedCount).ToArray();
-            var expectedIds = expectedCount == 0 ? [] : frame >= 4 ? new[] { 77 } : Enumerable.Range(1000, 513);
-            Assert.Equal(expectedIds, validOutput.Select(segment => segment.PairId).Order());
+            var draw = MemoryMarshal.Cast<byte, uint>(arguments.Read(16))
+                .ToArray();
+            var output = MemoryMarshal.Cast<byte, IntersectionSegment>(segments.Read(513 * 28))
+                .ToArray();
+            Assert.Equal(
+                frame == 7
+                    ? 2
+                    : 1, recorded
+            );
+            var expectedCount = frame is 5 or 6 ? 0 :
+                frame >= 4 ? 1 : 513;
+            Assert.Equal(new uint[] { 2, (uint) expectedCount, 0, 0 }, draw);
+            var validOutput = output.Take(expectedCount)
+                .ToArray();
+            var expectedIds = expectedCount == 0 ? [] :
+                frame >= 4 ? new[] { 77 } : Enumerable.Range(1000, 513);
+            Assert.Equal(
+                expectedIds, validOutput.Select(segment => segment.PairId)
+                    .Order()
+            );
             foreach (var segment in validOutput) {
                 Assert.Equal(0.5f, segment.Origin.Z, 5);
                 Assert.Equal(0.5f, segment.End.Z, 5);
@@ -200,11 +352,21 @@ public sealed class MeshIntersectionGpuTests {
                     Assert.Equal(0.35f, Math.Max(segment.Origin.X, segment.End.X), 5);
                 }
             }
+
             var pixel = pixels.Read(4, footprint.Offset + 16UL * footprint.Footprint.RowPitch + 16UL * 4);
-            Assert.True(expectedCount == 0 || frame == 1 ? pixel[2] > 200 && pixel[0] < 40 && pixel[1] < 40 :
-                pixel[frame >= 4 ? 1 : 0] > 200 && (frame == 7 ? pixel[2] > 200 : pixel[2] < 40),
-                $"Frame {frame}: expected material-colored GPU line, got {string.Join(',', pixel)}");
+            Assert.True(
+                expectedCount == 0 || frame == 1
+                    ? pixel[2] > 200 && pixel[0] < 40 && pixel[1] < 40
+                    : pixel[frame >= 4
+                        ? 1
+                        : 0] > 200 && (frame == 7
+                        ? pixel[2] > 200
+                        : pixel[2] < 40),
+                $"Frame {frame}: expected material-colored GPU line, got {string.Join(',', pixel)}"
+            );
+            if (frame == 2) AssertWarmReuseAllocations(native);
         }
+
         core.SetInputs([]);
         renderer.BeginFrame();
         context.Reset();
@@ -220,7 +382,8 @@ public sealed class MeshIntersectionGpuTests {
         fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(15));
         renderer.BeginFrame();
         Assert.True(previous!.IsDisposed);
-        var emptyDraw = MemoryMarshal.Cast<byte, uint>(arguments.Read(16)).ToArray();
+        var emptyDraw = MemoryMarshal.Cast<byte, uint>(arguments.Read(16))
+            .ToArray();
         Assert.Equal(new uint[] { 2, 0, 0, 0 }, emptyDraw);
         node.Dispose();
         renderer.BeginFrame();
@@ -230,13 +393,115 @@ public sealed class MeshIntersectionGpuTests {
         Assert.Equal(28, Marshal.SizeOf<IntersectionSegment>());
         Assert.Equal(16, Marshal.SizeOf<IntersectionCandidate>());
         Assert.Equal(144, Marshal.SizeOf<IntersectionTransforms>());
-        Assert.Equal(12, Marshal.OffsetOf<IntersectionSegment>(nameof(IntersectionSegment.End)).ToInt32());
-        Assert.Equal(24, Marshal.OffsetOf<IntersectionSegment>(nameof(IntersectionSegment.PairId)).ToInt32());
-        Assert.Equal(8, Marshal.OffsetOf<IntersectionCandidate>(nameof(IntersectionCandidate.PairId)).ToInt32());
-        Assert.Equal(64, Marshal.OffsetOf<IntersectionTransforms>(nameof(IntersectionTransforms.WorldB)).ToInt32());
-        Assert.Equal(128, Marshal.OffsetOf<IntersectionTransforms>(nameof(IntersectionTransforms.CandidateCount)).ToInt32());
+        Assert.Equal(
+            12, Marshal.OffsetOf<IntersectionSegment>(nameof(IntersectionSegment.End))
+                .ToInt32()
+        );
+        Assert.Equal(
+            24, Marshal.OffsetOf<IntersectionSegment>(nameof(IntersectionSegment.PairId))
+                .ToInt32()
+        );
+        Assert.Equal(
+            8, Marshal.OffsetOf<IntersectionCandidate>(nameof(IntersectionCandidate.PairId))
+                .ToInt32()
+        );
+        Assert.Equal(
+            64, Marshal.OffsetOf<IntersectionTransforms>(nameof(IntersectionTransforms.WorldB))
+                .ToInt32()
+        );
+        Assert.Equal(
+            128, Marshal.OffsetOf<IntersectionTransforms>(nameof(IntersectionTransforms.CandidateCount))
+                .ToInt32()
+        );
         device.ThrowIfDeviceRemoved();
+
+        /// <summary>Measures unchanged borrowed/private input reuse and real draws after dispatch and all initialization.</summary>
+        /// <param name="native">The generation already dispatched and read back by the existing GPU fixture.</param>
+        void AssertWarmReuseAllocations(SilkD3D12IntersectionResources native) {
+            Assert.Equal(
+                "false", AppContext.GetData("System.GC.Concurrent")
+                    ?.ToString(), ignoreCase: true
+            );
+            Func<SceneNode, ShaderPass?> selectPass = catalog.Resolve;
+            for (var index = 0; index < 128; index++) {
+                Assert.True(native.CanReuse());
+                Assert.Equal(1, RecordWarmFrame());
+                CompleteWarmFrame();
+                Assert.Same(native, renderer.FindIntersectionResources(core));
+            }
+
+            var before = GC.GetAllocatedBytesForCurrentThread();
+            var control = new byte[40];
+            GC.KeepAlive(control);
+            var controlAllocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            Assert.True(controlAllocated >= control.Length);
+            var reusable = 0;
+            before = GC.GetAllocatedBytesForCurrentThread();
+            for (var index = 0; index < 1_000; index++) {
+                if (native.CanReuse()) reusable++;
+            }
+
+            var reuseAllocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            Assert.Equal(1_000, reusable);
+            Assert.Equal(0, reuseAllocated);
+
+            const int iterations = 256;
+            long frameAllocated = 0;
+            var recorded = 0;
+            for (var index = 0; index < iterations; index++) {
+                before = GC.GetAllocatedBytesForCurrentThread();
+                recorded += RecordWarmFrame();
+                frameAllocated += GC.GetAllocatedBytesForCurrentThread() - before;
+                CompleteWarmFrame();
+                Assert.Same(native, renderer.FindIntersectionResources(core));
+            }
+
+            output.WriteLine(
+                $"Intersection reuse (shared={shared}, rotated={rotated}): {reuseAllocated} bytes / 1000 checks; " +
+                $"full renderer {frameAllocated} bytes / {iterations} frames, including the common 72-byte frame baseline; " +
+                $"positive control {controlAllocated} bytes."
+            );
+            Assert.Equal(iterations, recorded);
+            Assert.Equal(72L * iterations, frameAllocated);
+
+            // Readback is outside both warm measurements and checks the last submitted indirect draw and pixels.
+            context.Reset();
+            context.Transition(native.Arguments, ResourceStates.CopySource);
+            context.CopyBuffer(arguments, 0, native.Arguments, 0, 16);
+            context.Transition(target, ResourceStates.CopySource);
+            context.CopyTextureToBuffer(pixels, target, in footprint);
+            context.Close();
+            CompleteWarmFrame();
+            var warmDraw = MemoryMarshal.Cast<byte, uint>(arguments.Read(16))
+                .ToArray();
+            Assert.Equal(new uint[] { 2, 513, 0, 0 }, warmDraw);
+            var warmPixel = pixels.Read(4, footprint.Offset + 16UL * footprint.Footprint.RowPitch + 16UL * 4);
+            Assert.True(warmPixel[0] > 200 && warmPixel[1] < 40 && warmPixel[2] < 40);
+
+            /// <summary>Records actual renderer work with cached callbacks and no capture or input publication.</summary>
+            /// <returns>The number of successfully recorded GPU intersection draws.</returns>
+            int RecordWarmFrame() {
+                renderer.BeginFrame();
+                context.Reset();
+                context.Transition(target, ResourceStates.RenderTarget);
+                context.ClearRenderTarget(target, targetView, [0, 0, 1, 1]);
+                context.ClearDepthStencil(depth, depthView);
+                context.SetRenderTargets(targetView, depthView);
+                context.SetViewport(32, 32);
+                var count = renderer.RenderVisible(context, nodes, selectPass, in transforms, false, ref frustum);
+                context.Close();
+                return count;
+            }
+
+            /// <summary>Completes each submitted frame before the next reset; waits are outside allocation measurement.</summary>
+            void CompleteWarmFrame() {
+                queue.Execute(context);
+                fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(15));
+                device.ThrowIfDeviceRemoved();
+            }
+        }
     }
+
     /// <summary>Uses the actual toolkit node/material lifecycle with the new compute render core.</summary>
     private sealed class GpuLineNode : LineNode {
         /// <summary>
@@ -244,9 +509,12 @@ public sealed class MeshIntersectionGpuTests {
         /// </summary>
         /// <returns>The selected-pair intersection render core.</returns>
         protected override HelixToolkit.SharpDX.Core.Core.RenderCore OnCreateRenderCore() => new ApplicationIntersectionCore();
+
         /// <summary>Creates valid bounds for scene selection; native output comes solely from compute.</summary>
         public GpuLineNode() {
-            Geometry = new LineGeometry3D { Positions = new Vector3Collection([new Vector3(-1), new Vector3(1)]), Indices = new IntCollection([0, 1]) };
+            Geometry = new LineGeometry3D {
+                Positions = new Vector3Collection([new Vector3(-1), new Vector3(1)]), Indices = new IntCollection([0, 1])
+            };
         }
     }
 

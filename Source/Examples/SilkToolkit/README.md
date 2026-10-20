@@ -17,7 +17,7 @@ WPF demo applications for the SilkToolkit renderer, browsable through the
 
 | Demo | Shows |
 | --- | --- |
-| `DeferredShadingDemo` | Deferred shading path |
+| `DeferredShadingDemo` | Historical demo name; no productive D3D12 deferred shading path |
 | `SSAODemo` | Screen-space ambient occlusion |
 | `OrderIndependantTransparentRendering` | Weighted OIT + depth peeling |
 | `ShadowMapDemo` | Shadow mapping |
@@ -27,6 +27,11 @@ WPF demo applications for the SilkToolkit renderer, browsable through the
 | `EnvironmentMapDemo` | Environment lighting |
 | `CustomShaderDemo` | Custom shaders and techniques |
 | `RenderTechniqueImportExport` | Technique serialization |
+
+`EnableDeferredRendering` remains available for API/XAML compatibility; it does not enable D3D12 deferred
+shading. Viewports default to demand-driven WPF/D3DImage composition (`EnableSwapChainRendering=false`);
+explicit `true` selects continuous HWND swap-chain presentation. Select the backend before successful native
+initialization. Demo names and this catalog do not establish Phase 5 runtime acceptance.
 
 ## Geometry and performance
 

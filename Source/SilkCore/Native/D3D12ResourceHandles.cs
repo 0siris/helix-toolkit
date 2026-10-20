@@ -628,6 +628,44 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             device.ResourceStates);
     }
 
+    /// <summary>Creates one NT-shareable, single-sample BGRA render target registered with this device.</summary>
+    /// <param name="device">The actual presentation device that owns the resource-state tracker.</param>
+    /// <param name="width">The nonzero physical width.</param>
+    /// <param name="height">The nonzero physical height.</param>
+    /// <returns>The single owning toolkit wrapper, initially in COMMON state.</returns>
+    /// <remarks>The caller owns synchronization, shared handles, and any render-target descriptors.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException">A dimension is zero or exceeds the managed pixel range.</exception>
+    internal static SilkD3D12Resource CreateSharedBgraRenderTargetTexture2D(
+        this SilkD3D12Device device,
+        uint width,
+        uint height
+    ) {
+        device.AsGuardNotNull();
+        if (width == 0 || width > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(width));
+        if (height == 0 || height > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(height));
+        var heap = new HeapProperties { Type = HeapType.Default, CreationNodeMask = 1, VisibleNodeMask = 1 };
+        var description = new ResourceDesc {
+            Dimension = ResourceDimension.Texture2D,
+            Width = width,
+            Height = height,
+            DepthOrArraySize = 1,
+            MipLevels = 1,
+            Format = Format.FormatB8G8R8A8Unorm,
+            SampleDesc = new SampleDesc(1, 0),
+            Layout = TextureLayout.LayoutUnknown,
+            Flags = ResourceFlags.AllowRenderTarget | ResourceFlags.AllowSimultaneousAccess
+        };
+        SilkMarshal.ThrowHResult(device.NativeDevice.CreateCommittedResource(in heap,
+            HeapFlags.Shared, in description, ResourceStates.Common, null, out SilkD3D12ResourcePtr resource));
+        try {
+            return new SilkD3D12Resource(resource, description, 0, HeapType.Default,
+                ResourceStates.Common, device.ResourceStates);
+        } catch {
+            resource.Dispose();
+            throw;
+        }
+    }
+
     /// <summary>
     ///     Creates one committed one-dimensional texture.
     /// </summary>

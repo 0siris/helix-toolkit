@@ -35,6 +35,15 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
     /// </summary>
     internal const Format PeelingColorFormat = Format.FormatR8G8B8A8Unorm;
 
+    /// <summary>The immutable color format used by depth-peeling accumulators.</summary>
+    private readonly Format colorFormat;
+
+    /// <summary>The immutable coverage contract used by full-screen composition.</summary>
+    private readonly D3D12ColorOutputMode outputMode;
+
+    /// <summary>Retained descriptors for the depth-peeling MRT draw.</summary>
+    private readonly SilkD3D12Descriptor[] peelingViews = new SilkD3D12Descriptor[3];
+
     /// <summary>
     ///     The device used for size-dependent resources.
     /// </summary>
@@ -76,12 +85,18 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
     /// <param name="device">The Direct3D 12 device.</param>
     /// <param name="resourceHeap">The shared shader-visible resource heap.</param>
     /// <param name="samplerHeap">The shared shader-visible sampler heap.</param>
+    /// <param name="colorFormat">The immutable depth-peeling color format.</param>
+    /// <param name="outputMode">The immutable output coverage contract.</param>
     internal SilkD3D12TransparencyResources(
         SilkD3D12Device device,
         SilkD3D12DescriptorHeap resourceHeap,
-        SilkD3D12DescriptorHeap samplerHeap
+        SilkD3D12DescriptorHeap samplerHeap,
+        Format colorFormat = PeelingColorFormat,
+        D3D12ColorOutputMode outputMode = D3D12ColorOutputMode.Legacy
     ) {
         device.AsGuardNotNull();
+        this.colorFormat = colorFormat;
+        this.outputMode = outputMode;
         this.device = device;
         renderTargetHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 6);
         renderTargetViews = renderTargetHeap.AllocateRange(6);
@@ -124,7 +139,7 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
         SilkD3D12Descriptor depthStencil
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        Resize(width, height);
+        Resize(width, height, colorFormat);
         context.Transition(Target(0), ResourceStates.RenderTarget);
         context.Transition(Target(1), ResourceStates.RenderTarget);
         context.ClearRenderTarget(Target(0), renderTargetViews[0], [0, 0, 0, 0]);
@@ -211,8 +226,10 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
         context.Transition(Target(4), ResourceStates.RenderTarget);
         context.Transition(Target(5), ResourceStates.RenderTarget);
         context.ClearRenderTarget(Target(current), renderTargetViews[current], [-1, -1, 0, 0]);
-        SilkD3D12Descriptor[] views = [renderTargetViews[current], renderTargetViews[4], renderTargetViews[5]];
-        context.SetRenderTargets(views, depthStencil);
+        peelingViews[0] = renderTargetViews[current];
+        peelingViews[1] = renderTargetViews[4];
+        peelingViews[2] = renderTargetViews[5];
+        context.SetRenderTargets(peelingViews, depthStencil);
         return Target(previous);
     }
 
@@ -272,6 +289,7 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
     /// </summary>
     /// <param name="width">The target width.</param>
     /// <param name="height">The target height.</param>
+    /// <param name="peelingColorFormat">The presentation-compatible peeling color format.</param>
     private void Resize(uint width, uint height, Format peelingColorFormat = PeelingColorFormat) {
         if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
         if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
@@ -322,7 +340,8 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
         uint width,
         uint height
     ) {
-        globalTransforms.Write(in transforms);
+        var outputTransforms = D3D12ColorOutputProfile.Apply(in transforms, outputMode);
+        globalTransforms.Write(in outputTransforms);
         context.SetRenderTarget(mainRenderTarget);
         context.SetViewport(width, height);
         pass.BindShader(context);

@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:controls="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
-    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX.Model.Elements3D;assembly=SilkToolkit"
+    xmlns:elements3D="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
     xmlns:lights3D="clr-namespace:HelixToolkit.Wpf.SharpDX;assembly=SilkToolkit"
     Title="SharpDX in WPF"
     Width="800"

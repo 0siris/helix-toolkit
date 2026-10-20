@@ -1,12 +1,28 @@
 ---
 type: BacklogPlan
 title: WPF Swap-Chain Canvas Plan
-description: Second pure-WPF IRenderCanvas implementation (DPFCanvasSwapChain + HwndSwapChainHost) as a switchable alternative to the WinForms-based DPFSurfaceSwapChain; WinForms remains active and is removed in a follow-up step.
+description: Superseded historical proposal for a pure-WPF HWND canvas alongside the former WinForms swap-chain path.
 tags: [backlog, wpf, swapchain, helix, winforms-removal, hwndhost]
 timestamp: 2026-07-09T19:00:00+02:00
+generated: { by: "agent:gpt-6.1-sol", at: 2026-10-20T07:15:06Z }
+status: deprecated
+sources:
+  - resource: d3d12-wpf-composition.md
+  - resource: ../architecture/wpf-composition-contracts.md
+  - resource: ../testing/wpf-composition-phase4.md
 ---
 
 # WPF-SwapChain-Canvas — Plan
+
+## Superseded proposal (2026-10-20)
+
+This 2026-07-09 proposal is retained verbatim below as historical context, not as implementation instructions.
+Its WinForms coexistence, `UseWpfSwapChain` switch, file anchors and verification steps describe the old design.
+The [D3D12 WPF composition plan](/backlog/d3d12-wpf-composition.md) and
+[composition contracts](/architecture/wpf-composition-contracts.md) supersede it. Phase 4 (2026-10-19)
+restored demand-driven WPF/D3DImage as the default (`EnableSwapChainRendering=false`), with explicit `true`
+selecting the continuous HWND backend. See the dated [Phase 4 evidence](/testing/wpf-composition-phase4.md).
+This supersession note is source/static documentation only; parent Phase 5 runtime gates remain pending.
 
 ## Context
 Es gibt zwei bestehende `IRenderCanvas`-Implementierungen in `SilkToolkit`: `DPFCanvas` (rein WPF, `D3DImage`-basiert) und `DPFSurfaceSwapChain` (WinForms-basiert, nutzt `WindowsFormsHost` + `UserControl` + `WndProc` als HWND-Fabrik für D3D-Swap-Chain). Der Plan aus `local://winforms-extraction-plan.md` (Extraktion der WinForms-Typen in ein Schwesterprojekt) wird verworfen. Stattdessen: eine **zweite, rein WPF-basierte Implementierung** von DPFCanvas, die die D3D-Swap-Chain-Performance bietet aber auf `WindowsFormsHost`/`UserControl`/`WndProc` verzichtet. Ein Schalter auf `Viewport3DX` wählt zwischen den drei Pfaden (`DPFCanvas` | neue WPF-Swap-Chain | bestehende WinForms-Swap-Chain). WinForms bleibt vorerst aktiv und wird in einem späteren Schritt abgeschaltet.

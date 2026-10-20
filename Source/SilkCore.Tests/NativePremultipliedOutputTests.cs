@@ -19,6 +19,24 @@ public sealed class NativePremultipliedOutputTests {
     /// <summary>The small physical extent shared by these deterministic pixel tests.</summary>
     private const uint Size = 16;
 
+    /// <summary>
+    ///     Retains finite diffuse color when an original helper mesh omits its normal channel.
+    /// </summary>
+    /// <param name="transparency">Zero selects ordinary draws, one weighted OIT, two depth peeling.</param>
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [Trait("Category", "Warp")]
+    public void MissingNormalsRetainDiffuseColor(int transparency) {
+        var pixels = RenderPixels(transparency, false, 1, missingNormals: true);
+        var center = checked((int)((Size / 2 * Size + Size / 2) * 4));
+        Assert.InRange(pixels[center], 15, 17);
+        Assert.InRange(pixels[center + 1], 48, 50);
+        Assert.InRange(pixels[center + 2], 116, 118);
+        Assert.Equal(255, pixels[center + 3]);
+    }
+
     /// <summary>Preserves an application's bytecode reader even when it uses a built-in module name.</summary>
     [Fact]
     [Trait("Category", "Warp")]
@@ -274,7 +292,9 @@ public sealed class NativePremultipliedOutputTests {
         Assert.Equal(new byte[] { 0, 0, 255, 255 }, readback.Read(4, footprint.Offset));
     }
 
-    /// <summary>Records real mesh, optional transparency, bloom, FXAA and Scene2D passes into one BGRA image.</summary>
+    /// <summary>
+    ///     Records real mesh, optional transparency, bloom, FXAA and Scene2D passes into one BGRA image.
+    /// </summary>
     /// <param name="transparency">The transparency stage selection.</param>
     /// <param name="fxaa">Whether to filter the completed 3D image.</param>
     /// <param name="alpha">The straight material alpha.</param>
@@ -284,6 +304,7 @@ public sealed class NativePremultipliedOutputTests {
     /// <param name="glyph">Whether to draw a half-alpha green glyph after FXAA.</param>
     /// <param name="outline">Whether to render and blur an outline mask before FXAA.</param>
     /// <param name="xray">Whether to draw a red XRay layer behind an explicit occluder depth.</param>
+    /// <param name="missingNormals">Whether to use a lit orange mesh without the optional normal channel.</param>
     /// <returns>Tightly packed, fence-completed premultiplied BGRA pixels.</returns>
     private static byte[] RenderPixels(
         int transparency,
@@ -294,7 +315,8 @@ public sealed class NativePremultipliedOutputTests {
         bool bloom = false,
         bool glyph = false,
         bool outline = false,
-        bool xray = false
+        bool xray = false,
+        bool missingNormals = false
     ) {
         using var device = SilkD3D12DeviceFactory.CreateDefault(driverType: SilkDriverType.Warp);
         using var queue = device.CreateCommandQueue();
@@ -320,6 +342,10 @@ public sealed class NativePremultipliedOutputTests {
         device.CreateDepthStencilView(depth, dsv);
         using var back = CreateQuad(alpha, 0.6f);
         using var front = CreateQuad(alpha, 0.3f);
+        if (missingNormals) {
+            ((MeshGeometry3D)back.Geometry!).Normals = null;
+            back.Material = new DiffuseMaterialCore { DiffuseColor = new Vector4(234 / 255f, 98 / 255f, 31 / 255f, alpha) };
+        }
         var nodes = new FastList<SceneNode> { back };
         if (overlap) nodes.Add(front);
         var transforms = CreateTransforms();

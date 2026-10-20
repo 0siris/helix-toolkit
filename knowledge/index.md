@@ -21,6 +21,9 @@ with MeshMeister consumers; this package pin changes no renderer behavior.
 
 ## Projects
 
+* [Diffuse helper normals](/projects/silkcore.md#diffuse-helper-meshes-without-normals) - Finite diffuse output
+  for original helper geometry without normals, shared by ordinary and transparent passes.
+
 * [SilkCore](/projects/silkcore.md) - Core renderer, update/maintenance/visibility ordering, pre-pick octree preparation,
   GPU-only intersection attachment, paged selection-effect descriptors, native mesh-intersection compute/indirect
   drawing, mesh material facing/culling, fence-safe resource cleanup and reference-counted pool entry ownership.

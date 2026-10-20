@@ -16,6 +16,15 @@ sources:
 
 # Project
 
+## Diffuse helper meshes without normals
+
+Original helper spheres may intentionally omit their normal channel. The diffuse pixel shader checks the
+normal's squared length before normalization and uses a zero normal for missing or invalid interpolated normals.
+This keeps the existing camera-facing factor at one half instead of propagating NaN and producing black pixels.
+The shared shader is used by ordinary, weighted-OIT and depth-peeling diffuse passes. Geometry, source colors
+and valid-normal shading remain unchanged. Toolkit GPU tests cover the three premultiplied passes; Original
+Helix additionally reads back its actual cached sphere with color (234,98,31) in both presentation profiles.
+
 `SilkCore` targets `net10.0` and provides the core rendering/runtime layer used by the toolkit and examples.
 
 Phase 4 (2026-10-19) shares the D3D12 scene renderer between the continuous native HWND owner and the bounded,

@@ -1,5 +1,14 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-20 — Diffuse helpers without normals
+
+* Reproduced black output from original orange helper geometry with no normal channel in both output profiles.
+* Guarded diffuse-shader normalization; missing normals retain finite half-intensity source color.
+* Added ordinary/OIT/depth-peeling GPU coverage through the existing native pixel harness.
+* Original sphere readback covers source color and both legacy/premultiplied profiles; geometry is unchanged.
+* All 22 selected native pixel tests pass. Graphify regenerated: 10,886 nodes, 19,705 edges, 3,240 communities;
+  zero model tokens and the existing 17 partial-parser warnings.
+
 ## 2026-10-19 — Pin shared ValidSphere dependency
 
 - Fixed toolkit, importer, tests and example references at ValidSphere `0.3.1-preview`, matching MeshMeister.

@@ -99,7 +99,7 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
             gate?.Dispose();
         }
 
-        await driver.DrainAsync();
+        await CompleteRecoveryAsync(driver);
         Assert.NotSame(oldContext, driver.Context);
         Assert.Equal(driver.Completed + (pending ? 1UL : 0UL), driver.Submitted);
         P4PresentationDriver.AssertPixel(await driver.CaptureAsync(), 32, 24, 0, 255, 0, 255);
@@ -134,7 +134,7 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
             Assert.Equal(before.Rendered, driver.RenderedCount);
         }
 
-        await driver.DrainAsync();
+        await CompleteRecoveryAsync(driver);
         Assert.Same(replacement, driver.Viewport.EffectsManager);
         Assert.Equal(driver.Completed + 1, driver.Submitted);
         P4PresentationDriver.AssertPixel(await driver.CaptureAsync(), 32, 24, 0, 255, 0, 255);
@@ -162,7 +162,7 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
         Assert.Equal(before.Rendered + 1, driver.RenderedCount);
         Assert.Equal(before.OnRendered + 1, driver.OnRenderedCount);
         Assert.False(driver.Native.TryTakeCompletedFrame());
-        await driver.DrainAsync();
+        await CompleteRecoveryAsync(driver);
         Assert.Equal(driver.Submitted, driver.Completed);
     });
 
@@ -196,7 +196,7 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
             Marshal.Release(external);
         }
 
-        await driver.DrainAsync();
+        await CompleteRecoveryAsync(driver);
         P4PresentationDriver.AssertPixel(await driver.CaptureAsync(), 32, 24, 0, 255, 0, 255);
         Assert.False(effects.IsDisposed);
     });
@@ -244,8 +244,8 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
                 peer.Viewport.Rendered -= completion;
             }
 
-            await peer.DrainAsync();
-            await active.DrainAsync();
+            await CompleteRecoveryAsync(peer);
+            await CompleteRecoveryAsync(active);
             P4PresentationDriver.AssertPixel(await active.CaptureAsync(), 32, 24, 0, 255, 0, 255);
         });
 
@@ -302,13 +302,13 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
             Assert.Null(peerContext.Camera);
             Assert.Equal(0, peer.Canvas.ImageSource.BoundSurface);
             Assert.False(peer.Wpf.IsInitialized);
-            await active.DrainAsync();
+            await CompleteRecoveryAsync(active);
             Assert.Equal(active.Completed + 1, active.Submitted);
             P4PresentationDriver.AssertPixel(await active.CaptureAsync(), 32, 24, 0, 255, 0, 255);
             if (unloadPeer) peer.Root.Children.Add(peer.Viewport);
             else peer.Viewport.Visibility = Visibility.Visible;
             await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
-            await peer.DrainAsync();
+            await CompleteRecoveryAsync(peer);
             Assert.NotSame(peerContext, peer.Context);
             P4PresentationDriver.AssertPixel(await peer.CaptureAsync(), 32, 24, 0, 255, 0, 255);
             Assert.False(activeEffects.IsDisposed);
@@ -360,8 +360,8 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
         Assert.Equal(before, active.Counts);
         await P4PresentationDriver.PollAsync(() => oldDevice.IsDisposed, "CPU borrower retirement after finally");
         Assert.Null(oldContext.Camera);
-        await active.DrainAsync();
-        await peer.DrainAsync();
+        await CompleteRecoveryAsync(active);
+        await CompleteRecoveryAsync(peer);
         P4PresentationDriver.AssertPixel(await active.CaptureAsync(), 32, 24, 0, 255, 0, 255);
     });
 
@@ -395,7 +395,7 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
                 Assert.True(peerDevice.IsDisposed);
                 peer.Root.Children.Add(peer.Viewport);
                 await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
-                await peer.DrainAsync();
+                await CompleteRecoveryAsync(peer);
                 P4PresentationDriver.AssertPixel(await peer.CaptureAsync(), 32, 24, 0, 255, 0, 255);
             } catch (Exception exception) {
                 ready.TrySetException(exception);
@@ -411,7 +411,7 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
             Assert.True(active.Viewport.RenderDemand.HasRecoveryDemand);
             await P4PresentationDriver.PollAsync(
                 () => device.IsDisposed && peerDevice.IsDisposed, "nonblocking cross-dispatcher retirement");
-            await active.DrainAsync();
+            await CompleteRecoveryAsync(active);
             P4PresentationDriver.AssertPixel(await active.CaptureAsync(), 32, 24, 0, 255, 0, 255);
         } finally {
             finish.TrySetResult();
@@ -448,6 +448,24 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
         Assert.False(registration.IsRemovalRequested);
         output.WriteLine($"Settled productive WPF polls: {bytes} bytes / 1024; one retained generation registration.");
     });
+
+    /// <summary>Completes new recovery work without requiring previously abandoned submissions to complete.</summary>
+    /// <param name="driver">The productive owner whose removed generation has already retired.</param>
+    /// <returns>The normal WPF drain or exactly one newly accepted and completed native frame.</returns>
+    private static async Task CompleteRecoveryAsync(P4PresentationDriver driver) {
+        if (driver.Native is null) {
+            await driver.DrainAsync();
+            return;
+        }
+
+        await P4PresentationDriver.PollAsync(
+            () => driver.Viewport.CanSubmitNativeScene, "replacement native recovery eligibility");
+        var before = driver.Counts;
+        var abandoned = checked(before.Submitted - before.Completed);
+        _ = driver.Tick(wait: true);
+        driver.AssertAdvanced(before, 1);
+        Assert.Equal(driver.Completed + abandoned, driver.Submitted);
+    }
 
     /// <summary>Reads the actual device owned by the selected productive transport.</summary>
     /// <param name="driver">The initialized viewport driver.</param>

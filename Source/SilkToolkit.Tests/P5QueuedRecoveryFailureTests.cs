@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -297,6 +298,210 @@ public sealed class P5QueuedRecoveryFailureTests {
             await AssertFreshPixelsAsync(true, effects);
         }
     );
+
+    /// <summary>Contains removal discovered by queued manager preflight after a real CPU manager-change callback returns.</summary>
+    /// <param name="hwnd">Whether the productive consumer uses native HWND presentation.</param>
+    /// <returns>The genuine queued preflight, bounded two-failure teardown and explicit ownership retry qualification.</returns>
+    [Theory(Explicit = true)]
+    [InlineData(false)]
+    [InlineData(true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task QueuedManagerPreflightContainsRemovalTeardownFailures(bool hwnd) => StaThread.RunAsync(async () => {
+            using var original = new DefaultEffectsManager();
+            using var replacement = new DefaultEffectsManager();
+            await using var driver = new P4PresentationDriver(hwnd, original);
+            using var firstMesh = P4PresentationDriver.CreateMesh();
+            using var secondMesh = P4PresentationDriver.CreateMesh();
+            driver.Viewport.Items.Add(firstMesh);
+            driver.Viewport.Items.Add(secondMesh);
+            await driver.WarmAsync();
+            var first = Assert.IsType<P4ObservedMeshNode>(firstMesh.SceneNode);
+            var second = secondMesh.SceneNode;
+            var device = Device(driver);
+            var before = driver.Counts;
+            var callbackReturned = false;
+            var frameReturned = false;
+            var observedPreflight = false;
+            DispatcherOperation? managerOperation = null;
+            EventHandler inspectPreflight = (_, _) => {
+                if (observedPreflight) return;
+                observedPreflight = true;
+                Assert.True(callbackReturned);
+                Assert.True(frameReturned);
+                Assert.True(new StackTrace().GetFrames().Any(frame =>
+                    frame.GetMethod() is { Name: "ApplyQueuedManagerLifecycle", DeclaringType: var owner } &&
+                    owner == typeof(Viewport3DX)));
+                Assert.Equal(DispatcherOperationStatus.Executing, managerOperation!.Status);
+                Assert.Same(replacement, driver.Viewport.EffectsManager);
+            };
+            first.Detached += inspectPreflight;
+            second.Detached += inspectPreflight;
+            first.OnNextUpdate = context => {
+                driver.Viewport.EffectsManager = replacement;
+                Assert.False(device.IsDisposed);
+                Assert.NotNull(context.Camera);
+                Assert.True(first.RenderCore.IsAttached);
+                Assert.True(second.RenderCore.IsAttached);
+                Assert.Equal(before, driver.Counts);
+                callbackReturned = true;
+            };
+            try {
+                await AssertQueuedFailureAsync(driver, [first, second], true, () => {
+                    driver.Viewport.InvalidateRender();
+                    Assert.Equal(0, driver.Tick());
+                    frameReturned = true;
+                    Assert.True(callbackReturned);
+                    Assert.False(observedPreflight);
+                    Assert.Equal(before, driver.Counts);
+                    managerOperation = P4PresentationDriver.ReadField<DispatcherOperation>(
+                        driver.Viewport, "managerLifecycleOperation");
+                    Assert.Equal(DispatcherOperationStatus.Pending, managerOperation.Status);
+                    Assert.True(device.GetDeviceRemovedReason() >= 0);
+                    RemoveDevice(device);
+                }, () => {
+                    Assert.True(observedPreflight);
+                    Assert.Equal(DispatcherOperationStatus.Completed, managerOperation!.Status);
+                    Assert.True(P4PresentationDriver.ReadField<bool>(driver.Viewport, "managerResourcesResetPending"));
+                    Assert.True(P4PresentationDriver.ReadField<bool>(driver.Viewport, "managerLifecycleFailed"));
+                    Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(driver.Viewport, "managerLifecycleOperation"));
+                    Assert.False(P4PresentationDriver.ReadField<DispatcherTimer?>(driver.Viewport, "managerLifecycleRetryTimer")
+                        is { IsEnabled: true });
+                    driver.Viewport.ScheduleManagerLifecycle();
+                    Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(driver.Viewport, "managerLifecycleOperation"));
+                    Assert.Equal(before, driver.Counts);
+                });
+                Assert.False(original.IsDisposed);
+                Assert.False(replacement.IsDisposed);
+                Assert.False(first.IsDisposed);
+                Assert.False(second.IsDisposed);
+                await AssertFreshPixelsAsync(hwnd, replacement);
+            } finally {
+                first.OnNextUpdate = null;
+                first.Detached -= inspectPreflight;
+                second.Detached -= inspectPreflight;
+            }
+        }
+    );
+
+    /// <summary>Contains timer-driven shared preflight failure and cancels a healthy peer's reentrant membership retry.</summary>
+    /// <param name="hwnd">Whether the failing consumer uses native HWND presentation rather than WPF composition.</param>
+    /// <returns>The real queue-gated preflight, retained shared barrier and explicit request recovery qualification.</returns>
+    [Theory(Explicit = true)]
+    [InlineData(false)]
+    [InlineData(true)]
+    [Trait("Category", "Hardware")]
+    [Trait("Category", "DX12")]
+    public Task QueuedSharedPreflightRetainsFailedOwnerDespiteHealthyPeerUnregistration(bool hwnd) =>
+        StaThread.RunAsync(async () => {
+                using var original = new DefaultEffectsManager();
+                using var replacement = new DefaultEffectsManager();
+                using var sharedMesh = P4PresentationDriver.CreateMesh();
+                using var firstMesh = P4PresentationDriver.CreateMesh();
+                using var secondMesh = P4PresentationDriver.CreateMesh();
+                var container = new ModelContainer3DX { EffectsManager = original };
+                container.Items.Add(sharedMesh);
+                await using var driver = new P4PresentationDriver(hwnd, original);
+                driver.Viewport.Items.Add(firstMesh);
+                driver.Viewport.Items.Add(secondMesh);
+                driver.Viewport.EnableSharedModelMode = true;
+                driver.Viewport.SharedModelContainer = container;
+                await driver.WarmAsync();
+                // The newer native registration retires first; shared resource preflight still visits driver first.
+                await using var peer = new P4PresentationDriver(!hwnd, original);
+                peer.Viewport.EnableSharedModelMode = true;
+                peer.Viewport.SharedModelContainer = container;
+                await peer.WarmAsync();
+                await SuspendAsync(peer);
+                var device = Device(driver);
+                var peerDevice = Device(peer);
+                Assert.Equal(device.NativePointer, peerDevice.NativePointer);
+                Assert.Equal(new[] { driver.Viewport, peer.Viewport },
+                    P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers"));
+                var settled = driver.Counts;
+                using (var gate = new P4NativeQueueGate(driver)) {
+                    driver.Viewport.InvalidateRender();
+                    Assert.True(driver.Tick() > 0);
+                    Assert.Equal(settled.Submitted + 1, driver.Submitted);
+                    Assert.Equal(settled.Completed, driver.Completed);
+                    Assert.Equal(settled.Rendered, driver.RenderedCount);
+                    Assert.Equal(settled.OnRendered, driver.OnRenderedCount);
+                    var probe = gate.Queue.Signal(gate.Probe);
+                    Assert.True(gate.Probe.CompletedValue < probe);
+                    container.EffectsManager = replacement;
+                    Assert.True(container.IsSynchronizingEffectsManager);
+                    Assert.True(P4PresentationDriver.ReadField<DispatcherTimer>(container, "managerRetryTimer").IsEnabled);
+                    Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(container, "managerSynchronizationOperation"));
+                    if (driver.Native is { } surface)
+                        Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(surface, "retirementOperation"));
+                    if (driver.Wpf is { } wpf)
+                        Assert.False(P4PresentationDriver.ReadField<DispatcherTimer>(wpf, "serviceTimer").IsEnabled);
+                    // Drain only the independent test fence while healthy; do not claim the owner's pending completion.
+                }
+
+                var before = driver.Counts;
+                Assert.Equal(settled.Completed, before.Completed);
+                var observedPreflight = false;
+                DispatcherOperation? reentrantOperation = null;
+                EventHandler unregisterHealthyPeer = (_, _) => {
+                    if (observedPreflight) return;
+                    observedPreflight = true;
+                    Assert.True(new StackTrace().GetFrames().Any(frame =>
+                        frame.GetMethod() is { Name: "ProcessManagerSynchronization", DeclaringType: var owner } &&
+                        owner == typeof(ModelContainer3DX)));
+                    Assert.True(peerDevice.IsDisposed);
+                    // Actual viewport disposal releases its retained resource membership during failed preflight.
+                    peer.Viewport.Dispose();
+                    Assert.True(peer.Viewport.IsDisposed);
+                    reentrantOperation = P4PresentationDriver.ReadField<DispatcherOperation>(
+                        container, "managerSynchronizationOperation");
+                    Assert.Equal(DispatcherOperationStatus.Pending, reentrantOperation.Status);
+                };
+                firstMesh.SceneNode.Detached += unregisterHealthyPeer;
+                secondMesh.SceneNode.Detached += unregisterHealthyPeer;
+                try {
+                    await AssertQueuedFailureAsync(
+                        driver, [firstMesh.SceneNode, secondMesh.SceneNode], true, () => RemoveDevice(device), () => {
+                            Assert.True(observedPreflight);
+                            Assert.Equal(DispatcherOperationStatus.Aborted, reentrantOperation!.Status);
+                            Assert.True(container.IsSynchronizingEffectsManager);
+                            Assert.True(P4PresentationDriver.ReadField<bool>(container, "managerIdentityChangePending"));
+                            Assert.True(P4PresentationDriver.ReadField<bool>(container, "managerSynchronizationFailed"));
+                            Assert.False(P4PresentationDriver.ReadField<bool>(container, "managerChangeQueued"));
+                            Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(container, "managerSynchronizationOperation"));
+                            Assert.False(P4PresentationDriver.ReadField<DispatcherTimer>(container, "managerRetryTimer").IsEnabled);
+                            Assert.Same(driver.Viewport,
+                                Assert.Single(P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers")));
+                            Assert.Same(original, driver.Viewport.EffectsManager);
+                            container.SchedulePendingEffectsManagerSynchronization();
+                            Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(container, "managerSynchronizationOperation"));
+                            Assert.Equal(before, driver.Counts);
+                        });
+                    Assert.Equal(settled.Completed + 1, driver.Submitted);
+                    Assert.Equal(settled.Completed, driver.Completed);
+                    Assert.Equal(settled.Rendered, driver.RenderedCount);
+                    Assert.Equal(settled.OnRendered, driver.OnRenderedCount);
+                    Assert.False(firstMesh.SceneNode.IsDisposed);
+                    Assert.False(secondMesh.SceneNode.IsDisposed);
+                    Assert.False(sharedMesh.SceneNode.IsDisposed);
+                    // Explicit owner cleanup finishes first; only an explicit resource request resumes shared fanout.
+                    await driver.DisposeAsync();
+                    Assert.True(container.IsSynchronizingEffectsManager);
+                    container.RequestSharedResourceRetirement();
+                    Assert.False(P4PresentationDriver.ReadField<bool>(container, "managerSynchronizationFailed"));
+                    Assert.False(container.IsSynchronizingEffectsManager);
+                    Assert.False(P4PresentationDriver.ReadField<bool>(container, "managerIdentityChangePending"));
+                    Assert.False(P4PresentationDriver.ReadField<bool>(container, "resourceRetirementPending"));
+                    Assert.Empty(P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers"));
+                    Assert.False(original.IsDisposed);
+                    Assert.False(replacement.IsDisposed);
+                    await AssertFreshPixelsAsync(hwnd, replacement);
+                } finally {
+                    firstMesh.SceneNode.Detached -= unregisterHealthyPeer;
+                    secondMesh.SceneNode.Detached -= unregisterHealthyPeer;
+                }
+            }
+        );
 
     /// <summary>Observes real queued detachment failures, ensuring the existing boundary sees retained native ownership.</summary>
     /// <param name="driver">The productive owner whose queued or automatic retirement is under test.</param>

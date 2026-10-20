@@ -683,15 +683,21 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         try {
             OnDeviceRemoval();
         } catch (Exception exception) {
-            viewport.StopRendering();
-            try {
-                viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));
-            } catch (Exception retryException) {
-                serviceTimer.Stop();
-                LoggerLib.Logger.Error(retryException, "WPF recovery teardown failed; native resources remain owned for retry");
-                viewport.SetCurrentValue(Viewport3DX.RenderExceptionProperty, retryException);
-                demand.RequestRecovery();
-            }
+            ReportAutomaticRenderFailure(exception);
+        }
+    }
+
+    /// <summary>Reports an automatic failure and contains a second teardown failure without losing native ownership.</summary>
+    /// <param name="exception">The failure from an automatic frame, transport tick, or queued recovery.</param>
+    private void ReportAutomaticRenderFailure(Exception exception) {
+        viewport.StopRendering();
+        try {
+            viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));
+        } catch (Exception retryException) {
+            serviceTimer.Stop();
+            LoggerLib.Logger.Error(retryException, "WPF recovery teardown failed; native resources remain owned for retry");
+            viewport.SetCurrentValue(Viewport3DX.RenderExceptionProperty, retryException);
+            demand.RequestRecovery();
         }
     }
 
@@ -846,8 +852,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         try {
             _ = RenderFrame(args.RenderingTime, automaticFrame: true);
         } catch (Exception exception) {
-            viewport.StopRendering();
-            viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));
+            ReportAutomaticRenderFailure(exception);
         }
     }
 
@@ -890,7 +895,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             _ = RenderFrame(TimeSpan.Zero, automaticFrame: true);
         } catch (Exception exception) {
             serviceTimer.Stop();
-            viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));
+            ReportAutomaticRenderFailure(exception);
         }
     }
 

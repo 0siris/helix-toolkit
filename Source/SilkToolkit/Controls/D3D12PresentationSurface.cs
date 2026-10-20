@@ -255,16 +255,22 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         try {
             OnDeviceRemoval();
         } catch (Exception exception) {
-            try {
-                if (DeferredRenderException is { } handler) handler(this, new RelayExceptionEventArgs(exception));
-                else LoggerLib.Logger.Error(exception, "Native recovery failed; resources remain owned for retry");
-            } catch (Exception retryException) {
-                retirementOperation?.Abort();
-                retirementOperation = null;
-                LoggerLib.Logger.Error(retryException, "Native recovery teardown failed; resources remain owned for retry");
-                if (RenderHost is Viewport3DX viewport)
-                    viewport.SetCurrentValue(Viewport3DX.RenderExceptionProperty, retryException);
-            }
+            ReportDeferredFailure(exception);
+        }
+    }
+
+    /// <summary>Reports an automatic failure and contains a second teardown failure without losing native ownership.</summary>
+    /// <param name="exception">The failure from queued recovery, retirement, or resize work.</param>
+    private void ReportDeferredFailure(Exception exception) {
+        try {
+            if (DeferredRenderException is { } handler) handler(this, new RelayExceptionEventArgs(exception));
+            else LoggerLib.Logger.Error(exception, "Native recovery failed; resources remain owned for retry");
+        } catch (Exception retryException) {
+            retirementOperation?.Abort();
+            retirementOperation = null;
+            LoggerLib.Logger.Error(retryException, "Native recovery teardown failed; resources remain owned for retry");
+            if (RenderHost is Viewport3DX viewport)
+                viewport.SetCurrentValue(Viewport3DX.RenderExceptionProperty, retryException);
         }
     }
 
@@ -306,8 +312,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             if (disposeRequested) Dispose();
             else if (retireRequested) RetireSceneResources();
         } catch (Exception exception) {
-            if (DeferredRenderException is not { } handler) throw;
-            handler(this, new RelayExceptionEventArgs(exception));
+            ReportDeferredFailure(exception);
         }
     }
 
@@ -988,8 +993,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             ApplyPendingResize();
         } catch (Exception exception) {
             _resizeRetryTimer.Stop();
-            if (DeferredRenderException is not { } handler) throw;
-            handler(this, new RelayExceptionEventArgs(exception));
+            ReportDeferredFailure(exception);
         }
     }
 }

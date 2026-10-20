@@ -123,7 +123,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     /// </summary>
     private readonly FastList<SceneNode> transparentNodes = [];
 
-    /// <summary>Opaque and transparent post-effect candidates in original scene traversal order.</summary>
+    /// <summary>Reused post-effect candidates for the main scene or current screen-spaced root in traversal order.</summary>
     private readonly FastList<SceneNode> postEffectCandidates = [];
 
     /// <summary>
@@ -776,6 +776,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
 
             screenSpacedOpaqueNodes.Clear();
             screenSpacedTransparentNodes.Clear();
+            postEffectCandidates.Clear();
             CollectScreenSpacedNodes(root);
 
             var scissorLeft = Math.Max(0, (int) viewport.X);
@@ -815,6 +816,13 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 environmentMap,
                 resolveBoneSkinningPass
             );
+            if (postEffectCandidates.Count > 0 && postEffectNodes.Count > 0)
+                recorded += renderer.RenderPostEffects(
+                    context, postEffectCandidates, postEffectNodes,
+                    PassCatalog, in screenTransform, false, ref screenFrustum, target.ColorResource,
+                    target.RenderTargetView, currentDepthStencilBuffer, currentDepthStencilView,
+                    target.Width, target.Height, geometryViewport: viewport
+                );
         }
 
         context.SetViewport(target.Width, target.Height);
@@ -841,6 +849,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
             if (!node.Visible || node is ScreenSpacedNode) continue;
             if (node.RenderType == RenderType.Opaque) screenSpacedOpaqueNodes.Add(node);
             else if (node.RenderType == RenderType.Transparent) screenSpacedTransparentNodes.Add(node);
+            if (node.HasAnyPostEffect) postEffectCandidates.Add(node);
             for (var index = node.Items.Count - 1; index >= 0; index--)
                 screenSpacedTraversal.Push(node.Items[index]);
         }

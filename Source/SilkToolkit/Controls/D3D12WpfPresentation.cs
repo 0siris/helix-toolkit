@@ -656,6 +656,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             return true;
         } catch (System.Runtime.InteropServices.COMException exception) when (device is null &&
             D3D12PresentationDeviceRecovery.IsRemovalFailure(exception)) {
+            D3D12PresentationDeviceRecovery.ProbeForRemoval();
             demand.RequestRecovery();
             return false;
         } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
@@ -670,10 +671,17 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         }
     }
 
-    /// <summary>Retains removal while CPU callbacks borrow this generation, otherwise retires it immediately.</summary>
+    /// <summary>Confirms requested discovery and retains removal until CPU callbacks release this generation.</summary>
     private void OnDeviceRemoval() {
         canvas.Dispatcher.VerifyAccess();
-        if (IsDisposed || recoveryRegistration is not { IsRemovalRequested: true }) return;
+        if (IsDisposed || device is null || recoveryRegistration is null) return;
+        if (!recoveryRegistration.IsRemovalRequested) {
+            if (device.GetDeviceRemovedReason() >= 0) return;
+            recoveryBarrier ??= recoveryRegistration;
+            recoveryRegistration.RequestRemoval();
+            return;
+        }
+
         recoveryBarrier ??= recoveryRegistration;
         recreateRequested = true;
         demand.RequestRecovery();
@@ -718,6 +726,11 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
     /// <summary>Releases a quiescent and detached generation without disposing application-owned objects.</summary>
     private void ReleaseNative() {
+        if (device is not null && device.GetDeviceRemovedReason() < 0) {
+            recoveryBarrier ??= recoveryRegistration;
+            recoveryRegistration?.RequestRemoval();
+        }
+
         captureReadback?.Dispose();
         captureReadback = null;
         renderer?.Dispose();
@@ -745,6 +758,11 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         if (IsDisposed || disposalPrepared) return;
         stopping = true;
         if (device is not null) {
+            if (device.GetDeviceRemovedReason() < 0) {
+                recoveryBarrier ??= recoveryRegistration;
+                recoveryRegistration?.RequestRemoval();
+            }
+
             if (device.Handle->GetDeviceRemovedReason() >= 0) {
                 var drain = queue!.Signal(fence!);
                 fence!.Wait(drain, CompletionTimeout);

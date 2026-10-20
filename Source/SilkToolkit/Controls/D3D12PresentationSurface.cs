@@ -246,10 +246,17 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         return true;
     }
 
-    /// <summary>Retires a removed generation immediately when no CPU callback still borrows its context.</summary>
+    /// <summary>Confirms requested discovery and retires removal when no CPU callback still borrows its context.</summary>
     private void OnDeviceRemoval() {
         Dispatcher.VerifyAccess();
-        if (IsDisposed || recoveryRegistration is not { IsRemovalRequested: true }) return;
+        if (IsDisposed || device is null || recoveryRegistration is null) return;
+        if (!recoveryRegistration.IsRemovalRequested) {
+            if (device.GetDeviceRemovedReason() >= 0) return;
+            recoveryBarrier ??= recoveryRegistration;
+            recoveryRegistration.RequestRemoval();
+            return;
+        }
+
         recoveryBarrier ??= recoveryRegistration;
         retireRequested = true;
         if (RenderHost is Viewport3DX viewport) {
@@ -764,6 +771,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
             if (RenderHost is Viewport3DX viewport) viewport.MarkPresentationInitialized();
         } catch (System.Runtime.InteropServices.COMException exception) when (device is null &&
             D3D12PresentationDeviceRecovery.IsRemovalFailure(exception)) {
+            D3D12PresentationDeviceRecovery.ProbeForRemoval();
             if (RenderHost is Viewport3DX viewport) viewport.RenderDemand.RequestRecovery();
         } catch (System.Runtime.InteropServices.COMException) when (device is not null && device.GetDeviceRemovedReason() < 0) {
             _ = ObserveDeviceRemoval();
@@ -800,6 +808,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                     device.ThrowIfDeviceRemoved();
                     _ = _frameSubmission.TryComplete(fence.CompletedValue, FrameTimestamp());
                 } catch (Exception) when (device.GetDeviceRemovedReason() < 0) {
+                    recoveryBarrier ??= recoveryRegistration;
+                    recoveryRegistration?.RequestRemoval();
                     // Removed queues cannot drain; completed old frames remain claimable, pending work is abandoned.
                     _frameSubmission.AbandonRemovedDeviceSubmission();
                 }

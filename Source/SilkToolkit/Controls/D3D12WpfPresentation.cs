@@ -689,7 +689,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
     /// <summary>Reports an automatic failure and contains a second teardown failure without losing native ownership.</summary>
     /// <param name="exception">The failure from an automatic frame, transport tick, or queued recovery.</param>
-    private void ReportAutomaticRenderFailure(Exception exception) {
+    internal void ReportAutomaticRenderFailure(Exception exception) {
         viewport.StopRendering();
         try {
             viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));

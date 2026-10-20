@@ -12,11 +12,11 @@ float4 main(PSInput input) : SV_Target {
     }
     c = lerp(c, input.c, vertColorBlending);
     float3 N = bRenderFlat ? cross(ddy(input.wp.xyz), ddx(input.wp.xyz)) : input.n;
-    // Original helper meshes can omit normals; do not propagate normalize(0) or interpolated NaNs into color.
+    // FXC's original diffuse path retains full color for helpers without normals; avoid DXC NaN darkening.
     float normalLengthSquared = dot(N, N);
-    N = normalLengthSquared > 0 ? N * rsqrt(normalLengthSquared) : float3(0, 0, 0);
-    if (!bHasNormalMap) //Used for Unlit
+    if (!bHasNormalMap && normalLengthSquared > 0) //Used for Unlit
     {
+        N *= rsqrt(normalLengthSquared);
         float3 dir = normalize(vEyePos - input.wp.xyz);
         float f = clamp(0.5 + 0.5 * abs(dot(dir, N)), 0, 1);
         c.rgb *= f;

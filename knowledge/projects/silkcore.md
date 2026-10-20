@@ -19,8 +19,8 @@ sources:
 ## Diffuse helper meshes without normals
 
 Original helper spheres may intentionally omit their normal channel. The diffuse pixel shader checks the
-normal's squared length before normalization and uses a zero normal for missing or invalid interpolated normals.
-This keeps the existing camera-facing factor at one half instead of propagating NaN and producing black pixels.
+normal's squared length before normalization. Missing or invalid interpolated normals retain the full diffuse
+color, matching the original FXC-compiled shader's measured output; the earlier half-intensity fallback was too dark.
 The shared shader is used by ordinary, weighted-OIT and depth-peeling diffuse passes. Geometry, source colors
 and valid-normal shading remain unchanged. Toolkit GPU tests cover the three premultiplied passes; Original
 Helix additionally reads back its actual cached sphere with color (234,98,31) in both presentation profiles.

@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-20 — Restore measured original diffuse intensity
+
+* Compiled pinned original vertex/pixel sources with FXC and their original vs_4_0/ps_4_0 profiles.
+* The original shader pair returns full (234,98,31,255) for the cached normal-free sphere in offscreen WARP.
+* Replaced the earlier half-intensity fallback with full source color for missing/invalid normals.
+* Valid-normal lighting, source materials and geometry remain unchanged; pixel expectations follow the measured oracle.
+
 ## 2026-10-20 — Diffuse helpers without normals
 
 * Reproduced black output from original orange helper geometry with no normal channel in both output profiles.

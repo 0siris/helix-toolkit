@@ -31,9 +31,9 @@ public sealed class NativePremultipliedOutputTests {
     public void MissingNormalsRetainDiffuseColor(int transparency) {
         var pixels = RenderPixels(transparency, false, 1, missingNormals: true);
         var center = checked((int)((Size / 2 * Size + Size / 2) * 4));
-        Assert.InRange(pixels[center], 15, 17);
-        Assert.InRange(pixels[center + 1], 48, 50);
-        Assert.InRange(pixels[center + 2], 116, 118);
+        Assert.InRange(pixels[center], 30, 32);
+        Assert.InRange(pixels[center + 1], 97, 99);
+        Assert.InRange(pixels[center + 2], 233, 235);
         Assert.Equal(255, pixels[center + 3]);
     }
 

@@ -90,10 +90,19 @@ public sealed class IntersectionMeshSnapshot {
     ///     Checks both topology and position identity, including same-size geometry edits.
     /// </summary>
     /// <returns>Whether the borrowed live rendering owner still represents this exact immutable snapshot.</returns>
-    internal bool CanShare() => RenderBuffer is { IsDisposed: false, Geometry: MeshGeometry3D geometry } &&
-        geometry.Positions is { } positions && geometry.Indices is { } indices &&
-        positions.Count == Positions.Length && indices.SequenceEqual(Indices) &&
-        positions.Select(position => new Vector4(position, 1)).SequenceEqual(Positions);
+    internal bool CanShare() {
+        if (RenderBuffer is not { IsDisposed: false, Geometry: MeshGeometry3D geometry } ||
+            geometry.Positions is not { } positions || geometry.Indices is not { } indices ||
+            positions.Count != Positions.Length || indices.Count != Indices.Length)
+            return false;
+        for (var index = 0; index < Indices.Length; index++) {
+            if (indices[index] != Indices[index]) return false;
+        }
+        for (var index = 0; index < Positions.Length; index++) {
+            if (new Vector4(positions[index], 1) != Positions[index]) return false;
+        }
+        return true;
+    }
 }
 /// <summary>Owns a validated immutable candidate/pose snapshot for a mesh-pair dispatch.</summary>
 public sealed class IntersectionDispatchInput {

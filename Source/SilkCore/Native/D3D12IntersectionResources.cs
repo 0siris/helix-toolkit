@@ -83,7 +83,8 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
                 device.CreateStructuredBufferShaderResourceView(candidates, bindings.ShaderResource(4),
                     checked((uint)input.Candidates.Length), 16);
                 device.CreateStructuredBufferUnorderedAccessView(Segments, counter, bindings.UnorderedAccess(0), Capacity, 28);
-                batches.Add(new Batch(bindings, checked((uint)input.Candidates.Length), share));
+                batches.Add(new Batch(bindings, checked((uint)input.Candidates.Length), share,
+                    share ? input.First.RenderBuffer : null, share ? input.Second.RenderBuffer : null));
 
                 // A mesh snapshot owns original geometry identity, while the host retains borrowed rendering buffers.
                 /// <summary>
@@ -155,11 +156,25 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
         return true;
     }
     /// <summary>
-    ///     Checks borrowed owners before reusing a shared rendering-index generation.
+    ///     Checks complete batch correspondence and live borrowed owners without allocating traversal state.
     /// </summary>
-    /// <returns>Whether every shared borrowed owner still matches its immutable source snapshot.</returns>
-    internal bool CanReuse() => Inputs.Where(input => input.Candidates.Length > 0).Zip(batches)
-        .All(pair => pair.Second.Shared == (pair.First.First.CanShare() && pair.First.Second.CanShare()));
+    /// <returns>Whether every batch and shared borrowed owner still match the immutable source publication.</returns>
+    internal bool CanReuse() {
+        var batchIndex = 0;
+        for (var inputIndex = 0; inputIndex < Inputs.Count; inputIndex++) {
+            var input = Inputs[inputIndex];
+            if (input.Candidates.Length == 0) continue;
+            if (batchIndex >= batches.Count) return false;
+            var batch = batches[batchIndex++];
+            if (batch.Count != (uint)input.Candidates.Length ||
+                batch.Shared != (input.First.CanShare() && input.Second.CanShare()))
+                return false;
+            if (batch.Shared && (!ReferenceEquals(batch.FirstOwner, input.First.RenderBuffer) ||
+                !ReferenceEquals(batch.SecondOwner, input.Second.RenderBuffer)))
+                return false;
+        }
+        return batchIndex == batches.Count;
+    }
     /// <summary>
     ///     Creates a typed uint SRV over the actual render index allocation.
     /// </summary>
@@ -205,5 +220,8 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
     /// <param name="Bindings">The immutable root descriptor tables.</param>
     /// <param name="Count">The valid candidate count.</param>
     /// <param name="Shared">Whether this batch consumes actual rendering index buffers.</param>
-    private sealed record Batch(SilkD3D12GraphicsBindings Bindings, uint Count, bool Shared);
+    /// <param name="FirstOwner">The first live owner whose index allocation is borrowed, or null for private indices.</param>
+    /// <param name="SecondOwner">The second live owner whose index allocation is borrowed, or null for private indices.</param>
+    private sealed record Batch(SilkD3D12GraphicsBindings Bindings, uint Count, bool Shared,
+        DefaultMeshGeometryBufferModel? FirstOwner, DefaultMeshGeometryBufferModel? SecondOwner);
 }

@@ -294,7 +294,7 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
                 if (unloadPeer) peer.Root.Children.Remove(peer.Viewport);
                 else peer.Viewport.Visibility = Visibility.Hidden;
                 await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
-                await peer.FinishTransportAsync();
+                await SettleSuspendedTransportAsync(peer);
                 Assert.False(peer.Canvas!.IsActive);
                 Assert.True(peer.Wpf!.IsInitialized);
                 Assert.False(
@@ -412,7 +412,7 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
                         var peerDevice = Device(peer);
                         peer.Root.Children.Remove(peer.Viewport);
                         await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
-                        await peer.FinishTransportAsync();
+                        await SettleSuspendedTransportAsync(peer);
                         Assert.False(
                             P4PresentationDriver.ReadField<DispatcherTimer>(peer.Wpf!, "serviceTimer")
                                 .IsEnabled
@@ -479,6 +479,21 @@ public sealed class P5MultiOwnerRecoveryTests(ITestOutputHelper output) {
             output.WriteLine($"Settled productive WPF polls: {bytes} bytes / 1024; one retained generation registration.");
         }
     );
+
+    /// <summary>Waits for real zero-timeout image detachment before asserting a suspended owner's timer has stopped.</summary>
+    /// <param name="driver">The inactive productive WPF owner.</param>
+    /// <returns>The bounded transport and actual image-detachment wait without new scene submissions.</returns>
+    private static async Task SettleSuspendedTransportAsync(P4PresentationDriver driver) {
+        await driver.FinishTransportAsync();
+        await P4PresentationDriver.PollAsync(
+            () => {
+                _ = driver.Wpf!.RenderFrame(TimeSpan.Zero, automaticFrame: true);
+                return !P4PresentationDriver.ReadField<DispatcherTimer>(driver.Wpf, "serviceTimer")
+                           .IsEnabled &&
+                       driver.Canvas!.ImageSource.BoundSurface == 0;
+            }, "actual suspended image detachment and timer stop"
+        );
+    }
 
     /// <summary>Completes new recovery work without requiring previously abandoned submissions to complete.</summary>
     /// <param name="driver">The productive owner whose removed generation has already retired.</param>

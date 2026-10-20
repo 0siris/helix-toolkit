@@ -44,7 +44,7 @@ public sealed class P5RecoveryDiscoveryTests {
     /// <summary>Lets a new owner discover actual removal while every old WPF owner is inactive with its service timer stopped.</summary>
     /// <param name="hwnd">Whether the newcomer uses HWND instead of WPF composition.</param>
     /// <param name="unload">Whether to genuinely unload both old owners instead of hiding them.</param>
-    /// <param name="adapterIndex">The explicit adapter index or the original automatic negative-index policy.</param>
+    /// <param name="adapterIndex">The requested manager configuration; negative values retain the existing normalization to adapter zero.</param>
     /// <returns>The new-owner discovery, complete old-owner retirement and fresh pixel qualification.</returns>
     [Theory(Explicit = true)]
     [InlineData(false, false, 0)]
@@ -230,6 +230,14 @@ public sealed class P5RecoveryDiscoveryTests {
         else driver.Viewport.Visibility = Visibility.Hidden;
         await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
         await driver.FinishTransportAsync();
+        await P4PresentationDriver.PollAsync(
+            () => {
+                _ = driver.Wpf!.RenderFrame(TimeSpan.Zero, automaticFrame: true);
+                return !P4PresentationDriver.ReadField<DispatcherTimer>(driver.Wpf, "serviceTimer")
+                           .IsEnabled &&
+                       driver.Canvas!.ImageSource.BoundSurface == 0;
+            }, "actual suspended image detachment and timer stop"
+        );
         Assert.False(driver.Canvas!.IsActive);
         Assert.True(driver.Wpf!.IsInitialized);
         Assert.False(

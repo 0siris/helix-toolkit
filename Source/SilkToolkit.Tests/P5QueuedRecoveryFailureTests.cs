@@ -276,12 +276,17 @@ public sealed class P5QueuedRecoveryFailureTests {
                     Assert.False(device.IsDisposed);
                     Assert.False(commands.IsDisposed);
                     Assert.NotNull(context.Camera);
-                    Assert.Same(registration,
-                        P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(surface, "recoveryRegistration"));
+                    Assert.Same(
+                        registration,
+                        P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(surface, "recoveryRegistration")
+                    );
                     Assert.True(registration.IsRemovalRequested);
                     Assert.False(registration.CanRecreate);
                     Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(surface, "retirementOperation"));
-                    Assert.False(P4PresentationDriver.ReadField<D3D12FrameSubmission>(surface, "_frameSubmission").IsPending);
+                    Assert.False(
+                        P4PresentationDriver.ReadField<D3D12FrameSubmission>(surface, "_frameSubmission")
+                            .IsPending
+                    );
                     Assert.Equal(before, driver.Counts);
                 }
             );

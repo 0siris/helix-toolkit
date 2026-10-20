@@ -503,7 +503,7 @@ public sealed class P5QueuedRecoveryFailureTests {
                             container.SchedulePendingEffectsManagerSynchronization();
                             Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(container, "managerSynchronizationOperation"));
                             Assert.Equal(before, driver.Counts);
-                        }
+                        }, () => AssertColdSharedRegistrationAsync(driver, container, original)
                     );
                     Assert.Equal(settled.Completed + 1, driver.Submitted);
                     Assert.Equal(settled.Completed, driver.Completed);
@@ -531,19 +531,120 @@ public sealed class P5QueuedRecoveryFailureTests {
             }
         );
 
+    /// <summary>Loads a cold mismatched consumer without resuming a failed shared transaction or its retained native owner.</summary>
+    /// <param name="failed">The productive consumer whose two teardown attempts already failed.</param>
+    /// <param name="container">The shared container retaining the pending replacement manager and fault gate.</param>
+    /// <param name="original">The cold consumer's manager, different from the pending container manager.</param>
+    /// <returns>The genuine unload, loaded registration, automatic tick and cold cleanup qualification.</returns>
+    private static async Task AssertColdSharedRegistrationAsync(
+        P4PresentationDriver failed,
+        ModelContainer3DX container,
+        IEffectsManager original
+    ) {
+        var owner = (object?) failed.Wpf ?? failed.Native!;
+        var device = Device(failed);
+        var context = failed.Context!;
+        var registration = P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration");
+        var before = failed.Counts;
+        var coldErrors = 0;
+        await using (var cold = new P4PresentationDriver(false, original)) {
+            EventHandler<RelayExceptionEventArgs> coldError = (_, args) => {
+                coldErrors++;
+                args.Handled = true;
+            };
+            cold.Viewport.RenderExceptionOccurred += coldError;
+            try {
+                // Configure while genuinely unloaded, so HostContractsLoaded performs the mismatched registration.
+                cold.Root.Children.Remove(cold.Viewport);
+                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                Assert.False(cold.Viewport.IsLoaded);
+                cold.Viewport.EnableSharedModelMode = true;
+                cold.Viewport.SharedModelContainer = container;
+                Assert.Null(P4PresentationDriver.ReadField<ModelContainer3DX?>(cold.Viewport, "registeredModelContainer"));
+                Assert.False(cold.Wpf!.IsInitialized);
+                Assert.Equal(0UL, cold.Wpf.Generation);
+                cold.Root.Children.Add(cold.Viewport);
+                cold.Root.UpdateLayout();
+                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                Assert.True(cold.Viewport.IsLoaded);
+                Assert.Same(container,
+                    P4PresentationDriver.ReadField<ModelContainer3DX>(cold.Viewport, "registeredModelContainer"));
+                Assert.Contains(cold.Viewport, P4PresentationDriver.ReadField<IRenderHost[]>(container, "consumers"));
+                Assert.NotSame(original, container.EffectsManager);
+                Assert.Same(original, cold.Viewport.EffectsManager);
+                var automaticTick = typeof(D3D12WpfPresentation)
+                    .GetMethod("OnRendering", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .CreateDelegate<EventHandler<RenderingEventArgs>>(cold.Wpf);
+                cold.Viewport.StartRendering();
+                cold.Viewport.InvalidateRender();
+                automaticTick(cold.Canvas, CreateRenderingArgs(TimeSpan.FromSeconds(3)));
+                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                Assert.False(cold.Viewport.CanSubmitNativeScene);
+                Assert.False(cold.Wpf.IsInitialized);
+                Assert.Equal(0UL, cold.Wpf.Generation);
+                Assert.Equal((0UL, 0UL, 0, 0), cold.Counts);
+                Assert.Null(cold.Context);
+                Assert.Null(P4PresentationDriver.ReadField<SilkD3D12Device?>(cold.Wpf, "device"));
+                Assert.Null(P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery?>(cold.Wpf, "recoveryRegistration"));
+                Assert.Null(P4PresentationDriver.ReadField<ModelContainer3DX?>(cold.Viewport, "resourceModelContainer"));
+                Assert.True(container.IsSynchronizingEffectsManager);
+                Assert.True(P4PresentationDriver.ReadField<bool>(container, "managerIdentityChangePending"));
+                Assert.True(P4PresentationDriver.ReadField<bool>(container, "managerSynchronizationFailed"));
+                Assert.False(P4PresentationDriver.ReadField<bool>(container, "managerChangeQueued"));
+                Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(container, "managerSynchronizationOperation"));
+                Assert.False(P4PresentationDriver.ReadField<DispatcherTimer>(container, "managerRetryTimer").IsEnabled);
+                Assert.False(device.IsDisposed);
+                Assert.NotNull(context.Camera);
+                Assert.Same(registration,
+                    P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration"));
+                Assert.True(registration.IsRemovalRequested);
+                Assert.False(registration.CanRecreate);
+                Assert.Equal(before, failed.Counts);
+                Assert.Equal(0, coldErrors);
+            } finally {
+                cold.Viewport.StopRendering();
+                cold.Viewport.RenderExceptionOccurred -= coldError;
+            }
+        }
+
+        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+        Assert.True(container.IsSynchronizingEffectsManager);
+        Assert.True(P4PresentationDriver.ReadField<bool>(container, "managerIdentityChangePending"));
+        Assert.True(P4PresentationDriver.ReadField<bool>(container, "managerSynchronizationFailed"));
+        Assert.False(P4PresentationDriver.ReadField<bool>(container, "managerChangeQueued"));
+        Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(container, "managerSynchronizationOperation"));
+        Assert.False(P4PresentationDriver.ReadField<DispatcherTimer>(container, "managerRetryTimer").IsEnabled);
+        Assert.Same(failed.Viewport,
+            Assert.Single(P4PresentationDriver.ReadField<Viewport3DX[]>(container, "resourceConsumers")));
+        Assert.Same(failed.Viewport,
+            Assert.Single(P4PresentationDriver.ReadField<IRenderHost[]>(container, "consumers")));
+        Assert.False(device.IsDisposed);
+        Assert.NotNull(context.Camera);
+        Assert.Same(registration,
+            P4PresentationDriver.ReadField<D3D12PresentationDeviceRecovery>(owner, "recoveryRegistration"));
+        Assert.False(registration.CanRecreate);
+        Assert.Equal(before, failed.Counts);
+        Assert.Equal(0, coldErrors);
+        if (failed.Wpf is { } wpf)
+            Assert.False(P4PresentationDriver.ReadField<DispatcherTimer>(wpf, "serviceTimer").IsEnabled);
+        else Assert.Null(P4PresentationDriver.ReadField<DispatcherOperation?>(failed.Native!, "retirementOperation"));
+    }
+
     /// <summary>Observes real queued detachment failures, ensuring the existing boundary sees retained native ownership.</summary>
     /// <param name="driver">The productive owner whose queued or automatic retirement is under test.</param>
     /// <param name="nodes">Real productive nodes whose one-shot detach callbacks may fail.</param>
     /// <param name="failRetry">Whether the second node fails during the boundary's immediate retry.</param>
     /// <param name="begin">Requests discovery, exposes a peer, or renders the frame that must retire after its CPU callback.</param>
     /// <param name="inspectRetainedOwnership">The optional check after another dispatcher turn, before explicit retry.</param>
+    /// <param name="inspectRetainedOwnershipAsync">The optional real lifecycle check while failed native ownership remains retained.</param>
     /// <returns>The completed boundary notification and verified, explicit native ownership retry.</returns>
     private static async Task AssertQueuedFailureAsync(
         P4PresentationDriver driver,
         SceneNode[] nodes,
         bool failRetry,
         Action begin,
-        Action? inspectRetainedOwnership = null
+        Action? inspectRetainedOwnership = null,
+        Func<Task>? inspectRetainedOwnershipAsync = null
     ) {
         var owner = (object?) driver.Wpf ?? driver.Native!;
         var device = Device(driver);
@@ -616,6 +717,14 @@ public sealed class P5QueuedRecoveryFailureTests {
                     Assert.Null(escaped);
                     Assert.Equal(1, errorCount);
                     Assert.Equal(2, detachFailures);
+                }
+
+                if (inspectRetainedOwnershipAsync is not null) {
+                    await inspectRetainedOwnershipAsync();
+                    Assert.Null(escaped);
+                    Assert.Equal(1, errorCount);
+                    Assert.Equal(2, detachFailures);
+                    Assert.Equal(before, driver.Counts);
                 }
 
                 if (driver.Wpf is { } wpf) {

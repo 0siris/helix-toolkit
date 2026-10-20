@@ -329,3 +329,33 @@ Jeder Phasenbericht enthält:
 - Bestandene, fehlgeschlagene und nicht ausgeführte Prüfungen.
 - Behobene Reviewbefunde und verbleibende Grenzen.
 - Nächste Phase mit ausdrücklichem Halt bis zu deiner Freigabe.
+
+## Phase 5 – Ausführung ab 2026-10-20
+
+Phase 5 wurde mit `implementiere phase 5` freigegeben. Die drei parallelen Audits sind abgeschlossen;
+die historischen P1–P4-Haltepunkte bleiben als datierte Ergebnisse bestehen. Konkrete Korrekturpakete werden
+nach den lesenden Audits getrennt integriert, alle Build-/GPU-/Test-/Messwerkzeuge laufen beim Integrator seriell.
+
+- **F35 – Additive Effekte verlieren Zielfarbe:** Ursprüngliches additives RGB erhalten und summierte Deckung
+  passend begrenzen. Kontrastierende Bloom-/XRay-Readbacks bestehen.
+- **F36 – Screen-Space-Kinder erhalten keine Posteffekte:** Kandidaten je Root und lokale Kamera/Viewport/Scissor
+  für Geometriepässe verwenden; Blur und Komposition behalten volle Zielgröße. Beide Backends bestehen off/on/off.
+- **F37 – Kollisions-Wiederverwendung allokiert:** LINQ durch vollständige indexierte Geometrie-/Owner-Prüfung
+  ersetzen. Reale GPU-Generationen, indirekte Argumente und Pixel sowie strikte Warm-Allokationen prüfen.
+- **F38 – Geräteverlust bleibt vor Freigabe hängen:** D3D11-/D3D12-Entfernung bestätigen, echte abgeschlossene
+  Meldungen erhalten, verlorene ausstehende Arbeit ohne erfundene Completion verwerfen. Lebende Timeouts behalten Eigentum.
+- **F39 – Konfigurierter Adapter wird ignoriert:** Produktive Adapterauswahl exakt verwenden; D3D12-/Bridge-LUID
+  vergleichen und ungültigen expliziten Index ohne stillen Fallback ablehnen.
+- **F40 – Native Übernahme behält zusätzliche COM-Referenzen:** Raw-Acquisitions nach addierendem `ComPtr`-Konstruktor
+  freigeben; Factory und beide Interop-Varianten korrigieren. Ohne vollständige Freigabe bleibt der entfernte Singleton bestehen.
+- **F41 – Mehrere Owner teilen einen entfernten Singleton:** Auch pausierte/ausgeladene und gemischte Verbraucher
+  vor Neuerstellung koordinieren; keine wartenden Dispatcher-Aufrufe oder Allokationen im normalen Framepfad. Korrektur läuft.
+- **F42 – Normaler HWND-Poll erreicht Retirement nicht:** Bestätigten Verlust an der Completion-/Lifecycle-Grenze
+  behandeln und laufenden Aufrufer abbrechen, bevor er freigegebene Befehlsressourcen benutzt. Korrektur läuft.
+
+Zwischenstand: 851/859 Standardfälle mit exakt acht bekannten Baseline-Fehlern; 39/39 fokussierte Core-/Viewportfälle,
+3/3 Frontbuffer-/Minimize-Fälle und 10/10 zusätzliche Partikel-/Transparenzfälle bestehen. WPF erzeugt nach dem
+Einpendeln bei 64 Pulsen keine neuen Szenen-, Kopier- oder Veröffentlichungsframes; der gewählte HWND-Weg bleibt kontinuierlich.
+
+Messung und Grenzen: [Phase-5-Prüfbericht](knowledge/testing/wpf-composition-phase5.md).
+Der finale Haltepunkt folgt erst nach Korrektur-Review, frischem Gesamtgate und Graphify.

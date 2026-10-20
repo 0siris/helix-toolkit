@@ -1,5 +1,15 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-20 — WPF composition Phase 5 qualification
+
+- Audited both presentation backends and original rendering contracts. Corrected additive coverage, omitted
+  screen-space effects, collision reuse allocations, configured adapter selection and leaked native references.
+- Corrected default/backend, deferred-rendering, MSAA/capture and demo-automation claims while preserving dated
+  earlier evidence. The old swap-chain-canvas proposal is marked superseded.
+- The [Phase 5 report](/testing/wpf-composition-phase5.md) records intermediate serial acceptance and actual
+  GPU-clock/input/counter evidence. Multi-owner removed-device corrective review and final gates are in progress;
+  physical monitor/RDP/touch/device-reset qualification remains explicitly unavailable.
+
 ## 2026-10-19 — WPF composition Phase 4 verified
 
 - Completed the public default-false presentation integration, original aliases/DPI/input contracts, borrowed

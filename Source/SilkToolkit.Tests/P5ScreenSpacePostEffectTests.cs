@@ -18,38 +18,34 @@ public sealed class P5ScreenSpacePostEffectTests {
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     public Task TaggedScreenSpaceMeshChangesBackgroundPixels(bool hwnd) => StaThread.RunAsync(async () => {
-        using var effects = new DefaultEffectsManager();
-        await using var driver = new P4PresentationDriver(hwnd, effects);
-        driver.Viewport.Width = 240;
-        driver.Viewport.Height = 180;
-        using var mesh = P4PresentationDriver.CreateMesh();
-        mesh.Transform = new ScaleTransform3D(8, 8, 8);
-        using var screen = new ScreenSpacedGroup3D {
-            RelativeScreenLocationX = 0.5, RelativeScreenLocationY = 0, EnableMover = false
-        };
-        screen.Children.Add(mesh);
-        using var outline = new PostEffectMeshOutlineBlur {
-            EffectName = "screen-outline", Color = Colors.Red, NumberOfBlurPass = 1
-        };
-        driver.Viewport.Items.Add(screen);
-        driver.Viewport.Items.Add(outline);
-        driver.Root.UpdateLayout();
-        await driver.WarmAsync();
+            using var effects = new DefaultEffectsManager();
+            await using var driver = new P4PresentationDriver(hwnd, effects);
+            driver.Viewport.Width = 240;
+            driver.Viewport.Height = 180;
+            using var mesh = P4PresentationDriver.CreateMesh();
+            mesh.Transform = new ScaleTransform3D(8, 8, 8);
+            using var screen = new ScreenSpacedGroup3D { RelativeScreenLocationX = 0.5, RelativeScreenLocationY = 0, EnableMover = false };
+            screen.Children.Add(mesh);
+            using var outline = new PostEffectMeshOutlineBlur { EffectName = "screen-outline", Color = Colors.Red, NumberOfBlurPass = 1 };
+            driver.Viewport.Items.Add(screen);
+            driver.Viewport.Items.Add(outline);
+            driver.Root.UpdateLayout();
+            await driver.WarmAsync();
 
-        var withoutEffect = await driver.CaptureAsync();
-        Assert.Equal(240u, withoutEffect.Width);
-        Assert.Equal(180u, withoutEffect.Height);
-        P4PresentationDriver.AssertPixel(withoutEffect, 180, 90, 0, 255, 0, 255);
-        P4PresentationDriver.AssertPixel(withoutEffect, 60, 90, 255, 0, 0, 255);
+            var withoutEffect = await driver.CaptureAsync();
+            Assert.Equal(240u, withoutEffect.Width);
+            Assert.Equal(180u, withoutEffect.Height);
+            P4PresentationDriver.AssertPixel(withoutEffect, 180, 90, 0, 255, 0, 255);
+            P4PresentationDriver.AssertPixel(withoutEffect, 60, 90, 255, 0, 0, 255);
 
-        mesh.PostEffects = "screen-outline";
-        await driver.DrainAsync();
-        var withEffect = await driver.CaptureAsync();
-        Assert.Equal(withoutEffect.Width, withEffect.Width);
-        Assert.Equal(withoutEffect.Height, withEffect.Height);
-        P4PresentationDriver.AssertPixel(withEffect, 180, 90, 0, 255, 0, 255);
-        var outlinedBackgroundPixels = 0;
-        for (var y = 0; y < 180; y++)
+            mesh.PostEffects = "screen-outline";
+            await driver.DrainAsync();
+            var withEffect = await driver.CaptureAsync();
+            Assert.Equal(withoutEffect.Width, withEffect.Width);
+            Assert.Equal(withoutEffect.Height, withEffect.Height);
+            P4PresentationDriver.AssertPixel(withEffect, 180, 90, 0, 255, 0, 255);
+            var outlinedBackgroundPixels = 0;
+            for (var y = 0; y < 180; y++)
             for (var x = 0; x < 240; x++) {
                 var offset = (y * 240 + x) * 4;
                 Assert.Equal((byte) 0, withoutEffect.Pixels[offset + 2]);
@@ -69,10 +65,11 @@ public sealed class P5ScreenSpacePostEffectTests {
                 outlinedBackgroundPixels++;
             }
 
-        Assert.True(outlinedBackgroundPixels >= 16, $"Only {outlinedBackgroundPixels} background pixels gained an outline.");
-        mesh.PostEffects = string.Empty;
-        await driver.DrainAsync();
-        var restored = await driver.CaptureAsync();
-        Assert.Equal(withoutEffect.Pixels, restored.Pixels);
-    });
+            Assert.True(outlinedBackgroundPixels >= 16, $"Only {outlinedBackgroundPixels} background pixels gained an outline.");
+            mesh.PostEffects = string.Empty;
+            await driver.DrainAsync();
+            var restored = await driver.CaptureAsync();
+            Assert.Equal(withoutEffect.Pixels, restored.Pixels);
+        }
+    );
 }

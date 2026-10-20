@@ -582,8 +582,10 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             var selectedDriver = viewport.EffectsManager?.EnableSoftwareRendering == true
                 ? SilkDriverType.Warp
                 : driverType;
-            device = SilkD3D12DeviceFactory.CreateForAdapter(viewport.EffectsManager?.AdapterIndex ?? -1,
-                driverType: selectedDriver);
+            device = SilkD3D12DeviceFactory.CreateForAdapter(
+                viewport.EffectsManager?.AdapterIndex ?? -1,
+                driverType: selectedDriver
+            );
             queue = device.CreateCommandQueue();
             commands = device.CreateCommandContext();
             fence = device.CreateFence();

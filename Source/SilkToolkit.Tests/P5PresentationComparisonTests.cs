@@ -196,34 +196,41 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     public Task RoutedWheelChangesCameraBeforeMeasuredOutput(bool hwnd) => StaThread.RunAsync(async () => {
-        using var effects = new DefaultEffectsManager();
-        await using var driver = new P4PresentationDriver(hwnd, effects);
-        using var mesh = P4PresentationDriver.CreateMesh();
-        driver.Viewport.Items.Add(mesh);
-        driver.Viewport.IsInertiaEnabled = false;
-        driver.Viewport.ZoomAroundMouseDownPoint = false;
-        await driver.WarmAsync();
-        var latency = new double[64];
-        var before = driver.Counts;
-        for (var index = 0; index < latency.Length; index++) {
-            var wheel = new MouseWheelEventArgs(Mouse.PrimaryDevice, index + 1, index % 2 == 0 ? 120 : -120) {
-                RoutedEvent = Mouse.MouseWheelEvent
-            };
-            var width = driver.Camera.Width;
-            var start = Stopwatch.GetTimestamp();
-            driver.Viewport.RaiseEvent(wheel);
-            Assert.True(wheel.Handled);
-            Assert.NotEqual(width, driver.Camera.Width);
-            Assert.True(driver.Tick(wait: true) > 0);
-            await driver.FinishTransportAsync();
-            latency[index] = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+            using var effects = new DefaultEffectsManager();
+            await using var driver = new P4PresentationDriver(hwnd, effects);
+            using var mesh = P4PresentationDriver.CreateMesh();
+            driver.Viewport.Items.Add(mesh);
+            driver.Viewport.IsInertiaEnabled = false;
+            driver.Viewport.ZoomAroundMouseDownPoint = false;
+            await driver.WarmAsync();
+            var latency = new double[64];
+            var before = driver.Counts;
+            for (var index = 0; index < latency.Length; index++) {
+                var wheel = new MouseWheelEventArgs(
+                    Mouse.PrimaryDevice, index + 1, index % 2 == 0
+                        ? 120
+                        : -120
+                ) { RoutedEvent = Mouse.MouseWheelEvent };
+                var width = driver.Camera.Width;
+                var start = Stopwatch.GetTimestamp();
+                driver.Viewport.RaiseEvent(wheel);
+                Assert.True(wheel.Handled);
+                Assert.NotEqual(width, driver.Camera.Width);
+                Assert.True(driver.Tick(wait: true) > 0);
+                await driver.FinishTransportAsync();
+                latency[index] = Stopwatch.GetElapsedTime(start)
+                    .TotalMilliseconds;
+            }
+
+            driver.AssertAdvanced(before, latency.Length);
+            P4PresentationDriver.AssertPixel(await driver.CaptureAsync(), 32, 24, 0, 255, 0, 255);
+            output.WriteLine(
+                $"P5 routed-wheel backend={(hwnd ? "HWND" : "WPF")}; samples={latency.Length}; " +
+                $"input-to-output-p50-ms={Percentile(latency, .5):F6}; input-to-output-p95-ms={Percentile(latency, .95):F6}. " +
+                "Starts at managed routed-event dispatch; includes camera change and accepted output, not OS delivery or scanout."
+            );
         }
-        driver.AssertAdvanced(before, latency.Length);
-        P4PresentationDriver.AssertPixel(await driver.CaptureAsync(), 32, 24, 0, 255, 0, 255);
-        output.WriteLine($"P5 routed-wheel backend={(hwnd ? "HWND" : "WPF")}; samples={latency.Length}; " +
-            $"input-to-output-p50-ms={Percentile(latency, .5):F6}; input-to-output-p95-ms={Percentile(latency, .95):F6}. " +
-            "Starts at managed routed-event dispatch; includes camera change and accepted output, not OS delivery or scanout.");
-    });
+    );
 
     /// <summary>Reads a diagnostic percentile from retained sample storage outside the measured region.</summary>
     /// <param name="samples">The finite timing samples.</param>
@@ -286,8 +293,10 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
 
         /// <summary>Owns two resolved 64-bit timestamps.</summary>
         private readonly SilkD3D12Resource readback;
+
         /// <summary>Borrows the queue until all timestamp resources have been drained and released.</summary>
         private readonly SilkD3D12CommandQueue queue;
+
         /// <summary>Owns an independent final drain fence for test resources even if an assertion fails.</summary>
         private readonly SilkD3D12Fence drainFence;
 
@@ -324,6 +333,7 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
 
         /// <summary>Gets the actual productive queue's timestamp ticks per second.</summary>
         internal ulong Frequency { get; }
+
         /// <summary>Gets the exact productive device's adapter identity for matched-backend comparison.</summary>
         internal long AdapterLuid { get; }
 
@@ -389,6 +399,7 @@ public sealed class P5PresentationComparisonTests(ITestOutputHelper output) {
         /// <returns>The HRESULT.</returns>
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate int GetFrequency(nint queue, out ulong frequency);
+
         /// <summary>Reads the adapter identity through the exact Silk 2.23 native struct-return ABI.</summary>
         /// <param name="device">The productive device.</param>
         /// <param name="luid">Receives the adapter identity.</param>

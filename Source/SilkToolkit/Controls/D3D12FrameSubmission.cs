@@ -46,6 +46,7 @@ internal sealed class D3D12FrameSubmission {
             CompletedFrames++;
             return true;
         }
+
         _ = RemainingWait(now);
         return false;
     }

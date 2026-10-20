@@ -39,55 +39,63 @@ public sealed class P5DeviceRecoveryTests(ITestOutputHelper output) {
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     public Task RemovedProductiveDeviceRetiresPendingWorkAndRecreates(bool hwnd) => StaThread.RunAsync(async () => {
-        using var effects = new DefaultEffectsManager();
-        await using var driver = new P4PresentationDriver(hwnd, effects);
-        using var mesh = P4PresentationDriver.CreateMesh();
-        driver.Viewport.Items.Add(mesh);
-        await driver.WarmAsync();
-        var owner = (object?) driver.Wpf ?? driver.Native!;
-        var oldDevice = P4PresentationDriver.ReadField<SilkD3D12Device>(owner, "device");
-        var oldContext = driver.Context!;
-        var before = driver.Counts;
-        using (var gate = new P4NativeQueueGate(driver)) {
-            driver.Viewport.InvalidateRender();
-            Assert.True(driver.Tick() > 0);
-            Assert.Equal(before.Submitted + 1, driver.Submitted);
-            Assert.Equal(before.Completed, driver.Completed);
-            RemoveDevice(oldDevice);
-            var reason = oldDevice.GetDeviceRemovedReason();
-            Assert.True(reason < 0);
-            output.WriteLine($"P5 {(hwnd ? "HWND" : "WPF")} scoped ID3D12Device5.RemoveDevice HRESULT=0x{reason:X8}.");
-            await P4PresentationDriver.PollAsync(() => {
-                try {
-                    if (driver.Wpf is { } wpf) wpf.RetireSceneResources();
-                    else driver.Native!.RetireSceneResources();
-                    return oldDevice.IsDisposed;
-                } catch (TimeoutException) {
-                    return false;
-                }
-            }, "removed native device retirement");
-            Assert.True(oldDevice.IsDisposed);
-            Assert.Null(oldContext.Camera);
-            Assert.Equal(before.Completed, driver.Completed);
-            Assert.Equal(before.Rendered, driver.RenderedCount);
-            Assert.Equal(before.OnRendered, driver.OnRenderedCount);
-            if (driver.Native is { } native)
-                Assert.False(P4PresentationDriver.ReadField<D3D12FrameSubmission>(native, "_frameSubmission").IsPending);
+            using var effects = new DefaultEffectsManager();
+            await using var driver = new P4PresentationDriver(hwnd, effects);
+            using var mesh = P4PresentationDriver.CreateMesh();
+            driver.Viewport.Items.Add(mesh);
+            await driver.WarmAsync();
+            var owner = (object?) driver.Wpf ?? driver.Native!;
+            var oldDevice = P4PresentationDriver.ReadField<SilkD3D12Device>(owner, "device");
+            var oldContext = driver.Context!;
+            var before = driver.Counts;
+            using (var gate = new P4NativeQueueGate(driver)) {
+                driver.Viewport.InvalidateRender();
+                Assert.True(driver.Tick() > 0);
+                Assert.Equal(before.Submitted + 1, driver.Submitted);
+                Assert.Equal(before.Completed, driver.Completed);
+                RemoveDevice(oldDevice);
+                var reason = oldDevice.GetDeviceRemovedReason();
+                Assert.True(reason < 0);
+                output.WriteLine($"P5 {(hwnd ? "HWND" : "WPF")} scoped ID3D12Device5.RemoveDevice HRESULT=0x{reason:X8}.");
+                await P4PresentationDriver.PollAsync(
+                    () => {
+                        try {
+                            if (driver.Wpf is { } wpf) wpf.RetireSceneResources();
+                            else driver.Native!.RetireSceneResources();
+                            return oldDevice.IsDisposed;
+                        } catch (TimeoutException) {
+                            return false;
+                        }
+                    }, "removed native device retirement"
+                );
+                Assert.True(oldDevice.IsDisposed);
+                Assert.Null(oldContext.Camera);
+                Assert.Equal(before.Completed, driver.Completed);
+                Assert.Equal(before.Rendered, driver.RenderedCount);
+                Assert.Equal(before.OnRendered, driver.OnRenderedCount);
+                if (driver.Native is { } native)
+                    Assert.False(
+                        P4PresentationDriver.ReadField<D3D12FrameSubmission>(native, "_frameSubmission")
+                            .IsPending
+                    );
+            }
+
+            var recovery = driver.Counts;
+            if (hwnd) {
+                await P4PresentationDriver.PollAsync(() => driver.Viewport.CanSubmitNativeScene, "replacement native eligibility");
+                Assert.True(driver.Tick(wait: true) > 0);
+                driver.AssertAdvanced(recovery, 1);
+            } else {
+                await driver.DrainAsync();
+            }
+
+            Assert.Equal(driver.Completed + 1, driver.Submitted);
+            Assert.NotSame(oldContext, driver.Context);
+            Assert.True(driver.Submitted > before.Submitted + 1);
+            P4PresentationDriver.AssertPixel(await driver.CaptureAsync(), 32, 24, 0, 255, 0, 255);
+            Assert.False(effects.IsDisposed);
         }
-        var recovery = driver.Counts;
-        if (hwnd) {
-            await P4PresentationDriver.PollAsync(() => driver.Viewport.CanSubmitNativeScene, "replacement native eligibility");
-            Assert.True(driver.Tick(wait: true) > 0);
-            driver.AssertAdvanced(recovery, 1);
-        } else {
-            await driver.DrainAsync();
-        }
-        Assert.Equal(driver.Completed + 1, driver.Submitted);
-        Assert.NotSame(oldContext, driver.Context);
-        Assert.True(driver.Submitted > before.Submitted + 1);
-        P4PresentationDriver.AssertPixel(await driver.CaptureAsync(), 32, 24, 0, 255, 0, 255);
-        Assert.False(effects.IsDisposed);
-    });
+    );
 
     /// <summary>Checks that actual presentation uses the configured index and that WPF interop retains its exact LUID.</summary>
     /// <param name="hwnd">Whether to select HWND instead of WPF composition.</param>
@@ -98,17 +106,23 @@ public sealed class P5DeviceRecoveryTests(ITestOutputHelper output) {
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     public Task ProductiveAdapterSelectionMatchesItsRequestedIndex(bool hwnd) => StaThread.RunAsync(async () => {
-        using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration { AdapterIndex = 0 });
-        await using var driver = new P4PresentationDriver(hwnd, effects);
-        await driver.WarmAsync();
-        var owner = (object?) driver.Wpf ?? driver.Native!;
-        var device = P4PresentationDriver.ReadField<SilkD3D12Device>(owner, "device");
-        using var expected = SilkD3D12DeviceFactory.CreateForAdapter(effects.AdapterIndex);
-        Assert.Equal(AdapterLuid(expected), AdapterLuid(device));
-        if (driver.Wpf is { } wpf)
-            Assert.Equal(AdapterLuid(device), P4PresentationDriver.ReadField<D3D12ImageInteropBridge>(wpf, "bridge").AdapterLuid);
-        output.WriteLine($"P5 {(hwnd ? "HWND" : "WPF")} configured DXGI={effects.AdapterIndex}; actual LUID=0x{AdapterLuid(device):X16}.");
-    });
+            using var effects = new DefaultEffectsManager(new EffectsManagerConfiguration { AdapterIndex = 0 });
+            await using var driver = new P4PresentationDriver(hwnd, effects);
+            await driver.WarmAsync();
+            var owner = (object?) driver.Wpf ?? driver.Native!;
+            var device = P4PresentationDriver.ReadField<SilkD3D12Device>(owner, "device");
+            using var expected = SilkD3D12DeviceFactory.CreateForAdapter(effects.AdapterIndex);
+            Assert.Equal(AdapterLuid(expected), AdapterLuid(device));
+            if (driver.Wpf is { } wpf)
+                Assert.Equal(
+                    AdapterLuid(device), P4PresentationDriver.ReadField<D3D12ImageInteropBridge>(wpf, "bridge")
+                        .AdapterLuid
+                );
+            output.WriteLine(
+                $"P5 {(hwnd ? "HWND" : "WPF")} configured DXGI={effects.AdapterIndex}; actual LUID=0x{AdapterLuid(device):X16}."
+            );
+        }
+    );
 
     /// <summary>Rejects an unavailable explicit adapter instead of silently selecting another hardware device.</summary>
     [Fact(Explicit = true)]
@@ -150,6 +164,7 @@ public sealed class P5DeviceRecoveryTests(ITestOutputHelper output) {
     /// <param name="device">The extended device interface.</param>
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate void RemoveNativeDevice(nint device);
+
     /// <summary>Reads a D3D12 adapter identity through its native result-buffer ABI.</summary>
     /// <param name="device">The actual device.</param>
     /// <param name="luid">Receives the adapter identity.</param>

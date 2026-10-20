@@ -346,6 +346,7 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
             Dxgi.IDXGIAdapter1* actualAdapter = null;
             SilkMarshal.ThrowHResult(factory.Handle->EnumAdapterByLuid(luid, &adapterGuid, (void**) &actualAdapter));
             using var actual = new ComPtr<Dxgi.IDXGIAdapter1>(actualAdapter);
+            actualAdapter->Release();
             Dxgi.AdapterDesc1 description;
             SilkMarshal.ThrowHResult(actual.Handle->GetDesc1(&description));
             if (!SameLuid(luid, description.AdapterLuid))
@@ -362,6 +363,8 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
             );
             device11 = new ComPtr<D11.ID3D11Device>(native11);
             context11 = new ComPtr<D11.ID3D11DeviceContext>(immediate11);
+            if (immediate11 != null) immediate11->Release();
+            if (native11 != null) native11->Release();
             SilkMarshal.ThrowHResult(result);
         }
 

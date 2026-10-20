@@ -287,6 +287,7 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
             Dxgi.IDXGIAdapter1* actualAdapter = null;
             SilkMarshal.ThrowHResult(factory.Handle->EnumAdapterByLuid(luid, &adapterGuid, (void**) &actualAdapter));
             using var actual = new ComPtr<Dxgi.IDXGIAdapter1>(actualAdapter);
+            actualAdapter->Release();
             Dxgi.AdapterDesc1 actualDescription;
             SilkMarshal.ThrowHResult(actual.Handle->GetDesc1(&actualDescription));
             if (!SameLuid(luid, actualDescription.AdapterLuid))
@@ -306,6 +307,8 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
             );
             device11 = new ComPtr<D11.ID3D11Device>(native11);
             context11 = new ComPtr<D11.ID3D11DeviceContext>(immediate11);
+            if (immediate11 != null) immediate11->Release();
+            if (native11 != null) native11->Release();
             SilkMarshal.ThrowHResult(create11);
 
             SilkMarshal.ThrowHResult(D3D9Api.Direct3DCreate9Ex((uint) D9.D3D9.SdkVersion, ref direct3D9));

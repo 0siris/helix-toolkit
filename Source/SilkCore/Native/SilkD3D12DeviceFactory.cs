@@ -89,6 +89,7 @@ public static unsafe class SilkD3D12DeviceFactory {
             return new SilkD3D12Device(new SilkD3D12DevicePtr(nativeDevice), minimumFeatureLevel,
                 driverType == SilkDriverType.Warp ? WarpSubmissionSync : null);
         } finally {
+            if (nativeDevice != null) nativeDevice->Release();
             if (hardwareAdapter != null) hardwareAdapter->Release();
             adapter.Dispose();
             factory.Dispose();

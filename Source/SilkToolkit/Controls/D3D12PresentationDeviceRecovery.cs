@@ -21,6 +21,9 @@ internal sealed class D3D12PresentationDeviceRecovery {
     /// <summary>The weak native-state probe and retirement callback retained by the presentation owner.</summary>
     private readonly WeakReference<Action> retire;
 
+    /// <summary>The weak owner wrapper that reports queued failures through its rendering error boundary.</summary>
+    private readonly WeakReference<Action> queuedRetire;
+
     /// <summary>The dispatcher on which this generation's native objects may be retired.</summary>
     private readonly Dispatcher dispatcher;
 
@@ -40,10 +43,14 @@ internal sealed class D3D12PresentationDeviceRecovery {
     /// <param name="devicePointer">The actual native device pointer owned by the generation.</param>
     /// <param name="dispatcher">The native owner's dispatcher.</param>
     /// <param name="retire">The owner's retained native-state probe and retirement callback.</param>
-    internal D3D12PresentationDeviceRecovery(nint devicePointer, Dispatcher dispatcher, Action retire) {
+    /// <param name="queuedRetire">The retained queued error boundary, or the callback for managed registry-only owners.</param>
+    internal D3D12PresentationDeviceRecovery(
+        nint devicePointer, Dispatcher dispatcher, Action retire, Action? queuedRetire = null
+    ) {
         this.devicePointer = devicePointer;
         this.dispatcher = dispatcher;
         this.retire = new WeakReference<Action>(retire);
+        this.queuedRetire = new WeakReference<Action>(queuedRetire ?? retire);
         probeCallback = ProbeOwner;
         lock (Gate) Owners.Add(this);
     }
@@ -63,7 +70,7 @@ internal sealed class D3D12PresentationDeviceRecovery {
     /// <summary>Runs one retained owner probe and permits another exceptional discovery request after it returns.</summary>
     private void ProbeOwner() {
         try {
-            if (retire.TryGetTarget(out var callback)) callback();
+            if (queuedRetire.TryGetTarget(out var callback)) callback();
         } finally {
             Volatile.Write(ref probeRequested, 0);
         }
@@ -91,7 +98,8 @@ internal sealed class D3D12PresentationDeviceRecovery {
             if (!owner.retire.TryGetTarget(out var callback) || owner.dispatcher.HasShutdownStarted) continue;
             try {
                 if (owner.dispatcher.CheckAccess()) callback();
-                else _ = owner.dispatcher.BeginInvoke(DispatcherPriority.Background, callback);
+                else if (owner.queuedRetire.TryGetTarget(out var queuedCallback))
+                    _ = owner.dispatcher.BeginInvoke(DispatcherPriority.Background, queuedCallback);
             } catch (Exception exception) {
                 // A failed owner retains its native ownership, but must not prevent peers receiving removal.
                 failure ??= ExceptionDispatchInfo.Capture(exception);

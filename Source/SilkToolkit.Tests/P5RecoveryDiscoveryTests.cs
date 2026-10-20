@@ -169,17 +169,18 @@ public sealed class P5RecoveryDiscoveryTests {
             await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
             await P4PresentationDriver.PollAsync(
                 () => {
-                    surface.EnsureNativeInitialized();
-                    return surface.IsInitialized;
-                }, "standalone automatic native recovery creation"
+                    surface.RenderOnce([0, 1, 0, 1]);
+                    return surface.PresentedFrames != 0;
+                }, "standalone automatic native recovery through public RenderOnce"
             );
             Assert.True(device.IsDisposed);
             Assert.False(first.Wpf!.IsInitialized);
             Assert.NotNull(first.Viewport.CameraCore);
-            _ = surface.RenderViewportOnce([0, 1, 0, 1], [], first.Viewport.CameraCore!, false, captureFrame: true);
             Assert.Equal(1UL, surface.PresentedFrames);
+            _ = surface.RenderViewportOnce([0, 1, 0, 1], [], first.Viewport.CameraCore!, false, captureFrame: true);
+            Assert.Equal(2UL, surface.PresentedFrames);
             Assert.Equal(
-                1UL, P4PresentationDriver.ReadField<D3D12FrameSubmission>(surface, "_frameSubmission")
+                2UL, P4PresentationDriver.ReadField<D3D12FrameSubmission>(surface, "_frameSubmission")
                     .CompletedFrames
             );
             P4PresentationDriver.AssertPixel(surface.LastCapturedFrame!.Value, 16, 12, 0, 255, 0, 255);

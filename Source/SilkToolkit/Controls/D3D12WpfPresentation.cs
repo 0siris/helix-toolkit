@@ -55,8 +55,11 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Retains the removed singleton barrier until all productive peer generations have retired.</summary>
     private D3D12PresentationDeviceRecovery? recoveryBarrier;
 
-    /// <summary>The retained generation-removal callback, also used for cross-dispatcher notification.</summary>
+    /// <summary>The retained callback for synchronous native discovery and retirement.</summary>
     private readonly Action retireRemovedDevice;
+
+    /// <summary>The retained error boundary for asynchronous device discovery and peer retirement.</summary>
+    private readonly Action queuedDeviceRemoval;
 
     /// <summary>The sole owned native submission queue.</summary>
     private SilkD3D12CommandQueue? queue;
@@ -264,6 +267,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         invalidateScene2D = viewport.InvalidateRender;
         disposeViewport = FinishViewportDisposal;
         retireRemovedDevice = OnDeviceRemoval;
+        queuedDeviceRemoval = OnQueuedDeviceRemoval;
         serviceTimer = new DispatcherTimer(DispatcherPriority.Background, canvas.Dispatcher) { Interval = TimeSpan.FromMilliseconds(16) };
         serviceTimer.Tick += ServiceSuspendedTransport;
         canvas.Rendering += OnRendering;
@@ -636,7 +640,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 driverType: selectedDriver
             );
             recoveryRegistration = new D3D12PresentationDeviceRecovery(
-                device.NativePointer, canvas.Dispatcher, retireRemovedDevice
+                device.NativePointer, canvas.Dispatcher, retireRemovedDevice, queuedDeviceRemoval
             );
             if (device.GetDeviceRemovedReason() < 0) {
                 recoveryBarrier = recoveryRegistration;
@@ -671,6 +675,23 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
         } catch {
             ReleaseNative();
             throw;
+        }
+    }
+
+    /// <summary>Reports queued retirement failures while retaining failed native ownership for a controlled retry.</summary>
+    private void OnQueuedDeviceRemoval() {
+        try {
+            OnDeviceRemoval();
+        } catch (Exception exception) {
+            viewport.StopRendering();
+            try {
+                viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));
+            } catch (Exception retryException) {
+                serviceTimer.Stop();
+                LoggerLib.Logger.Error(retryException, "WPF recovery teardown failed; native resources remain owned for retry");
+                viewport.SetCurrentValue(Viewport3DX.RenderExceptionProperty, retryException);
+                demand.RequestRecovery();
+            }
         }
     }
 

@@ -143,8 +143,11 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <summary>The removed singleton whose productive owners must all retire before recreation.</summary>
     private D3D12PresentationDeviceRecovery? recoveryBarrier;
 
-    /// <summary>The retained callback for same-thread retirement and asynchronous peer notification.</summary>
+    /// <summary>The retained callback for synchronous native discovery and retirement.</summary>
     private readonly Action retireRemovedDevice;
+
+    /// <summary>The retained error boundary for asynchronous device discovery and peer retirement.</summary>
+    private readonly Action queuedDeviceRemoval;
 
     /// <summary>The queue retained for submission and native completion.</summary>
     private SilkD3D12CommandQueue? commandQueue;
@@ -174,6 +177,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         this.effectsManager = effectsManager;
         retireNativeCallback = ApplyPendingRetirement;
         retireRemovedDevice = OnDeviceRemoval;
+        queuedDeviceRemoval = OnQueuedDeviceRemoval;
         _resizeRetryTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) { Interval = TimeSpan.FromMilliseconds(16) };
         _resizeRetryTimer.Tick += RetryPendingResize;
         Children.Add(windowHost);
@@ -244,6 +248,24 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         recoveryRegistration?.RequestRemoval();
         OnDeviceRemoval();
         return true;
+    }
+
+    /// <summary>Reports queued retirement failures while retaining failed native ownership for a controlled retry.</summary>
+    private void OnQueuedDeviceRemoval() {
+        try {
+            OnDeviceRemoval();
+        } catch (Exception exception) {
+            try {
+                if (DeferredRenderException is { } handler) handler(this, new RelayExceptionEventArgs(exception));
+                else LoggerLib.Logger.Error(exception, "Native recovery failed; resources remain owned for retry");
+            } catch (Exception retryException) {
+                retirementOperation?.Abort();
+                retirementOperation = null;
+                LoggerLib.Logger.Error(retryException, "Native recovery teardown failed; resources remain owned for retry");
+                if (RenderHost is Viewport3DX viewport)
+                    viewport.SetCurrentValue(Viewport3DX.RenderExceptionProperty, retryException);
+            }
+        }
     }
 
     /// <summary>Confirms requested discovery and retires removal when no CPU callback still borrows its context.</summary>
@@ -380,6 +402,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (frameActive || !CanSubmitFrame) return;
+        if (!IsInitialized) EnsureNativeInitialized();
+        if (!IsInitialized || !CanSubmitFrame) return;
         if (!CompletePendingFrame(true)) return;
         ApplyPendingResize();
         if (!IsInitialized || !CanSubmitFrame) return;
@@ -425,6 +449,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         Dispatcher.VerifyAccess();
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (frameActive || !CanSubmitFrame) return 0;
+        if (!IsInitialized) EnsureNativeInitialized();
+        if (!IsInitialized || !CanSubmitFrame) return 0;
         if (!CompletePendingFrame(true)) return 0;
         ApplyPendingResize();
         if (!IsInitialized || !CanSubmitFrame) return 0;
@@ -508,6 +534,8 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
         roots.AsGuardNotNull();
         camera.AsGuardNotNull();
         if (frameActive || !CanSubmitFrame) return 0;
+        if (!IsInitialized) EnsureNativeInitialized();
+        if (!IsInitialized || !CanSubmitFrame) return 0;
         if (!CompletePendingFrame(waitForCompletion || captureFrame)) return 0;
         ApplyPendingResize();
         if (!IsInitialized || !CanSubmitFrame) return 0;
@@ -754,7 +782,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
                 SilkFeatureLevel.Level110, selectedDriverType
             );
             recoveryRegistration = new D3D12PresentationDeviceRecovery(
-                device.NativePointer, Dispatcher, retireRemovedDevice
+                device.NativePointer, Dispatcher, retireRemovedDevice, queuedDeviceRemoval
             );
             if (ObserveDeviceRemoval()) return;
             commandQueue = device.CreateCommandQueue();

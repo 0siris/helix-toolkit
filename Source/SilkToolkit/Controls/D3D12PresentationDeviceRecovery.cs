@@ -45,7 +45,10 @@ internal sealed class D3D12PresentationDeviceRecovery {
     /// <param name="retire">The owner's retained native-state probe and retirement callback.</param>
     /// <param name="queuedRetire">The retained queued error boundary, or the callback for managed registry-only owners.</param>
     internal D3D12PresentationDeviceRecovery(
-        nint devicePointer, Dispatcher dispatcher, Action retire, Action? queuedRetire = null
+        nint devicePointer,
+        Dispatcher dispatcher,
+        Action retire,
+        Action? queuedRetire = null
     ) {
         this.devicePointer = devicePointer;
         this.dispatcher = dispatcher;

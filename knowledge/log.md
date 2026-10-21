@@ -133,6 +133,12 @@
 - Graphify completed after final source formatting: 1,013 files, 9,691 nodes, 16,858 edges, 2,847 communities,
   zero model tokens. Existing 17 partial parser results remain disclosed. Phase 2 awaits explicit approval.
 
+## 2026-10-18 — WPF composition handoff plan
+
+* Added a standalone D3D12-to-D3DImage presentation plan with an interop proof checkpoint before integration.
+* Preserves the existing native path and renderer; implementation and acceptance remain pending.
+* Linked the handoff from the bundle index; no runtime or source changes.
+
 ## 2026-10-18 — Shared viewport widget overlay
 
 * Moved the existing WPF/Win32 widget host into SilkToolkit with its public namespace and class body retained.

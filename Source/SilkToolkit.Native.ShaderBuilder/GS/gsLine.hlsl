@@ -6,7 +6,15 @@
 //--------------------------------------------------------------------------------------
 // Make a a ribbon line of the specified pixel width from 2 points in the projection frame.
 //--------------------------------------------------------------------------------------
-void makeLine(out float4 points[4], in float4 posA, in float4 posB, in float width) {
+/// <summary>Builds the existing fixed-size ribbon, optionally rejecting an invalid projected direction.</summary>
+/// <param name="points">Receives the four existing ribbon corners on success.</param>
+/// <param name="posA">The first clip-space endpoint.</param>
+/// <param name="posB">The second clip-space endpoint.</param>
+/// <param name="width">The existing half-width before DPI scaling.</param>
+/// <param name="rejectInvalidDirection">Whether the ordinary line path must reject zero or nonfinite direction.</param>
+/// <returns>False only when the opted-in projected direction cannot be normalized.</returns>
+bool makeLine(out float4 points[4], in float4 posA, in float4 posB, in float width,
+              in bool rejectInvalidDirection) {
     // Clipping
     if (posA.w * posB.w < 0) {
         if (posA.w < 0) {
@@ -21,7 +29,13 @@ void makeLine(out float4 points[4], in float4 posA, in float4 posB, in float wid
 
     // Compute tangent and binormal of line AB in window space
     // Binormal is scaled by line width 
-    float2 tangent = normalize(Bw.xy - Aw.xy);
+    float2 delta = Bw.xy - Aw.xy;
+    float directionSquared = dot(delta, delta);
+    if (rejectInvalidDirection && (!(directionSquared > 0) || !isfinite(directionSquared))) {
+        points[0] = points[1] = points[2] = points[3] = (float4)0;
+        return false;
+    }
+    float2 tangent = normalize(delta);
     float2 binormal = width * DpiScale * float2(tangent.y, -tangent.x);
 
     // Compute the corners of the ribbon in window space
@@ -35,6 +49,16 @@ void makeLine(out float4 points[4], in float4 posA, in float4 posB, in float wid
     points[0] = windowToProj(A2w, posA.z, posA.w);
     points[3] = windowToProj(B1w, posB.z, posB.w);
     points[2] = windowToProj(B2w, posB.z, posB.w);
+    return true;
+}
+
+/// <summary>Preserves the existing unguarded four-argument entry point used by arrow shader includes.</summary>
+/// <param name="points">Receives the existing ribbon corners.</param>
+/// <param name="posA">The first clip-space endpoint.</param>
+/// <param name="posB">The second clip-space endpoint.</param>
+/// <param name="width">The existing half-width before DPI scaling.</param>
+void makeLine(out float4 points[4], in float4 posA, in float4 posB, in float width) {
+    makeLine(points, posA, posB, width, false);
 }
 
 void makeLineNonFixed(out float4 points[4], in float4 posA, in float4 posB, in float width) {
@@ -63,14 +87,18 @@ void makeLineNonFixed(out float4 points[4], in float4 posA, in float4 posB, in f
     points[2] = mul(B2w, mProjection);
 }
 
+/// <summary>Emits the existing line ribbon, rejecting invalid projected direction only for fixed-size lines.</summary>
+/// <param name="input">The existing pair of vertex-shader outputs.</param>
+/// <param name="outStream">Receives the existing triangle ribbon on an admitted direction.</param>
 [maxvertexcount(4)]
 void main(line GSInputPS input[2], inout TriangleStream<PSInputPS> outStream) {
     PSInputPS output = (PSInputPS)0;
 
     float4 lineCorners[4] = {(float4)0, (float4)0, (float4)0, (float4)0};
     float texX = length(input[0].wp.xyz - input[1].wp.xyz) / max(1e-5, pTextureScale);
-    if (fixedSize) makeLine(lineCorners, input[0].p, input[1].p, pfParams.x);
-    else makeLineNonFixed(lineCorners, mul(input[0].wp, mView), mul(input[1].wp, mView), pfParams.x);
+    if (fixedSize) {
+        if (!makeLine(lineCorners, input[0].p, input[1].p, pfParams.x, true)) return;
+    } else makeLineNonFixed(lineCorners, mul(input[0].wp, mView), mul(input[1].wp, mView), pfParams.x);
     output.vEye = input[0].vEye;
     output.c = input[0].c;
     output.p = lineCorners[0];

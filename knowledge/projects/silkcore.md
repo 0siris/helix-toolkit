@@ -106,3 +106,28 @@ The public API and automatic-disposal policy remain unchanged. Five CPU-only reg
 identity under both disposal policies, ordinary eviction and automatic return-to-pool reentrancy. Two replacement
 cases fail before the correction; all five and the existing texture/resource checks pass afterward (141 cases).
 These checks require neither a native device nor a window; no new GPU or presentation acceptance is implied.
+
+# Native connected path strokes
+
+`PathRenderCore2D` builds its existing Figure commands through actual Direct2D path/sink wrappers. A closed
+native geometry is cached by figure publication and factory identity; replacement invalidates it before render
+observers run. Failed closure does not publish partial geometry. Detach, disposal and factory replacement
+release derived resources. In-place Figure edits still require explicit invalidation or list replacement.
+
+The D3D12 Scene2D consumer widens the native geometry and tessellates it into the existing Sprite2D transport.
+It preserves connected strokes, transforms, scissor and sibling order without another managed stroker. The
+native tessellation callback retains its managed owner through the synchronous call and defers exceptions
+until control returns from native code. This consumer rejects non-null fill brushes explicitly.
+
+The fixed-size line geometry shader admits only finite, nonzero projected directions. The existing arrow
+includes and nonfixed construction remain compatible. Existing line thickness is a half-width multiplied by
+the actual global DPI; callers requiring a physical full width compensate once at their material boundary.
+
+Real attached Scene2D nodes exposed a pre-existing recursion between `InvalidateRender` and `InvalidateVisual`.
+The latter now terminates after setting the visual dirty flags up the parent chain. Other invalidation entry
+points retain their dirty-state work and delegate into that leaf. Six attached parent/child regressions cover
+these entry points; the originally crashing WPF attachment case keeps its original assertions.
+
+The complete normal Core suite passes469/469, including36 path/line cases and the six invalidation cases.
+The path tests exercise genuine native geometry and fenced WARP readback. They do not establish Original
+OpenGL pixels, inherited line caps/blending, application Window preview delivery or physical-input acceptance.

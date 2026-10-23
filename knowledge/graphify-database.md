@@ -32,7 +32,7 @@ The builder creates a temporary code-only corpus, runs Graphify AST extraction w
 
 # Current Snapshot
 
-The 2026-10-23 snapshot prepares987 source files and contains9,508 nodes,22,123 edges and463 communities.
+The latest 2026-10-23 snapshot prepares994 source files and contains9,404 nodes,16,987 edges and2,668 communities.
 Paths are normalized to `Source/...`; no temporary staging corpus remains. Extraction uses the local Graphify
 AST API directly, in one process, avoiding CLI semantic-backend credential checks. Input/output token counts
 are zero. The parser reports17 files with syntax it can only partially extract; this graph is structural

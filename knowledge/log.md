@@ -1,5 +1,16 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-23 — Native connected path strokes and attached Scene2D invalidation
+
+- Document actual Direct2D geometry, widening/tessellation and the existing Sprite2D consumer, including
+  callback lifetime, cache/failure/disposal, fill rejection and explicit physical-width responsibilities.
+- Record the compatible fixed-size line degeneracy guard, thin noninteractive path wrapper and dispatcher-owned
+  presentation metrics without treating them as readiness, Original optical or physical-input acceptance.
+- Retain the measured attachment stack overflow and minimal shared dirty-leaf correction. Normal Core469/469
+  and WPF63/63 include the unchanged original40 cases and six new attached-node invalidation regressions.
+- Rebuild the code-only source graph through the repository script:994 source files,9,404 nodes,16,987 edges
+  and zero token use. Its17 existing parser-partial files remain a structural-analysis limitation.
+
 ## 2026-10-23 — Pre-frame input application and viewport observations
 
 - Add an admitted pre-recording callback with readiness/lifetime rechecks, retaining post-present behavior.

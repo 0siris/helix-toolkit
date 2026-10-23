@@ -160,6 +160,9 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// </summary>
     public uint PixelWidth => swapChain?.Width ?? 0;
 
+    /// <summary>Gets the actual child host's current physical pixel scale without requesting a resize.</summary>
+    internal float DpiScale => (float) windowHost.DpiScale;
+
     /// <summary>
     ///     Updates the technique registry after a late WPF data binding has resolved.
     /// </summary>

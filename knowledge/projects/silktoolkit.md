@@ -60,3 +60,19 @@ the CLI fallback was used. Independent source review found no actionable P1/P2 i
 Parent logs and TRXs are retained as full-product-selection-native-pointer-r1/r2 and
 full-product-selection-render-ready-visible-r4 under reference-runtime. They certify this observation/frame
 boundary, not complete brush input, scheduler-before-release delivery or original pixels.
+
+## Direct-core paths and presentation metrics
+
+`PathModel2D` wraps one `PathNode2D` and exposes its existing `PathRenderCore2D` without converting float colors
+through WPF byte colors or owning a second point collection. Its node declines hits. Disposal releases its
+owned core resources even when the host has never attached it.
+
+`Viewport3DX.TryGetPresentationMetrics` verifies dispatcher access and reads only the current initialized
+surface's allocation width, height and actual pixel scale. Failure returns zero outputs. It does not create
+a surface, render, flush pending resize work or infer readiness from configured DPI. Application layout,
+camera, foreground and input ownership remain independent checks.
+
+The four owning nonvisible tests and the full normal WPF suite pass4/4 and63/63. A real attached model case
+first exposed a shared Scene2D invalidation stack overflow; the original assertions pass after correcting
+that shared leaf. Earlier compile failures and the crashing test-process result remain in parent evidence.
+No visible window, physical input or application curve-pixel equivalence is certified by these tests.

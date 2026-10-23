@@ -216,6 +216,8 @@ public partial class SceneNode2D {
         if (IsAttached) InvalidateRender();
     }
 
+    /// <summary>Marks this node and its ancestors visually dirty for the next renderer traversal.</summary>
+    /// <remarks>InvalidateRender delegates here, so this leaf must not call back into it.</remarks>
     public void InvalidateVisual() {
         IsVisualDirty = true;
         TraverseUp(this,
@@ -224,7 +226,6 @@ public partial class SceneNode2D {
                        p.IsVisualDirty = true;
                        return true;
                    });
-        if (IsAttached) InvalidateRender();
     }
 
     public void InvalidateTransform() {

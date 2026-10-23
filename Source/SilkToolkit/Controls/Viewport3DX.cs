@@ -325,6 +325,31 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     public bool IsRenderReady => d3d12Surface is {IsInitialized: true} && CameraCore is not null
         && Visibility == Visibility.Visible;
 
+    /// <summary>Reads the current initialized presentation allocation and actual child-host pixel scale.</summary>
+    /// <param name="pixelWidth">Receives the current physical allocation width, or zero on failure.</param>
+    /// <param name="pixelHeight">Receives the current physical allocation height, or zero on failure.</param>
+    /// <param name="dpiScale">Receives the actual child-host pixel scale, or zero on failure.</param>
+    /// <returns>Whether an initialized surface supplied positive finite current metrics.</returns>
+    /// <exception cref="InvalidOperationException">The caller does not own this viewport's dispatcher.</exception>
+    /// <remarks>
+    ///     This read does not render, resize, flush pending resize work or fabricate readiness. Visibility, camera,
+    ///     foreground and input ownership remain independent. A pending resize can replace the allocation later.
+    /// </remarks>
+    public bool TryGetPresentationMetrics(out uint pixelWidth, out uint pixelHeight, out float dpiScale) {
+        Dispatcher.VerifyAccess();
+        pixelWidth = pixelHeight = 0;
+        dpiScale = 0;
+        if (d3d12Surface is not { IsInitialized: true } surface) return false;
+        var width = surface.PixelWidth;
+        var height = surface.PixelHeight;
+        var scale = surface.DpiScale;
+        if (width == 0 || height == 0 || !(scale > 0) || !float.IsFinite(scale)) return false;
+        pixelWidth = width;
+        pixelHeight = height;
+        dpiScale = scale;
+        return true;
+    }
+
     /// <summary>
     ///     Occurs after each Direct3D 12 frame has been recorded and presented.
     ///     Use this event carefully. Unsubscrible this event when not used. Otherwise may cause performance issue.

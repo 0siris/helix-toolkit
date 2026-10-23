@@ -70,8 +70,10 @@ Headless WARP checks read back genuine segments, pair IDs, indirect arguments an
 physical adapter or visible-window acceptance. Core-line compatibility remains selectable in the application;
 the source GPU kernel excludes coplanar output. A previous full SilkCore suite passed323 cases.
 
-The explicit shader package has123 already declared resources. Strict manifest/count/readability checks include
-the selected-pair/shared-buffer compute and collision line shaders; no HLSL or generated DXIL was manually edited.
+The explicit shader package has125 declared resources. Strict manifest/count/readability checks include
+the selected-pair/shared-buffer compute, collision line shaders and dedicated Meshmixer PHONG vertex/pixel pair.
+The new source shaders use the existing material b2 and slot-three transport; no shared GPU API changes are needed.
+Generated DXIL and the manifest are produced by the normal shader-builder target rather than manually edited.
 
 # Source two-dimensional noise
 

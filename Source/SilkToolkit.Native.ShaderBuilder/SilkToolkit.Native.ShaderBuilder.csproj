@@ -43,6 +43,9 @@
     <DxcShader Include="PS\psGooch.hlsl">
       <ShaderProfile>ps_6_0</ShaderProfile>
     </DxcShader>
+    <DxcShader Include="PS\psMeshMixerPhong.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
     <DxcShader Include="PS\psSimple.hlsl">
       <ShaderProfile>ps_6_0</ShaderProfile>
     </DxcShader>
@@ -67,6 +70,9 @@
       <ShaderProfile>vs_6_0</ShaderProfile>
     </DxcShader>
     <DxcShader Include="VS\vsGooch.hlsl">
+      <ShaderProfile>vs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="VS\vsMeshMixerPhong.hlsl">
       <ShaderProfile>vs_6_0</ShaderProfile>
     </DxcShader>
     <DxcShader Include="VS\vsSimple.hlsl">

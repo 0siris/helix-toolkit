@@ -10,8 +10,8 @@ namespace SilkCore.Tests;
 
 /// <summary>Checks texture metadata and the complete explicit shader package without native desktop windows.</summary>
 public class TextureAndResourceTests {
-    /// The complete explicit DXC shader set already declared by the current shader-builder source.
-    private const int ExpectedShaderCount = 123;
+    /// The complete explicit DXC shader set, including the dedicated Meshmixer PHONG pair.
+    private const int ExpectedShaderCount = 125;
     /// <summary>
     ///     Verifies CPU images retain automatic mip-chain validation after removal of D3D11 texture wrappers.
     /// </summary>
@@ -133,6 +133,8 @@ public class TextureAndResourceTests {
         Assert.Contains("SilkCore.Resources.DX12.CS.csMeshIntersect.main.dxil", dxilNames);
         Assert.Contains("SilkCore.Resources.DX12.CS.csMeshIntersectSharedRenderBuffer.main.dxil", dxilNames);
         Assert.Contains("SilkCore.Resources.DX12.VS.vsCollisionSegmentLine.main.dxil", dxilNames);
+        Assert.Contains("SilkCore.Resources.DX12.VS.vsMeshMixerPhong.main.dxil", dxilNames);
+        Assert.Contains("SilkCore.Resources.DX12.PS.psMeshMixerPhong.main.dxil", dxilNames);
         Assert.All(dxilNames,
             name => {
                 using var stream = assembly.GetManifestResourceStream(name)

@@ -1,5 +1,14 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-23 — Pre-frame input application and viewport observations
+
+- Add an admitted pre-recording callback with readiness/lifetime rechecks, retaining post-present behavior.
+- Expose existing native DIP and current frame-readiness observations without another input route or timer.
+- Retain parent60 headless and2 GPU checks for the initial hook separately from final pointer/readiness
+  validation: normal native-pointer2/2 and actual ready/disposed/unready parent GPU lifecycle2/2.
+- Preserve the missing-assets first attempt, normal restore/build retry, unavailable MCP fallback and
+  independent review limits. The source graph was rebuilt;17 parser-partial files remain disclosed.
+
 ## 2026-10-23
 
 * **Feature**: Declare dedicated Meshmixer PHONG vertex/pixel shaders and their shared include, retaining existing

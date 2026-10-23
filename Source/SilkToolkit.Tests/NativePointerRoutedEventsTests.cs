@@ -9,6 +9,33 @@ namespace SilkToolkit.Tests;
 /// <summary>Verifies native viewport input retains the standard WPF callbacks used by existing desktop tools.</summary>
 [Collection(WpfCollection.Name)]
 public sealed class NativePointerRoutedEventsTests {
+    /// <summary>Exposes each native event's DIP position through the public app boundary and restores WPF fallback.</summary>
+    /// <returns>The completion of the owning dispatcher assertions.</returns>
+    [Fact]
+    public Task PublicPointerPositionRetainsNativeDispatchAndRestoresFallbackTest() => StaThread.RunAsync(() => {
+        using var viewport = new Viewport3DX();
+        var fallback = viewport.GetMouseInputPosition();
+        var observed = new List<Point>();
+        viewport.PreviewMouseDown += (_, args) => observed.Add(viewport.GetMouseInputPosition(args));
+        viewport.MouseDown += (_, args) => observed.Add(viewport.GetMouseInputPosition(args));
+        viewport.PreviewMouseMove += (_, args) => observed.Add(viewport.GetMouseInputPosition(args));
+        viewport.PreviewMouseUp += (_, args) => observed.Add(viewport.GetMouseInputPosition(args));
+        viewport.PreviewMouseWheel += (_, args) => observed.Add(viewport.GetMouseInputPosition(args));
+
+        viewport.ProcessD3D12Pointer(new HwndPointerEventArgs(HwndPointerDevice.Mouse,
+            HwndPointerAction.Pressed, 0, 14567, 22345, HwndPointerButton.Left, 0), ModifierKeys.None);
+        viewport.ProcessD3D12Pointer(new HwndPointerEventArgs(HwndPointerDevice.Mouse,
+            HwndPointerAction.Move, 0, 34567, 42345, HwndPointerButton.None, 0), ModifierKeys.None);
+        viewport.ProcessD3D12Pointer(new HwndPointerEventArgs(HwndPointerDevice.Mouse,
+            HwndPointerAction.Released, 0, 54567, 62345, HwndPointerButton.Left, 0), ModifierKeys.None);
+        viewport.ProcessD3D12Pointer(new HwndPointerEventArgs(HwndPointerDevice.Mouse,
+            HwndPointerAction.Wheel, 0, 74567, 82345, HwndPointerButton.None, 120), ModifierKeys.None);
+
+        Assert.Equal([new Point(14567,22345), new Point(14567,22345), new Point(34567,42345),
+            new Point(54567,62345), new Point(74567,82345)], observed);
+        Assert.Equal(fallback, viewport.GetMouseInputPosition());
+    });
+
     /// <summary>Delivers one typed preview/bubble pair and one original-coordinate 3D event for a native click.</summary>
     /// <returns>The completion of the owning dispatcher assertions.</returns>
     [Fact]

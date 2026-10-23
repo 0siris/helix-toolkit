@@ -311,6 +311,21 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     public event EventHandler<RelayExceptionEventArgs> RenderExceptionOccurred = delegate { };
 
     /// <summary>
+    ///     Occurs before a ready, visible Direct3D 12 frame updates its camera and records scene draws.
+    ///     Use this event for input-derived scene updates that must precede the frame, and unsubscribe on disposal.
+    ///     No notification is raised when the viewport has no initialized surface or camera.
+    /// </summary>
+    public event EventHandler? OnRendering;
+
+    /// <summary>Gets whether the current initialized surface, camera and local visibility admit a render attempt.</summary>
+    /// <remarks>
+    ///     This is a dispatcher-owned observation, not a guarantee that a future frame is drawn or presented.
+    ///     Callers still check their loaded/visible input context, and rendering rechecks after OnRendering callbacks.
+    /// </remarks>
+    public bool IsRenderReady => d3d12Surface is {IsInitialized: true} && CameraCore is not null
+        && Visibility == Visibility.Visible;
+
+    /// <summary>
     ///     Occurs after each Direct3D 12 frame has been recorded and presented.
     ///     Use this event carefully. Unsubscrible this event when not used. Otherwise may cause performance issue.
     /// </summary>
@@ -1191,6 +1206,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         surface?.SetEffectsManager(EffectsManager);
         var camera = CameraCore;
         if (surface is not {IsInitialized: true} || camera is null || Visibility != Visibility.Visible) return 0;
+        OnRendering?.Invoke(this, EventArgs.Empty);
+        if (!ReferenceEquals(surface, d3d12Surface) || !surface.IsInitialized || Visibility != Visibility.Visible
+            || CameraCore is not { } currentCamera) return 0;
+        camera = currentCamera;
         cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
         var clearColor = BackgroundColor.ToColor4();
         var recorded = surface.RenderViewportOnce([clearColor.X, clearColor.Y, clearColor.Z, clearColor.W],

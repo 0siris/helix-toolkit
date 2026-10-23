@@ -12,7 +12,8 @@ public partial class Viewport3DX {
     /// <summary>Gets the current native event position or the ordinary WPF mouse position.</summary>
     /// <param name="args">The original WPF event, when available.</param>
     /// <returns>The pointer position in viewport device-independent coordinates.</returns>
-    internal Point GetMouseInputPosition(MouseEventArgs? args = null) => nativeMousePosition
+    /// <remarks>Copy this value during routed dispatch; native coordinates are restored when dispatch finishes.</remarks>
+    public Point GetMouseInputPosition(MouseEventArgs? args = null) => nativeMousePosition
         ?? args?.GetPosition(this) ?? Mouse.GetPosition(this);
 
     /// <summary>Runs native mouse input through WPF so existing tools and camera commands share one route.</summary>

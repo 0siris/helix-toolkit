@@ -5,10 +5,8 @@ Copyright (c) 2026 Helix Toolkit contributors
 
 using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
-using HelixToolkit.SharpDX.Core.Model.Scene2D.Abstract;
-using HelixToolkit.Wpf.SharpDX.Model.Elements2D.Abstract;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 
 /// <summary>Wraps the existing path core without WPF color conversion or a second point collection.</summary>
 /// <remarks>
@@ -16,7 +14,7 @@ namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
 ///     physical coordinates, StrokeWidth=3 and identity node transform, independent of logical layout DPI.
 ///     Existing inherited StrokeWidth assignment requires InvalidateRender when changed outside a frame callback.
 /// </remarks>
-public class PathModel2D : Abstract.Element2D {
+public class PathModel2D : Element2D {
     /// <summary>Gets the one existing path render core that owns derived presentation figures and shape resources.</summary>
     public PathRenderCore2D PathCore => (PathRenderCore2D) SceneNode.RenderCore;
 

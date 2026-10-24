@@ -1,5 +1,5 @@
 ﻿using HelixToolkit.SharpDX.Core.Core2D;
-using HelixToolkit.SharpDX.Core.Core2D.Models;
+using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Native;
 using Silk.NET.Direct3D12;

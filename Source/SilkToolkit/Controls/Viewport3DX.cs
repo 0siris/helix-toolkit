@@ -364,7 +364,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (d3d12Surface is not { IsInitialized: true } surface) return false;
         var width = surface.PixelWidth;
         var height = surface.PixelHeight;
-        var scale = surface.DpiScale;
+        var scale = surface.PhysicalInputDpiScale;
         if (width == 0 || height == 0 || !(scale > 0) || !float.IsFinite(scale)) return false;
         pixelWidth = width;
         pixelHeight = height;

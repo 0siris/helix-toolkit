@@ -1,15 +1,15 @@
 ﻿using HelixToolkit.SharpDX.Core.Core2D;
-using HelixToolkit.SharpDX.Core.Core2D.Models;
+using HelixToolkit.SharpDX.Core.Core2D;
 using HelixToolkit.SharpDX.Core.Model.Scene2D;
 using HelixToolkit.SharpDX.Core.Native;
 using HelixToolkit.Wpf.SharpDX.Controls;
-using HelixToolkit.Wpf.SharpDX.Model.Elements2D;
+using HelixToolkit.Wpf.SharpDX.Elements2D;
 using SilkToolkit.Tests;
 using Xunit;
 using Vector2 = Silk.NET.Maths.Vector2D<float>;
 using Vector4 = Silk.NET.Maths.Vector4D<float>;
 
-namespace HelixToolkit.Wpf.SharpDX.Model.Elements2D;
+namespace HelixToolkit.Wpf.SharpDX.Elements2D;
 
 /// <summary>Checks the actual thin path model and metrics getter without opening a native window.</summary>
 [Collection(WpfCollection.Name)]

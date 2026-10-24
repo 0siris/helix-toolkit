@@ -8,6 +8,7 @@ PS\psGingiva.hlsl|main|ps_6_0|PS\psGingiva.main.dxil
 PS\psGingivaOIT.hlsl|gingivaOIT|ps_6_0|PS\psGingivaOIT.gingivaOIT.dxil
 PS\psGingivaOITDP.hlsl|gingivaOITDP|ps_6_0|PS\psGingivaOITDP.gingivaOITDP.dxil
 PS\psGooch.hlsl|main|ps_6_0|PS\psGooch.main.dxil
+PS\psMeshMixerPhong.hlsl|main|ps_6_0|PS\psMeshMixerPhong.main.dxil
 PS\psSimple.hlsl|main|ps_6_0|PS\psSimple.main.dxil
 PS\psToothEnamel.hlsl|main|ps_6_0|PS\psToothEnamel.main.dxil
 PS\psToothEnamelOIT.hlsl|toothEnamelOIT|ps_6_0|PS\psToothEnamelOIT.toothEnamelOIT.dxil
@@ -16,6 +17,7 @@ VS\vsCollisionSegmentLine.hlsl|main|vs_6_0|VS\vsCollisionSegmentLine.main.dxil
 VS\vsFlatShade.hlsl|main|vs_6_0|VS\vsFlatShade.main.dxil
 VS\vsGingiva.hlsl|main|vs_6_0|VS\vsGingiva.main.dxil
 VS\vsGooch.hlsl|main|vs_6_0|VS\vsGooch.main.dxil
+VS\vsMeshMixerPhong.hlsl|main|vs_6_0|VS\vsMeshMixerPhong.main.dxil
 VS\vsSimple.hlsl|main|vs_6_0|VS\vsSimple.main.dxil
 VS\vsToothEnamel.hlsl|main|vs_6_0|VS\vsToothEnamel.main.dxil
 CS\csParticleInsert.hlsl|main|cs_6_0|CS\csParticleInsert.main.dxil

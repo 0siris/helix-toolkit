@@ -22,18 +22,24 @@ public sealed class GeometryBoundManager : IDisposable {
 
     private void OnGeometryPropertyChangedPrivate(object? sender, PropertyChangedEventArgs e) {
         if (e.PropertyName == nameof(Geometry3D.Positions) ||
-            e.PropertyName == Geometry3D.VertexBuffer)
-            GeometryValid = OnCheckGeometry?.Invoke(geometry) ?? CheckGeometry();
+            e.PropertyName == Geometry3D.VertexBuffer ||
+            e.PropertyName == nameof(Geometry3D.Indices) ||
+            e.PropertyName == Geometry3D.TriangleBuffer) {
+            var valid = OnCheckGeometry?.Invoke(geometry) ?? CheckGeometry();
+            if (GeometryValid != valid) {
+                GeometryValid = valid;
+                UpdateBoundingBox();
+                UpdateBoundingSphere();
+            }
+        }
         else if (e.PropertyName == nameof(Geometry3D.Bound))
             UpdateBoundingBox();
         else if (e.PropertyName == nameof(Geometry3D.BoundingSphere)) UpdateBoundingSphere();
     }
 
     /// <summary>
-    ///     <para>Check geometry validity.</para>
-    ///     Return false if (this.geometryInternal == null || this.geometryInternal.Positions == null ||
-    ///     this.geometryInternal.Positions.Count == 0 || this.geometryInternal.Indices == null ||
-    ///     this.geometryInternal.Indices.Count == 0)
+    ///     Checks fallback vertex data. The scene owner supplies primitive-specific eligibility
+    ///     through <see cref="OnCheckGeometry" />; point geometry need not have indices.
     /// </summary>
     /// <returns>
     /// </returns>

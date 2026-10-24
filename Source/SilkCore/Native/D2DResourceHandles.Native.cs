@@ -42,9 +42,49 @@ public abstract class D2DNativeResource : IDisposable {
     }
 }
 
-public sealed class D2DFactory : D2DNativeResource {
+/// <summary>Owns a lazily created Direct2D geometry factory without creating a graphics device.</summary>
+public sealed unsafe class D2DFactory : D2DNativeResource {
+    /// <summary>The retained native factory reference, created on first geometry use.</summary>
+    private ComPtr<ID2D1Factory> nativeFactory;
+
+    /// <summary>Creates a lazy factory, optionally retaining an existing boxed native factory owner.</summary>
+    /// <param name="nativeResource">The existing resource lifetime, or null for a new geometry factory.</param>
     public D2DFactory(object? nativeResource = null)
         : base(nativeResource) { }
+
+    /// <summary>Gets the native factory, creating its single-threaded geometry service when first needed.</summary>
+    /// <exception cref="ObjectDisposedException">The factory has been disposed.</exception>
+    internal ID2D1Factory* Handle {
+        get {
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
+            if (nativeFactory.Handle != null) return nativeFactory.Handle;
+            if (NativeResource is ComPtr<ID2D1Factory> supplied && supplied.Handle != null) {
+                nativeFactory = new ComPtr<ID2D1Factory>(supplied.Handle);
+                return nativeFactory.Handle;
+            }
+
+            var iid = ID2D1Factory.Guid;
+            ID2D1Factory* factory = null;
+            SilkMarshal.ThrowHResult(NativeFactoryApi.Api.D2D1CreateFactory(
+                Silk.NET.Direct2D.FactoryType.SingleThreaded, &iid, null, (void**) &factory));
+            nativeFactory = new ComPtr<ID2D1Factory>(factory);
+            factory->Release();
+            return nativeFactory.Handle;
+        }
+    }
+
+    /// <summary>Releases the retained native factory and the supplied resource lifetime once.</summary>
+    public override void Dispose() {
+        if (IsDisposed) return;
+        nativeFactory.Dispose();
+        base.Dispose();
+    }
+
+    /// <summary>Loads the native API only when a real geometry factory is requested.</summary>
+    private static class NativeFactoryApi {
+        /// <summary>The process-lifetime API owner, retained while native geometry objects can remain alive.</summary>
+        internal static readonly D2D Api = D2D.GetApi();
+    }
 }
 
 public sealed unsafe class D2DDevice : D2DNativeResource {

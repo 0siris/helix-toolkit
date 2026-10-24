@@ -14,7 +14,7 @@ using Silk.NET.DXGI;
 namespace HelixToolkit.SharpDX.Core.Native;
 
 /// <summary>
-///     Records existing Scene2D shapes, images, and DirectWrite-shaped text through the repository Sprite2D pass.
+///     Records existing Scene2D shapes, path strokes, images, and text through the repository Sprite2D pass.
 /// </summary>
 internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <summary>
@@ -56,6 +56,9 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     ///     DirectWrite-shaped text atlas, also containing the solid white texel.
     /// </summary>
     private readonly D3D12GlyphAtlas atlas = new();
+
+    /// <summary>The lazy geometry factory used only by path cores without an explicit stroke style.</summary>
+    private D2DFactory? pathFactory;
 
     /// <summary>
     ///     Frame-stable descriptor and upload-buffer slots.
@@ -320,6 +323,8 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
         draws.Clear();
         drawStorage.Clear();
         atlas.Dispose();
+        pathFactory?.Dispose();
+        pathFactory = null;
         IsDisposed = true;
     }
 
@@ -380,6 +385,9 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     private void AddNode(SceneNode2D node, RectangleF clip, float dpiScale) {
         var core = node.RenderCore;
         switch (core) {
+            case PathRenderCore2D path:
+                AddPath(node, path, clip);
+                break;
             case RectangleRenderCore2D rectangle:
                 AddRectangle(node, rectangle, clip);
                 break;
@@ -396,6 +404,37 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
                 AddImage(image, clip);
                 break;
         }
+    }
+
+    /// <summary>Widens a connected native path and submits its stroke through the existing sprite draw list.</summary>
+    /// <param name="node">The source node supplying the single final local-to-physical transform.</param>
+    /// <param name="core">The existing Figure producer, stroke brush, full width and explicit style.</param>
+    /// <param name="clip">The inherited physical clip already intersected with the presentation target.</param>
+    /// <exception cref="NotSupportedException">A fill brush was supplied to this stroke-only consumer.</exception>
+    /// <remarks>
+    ///     The Screen binding supplies physical points and width with an identity node transform. A scaled caller
+    ///     receives ordinary local stroke scaling and the native local flattening tolerance, not fixed-pixel optics.
+    /// </remarks>
+    private void AddPath(SceneNode2D node, PathRenderCore2D core, RectangleF clip) {
+        if (!core.IsRendering) return;
+        if (core.FillBrush is not null)
+            throw new NotSupportedException("The Direct3D 12 path consumer supports strokes without a fill brush");
+        var factory = core.StrokeStyle?.Factory ?? (pathFactory ??= new D2DFactory());
+        var geometry = core.EnsureGeometry(factory);
+        if (geometry is null || !(core.StrokeWidth > 0) || !float.IsFinite(core.StrokeWidth)
+            || !TryGetColor(core.StrokeBrush, out var color)) return;
+        var points = D3D12PathTessellator.TessellateStroke(geometry, core.StrokeWidth, core.StrokeStyle);
+        if (points.Length == 0) return;
+        var whiteUv = new Vector2((atlas.White.X + 0.5f) / atlas.Width,
+            (atlas.White.Y + 0.5f) / atlas.Height);
+        var vertexColor = ToVector(color);
+        var vertices = new SpriteStruct[points.Length];
+        var indices = new uint[points.Length];
+        for (var index = 0; index < points.Length; index++) {
+            vertices[index] = CreateVertex(points[index], node.TotalModelMatrix, whiteUv, vertexColor);
+            indices[index] = checked((uint) index);
+        }
+        draws.Add(new D3D12Scene2DDraw(node, vertices, indices, ToScissor(clip), null, atlas.White));
     }
 
     /// <summary>

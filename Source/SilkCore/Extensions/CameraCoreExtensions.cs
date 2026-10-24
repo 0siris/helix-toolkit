@@ -70,10 +70,11 @@ public static class CameraCoreExtensions {
 
         var frustum = camera.CreateFrustum(aspectRatio);
 
-        var leftNormal = frustum.Left.Normal;
-        var rightNormal = frustum.Right.Normal;
-        var topNormal = frustum.Top.Normal;
-        var bottomNormal = frustum.Bottom.Normal;
+        // Frustum planes face inward; fitting support planes need the outward extrema of the bounds.
+        var leftNormal = -frustum.Left.Normal;
+        var rightNormal = -frustum.Right.Normal;
+        var topNormal = -frustum.Top.Normal;
+        var bottomNormal = -frustum.Bottom.Normal;
 
         int leftMostPoint = -1, rightMostPoint = -1, topMostPoint = -1, bottomMostPoint = -1;
         for (var i = 0; i < corners.Length; i++) {

@@ -58,6 +58,17 @@ public sealed class NativeScenePreparationTests {
             }, CullMode = CullMode.None, FrontCcw = false
         };
         root.AddChildNode(node);
+        var unindexedGeometry = new MeshGeometry3D {
+            Positions = ((MeshGeometry3D)node.Geometry!).Positions,
+            Normals = ((MeshGeometry3D)node.Geometry!).Normals,
+            Indices = new IntCollection()
+        };
+        using var initiallyUnindexed = new MeshNode {
+            Geometry = unindexedGeometry,
+            Material = new DiffuseMaterialCore { EnableUnLit = true, DiffuseColor = new Vector4(1, 0, 0, 1) },
+            CullMode = CullMode.None, FrontCcw = false
+        };
+        root.AddChildNode(initiallyUnindexed);
         using var update = new RenderContext(new PerspectiveCameraCore(), 32, 32);
         var transforms = new GlobalTransformStruct {
             View = Matrix.Identity, Projection = Matrix.Identity, ViewProjection = Matrix.Identity,
@@ -150,6 +161,44 @@ public sealed class NativeScenePreparationTests {
         Assert.Equal(0, changed.Opaque);
         Assert.Equal(1, changed.Transparent);
         CheckImage(changed.Pixels, 128, 127);
+        var geometry = (MeshGeometry3D)node.Geometry!;
+        geometry.Indices!.Clear();
+        geometry.UpdateTriangles();
+        var emptiedInPlace = Render();
+        Assert.False(node.GeometryValid);
+        Assert.False(node.IsRenderable);
+        Assert.Equal(0, emptiedInPlace.Opaque);
+        Assert.Equal(0, emptiedInPlace.Transparent);
+        CheckImage(emptiedInPlace.Pixels, 0, 255);
+
+        geometry.Indices = new IntCollection([0, 1, 2, 2, 1, 3]);
+        var replacedWithFaces = Render();
+        Assert.True(node.GeometryValid);
+        Assert.Equal(0, replacedWithFaces.Opaque);
+        Assert.Equal(1, replacedWithFaces.Transparent);
+        CheckImage(replacedWithFaces.Pixels, 128, 127);
+
+        geometry.Indices = new IntCollection();
+        var replacedWithEmpty = Render();
+        Assert.False(node.GeometryValid);
+        Assert.Equal(0, replacedWithEmpty.Opaque);
+        Assert.Equal(0, replacedWithEmpty.Transparent);
+        CheckImage(replacedWithEmpty.Pixels, 0, 255);
+        foreach (var triangleIndex in new[] { 0, 1, 2, 2, 1, 3 }) geometry.Indices.Add(triangleIndex);
+        geometry.UpdateTriangles();
+        var repopulatedInPlace = Render();
+        Assert.True(node.GeometryValid);
+        Assert.Equal(0, repopulatedInPlace.Opaque);
+        Assert.Equal(1, repopulatedInPlace.Transparent);
+        CheckImage(repopulatedInPlace.Pixels, 128, 127);
+        node.RequestedVisible = false;
+        foreach (var triangleIndex in new[] { 0, 1, 2, 2, 1, 3 }) unindexedGeometry.Indices.Add(triangleIndex);
+        unindexedGeometry.UpdateTriangles();
+        var initiallyEmptyNowReady = Render();
+        Assert.True(initiallyUnindexed.IsRenderable);
+        Assert.Equal(1, initiallyEmptyNowReady.Opaque);
+        Assert.Equal(0, initiallyEmptyNowReady.Transparent);
+        CheckImage(initiallyEmptyNowReady.Pixels, 255, 0);
         renderer.Dispose();
         Assert.False(node.Listening);
         Assert.Equal(0, resources.Count);

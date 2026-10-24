@@ -223,6 +223,7 @@ public abstract class SceneNode : DisposeObject, IComparable<SceneNode>, IAnimat
     /// </summary>
     /// <returns>Whether the node's render core attached successfully.</returns>
     internal virtual bool Attach() {
+        if (RenderCore.IsAttached) return true;
         RenderCore.Attach();
         AssignDefaultValuesToCore(RenderCore);
         NeedMatrixUpdate = true;

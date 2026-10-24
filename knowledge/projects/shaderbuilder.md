@@ -14,7 +14,7 @@ timestamp: 2026-10-16T00:00:00+02:00
 # Dependencies
 
 The project imports the repository-local `SilkToolkit.ShaderBuild` targets and uses the build-only NuGet-pinned
-`Microsoft.Direct3D.DXC` package, version1.9.2607.13. Its123 `DxcShader` items declare explicit stage-specific SM6.0
+`Microsoft.Direct3D.DXC` package, version1.9.2607.13. Its125 `DxcShader` items declare explicit stage-specific SM6.0
 profiles. Entry-point and output-name metadata retain distinct compiled variants, including depth-peeling entries.
 
 DXC outputs track all local HLSL/HLSLI sources and includes, the consuming/imported projects and target,
@@ -27,6 +27,12 @@ uses the actual current DXC through this target in an isolated fixture.
 The copy target collects generated `.dxil` files into `SilkCore/Resources/DX12` and writes the shader manifest.
 SilkCore embeds those resources during its normal build; the runtime reader resolves the declared stage/name/
 entry-point identity. These compiler/resource checks do not certify every shader body or native GPU behavior.
+
+The dedicated Meshmixer PHONG vertex/pixel pair consumes explicit front/back colors and immutable caller-supplied
+OpenGL camera/light state. Its own vertex stage converts clip depth to Direct3D; it does not modify generic mesh
+or dental techniques. The shared include tracks both compile dependencies. Strict inventory checks retain exact
+package cardinality and require both new embedded names. Generated DXIL and manifest content come from this target,
+not manual bytecode edits; application camera/pixel acceptance remains outside shader packaging.
 
 # Related Concepts
 

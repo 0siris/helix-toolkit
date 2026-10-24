@@ -29,8 +29,15 @@ with MeshMeister consumers; this package pin changes no renderer behavior.
   drawing, mesh material facing/culling, fence-safe resource cleanup and reference-counted pool entry ownership.
 * [SilkToolkit](/projects/silktoolkit.md) - Windows/WPF-facing toolkit, hidden native camera-input regressions,
   nonblocking frame completion, safe native lifetimes and restored original public CLR/XAML namespaces.
+
+* [SilkToolkit](/projects/silktoolkit.md) - Windows/WPF-facing toolkit built on SilkCore.
+  Its pre-frame callback and public pointer/readiness observations support deferred application input
+  without turning post-presentation notifications into a scheduling guarantee.
+  Native path strokes use the existing Scene2D/Sprite2D transport; a thin noninteractive path wrapper and
+  read-only actual presentation metrics retain their separate geometry, layout and input responsibilities.
 * [SilkAssimp](/projects/silkassimp.md) - Assimp-based model loading, transformed child export and mesh-index ownership.
-* [ShaderBuilder](/projects/shaderbuilder.md) - HLSL shader build support, include/compiler/metadata invalidation and headless incremental regression.
+* [ShaderBuilder](/projects/shaderbuilder.md) - HLSL shader build support, include/compiler/metadata invalidation,
+  strict 125-resource packaging and the dedicated explicit-frame Meshmixer PHONG pair.
 
 ## Testing
 
@@ -77,3 +84,6 @@ fence-safe context and original/current WPF property bindings.
 The project concepts also cover application-owned native buffer serialization and original material pass selection.
 
 SilkToolkit also owns the shared bounded WPF viewport-widget overlay, retaining its historical public namespace.
+
+Current native-child [button observations](/projects/silktoolkit.md#current-buttons-across-the-native-child-boundary)
+retain ordinary WPF fallback and disposal semantics while leaving application ownership guards authoritative.

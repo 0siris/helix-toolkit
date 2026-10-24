@@ -203,6 +203,9 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// </summary>
     public uint PixelWidth => swapChain?.Width ?? 0;
 
+    /// <summary>Gets the actual child host's current physical pixel scale without requesting a resize.</summary>
+    internal float DpiScale => (float) windowHost.DpiScale;
+
     /// <summary>
     ///     Queues a technique-registry replacement for the next completed GPU frame.
     /// </summary>

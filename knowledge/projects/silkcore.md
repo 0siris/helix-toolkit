@@ -27,6 +27,8 @@ Helix additionally reads back its actual cached sphere with color (234,98,31) in
 
 `SilkCore` targets `net10.0` and provides the core rendering/runtime layer used by the toolkit and examples.
 
+`SilkCore` targets `net10.0-windows` and provides the core rendering/runtime layer used by the toolkit and examples.
+
 Phase 4 (2026-10-19) shares the D3D12 scene renderer between the continuous native HWND owner and the bounded,
 demand-driven WPF/D3DImage owner. WPF is the public default (`EnableSwapChainRendering=false`); explicit `true`
 selects HWND presentation. The 2026-10-20 documentation correction uses source/static evidence only;
@@ -48,6 +50,23 @@ page provides 16,384 CBV/SRV/UAV descriptors and 2,048 samplers, preserving immu
 without taking ordinary scene descriptor capacity. Draws bind their own heap pair; intersection graphics restore
 that pair after their compute stage. Existing draw slots reuse the high-water pages only after the completed
 presentation fence, and dispose before the pool. This preserves original glow, border and XRay pass behavior.
+
+# Native scene readiness and camera fitting
+
+Native scene preparation respects the scene owner's geometry eligibility and `IsRenderable`, not just an
+attached render core. Indexed meshes with no indices remain nonrenderable; replacing or updating indices
+revalidates eligibility and its bounds. Attachment is idempotent for an already-owned core while geometry nodes
+can complete their own readiness after gaining first primitives. Already-attached resources remain tracked for
+teardown even when the node is not ready. Malformed nonempty data still fails strict GPU-buffer validation.
+
+Actual WARP pixel readback covers initial empty geometry becoming ready and attached geometry transitioning
+empty/populated through both collection replacement and in-place notification. The visible standalone MeshMixer
+viewport also exercises native sparse picking and empty/restored selection highlights without render errors.
+
+Perspective framing converts the inward-facing frustum normals to outward support directions before selecting
+extreme bounding-box corners. Front and rotated portrait cases failed before this correction; both now preserve
+the view direction and project every corner inside the viewport. Actual original MIX and two-object scenes frame
+correctly. Full current SilkCore suite:425passed; this finite visible proof is not general toolkit/UI parity.
 
 # Related Concepts
 
@@ -93,8 +112,10 @@ Headless WARP checks read back genuine segments, pair IDs, indirect arguments an
 physical adapter or visible-window acceptance. Core-line compatibility remains selectable in the application;
 the source GPU kernel excludes coplanar output. A previous full SilkCore suite passed323 cases.
 
-The explicit shader package has123 already declared resources. Strict manifest/count/readability checks include
-the selected-pair/shared-buffer compute and collision line shaders; no HLSL or generated DXIL was manually edited.
+The explicit shader package has125 declared resources. Strict manifest/count/readability checks include
+the selected-pair/shared-buffer compute, collision line shaders and dedicated Meshmixer PHONG vertex/pixel pair.
+The new source shaders use the existing material b2 and slot-three transport; no shared GPU API changes are needed.
+Generated DXIL and the manifest are produced by the normal shader-builder target rather than manually edited.
 
 # Source two-dimensional noise
 
@@ -172,3 +193,28 @@ access to genuine native readback contracts.
 EmptyGeometryBufferModel never creates a graphics pass. Attached placeholders remain in the actual scene and can
 render after geometry is assigned. The startup failure was reproduced before the fix; GPU-only intersection
 passes retain their explicit line topology and are not subject to the ordinary empty-buffer rejection.
+
+# Native connected path strokes
+
+`PathRenderCore2D` builds its existing Figure commands through actual Direct2D path/sink wrappers. A closed
+native geometry is cached by figure publication and factory identity; replacement invalidates it before render
+observers run. Failed closure does not publish partial geometry. Detach, disposal and factory replacement
+release derived resources. In-place Figure edits still require explicit invalidation or list replacement.
+
+The D3D12 Scene2D consumer widens the native geometry and tessellates it into the existing Sprite2D transport.
+It preserves connected strokes, transforms, scissor and sibling order without another managed stroker. The
+native tessellation callback retains its managed owner through the synchronous call and defers exceptions
+until control returns from native code. This consumer rejects non-null fill brushes explicitly.
+
+The fixed-size line geometry shader admits only finite, nonzero projected directions. The existing arrow
+includes and nonfixed construction remain compatible. Existing line thickness is a half-width multiplied by
+the actual global DPI; callers requiring a physical full width compensate once at their material boundary.
+
+Real attached Scene2D nodes exposed a pre-existing recursion between `InvalidateRender` and `InvalidateVisual`.
+The latter now terminates after setting the visual dirty flags up the parent chain. Other invalidation entry
+points retain their dirty-state work and delegate into that leaf. Six attached parent/child regressions cover
+these entry points; the originally crashing WPF attachment case keeps its original assertions.
+
+The complete normal Core suite passes469/469, including36 path/line cases and the six invalidation cases.
+The path tests exercise genuine native geometry and fenced WARP readback. They do not establish Original
+OpenGL pixels, inherited line caps/blending, application Window preview delivery or physical-input acceptance.

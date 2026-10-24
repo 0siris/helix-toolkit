@@ -6,8 +6,6 @@ Copyright (c) 2018 Helix Toolkit contributors
 //#define DEBUGBOUNDS
 
 using System.Diagnostics.CodeAnalysis;
-using HelixToolkit.SharpDX.Core.Core2D.Abstract;
-using HelixToolkit.SharpDX.Core.Core2D.Models;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Native;
 

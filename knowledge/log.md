@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-24 - Native-child current mouse buttons
+
+- Add the current-button observation to the existing native input owner; preserve ordinary WPF fallback.
+- Check viewport disposal before polling; retain all existing application foreground/capture guards.
+- Verify8 focused and32 connected cases and rebuild the source graph with zero LLM tokens.
+- Keep physical input and initialized-HWND disposal observations distinct from nonvisible fallback tests.
+
 ## 2026-10-23 — Native connected path strokes and attached Scene2D invalidation
 
 - Document actual Direct2D geometry, widening/tessellation and the existing Sprite2D consumer, including

@@ -76,3 +76,24 @@ The four owning nonvisible tests and the full normal WPF suite pass4/4 and63/63.
 first exposed a shared Scene2D invalidation stack overflow; the original assertions pass after correcting
 that shared leaf. Earlier compile failures and the crashing test-process result remain in parent evidence.
 No visible window, physical input or application curve-pixel equivalence is certified by these tests.
+
+## Current buttons across the native child boundary
+
+`GetMouseInputButtonState` retains the selected event-device or primary WPF device state when that
+device is active, the viewport is disposed, or its actual native presentation host is unavailable.
+Only an inactive WPF device with the current loaded, visible, initialized native child polls the OS
+asynchronous high bit. Primary-button swap mapping is applied to logical Left/Right. This is a current
+observation, not a queued event snapshot, and it grants no foreground, focus, capture or gesture ownership.
+
+Disposal is checked before OS polling because `Disposing` listeners run after the viewport has marked
+itself disposed but before the native surface is finally detached. Every ordinary fallback and all five
+button mappings retain the additive public API's semantics.
+
+The eight new nonvisible cases and32 connected pointer/wheel/host/disposal checks pass with zero skips.
+The parent retains the physical-right admission RED/GREEN and unchanged owned input assertions separately.
+A genuine initialized-HWND disposal callback was not observed by these eight tests. Arbitrary stylus,
+desktop-switch, system-swap races and Original optical equivalence remain separate acceptance work.
+Rider/ReSharper tools were unavailable in the active catalog; scoped CLI fallback was used.
+
+The source graph was rebuilt from996 files:9,424 nodes,16,646 edges and zero LLM tokens. Its17 existing
+partially parsed files remain a structural-analysis limitation.

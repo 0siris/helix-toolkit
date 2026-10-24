@@ -52,3 +52,6 @@ knowledge records explicit same-version CodeDom/CSharp package restoration inste
 
 SilkCore records source-faithful two-key overwrite/lookup and corrected association equality, with additive pair
 carriers preserving established tuple enumeration and removal signatures.
+
+Current native-child [button observations](/projects/silktoolkit.md#current-buttons-across-the-native-child-boundary)
+retain ordinary WPF fallback and disposal semantics while leaving application ownership guards authoritative.

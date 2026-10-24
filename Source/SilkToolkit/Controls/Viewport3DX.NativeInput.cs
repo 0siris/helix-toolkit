@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 
@@ -15,6 +16,58 @@ public partial class Viewport3DX {
     /// <remarks>Copy this value during routed dispatch; native coordinates are restored when dispatch finishes.</remarks>
     public Point GetMouseInputPosition(MouseEventArgs? args = null) => nativeMousePosition
         ?? args?.GetPosition(this) ?? Mouse.GetPosition(this);
+
+    /// <summary>
+    ///     Reads a logical mouse button from WPF or the live native child's current physical input state.
+    /// </summary>
+    /// <param name="button">The logical mouse button to read.</param>
+    /// <param name="args">The original WPF event whose device supplies the ordinary fallback, when available.</param>
+    /// <returns>The current button state; native polling uses only the asynchronous high bit.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The button is not one of the five supported mouse buttons.</exception>
+    /// <exception cref="InvalidOperationException">The caller does not own this viewport's dispatcher.</exception>
+    /// <remarks>
+    ///     Viewport disposal or an active WPF device retains the ordinary event-device or primary-device value.
+    ///     An absent, detached, uninitialized, unloaded or invisible native child also retains that value.
+    ///     Otherwise this reads current OS state, not an event snapshot, and respects swapped primary buttons.
+    ///     A failed OS read yields Released. This getter grants no foreground, focus, capture or input ownership;
+    ///     callers must retain their actual ownership guards.
+    /// </remarks>
+    public MouseButtonState GetMouseInputButtonState(MouseButton button, MouseEventArgs? args = null) {
+        Dispatcher.VerifyAccess();
+        var device = args?.MouseDevice ?? Mouse.PrimaryDevice;
+        var (state, virtualKey) = button switch {
+            MouseButton.Left => (device.LeftButton, 0x01),
+            MouseButton.Right => (device.RightButton, 0x02),
+            MouseButton.Middle => (device.MiddleButton, 0x04),
+            MouseButton.XButton1 => (device.XButton1, 0x05),
+            MouseButton.XButton2 => (device.XButton2, 0x06),
+            _ => throw new ArgumentOutOfRangeException(nameof(button), button, "Unsupported mouse button")
+        };
+        if (IsDisposed || device.ActiveSource is not null || !IsLoaded || !IsVisible
+            || d3d12Surface is not { IsInitialized: true, IsDisposed: false } surface
+            || !ReferenceEquals(hostPresenter?.Content, surface)
+            || surface.WindowHost is not { IsHandleCreated: true, IsLoaded: true, IsVisible: true }
+            || !ReferenceEquals(surface.WindowHost.Parent, surface))
+            return state;
+
+        // GetAsyncKeyState reads physical buttons; WPF and native button messages use logical buttons.
+        if ((button is MouseButton.Left or MouseButton.Right) && GetSystemMetrics(23) != 0)
+            virtualKey = button == MouseButton.Left ? 0x02 : 0x01;
+        return (GetAsyncKeyState(virtualKey) & 0x8000) != 0
+            ? MouseButtonState.Pressed : MouseButtonState.Released;
+    }
+
+    /// <summary>Reads the current physical key state without changing WPF input or capture.</summary>
+    /// <param name="virtualKey">The physical button's Win32 virtual-key code.</param>
+    /// <returns>The asynchronous state bits; only the high bit establishes a currently held button.</returns>
+    [DllImport("user32.dll", ExactSpelling = true)]
+    private static extern short GetAsyncKeyState(int virtualKey);
+
+    /// <summary>Reads the system's current physical-to-logical primary button mapping.</summary>
+    /// <param name="index">The system metric identifier; 23 denotes SM_SWAPBUTTON.</param>
+    /// <returns>A nonzero value when the primary mouse buttons are swapped.</returns>
+    [DllImport("user32.dll", ExactSpelling = true)]
+    private static extern int GetSystemMetrics(int index);
 
     /// <summary>Runs native mouse input through WPF so existing tools and camera commands share one route.</summary>
     /// <param name="pointer">The decoded child-window event in device-independent coordinates.</param>

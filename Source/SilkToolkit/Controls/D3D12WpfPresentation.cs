@@ -154,6 +154,29 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Gets whether native resources have been initialized.</summary>
     internal bool IsInitialized => bridge is not null;
 
+    /// <summary>Observes initialized scene eligibility without advancing native or publication work.</summary>
+    internal bool IsRenderReady => bridge is not null && CanRecordScene(false);
+
+    /// <summary>Reads a live allocation only when the canvas still describes the same handle and dimensions.</summary>
+    /// <param name="pixelWidth">Receives the allocated source width, or zero when unavailable.</param>
+    /// <param name="pixelHeight">Receives the allocated source height, or zero when unavailable.</param>
+    /// <param name="scale">Receives the coherent canvas scale, or zero when unavailable.</param>
+    /// <returns>Whether current canvas coordinates map to the retained allocation without resizing it.</returns>
+    internal bool TryGetPresentationMetrics(out uint pixelWidth, out uint pixelHeight, out float scale) {
+        pixelWidth = pixelHeight = 0;
+        scale = 0;
+        if (IsDisposed || stopping || recreateRequested || viewport.IsDisposed || !viewport.OwnsWpfPresentation(this) ||
+            bridge is null || !canvas.IsActive || nativeHandle != canvas.NativeHandle ||
+            width == 0 || height == 0 || width != canvas.PixelWidth || height != canvas.PixelHeight)
+            return false;
+        var currentScale = canvas.EffectiveDpiScale;
+        if (!(currentScale > 0) || !float.IsFinite(currentScale)) return false;
+        pixelWidth = width;
+        pixelHeight = height;
+        scale = currentScale;
+        return true;
+    }
+
     /// <summary>Gets whether an accepted frame still owns rendering, copying or unpublished output.</summary>
     internal bool HasPendingTransport => pendingFence != 0 || unfencedExecution || transportSerial != 0;
 
@@ -338,10 +361,16 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             if (bridge is null && !CreateNative()) return 0;
             if (captureFrame) demand.Request(D3D12RenderInvalidation.Render);
             reserved = demand.TryBeginFrame(out _);
+            if (reserved) viewport.RaiseRendering();
+            if (!CanRecordScene(automaticFrame)) return 0;
             viewport.UpdateWpfCamera(renderingTime);
             if (!CanRecordScene(automaticFrame)) return 0;
-            if (!reserved && !demand.TryBeginFrame(out _)) return 0;
-            reserved = true;
+            if (!reserved) {
+                if (!demand.TryBeginFrame(out _)) return 0;
+                reserved = true;
+                viewport.RaiseRendering();
+                if (!CanRecordScene(automaticFrame)) return 0;
+            }
             if (captureFrame) {
                 LastCapturedFrame = null;
                 CapturedSerial = 0;
@@ -420,7 +449,8 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <returns>Whether a scene may be recorded or submitted at this boundary.</returns>
     private bool CanRecordScene(bool automaticFrame) =>
         !IsDisposed && !stopping && !recreateRequested &&
-        recoveryRegistration is not { IsRemovalRequested: true } && viewport.CanRenderWpfScene && canvas.IsActive &&
+        recoveryRegistration is not { IsRemovalRequested: true } && viewport.OwnsWpfPresentation(this) &&
+        viewport.CanSubmitNativeScene && viewport.CanRenderWpfScene && canvas.IsActive &&
         (!automaticFrame || viewport.WpfRenderingEnabled);
 
     /// <summary>Returns a new explicit capture, rejecting a publication-blocked request rather than returning stale pixels.</summary>

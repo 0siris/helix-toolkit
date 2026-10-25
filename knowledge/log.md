@@ -1,5 +1,13 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-25 — Connect actual WPF frame admission
+
+* Derive readiness and coherent allocation metrics from the selected live presentation owner.
+* Raise the shared pre-frame event under the existing callback lifetime guard; retain camera discovery once.
+* Preserve18 regression bytes:16 turn green, two WPF warm-transport failures stay open.
+* Actual parent RenderTick order passes; physical foreground, reload and full product acceptance remain open.
+
+
 ## 2026-10-25 — Keep empty meshes out of native draw candidates
 
 * Preserve GeometryValid when collecting candidates and retry native node attachment before its core shortcut.

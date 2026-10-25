@@ -91,3 +91,8 @@ retain ordinary WPF fallback and disposal semantics while leaving application ow
 
 * [Empty native mesh lifecycle](/projects/silkcore.md#empty-native-mesh-lifecycle) - Existing geometry eligibility,
   first-index buffer recovery and measured WARP coverage, with the remaining broad-test failures qualified.
+
+
+The SilkToolkit project records the actual WPF/ HWND pre-frame callback, passive allocation metrics
+and existing-guard disposal protection. New18 cases yield16 passes plus two unchanged WPF warm
+transport failures; this bounded result does not qualify all interop, reload or physical input behavior.

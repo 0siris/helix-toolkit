@@ -92,3 +92,13 @@ uses the same process-local collector/export compatibility adapters; imported ca
 Normalized outputs contain no staging prefix, and the temporary corpus is removed. No installation,
 configuration or builder mutation occurred. This graph does not establish CSharp/compiler or MSBuild coverage.
 Evidence: TEMP/meshmixer-isolated-build-20261025/inspector-region-source-graph-r1-results.json and its log.
+
+
+# WPF lock-pressure test source snapshot (2026-10-25)
+
+The unchanged existing builder analyzes the one-file test-phase update: 1,076 prepared files, 1,019
+CSharp files, 7,757 nodes, 12,437 edges and 752 communities, zero model tokens. The established
+process-local collector/export adapters and disabled cache aliases remain; no installation, builder
+or configuration change. Normalized paths have no staging prefix and the staging corpus is removed.
+This source-only graph does not establish compiler, MSBuild or runtime correctness. Evidence:
+TEMP/meshmixer-isolated-build-20261025/wpf-lock-phase-source-graph-results-r1.json and its log.

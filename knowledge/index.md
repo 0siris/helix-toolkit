@@ -141,3 +141,8 @@ passes two D/R red-to-green regressions while ordinary diffuse and library code 
 
 The final independent application helper-face R2 review is complete without new source/data-integrity findings;
 open lock-pressure, cursor cleanup and full-product limits remain separate.
+
+
+WPF lock-pressure knowledge now separates accepted scene submission from a retained-publication lock
+miss. One test file preserves all original checks and adds a real retained-demand regression; D/R two
+direct and ten policy cases pass. Product code is unchanged; the independent final review is complete without new confirmed findings.

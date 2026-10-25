@@ -434,3 +434,24 @@ No toolkit source changed in this correction; the last generated source graph re
 The final independent helper-face R2 review and parent full read are complete: no new source or data-integrity
 findings. The actual application LESS selection and two D/R red-to-green cases answer P2-01; ordinary library
 passes remain unchanged. Open lock-pressure, physical-input and complete-product evidence remains separate.
+
+
+## Lock pressure: scene admission and retained publication are separate (2026-10-25)
+
+ServiceTransport precedes frame reservation. A requested retained-image rebind may fail its actual
+zero-duration WPF lock and return zero draws while keeping publication demand, render demand and the
+scene frame budget. A forced TEMP probe observes this path; it does not retrospectively identify the
+cause of historical intermittent first-draw failures. No product implementation is changed.
+
+The ready-slot regression now accepts exactly one scene submission before the exclusive image borrow,
+entering that borrow on the same synchronous accepting predicate stack. All 39 original check lines
+remain. A separate real lock case retains the pending rebind and material demand, then checks the first
+rebind exactly and permits later rebinds only against observed real publication requests. One fresh
+submission/copy/publication, serial and slot transitions, red pixels, retained ownership and idle remain
+required. The new post-await R1 counter failure is retained; its overstrong new oracle was corrected.
+
+Actual-source Debug/Release each pass two direct cases and all ten policy cases, preserving all nine
+old names/outcomes and adding one. Four PE/PDB pairs bind 380 documents: 378 current disk matches and
+two missing generated sources. Products are unchanged. Fresh independent actual-source/data review is
+complete with boundedNoFinding and no new confirmed source/data findings; historical causes,
+asynchronous MIL pixels and full application acceptance remain separate.

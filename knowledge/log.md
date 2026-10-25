@@ -753,3 +753,19 @@ Graphify regenerated this composed batch: 979 files, 9,218 nodes, 16,366 edges a
 
 - Full actual-source/data review and parent read confirm the application LESS correction without new findings.
 - Preserve open lock-pressure, physical cursor-cleanup and complete-product boundaries; no code or rerun in this update.
+
+
+## 2026-10-25 – Separate WPF lock-pressure test phases
+
+- Preserve 39 original ready-slot check lines while entering the borrow immediately after accepted submission.
+- Add a real retained-publication lock case with request-backed rebind accounting and one fresh red frame.
+- Actual-source D/R two direct and ten policy cases pass; retain R1's overstrong post-await counter failure.
+- Four PE/PDB pairs: 380 documents, 378 current matches, two generated sources missing; products unchanged.
+- Source graph regenerated with the unchanged builder; independent final review and historical causes remain open.
+
+
+## 2026-10-25 – Complete the independent lock-phase review
+
+- Actual Source1 and full inverse, all 39 original check lines and D/R two direct/ten policy cases confirmed.
+- No new confirmed source/data findings; historical failures and asynchronous MIL/product limits remain.
+- Raw LF Gitblob and preserved CRLF worktree inverse are explicitly distinguished; no EOL/config change.

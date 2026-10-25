@@ -326,3 +326,29 @@ Disabling Scene2D removes it from drawing/capture and new input hit tests, clear
 2D press. The independently controlled view cube and ordinary WPF controls remain available. A hidden cube
 cannot consume picking. These host changes preserve the established overlay, cube and scene input priority.
 Runtime evidence and the remaining phase boundary are recorded in the implementation report.
+
+# Approved software publication while hardware frontbuffer is unavailable (2026-10-25)
+
+The user explicitly approved publishing completed images through the existing WPF software fallback when
+the canvas is active and the GPU resource chain remains valid. Hardware IsFrontBufferAvailable=false is
+therefore no longer a publication veto. ServiceTransportCore and D3D12ImageSource.TryPublish remove only
+four availability checks; SetBackBuffer(enableSoftwareFallback:true) remains the existing publication route.
+Slot immutability, immediate BoundSurface bookkeeping, balanced locks, fence/query completion, device-loss
+recovery, inactive-surface suspension and confirmed detach before native retirement remain mandatory.
+An unavailable hardware frontbuffer does not authorize reuse of a bound destination as a copy target.
+
+Eight new owner cases and the explicitly revised P5 availability contract pass in Debug and Release (9/9).
+Four new cases have differentiating measured Before failures. The existing 47 owner cases also pass in both
+configurations. Three previous hardware-availability prerequisites were removed only after their actual
+failures; actual false-TryLock, pixels, counters, slots and lock-balance assertions remain unchanged.
+The two earlier warm-timeout admission cases now pass without changing their fixture. These results do not
+constitute standalone reload, foreground input or whole-application acceptance.
+
+CopyBackBuffer and RenderTargetBitmap establish synchronous diagnostic pixels, not fresh asynchronous MIL
+software pixels or physical scanout. Native WPF module identity, the real availability-loss cause and isolated
+D3D11/D3D9Ex loss remain separate evidence gaps. The new tests exercise D3D12 loss and retained lifetime.
+Four PE/PDB pairs bind the actual sources/hosts, excluding two missing LibraryImportGenerator disk files.
+The independent SOURCE/DATA review found no confirmed P1/P2/P3 and checked the actual Before/After
+artifacts, eight PE/PDB pairs and 141 stable end pins. Root evidence is recorded in the
+[bounded result report](../../../../reference-runtime/full-product-z2-wpf-approved-software-policy-root-results-r1.md).
+The historical P5 unavailable-suspend contract is superseded by this explicit user decision.

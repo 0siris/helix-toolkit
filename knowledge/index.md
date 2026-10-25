@@ -113,3 +113,8 @@ no product source changed.
 retains exact differential allocation and real warm-pixel proof: Debug/Release each624/624.
 The four fixed-positive-byte failures are resolved without a product change; independent
 review has no findings. WPF policy and complete application acceptance remain separate.
+
+[Approved WPF software publication](/architecture/wpf-composition-contracts.md#approved-software-publication-while-hardware-frontbuffer-is-unavailable-2026-10-25)
+removes four hardware-availability vetoes while retaining slot/lock/device-loss protection. Debug/Release
+9 policy cases and 47 existing owner cases pass; independent SOURCE/DATA review has no confirmed P1/P2/P3.
+Synchronous diagnostic pixels do not establish asynchronous MIL freshness or standalone acceptance.

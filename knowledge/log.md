@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-25 — Publish completed WPF frames through the approved software fallback
+
+* Remove four hardware-availability vetoes in the existing presentation/image owners; preserve slots, locks, copy completion, device-loss and retirement.
+* Measured four policy Before reds, final Debug/Release9/9 policy and47/47 existing owner passes. Revise P5 explicitly; remove only three obsolete hardware prerequisites after observed failures.
+* Four actual PE/PDB pairs bind sources and hosts, excluding two missing generated disk files; independent review found no confirmed P1/P2/P3, including actual raw Before/After and eight PE/PDB pairs. Synchronous pixel evidence is not asynchronous MIL or whole-product acceptance.
+* Rebuild source graph using process-local compatibility with installed Graphify0.7.13:7,735nodes/12,389edges/743communities, zero model tokens; script unchanged, staging removed. Preserve two earlier tooling failures.
+
 ## 2026-10-25 — Measure intersection allocations against the same live renderer
 
 * Replace unsupported fixed72B equality with exact measured baseline/full-frame equality.

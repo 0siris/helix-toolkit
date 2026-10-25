@@ -481,7 +481,6 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
                     Assert.Equal(before.OnRendered + 1, driver.OnRenderedCount);
                     var blocked = driver.Counts;
                     for (var tick = 0; tick < 256; tick++) {
-                        Assert.True(driver.Canvas.ImageSource.IsFrontBufferAvailable);
                         Assert.Equal(0, driver.Owner.RenderFrame(FrameTime));
                         Assert.Equal(blocked, driver.Counts);
                         Assert.True(bridge.HasReadySurface);
@@ -560,7 +559,6 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
                     Assert.True(serial > originalSerial);
                     Assert.Equal(before.Published, driver.Owner.PublishedFrames);
                     for (var attempt = 0; attempt < 3; attempt++) {
-                        Assert.True(driver.Canvas.ImageSource.IsFrontBufferAvailable);
                         var failure = Assert.Throws<InvalidOperationException>(() => driver.Owner.CaptureFrame());
                         Assert.Equal("The WPF transport is not available for a new captured scene.", failure.Message);
                         Assert.Null(driver.Owner.LastCapturedFrame);
@@ -995,7 +993,6 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
     /// <summary>Proves a genuine zero-duration TryLock failure and balances its normally returned lock count.</summary>
     /// <param name="image">The actual WPF image whose write event is currently reset.</param>
     private static void AssertImageWriteLockFails(D3DImage image) {
-        Assert.True(image.IsFrontBufferAvailable, "The test requires available WPF frontbuffer publication.");
         var locked = image.TryLock(new Duration(TimeSpan.Zero));
         try {
             Assert.False(

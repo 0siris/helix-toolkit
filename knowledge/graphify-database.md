@@ -56,3 +56,18 @@ namespace edits do not establish a new production behavior or close the older th
 - Extraction: deterministic AST and project-structure analysis; token cost was zero.
 - Excluded from this graph: prose concepts under `/knowledge`, because semantic document extraction requires an LLM backend that is not configured in this repository.
 - Rebuild after source changes with the same script; do not edit `graphify-out/` manually.
+
+# Installed 0.7.13 compatibility snapshot (2026-10-25)
+
+The software-publication source check prepared 1,076 files (1,019 C# files). Installed Graphify 0.7.13
+excludes every path component beginning with a dot, so the unchanged builder's hidden corpus initially
+produced zero selected files. A second attempt reached AST extraction but rejected the removed
+community_labels keyword on export. Both failed logs are retained; neither is a successful graph check.
+
+The final run used the same repository builder with two process-local API adapters: select C# files from
+the already filtered staging corpus, and omit the unsupported export keyword (report labels remain).
+No repository script, installation or configuration was changed. The run produced 7,735 nodes, 12,389 edges
+and 743 communities with zero model tokens. Source paths are normalized and the temporary corpus is gone.
+These counts use a different installed extractor and are not coverage-parity claims against older snapshots.
+This installed version has no MSBuild extractors. Compiler and actual runtime tests remain authoritative.
+Evidence: TEMP/meshmixer-isolated-build-20261025/wpf-software-source-graph-r{1,2,3} logs and final results JSON.

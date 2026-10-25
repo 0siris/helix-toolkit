@@ -32,7 +32,7 @@ internal sealed class D3D12ImageSource : IDisposable {
     /// <summary>Gets the actual retained WPF image for Image.Source binding and read-only inspection.</summary>
     internal D3DImage NativeImage { get; } = new();
 
-    /// <summary>Gets whether WPF currently permits publication to its front buffer.</summary>
+    /// <summary>Gets hardware front-buffer availability independently of software publication.</summary>
     internal bool IsFrontBufferAvailable => NativeImage.IsFrontBufferAvailable;
 
     /// <summary>Gets the actual last successful SetBackBuffer pointer, including after a later operation fails.</summary>
@@ -63,12 +63,9 @@ internal sealed class D3D12ImageSource : IDisposable {
             throw new ArgumentOutOfRangeException(nameof(width));
         if (height == 0 || height > int.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(height));
-        if (!IsFrontBufferAvailable)
-            return false;
-
         var locked = NativeImage.TryLock(LockTimeout);
         try {
-            if (!locked || !IsFrontBufferAvailable)
+            if (!locked)
                 return false;
             NativeImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface, enableSoftwareFallback: true);
             BoundSurface = surface;

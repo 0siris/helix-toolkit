@@ -592,7 +592,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             _ = demand.TryTakePublicationRequest();
             var surface = bridge.ReadySurface;
             var serial = bridge.ReadySerial;
-            if (!canvas.ImageSource.IsFrontBufferAvailable || !canvas.ImageSource.TryPublish(surface, width, height)) {
+            if (!canvas.ImageSource.TryPublish(surface, width, height)) {
                 demand.RequestPublication();
                 return false;
             }
@@ -604,7 +604,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             transportSerial = 0;
             copyStarted = false;
         } else if (demand.TryTakePublicationRequest() && publishedSurface != 0) {
-            if (!canvas.ImageSource.IsFrontBufferAvailable || !canvas.ImageSource.TryPublish(publishedSurface, width, height)) {
+            if (!canvas.ImageSource.TryPublish(publishedSurface, width, height)) {
                 demand.RequestPublication();
                 return false;
             }

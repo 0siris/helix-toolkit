@@ -87,3 +87,7 @@ SilkToolkit also owns the shared bounded WPF viewport-widget overlay, retaining 
 
 Current native-child [button observations](/projects/silktoolkit.md#current-buttons-across-the-native-child-boundary)
 retain ordinary WPF fallback and disposal semantics while leaving application ownership guards authoritative.
+
+
+* [Empty native mesh lifecycle](/projects/silkcore.md#empty-native-mesh-lifecycle) - Existing geometry eligibility,
+  first-index buffer recovery and measured WARP coverage, with the remaining broad-test failures qualified.

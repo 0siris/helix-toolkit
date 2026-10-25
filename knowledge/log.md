@@ -1,5 +1,14 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-25 — Keep empty meshes out of native draw candidates
+
+* Preserve GeometryValid when collecting candidates and retry native node attachment before its core shortcut.
+* Retain hidden maintenance, child traversal, GPU-only admission and strict malformed-index validation.
+* Measured seven unit passes and fourteen of seventeen WARP failures before the change; all 24 new cases pass after it.
+* Broad scoped run: 601/604 pass; three pre-existing failures and two unrelated uncompilable fixtures remain open.
+* Application visible readiness and full product acceptance are separate consumer gates.
+
+
 ## 2026-10-20 — Restore measured original diffuse intensity
 
 * Compiled pinned original vertex/pixel sources with FXC and their original vs_4_0/ps_4_0 profiles.

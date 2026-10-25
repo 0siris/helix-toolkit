@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-25 — Recover camera and selection-line test imports
+
+* Bind two existing fixtures to actual restored namespaces; preserve all assertions and exact byte inverses.
+* Complete original Core test project builds; Camera2 and WARPLine18 all pass with zero skips.
+* Independent SOURCE/DATA review has no findings; eight protected parent Debug pins remain unchanged.
+* Earlier three broad failures and WPF software-policy decision remain open; no product behavior changed.
+
 ## 2026-10-25 — Connect actual WPF frame admission
 
 * Derive readiness and coherent allocation metrics from the selected live presentation owner.

@@ -1,12 +1,7 @@
-﻿using HelixToolkit.SharpDX.Core.Core;
-using HelixToolkit.SharpDX.Core.Core.Buffers;
-using HelixToolkit.SharpDX.Core.DefaultShaders;
+﻿using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Core;
 using HelixToolkit.SharpDX.Core.Model;
-using HelixToolkit.SharpDX.Core.Model.Collection;
-using HelixToolkit.SharpDX.Core.Model.Geometry;
-using HelixToolkit.SharpDX.Core.Model.Material;
 using HelixToolkit.SharpDX.Core.Native;
-using HelixToolkit.SharpDX.Core.ShaderManager;
 using HelixToolkit.SharpDX.Core.Shaders;
 using Silk.NET.Direct3D12;
 using Silk.NET.DXGI;
@@ -144,7 +139,7 @@ public sealed class SelectionPreviewLinePipelineTests {
         var view = Matrix.Identity;
         var projection = Matrix.Identity;
         if (perspective) {
-            var camera = new HelixToolkit.SharpDX.Core.Model.Camera.PerspectiveCameraCore {
+            var camera = new HelixToolkit.SharpDX.Core.Cameras.PerspectiveCameraCore {
                 Position = Vector3.Zero, LookDirection = new Vector3(0, 0, -1), UpDirection = Vector3.UnitY,
                 FieldOfView = 60, NearPlaneDistance = 0.01f, FarPlaneDistance = 10
             };

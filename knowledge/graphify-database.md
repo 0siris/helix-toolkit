@@ -38,11 +38,16 @@ The builder creates a temporary code-only corpus, runs Graphify AST extraction w
 
 The 2026-10-20 Phase 5 snapshot prepares 1,064 source files and contains 10,888 nodes, 19,850 edges and 3,150 communities.
 
-The latest 2026-10-23 snapshot prepares994 source files and contains9,404 nodes,16,987 edges and2,668 communities.
+The 2026-10-23 snapshot prepares994 source files and contains9,404 nodes,16,987 edges and2,668 communities.
 Paths are normalized to `Source/...`; no temporary staging corpus remains. Extraction uses the local Graphify
 AST API directly, in one process, avoiding CLI semantic-backend credential checks. Input/output token counts
 are zero. The parser reports 17 files with syntax it can only partially extract; this graph is structural
 assistance, not complete semantic or compiler verification. The .NET builds/tests remain authoritative.
+
+The current 2026-10-25 namespace-fixture snapshot prepares1,075 source files and contains11,065 nodes,
+20,079 edges and3,310 communities. Input/output model tokens remain zero. The same17 partial-parser
+warnings remain; the verified temporary corpus was absent before and after generation. The two test
+namespace edits do not establish a new production behavior or close the older three test failures.
 
 # Scope and Limitations
 

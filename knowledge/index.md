@@ -96,3 +96,7 @@ retain ordinary WPF fallback and disposal semantics while leaving application ow
 The SilkToolkit project records the actual WPF/ HWND pre-frame callback, passive allocation metrics
 and existing-guard disposal protection. New18 cases yield16 passes plus two unchanged WPF warm
 transport failures; this bounded result does not qualify all interop, reload or physical input behavior.
+
+The [test strategy](/testing/silk-tests.md#camera-and-selection-line-fixture-namespace-recovery-2026-10-25)
+records a namespace-only recovery of two existing fixtures: complete Core test-project compilation and
+20 actual camera/line passes, with previous broad failures and WPF policy limits retained.

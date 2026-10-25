@@ -84,3 +84,17 @@ Tests must not depend on the repository's absolute path or the full `Models` dir
 [2] [SilkToolkit tests](../../Source/SilkToolkit.Tests/SilkToolkit.Tests.csproj)
 [3] [SilkAssimp tests](../../Source/SilkAssimp.Tests/SilkAssimp.Tests.csproj)
 [4] [Silk test workflow](../../.github/workflows/silk-tests.yml)
+
+## Camera and selection-line fixture namespace recovery, 2026-10-25
+
+Two existing fixtures still imported namespaces removed by the original-namespace restoration.
+Only imports and one fully qualified camera type were corrected; exact inverse checks recover both
+previous byte sequences, including BOM, CRLF and EOF. Assertions, formulas and expected pixels did not change.
+The complete original SilkCore.Tests Debug project now builds with zero errors and 169 warnings, using
+BuildProjectReferences=false. The selected actual run passes CameraFramingTests 2/2 and
+SelectionPreviewLinePipelineTests 18/18, including WARP readback, with no skips. Independent SOURCE/DATA
+review reports findings[]. The three failures in the historical scoped 604-case run remain open and were
+not rerun or erased by this result. WPF software publication and full product acceptance are separate gates.
+
+Parent evidence: TEMP/meshmixer-isolated-build-20261025/build-silk-core-fixtures-current-r1.log and
+silk-camera-line-fixtures-current-r1.trx. All eight protected parent Debug product/test pins remained equal.

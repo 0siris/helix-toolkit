@@ -107,3 +107,9 @@ separate randomized SSAO structure from equality and cache retirement from dispo
 Three focused cases pass in both configurations; Debug624 passes while four separate
 Release intersection allocation assertions remain open. Independent review has no findings for the three fixes;
 no product source changed.
+
+
+[Measured intersection allocation baseline](/testing/silk-tests.md#measured-intersection-allocation-baseline-2026-10-25)
+retains exact differential allocation and real warm-pixel proof: Debug/Release each624/624.
+The four fixed-positive-byte failures are resolved without a product change; independent
+review has no findings. WPF policy and complete application acceptance remain separate.

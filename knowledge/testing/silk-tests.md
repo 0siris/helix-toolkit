@@ -126,3 +126,27 @@ product/host copies. Before host PDB was overwritten by the next build and is no
 Independent SOURCE/DATA review confirms findings[] for these three corrections and retained data limits. Rider/ReSharper tools were unavailable;
 scoped dotnet NoRef fallback was used. Graphify completed with17 partial syntax-warning files;
 no complete AST, WPF software-policy, full Release or product acceptance is claimed.
+
+
+## Measured intersection allocation baseline, 2026-10-25
+
+The four Release failures above came from a fixed positive72-byte frame expectation,
+not a proved allocation requirement. The fixture now measures a complete empty-candidate
+frame immediately before the unchanged intersection frame on the same attached renderer.
+Input publication and native generation are retained; both paths receive128 warmups and
+256 measured frames with real submissions and fences. Exact baseline/full equality remains,
+with no tolerance budget or configuration literal. The assertion follows the last WarmDraw
+argument and red-pixel readbacks, after the baseline's blue clear. All later frames remain.
+
+Actual original-project NoRef hosts build D/R with0 errors/94 warnings. Focus4/4 and broad
+624/624 pass in both configurations, no skips; all names and prior Passed outcomes remain.
+Debug baseline/full each18432B, Release each0B;1000 reuse checks0B and positive control64B.
+All four earlier Release failures now reach their warm readbacks and remaining frame cases.
+The pixel proof concerns the last warm frame, not individual readback of all256 frames.
+
+Independent SOURCE/DATA review confirms no findings and exact source inverse/PDB/TRX binding.
+Product DLLs remain unchanged. Shared allocation regressions are outside the differential
+alone; unchanged frame/ordinary-mesh neighbors remain part of the passing624-case selection.
+No concrete Debug allocator or JIT cause was proved. Graphify completes with17 partial-parser
+warnings; no general performance, hardware, WPF, Original-pixel or product acceptance follows.
+Parent evidence: TEMP/meshmixer-isolated-build-20261025/intersection-baseline-results-r1.json.

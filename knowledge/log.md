@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-25 — Measure intersection allocations against the same live renderer
+
+* Replace unsupported fixed72B equality with exact measured baseline/full-frame equality.
+* Retain live owner, all actual draws, zero-byte reuse, positive control and final warm readbacks.
+* Focus4/4 and broad624/624 D/R pass; independent review has no findings, products unchanged.
+* Qualify historical72B documentation; shared allocation regressions and WPF/product gates remain separate.
+
 ## 2026-10-25 — Correct three retained renderer test contracts
 
 * Preserve randomized SSAO structure and actual fence-safe resource retirement; no product changes.

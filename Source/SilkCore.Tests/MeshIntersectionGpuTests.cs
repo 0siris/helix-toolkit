@@ -423,7 +423,12 @@ public sealed class MeshIntersectionGpuTests(ITestOutputHelper output) {
                     ?.ToString(), ignoreCase: true
             );
             Func<SceneNode, ShaderPass?> selectPass = catalog.Resolve;
+            FastList<SceneNode> noIntersectionNodes = [];
             for (var index = 0; index < 128; index++) {
+                var baselineCount = RecordWarmFrame(false);
+                Assert.Equal(0, baselineCount);
+                CompleteWarmFrame();
+                Assert.Same(native, renderer.FindIntersectionResources(core));
                 Assert.True(native.CanReuse());
                 Assert.Equal(1, RecordWarmFrame());
                 CompleteWarmFrame();
@@ -447,8 +452,16 @@ public sealed class MeshIntersectionGpuTests(ITestOutputHelper output) {
 
             const int iterations = 256;
             long frameAllocated = 0;
+            long baselineAllocated = 0;
             var recorded = 0;
+            var baselineRecorded = 0;
             for (var index = 0; index < iterations; index++) {
+                before = GC.GetAllocatedBytesForCurrentThread();
+                baselineRecorded += RecordWarmFrame(false);
+                baselineAllocated += GC.GetAllocatedBytesForCurrentThread() - before;
+                CompleteWarmFrame();
+                Assert.Same(native, renderer.FindIntersectionResources(core));
+
                 before = GC.GetAllocatedBytesForCurrentThread();
                 recorded += RecordWarmFrame();
                 frameAllocated += GC.GetAllocatedBytesForCurrentThread() - before;
@@ -458,11 +471,12 @@ public sealed class MeshIntersectionGpuTests(ITestOutputHelper output) {
 
             output.WriteLine(
                 $"Intersection reuse (shared={shared}, rotated={rotated}): {reuseAllocated} bytes / 1000 checks; " +
-                $"full renderer {frameAllocated} bytes / {iterations} frames, including the common 72-byte frame baseline; " +
+                $"full renderer {frameAllocated} bytes / {iterations} frames; " +
+                $"same renderer without intersection {baselineAllocated} bytes / {iterations} frames; " +
                 $"positive control {controlAllocated} bytes."
             );
+            Assert.Equal(0, baselineRecorded);
             Assert.Equal(iterations, recorded);
-            Assert.Equal(72L * iterations, frameAllocated);
 
             // Readback is outside both warm measurements and checks the last submitted indirect draw and pixels.
             context.Reset();
@@ -477,10 +491,12 @@ public sealed class MeshIntersectionGpuTests(ITestOutputHelper output) {
             Assert.Equal(new uint[] { 2, 513, 0, 0 }, warmDraw);
             var warmPixel = pixels.Read(4, footprint.Offset + 16UL * footprint.Footprint.RowPitch + 16UL * 4);
             Assert.True(warmPixel[0] > 200 && warmPixel[1] < 40 && warmPixel[2] < 40);
+            Assert.Equal(baselineAllocated, frameAllocated);
 
-            /// <summary>Records actual renderer work with cached callbacks and no capture or input publication.</summary>
+            /// <summary>Records a real frame with stable inputs and an optional intersection draw.</summary>
+            /// <param name="drawIntersection">Whether the frame includes the unchanged intersection node.</param>
             /// <returns>The number of successfully recorded GPU intersection draws.</returns>
-            int RecordWarmFrame() {
+            int RecordWarmFrame(bool drawIntersection = true) {
                 renderer.BeginFrame();
                 context.Reset();
                 context.Transition(target, ResourceStates.RenderTarget);
@@ -488,7 +504,9 @@ public sealed class MeshIntersectionGpuTests(ITestOutputHelper output) {
                 context.ClearDepthStencil(depth, depthView);
                 context.SetRenderTargets(targetView, depthView);
                 context.SetViewport(32, 32);
-                var count = renderer.RenderVisible(context, nodes, selectPass, in transforms, false, ref frustum);
+                var count = renderer.RenderVisible(
+                    context, drawIntersection ? nodes : noIntersectionNodes, selectPass, in transforms, false, ref frustum
+                );
                 context.Close();
                 return count;
             }

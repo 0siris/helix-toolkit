@@ -352,3 +352,35 @@ The independent SOURCE/DATA review found no confirmed P1/P2/P3 and checked the a
 artifacts, eight PE/PDB pairs and 141 stable end pins. Root evidence is recorded in the
 [bounded result report](../../../../reference-runtime/full-product-z2-wpf-approved-software-policy-root-results-r1.md).
 The historical P5 unavailable-suspend contract is superseded by this explicit user decision.
+
+
+# Awaitable WPF teardown before application ownership ends (2026-10-25)
+
+The additive Viewport3DX.PrepareForDisposalAsync stops submissions and uses the existing owner to drain
+D3D12, retry only a zero-duration image-lock miss, finish image disposal after successful Unlock and then
+retire the D3D11 bridge through its existing query/removal guard. Native failures propagate; the existing
+five-second budget and16ms dispatcher-yielding delay do not change the synchronous lock or thirty-second
+fixture contracts. ImageSource.TryDispose finishes subscriptions only after actual detach, so later canvas
+disposal does not require a second WPF lock.
+
+The existing recording-deferred Action uses the same safe viewport preflight. It validates the retained
+owner before and after await and disposes only after success. Current-owner errors use the existing
+reporter/teardown containment; retired-owner errors are logged without retiring a replacement owner.
+No new timer, scheduler, mesh owner, nested pump or Task.Run is introduced. Explicit synchronous disposal
+may still fail while retaining resources for retry.
+
+A real application Release-Cancel cleanup first failed at the one-shot detach. R1 fixed the window path
+but exposed the existing deferred callback through an actual fatal TRX stack (owner46/47). R2 retains
+all old assertions: Debug/Release each47/47 owner and9/9 policy cases, plus direct lock/deferred tests.
+The application consumers pass two real repair/history/save-reopen cases and two earlier visible cases
+per configuration. Ten current PE/PDB pairs bind2316/2334 documents,18 generated files unavailable.
+The independent R2 review exposed early application preview disposal before the preflight. The bounded
+application R3 fix retains existing Selection/Inspector nodes through central clear and refresh guards until
+successful preparation; a failed attempt retains them for retry. Two measured D/R retention regressions
+turn red to green, and the stronger marker case waits for actual Closed before checking final disposal.
+The fresh independent R3 source/data review has no new P1/P2/P3 findings. Historical R3, asynchronous MIL
+and full product acceptance remain separate. See the [bounded R2 evidence](../../../../reference-runtime/full-product-z2-wpf-close-detach-preflight-root-results-r2.md).
+
+The unchanged visible R5 control passes both repair/history/save-reopen cases and both older cases per
+configuration. Earlier capture/foreign-foreground failures remain preserved; this is no retrospective causal
+claim. See the [R3 source/data review](../../../../reference-runtime/full-product-z2-wpf-close-retention-source-data-review-r3.md).

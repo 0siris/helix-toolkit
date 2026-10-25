@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-25 — Prepare explicit and deferred WPF teardown before scene release
+
+* Add bounded dispatcher-owned preparation using the existing image/presentation owners; preserve zero-time lock, balanced Unlock, fence/query and device-loss guards, with no new timer or scheduler.
+* Preserve the real Release-Cancel lockmiss and R1 owner46/47 fatal callback failure. R2 routes the same deferred Action through the safe viewport preflight and existing error containment; all47 old owner and9 policy cases pass in Debug/Release without test-expected changes.
+* Ten NoRef builds and real application repair/history/save-reopen/close cases pass;34 selected copies and ten PE/PDB pairs2316/2334 checked,18 generated sources unavailable. Fresh independent R2 review and global product/MIL acceptance remain pending.
+* Rebuild the existing code-only source graph:7,740nodes/12,399edges/742communities, zero model tokens. Retain the failed export attempt; use only the documented process-local0.7.13 adapters, script unchanged and staging removed.
+
 ## 2026-10-25 — Publish completed WPF frames through the approved software fallback
 
 * Remove four hardware-availability vetoes in the existing presentation/image owners; preserve slots, locks, copy completion, device-loss and retirement.
@@ -701,3 +708,14 @@ Graphify regenerated this composed batch: 979 files, 9,218 nodes, 16,366 edges a
 - Reused the existing paged table allocator for ordinary mesh/point-line and immutable peeling bindings, preserving fence ownership.
 - Added opt-in official PIX command-list regions, native object names and actual scene/effect/shared descriptor counters.
 - Added a headless pressure regression reproducing the original heap-exhaustion exception; visible performance capture is separate.
+
+
+## 2026-10-25 - Bound explicit/deferred WPF disposal and retain application previews
+
+- Finish image ownership only after real detach/Unlock, before the retained bridge query drain.
+- Route existing deferred disposal through the same bounded safe viewport preflight; old owner47/policy9
+  D/R contracts and real application cycles pass, without changing lock or timeout guards.
+- Independent R2 exposed application-side early preview disposal; the separate Window R3 retention fix
+  and two measured D/R red-to-green cases close that gap. The stronger case checks actual Closed/disposal.
+- Fresh independent R3 review reports no new P1/P2/P3; old input failures and product/MIL limits remain.
+  The previously recorded source graph remains current: this final update changes documentation only.

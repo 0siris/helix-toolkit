@@ -106,20 +106,22 @@ internal sealed class D3D12ImageSource : IDisposable {
     /// The caller alone disposes native allocations, and only after successful detachment.
     /// </remarks>
     public void Dispose() {
-        NativeImage.VerifyAccess();
-        if (disposed)
-            return;
-        stopping = true;
-        for (var attempt = 0; attempt < DetachAttempts; attempt++) {
-            if (!TryDetach())
-                continue;
-            NativeImage.IsFrontBufferAvailableChanged -= OnFrontBufferChanged;
-            FrontBufferChanged = null;
-            disposed = true;
-            return;
-        }
-
+        for (var attempt = 0; attempt < DetachAttempts; attempt++)
+            if (TryDispose()) return;
         throw new TimeoutException("WPF detachment failed; retain the image and native surfaces and retry disposal.");
+    }
+
+    /// <summary>Completes image disposal only after actual detachment and successful Unlock.</summary>
+    /// <returns>False only when the existing zero-duration WPF lock attempt misses.</returns>
+    internal bool TryDispose() {
+        NativeImage.VerifyAccess();
+        if (disposed) return true;
+        stopping = true;
+        if (!TryDetach()) return false;
+        NativeImage.IsFrontBufferAvailableChanged -= OnFrontBufferChanged;
+        FrontBufferChanged = null;
+        disposed = true;
+        return true;
     }
 
     /// <summary>Forwards the original availability transition without detaching or freeing a native allocation.</summary>

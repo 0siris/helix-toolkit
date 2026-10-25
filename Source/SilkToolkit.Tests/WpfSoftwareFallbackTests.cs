@@ -546,6 +546,7 @@ public sealed class WpfSoftwareFallbackTests(ITestOutputHelper output) {
                 image.SetValue(key, false);
                 WithBlockedImageWrites(image, () => {
                     Assert.Throws<TimeoutException>(driver.Viewport.Dispose);
+                    Assert.False(owner.TryFinishDisposalPreparation());
                     Assert.Equal(before, driver.Counts);
                     Assert.Equal(surface, canvas.ImageSource.BoundSurface);
                     Assert.False(owner.IsDisposed);
@@ -558,6 +559,15 @@ public sealed class WpfSoftwareFallbackTests(ITestOutputHelper output) {
                     Assert.Equal(0U, Convert.ToUInt32(P4PresentationDriver.ReadField<object>(image, "_lockCount")));
                 });
 
+                Assert.True(owner.TryFinishDisposalPreparation());
+                Assert.Equal(nint.Zero, canvas.ImageSource.BoundSurface);
+                Assert.True(bridge.IsDisposed);
+                Assert.False(device.IsDisposed);
+                Assert.False(owner.IsDisposed);
+                Assert.False(driver.Viewport.IsDisposed);
+                Assert.False(sceneNode.IsDisposed);
+                Assert.False(effects.IsDisposed);
+                Assert.Equal(0, disposing);
                 driver.Viewport.Dispose();
                 driver.Viewport.Dispose();
                 owner.Dispose();

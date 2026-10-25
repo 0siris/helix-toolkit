@@ -71,3 +71,14 @@ and 743 communities with zero model tokens. Source paths are normalized and the 
 These counts use a different installed extractor and are not coverage-parity claims against older snapshots.
 This installed version has no MSBuild extractors. Compiler and actual runtime tests remain authoritative.
 Evidence: TEMP/meshmixer-isolated-build-20261025/wpf-software-source-graph-r{1,2,3} logs and final results JSON.
+
+
+# WPF teardown source snapshot (2026-10-25)
+
+The existing builder prepares1,076 files and structurally extracts1,019 CSharp files after the additive
+explicit/deferred WPF teardown change. Installed0.7.13 uses the same two documented process-local
+collector/export adapters; the first missing-export-adapter error is retained separately. Final output:
+7740 nodes,12399 edges,742 communities, zero model tokens. The builder, installation and
+configuration remain unchanged, normalized paths contain no staging prefix and the staging corpus is removed.
+No MSBuild extraction or semantic/compiler correctness is inferred from this graph. Evidence:
+TEMP/meshmixer-isolated-build-20261025/inspector-close-detach-source-graph-r2-results.json and its log.

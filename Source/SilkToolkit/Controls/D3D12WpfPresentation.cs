@@ -814,9 +814,20 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
     /// <summary>Drains and detaches before the viewport begins irreversible application-scene disposal.</summary>
     internal void PrepareForDisposal() {
+        BeginDisposalPreparation();
+        if (!TryFinishDisposalPreparation())
+            throw new TimeoutException("The WPF image is still bound; native resources remain owned for disposal retry.");
+    }
+
+    /// <summary>Gets the existing finite completion budget for dispatcher-yielding detach attempts.</summary>
+    internal static TimeSpan DisposalTimeout => CompletionTimeout;
+
+    /// <summary>Stops new submissions and drains D3D12 before any image or native resource is released.</summary>
+    internal void BeginDisposalPreparation() {
         canvas.Dispatcher.VerifyAccess();
         if (IsDisposed || disposalPrepared) return;
         stopping = true;
+        serviceTimer.Stop();
         if (device is not null) {
             if (device.GetDeviceRemovedReason() < 0) {
                 recoveryBarrier ??= recoveryRegistration;
@@ -831,11 +842,23 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             pendingFence = 0;
             unfencedExecution = false;
         }
+    }
 
-        if (!TryDetach()) throw new TimeoutException("The WPF image is still bound; native resources remain owned for disposal retry.");
+    /// <summary>Finalizes the image before acknowledging detachment and draining the retained D3D11 bridge.</summary>
+    /// <returns>False only for an image-lock miss; native and unexpected failures propagate.</returns>
+    internal bool TryFinishDisposalPreparation() {
+        canvas.Dispatcher.VerifyAccess();
+        if (IsDisposed || disposalPrepared) return true;
+        if (!canvas.ImageSource.TryDispose()) {
+            demand.RequestRecovery();
+            return false;
+        }
+        bridge?.ConfirmDetached();
+        if (publishedSurface != 0) demand.RequestPublication();
         bridge?.Dispose();
         bridge = null;
         disposalPrepared = true;
+        return true;
     }
 
     /// <summary>Defers viewport/application disposal until a reentrant scene-recording request has unwound.</summary>
@@ -849,7 +872,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Completes the retained disposal request after no node hook can access borrowed commands.</summary>
     private void FinishViewportDisposal() {
         deferredDisposal = null;
-        if (!IsDisposed) viewport.Dispose();
+        viewport.FinishWpfViewportDisposalAsync(this);
     }
 
     /// <summary>Completes bounded native teardown; a failed detach/drain retains the owner for explicit retry.</summary>

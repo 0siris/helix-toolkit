@@ -118,3 +118,11 @@ review has no findings. WPF policy and complete application acceptance remain se
 removes four hardware-availability vetoes while retaining slot/lock/device-loss protection. Debug/Release
 9 policy cases and 47 existing owner cases pass; independent SOURCE/DATA review has no confirmed P1/P2/P3.
 Synchronous diagnostic pixels do not establish asynchronous MIL freshness or standalone acceptance.
+
+
+[Awaitable WPF teardown](/architecture/wpf-composition-contracts.md#awaitable-wpf-teardown-before-application-ownership-ends-2026-10-25)
+connects the existing explicit and recording-deferred owners to bounded image-detach preparation.
+R1 preserves its observed46/47 failure; R2 passes owner47/47 and policy9/9 in both configurations.
+The real application repair/history/save-reopen/close path passes. R3 also retains derived application
+nodes before preparation; two new D/R regressions and actual Closed disposal pass, independent review
+has no new P1/P2/P3. Full asynchronous-MIL/product acceptance remains open.

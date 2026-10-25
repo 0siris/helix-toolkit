@@ -100,3 +100,10 @@ transport failures; this bounded result does not qualify all interop, reload or 
 The [test strategy](/testing/silk-tests.md#camera-and-selection-line-fixture-namespace-recovery-2026-10-25)
 records a namespace-only recovery of two existing fixtures: complete Core test-project compilation and
 20 actual camera/line passes, with previous broad failures and WPF policy limits retained.
+
+
+The [renderer test contracts](/testing/silk-tests.md#renderer-test-contracts-2026-10-25)
+separate randomized SSAO structure from equality and cache retirement from disposal.
+Three focused cases pass in both configurations; Debug624 passes while four separate
+Release intersection allocation assertions remain open. Independent review has no findings for the three fixes;
+no product source changed.

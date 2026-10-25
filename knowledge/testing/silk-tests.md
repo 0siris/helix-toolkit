@@ -98,3 +98,31 @@ not rerun or erased by this result. WPF software publication and full product ac
 
 Parent evidence: TEMP/meshmixer-isolated-build-20261025/build-silk-core-fixtures-current-r1.log and
 silk-camera-line-fixtures-current-r1.trx. All eight protected parent Debug product/test pins remained equal.
+
+
+## Renderer test contracts, 2026-10-25
+
+Three retained D3D12RuntimePrimitiveTests failures were test-contract errors. SSAO kernels
+use the original timestamp-seeded random sequence; independent arrays have no equality
+or inequality requirement. Both arrays now retain length/layout checks and verify finite
+hemisphere samples, index-dependent length and angular limits. FXAA constants are unchanged.
+Texture removal and instance growth retire resources; assertions now distinguish cache
+removal from explicit fence-safe cleanup. Instance sources are initialized as in real attachment.
+No renderer product source, seed, scheduling, disposal policy or public API changed.
+
+Actual unchanged Debug Before: three failures. After NoRef host builds, the same three
+and25 empty-mesh/particle neighbors pass in Debug and Release with no skips. The full
+original Core test project passes624/624 in Debug using
+Category!=Hardware&Category!=DX12&Category!=VisibleUI. All601 historical Passed tuples
+are preserved, the three corrected cases pass, and20 recovered camera/line cases are included.
+Release broad reports620 Passed/4 Failed; the four intersection allocation assertions also
+fail in isolation, expecting18432 bytes but observing0 after256 recorded frames. Their
+subsequent readback assertions are unreached. No Before Release measurement of those four
+exists, so this is a newly observed separate result, not a verified historical failure.
+
+Parent evidence: TEMP/meshmixer-isolated-build-20261025/renderer-contract-results-r1.json
+and renderer-contract-source-pdb-r1.json bind actual TRXs, current DLL/PDB/source and held
+product/host copies. Before host PDB was overwritten by the next build and is not retained.
+Independent SOURCE/DATA review confirms findings[] for these three corrections and retained data limits. Rider/ReSharper tools were unavailable;
+scoped dotnet NoRef fallback was used. Graphify completed with17 partial syntax-warning files;
+no complete AST, WPF software-policy, full Release or product acceptance is claimed.

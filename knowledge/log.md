@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-25 — Correct three retained renderer test contracts
+
+* Preserve randomized SSAO structure and actual fence-safe resource retirement; no product changes.
+* Actual three-case Before red, D/R focused3 and neighbor25 green; Debug broad624 all pass.
+* Release620/624 and isolated four intersection allocation assertions remain separately open.
+* Source/PDB/DLL copies match; Graphify completes with17 partial-parser warnings; independent review confirms no findings.
+
 ## 2026-10-25 — Recover camera and selection-line test imports
 
 * Bind two existing fixtures to actual restored namespaces; preserve all assertions and exact byte inverses.

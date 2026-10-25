@@ -384,3 +384,53 @@ and full product acceptance remain separate. See the [bounded R2 evidence](../..
 The unchanged visible R5 control passes both repair/history/save-reopen cases and both older cases per
 configuration. Earlier capture/foreign-foreground failures remain preserved; this is no retrospective causal
 claim. See the [R3 source/data review](../../../../reference-runtime/full-product-z2-wpf-close-retention-source-data-review-r3.md).
+
+
+## Shared post-scene Inspector regions (2026-10-25)
+
+The existing frame owner accepts the application's current PostEffect group after scene post-processing,
+using the retained scene depth. It draws source regions, helper lines and helper faces without an intervening
+depth clear. Ordinary ScreenSpaced work retains its previous pre-FXAA order when no visible post-scene group
+exists. Invalid geometry is excluded from drawing while ordinary maintenance remains intact.
+
+The existing PHONG upload/shader owner carries the Inspector's four lights and source per-vertex lighting.
+Stored normal length, winding behavior and vertex interpolation remain explicit; ordinary material lighting
+uses the shared unchanged calculation. Boundary callers pass half-width 2*setting/DPI to the unchanged line
+shader, producing full physical widths 4/6/8 for settings 1/1.5/2. This is a D3D12 phase adaptation, not a
+claim of identical native OpenGL AA, depth-bias quantization or compositor pixels.
+
+Fresh D/R each pass nine frame/WARP cases (all six old cases plus three), 47 owner cases, and application
+region three plus actual-close one. The application broad selection preserves all old cases and adds three.
+The unchanged policy fixture remains intermittently red at its first draw under WPF lock pressure, also
+reproduced on the retained old products; subsequent unchanged and diagnostic passes do not establish a fix.
+The new physical input round fails cursor restoration, so further physical clicks are suspended. These are
+separate open evidence boundaries. A fresh independent actual-source/data review is pending. See the
+[bounded integration report](../../../../reference-runtime/full-product-z5-inspector-defect-region-root-results-r1.md).
+
+
+### Actual review correction: Inspector helper faces (2026-10-25)
+
+The independent application review found that the actual sphere node still selects ordinary Mesh/Diffuse,
+whose depth comparison is LEQUAL. Native helper faces require LESS/write with the existing positive offset.
+The earlier region/source statement that every helper depth state was preserved is therefore withdrawn.
+The ordinary diffuse pass must stay unchanged; a scoped application helper-face pass and two differentiating
+regressions are being prepared. This does not alter the earlier shared-depth, width or non-Inspector FXAA checks.
+The intermittent first lock-pressure draw and failed physical cursor restoration remain separate open evidence.
+
+
+### Application helper-face strict-depth correction (2026-10-25)
+
+The application now binds only its Inspector sphere node to a copied Mesh/Diffuse pass with LESS/write.
+Shared shaders, input layout, blend/raster/stencil/topology, unlit vertex colors and positive offset remain;
+ordinary Mesh/Diffuse stays LEQUAL. The existing line pass layout is null and its copied contract is preserved.
+Two actual-node/WARP regressions fail before and pass after per D/R: depth selection and first-white equal-depth
+pixel. Existing region three, close one and broad 1,381 cases pass per configuration. The temporary host's
+missing fixture content was corrected without changing library/application code or test expectations.
+The fresh independent R2 has confirmed source and data; its final report is pending. Intermittent WPF
+lock-pressure, physical cursor cleanup, native/MIL pixels and complete product acceptance remain open.
+No toolkit source changed in this correction; the last generated source graph remains current.
+
+
+The final independent helper-face R2 review and parent full read are complete: no new source or data-integrity
+findings. The actual application LESS selection and two D/R red-to-green cases answer P2-01; ordinary library
+passes remain unchanged. Open lock-pressure, physical-input and complete-product evidence remains separate.

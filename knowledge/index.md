@@ -126,3 +126,18 @@ R1 preserves its observed46/47 failure; R2 passes owner47/47 and policy9/9 in bo
 The real application repair/history/save-reopen/close path passes. R3 also retains derived application
 nodes before preparation; two new D/R regressions and actual Closed disposal pass, independent review
 has no new P1/P2/P3. Full asynchronous-MIL/product acceptance remains open.
+
+
+* [Shared post-scene regions](architecture/wpf-composition-contracts.md#shared-post-scene-inspector-regions-2026-10-25) - Existing frame/depth/shader owners, native-width caller transport and D/R render checks; intermittent lock-pressure and physical-input evidence remain open.
+
+
+Actual Inspector review found application helper faces still select ordinary LEQUAL instead of native LESS.
+See the [correction boundary](architecture/wpf-composition-contracts.md#actual-review-correction-inspector-helper-faces-2026-10-25); no source/product closure.
+
+
+The application [strict helper-face correction](architecture/wpf-composition-contracts.md#application-helper-face-strict-depth-correction-2026-10-25)
+passes two D/R red-to-green regressions while ordinary diffuse and library code remain unchanged. Final R2 report pending.
+
+
+The final independent application helper-face R2 review is complete without new source/data-integrity findings;
+open lock-pressure, cursor cleanup and full-product limits remain separate.

@@ -413,7 +413,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         var preparedNodes = renderer.PrepareScene(roots, updateContext, effectsManager, renderHost, canContinue);
         if (canContinue?.Invoke() == false) return 0;
         foreach (var node in preparedNodes) {
-            if (FindScreenSpacedAncestor(node) is not null) continue;
+            if (FindScreenSpacedAncestor(node) is not null || HasPostSceneGroupAncestor(node)) continue;
             if (node is ScreenSpacedNode screenSpaced) {
                 screenSpacedNodes.Add(screenSpaced);
             } else if (node is EnvironmentMapNode environment) {
@@ -676,17 +676,17 @@ internal sealed class D3D12FrameRenderer : IDisposable {
             depthStencilBuffer ?? throw new InvalidOperationException("The depth/stencil resource is unavailable"),
             currentDepthStencilView, target.Width, target.Height
         );
-        recorded += RenderScreenSpaced(
-            currentContext,
-            renderer,
-            camera,
-            in transforms,
-            in target,
-            dpiScale,
-            currentDepthStencilView,
-            lights,
-            environmentMap
-        );
+        var hasPostSceneGroup = false;
+        foreach (var node in postEffectNodes) {
+            if (node is not GroupNode { IsDisposed: false, Visible: true }) continue;
+            hasPostSceneGroup = true;
+            break;
+        }
+        if (!hasPostSceneGroup)
+            recorded += RenderScreenSpaced(
+                currentContext, renderer, camera, in transforms, in target, dpiScale,
+                currentDepthStencilView, lights, environmentMap
+            );
         if (fxaaLevel != FXAALevel.None)
             renderer.RenderFxaa(
                 currentContext,
@@ -699,6 +699,17 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 target.Width,
                 target.Height
             );
+        if (hasPostSceneGroup) {
+            if (canContinue?.Invoke() == false) return 0;
+            recorded += RenderPostSceneGroups(
+                currentContext, renderer, in transforms, in target,
+                currentDepthStencilView, lights, environmentMap
+            );
+            recorded += RenderScreenSpaced(
+                currentContext, renderer, camera, in transforms, in target, dpiScale,
+                currentDepthStencilView, lights, environmentMap
+            );
+        }
         if (roots2D is not null) {
             if (canContinue?.Invoke() == false) return 0;
             var context2D = GetRenderContext2D(in target, dpiScale);
@@ -733,6 +744,58 @@ internal sealed class D3D12FrameRenderer : IDisposable {
 
         if (canContinue?.Invoke() == false) return 0;
         D3D12Profiler.ReportDescriptors(renderer.SceneBindings, renderer.EffectBindings, ResourceHeap, SamplerHeap);
+        return recorded;
+    }
+
+    /// <summary>Identifies geometry owned by an existing post-effect group instead of the ordinary scene pass.</summary>
+    /// <param name="node">The current prepared node.</param>
+    /// <returns>Whether an ancestor owns the post-scene draw interval.</returns>
+    private static bool HasPostSceneGroupAncestor(SceneNode node) {
+        for (var parent = node.Parent; parent is not null; parent = parent.Parent)
+            if (parent is GroupNode { RenderType: RenderType.PostEffect })
+                return true;
+        return false;
+    }
+
+    /// <summary>Records post-effect groups in traversal order, retaining the scene's existing depth values.</summary>
+    /// <param name="context">The recording context.</param>
+    /// <param name="renderer">The existing scene renderer and resource caches.</param>
+    /// <param name="transforms">The unchanged main-camera transform.</param>
+    /// <param name="target">The borrowed presentation target.</param>
+    /// <param name="depthView">The existing scene DSV; no depth or stencil clear is issued.</param>
+    /// <param name="lights">The existing generic light payload.</param>
+    /// <param name="environmentMap">The existing optional environment map.</param>
+    /// <returns>The number of recorded geometry draws.</returns>
+    private int RenderPostSceneGroups(
+        SilkD3D12CommandContext context, SilkD3D12SceneRenderer renderer,
+        in GlobalTransformStruct transforms, in D3D12FrameTarget target,
+        SilkD3D12Descriptor depthView, LightsBufferModel lights, TextureModel? environmentMap
+    ) {
+        var recorded = 0;
+        foreach (var root in postEffectNodes) {
+            if (root is not GroupNode || root.IsDisposed || !root.Visible) continue;
+            screenSpacedOpaqueNodes.Clear();
+            screenSpacedTraversal.Clear();
+            for (var index = root.Items.Count - 1; index >= 0; index--)
+                screenSpacedTraversal.Push(root.Items[index]);
+            while (screenSpacedTraversal.TryPop(out var node)) {
+                if (node.IsDisposed || !node.Visible) continue;
+                if ((node.RenderType is RenderType.Opaque or RenderType.Transparent)
+                    && node is not GeometryNode { GeometryValid: false })
+                    screenSpacedOpaqueNodes.Add(node);
+                for (var index = node.Items.Count - 1; index >= 0; index--)
+                    screenSpacedTraversal.Push(node.Items[index]);
+            }
+            var depth = depthStencilBuffer
+                ?? throw new InvalidOperationException("The depth/stencil buffer is unavailable.");
+            context.Transition(depth, ResourceStates.DepthWrite);
+            context.SetRenderTargets(target.RenderTargetView, depthView);
+            context.SetViewport(target.Width, target.Height);
+            context.SetScissorRectangle(0, 0, (int)target.Width, (int)target.Height);
+            var frustum = new BoundingFrustum(transforms.ViewProjection);
+            recorded += renderer.RenderVisible(context, screenSpacedOpaqueNodes, resolvePass,
+                in transforms, false, ref frustum, lights, environmentMap, resolveBoneSkinningPass);
+        }
         return recorded;
     }
 

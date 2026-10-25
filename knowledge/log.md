@@ -719,3 +719,37 @@ Graphify regenerated this composed batch: 979 files, 9,218 nodes, 16,366 edges a
   and two measured D/R red-to-green cases close that gap. The stronger case checks actual Closed/disposal.
 - Fresh independent R3 review reports no new P1/P2/P3; old input failures and product/MIL limits remain.
   The previously recorded source graph remains current: this final update changes documentation only.
+
+
+## 2026-10-25 - Preserve shared scene depth for actual Inspector regions
+
+- Route the existing post-scene group through source regions, helper lines and helper faces without a depth clear.
+- Preserve non-Inspector ScreenSpaced/FXAA order and reuse the shared PHONG lighting calculation/upload owner.
+- D/R nine frame cases retain all six old cases and add three; owner 47 cases pass. Actual application region
+  three and close one pass per configuration. No native GL/D3D AA/bias or complete product acceptance.
+- Record the unchanged intermittent first lock-pressure draw and failed physical cursor restoration separately;
+  fresh actual source/data review remains pending, with no weakened assertions or speculative product fix.
+- Regenerate the source graph: 7,756 nodes / 12,431 edges / 722 communities, zero model tokens; unchanged builder.
+
+
+## 2026-10-25 - Record actual Inspector helper-face depth finding
+
+- Independent actual review traced the current sphere node to ordinary Mesh/Diffuse LEQUAL instead of native LESS.
+- Preserve the global diffuse contract; a scoped application pass and first regression measurements are pending.
+- Earlier full helper-depth preservation is withdrawn; shared depth, width and FXAA evidence remains bounded.
+- Lock-pressure and cursor-cleanup evidence stays open; no new toolkit code or run claim in this update.
+
+
+## 2026-10-25 - Verify the application helper-face LESS correction
+
+- Application-only technique binding copies Diffuse with LESS/write; global Diffuse remains LEQUAL.
+- Two actual pass/equal-depth regressions turn red to green per D/R; region three, close one and broad 1,381 pass.
+- Missing TEMP-host inputs were added through MSBuild content links; host DLL/PDB remain unchanged.
+- Fresh independent R2 source/data checks completed; formal report pending. WPF/input and full-product limits stay open.
+- No toolkit code delta, so the previously generated source graph remains current.
+
+
+## 2026-10-25 - Close the bounded independent helper-face R2 review
+
+- Full actual-source/data review and parent read confirm the application LESS correction without new findings.
+- Preserve open lock-pressure, physical cursor-cleanup and complete-product boundaries; no code or rerun in this update.

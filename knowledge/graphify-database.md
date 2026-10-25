@@ -82,3 +82,13 @@ collector/export adapters; the first missing-export-adapter error is retained se
 configuration remain unchanged, normalized paths contain no staging prefix and the staging corpus is removed.
 No MSBuild extraction or semantic/compiler correctness is inferred from this graph. Evidence:
 TEMP/meshmixer-isolated-build-20261025/inspector-close-detach-source-graph-r2-results.json and its log.
+
+
+# Inspector region source snapshot (2026-10-25)
+
+The unchanged existing builder was rerun after the scoped frame/shader/test changes: 1,076 prepared files,
+1,019 CSharp files, 7,756 nodes, 12,431 edges and 722 communities, with zero model tokens. Installed 0.7.13
+uses the same process-local collector/export compatibility adapters; imported cache aliases are disabled.
+Normalized outputs contain no staging prefix, and the temporary corpus is removed. No installation,
+configuration or builder mutation occurred. This graph does not establish CSharp/compiler or MSBuild coverage.
+Evidence: TEMP/meshmixer-isolated-build-20261025/inspector-region-source-graph-r1-results.json and its log.

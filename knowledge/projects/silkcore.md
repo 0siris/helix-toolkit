@@ -218,3 +218,53 @@ these entry points; the originally crashing WPF attachment case keeps its origin
 The complete normal Core suite passes469/469, including36 path/line cases and the six invalidation cases.
 The path tests exercise genuine native geometry and fenced WARP readback. They do not establish Original
 OpenGL pixels, inherited line caps/blending, application Window preview delivery or physical-input acceptance.
+
+## Fence-reusable collision publications
+
+At the completed host frame boundary, the scene renderer updates candidate uploads and transform constants
+in place when immutable mesh identities, live shared owners, active batch slots and existing capacities match.
+The active candidate count controls dispatch and shader tail guarding independently of allocated capacity.
+Output, counter, indirect arguments, mesh uploads and descriptor ranges survive these publications; compute
+output is invalidated for the next draw. Within a recorded frame, publication changes still allocate an
+independent generation and defer its release until the host fence. Geometry, owner or batch-layout changes
+and capacity growth still replace the complete group. A failed upload disposes the unusable group before
+propagating the infrastructure failure, preventing later reuse of partial data.
+`IntersectionPublicationReuseTests` checks real small WARP allocations and disposal without recording commands
+or submitting a queue; it does not establish physical GPU behavior or cure an application freeze.
+
+## Empty annotation lines
+
+`SilkD3D12PointLineBuffers.Prepare(DefaultLineGeometryBufferModel)` accepts absent/empty line indices
+as no segments and returns empty vertex and index streams. This includes open builders with zero or one
+marker and cleared lines retaining old positions. Zero vertices prevent a non-indexed draw fallback.
+Actual indices still require positions, complete endpoint pairs and valid references; missing geometry
+remains invalid. CPU-only `D3D12LinePreparationTests` covers empty/populated/repopulated topology and
+invalid indices without a native device. Minimum upload sizes and capacity-driven recreation stay unchanged.
+
+## Collision dispatch dimensions and output bound
+
+The native intersection adapter rejects nonempty batches exceeding 65,535 groups of 512 threads before
+allocating native resources. The same checked calculation records dispatch dimensions. Valid candidate
+selection, original shader code and output semantics remain unchanged. Append capacity is the sum of
+active candidates; each valid candidate appends at most one segment. Reset, UAV barriers, counter copy
+and indirect drawing stay GPU-side. CPU-only boundary tests cover empty input, tail rounding, the largest
+supported count and excessive counts without allocating candidate arrays or submitting GPU commands.
+This validation does not bound GPU execution time or establish the cause of an application freeze.
+
+## Billboard preparation and descriptor ownership
+
+The [billboard resource contract](billboard-resources.md) documents preparation before texture reads,
+explicit null t0 bindings and descriptor clearing before registration release. Native vertex consumption
+uses the same prepared geometry. Existing framefence reclamation, shaders and public APIs remain intact.
+CPU/source regression evidence does not replace native descriptor, glyph or WPF presentation acceptance.
+
+## Bounded collision diagnostics and rejected publications
+
+`MeshIntersectionRenderCore` marks oversized publications unsupported before renderer upload reuse or
+allocation. The affected category records no draw, logs entry into the rejected state, and can resume
+with the next valid publication. Native constructor/recording validation remains a second boundary.
+No truncation, splitting, scheduling change or claim of no collision. Workload diagnostics retain exact
+counts/groups/capacity while emitting only on scale/capacity/batch changes or slow preparation, at most
+once per second per core. WPF reports slow submission and one pending-fence warning after one second
+per frame, plus failure fence/device metadata, without adding waits or readbacks. A consumer must bind
+`LoggerLib` to its existing file logger using the existing `SerilogLoggerLib` adapter (Helix does so).

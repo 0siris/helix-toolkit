@@ -53,9 +53,6 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     /// <summary>The current owned pass catalog.</summary>
     private D3D12ScenePassCatalog? passCatalog;
 
-    /// <summary>The reusable explicit stack for screen-spaced subtree traversal.</summary>
-    private readonly Stack<SceneNode> screenSpacedTraversal = new();
-
     /// <summary>The Resolve selector cached for the current catalog instance.</summary>
     private Func<SceneNode, ShaderPass?> resolvePass = null!;
 
@@ -152,9 +149,9 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     private readonly FastList<SceneNode> postEffectNodes = [];
 
     /// <summary>
-    ///     Reused screen-spaced root nodes in scene traversal order.
+    ///     Reused overlay roots and descendants in flattened scene traversal order.
     /// </summary>
-    private readonly FastList<ScreenSpacedNode> screenSpacedNodes = [];
+    private readonly FastList<SceneNode> screenSpacedNodes = [];
 
     /// <summary>
     ///     Reused opaque children of the current screen-spaced root.
@@ -413,10 +410,11 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         var preparedNodes = renderer.PrepareScene(roots, updateContext, effectsManager, renderHost, canContinue);
         if (canContinue?.Invoke() == false) return 0;
         foreach (var node in preparedNodes) {
-            if (FindScreenSpacedAncestor(node) is not null) continue;
-            if (node is ScreenSpacedNode screenSpaced) {
-                screenSpacedNodes.Add(screenSpaced);
-            } else if (node is EnvironmentMapNode environment) {
+            if (IsOverlayRoot(node) || FindOverlayAncestor(node) is not null) {
+                screenSpacedNodes.Add(node);
+                continue;
+            }
+            if (node is EnvironmentMapNode environment) {
                 environmentMap = environment.Texture;
             } else if (node is ShadowMapNode shadow) {
                 shadowNode ??= shadow;
@@ -736,7 +734,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         return recorded;
     }
 
-    /// <summary>Records screen-spaced roots with their fixed cameras and corner viewports.</summary>
+    /// <summary>Records ordered TopMost and screen-space segments with their original camera and depth boundaries.</summary>
     /// <param name="context">The open command context.</param>
     /// <param name="renderer">The shared native scene renderer.</param>
     /// <param name="camera">The main viewport camera.</param>
@@ -761,23 +759,37 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         var currentDepthStencilBuffer = depthStencilBuffer
                                         ?? throw new InvalidOperationException("The depth/stencil buffer is unavailable.");
         var recorded = 0;
-        foreach (var root in screenSpacedNodes) {
-            if (root.RenderCore is not ScreenSpacedMeshRenderCore screenCore ||
+        for (var index = 0; index < screenSpacedNodes.Count;) {
+            var root = screenSpacedNodes[index++];
+            var end = index;
+            while (end < screenSpacedNodes.Count && !IsOverlayRoot(screenSpacedNodes[end])) end++;
+            var isTopMost = root is TopMostGroupNode;
+            var screenTransform = mainTransform;
+            var viewport = new ViewportF(0, 0, target.Width, target.Height);
+            if (!isTopMost && (root.RenderCore is not ScreenSpacedMeshRenderCore screenCore ||
                 !screenCore.TryCreateD3D12Transform(
                     camera,
                     in mainTransform,
                     target.Width,
                     target.Height,
                     dpiScale,
-                    out var screenTransform,
-                    out var viewport
-                ))
+                    out screenTransform,
+                    out viewport
+                ))) {
+                index = end;
                 continue;
+            }
 
             screenSpacedOpaqueNodes.Clear();
             screenSpacedTransparentNodes.Clear();
             postEffectCandidates.Clear();
-            CollectScreenSpacedNodes(root);
+            for (; index < end; index++) {
+                var node = screenSpacedNodes[index];
+                // Original TopMost children retain traversal order and their own material depth states.
+                if (isTopMost || node.RenderType == RenderType.Opaque) screenSpacedOpaqueNodes.Add(node);
+                else if (node.RenderType == RenderType.Transparent) screenSpacedTransparentNodes.Add(node);
+                if (!isTopMost && node.HasAnyPostEffect) postEffectCandidates.Add(node);
+            }
 
             var scissorLeft = Math.Max(0, (int) viewport.X);
             var scissorTop = Math.Max(0, (int) viewport.Y);
@@ -790,7 +802,8 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 (int) Math.Ceiling(viewport.Y + viewport.Height)
             );
             if (scissorRight <= scissorLeft || scissorBottom <= scissorTop) continue;
-            context.ClearDepthStencil(currentDepthStencilBuffer, currentDepthStencilView);
+            context.SetRenderTargets(target.RenderTargetView, currentDepthStencilView);
+            context.ClearDepthStencil(currentDepthStencilBuffer, currentDepthStencilView, 1, 0, !isTopMost);
             context.SetViewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
             context.SetScissorRectangle(scissorLeft, scissorTop, scissorRight, scissorBottom);
             var screenFrustum = new BoundingFrustum(screenTransform.ViewProjection);
@@ -825,34 +838,24 @@ internal sealed class D3D12FrameRenderer : IDisposable {
                 );
         }
 
+        context.SetRenderTargets(target.RenderTargetView, currentDepthStencilView);
         context.SetViewport(target.Width, target.Height);
         return recorded;
     }
 
-    /// <summary>Finds the screen-spaced group that owns a flattened scene node.</summary>
-    /// <param name="node">The flattened scene node.</param>
-    /// <returns>The owning screen-spaced ancestor, or null for an ordinary node.</returns>
-    private static ScreenSpacedNode? FindScreenSpacedAncestor(SceneNode node) {
-        for (var parent = node.Parent; parent is not null; parent = parent.Parent)
-            if (parent is ScreenSpacedNode screenSpaced)
-                return screenSpaced;
-        return null;
-    }
+    /// <summary>Identifies original overlay state boundaries, respecting disabled TopMost groups.</summary>
+    /// <param name="node">The scene node.</param>
+    /// <returns>Whether the node begins an overlay segment.</returns>
+    internal static bool IsOverlayRoot(SceneNode node) =>
+        node is ScreenSpacedNode or TopMostGroupNode { EnableTopMost: true };
 
-    /// <summary>Classifies visible descendants without allocating traversal iterators or delegates.</summary>
-    /// <param name="root">The screen-spaced subtree root.</param>
-    private void CollectScreenSpacedNodes(ScreenSpacedNode root) {
-        screenSpacedTraversal.Clear();
-        for (var index = root.Items.Count - 1; index >= 0; index--)
-            screenSpacedTraversal.Push(root.Items[index]);
-        while (screenSpacedTraversal.TryPop(out var node)) {
-            if (!node.Visible || node is ScreenSpacedNode) continue;
-            if (node.RenderType == RenderType.Opaque) screenSpacedOpaqueNodes.Add(node);
-            else if (node.RenderType == RenderType.Transparent) screenSpacedTransparentNodes.Add(node);
-            if (node.HasAnyPostEffect) postEffectCandidates.Add(node);
-            for (var index = node.Items.Count - 1; index >= 0; index--)
-                screenSpacedTraversal.Push(node.Items[index]);
-        }
+    /// <summary>Finds the closest enabled overlay owner without changing descendant render types.</summary>
+    /// <param name="node">The flattened scene node.</param>
+    /// <returns>The owning overlay ancestor, or null for an ordinary node.</returns>
+    internal static SceneNode? FindOverlayAncestor(SceneNode node) {
+        for (var parent = node.Parent; parent is not null; parent = parent.Parent)
+            if (IsOverlayRoot(parent)) return parent;
+        return null;
     }
 
     /// <summary>Gets or replaces the layout context only when its immutable dimensions or DPI change.</summary>

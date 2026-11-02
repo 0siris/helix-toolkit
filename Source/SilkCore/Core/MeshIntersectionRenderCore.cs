@@ -211,6 +211,39 @@ public class MeshIntersectionRenderCore : PointLineRenderCore {
         }
     } = true;
 
+    /// Whether the current publication fits native dimensions.
+    internal bool IsDispatchSupported { get; private set; } = true;
+
+    /// Last logged workload scale, retained across pose publications.
+    private (int Bucket, uint Capacity, int Batches) loggedWorkload = (-1, 0, 0);
+
+    /// Monotonic time of the last workload diagnostic.
+    private long lastWorkloadLog;
+
+    /// <summary>Logs changed workload scale before recording, at most once per second per core.</summary>
+    /// <param name="capacity">Actual native output capacity.</param>
+    /// <param name="preparationMs">CPU time preparing native resources for this draw.</param>
+    internal void LogDispatch(uint capacity, double preparationMs) {
+        var total = Inputs.Sum(input => (long)input.Candidates.Length);
+        var bucket = total == 0 ? 0 : System.Numerics.BitOperations.Log2((ulong)total) + 1;
+        var key = (bucket, capacity, Inputs.Count);
+        if (key == loggedWorkload && preparationMs < 100 ||
+            lastWorkloadLog != 0 && System.Diagnostics.Stopwatch.GetElapsedTime(lastWorkloadLog).TotalSeconds < 1)
+            return;
+        loggedWorkload = key;
+        lastWorkloadLog = System.Diagnostics.Stopwatch.GetTimestamp();
+        LoggerLib.Logger.Info(
+            "Intersection dispatch candidates {Candidates} groupsX {GroupsX} total {Total} capacity {Capacity} nativePreparationMs {PreparationMs}",
+            propertyValues: [Inputs.Select(input => input.Candidates.Length).ToArray(),
+                Inputs.Select(input => ((long)input.Candidates.Length + 511) / 512).ToArray(),
+                total, capacity, preparationMs]);
+    }
+
+    /// <summary>Accepts empty batches and work within the unchanged one-dimensional shader contract.</summary>
+    /// <param name="count">Active candidate count.</param>
+    /// <returns>Whether the batch fits native dispatch dimensions.</returns>
+    internal static bool SupportsCandidateCount(uint count) => count <= 65535u * 512u;
+
     /// Gets the immutable current dispatch generation.
     internal IReadOnlyList<IntersectionDispatchInput> Inputs { get; private set; } = [];
 
@@ -224,6 +257,12 @@ public class MeshIntersectionRenderCore : PointLineRenderCore {
         cancellationToken.ThrowIfCancellationRequested();
         var snapshot = Array.AsReadOnly(inputs.ToArray());
         cancellationToken.ThrowIfCancellationRequested();
+        var supported = snapshot.All(input => SupportsCandidateCount((uint)input.Candidates.Length));
+        if (!supported && IsDispatchSupported)
+            LoggerLib.Logger.Error(
+                "Intersection publication rejected before GPU allocation; candidates {Candidates} limitPerBatch {Limit}",
+                propertyValues: [snapshot.Select(input => input.Candidates.Length).ToArray(), 65535u * 512u]);
+        IsDispatchSupported = supported;
         Inputs = snapshot;
         RaiseInvalidateRender();
     }

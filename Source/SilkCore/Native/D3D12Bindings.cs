@@ -28,6 +28,9 @@ internal sealed class SilkD3D12GraphicsBindings : IDisposable {
     /// Getters for texture properties whose replacement relinquishes the corresponding binding slot.
     private readonly Func<TextureModel?>?[] textureSources = new Func<TextureModel?>?[ShaderResourceCount];
 
+    /// <summary>The device that initialized these descriptors, used to clear relinquished texture slots.</summary>
+    private SilkD3D12Device? descriptorDevice;
+
     /// Gets or sets the predicate identifying the original material and render-core binding lifetime.
     internal Func<bool>? HasCurrentTextureOwner { get; set; }
 
@@ -79,7 +82,10 @@ internal sealed class SilkD3D12GraphicsBindings : IDisposable {
     /// </summary>
     /// <param name="register">The shader register to release.</param>
     internal void ReleaseTexture(int register) {
-        textures[register]?.Dispose();
+        if (textures[register] is { } registration) {
+            descriptorDevice?.CreateNullShaderResourceView(ShaderResource(register));
+            registration.Dispose();
+        }
         textures[register] = null;
         textureSources[register] = null;
     }
@@ -259,6 +265,7 @@ internal sealed class SilkD3D12GraphicsBindings : IDisposable {
         SilkD3D12Resource fallbackConstants,
         params int[] ownedConstantBuffers
     ) {
+        descriptorDevice = device;
         for (var shaderRegister = 0; shaderRegister < ConstantBufferCount; shaderRegister++) {
             if (ownedConstantBuffers.Contains(shaderRegister)) continue;
             device.CreateConstantBufferView(fallbackConstants, ConstantBuffer(shaderRegister), 256);
@@ -1559,7 +1566,8 @@ internal sealed class SilkD3D12PointLineBindings : IDisposable {
                 _ => default
             };
             device.CreateSampler(bindings.Sampler(7), sampler);
-        }
+        } else
+            device.CreateNullShaderResourceView(bindings.ShaderResource(0));
         globalTransforms.Write(in transforms);
         pointLine.Write(in data);
     }

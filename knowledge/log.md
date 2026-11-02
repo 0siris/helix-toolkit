@@ -656,3 +656,42 @@ Graphify regenerated this composed batch: 979 files, 9,218 nodes, 16,366 edges a
 - Reused the existing paged table allocator for ordinary mesh/point-line and immutable peeling bindings, preserving fence ownership.
 - Added opt-in official PIX command-list regions, native object names and actual scene/effect/shared descriptor counters.
 - Added a headless pressure regression reproducing the original heap-exhaustion exception; visible performance capture is separate.
+
+## 2026-11-02 — Fence-reusable collision publications
+
+SilkCore and the bundle index document capacity-bounded candidate/pose updates after the host frame fence,
+whole-generation invalidation boundaries and native allocation-only WARP coverage without queue submission.
+
+## 2026-11-02 — Empty annotation lines
+
+* Prepare absent/empty line indices as zero segments with both streams empty.
+* Preserve actual index validation and reject incomplete endpoint pairs.
+* Add CPU-only zero/one/two-marker, cross, clear/repopulate and invalid-index regressions.
+* Record the preparation contract in SilkCore and the bundle index; no native device is required.
+
+## 2026-11-02 – Validate native collision dispatch dimensions
+
+* Check nonempty intersection batches before native allocation against 65,535 groups of 512 threads.
+* Preserve valid dispatches, original kernels, candidate selection, append and indirect draw semantics.
+* Build targeted test host: zero errors; twelve CPU-only cases pass without GPU work or visible UI.
+* Update the SilkCore concept and bundle index; no physical-GPU or application-freeze cure claimed.
+
+## 2026-11-02 – Bounded collision diagnosis
+
+SilkCore concept and index describe nonfatal oversized-publication rejection, workload metadata and
+bounded WPF fence/submission diagnostics through the existing consumer logger adapter. Native guards
+remain; no GPU reproduction or freeze repair is claimed.
+
+## 2026-11-02 – Billboard preparation and descriptor ownership
+
+Integrate the billboard resource concept into the shared index and SilkCore concept. Prepare the current
+geometry before texture binding, explicitly bind null t0 for absent textures and clear registered texture
+descriptors before releasing registrations. Fourteen targeted CPU/source billboard and line cases pass;
+native descriptor/glyph/WPF acceptance and application freeze recovery remain unverified.
+
+## 2026-11-02 – Original TopMost overlays
+
+SilkToolkit concept and index document restored TopMost classification and depth-only/main-camera state
+boundaries alongside existing ScreenSpace passes. CPU ownership and verified WARP text/mesh pixel tests
+cover inheritance, occlusion, transparent material selection and nested/multiple groups without windows.
+No changes to existing billboard lifetime or application label jobs; no visible presentation qualification.

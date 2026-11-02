@@ -1725,6 +1725,22 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         SilkD3D12Descriptor descriptor,
         float depth = 1,
         byte stencil = 0
+    ) => ClearDepthStencil(context, texture, descriptor, depth, stencil, true);
+
+    /// <summary>Clears depth with optional stencil preservation for original TopMost overlays.</summary>
+    /// <param name="context">The command context.</param>
+    /// <param name="texture">The depth/stencil texture.</param>
+    /// <param name="descriptor">The depth/stencil view.</param>
+    /// <param name="depth">The depth clear value.</param>
+    /// <param name="stencil">The stencil clear value.</param>
+    /// <param name="clearStencil">Whether stencil is cleared along with depth.</param>
+    internal static void ClearDepthStencil(
+        this SilkD3D12CommandContext context,
+        SilkD3D12Resource texture,
+        SilkD3D12Descriptor descriptor,
+        float depth,
+        byte stencil,
+        bool clearStencil
     ) {
         context.AsGuardNotNull();
         texture.AsGuardNotNull();
@@ -1740,7 +1756,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         if (texture.State != ResourceStates.DepthWrite)
             throw new InvalidOperationException("The texture must be in depth-write state before clearing.");
 
-        var flags = texture.Description.Format is Format.FormatD24UnormS8Uint or Format.FormatD32FloatS8X24Uint
+        var flags = clearStencil && texture.Description.Format is
+            (Format.FormatD24UnormS8Uint or Format.FormatD32FloatS8X24Uint)
             ? ClearFlags.ClearFlagDepth | ClearFlags.ClearFlagStencil
             : ClearFlags.ClearFlagDepth;
         context.CommandList.ClearDepthStencilView(descriptor.CpuHandle,

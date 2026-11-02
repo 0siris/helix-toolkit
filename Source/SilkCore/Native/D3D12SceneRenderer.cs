@@ -514,7 +514,15 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         ReleaseDisposedResources(screenCaptureResources);
         ReleaseDisposedResources(intersectionResources);
         foreach (var pair in intersectionResources) {
-            if (pair.Key.IsAttached) continue;
+            if (pair.Key.IsAttached) {
+                if (pair.Key.IsDispatchSupported && !ReferenceEquals(pair.Value.Inputs, pair.Key.Inputs)) {
+                    var started = System.Diagnostics.Stopwatch.GetTimestamp();
+                    if (pair.Value.TryUpdate(pair.Key.Inputs))
+                        pair.Key.LogDispatch(pair.Value.Capacity,
+                            System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+                }
+                continue;
+            }
             intersectionResources.Remove(pair.Key);
             pair.Value.Dispose();
         }
@@ -2074,7 +2082,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         in GlobalTransformStruct transforms,
         SilkD3D12PointLineBindings? effectBindings = null
     ) {
-        if (core.D3D12Material is null) return false;
+        if (core.D3D12Material is null || !core.IsDispatchSupported) return false;
+        var preparationStarted = System.Diagnostics.Stopwatch.GetTimestamp();
         if (!intersectionResources.TryGetValue(core, out var native) ||
             !ReferenceEquals(native.Inputs, core.Inputs) || !native.CanReuse()) {
             intersectionRoot ??= Device.CreateDefaultRootSignature();
@@ -2089,6 +2098,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         var bindings = effectBindings ?? GetBindings(core);
         var model = new PointLineModelStruct { World = Matrix.Identity };
         bindings.Update(context, resources, in transforms, in model, core.D3D12Material);
+        core.LogDispatch(native.Capacity,
+            System.Diagnostics.Stopwatch.GetElapsedTime(preparationStarted).TotalMilliseconds);
         return native.Render(context, pass, bindings);
     }
 

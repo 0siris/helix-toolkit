@@ -707,15 +707,20 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     /// <summary>
     ///     Validates and prepares line vertices and indices.
     /// </summary>
-    private static (LinesVertex[] Vertices, int[] Indices) Prepare(DefaultLineGeometryBufferModel source) {
+    /// <param name="source">The existing default line buffer model.</param>
+    /// <returns>Indexed line data, or empty streams when no segments exist.</returns>
+    internal static (LinesVertex[] Vertices, int[] Indices) Prepare(DefaultLineGeometryBufferModel source) {
         source.AsGuardNotNull();
         ObjectDisposedException.ThrowIf(source.IsDisposed, source);
         if (source.Geometry is not LineGeometry3D geometry)
             throw new InvalidOperationException("The buffer model must contain line geometry.");
+        // An open LineBuilder with fewer than two points has no segments to draw.
+        if (geometry.Indices is not {Count: > 0} indices)
+            return ([], []);
         if (geometry.Positions is not {Count: > 0} positions)
             throw new InvalidOperationException("Line geometry requires positions.");
-        if (geometry.Indices is not {Count: > 0} indices)
-            throw new InvalidOperationException("Line geometry requires indices.");
+        if (indices.Count % 2 != 0)
+            throw new ArgumentException("Line indices must contain endpoint pairs", nameof(source));
         ValidateIndices(indices, positions.Count, source);
         return (DefaultLineGeometryBufferModel.BuildVertexArray(geometry), indices.ToArray());
     }
@@ -740,14 +745,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     /// <returns>The prepared billboard vertices.</returns>
     private static BillboardVertex[] Prepare(DefaultBillboardBufferModel source) {
         source.AsGuardNotNull();
-        ObjectDisposedException.ThrowIf(source.IsDisposed, source);
-        if (source.Geometry is not BillboardBase geometry)
-            throw new InvalidOperationException("The buffer model must contain billboard geometry.");
-        if (!geometry.TryPrepareVerticesForD3D12())
-            geometry.DrawTexture(source.EffectsManager
-                ?? throw new InvalidOperationException("Billboard geometry requires an effects manager."));
-        if (!geometry.IsInitialized)
-            throw new InvalidOperationException("Billboard geometry could not be initialized.");
+        var geometry = source.PrepareForD3D12();
         return [.. geometry.BillboardVertices];
     }
 

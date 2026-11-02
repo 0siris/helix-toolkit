@@ -17,6 +17,187 @@ namespace SilkCore.Tests;
 /// <summary>Exercises actual selected-pair GPU intersections and indirect line rendering without desktop windows.</summary>
 /// <param name="output">Receives warm allocation totals after the measured regions.</param>
 public sealed class MeshIntersectionGpuTests(ITestOutputHelper output) {
+    /// <summary>Checks the CPU payload against the packaged shader's b4 offset without creating a device.</summary>
+    [Fact]
+    public void FreezeIsolationMaterialAbi() {
+        var model = new PointLineModelStruct { World = Matrix.Identity };
+        var material = new LineMaterialCore { LineColor = new Color4(1, 0, 0, 1), Thickness = 3 };
+        var data = D3D12PointLineMaterialData.Create(in model, material);
+        var bytes = MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref data, 1)).ToArray();
+        var offset = Marshal.OffsetOf<PointLineMaterialStruct>(nameof(PointLineMaterialStruct.HasTexture)).ToInt32();
+        Assert.Equal(160, bytes.Length);
+        Assert.Equal(140, offset);
+        Assert.Equal(0, BitConverter.ToInt32(bytes, offset));
+        Assert.Equal(28, Marshal.SizeOf<IntersectionSegment>());
+        Assert.Equal(16, Marshal.SizeOf<IntersectionCandidate>());
+        Assert.Equal(144, Marshal.SizeOf<IntersectionTransforms>());
+    }
+
+    /// <summary>Shows that restoring CPU geometry restores sharing without proving native allocation identity.</summary>
+    [Fact]
+    public void FreezeIsolationBorrowedOwnerRoundTrip() {
+        var positions = new[] { new Vector3(0), new Vector3(1, 0, 0), new Vector3(0, 1, 0) };
+        var geometry = new MeshGeometry3D { Positions = new Vector3Collection(positions), Indices = new IntCollection([0, 1, 2]) };
+        using var owner = new DefaultMeshGeometryBufferModel { Geometry = geometry };
+        var snapshot = new IntersectionMeshSnapshot(positions, [0, 1, 2], owner);
+        Assert.True(snapshot.CanShare());
+        geometry.Indices = new IntCollection([0, 1, 2, 0, 2, 1]);
+        Assert.False(snapshot.CanShare());
+        geometry.Indices = new IntCollection([0, 1, 2]);
+        Assert.Same(owner, snapshot.RenderBuffer);
+        Assert.True(snapshot.CanShare());
+    }
+
+    /// <summary>Separates a single append/no-append dispatch from all graphics invocations.</summary>
+    /// <param name="intersects">Whether the triangles cross transversely.</param>
+    /// <param name="shared">Whether to use the typed borrowed-index kernel.</param>
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [Trait("Category", "Warp")]
+    public void FreezeIsolationCompute(bool intersects, bool shared) {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        VerifyIsolationWarp(device);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var heap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 1024, true);
+        using var samplers = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 128, true);
+        using var root = device.CreateDefaultRootSignature();
+        using var pipelines = new D3D12PipelineStateCache();
+        using var manager = new SilkD3D12ResourceManager(device, heap);
+        var firstPositions = new[] { new Vector3(-0.8f, -0.8f, 0.5f), new Vector3(0.8f, -0.8f, 0.5f), new Vector3(0, 0.8f, 0.5f) };
+        var secondPositions = new[] { new Vector3(-0.5f, 0, 0), new Vector3(0.5f, 0, 0), new Vector3(0, 0, 1) };
+        using var firstNode = new MeshNode {
+            Geometry = new MeshGeometry3D { Positions = new Vector3Collection(firstPositions), Indices = new IntCollection([0, 1, 2]) }
+        };
+        using var secondNode = new MeshNode {
+            Geometry = new MeshGeometry3D { Positions = new Vector3Collection(secondPositions), Indices = new IntCollection([0, 1, 2]) }
+        };
+        Assert.True(firstNode.Attach());
+        Assert.True(secondNode.Attach());
+        var first = new IntersectionMeshSnapshot(firstPositions, [0, 1, 2], renderNode: shared ? firstNode : null);
+        var second = new IntersectionMeshSnapshot(secondPositions, [0, 1, 2], renderNode: shared ? secondNode : null);
+        var pose = Matrix.Identity;
+        if (!intersects) pose.M41 = 4;
+        var input = new IntersectionDispatchInput(first, second, Matrix.Identity, pose, [new IntersectionCandidate(0, 0, 77)]);
+        using var native = new SilkD3D12IntersectionResources(device, heap, samplers, manager, [input], root, pipelines);
+        using var arguments = device.CreateBuffer(16, HeapType.Readback);
+        using var segments = device.CreateBuffer(28, HeapType.Readback);
+        context.Reset();
+        native.RecordCompute(context);
+        context.Transition(native.Arguments, ResourceStates.CopySource);
+        context.Transition(native.Segments, ResourceStates.CopySource);
+        context.CopyBuffer(arguments, 0, native.Arguments, 0, 16);
+        context.CopyBuffer(segments, 0, native.Segments, 0, 28);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(10));
+        var draw = MemoryMarshal.Cast<byte, uint>(arguments.Read(16)).ToArray();
+        Assert.Equal(new uint[] { 2, intersects ? 1u : 0u, 0, 0 }, draw);
+        if (intersects) {
+            var segment = MemoryMarshal.Read<IntersectionSegment>(segments.Read(28));
+            Assert.Equal(77, segment.PairId);
+            Assert.True(float.IsFinite(segment.Origin.X) && float.IsFinite(segment.Origin.Y) && float.IsFinite(segment.Origin.Z));
+            Assert.True(float.IsFinite(segment.End.X) && float.IsFinite(segment.End.Y) && float.IsFinite(segment.End.Z));
+            Assert.Equal(0.5f, segment.Origin.Z, 5);
+            Assert.Equal(0.5f, segment.End.Z, 5);
+            Assert.Equal(-0.25f, Math.Min(segment.Origin.X, segment.End.X), 5);
+            Assert.Equal(0.25f, Math.Max(segment.Origin.X, segment.End.X), 5);
+        }
+        device.ThrowIfDeviceRemoved();
+        output.WriteLine($"Compute only: shared={shared}, intersects={intersects}, args={string.Join(',', draw)}; fence complete");
+    }
+
+    /// <summary>Runs VS/GS/PS on one finite prefilled segment without any compute dispatch.</summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void FreezeIsolationDraw() {
+        using var device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
+        VerifyIsolationWarp(device);
+        using var queue = device.CreateCommandQueue();
+        using var context = device.CreateCommandContext();
+        using var fence = device.CreateFence();
+        using var heap = device.CreateDescriptorHeap(DescriptorHeapType.CbvSrvUav, 1024, true);
+        using var samplers = device.CreateDescriptorHeap(DescriptorHeapType.Sampler, 128, true);
+        using var root = device.CreateDefaultRootSignature();
+        using var pipelines = new D3D12PipelineStateCache();
+        using var manager = new SilkD3D12ResourceManager(device, heap);
+        using var native = new SilkD3D12IntersectionResources(device, heap, samplers, manager, [], root, pipelines);
+        using var bindings = new SilkD3D12PointLineBindings(device, heap, samplers);
+        using var catalog = new D3D12ScenePassCatalog(device, Format.FormatR8G8B8A8Unorm, Format.FormatD32FloatS8X24Uint);
+        using var node = new GpuLineNode();
+        var material = new LineMaterialCore { LineColor = new Color4(1, 0, 0, 1), Thickness = 3 };
+        node.Material = material;
+        Assert.True(node.Attach());
+        var pass = catalog.Resolve(node)!;
+        Assert.NotNull(pass);
+        using var rtvHeap = device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 1);
+        using var rtv = rtvHeap.Allocate();
+        using var target = device.CreateRenderTargetTexture2D(32, 32, Format.FormatR8G8B8A8Unorm);
+        device.CreateRenderTargetView(target, rtv);
+        using var dsvHeap = device.CreateDescriptorHeap(DescriptorHeapType.Dsv, 1);
+        using var dsv = dsvHeap.Allocate();
+        using var depth = device.CreateDepthStencilTexture2D(32, 32, Format.FormatD32FloatS8X24Uint);
+        device.CreateDepthStencilView(depth, dsv);
+        var footprint = device.GetCopyableFootprint(target, out var size);
+        using var pixels = device.CreateBuffer(size, HeapType.Readback);
+        using var upload = device.CreateBuffer(44, HeapType.Upload);
+        var segment = new IntersectionSegment { Origin = new Vector3(-0.25f, 0, 0.5f), End = new Vector3(0.25f, 0, 0.5f), PairId = 77 };
+        upload.Write(MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref segment, 1)));
+        upload.Write(MemoryMarshal.AsBytes(new uint[] { 2, 1, 0, 0 }.AsSpan()), 28);
+        var transforms = new GlobalTransformStruct {
+            View = Matrix.Identity, Projection = Matrix.Identity, ViewProjection = Matrix.Identity,
+            Viewport = new Vector4(32, 32, 1f / 32, 1f / 32), Resolution = new Vector4(32, 32, 1f / 32, 1f / 32),
+            EyePos = new Vector3(0, 0, 2), DpiScale = 1
+        };
+        var model = new PointLineModelStruct { World = Matrix.Identity };
+        context.Reset();
+        context.Transition(native.Segments, ResourceStates.CopyDest);
+        context.Transition(native.Arguments, ResourceStates.CopyDest);
+        context.CopyBuffer(native.Segments, 0, upload, 0, 28);
+        context.CopyBuffer(native.Arguments, 0, upload, 28, 16);
+        context.Transition(target, ResourceStates.RenderTarget);
+        context.ClearRenderTarget(target, rtv, [0, 0, 1, 1]);
+        context.ClearDepthStencil(depth, dsv, 1);
+        context.SetRenderTargets(rtv, dsv);
+        context.SetViewport(32, 32);
+        bindings.Update(context, manager, in transforms, in model, material);
+        Assert.True(native.RecordDraw(context, pass, bindings));
+        context.Transition(target, ResourceStates.CopySource);
+        context.CopyTextureToBuffer(pixels, target, in footprint);
+        context.Close();
+        queue.Execute(context);
+        fence.Wait(queue.Signal(fence), TimeSpan.FromSeconds(10));
+        var pixel = pixels.Read(4, footprint.Offset + 16UL * footprint.Footprint.RowPitch + 16UL * 4);
+        Assert.True(pixel[0] > 200 && pixel[2] < 40, $"Expected red segment, got {string.Join(',', pixel)}");
+        device.ThrowIfDeviceRemoved();
+        output.WriteLine("Draw only: args=2,1,0,0, red center pixel; fence complete");
+    }
+
+    /// <summary>Fails before submission unless the actual device LUID resolves to Microsoft's software adapter.</summary>
+    /// <param name="device">The explicitly requested WARP device; no hardware fallback is permitted.</param>
+    private unsafe void VerifyIsolationWarp(SilkD3D12Device device) {
+        Silk.NET.Core.Native.ComPtr<IDXGIFactory4> factory = default;
+        Silk.NET.Core.Native.ComPtr<IDXGIAdapter1> adapter = default;
+        try {
+            Silk.NET.Core.Native.SilkMarshal.ThrowHResult(SilkD3D12DeviceFactory.DxgiApi.CreateDXGIFactory2(0, out factory));
+            var luid = device.NativeDevice.GetAdapterLuid();
+            Silk.NET.Core.Native.SilkMarshal.ThrowHResult(factory.EnumAdapterByLuid(luid, out adapter));
+            AdapterDesc1 description;
+            Silk.NET.Core.Native.SilkMarshal.ThrowHResult(adapter.GetDesc1(&description));
+            Assert.NotEqual(0u, description.Flags & (uint)AdapterFlag.Software);
+            Assert.Equal(0x1414u, description.VendorId);
+            Assert.Equal(0x8cu, description.DeviceId);
+            output.WriteLine($"Before submission: WARP software flag, vendor={description.VendorId:X}, device={description.DeviceId:X}");
+        } finally {
+            adapter.Dispose();
+            factory.Dispose();
+        }
+    }
+
     /// <summary>Rejects invalid source identities and cancellation before replacing an immutable dispatch publication.</summary>
     [Fact]
     public void InputValidationAndCancellationRetainPriorGeneration() {

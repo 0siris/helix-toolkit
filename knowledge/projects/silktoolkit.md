@@ -180,3 +180,25 @@ Rider/ReSharper tools were unavailable in the active catalog; scoped CLI fallbac
 
 The source graph was rebuilt from996 files:9,424 nodes,16,646 edges and zero LLM tokens. Its17 existing
 partially parsed files remain a structural-analysis limitation.
+
+## TopMost overlay boundaries
+
+D3D12FrameRenderer classifies enabled TopMostGroupNode roots and all prepared visible descendants
+into the same ordered overlay stream as ScreenSpacedNode, after ordinary scene/post effects and before
+FXAA/Scene2D. Ordinary groups and disabled nested TopMost groups inherit the nearest active owner.
+A standalone disabled TopMost group stays in the ordinary scene. Every enabled boundary starts a new
+segment in flattened preorder, including nested boundaries, as in the original renderer.
+
+TopMost segments restore main-camera constants, the full viewport/scissor and color/depth target,
+and clear depth without clearing stencil. They retain traversal order and each child's material depth
+and blend states; local occlusion remains enabled. ScreenSpace retains its camera, viewport and existing
+opaque/transparent/post-effect handling. TopMost children have no post effects in the original contract.
+The shared overlay phase restores full viewport/scissor and render targets before subsequent passes.
+The public ClearDepthStencil signature/default behavior is unchanged; an internal overload preserves stencil.
+
+D3D12TopMostTests covers ownership/EnableTopMost without native devices, and actual 32x24 offscreen
+WARP glyph pixels behind a nearer quad, preceding ScreenSpace camera/scissor, hidden ancestry, local depth,
+transparent selection, multiple and nested roots. Before any submission each new native test verifies
+the device LUID maps to software adapter Microsoft 1414:008C; no hardware fallback or windows.
+This does not qualify native WPF presentation or hardware stability. Existing billboard resource lifetime
+and application label-job fixes are independent and unchanged.

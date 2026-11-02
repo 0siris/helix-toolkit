@@ -91,6 +91,12 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>The native fence that must complete before command/resource reuse.</summary>
     private ulong pendingFence;
 
+    /// <summary>Ensures one progress warning per frame after one second without GPU completion.</summary>
+    private bool pendingFenceReported;
+
+    /// <summary>Monotonic time of the last slow queue submission warning.</summary>
+    private long lastSubmissionLog;
+
     /// <summary>Whether that fence belongs to an accepted scene submission.</summary>
     private bool pendingScene;
 
@@ -376,9 +382,18 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
                 currentCommands.Close();
                 recording = false;
                 unfencedExecution = true;
+                var submissionStarted = Stopwatch.GetTimestamp();
                 queue!.Execute(currentCommands);
                 pendingFence = queue!.Signal(fence!);
+                var submissionElapsed = Stopwatch.GetElapsedTime(submissionStarted);
+                if (submissionElapsed.TotalMilliseconds >= 100 && (lastSubmissionLog == 0 ||
+                    Stopwatch.GetElapsedTime(lastSubmissionLog).TotalSeconds >= 1)) {
+                    lastSubmissionLog = Stopwatch.GetTimestamp();
+                    LoggerLib.Logger.Warn("WPF queue submission fence {Fence} elapsedMs {ElapsedMs}",
+                        pendingFence, submissionElapsed.TotalMilliseconds);
+                }
                 unfencedExecution = false;
+                pendingFenceReported = false;
                 pendingScene = true;
                 stageStarted = Now();
                 transportSerial = ++SubmittedFrames;
@@ -507,9 +522,24 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             }
 
             if (completedValue < pendingFence) {
+                var elapsed = Now() - stageStarted;
+                if (!pendingFenceReported && elapsed >= TimeSpan.FromSeconds(1)) {
+                    pendingFenceReported = true;
+                    LoggerLib.Logger.Warn(
+                        "WPF GPU frame pending submitted {Submitted} completed {Completed} elapsedMs {ElapsedMs} deviceRemovedReason {DeviceRemovedReason}",
+                        propertyValues: [pendingFence, completedValue, elapsed.TotalMilliseconds,
+                            device.GetDeviceRemovedReason()]);
+                }
                 CheckDeadline();
                 if (!wait) return false;
+                var waitStarted = Stopwatch.GetTimestamp();
                 fence.Wait(pendingFence, CompletionTimeout - (Now() - stageStarted));
+                var waitElapsed = Stopwatch.GetElapsedTime(waitStarted);
+                if (!pendingFenceReported && waitElapsed >= TimeSpan.FromSeconds(1)) {
+                    pendingFenceReported = true;
+                    LoggerLib.Logger.Warn("WPF explicit fence wait fence {Fence} elapsedMs {ElapsedMs}",
+                        pendingFence, waitElapsed.TotalMilliseconds);
+                }
                 device.ThrowIfDeviceRemoved();
             }
 
@@ -690,6 +720,10 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Reports an automatic failure and contains a second teardown failure without losing native ownership.</summary>
     /// <param name="exception">The failure from an automatic frame, transport tick, or queued recovery.</param>
     internal void ReportAutomaticRenderFailure(Exception exception) {
+        LoggerLib.Logger.Error(exception,
+            "WPF automatic render failed submitted {Submitted} completed {Completed} deviceRemovedReason {DeviceRemovedReason}",
+            propertyValues: [pendingFence, fence is { IsDisposed: false } ? (object)fence.CompletedValue : "unavailable",
+                device is { IsDisposed: false } ? (object)device.GetDeviceRemovedReason() : "unavailable"]);
         viewport.StopRendering();
         try {
             viewport.HandleRenderException(canvas, new RelayExceptionEventArgs(exception));

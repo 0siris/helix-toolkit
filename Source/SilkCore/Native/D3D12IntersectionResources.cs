@@ -4,7 +4,7 @@ using HelixToolkit.SharpDX.Core.Shaders;
 using Silk.NET.Direct3D12;
 
 namespace HelixToolkit.SharpDX.Core.Native;
-/// <summary>Owns one immutable dispatch generation, append output and GPU indirect draw in the host command engine.</summary>
+/// <summary>Owns fence-reusable dispatch uploads, append output and GPU indirect draw resources.</summary>
 internal sealed class SilkD3D12IntersectionResources : IDisposable {
     /// All owned allocations, released in reverse order after the host fence.
     private readonly List<IDisposable> owned = [];
@@ -22,12 +22,12 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
     private readonly SilkD3D12Resource reset;
     /// The standard indirect draw signature.
     private readonly SilkD3D12CommandSignature signature;
-    /// Per-batch immutable descriptor tables and constants, never overwritten by a later recorded dispatch.
+    /// Per-batch descriptor tables and uploads, overwritten only after the preceding frame fence.
     private readonly List<Batch> batches = [];
-    /// Whether the immutable input generation has already been dispatched.
+    /// Whether the current input publication has already been dispatched.
     private bool dispatched;
     /// Gets the exact input publication represented by these allocations.
-    internal IReadOnlyList<IntersectionDispatchInput> Inputs { get; }
+    internal IReadOnlyList<IntersectionDispatchInput> Inputs { get; private set; }
     /// Gets the maximum number of appended segments.
     internal uint Capacity { get; }
     /// Gets the GPU-generated segment buffer.
@@ -37,7 +37,7 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
     /// Gets whether the host has released this generation after its fence.
     internal bool IsDisposed { get; private set; }
     /// <summary>
-    ///     Allocates a complete immutable generation using the host's device, heaps and render-buffer manager.
+    ///     Allocates initial capacity using the host's device, heaps and render-buffer manager.
     /// </summary>
     /// <param name="device">The borrowed host device.</param>
     /// <param name="resourceHeap">The host resource heap.</param>
@@ -52,6 +52,8 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
         this.device = device;
         Inputs = inputs;
         try {
+            foreach (var input in inputs.Where(input => input.Candidates.Length > 0))
+                _ = GetDispatchGroupCount(checked((uint)input.Candidates.Length));
             Capacity = checked((uint)Math.Max(1, inputs.Sum(input => input.Candidates.Length)));
             this.root = root;
             var genericShader = D3D12ShaderModule.Load("CS", "csMeshIntersect");
@@ -83,7 +85,7 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
                 device.CreateStructuredBufferShaderResourceView(candidates, bindings.ShaderResource(4),
                     checked((uint)input.Candidates.Length), 16);
                 device.CreateStructuredBufferUnorderedAccessView(Segments, counter, bindings.UnorderedAccess(0), Capacity, 28);
-                batches.Add(new Batch(bindings, checked((uint)input.Candidates.Length), share,
+                batches.Add(new Batch(bindings, constants, candidates, checked((uint)input.Candidates.Length), share,
                     share ? input.First.RenderBuffer : null, share ? input.Second.RenderBuffer : null));
 
                 // A mesh snapshot owns original geometry identity, while the host retains borrowed rendering buffers.
@@ -127,6 +129,12 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
     /// <param name="bindings">The existing point/line material bindings.</param>
     /// <returns>Whether an indirect draw was recorded.</returns>
     internal bool Render(SilkD3D12CommandContext context, ShaderPass pass, SilkD3D12PointLineBindings bindings) {
+        RecordCompute(context);
+        return RecordDraw(context, pass, bindings);
+    }
+    /// <summary>Records only the unchanged compute, append-counter and indirect-argument preparation.</summary>
+    /// <param name="context">The host's open command context.</param>
+    internal void RecordCompute(SilkD3D12CommandContext context) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (!dispatched) {
             context.Transition(counter, ResourceStates.CopyDest);
@@ -136,7 +144,7 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
             foreach (var batch in batches) {
                 context.SetComputePipeline(root, batch.Shared ? sharedPipeline : genericPipeline);
                 batch.Bindings.BindCompute(context);
-                context.Dispatch((batch.Count + 511) / 512, 1, 1);
+                context.Dispatch(GetDispatchGroupCount(batch.Count), 1, 1);
                 context.UavBarrier(Segments);
                 context.UavBarrier(counter);
             }
@@ -146,6 +154,14 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
             context.CopyBuffer(Arguments, 4, counter, 0, 4);
             dispatched = true;
         }
+    }
+    /// <summary>Records the existing indirect draw independently of compute for bounded software isolation.</summary>
+    /// <param name="context">The host's open command context.</param>
+    /// <param name="pass">The original graphics pass.</param>
+    /// <param name="bindings">The existing line material bindings.</param>
+    /// <returns>Whether the draw was recorded.</returns>
+    internal bool RecordDraw(SilkD3D12CommandContext context, ShaderPass pass, SilkD3D12PointLineBindings bindings) {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
         context.Transition(Arguments, ResourceStates.IndirectArgument);
         context.Transition(Segments, ResourceStates.NonPixelShaderResource);
         bindings.BindSegments(Segments, Capacity);
@@ -155,11 +171,22 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
         context.DrawInstancedIndirect(signature, Arguments);
         return true;
     }
+    /// <summary>Rejects work exceeding the native one-dimensional dispatch limit before allocating GPU resources.</summary>
+    /// <param name="candidateCount">The nonempty batch's active candidate count.</param>
+    /// <returns>The number of 512-thread groups required by the unchanged source kernel.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The batch is empty or exceeds 65,535 groups.</exception>
+    internal static uint GetDispatchGroupCount(uint candidateCount) {
+        if (candidateCount == 0 || !MeshIntersectionRenderCore.SupportsCandidateCount(candidateCount))
+            throw new ArgumentOutOfRangeException(nameof(candidateCount),
+                "Intersection batch exceeds the supported nonempty one-dimensional dispatch range");
+        return (candidateCount + 511u) / 512u;
+    }
     /// <summary>
     ///     Checks complete batch correspondence and live borrowed owners without allocating traversal state.
     /// </summary>
     /// <returns>Whether every batch and shared borrowed owner still match the immutable source publication.</returns>
     internal bool CanReuse() {
+        if (IsDisposed) return false;
         var batchIndex = 0;
         for (var inputIndex = 0; inputIndex < Inputs.Count; inputIndex++) {
             var input = Inputs[inputIndex];
@@ -174,6 +201,51 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
                 return false;
         }
         return batchIndex == batches.Count;
+    }
+    /// <summary>
+    ///     Reuses uploads and descriptors after the preceding host frame fence has completed.
+    ///     The caller must invoke this before recording any draws in the next frame.
+    /// </summary>
+    /// <param name="inputs">The next immutable candidate and pose publication.</param>
+    /// <returns>Whether the current geometry, owners and allocated capacities support this publication.</returns>
+    internal bool TryUpdate(IReadOnlyList<IntersectionDispatchInput> inputs) {
+        if (!CanReuse() || inputs.Count != Inputs.Count) return false;
+        var batchIndex = 0;
+        long total = 0;
+        for (var index = 0; index < inputs.Count; index++) {
+            var next = inputs[index];
+            var previous = Inputs[index];
+            if (!ReferenceEquals(next.First, previous.First) || !ReferenceEquals(next.Second, previous.Second))
+                return false;
+            if ((next.Candidates.Length == 0) != (previous.Candidates.Length == 0)) return false;
+            if (next.Candidates.Length == 0) continue;
+            var batch = batches[batchIndex++];
+            if ((ulong)next.Candidates.Length * 16 > batch.Candidates.SizeInBytes) return false;
+            total += next.Candidates.Length;
+        }
+        if (total > Capacity) return false;
+
+        try {
+            batchIndex = 0;
+            for (var index = 0; index < inputs.Count; index++) {
+                var input = inputs[index];
+                if (input.Candidates.Length == 0) continue;
+                var batch = batches[batchIndex];
+                batch.Candidates.Write(MemoryMarshal.AsBytes(input.Candidates.AsSpan()));
+                var transforms = new IntersectionTransforms {
+                    WorldA = input.WorldA, WorldB = input.WorldB, CandidateCount = checked((uint)input.Candidates.Length)
+                };
+                batch.Constants.Write(in transforms);
+                batches[batchIndex++] = batch with { Count = checked((uint)input.Candidates.Length) };
+            }
+        } catch {
+            // A partially written upload must never be rendered as the preceding publication.
+            Dispose();
+            throw;
+        }
+        Inputs = inputs;
+        dispatched = false;
+        return true;
     }
     /// <summary>
     ///     Creates a typed uint SRV over the actual render index allocation.
@@ -218,10 +290,13 @@ internal sealed class SilkD3D12IntersectionResources : IDisposable {
     ///     Retains independent per-dispatch bindings until the host fence completes.
     /// </summary>
     /// <param name="Bindings">The immutable root descriptor tables.</param>
+    /// <param name="Constants">The fence-reusable transform upload.</param>
+    /// <param name="Candidates">The candidate upload whose byte size defines capacity.</param>
     /// <param name="Count">The valid candidate count.</param>
     /// <param name="Shared">Whether this batch consumes actual rendering index buffers.</param>
     /// <param name="FirstOwner">The first live owner whose index allocation is borrowed, or null for private indices.</param>
     /// <param name="SecondOwner">The second live owner whose index allocation is borrowed, or null for private indices.</param>
-    private sealed record Batch(SilkD3D12GraphicsBindings Bindings, uint Count, bool Shared,
+    private sealed record Batch(SilkD3D12GraphicsBindings Bindings, SilkD3D12ConstantBuffer Constants,
+        SilkD3D12Resource Candidates, uint Count, bool Shared,
         DefaultMeshGeometryBufferModel? FirstOwner, DefaultMeshGeometryBufferModel? SecondOwner);
 }

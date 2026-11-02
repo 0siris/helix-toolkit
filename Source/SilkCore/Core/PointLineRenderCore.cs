@@ -46,10 +46,8 @@ public class PointLineRenderCore : GeometryRenderCore, IMaterialRenderParams {
     ) {
         if (D3D12Material is null) return false;
         OnUpdatePerModelStruct();
-        var billboardTexture = GeometryBuffer is DefaultBillboardBufferModel {
-            Geometry: BillboardBase billboard
-        }
-            ? billboard.Texture
+        var billboardTexture = GeometryBuffer is DefaultBillboardBufferModel billboard
+            ? billboard.PrepareForD3D12().Texture
             : null;
         bindings.Update(context,
             resources,

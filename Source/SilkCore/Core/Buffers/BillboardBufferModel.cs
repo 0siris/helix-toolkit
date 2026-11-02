@@ -52,6 +52,20 @@ public sealed class DefaultBillboardBufferModel : BillboardBufferModel<Billboard
     ///     Initializes a new instance of the <see cref="DefaultBillboardBufferModel" /> class.
     /// </summary>
     public DefaultBillboardBufferModel() : base(BillboardVertex.SizeInBytes) { }
+
+    /// <summary>Prepares the current geometry before its texture or vertices are consumed.</summary>
+    /// <returns>The initialized geometry owning both the texture and vertex generation.</returns>
+    internal BillboardBase PrepareForD3D12() {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (Geometry is not BillboardBase geometry)
+            throw new InvalidOperationException("The buffer model must contain billboard geometry");
+        if (!geometry.TryPrepareVerticesForD3D12())
+            geometry.DrawTexture(EffectsManager
+                ?? throw new InvalidOperationException("Billboard geometry requires an effects manager"));
+        if (!geometry.IsInitialized)
+            throw new InvalidOperationException("Billboard geometry could not be initialized");
+        return geometry;
+    }
 }
 
 /// <summary>

@@ -19,7 +19,7 @@ namespace SilkToolkit.Tests;
 
 /// <summary>Exercises the productive shared recorder against caller-owned offscreen WARP color textures.</summary>
 [Collection(WpfCollection.Name)]
-public sealed class D3D12FrameRendererTests {
+public sealed partial class D3D12FrameRendererTests {
     /// <summary>Draws the preparer's own retained candidates without an intermediate classification copy.</summary>
     [Fact]
     [Trait("Category", "Warp")]

@@ -87,3 +87,22 @@ SilkToolkit also owns the shared bounded WPF viewport-widget overlay, retaining 
 
 Current native-child [button observations](/projects/silktoolkit.md#current-buttons-across-the-native-child-boundary)
 retain ordinary WPF fallback and disposal semantics while leaving application ownership guards authoritative.
+
+SilkCore also records fence-reusable collision publications, separate active counts and capacity, and
+safe whole-generation replacement boundaries in [SilkCore](/projects/silkcore.md#fence-reusable-collision-publications).
+
+[Empty annotation lines](/projects/silkcore.md#empty-annotation-lines) documents zero-segment D3D12
+preparation and validation of actual endpoint indices, covered without native devices.
+
+SilkCore also records the checked native collision dispatch dimensions and append-capacity bound in
+[SilkCore](/projects/silkcore.md#collision-dispatch-dimensions-and-output-bound).
+
+[Billboard resources](projects/billboard-resources.md): prepare the current geometry before texture
+binding, write null t0 for missing textures and clear registered descriptors before releasing registrations.
+CPU/source contracts do not establish native glyph rendering or application freeze recovery.
+
+[Collision diagnostics](projects/silkcore.md#bounded-collision-diagnostics-and-rejected-publications):
+bounded workload/fence events and oversized publication rejection without automatic render failure.
+
+[TopMost overlay boundaries](projects/silktoolkit.md#topmost-overlay-boundaries): inherited overlay
+classification, depth-only reset and main-camera/viewport restoration, with isolated offscreen WARP glyph checks.

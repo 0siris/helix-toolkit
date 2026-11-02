@@ -824,3 +824,12 @@ No changes to existing billboard lifetime or application label jobs; no visible 
   Graphify regeneration in this commit/push task. Rider/ReSharper tools are unavailable in this session.
 - Maintain both sides of the OKF concepts, index and log; check new concept provenance links and staged
   whitespace. The parent repository gitlink remains for its coordinator to record separately.
+
+
+## 2026-11-02 - Integrate published reconstruction into silk-toolkit
+
+- Fast-forward the target to published rebuild344317ff1, retaining both WPF/renderer and newer Helix fixes.
+- Solution build succeeds; standard tests pass984 and fail5. All five failures reproduce at the identical
+  assertions on previous target9e5b08091; no product/tests are changed to conceal existing failures.
+- Preserve the consumer submodule pin. Details and exact evidence are recorded in
+  [Silk test strategy](/testing/silk-tests.md#rebuild-integration-into-silk-toolkit-2026-11-02).

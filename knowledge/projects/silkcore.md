@@ -268,3 +268,19 @@ counts/groups/capacity while emitting only on scale/capacity/batch changes or sl
 once per second per core. WPF reports slow submission and one pending-fence warning after one second
 per frame, plus failure fence/device metadata, without adding waits or readbacks. A consumer must bind
 `LoggerLib` to its existing file logger using the existing `SerilogLoggerLib` adapter (Helix does so).
+
+## Empty native mesh lifecycle
+
+Scene preparation keeps the existing `GeometryNode.GeometryValid` boundary when collecting native draw
+candidates. An attached mesh with absent positions or indices stays attached and receives maintenance,
+but contributes no draw candidate until its geometry becomes valid. Children remain traversable.
+The native node attachment hook is attempted before the already-attached core shortcut, so the first
+index notification can initialize a buffer without replacing the mesh. GPU-only intersection inputs
+retain their existing GeometryValid admission. Nonempty out-of-range indices still fail native validation.
+
+The 24 new lifecycle cases use seven device-free checks and seventeen actual fenced WARP draw/readback
+checks. Before the change, fourteen WARP cases failed; the same source passes after the two renderer
+hunks. A broad scoped host compiles 47 existing/new sources, excluding two unrelated fixtures with nine
+namespace compile errors. Its final 604 cases contain 601 passes and three pre-existing failures in
+postprocess determinism and shared resource lifetime checks. This is not a green full-suite claim.
+The existing maintenance candidate contract is retained; IsRenderable is not an additional collection gate.

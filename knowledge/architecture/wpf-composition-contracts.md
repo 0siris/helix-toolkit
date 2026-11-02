@@ -326,3 +326,132 @@ Disabling Scene2D removes it from drawing/capture and new input hit tests, clear
 2D press. The independently controlled view cube and ordinary WPF controls remain available. A hidden cube
 cannot consume picking. These host changes preserve the established overlay, cube and scene input priority.
 Runtime evidence and the remaining phase boundary are recorded in the implementation report.
+
+# Approved software publication while hardware frontbuffer is unavailable (2026-10-25)
+
+The user explicitly approved publishing completed images through the existing WPF software fallback when
+the canvas is active and the GPU resource chain remains valid. Hardware IsFrontBufferAvailable=false is
+therefore no longer a publication veto. ServiceTransportCore and D3D12ImageSource.TryPublish remove only
+four availability checks; SetBackBuffer(enableSoftwareFallback:true) remains the existing publication route.
+Slot immutability, immediate BoundSurface bookkeeping, balanced locks, fence/query completion, device-loss
+recovery, inactive-surface suspension and confirmed detach before native retirement remain mandatory.
+An unavailable hardware frontbuffer does not authorize reuse of a bound destination as a copy target.
+
+Eight new owner cases and the explicitly revised P5 availability contract pass in Debug and Release (9/9).
+Four new cases have differentiating measured Before failures. The existing 47 owner cases also pass in both
+configurations. Three previous hardware-availability prerequisites were removed only after their actual
+failures; actual false-TryLock, pixels, counters, slots and lock-balance assertions remain unchanged.
+The two earlier warm-timeout admission cases now pass without changing their fixture. These results do not
+constitute standalone reload, foreground input or whole-application acceptance.
+
+CopyBackBuffer and RenderTargetBitmap establish synchronous diagnostic pixels, not fresh asynchronous MIL
+software pixels or physical scanout. Native WPF module identity, the real availability-loss cause and isolated
+D3D11/D3D9Ex loss remain separate evidence gaps. The new tests exercise D3D12 loss and retained lifetime.
+Four PE/PDB pairs bind the actual sources/hosts, excluding two missing LibraryImportGenerator disk files.
+The independent SOURCE/DATA review found no confirmed P1/P2/P3 and checked the actual Before/After
+artifacts, eight PE/PDB pairs and 141 stable end pins. Root evidence is recorded in the
+[bounded result report](../../../../reference-runtime/full-product-z2-wpf-approved-software-policy-root-results-r1.md).
+The historical P5 unavailable-suspend contract is superseded by this explicit user decision.
+
+
+# Awaitable WPF teardown before application ownership ends (2026-10-25)
+
+The additive Viewport3DX.PrepareForDisposalAsync stops submissions and uses the existing owner to drain
+D3D12, retry only a zero-duration image-lock miss, finish image disposal after successful Unlock and then
+retire the D3D11 bridge through its existing query/removal guard. Native failures propagate; the existing
+five-second budget and16ms dispatcher-yielding delay do not change the synchronous lock or thirty-second
+fixture contracts. ImageSource.TryDispose finishes subscriptions only after actual detach, so later canvas
+disposal does not require a second WPF lock.
+
+The existing recording-deferred Action uses the same safe viewport preflight. It validates the retained
+owner before and after await and disposes only after success. Current-owner errors use the existing
+reporter/teardown containment; retired-owner errors are logged without retiring a replacement owner.
+No new timer, scheduler, mesh owner, nested pump or Task.Run is introduced. Explicit synchronous disposal
+may still fail while retaining resources for retry.
+
+A real application Release-Cancel cleanup first failed at the one-shot detach. R1 fixed the window path
+but exposed the existing deferred callback through an actual fatal TRX stack (owner46/47). R2 retains
+all old assertions: Debug/Release each47/47 owner and9/9 policy cases, plus direct lock/deferred tests.
+The application consumers pass two real repair/history/save-reopen cases and two earlier visible cases
+per configuration. Ten current PE/PDB pairs bind2316/2334 documents,18 generated files unavailable.
+The independent R2 review exposed early application preview disposal before the preflight. The bounded
+application R3 fix retains existing Selection/Inspector nodes through central clear and refresh guards until
+successful preparation; a failed attempt retains them for retry. Two measured D/R retention regressions
+turn red to green, and the stronger marker case waits for actual Closed before checking final disposal.
+The fresh independent R3 source/data review has no new P1/P2/P3 findings. Historical R3, asynchronous MIL
+and full product acceptance remain separate. See the [bounded R2 evidence](../../../../reference-runtime/full-product-z2-wpf-close-detach-preflight-root-results-r2.md).
+
+The unchanged visible R5 control passes both repair/history/save-reopen cases and both older cases per
+configuration. Earlier capture/foreign-foreground failures remain preserved; this is no retrospective causal
+claim. See the [R3 source/data review](../../../../reference-runtime/full-product-z2-wpf-close-retention-source-data-review-r3.md).
+
+
+## Shared post-scene Inspector regions (2026-10-25)
+
+The existing frame owner accepts the application's current PostEffect group after scene post-processing,
+using the retained scene depth. It draws source regions, helper lines and helper faces without an intervening
+depth clear. Ordinary ScreenSpaced work retains its previous pre-FXAA order when no visible post-scene group
+exists. Invalid geometry is excluded from drawing while ordinary maintenance remains intact.
+
+The existing PHONG upload/shader owner carries the Inspector's four lights and source per-vertex lighting.
+Stored normal length, winding behavior and vertex interpolation remain explicit; ordinary material lighting
+uses the shared unchanged calculation. Boundary callers pass half-width 2*setting/DPI to the unchanged line
+shader, producing full physical widths 4/6/8 for settings 1/1.5/2. This is a D3D12 phase adaptation, not a
+claim of identical native OpenGL AA, depth-bias quantization or compositor pixels.
+
+Fresh D/R each pass nine frame/WARP cases (all six old cases plus three), 47 owner cases, and application
+region three plus actual-close one. The application broad selection preserves all old cases and adds three.
+The unchanged policy fixture remains intermittently red at its first draw under WPF lock pressure, also
+reproduced on the retained old products; subsequent unchanged and diagnostic passes do not establish a fix.
+The new physical input round fails cursor restoration, so further physical clicks are suspended. These are
+separate open evidence boundaries. A fresh independent actual-source/data review is pending. See the
+[bounded integration report](../../../../reference-runtime/full-product-z5-inspector-defect-region-root-results-r1.md).
+
+
+### Actual review correction: Inspector helper faces (2026-10-25)
+
+The independent application review found that the actual sphere node still selects ordinary Mesh/Diffuse,
+whose depth comparison is LEQUAL. Native helper faces require LESS/write with the existing positive offset.
+The earlier region/source statement that every helper depth state was preserved is therefore withdrawn.
+The ordinary diffuse pass must stay unchanged; a scoped application helper-face pass and two differentiating
+regressions are being prepared. This does not alter the earlier shared-depth, width or non-Inspector FXAA checks.
+The intermittent first lock-pressure draw and failed physical cursor restoration remain separate open evidence.
+
+
+### Application helper-face strict-depth correction (2026-10-25)
+
+The application now binds only its Inspector sphere node to a copied Mesh/Diffuse pass with LESS/write.
+Shared shaders, input layout, blend/raster/stencil/topology, unlit vertex colors and positive offset remain;
+ordinary Mesh/Diffuse stays LEQUAL. The existing line pass layout is null and its copied contract is preserved.
+Two actual-node/WARP regressions fail before and pass after per D/R: depth selection and first-white equal-depth
+pixel. Existing region three, close one and broad 1,381 cases pass per configuration. The temporary host's
+missing fixture content was corrected without changing library/application code or test expectations.
+The fresh independent R2 has confirmed source and data; its final report is pending. Intermittent WPF
+lock-pressure, physical cursor cleanup, native/MIL pixels and complete product acceptance remain open.
+No toolkit source changed in this correction; the last generated source graph remains current.
+
+
+The final independent helper-face R2 review and parent full read are complete: no new source or data-integrity
+findings. The actual application LESS selection and two D/R red-to-green cases answer P2-01; ordinary library
+passes remain unchanged. Open lock-pressure, physical-input and complete-product evidence remains separate.
+
+
+## Lock pressure: scene admission and retained publication are separate (2026-10-25)
+
+ServiceTransport precedes frame reservation. A requested retained-image rebind may fail its actual
+zero-duration WPF lock and return zero draws while keeping publication demand, render demand and the
+scene frame budget. A forced TEMP probe observes this path; it does not retrospectively identify the
+cause of historical intermittent first-draw failures. No product implementation is changed.
+
+The ready-slot regression now accepts exactly one scene submission before the exclusive image borrow,
+entering that borrow on the same synchronous accepting predicate stack. All 39 original check lines
+remain. A separate real lock case retains the pending rebind and material demand, then checks the first
+rebind exactly and permits later rebinds only against observed real publication requests. One fresh
+submission/copy/publication, serial and slot transitions, red pixels, retained ownership and idle remain
+required. The new post-await R1 counter failure is retained; its overstrong new oracle was corrected.
+
+Actual-source Debug/Release each pass two direct cases and all ten policy cases, preserving all nine
+old names/outcomes and adding one. Four PE/PDB pairs bind 380 documents: 378 current disk matches and
+two missing generated sources. Products are unchanged. Fresh independent actual-source/data review is
+complete with boundedNoFinding and no new confirmed source/data findings; historical causes,
+asynchronous MIL pixels and full application acceptance remain separate.

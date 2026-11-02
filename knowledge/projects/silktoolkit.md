@@ -185,7 +185,9 @@ partially parsed files remain a structural-analysis limitation.
 
 D3D12FrameRenderer classifies enabled TopMostGroupNode roots and all prepared visible descendants
 into the same ordered overlay stream as ScreenSpacedNode, after ordinary scene/post effects and before
-FXAA/Scene2D. Ordinary groups and disabled nested TopMost groups inherit the nearest active owner.
+Scene2D. Without post-scene groups the stream precedes FXAA; with those groups it retains the existing
+post-FXAA placement after their depth-preserving draws. Ordinary groups and disabled nested TopMost
+groups inherit the nearest active owner.
 A standalone disabled TopMost group stays in the ordinary scene. Every enabled boundary starts a new
 segment in flattened preorder, including nested boundaries, as in the original renderer.
 
@@ -202,3 +204,40 @@ transparent selection, multiple and nested roots. Before any submission each new
 the device LUID maps to software adapter Microsoft 1414:008C; no hardware fallback or windows.
 This does not qualify native WPF presentation or hardware stability. Existing billboard resource lifetime
 and application label-job fixes are independent and unchanged.
+
+
+## Actual WPF frame admission and passive allocation metrics
+
+The initialized WPF owner now participates in public IsRenderReady and TryGetPresentationMetrics.
+Readiness is derived from the selected owner and existing scene/lifetime gates; it is not a stored flag
+or a promise of GPU availability, foreground ownership, successful publication or scanout. WPF metrics
+reject a canvas handle/dimension mismatch instead of returning layout-ahead values during pending resize.
+The getter reads retained allocation dimensions and coherent render scale without initializing, polling
+GPU health, resizing, consuming demand or advancing transport. Disposed native owners report no metrics.
+
+Both real backends now notify OnRendering for an admitted reserved attempt. Already requested frames
+notify before their single camera-controller step and scene recording. Idle camera-demand discovery
+can precede this notification; it never triggers a second same-timestamp camera step. Busy/transport-only
+polls do not notify. The recorder binds the camera current after the callback. The existing frame guard
+retains borrowed resources during callbacks and defers requested viewport disposal until unwind; template
+replacement and nested recording remain guarded. Existing eligibility is checked again before recording.
+
+Actual unchanged regression data: 18 failures before; 16 passes and two pre-existing WPF warm-drain
+failures after. Camera replacement, fractional/disabled DPI, pending resize, manager/hide/automatic-stop,
+nested render/template and callback disposal cases pass. The two warm-blocked idle/reload cases and the
+existing completion-disposal case do not establish their later assertions. Ten old toolkit neighbors pass;
+P4 remains three passes/five unchanged WPF drain failures. No complete hardware/interop acceptance.
+
+The consuming original visible RenderTick now passes its strict [1,2,1,2] order. Parent headless1300
+retains all1299 previous outcomes and IDs. A real inactive Selection stale-read preview passes, while
+its separate reload test blocks at the second wait. Physical Brush admission reaches ready and two
+before/after callbacks but remains blocked by actual foreground ownership, before input injection.
+
+The separately observed frontbuffer loss is unresolved. SetBackBuffer already used
+ enableSoftwareFallback:true in13a7; availability must not be forced or suspend guards removed.
+Root reports under reference-runtime distinguish source, actual artifacts, GPU completion, publication
+and display. All complete Meshmixer product cycles, Original optics and physical DPI gates remain open.
+
+Independent source/data review finds no concrete new P1/P2 in this three-file patch; blocked runtime
+assertions and the documented idle-discovery boundary remain qualified. Graphify was rebuilt from1075
+source files:11068 nodes,20181 edges,3253 communities, zero model tokens and17 existing partial-parser warnings.

@@ -84,3 +84,69 @@ Tests must not depend on the repository's absolute path or the full `Models` dir
 [2] [SilkToolkit tests](../../Source/SilkToolkit.Tests/SilkToolkit.Tests.csproj)
 [3] [SilkAssimp tests](../../Source/SilkAssimp.Tests/SilkAssimp.Tests.csproj)
 [4] [Silk test workflow](../../.github/workflows/silk-tests.yml)
+
+## Camera and selection-line fixture namespace recovery, 2026-10-25
+
+Two existing fixtures still imported namespaces removed by the original-namespace restoration.
+Only imports and one fully qualified camera type were corrected; exact inverse checks recover both
+previous byte sequences, including BOM, CRLF and EOF. Assertions, formulas and expected pixels did not change.
+The complete original SilkCore.Tests Debug project now builds with zero errors and 169 warnings, using
+BuildProjectReferences=false. The selected actual run passes CameraFramingTests 2/2 and
+SelectionPreviewLinePipelineTests 18/18, including WARP readback, with no skips. Independent SOURCE/DATA
+review reports findings[]. The three failures in the historical scoped 604-case run remain open and were
+not rerun or erased by this result. WPF software publication and full product acceptance are separate gates.
+
+Parent evidence: TEMP/meshmixer-isolated-build-20261025/build-silk-core-fixtures-current-r1.log and
+silk-camera-line-fixtures-current-r1.trx. All eight protected parent Debug product/test pins remained equal.
+
+
+## Renderer test contracts, 2026-10-25
+
+Three retained D3D12RuntimePrimitiveTests failures were test-contract errors. SSAO kernels
+use the original timestamp-seeded random sequence; independent arrays have no equality
+or inequality requirement. Both arrays now retain length/layout checks and verify finite
+hemisphere samples, index-dependent length and angular limits. FXAA constants are unchanged.
+Texture removal and instance growth retire resources; assertions now distinguish cache
+removal from explicit fence-safe cleanup. Instance sources are initialized as in real attachment.
+No renderer product source, seed, scheduling, disposal policy or public API changed.
+
+Actual unchanged Debug Before: three failures. After NoRef host builds, the same three
+and25 empty-mesh/particle neighbors pass in Debug and Release with no skips. The full
+original Core test project passes624/624 in Debug using
+Category!=Hardware&Category!=DX12&Category!=VisibleUI. All601 historical Passed tuples
+are preserved, the three corrected cases pass, and20 recovered camera/line cases are included.
+Release broad reports620 Passed/4 Failed; the four intersection allocation assertions also
+fail in isolation, expecting18432 bytes but observing0 after256 recorded frames. Their
+subsequent readback assertions are unreached. No Before Release measurement of those four
+exists, so this is a newly observed separate result, not a verified historical failure.
+
+Parent evidence: TEMP/meshmixer-isolated-build-20261025/renderer-contract-results-r1.json
+and renderer-contract-source-pdb-r1.json bind actual TRXs, current DLL/PDB/source and held
+product/host copies. Before host PDB was overwritten by the next build and is not retained.
+Independent SOURCE/DATA review confirms findings[] for these three corrections and retained data limits. Rider/ReSharper tools were unavailable;
+scoped dotnet NoRef fallback was used. Graphify completed with17 partial syntax-warning files;
+no complete AST, WPF software-policy, full Release or product acceptance is claimed.
+
+
+## Measured intersection allocation baseline, 2026-10-25
+
+The four Release failures above came from a fixed positive72-byte frame expectation,
+not a proved allocation requirement. The fixture now measures a complete empty-candidate
+frame immediately before the unchanged intersection frame on the same attached renderer.
+Input publication and native generation are retained; both paths receive128 warmups and
+256 measured frames with real submissions and fences. Exact baseline/full equality remains,
+with no tolerance budget or configuration literal. The assertion follows the last WarmDraw
+argument and red-pixel readbacks, after the baseline's blue clear. All later frames remain.
+
+Actual original-project NoRef hosts build D/R with0 errors/94 warnings. Focus4/4 and broad
+624/624 pass in both configurations, no skips; all names and prior Passed outcomes remain.
+Debug baseline/full each18432B, Release each0B;1000 reuse checks0B and positive control64B.
+All four earlier Release failures now reach their warm readbacks and remaining frame cases.
+The pixel proof concerns the last warm frame, not individual readback of all256 frames.
+
+Independent SOURCE/DATA review confirms no findings and exact source inverse/PDB/TRX binding.
+Product DLLs remain unchanged. Shared allocation regressions are outside the differential
+alone; unchanged frame/ordinary-mesh neighbors remain part of the passing624-case selection.
+No concrete Debug allocator or JIT cause was proved. Graphify completes with17 partial-parser
+warnings; no general performance, hardware, WPF, Original-pixel or product acceptance follows.
+Parent evidence: TEMP/meshmixer-isolated-build-20261025/intersection-baseline-results-r1.json.

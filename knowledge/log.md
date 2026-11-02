@@ -1,5 +1,57 @@
 # Knowledge Bundle Update Log
 
+## 2026-10-25 — Prepare explicit and deferred WPF teardown before scene release
+
+* Add bounded dispatcher-owned preparation using the existing image/presentation owners; preserve zero-time lock, balanced Unlock, fence/query and device-loss guards, with no new timer or scheduler.
+* Preserve the real Release-Cancel lockmiss and R1 owner46/47 fatal callback failure. R2 routes the same deferred Action through the safe viewport preflight and existing error containment; all47 old owner and9 policy cases pass in Debug/Release without test-expected changes.
+* Ten NoRef builds and real application repair/history/save-reopen/close cases pass;34 selected copies and ten PE/PDB pairs2316/2334 checked,18 generated sources unavailable. Fresh independent R2 review and global product/MIL acceptance remain pending.
+* Rebuild the existing code-only source graph:7,740nodes/12,399edges/742communities, zero model tokens. Retain the failed export attempt; use only the documented process-local0.7.13 adapters, script unchanged and staging removed.
+
+## 2026-10-25 — Publish completed WPF frames through the approved software fallback
+
+* Remove four hardware-availability vetoes in the existing presentation/image owners; preserve slots, locks, copy completion, device-loss and retirement.
+* Measured four policy Before reds, final Debug/Release9/9 policy and47/47 existing owner passes. Revise P5 explicitly; remove only three obsolete hardware prerequisites after observed failures.
+* Four actual PE/PDB pairs bind sources and hosts, excluding two missing generated disk files; independent review found no confirmed P1/P2/P3, including actual raw Before/After and eight PE/PDB pairs. Synchronous pixel evidence is not asynchronous MIL or whole-product acceptance.
+* Rebuild source graph using process-local compatibility with installed Graphify0.7.13:7,735nodes/12,389edges/743communities, zero model tokens; script unchanged, staging removed. Preserve two earlier tooling failures.
+
+## 2026-10-25 — Measure intersection allocations against the same live renderer
+
+* Replace unsupported fixed72B equality with exact measured baseline/full-frame equality.
+* Retain live owner, all actual draws, zero-byte reuse, positive control and final warm readbacks.
+* Focus4/4 and broad624/624 D/R pass; independent review has no findings, products unchanged.
+* Qualify historical72B documentation; shared allocation regressions and WPF/product gates remain separate.
+
+## 2026-10-25 — Correct three retained renderer test contracts
+
+* Preserve randomized SSAO structure and actual fence-safe resource retirement; no product changes.
+* Actual three-case Before red, D/R focused3 and neighbor25 green; Debug broad624 all pass.
+* Release620/624 and isolated four intersection allocation assertions remain separately open.
+* Source/PDB/DLL copies match; Graphify completes with17 partial-parser warnings; independent review confirms no findings.
+
+## 2026-10-25 — Recover camera and selection-line test imports
+
+* Bind two existing fixtures to actual restored namespaces; preserve all assertions and exact byte inverses.
+* Complete original Core test project builds; Camera2 and WARPLine18 all pass with zero skips.
+* Independent SOURCE/DATA review has no findings; eight protected parent Debug pins remain unchanged.
+* Earlier three broad failures and WPF software-policy decision remain open; no product behavior changed.
+
+## 2026-10-25 — Connect actual WPF frame admission
+
+* Derive readiness and coherent allocation metrics from the selected live presentation owner.
+* Raise the shared pre-frame event under the existing callback lifetime guard; retain camera discovery once.
+* Preserve18 regression bytes:16 turn green, two WPF warm-transport failures stay open.
+* Actual parent RenderTick order passes; physical foreground, reload and full product acceptance remain open.
+
+
+## 2026-10-25 — Keep empty meshes out of native draw candidates
+
+* Preserve GeometryValid when collecting candidates and retry native node attachment before its core shortcut.
+* Retain hidden maintenance, child traversal, GPU-only admission and strict malformed-index validation.
+* Measured seven unit passes and fourteen of seventeen WARP failures before the change; all 24 new cases pass after it.
+* Broad scoped run: 601/604 pass; three pre-existing failures and two unrelated uncompilable fixtures remain open.
+* Application visible readiness and full product acceptance are separate consumer gates.
+
+
 ## 2026-10-20 — Restore measured original diffuse intensity
 
 * Compiled pinned original vertex/pixel sources with FXC and their original vs_4_0/ps_4_0 profiles.
@@ -695,3 +747,80 @@ SilkToolkit concept and index document restored TopMost classification and depth
 boundaries alongside existing ScreenSpace passes. CPU ownership and verified WARP text/mesh pixel tests
 cover inheritance, occlusion, transparent material selection and nested/multiple groups without windows.
 No changes to existing billboard lifetime or application label jobs; no visible presentation qualification.
+
+
+## 2026-10-25 - Bound explicit/deferred WPF disposal and retain application previews
+
+- Finish image ownership only after real detach/Unlock, before the retained bridge query drain.
+- Route existing deferred disposal through the same bounded safe viewport preflight; old owner47/policy9
+  D/R contracts and real application cycles pass, without changing lock or timeout guards.
+- Independent R2 exposed application-side early preview disposal; the separate Window R3 retention fix
+  and two measured D/R red-to-green cases close that gap. The stronger case checks actual Closed/disposal.
+- Fresh independent R3 review reports no new P1/P2/P3; old input failures and product/MIL limits remain.
+  The previously recorded source graph remains current: this final update changes documentation only.
+
+
+## 2026-10-25 - Preserve shared scene depth for actual Inspector regions
+
+- Route the existing post-scene group through source regions, helper lines and helper faces without a depth clear.
+- Preserve non-Inspector ScreenSpaced/FXAA order and reuse the shared PHONG lighting calculation/upload owner.
+- D/R nine frame cases retain all six old cases and add three; owner 47 cases pass. Actual application region
+  three and close one pass per configuration. No native GL/D3D AA/bias or complete product acceptance.
+- Record the unchanged intermittent first lock-pressure draw and failed physical cursor restoration separately;
+  fresh actual source/data review remains pending, with no weakened assertions or speculative product fix.
+- Regenerate the source graph: 7,756 nodes / 12,431 edges / 722 communities, zero model tokens; unchanged builder.
+
+
+## 2026-10-25 - Record actual Inspector helper-face depth finding
+
+- Independent actual review traced the current sphere node to ordinary Mesh/Diffuse LEQUAL instead of native LESS.
+- Preserve the global diffuse contract; a scoped application pass and first regression measurements are pending.
+- Earlier full helper-depth preservation is withdrawn; shared depth, width and FXAA evidence remains bounded.
+- Lock-pressure and cursor-cleanup evidence stays open; no new toolkit code or run claim in this update.
+
+
+## 2026-10-25 - Verify the application helper-face LESS correction
+
+- Application-only technique binding copies Diffuse with LESS/write; global Diffuse remains LEQUAL.
+- Two actual pass/equal-depth regressions turn red to green per D/R; region three, close one and broad 1,381 pass.
+- Missing TEMP-host inputs were added through MSBuild content links; host DLL/PDB remain unchanged.
+- Fresh independent R2 source/data checks completed; formal report pending. WPF/input and full-product limits stay open.
+- No toolkit code delta, so the previously generated source graph remains current.
+
+
+## 2026-10-25 - Close the bounded independent helper-face R2 review
+
+- Full actual-source/data review and parent read confirm the application LESS correction without new findings.
+- Preserve open lock-pressure, physical cursor-cleanup and complete-product boundaries; no code or rerun in this update.
+
+
+## 2026-10-25 – Separate WPF lock-pressure test phases
+
+- Preserve 39 original ready-slot check lines while entering the borrow immediately after accepted submission.
+- Add a real retained-publication lock case with request-backed rebind accounting and one fresh red frame.
+- Actual-source D/R two direct and ten policy cases pass; retain R1's overstrong post-await counter failure.
+- Four PE/PDB pairs: 380 documents, 378 current matches, two generated sources missing; products unchanged.
+- Source graph regenerated with the unchanged builder; independent final review and historical causes remain open.
+
+
+## 2026-10-25 – Complete the independent lock-phase review
+
+- Actual Source1 and full inverse, all 39 original check lines and D/R two direct/ten policy cases confirmed.
+- No new confirmed source/data findings; historical failures and asynchronous MIL/product limits remain.
+- Raw LF Gitblob and preserved CRLF worktree inverse are explicitly distinguished; no EOL/config change.
+
+## 2026-11-02 - Integrate Helix collision and overlay fixes with published history
+
+- Preserve the complete nine-commit remote advance through f0ade9fc2 alongside the local collision,
+  billboard, empty-line, bounded-diagnostic and TopMost fixes; no history replacement.
+- Retain post-scene depth-preserving traversal and existing conditional FXAA/overlay ordering.
+  Align the ScreenSpace fixture with the flattened overlay stream, preserving its pixel assertions.
+- Remove the per-frame diagnostic LINQ enumerator allocation. The existing collision regression now
+  measures identical intersection and empty-frame allocations (18,432 bytes across 256 frames).
+  Its pose-only frame retains the generation; changed batch layout, geometry and detach still replace it.
+- Integrated Debug builds of both test hosts and the Helix consumer succeed. Targeted Core tests pass
+  46/46; frame-renderer tests pass 12/12, including offscreen WARP. No visible UI or application start.
+- Reuse earlier unaffected validation; no full suite, hardware acceptance, package/version change or
+  Graphify regeneration in this commit/push task. Rider/ReSharper tools are unavailable in this session.
+- Maintain both sides of the OKF concepts, index and log; check new concept provenance links and staged
+  whitespace. The parent repository gitlink remains for its coordinator to record separately.

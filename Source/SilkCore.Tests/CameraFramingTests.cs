@@ -1,5 +1,5 @@
-using HelixToolkit.SharpDX.Core.Extensions;
-using HelixToolkit.SharpDX.Core.Model.Camera;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.SharpDX.Core.Cameras;
 using Vector3 = Silk.NET.Maths.Vector3D<float>;
 
 namespace HelixToolkit.SharpDX.Core.Native;

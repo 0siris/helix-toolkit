@@ -97,9 +97,8 @@ public partial class Viewport3DX {
         var beforeSubmission = surface.PresentedFrames;
         var onDemand = RenderOnDemand;
         try {
-            if (!onDemand) cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
             if (!surface.CompletePendingFrame(waitForCompletion || captureFrame)) {
-                if (onDemand) cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
+                cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
                 return 0;
             }
 
@@ -111,13 +110,19 @@ public partial class Viewport3DX {
                 reserved = renderDemand.TryBeginFrame(out _);
             }
 
-            if (onDemand) cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
-            if (!ReferenceEquals(d3d12Surface, surface) || surface.IsDisposed || IsDisposed) return 0;
-            if (onDemand && !reserved && !renderDemand.TryBeginFrame(out _)) return 0;
-            reserved |= onDemand;
+            if (!onDemand || reserved) RaiseRendering();
+            if (!ReferenceEquals(d3d12Surface, surface) || !IsRenderReady) return 0;
+            cameraController.OnCompositionTargetRendering(renderingTime.Ticks);
+            if (!ReferenceEquals(d3d12Surface, surface) || !IsRenderReady) return 0;
+            if (onDemand && !reserved) {
+                if (!renderDemand.TryBeginFrame(out _)) return 0;
+                reserved = true;
+                RaiseRendering();
+                if (!ReferenceEquals(d3d12Surface, surface) || !IsRenderReady) return 0;
+            }
             int recorded;
             try {
-                recorded = RecordD3D12ViewportFrame(surface, camera, captureFrame, waitForCompletion);
+                recorded = RecordD3D12ViewportFrame(surface, CameraCore!, captureFrame, waitForCompletion);
             } catch {
                 failedRecording = true;
                 throw;

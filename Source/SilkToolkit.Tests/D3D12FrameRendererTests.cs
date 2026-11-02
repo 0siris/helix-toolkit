@@ -272,6 +272,237 @@ public sealed partial class D3D12FrameRendererTests {
         Assert.Equal(ResourceStates.CopySource, target.ColorResource.State);
     }
 
+
+    /// <summary>Retains scene occlusion, native surface offset, strict region ties and helper ordering.</summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpInspectorGroupRetainsSceneDepthAndDrawsHelpersAfterRegions() {
+        using var effects = new InspectorProbeEffects();
+        using var frame = new OffscreenFrame(effects);
+        using var scene = InspectorQuad(Vector3.Zero, new Vector4(0, 1, 0, 1));
+        scene.DepthBias = 1;
+        scene.SlopeScaledDepthBias = 1;
+        using var group = new GroupNode { RenderType = RenderType.PostEffect };
+        using var region = InspectorQuad(Vector3.Zero, new Vector4(1, 0, 0, 1));
+        using var tied = InspectorQuad(Vector3.Zero, new Vector4(0, 0, 1, 1));
+        group.AddChildNode(region);
+        group.AddChildNode(tied);
+        var camera = CreateCamera();
+        var target = frame.Target;
+        foreach (var aa in new[] { FXAALevel.None, FXAALevel.Low }) {
+            var visible = frame.Render(camera, [scene, group], fxaaLevel: aa);
+            Assert.Equal(3, visible.Draws);
+            Assert.Same(scene, Assert.Single(Field<FastList<SceneNode>>(frame.Renderer, "opaqueNodes")));
+            Assert.Same(group, Assert.Single(Field<FastList<SceneNode>>(frame.Renderer, "postEffectNodes")));
+            AssertPixel(visible.Pixels, target.Width, target.Width / 2, target.Height / 2, 13, 0, 0);
+            scene.DepthBias = 0;
+            scene.SlopeScaledDepthBias = 0;
+            var tiedScene = frame.Render(camera, [scene, group], fxaaLevel: aa);
+            AssertPixel(tiedScene.Pixels, target.Width, target.Width / 2, target.Height / 2, 0, 13, 0);
+            scene.DepthBias = 1;
+            scene.SlopeScaledDepthBias = 1;
+        }
+        using var helper = CreateGreenQuad();
+        helper.Geometry!.Colors = new Color4Collection(Enumerable.Repeat(new Vector4(1, 1, 1, 1), 4));
+        group.AddChildNode(helper);
+        var marker = frame.Render(camera, [scene, group]);
+        AssertPixel(marker.Pixels, target.Width, target.Width / 2, target.Height / 2, 255, 255, 255);
+        var geometry = Assert.IsType<MeshGeometry3D>(scene.Geometry);
+        geometry.Positions = new Vector3Collection(geometry.Positions!.Select(point =>
+            new Vector3(point.X, point.Y, -.75f)));
+        var occluded = frame.Render(camera, [scene, group]);
+        AssertPixel(occluded.Pixels, target.Width, target.Width / 2, target.Height / 2, 0, 13, 0);
+        Assert.Equal(new SceneNode[] { region, tied, helper }, group.Items.ToArray());
+        using var empty = new MeshNode { Geometry = new MeshGeometry3D(), Material = new ColorMaterialCore() };
+        group.Clear();
+        group.AddChildNode(empty);
+        scene.Visible = false;
+        var emptyFrame = frame.Render(camera, [scene, group]);
+        Assert.Equal(0, emptyFrame.Draws);
+        Assert.True(empty.RenderCore.IsAttached);
+        AssertPixel(emptyFrame.Pixels, target.Width, target.Width / 2, target.Height / 2, 0, 0, 255);
+    }
+
+    /// <summary>Differentiates four native lights, stored normal length, one-sided lighting and unlit substitution.</summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpInspectorUsesFourLightsAndStoredNormalsBeforeInterpolation() {
+        using var effects = new InspectorProbeEffects();
+        using var frame = new OffscreenFrame(effects);
+        using var group = new GroupNode { RenderType = RenderType.PostEffect };
+        using var mesh = InspectorQuad(Vector3.Zero, new Vector4(1, 0, 0, 1));
+        group.AddChildNode(mesh);
+        var geometry = Assert.IsType<MeshGeometry3D>(mesh.Geometry);
+        var camera = CreateCamera();
+        var target = frame.Target;
+        foreach (var sample in new[] {
+                     (Normal: Vector3.Zero, R: (byte)13, G: (byte)0, B: (byte)0),
+                     (Normal: new Vector3(0, 0, .5f), R: (byte)223, G: (byte)0, B: (byte)0),
+                     (Normal: Vector3.UnitZ, R: (byte)255, G: (byte)153, B: (byte)153),
+                     (Normal: -Vector3.UnitZ, R: (byte)13, G: (byte)0, B: (byte)0)
+                 }) {
+            geometry.Normals = new Vector3Collection(Enumerable.Repeat(sample.Normal, 4));
+            foreach (var reverse in new[] { false, true }) {
+                geometry.Indices = reverse
+                    ? new IntCollection([2, 1, 0, 3, 1, 2])
+                    : new IntCollection([0, 1, 2, 2, 1, 3]);
+                var result = frame.Render(camera, [group]);
+                Assert.Equal(1, result.Draws);
+                AssertPixel(result.Pixels, target.Width, target.Width / 2, target.Height / 2,
+                    sample.R, sample.G, sample.B);
+            }
+        }
+        geometry.Indices = new IntCollection([0, 1, 2, 2, 1, 3]);
+        geometry.Normals = new Vector3Collection([Vector3.UnitZ, Vector3.UnitZ,
+            -Vector3.UnitZ, -Vector3.UnitZ]);
+        var interpolated = frame.Render(camera, [group]);
+        var offset = checked((int)((target.Height / 2 * target.Width + target.Width / 2) * 4));
+        // At this center sample the post-VS color interpolates bright and dark vertices.
+        // Per-fragment normal evaluation would instead produce ambient or saturated red.
+        Assert.InRange(interpolated.Pixels[offset], (byte)90, (byte)180);
+        Assert.InRange(interpolated.Pixels[offset + 1], (byte)45, (byte)110);
+        Assert.Equal(interpolated.Pixels[offset + 1], interpolated.Pixels[offset + 2]);
+
+        mesh.Material = new InspectorProbeMaterial(inspector: false);
+        geometry.Normals = new Vector3Collection(Enumerable.Repeat(new Vector3(0, 0, .5f), 4));
+        var ordinary = new List<(byte R, byte G, byte B)>();
+        foreach (var reverse in new[] { false, true }) {
+            geometry.Indices = reverse ? new IntCollection([2, 1, 0, 3, 1, 2])
+                : new IntCollection([0, 1, 2, 2, 1, 3]);
+            var result = frame.Render(camera, [group]);
+            ordinary.Add((result.Pixels[offset], result.Pixels[offset + 1], result.Pixels[offset + 2]));
+        }
+        Assert.Contains(((byte)252, (byte)51, (byte)51), ordinary);
+        Assert.Contains(((byte)13, (byte)13, (byte)13), ordinary);
+    }
+
+    /// <summary>Creates independent synthetic shader witnesses; these coordinates are not native runtime observations.</summary>
+    /// <param name="normal">The unchanged stored vertex normal.</param>
+    /// <param name="color">The explicit native type-color witness.</param>
+    /// <returns>The productive node using the shared Meshmixer shader modules.</returns>
+    private static MeshNode InspectorQuad(Vector3 normal, Vector4 color) => new() {
+        Material = new InspectorProbeMaterial(),
+        CullMode = CullMode.None,
+        Geometry = new MeshGeometry3D {
+            Positions = new Vector3Collection([new(-.5f, .5f, 0), new(.5f, .5f, 0),
+                new(-.5f, -.5f, 0), new(.5f, -.5f, 0)]),
+            Normals = new Vector3Collection(Enumerable.Repeat(normal, 4)),
+            Colors = new Color4Collection(Enumerable.Repeat(color, 4)),
+            Indices = new IntCollection([0, 1, 2, 2, 1, 3])
+        }
+    };
+
+    /// <summary>Registers the existing modules on the existing native frame fixture.</summary>
+    private sealed class InspectorProbeEffects : DefaultEffectsManager, ID3D12MeshShaderProvider {
+        /// <summary>Creates one explicit LESS/write pass with the production module names and layout.</summary>
+        internal InspectorProbeEffects() : base(new EffectsManagerConfiguration { EnableSoftwareRendering = true }) {
+            var vertex = D3D12ShaderModule.Load("VS", "vsMeshMixerPhong");
+            var pixel = D3D12ShaderModule.Load("PS", "psMeshMixerPhong");
+            var vs = new ShaderDescription("vsMeshMixerPhong", ShaderStage.Vertex, vertex.ByteCode.ToArray());
+            var ps = new ShaderDescription("psMeshMixerPhong", ShaderStage.Pixel, pixel.ByteCode.ToArray());
+            var elements = DefaultInputLayout.VsInput.Select(element => {
+                if (element.Classification == HelixToolkit.SharpDX.Core.Native.InputClassification.PerInstanceData) element.Slot = 4;
+                return element;
+            }).ToArray();
+            AddTechnique(new TechniqueDescription("InspectorProbe") {
+                InputLayoutDescription = new InputLayoutDescription(vs.ByteCode!,
+                    [.. elements, new InputElement("COLOR", 1, Format.FormatR32G32B32A32Float, 0, 3)]),
+                PassDescriptions = [new ShaderPassDescription(DefaultPassNames.Default) {
+                    ShaderList = [vs, ps],
+                    BlendStateDescription = DefaultBlendStateDescriptions.BsSourceAlways,
+                    DepthStencilStateDescription = DefaultDepthStencilDescriptions.DssDepthLess
+                }]
+            });
+        }
+
+        /// <summary>Supplies the unused back-color slot required by the shared ordinary/region VS layout.</summary>
+        /// <param name="geometry">The actual productive geometry.</param>
+        /// <returns>One explicit auxiliary record per position.</returns>
+        D3D12MeshVertexData[] ID3D12MeshShaderProvider.GetVertexData(Geometry3D geometry) =>
+            geometry is MeshGeometry3D { Normals: not null }
+                ? new D3D12MeshVertexData[geometry.Positions?.Count ?? 0] : [];
+
+        /// <summary>Routes only the test material to the registered shared modules.</summary>
+        /// <param name="node">The actual scene node.</param>
+        /// <param name="selectedTechnique">The ordinary selected technique.</param>
+        /// <returns>The probe technique or the unchanged ordinary technique.</returns>
+        string ID3D12MeshShaderProvider.GetTechniqueName(SceneNode node, string selectedTechnique) =>
+            node is MaterialGeometryNode { Material: InspectorProbeMaterial } ? "InspectorProbe" : selectedTechnique;
+    }
+
+    /// <summary>Uploads independent fixed input witnesses into the production 256-byte material union.</summary>
+    /// <param name="inspector">Whether the witness selects the Inspector draw or the unchanged ordinary draw.</param>
+    private sealed class InspectorProbeMaterial(bool inspector = true) : MaterialCore, ID3D12MeshMaterial {
+        /// <summary>Gets the shared module test technique.</summary>
+        string ID3D12MeshMaterial.TechniqueName => "InspectorProbe";
+        /// <summary>Disables an unrelated shadow input.</summary>
+        bool ID3D12MeshMaterial.RenderShadowMap => false;
+        /// <summary>Clears the unrelated shared shadow flag.</summary>
+        /// <param name="material">The productive shared mesh payload.</param>
+        void ID3D12MeshMaterial.ApplyMeshParameters(ref PhongPBRMaterialStruct material) =>
+            material.RenderShadowMap = 0;
+        /// <summary>Writes matrices, four distant positional lights and the explicit region discriminator.</summary>
+        /// <param name="destination">The productive upload payload.</param>
+        /// <param name="geometry">The productive geometry.</param>
+        /// <param name="node">The productive node.</param>
+        void ID3D12MeshMaterial.WriteMaterialConstants(Span<byte> destination, Geometry3D? geometry, SceneNode? node) {
+            destination.Clear();
+            var identity = System.Numerics.Matrix4x4.Identity;
+            var light = new System.Numerics.Vector4(0, 0, 1000000, 1);
+            var profile = new System.Numerics.Vector4(1, inspector ? 1 : 0, 0, 0);
+            System.Runtime.InteropServices.MemoryMarshal.Write(destination, in identity);
+            System.Runtime.InteropServices.MemoryMarshal.Write(destination[64..], in identity);
+            System.Runtime.InteropServices.MemoryMarshal.Write(destination[128..], in identity);
+            foreach (var offset in new[] { 176, 192, 208, 240 })
+                System.Runtime.InteropServices.MemoryMarshal.Write(destination[offset..], in light);
+            System.Runtime.InteropServices.MemoryMarshal.Write(destination[224..], in profile);
+        }
+        /// <summary>Supplies no texture.</summary>
+        /// <param name="shaderRegister">The requested texture register.</param>
+        /// <returns>No texture.</returns>
+        TextureModel? ID3D12MeshMaterial.GetTexture(int shaderRegister) => null;
+        /// <summary>Supplies no custom sampler.</summary>
+        /// <param name="shaderRegister">The requested sampler register.</param>
+        /// <returns>The productive default sampler.</returns>
+        SamplerStateDescription? ID3D12MeshMaterial.GetSampler(int shaderRegister) => null;
+    }
+
+    /// <summary>Keeps an existing screen-spaced edge inside FXAA when no post-scene group is present.</summary>
+    [Fact]
+    [Trait("Category", "Warp")]
+    public void WarpScreenSpacedEdgeRemainsInsideFxaaWithoutInspector() {
+        using var frame = new OffscreenFrame(width: 128, height: 128);
+        using var overlay = new ScreenSpacedNode {
+            RelativeScreenLocationX = 0, RelativeScreenLocationY = 0,
+            CameraType = ScreenSpacedCameraType.Orthographic
+        };
+        using var triangle = new MeshNode {
+            Material = new ColorMaterialCore(), CullMode = CullMode.None,
+            Geometry = new MeshGeometry3D {
+                Positions = new Vector3Collection([new(-8, -7, 0), new(8, -3, 0), new(-3, 8, 0)]),
+                Colors = new Color4Collection(Enumerable.Repeat(new Vector4(1, 1, 1, 1), 3)),
+                Indices = new IntCollection([0, 1, 2])
+            }
+        };
+        overlay.AddChildNode(triangle);
+        var camera = CreateCamera();
+        var raw = frame.Render(camera, [overlay], fxaaLevel: FXAALevel.None);
+        var filtered = frame.Render(camera, [overlay], fxaaLevel: FXAALevel.Low);
+        Assert.Equal(1, raw.Draws);
+        Assert.Equal(1, filtered.Draws);
+        Assert.Empty(Field<FastList<SceneNode>>(frame.Renderer, "postEffectNodes"));
+        var overlays = Field<FastList<SceneNode>>(frame.Renderer, "screenSpacedNodes");
+        Assert.Collection(overlays, node => Assert.Same(overlay, node), node => Assert.Same(triangle, node));
+        var rawRed = Enumerable.Range(0, raw.Pixels.Length / 4).Select(index => raw.Pixels[index * 4]).ToArray();
+        var filteredRed = Enumerable.Range(0, filtered.Pixels.Length / 4)
+            .Select(index => filtered.Pixels[index * 4]).ToArray();
+        Assert.Contains((byte)0, rawRed);
+        Assert.Contains((byte)255, rawRed);
+        Assert.All(rawRed, value => Assert.True(value is 0 or 255));
+        Assert.Contains(filteredRed, value => value > 0 && value < 255);
+        Assert.False(raw.Pixels.SequenceEqual(filtered.Pixels));
+    }
+
     /// <summary>Creates a camera whose center and background samples have independent pixel predictions.</summary>
     /// <returns>The fixed orthographic camera.</returns>
     private static OrthographicCameraCore CreateCamera() => new() {
@@ -372,18 +603,29 @@ public sealed partial class D3D12FrameRendererTests {
         internal D3D12FrameRenderer Renderer { get; }
 
         /// <summary>Gets borrowed metadata for the offscreen texture.</summary>
-        internal D3D12FrameTarget Target => new(color, view, 32, 24, Format.FormatR8G8B8A8Unorm);
+        internal D3D12FrameTarget Target => new(color, view, width, height, Format.FormatR8G8B8A8Unorm);
+
+        /// <summary>The caller-selected physical target width.</summary>
+        private readonly uint width;
+
+        /// <summary>The caller-selected physical target height.</summary>
+        private readonly uint height;
 
         /// <summary>Creates a window-independent WARP target and its explicit submission owners.</summary>
         /// <param name="effectsManager">The optional borrowed scene manager.</param>
-        internal OffscreenFrame(HelixToolkit.SharpDX.Core.IEffectsManager? effectsManager = null) {
+        /// <param name="width">The physical target width; existing cases retain 32 pixels.</param>
+        /// <param name="height">The physical target height; existing cases retain 24 pixels.</param>
+        internal OffscreenFrame(HelixToolkit.SharpDX.Core.IEffectsManager? effectsManager = null,
+            uint width = 32, uint height = 24) {
+            this.width = width;
+            this.height = height;
             Device = SilkD3D12DeviceFactory.CreateDefault(SilkFeatureLevel.Level110, SilkDriverType.Warp);
             queue = Device.CreateCommandQueue();
             Context = Device.CreateCommandContext();
             fence = Device.CreateFence();
             TargetHeap = Device.CreateDescriptorHeap(DescriptorHeapType.Rtv, 2);
             view = TargetHeap.Allocate();
-            color = Device.CreateRenderTargetTexture2D(32, 24, Format.FormatR8G8B8A8Unorm);
+            color = Device.CreateRenderTargetTexture2D(width, height, Format.FormatR8G8B8A8Unorm);
             Device.CreateRenderTargetView(color, view);
             Renderer = new D3D12FrameRenderer(Device, Format.FormatR8G8B8A8Unorm, effectsManager);
         }
@@ -398,13 +640,15 @@ public sealed partial class D3D12FrameRendererTests {
             CameraCore camera,
             IEnumerable<SceneNode> roots,
             float dpiScale = 1,
-            IEnumerable<SceneNode2D>? roots2D = null
+            IEnumerable<SceneNode2D>? roots2D = null,
+            FXAALevel fxaaLevel = FXAALevel.None
         ) {
             var target = Target;
             Context.Reset();
             var draws = Renderer.RecordViewportFrame(
                 Context, in target, dpiScale,
-                [0, 0, 1, 1], roots, camera, false, roots2D: roots2D, autoUpdateOctree: false
+                [0, 0, 1, 1], roots, camera, false, roots2D: roots2D, autoUpdateOctree: false,
+                fxaaLevel: fxaaLevel
             );
             return (draws, Readback(in target));
         }

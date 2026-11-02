@@ -17,84 +17,99 @@ namespace SilkToolkit.Tests;
 /// <param name="output">Receives the exercised recovery seam, real counters and evidence limitations.</param>
 [Collection(WpfCollection.Name)]
 public sealed class P5WpfRecoveryAcceptanceTests(ITestOutputHelper output) {
-    /// <summary>Changes the actual D3DImage property and event synthetically, retaining output and unavailable demand.</summary>
+    /// <summary>Publishes fresh GPU output during synthetic false and rebinds retained frames without scene work.</summary>
     /// <remarks>
     /// Uses WPF's private read-only property key, not a physical front-buffer loss, monitor change or RDP session.
-    /// If that runtime seam is absent, this case skips; the separate direct-owner callback case remains narrower evidence.
+    /// Regular warm-up requires the integrated software-publication policy; failure there is a prerequisite failure.
+    /// One synthetic true establishes the scenario baseline; the original availability is restored in finally.
+    /// Diagnostic WPF snapshots are synchronous and do not prove fresh asynchronous software composition.
     /// </remarks>
-    /// <returns>The explicit hardware verification using genuine scene, copy and WPF publication resources.</returns>
+    /// <returns>The explicit HAL verification of unavailable publication and copy-free retained rebinding.</returns>
     [Fact(Explicit = true)]
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     [Trait("Category", "Wpf")]
-    public Task SyntheticD3DImageAvailabilityRebindsRetainedOutputAndPreservesUnavailableDemand() =>
+    public Task SyntheticD3DImageAvailabilityPublishesFreshOutputAndRebindsRetainedFramesTest() =>
         StaThread.RunAsync(async () => {
                 var key = typeof(D3DImage).GetField(
                         "IsFrontBufferAvailablePropertyKey", BindingFlags.Static | BindingFlags.NonPublic
                     )
                     ?.GetValue(null) as DependencyPropertyKey;
-                if (key is null) {
-                    Assert.Skip(
-                        "WPF's read-only availability key is unavailable. " +
-                        "DirectOwnerFrontBufferCallbackRebindsWithoutSceneOrCopyWork covers only the owner callback."
-                    );
-                    return;
-                }
-
+                Assert.NotNull(key);
                 Assert.Same(D3DImage.IsFrontBufferAvailableProperty, key.DependencyProperty);
                 using var effects = new DefaultEffectsManager();
                 await using var driver = new P4PresentationDriver(hwnd: false, effects);
                 using var mesh = P4PresentationDriver.CreateMesh();
                 driver.Viewport.Items.Add(mesh);
+                output.WriteLine("PREREQUISITE: regular HAL warm-up requires the integrated software-publication policy.");
                 await driver.WarmAsync();
                 var owner = Assert.IsType<D3D12WpfPresentation>(driver.Wpf);
                 var canvas = Assert.IsType<DPFCanvas>(driver.Canvas);
                 var image = canvas.ImageSource.NativeImage;
                 var bridge = P4PresentationDriver.ReadField<D3D12ImageInteropBridge>(owner, "bridge");
                 var originalAvailability = image.IsFrontBufferAvailable;
-                Assert.True(originalAvailability);
-                Assert.Same(
-                    image, Assert.IsType<Image>(Assert.Single(canvas.Children.Cast<UIElement>()))
-                        .Source
-                );
-                var original = driver.Snapshot();
-                P4PresentationDriver.AssertPixel(original, 32, 24, 0, 255, 0, 255);
-                var before = driver.Counts;
-                var milestones = Milestones(owner);
-                var copies = bridge.CopyCount;
-                var rebound = owner.ReboundFrames;
-                var surface = canvas.ImageSource.BoundSurface;
-                var generation = owner.Generation;
-                var context = owner.RenderContext;
                 var node = Assert.IsType<P4ObservedMeshNode>(mesh.SceneNode);
                 var updates = 0;
-                node.OnNextUpdate = _ => updates++;
                 var transitions = new List<(bool Old, bool New)>();
                 DependencyPropertyChangedEventHandler changed = (sender, args) => {
                     Assert.Same(image, sender);
                     Assert.Same(D3DImage.IsFrontBufferAvailableProperty, args.Property);
                     transitions.Add(((bool) args.OldValue, (bool) args.NewValue));
                 };
-                image.IsFrontBufferAvailableChanged += changed;
                 try {
+                    // Establish only the synthetic baseline; native availability is not changed or forced during polling.
+                    image.SetValue(key, true);
+                    await driver.DrainAsync();
+                    Assert.True(image.IsFrontBufferAvailable);
+                    Assert.Same(
+                        image, Assert.IsType<Image>(Assert.Single(canvas.Children.Cast<UIElement>()))
+                            .Source
+                    );
+                    var original = driver.Snapshot();
+                    P4PresentationDriver.AssertPixel(original, 32, 24, 0, 255, 0, 255);
+                    var before = driver.Counts;
+                    var milestones = Milestones(owner);
+                    var copies = bridge.CopyCount;
+                    var rebound = owner.ReboundFrames;
+                    var surface = canvas.ImageSource.BoundSurface;
+                    var generation = owner.Generation;
+                    var context = owner.RenderContext;
+                    node.OnNextUpdate = _ => updates++;
+                    image.IsFrontBufferAvailableChanged += changed;
+                    output.WriteLine("SCENARIO: synthetic true baseline settled; no further availability forcing in polls.");
+
                     // The actual property callback and subscription chain run, but native availability is not disturbed.
                     image.SetValue(key, false);
                     Assert.False(image.IsFrontBufferAvailable);
                     Assert.False(canvas.ImageSource.IsFrontBufferAvailable);
                     Assert.True(driver.Viewport.RenderDemand.HasPublicationDemand);
                     Assert.True(driver.Viewport.RenderDemand.HasRecoveryDemand);
-                    for (var tick = 0; tick < 32; tick++) Assert.Equal(0, driver.Tick());
+                    await driver.DrainAsync();
+                    Assert.False(image.IsFrontBufferAvailable);
+                    var reboundAfterLoss = owner.ReboundFrames;
+                    for (var tick = 0; tick < 32; tick++) {
+                        var draws = driver.Tick();
+                        Assert.Equal(0, draws);
+                    }
+
                     Assert.Equal(before, driver.Counts);
                     Assert.Equal(milestones, Milestones(owner));
                     Assert.Equal(copies, bridge.CopyCount);
                     Assert.Equal(surface, canvas.ImageSource.BoundSurface);
-                    Assert.Equal(rebound, owner.ReboundFrames);
+                    Assert.True(reboundAfterLoss > rebound);
+                    Assert.Equal(reboundAfterLoss, owner.ReboundFrames);
                     Assert.Equal(0, updates);
                     Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+                    Assert.False(driver.Viewport.RenderDemand.HasPublicationDemand);
+                    Assert.False(driver.Viewport.RenderDemand.HasRecoveryDemand);
+                    var retained = driver.Snapshot();
+                    Assert.Equal(original.Pixels, retained.Pixels);
 
+                    rebound = owner.ReboundFrames;
                     image.SetValue(key, true);
                     await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
                     await driver.DrainAsync();
+                    Assert.True(image.IsFrontBufferAvailable);
                     Assert.Equal(before, driver.Counts);
                     Assert.Equal(milestones, Milestones(owner));
                     Assert.Equal(copies, bridge.CopyCount);
@@ -103,45 +118,73 @@ public sealed class P5WpfRecoveryAcceptanceTests(ITestOutputHelper output) {
                     Assert.Equal(generation, owner.Generation);
                     Assert.Same(context, owner.RenderContext);
                     Assert.Equal(0, updates);
-                    Assert.Equal(
-                        original.Pixels, driver.Snapshot()
-                            .Pixels
-                    );
+                    var returned = driver.Snapshot();
+                    Assert.Equal(original.Pixels, returned.Pixels);
 
                     image.SetValue(key, false);
                     P4PresentationDriver.SetMeshColor(mesh, new Vector4(1, 0, 0, 1));
                     Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-                    var blocked = driver.Counts;
-                    var blockedMilestones = Milestones(owner);
-                    var blockedRebound = owner.ReboundFrames;
-                    for (var tick = 0; tick < 32; tick++) Assert.Equal(0, driver.Tick());
+                    var requested = driver.Counts;
+                    await driver.DrainAsync();
                     Assert.False(image.IsFrontBufferAvailable);
-                    Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-                    Assert.True(driver.Viewport.RenderDemand.HasPublicationDemand);
-                    Assert.Equal(blocked, driver.Counts);
-                    Assert.Equal(blockedMilestones, Milestones(owner));
-                    Assert.Equal(copies, bridge.CopyCount);
-                    Assert.Equal(blockedRebound, owner.ReboundFrames);
-                    Assert.Equal(0, updates);
+                    driver.AssertAdvanced(requested, 1);
+                    Assert.Equal(milestones.Copied + 1, owner.CopiedFrames);
+                    Assert.Equal(milestones.Published + 1, owner.PublishedFrames);
+                    Assert.Equal(copies + 1, bridge.CopyCount);
+                    var publishedSerial = P4PresentationDriver.ReadField<ulong>(owner, "publishedSerial");
+                    var bridgeSerial = P4PresentationDriver.ReadField<ulong>(bridge, "lastPublishedSerial");
+                    Assert.Equal(requested.Submitted + 1, publishedSerial);
+                    Assert.Equal(publishedSerial, bridgeSerial);
+                    Assert.NotEqual(surface, canvas.ImageSource.BoundSurface);
+                    Assert.False(owner.HasPendingTransport);
+                    Assert.False(bridge.IsCopyPending);
+                    Assert.False(bridge.HasReadySurface);
+                    Assert.Equal(generation, owner.Generation);
+                    Assert.Same(context, owner.RenderContext);
+                    Assert.Equal(1, updates);
+                    var fresh = driver.Snapshot();
+                    P4PresentationDriver.AssertPixel(fresh, 32, 24, 0, 0, 255, 255);
+                    var freshCounts = driver.Counts;
+                    var freshMilestones = Milestones(owner);
+                    var freshSurface = canvas.ImageSource.BoundSurface;
+                    var freshRebound = owner.ReboundFrames;
+                    for (var tick = 0; tick < 32; tick++) {
+                        var draws = driver.Tick();
+                        Assert.Equal(0, draws);
+                    }
+
+                    Assert.Equal(freshCounts, driver.Counts);
+                    Assert.Equal(freshMilestones, Milestones(owner));
+                    Assert.Equal(freshRebound, owner.ReboundFrames);
+                    Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
+                    Assert.False(driver.Viewport.RenderDemand.HasPublicationDemand);
+                    Assert.False(driver.Viewport.RenderDemand.HasRecoveryDemand);
 
                     image.SetValue(key, true);
                     await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
                     await driver.DrainAsync();
-                    driver.AssertAdvanced(blocked, 1);
-                    Assert.Equal(milestones.Copied + 1, owner.CopiedFrames);
-                    Assert.Equal(milestones.Published + 1, owner.PublishedFrames);
+                    Assert.True(image.IsFrontBufferAvailable);
+                    Assert.Equal(freshCounts, driver.Counts);
+                    Assert.Equal(freshMilestones, Milestones(owner));
                     Assert.Equal(copies + 1, bridge.CopyCount);
+                    Assert.True(owner.ReboundFrames > freshRebound);
+                    Assert.Equal(freshSurface, canvas.ImageSource.BoundSurface);
+                    var reboundSerial = P4PresentationDriver.ReadField<ulong>(owner, "publishedSerial");
+                    Assert.Equal(publishedSerial, reboundSerial);
                     Assert.Equal(generation, owner.Generation);
                     Assert.Same(context, owner.RenderContext);
                     Assert.Equal(1, updates);
-                    P4PresentationDriver.AssertPixel(driver.Snapshot(), 32, 24, 0, 0, 255, 255);
+                    var restored = driver.Snapshot();
+                    P4PresentationDriver.AssertPixel(restored, 32, 24, 0, 0, 255, 255);
+                    Assert.Equal(fresh.Pixels, restored.Pixels);
                     Assert.Equal(new[] { (true, false), (false, true), (true, false), (false, true) }, transitions);
                     driver.AssertIdleOrHidden();
                     output.WriteLine(
-                        $"Synthetic actual D3DImage property/events: retained rebind, then fresh red output; " +
+                        $"Synthetic actual D3DImage property/events: retained rebind, then fresh red output during false; " +
                         $"submitted={owner.SubmittedFrames}, copied={owner.CopiedFrames}, " +
                         $"published={owner.PublishedFrames}, rebound={owner.ReboundFrames}. " +
-                        "No physical monitor, native front-buffer loss or RDP proof."
+                        "Synchronous WPF snapshots only; no fresh asynchronous software-composition, physical monitor, " +
+                        "native front-buffer loss or RDP proof."
                     );
                 } finally {
                     try {

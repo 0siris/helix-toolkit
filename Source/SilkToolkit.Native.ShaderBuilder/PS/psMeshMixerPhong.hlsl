@@ -13,6 +13,8 @@ float4 meshMixerBackColor(float4 backDiffuse, float4 sourcePosition)
 
 float4 main(MeshMixerPhongPixel input, bool isFrontFace : SV_IsFrontFace) : SV_TARGET
 {
+    if (mmProfile.y != 0.0f)
+        return input.inspectorVertexColor;
     // Native phong.frag24-46: normalize the normal, reverse it ONCE on the back, then normalize the VS light varying.
     float3 normal = normalize(input.normal);
     float4 diffuse = input.diffuse;
@@ -23,22 +25,8 @@ float4 main(MeshMixerPhongPixel input, bool isFrontFace : SV_IsFrontFace) : SV_T
     }
     float3 light = normalize(input.lightDirection);
 
-    // Native standard_lightmodel88-109. Ambient is front-derived even on a backface; specular is front-only.
-    float4 color = input.ambientGlobal;
-    float normalDotLight = dot(normal, light);
-    if (normalDotLight <= 0.0f)
-    {
-        color.a = input.frontAlpha;
-        return color;
-    }
-    float attenuation = 1.0f / (mmAttenuation.x + mmAttenuation.y * input.distance
-        + mmAttenuation.z * input.distance * input.distance);
-    color += attenuation * (diffuse * normalDotLight + input.ambient);
-    float normalDotHalf = max(dot(normal, input.halfVector), 0.0f);
-    if (isFrontFace)
-        color += attenuation * meshMixerMaterialSpecular() * meshMixerLightSpecular()
-            * pow(normalDotHalf, mmShininess);
-    // Native phong.frag56-59: front alpha controls BOTH sides. No saturation, gamma or premultiplication is added.
-    color.a = input.frontAlpha;
-    return color;
+    return meshMixerEvaluateLight(normal, light, input.halfVector,
+        diffuse, input.ambient, input.ambientGlobal,
+        meshMixerMaterialSpecular(), meshMixerLightSpecular(), mmAttenuation,
+        input.distance, mmShininess, isFrontFace, input.frontAlpha);
 }

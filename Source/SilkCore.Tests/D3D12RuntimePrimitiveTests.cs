@@ -1698,6 +1698,7 @@ public class D3D12RuntimePrimitiveTests {
             Geometry = new PointGeometry3D { Positions = new Vector3Collection([Vector3.Zero]) }
         };
         using var instances = new MatrixInstanceBufferModel { Elements = [Matrix.Identity, Matrix.Identity] };
+        instances.Initialize();
 
         var firstMesh = manager.GetOrCreate(mesh);
         Assert.Same(firstMesh, manager.GetOrCreate(mesh));
@@ -1724,11 +1725,19 @@ public class D3D12RuntimePrimitiveTests {
         instances.Elements = [Matrix.Identity, Matrix.Identity, Matrix.Identity];
         var replacementInstances = manager.GetOrCreate(instances);
         Assert.NotSame(firstInstances, replacementInstances);
-        Assert.True(firstInstances!.IsDisposed);
+        Assert.False(firstInstances!.IsDisposed);
+        Assert.False(replacementInstances!.IsDisposed);
+        Assert.Equal(1, manager.InstanceCount);
+        manager.ReleaseDisposedResources();
+        Assert.True(firstInstances.IsDisposed);
+        Assert.False(replacementInstances.IsDisposed);
         Assert.Equal(1, manager.InstanceCount);
         instances.Elements = [];
         Assert.Null(manager.GetOrCreate(instances));
-        Assert.True(replacementInstances!.IsDisposed);
+        Assert.False(replacementInstances.IsDisposed);
+        Assert.Equal(1, manager.InstanceCount);
+        manager.ReleaseDisposedResources();
+        Assert.True(replacementInstances.IsDisposed);
         Assert.Equal(0, manager.InstanceCount);
         Assert.Equal(3, manager.GeometryCount);
         Assert.True(manager.Remove(mesh));
@@ -3725,6 +3734,10 @@ public class D3D12RuntimePrimitiveTests {
         Assert.Equal(1, heap.Count);
         Assert.True(manager.Remove(contentId));
         Assert.False(manager.Remove(contentId));
+        Assert.False(first.IsDisposed);
+        Assert.Equal(0, manager.TextureCount);
+        Assert.Equal(1, heap.Count);
+        manager.ReleaseDisposedResources();
         Assert.True(first.IsDisposed);
         Assert.Equal(0, manager.TextureCount);
         Assert.Equal(0, heap.Count);
@@ -3751,7 +3764,7 @@ public class D3D12RuntimePrimitiveTests {
     /// <param name="centerX">The mesh center on the X axis.</param>
     /// <returns>The initialized mesh node.</returns>
     /// <summary>
-    ///     Verifies FXAA constants and the SSAO kernel are deterministic and preserve their shader layouts.
+    ///     Verifies deterministic FXAA constants and structural contracts of independently randomized SSAO kernels.
     /// </summary>
     [Fact]
     [Trait("Category", "Unit")]
@@ -3767,13 +3780,24 @@ public class D3D12RuntimePrimitiveTests {
 
         var first = SilkD3D12SsaoResources.CreateKernel();
         var second = SilkD3D12SsaoResources.CreateKernel();
-        Assert.Equal(SilkD3D12SsaoResources.KernelSize, first.Length);
-        Assert.Equal(first, second);
-        Assert.All(first, sample => {
-            Assert.True(sample.Z > 0);
-            Assert.Equal(0, sample.W);
-            Assert.InRange(sample.X * sample.X + sample.Y * sample.Y + sample.Z * sample.Z, 0.009f, 1.001f);
-        });
+        var threshold = (float)Math.Cos(Math.PI / 2 - Math.PI / 12);
+        foreach (var kernel in new[] { first, second }) {
+            Assert.Equal(SilkD3D12SsaoResources.KernelSize, kernel.Length);
+            for (var index = 0; index < kernel.Length; index++) {
+                var sample = kernel[index];
+                Assert.True(float.IsFinite(sample.X));
+                Assert.True(float.IsFinite(sample.Y));
+                Assert.True(float.IsFinite(sample.Z));
+                Assert.True(sample.Z > 0);
+                Assert.Equal(0, sample.W);
+                var squaredLength = sample.X * sample.X + sample.Y * sample.Y + sample.Z * sample.Z;
+                var length = MathF.Sqrt(squaredLength);
+                var expectedLength = 0.1f + 0.9f * (index / 32f);
+                Assert.InRange(squaredLength, 0.009f, 1.001f);
+                Assert.InRange(length, expectedLength - 1e-5f, expectedLength + 1e-5f);
+                Assert.InRange(sample.Z / length, threshold - 1e-5f, 1.00001f);
+            }
+        }
     }
 
     /// <summary>

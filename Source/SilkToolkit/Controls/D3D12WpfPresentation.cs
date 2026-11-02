@@ -160,6 +160,29 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Gets whether native resources have been initialized.</summary>
     internal bool IsInitialized => bridge is not null;
 
+    /// <summary>Observes initialized scene eligibility without advancing native or publication work.</summary>
+    internal bool IsRenderReady => bridge is not null && CanRecordScene(false);
+
+    /// <summary>Reads a live allocation only when the canvas still describes the same handle and dimensions.</summary>
+    /// <param name="pixelWidth">Receives the allocated source width, or zero when unavailable.</param>
+    /// <param name="pixelHeight">Receives the allocated source height, or zero when unavailable.</param>
+    /// <param name="scale">Receives the coherent canvas scale, or zero when unavailable.</param>
+    /// <returns>Whether current canvas coordinates map to the retained allocation without resizing it.</returns>
+    internal bool TryGetPresentationMetrics(out uint pixelWidth, out uint pixelHeight, out float scale) {
+        pixelWidth = pixelHeight = 0;
+        scale = 0;
+        if (IsDisposed || stopping || recreateRequested || viewport.IsDisposed || !viewport.OwnsWpfPresentation(this) ||
+            bridge is null || !canvas.IsActive || nativeHandle != canvas.NativeHandle ||
+            width == 0 || height == 0 || width != canvas.PixelWidth || height != canvas.PixelHeight)
+            return false;
+        var currentScale = canvas.EffectiveDpiScale;
+        if (!(currentScale > 0) || !float.IsFinite(currentScale)) return false;
+        pixelWidth = width;
+        pixelHeight = height;
+        scale = currentScale;
+        return true;
+    }
+
     /// <summary>Gets whether an accepted frame still owns rendering, copying or unpublished output.</summary>
     internal bool HasPendingTransport => pendingFence != 0 || unfencedExecution || transportSerial != 0;
 
@@ -344,10 +367,16 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             if (bridge is null && !CreateNative()) return 0;
             if (captureFrame) demand.Request(D3D12RenderInvalidation.Render);
             reserved = demand.TryBeginFrame(out _);
+            if (reserved) viewport.RaiseRendering();
+            if (!CanRecordScene(automaticFrame)) return 0;
             viewport.UpdateWpfCamera(renderingTime);
             if (!CanRecordScene(automaticFrame)) return 0;
-            if (!reserved && !demand.TryBeginFrame(out _)) return 0;
-            reserved = true;
+            if (!reserved) {
+                if (!demand.TryBeginFrame(out _)) return 0;
+                reserved = true;
+                viewport.RaiseRendering();
+                if (!CanRecordScene(automaticFrame)) return 0;
+            }
             if (captureFrame) {
                 LastCapturedFrame = null;
                 CapturedSerial = 0;
@@ -435,7 +464,8 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <returns>Whether a scene may be recorded or submitted at this boundary.</returns>
     private bool CanRecordScene(bool automaticFrame) =>
         !IsDisposed && !stopping && !recreateRequested &&
-        recoveryRegistration is not { IsRemovalRequested: true } && viewport.CanRenderWpfScene && canvas.IsActive &&
+        recoveryRegistration is not { IsRemovalRequested: true } && viewport.OwnsWpfPresentation(this) &&
+        viewport.CanSubmitNativeScene && viewport.CanRenderWpfScene && canvas.IsActive &&
         (!automaticFrame || viewport.WpfRenderingEnabled);
 
     /// <summary>Returns a new explicit capture, rejecting a publication-blocked request rather than returning stale pixels.</summary>
@@ -592,7 +622,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             _ = demand.TryTakePublicationRequest();
             var surface = bridge.ReadySurface;
             var serial = bridge.ReadySerial;
-            if (!canvas.ImageSource.IsFrontBufferAvailable || !canvas.ImageSource.TryPublish(surface, width, height)) {
+            if (!canvas.ImageSource.TryPublish(surface, width, height)) {
                 demand.RequestPublication();
                 return false;
             }
@@ -604,7 +634,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             transportSerial = 0;
             copyStarted = false;
         } else if (demand.TryTakePublicationRequest() && publishedSurface != 0) {
-            if (!canvas.ImageSource.IsFrontBufferAvailable || !canvas.ImageSource.TryPublish(publishedSurface, width, height)) {
+            if (!canvas.ImageSource.TryPublish(publishedSurface, width, height)) {
                 demand.RequestPublication();
                 return false;
             }
@@ -818,9 +848,20 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
 
     /// <summary>Drains and detaches before the viewport begins irreversible application-scene disposal.</summary>
     internal void PrepareForDisposal() {
+        BeginDisposalPreparation();
+        if (!TryFinishDisposalPreparation())
+            throw new TimeoutException("The WPF image is still bound; native resources remain owned for disposal retry.");
+    }
+
+    /// <summary>Gets the existing finite completion budget for dispatcher-yielding detach attempts.</summary>
+    internal static TimeSpan DisposalTimeout => CompletionTimeout;
+
+    /// <summary>Stops new submissions and drains D3D12 before any image or native resource is released.</summary>
+    internal void BeginDisposalPreparation() {
         canvas.Dispatcher.VerifyAccess();
         if (IsDisposed || disposalPrepared) return;
         stopping = true;
+        serviceTimer.Stop();
         if (device is not null) {
             if (device.GetDeviceRemovedReason() < 0) {
                 recoveryBarrier ??= recoveryRegistration;
@@ -835,11 +876,23 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
             pendingFence = 0;
             unfencedExecution = false;
         }
+    }
 
-        if (!TryDetach()) throw new TimeoutException("The WPF image is still bound; native resources remain owned for disposal retry.");
+    /// <summary>Finalizes the image before acknowledging detachment and draining the retained D3D11 bridge.</summary>
+    /// <returns>False only for an image-lock miss; native and unexpected failures propagate.</returns>
+    internal bool TryFinishDisposalPreparation() {
+        canvas.Dispatcher.VerifyAccess();
+        if (IsDisposed || disposalPrepared) return true;
+        if (!canvas.ImageSource.TryDispose()) {
+            demand.RequestRecovery();
+            return false;
+        }
+        bridge?.ConfirmDetached();
+        if (publishedSurface != 0) demand.RequestPublication();
         bridge?.Dispose();
         bridge = null;
         disposalPrepared = true;
+        return true;
     }
 
     /// <summary>Defers viewport/application disposal until a reentrant scene-recording request has unwound.</summary>
@@ -853,7 +906,7 @@ internal sealed unsafe class D3D12WpfPresentation : IDisposable {
     /// <summary>Completes the retained disposal request after no node hook can access borrowed commands.</summary>
     private void FinishViewportDisposal() {
         deferredDisposal = null;
-        if (!IsDisposed) viewport.Dispose();
+        viewport.FinishWpfViewportDisposalAsync(this);
     }
 
     /// <summary>Completes bounded native teardown; a failed detach/drain retains the owner for explicit retry.</summary>

@@ -256,3 +256,15 @@ snapshot are reconciled. The final hook check finds no `.specify/extensions.yml`
 pointer remains unchanged. The physical/environment and retained feature limits above remain explicit.
 Final validation passes for 1,190 XML blocks, all six changed OKF concepts and 59 local Markdown links;
 `git diff --check` is clean. All Phase 5 task markers are complete.
+
+
+## Qualification of the historical72-byte Core baseline, 2026-10-25
+
+The dated72-byte assertions above describe their historical Debug measurements. A later
+actual Release host measures0 bytes for the same recording path and therefore disproves
+using a fixed positive byte count as a cross-configuration contract. The existing intersection
+fixture now compares complete baseline/real frames on the same renderer with exact equality,
+retaining actual draw, ownership and final warm-pixel assertions. Focus4 and broad624 pass
+in both configurations; see the [test strategy](/testing/silk-tests.md#measured-intersection-allocation-baseline-2026-10-25).
+Shared regressions still require the independent unchanged allocation neighbors. This does
+not requalify the historical WPF timing samples, software-publication policy or full product.

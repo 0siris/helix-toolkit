@@ -442,7 +442,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 if (effectsManager is not null) node.Attach(effectsManager, canContinue);
                 var attached = effectsManager is not null
                     ? node.IsAttached
-                    : node.RenderCore.IsAttached || node.Attach();
+                    : node.Attach() || node.RenderCore.IsAttached;
                 if (canContinue?.Invoke() == false) return;
                 if (attached) {
                     node.Update(context);
@@ -452,7 +452,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 PerFrameFlattenedScene.Add(new KeyValuePair<int, SceneNode>(depth, node));
             } else {
                 if (!node.Visible || !node.RenderCore.IsAttached) continue;
-                preparedNodes.Add(node);
+                if (node is not GeometryNode { GeometryValid: false })
+                    preparedNodes.Add(node);
             }
 
             if (node.ItemsInternal.Count == 0) continue;

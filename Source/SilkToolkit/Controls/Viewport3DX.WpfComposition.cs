@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Native;
@@ -49,6 +51,46 @@ public partial class Viewport3DX {
         RenderOnDemand = true;
         canvas.PresentationChanged += CanvasPresentationChanged;
         return wpfPresentation;
+    }
+
+    /// <summary>Prepares the selected WPF owner before the caller releases application scene ownership.</summary>
+    /// <returns>Completion after bounded image-lock retries without disposing application nodes or their manager.</returns>
+    public async Task PrepareForDisposalAsync() {
+        Dispatcher.VerifyAccess();
+        if (IsDisposed) return;
+        VerifyPresentationReplacement();
+        var owner = wpfPresentation;
+        if (owner is null) return;
+        owner.BeginDisposalPreparation();
+        var started = Stopwatch.GetTimestamp();
+        while (!owner.TryFinishDisposalPreparation()) {
+            if (Stopwatch.GetElapsedTime(started) >= D3D12WpfPresentation.DisposalTimeout)
+                throw new TimeoutException("The WPF image is still bound; native resources remain owned for disposal retry.");
+            if (Dispatcher.HasShutdownStarted)
+                throw new InvalidOperationException("The dispatcher is shutting down before WPF detachment completed");
+            await Task.Delay(16);
+            if (IsDisposed) return;
+            if (!ReferenceEquals(wpfPresentation, owner))
+                throw new InvalidOperationException("The WPF presentation owner changed during disposal preparation");
+            VerifyPresentationReplacement();
+        }
+    }
+
+    /// <summary>Completes queued disposal after recording unwinds and reports failures through the retained owner.</summary>
+    /// <param name="owner">The exact presentation owner that retained the disposal request.</param>
+    internal async void FinishWpfViewportDisposalAsync(D3D12WpfPresentation owner) {
+        try {
+            Dispatcher.VerifyAccess();
+            if (IsDisposed || owner.IsDisposed || !OwnsWpfPresentation(owner)) return;
+            await PrepareForDisposalAsync();
+            if (IsDisposed || owner.IsDisposed || !OwnsWpfPresentation(owner)) return;
+            Dispose();
+        } catch (Exception exception) {
+            if (OwnsWpfPresentation(owner))
+                owner.ReportAutomaticRenderFailure(exception);
+            else
+                LoggerLib.Logger.Error(exception, "Deferred WPF viewport disposal failed after its owner was retired");
+        }
     }
 
     /// <summary>Runs the existing lightweight camera controller after a frame reservation, or to discover camera demand.</summary>

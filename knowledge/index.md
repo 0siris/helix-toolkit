@@ -106,3 +106,62 @@ bounded workload/fence events and oversized publication rejection without automa
 
 [TopMost overlay boundaries](projects/silktoolkit.md#topmost-overlay-boundaries): inherited overlay
 classification, depth-only reset and main-camera/viewport restoration, with isolated offscreen WARP glyph checks.
+
+
+* [Empty native mesh lifecycle](/projects/silkcore.md#empty-native-mesh-lifecycle) - Existing geometry eligibility,
+  first-index buffer recovery and measured WARP coverage, with the remaining broad-test failures qualified.
+
+
+The SilkToolkit project records the actual WPF/ HWND pre-frame callback, passive allocation metrics
+and existing-guard disposal protection. New18 cases yield16 passes plus two unchanged WPF warm
+transport failures; this bounded result does not qualify all interop, reload or physical input behavior.
+
+The [test strategy](/testing/silk-tests.md#camera-and-selection-line-fixture-namespace-recovery-2026-10-25)
+records a namespace-only recovery of two existing fixtures: complete Core test-project compilation and
+20 actual camera/line passes, with previous broad failures and WPF policy limits retained.
+
+
+The [renderer test contracts](/testing/silk-tests.md#renderer-test-contracts-2026-10-25)
+separate randomized SSAO structure from equality and cache retirement from disposal.
+Three focused cases pass in both configurations; Debug624 passes while four separate
+Release intersection allocation assertions remain open. Independent review has no findings for the three fixes;
+no product source changed.
+
+
+[Measured intersection allocation baseline](/testing/silk-tests.md#measured-intersection-allocation-baseline-2026-10-25)
+retains exact differential allocation and real warm-pixel proof: Debug/Release each624/624.
+The four fixed-positive-byte failures are resolved without a product change; independent
+review has no findings. WPF policy and complete application acceptance remain separate.
+
+[Approved WPF software publication](/architecture/wpf-composition-contracts.md#approved-software-publication-while-hardware-frontbuffer-is-unavailable-2026-10-25)
+removes four hardware-availability vetoes while retaining slot/lock/device-loss protection. Debug/Release
+9 policy cases and 47 existing owner cases pass; independent SOURCE/DATA review has no confirmed P1/P2/P3.
+Synchronous diagnostic pixels do not establish asynchronous MIL freshness or standalone acceptance.
+
+
+[Awaitable WPF teardown](/architecture/wpf-composition-contracts.md#awaitable-wpf-teardown-before-application-ownership-ends-2026-10-25)
+connects the existing explicit and recording-deferred owners to bounded image-detach preparation.
+R1 preserves its observed46/47 failure; R2 passes owner47/47 and policy9/9 in both configurations.
+The real application repair/history/save-reopen/close path passes. R3 also retains derived application
+nodes before preparation; two new D/R regressions and actual Closed disposal pass, independent review
+has no new P1/P2/P3. Full asynchronous-MIL/product acceptance remains open.
+
+
+* [Shared post-scene regions](architecture/wpf-composition-contracts.md#shared-post-scene-inspector-regions-2026-10-25) - Existing frame/depth/shader owners, native-width caller transport and D/R render checks; intermittent lock-pressure and physical-input evidence remain open.
+
+
+Actual Inspector review found application helper faces still select ordinary LEQUAL instead of native LESS.
+See the [correction boundary](architecture/wpf-composition-contracts.md#actual-review-correction-inspector-helper-faces-2026-10-25); no source/product closure.
+
+
+The application [strict helper-face correction](architecture/wpf-composition-contracts.md#application-helper-face-strict-depth-correction-2026-10-25)
+passes two D/R red-to-green regressions while ordinary diffuse and library code remain unchanged. Final R2 report pending.
+
+
+The final independent application helper-face R2 review is complete without new source/data-integrity findings;
+open lock-pressure, cursor cleanup and full-product limits remain separate.
+
+
+WPF lock-pressure knowledge now separates accepted scene submission from a retained-publication lock
+miss. One test file preserves all original checks and adds a real retained-demand regression; D/R two
+direct and ten policy cases pass. Product code is unchanged; the independent final review is complete without new confirmed findings.

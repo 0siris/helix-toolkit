@@ -335,7 +335,8 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     /// <summary>
     ///     Occurs before a ready, visible Direct3D 12 frame updates its camera and records scene draws.
     ///     Use this event for input-derived scene updates that must precede the frame, and unsubscribe on disposal.
-    ///     No notification is raised when the viewport has no initialized surface or camera.
+    ///     No notification is raised when the viewport has no initialized surface or camera. Idle camera-demand
+    ///     discovery can precede this event; each reserved attempt still notifies before binding scene camera state.
     /// </summary>
     public event EventHandler? OnRendering;
 
@@ -344,8 +345,30 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     This is a dispatcher-owned observation, not a guarantee that a future frame is drawn or presented.
     ///     Callers still check their loaded/visible input context, and rendering rechecks after OnRendering callbacks.
     /// </remarks>
-    public bool IsRenderReady => d3d12Surface is {IsInitialized: true} && CameraCore is not null
-        && Visibility == Visibility.Visible;
+    public bool IsRenderReady => CanSubmitNativeScene && (wpfPresentation is { } composited
+        ? composited.IsRenderReady
+        : d3d12Surface is {IsInitialized: true, IsDisposed: false} && CameraCore is not null
+          && Visibility == Visibility.Visible);
+
+    /// <summary>Checks that the composited owner still belongs to this viewport after application callbacks.</summary>
+    /// <param name="owner">The owner attempting to prepare or observe this viewport.</param>
+    /// <returns>Whether this is still the selected presentation owner.</returns>
+    internal bool OwnsWpfPresentation(D3D12WpfPresentation owner) => ReferenceEquals(wpfPresentation, owner);
+
+    /// <summary>Notifies reserved frame listeners while the existing frame guard retains borrowed resources.</summary>
+    internal void RaiseRendering() {
+        var wasUpdating = isD3D12FrameUpdating;
+        isD3D12FrameUpdating = true;
+        try {
+            foreach (var listener in Delegate.EnumerateInvocationList(OnRendering)) {
+                if (!IsRenderReady) return;
+                listener(this, EventArgs.Empty);
+            }
+        } finally {
+            isD3D12FrameUpdating = wasUpdating;
+            ScheduleNativeViewportDisposal();
+        }
+    }
 
     /// <summary>Reads the current initialized presentation allocation and actual child-host pixel scale.</summary>
     /// <param name="pixelWidth">Receives the current physical allocation width, or zero on failure.</param>
@@ -361,7 +384,10 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         Dispatcher.VerifyAccess();
         pixelWidth = pixelHeight = 0;
         dpiScale = 0;
-        if (d3d12Surface is not { IsInitialized: true } surface) return false;
+        if (IsDisposed) return false;
+        if (wpfPresentation is { } composited)
+            return composited.TryGetPresentationMetrics(out pixelWidth, out pixelHeight, out dpiScale);
+        if (d3d12Surface is not { IsInitialized: true, IsDisposed: false } surface) return false;
         var width = surface.PixelWidth;
         var height = surface.PixelHeight;
         var scale = surface.PhysicalInputDpiScale;

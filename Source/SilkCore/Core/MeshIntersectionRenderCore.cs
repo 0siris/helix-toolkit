@@ -224,7 +224,9 @@ public class MeshIntersectionRenderCore : PointLineRenderCore {
     /// <param name="capacity">Actual native output capacity.</param>
     /// <param name="preparationMs">CPU time preparing native resources for this draw.</param>
     internal void LogDispatch(uint capacity, double preparationMs) {
-        var total = Inputs.Sum(input => (long)input.Candidates.Length);
+        long total = 0;
+        for (var index = 0; index < Inputs.Count; index++)
+            total += Inputs[index].Candidates.Length;
         var bucket = total == 0 ? 0 : System.Numerics.BitOperations.Log2((ulong)total) + 1;
         var key = (bucket, capacity, Inputs.Count);
         if (key == loggedWorkload && preparationMs < 100 ||

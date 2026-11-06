@@ -4,6 +4,9 @@ okf_version: "0.2"
 
 # Helix Toolkit Knowledge Bundle
 
+* [SourceLink security servicing](build.md#requirements) - Patch-only SourceLink.GitHub 10.0.303 restores
+  the corrected Git build task while preserving private build assets and renderer behavior.
+
 * [Stable WPF output surface](projects/silktoolkit.md#stable-output-surface-per-wpf-generation) - One output
   per generation, dispatcher write lease across nonwaiting copy polls, exact query completion and retryable
   teardown and post-decrement Unlock retry; shipped .NET 11 lock accounting is separate from native MIL/RDP visibility and performance.

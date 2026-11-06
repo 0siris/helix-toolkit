@@ -9,6 +9,10 @@ timestamp: 2026-07-08T00:00:00+02:00
 
 # Requirements
 
+SourceLink.GitHub is pinned to 10.0.303, which restores Microsoft.Build.Tasks.Git 10.0.303 and addresses
+[GHSA-23fw-v26w-5fgq](https://github.com/dotnet/sourcelink/security/advisories/GHSA-23fw-v26w-5fgq).
+The existing private build assets and renderer APIs are unchanged.
+
 | Requirement | Value |
 |-------------|-------|
 | Shell | PowerShell 7+ |

@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-11-06 — Service the SourceLink Git build task
+
+* Update the existing private SourceLink.GitHub reference from 10.0.301 to 10.0.303, restoring the corrected
+  Microsoft.Build.Tasks.Git 10.0.303 package for GHSA-23fw-v26w-5fgq.
+* Preserve runtime dependencies, public renderer APIs and existing asset visibility.
+* Record the build dependency and link it from the knowledge index; consumer validation stays in the parent solution.
+
 ## 2026-11-03 — Retain one stable WPF output per presentation generation
 
 * Replace normal-frame destination rotation with a successful WPF write lease before the existing D3D11 copy.

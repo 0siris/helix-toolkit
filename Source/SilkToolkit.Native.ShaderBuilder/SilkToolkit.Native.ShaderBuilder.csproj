@@ -463,7 +463,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Direct3D.DXC" Version="1.9.2607.13" PrivateAssets="all" GeneratePathProperty="true"/>
+    <PackageReference Include="Microsoft.Direct3D.DXC" Version="1.9.2609.5" PrivateAssets="all" GeneratePathProperty="true"/>
   </ItemGroup>
 
   <Import Project="..\SilkToolkit.ShaderBuild\SilkToolkit.ShaderBuild.targets"/>

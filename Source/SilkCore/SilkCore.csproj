@@ -22,15 +22,15 @@
     <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.4" />
     <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.CodeDom" Version="10.0.9" />
+    <PackageReference Include="System.CodeDom" Version="10.0.14" />
     <PackageReference Include="Silk.NET.Direct2D" Version="2.23.0" />
     <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.23.0" />
     <PackageReference Include="Silk.NET.Direct3D11" Version="2.23.0" />
     <PackageReference Include="Silk.NET.Direct3D12" Version="2.23.0" />
     <PackageReference Include="Silk.NET.DXGI" Version="2.23.0" />
     <PackageReference Include="Silk.NET.Maths" Version="2.23.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
-    <PackageReference Include="ValidSphere" Version="0.3.1-preview" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
+    <PackageReference Include="ValidSphere" Version="1.0.0" />
     <PackageReference Include="WinPixEventRuntime" Version="1.0.240308001"
                       GeneratePathProperty="true" ExcludeAssets="build" PrivateAssets="all" />
   </ItemGroup>

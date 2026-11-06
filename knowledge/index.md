@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # Helix Toolkit Knowledge Bundle
 
-* [SourceLink security servicing](build.md#requirements) - Patch-only SourceLink.GitHub 10.0.303 restores
+* [SourceLink security servicing](build.md#requirements) - SourceLink.GitHub 10.0.403 restores
   the corrected Git build task while preserving private build assets and renderer behavior.
 
 * [Stable WPF output surface](projects/silktoolkit.md#stable-output-surface-per-wpf-generation) - One output
@@ -30,7 +30,7 @@ okf_version: "0.2"
 
 ## Repository
 
-The [coding policy](/policies/csharp-coding-conventions.md#assertions) fixes ValidSphere at `0.3.1-preview`, shared
+The [coding policy](/policies/csharp-coding-conventions.md#assertions) fixes ValidSphere at `1.0.0`, shared
 with MeshMeister consumers; this package pin changes no renderer behavior.
 
 * [Repository](/repository.md) - Current repository purpose, layout, and source references.

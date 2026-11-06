@@ -1,5 +1,12 @@
 # Knowledge Bundle Update Log
 
+## 2026-11-06 — Align consumer dependency versions
+
+* Align ValidSphere 1.0.0, SourceLink.GitHub 10.0.403 and System.CodeDom 10.0.14 with the consuming solution.
+* Service the native DXC compiler to 1.9.2609.5, preserving shader sources, techniques and buffer contracts.
+* Align the nested LoggerLib Serilog reference to 4.4.0 without changing logging APIs or sinks.
+* Update the current build/assertion documentation; historical validation records retain their original versions.
+
 ## 2026-11-06 — Service the SourceLink Git build task
 
 * Update the existing private SourceLink.GitHub reference from 10.0.301 to 10.0.303, restoring the corrected

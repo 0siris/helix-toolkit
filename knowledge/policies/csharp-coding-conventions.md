@@ -62,7 +62,7 @@ without `<inheritdoc />`.
 
 # Assertions
 
-`ValidSphere` version `0.3.1-preview` supplies fluent BCL guards. Package references pin this version so consuming
+`ValidSphere` version `1.0.0` supplies fluent BCL guards. Package references pin this version so consuming
 MeshMeister projects and the toolkit resolve the same assertion implementation. Argument validation uses
 `AsGuardNotNull()` or `Guard().Range(...)` and
 preserves `ArgumentNullException`/`ArgumentOutOfRangeException` contracts. Internal invariants use

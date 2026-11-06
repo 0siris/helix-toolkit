@@ -7,17 +7,124 @@ tags: [project, wpf, windows, silknet]
 timestamp: 2026-07-08T00:00:00+02:00
 generated: { by: "agent:gpt-6.1-sol", at: 2026-10-20T07:15:06Z }
 status: stable
+verified: 2026-11-03
 sources:
   - resource: ../../Source/SilkToolkit/Controls/Viewport3DX.PresentationSelection.cs
   - resource: ../../Source/SilkToolkit/Controls/D3D12WpfPresentation.cs
   - resource: ../../Source/SilkToolkit/Controls/D3D12ImageInteropBridge.cs
+  - resource: ../../Source/SilkToolkit/Controls/D3DImageInteropNative.cs
+  - resource: ../../Source/SilkToolkit.Tests/D3DImageInteropOwnershipTests.cs
+  - resource: ../../Source/SilkToolkit.Tests/D3D12TransportTimerTests.cs
+  - resource: ../../Source/SilkToolkit.Tests/D3D12StableOutputTests.cs
   - resource: ../../Source/SilkToolkit/Extensions/ViewportExtensions.cs
   - resource: ../testing/wpf-composition-phase4.md
 ---
 
 # Project
 
+## Stable output surface per WPF generation
+
+`D3D12ImageInteropBridge` owns one D3D9Ex output allocation per generation instead of alternating two
+surfaces. `D3D12WpfPresentation` completes the source D3D12 fence before acquiring a zero-timeout image
+write lease, then submits `CopyResource`, the existing event query and `Flush`. The dispatcher retains
+that lease across nonwaiting timer/composition query polls. Only `S_OK` **and** the query completion BOOL
+allow DirtyRect and Unlock; Flush alone never proves completion. Normal frames keep the same output
+pointer and omit SetBackBuffer; first publication or a real target replacement binds it. A copy-free
+frontbuffer recovery dirties the retained pointer without a null binding. All image/bridge access remains
+on the creating dispatcher thread; a held lock does not grant cross-thread write permission.
+
+A normal false TryLock still needs Unlock, as confirmed in shipped .NET 11 RC3 IL and a real headless
+runtime regression (`11.0.0-rc.3.26522.148`, WPF commit `5254d8bcf59917edc1e1abc33bdf2442b77b1c70`).
+A miss starts no copy, retains the accepted source/serial and leaves scene demand untouched. Ready
+output survives a dirty/publication failure for retry without another copy. New source rendering remains
+blocked until exact publication acknowledgement. Direct image/canvas detach or disposal refuses a held
+write lease. Presentation retirement/disposal polls live D3D11 work before releasing that lease and
+detaching; timeout or an unconfirmed query failure retains it. Only actual completion or confirmed
+D3D11 removal permits ending a pending write. D3D12 removal alone does not retire live D3D11 work.
+Existing explicit D3D12 drains remain; there is no D3D11 wait/spin added to dispatcher publication or
+disposal. Native output ownership ends only after successful image detach and drained/removed copy work.
+
+The existing bounded recorder keeps schema 1. `publish.begin` now precedes acquisition of the write
+lease, hence also precedes a new copy; its latency includes write acquisition and copy transport. Lock
+events still mark the real calls, not the duration of a retained lease. `copy.ready` remains query-ready,
+not GPU execution time or MIL visibility. The unchanged analyzer represents Ready-to-first-attempt as
+unknown when the first attempt precedes Ready; Ready-to-Published and actual event order remain available.
+Bound/ready slot 0 may now refer to the same allocation; serials still distinguish completed publications.
+
+`D3D12StableOutputTests` runs the real bridge, owner service and autonomous timer with CPU COM/image
+callbacks and a separate real WPF lock-accounting check. Red baseline proves rotating output identity
+and pre-lock copying; green cases cover contents/identity, pending completion, lock miss, retry, query
+BOOL, source fence, retirement, timeout, device failure and disposal. Controlled content is not native
+pixel evidence. No hardware, window, WARP interop or RDP run qualifies asynchronous image continuity or
+performance. The fix removes a proven per-frame MIL bitmap/cache replacement path; it does not establish
+the cause or cure of user-reported desktop slowness or model loss. Legitimate recreation still detaches.
+
+## Composition-independent accepted transport service
+
+`D3D12WpfPresentation` uses its existing 16-ms Background dispatcher timer while an active canvas has
+accepted transport (`HasPendingTransport`), independently of `CompositionTarget.Rendering`. Each active
+tick enters the existing `updating` guard, detects generation/size changes and calls only the nonwaiting
+`ServiceTransport(false)`. It does not prepare host contracts, reserve render demand, update the camera,
+record a scene, create a generation or call `RenderFrame`. Completion listeners remain guarded; manager
+lifecycle scheduling follows unwind. The timer stops once accepted transport ends, even with render or
+ordinary recovery demand still pending. Disposed, stopping, updating and stale viewport owners reject ticks.
+The inactive canvas keeps its existing retirement path, including device-removal and bound-image handling.
+
+Ready-slot retention, the exact publication acknowledgement, the last bound image, software-fallback
+publication and zero-duration TryLock including its balancing Unlock remain unchanged. Timer progress is
+an additional opportunity to observe readiness; it cannot release a WPF lock, guarantee a 16-ms deadline,
+or establish asynchronous MIL/RDP output.
+
+`D3D12TransportTimerTests` exercises the actual dispatcher timer and subscribed owner callback without a
+window or device. A constructor-injected native-service delegate models held fence/copy/ready/lock states;
+the test observes autonomous continuation after release, preserved demand, no scene callbacks, timer idle,
+reentrancy, stop/disposal/owner guards and exception cleanup. Seeded counters and serials belong to that
+controlled boundary: these tests establish scheduling, not native copying, real TryLock or pixel freshness.
+The real bridge requires a hardware adapter and explicitly rejects WARP; hardware/MIL acceptance is separate.
+
+## Bounded user-controlled render flight recorder
+
+`Viewport3DX.FlightRecorder` is disabled by default. Explicit Start allocates fixed typed buffers for
+8,192 submitted WPF scene frames and 32,768 events. Stop retains data; Clear is rejected while recording.
+The application owns an independent 60-second deadline and cleanup; append hooks also reject expired data.
+Writers use nonblocking TryEnter and count contention/capacity drops, never request rendering or perform I/O.
+Snapshot requires Stop and copies occupied buffers only for explicit export outside the render path.
+
+Existing `D3D12WpfPresentation`/`D3D12ImageSource` callbacks remain the source of submission, fence,
+copy, lock/backbuffer/dirty/unlock and publication observations. Existing native generation/serial plus a
+random presentation-owner GUID prevent replacement owners from sharing correlation keys. Repeated lock
+misses belong to one submitted frame. The old one-shot publication logger and budgets are preserved;
+the flight recorder introduces no second transport chain, GPU query/readback, wait, device, or logging sink.
+
+The common recorder measures CPU preparation through light updates only when enabled. The WPF owner
+records the remaining CPU scene-record duration, Execute/Signal interval, reserved invalidation flags,
+actual draw count and period between record starts. These are not GPU execution or visible MIL durations.
+The existing publication observation's current serial is reused for delayed phases and rebinds.
+Front-buffer availability and generation-local slots retain their original meaning. HWND-only presentations
+are identified in diagnostics but do not invent WPF frame or interop samples.
+
+The consumer serializes the concrete records as schema 1 camelCase JSON, with monotonic milliseconds
+relative to UTC start. Input categories have no positions, text or application identifiers. Application-owned
+process/GC samples and one outstanding low-frequency dispatcher probe remain separate from frames.
+CPU-only buffer/identity/expiry tests and productive image-callback tests create no device or window;
+native WPF/RDP performance and output remain unmeasured.
+
 `SilkToolkit` targets `net10.0-windows` and references [SilkCore](/projects/silkcore.md).
+
+## Read-only renderer diagnostics
+
+`Viewport3DX.GetRenderDiagnostics()` reads only dispatcher-owned existing presentation state. The
+composited and HWND owners expose their already initialized device for this bounded read; no host,
+scene, frame, GPU wait or second device is created. `ID3D12Device.GetAdapterLuid` supplies the identity;
+`IDXGIFactory4.EnumAdapterByLuid` and `IDXGIAdapter1.GetDesc1` resolve matching name/software metadata.
+Failed metadata lookup retains the device LUID with nullable unknown name/type. Before initialization,
+the entire adapter/presentation observation is unknown rather than a configured adapter candidate.
+
+The D3D11/D3D9Ex bridge's verified LUID and D3DImage front-buffer availability remain separate fields.
+Neither a hardware D3D12 device nor an available front buffer proves hardware WPF/MIL composition,
+remote-session performance or visible delivery. No presentation, driver or RDP policy changes occur.
+`ViewportRenderDiagnosticsTests` verifies missing-device state and repeated reads of an actual explicit
+software-WARP device against its native LUID without a window, hardware fallback or frame submission.
 
 ## Current presentation contracts
 
@@ -238,6 +345,72 @@ The separately observed frontbuffer loss is unresolved. SetBackBuffer already us
 Root reports under reference-runtime distinguish source, actual artifacts, GPU completion, publication
 and display. All complete Meshmixer product cycles, Original optics and physical DPI gates remain open.
 
+## Stable COM outputs in D3DImage interop
+
+Silk.NET 2.23.0's generic ComPtr output overload uses GetAddressOf without pinning. A field or array
+element can move during the native call, leaving the output at a stale address despite a successful
+HRESULT. The bridge and existing probe now create D3D9Ex through a stack pointer, validate HRESULT
+and the returned interface, release a partial failure reference and adopt the successful reference
+without AddRef. Other native outputs into their fields and arrays are pinned for the call.
+
+Cleanup detaches the actual ComPtr owner before Release, including array elements; struct copies do
+not acquire references. Existing local outputs, balanced D3D11 adoption, thread affinity, adapter-LUID
+selection, GPU quiescence and WPF detach requirements remain unchanged. The borrowed device is not released.
+
+Nine headless cases reproduce the legacy address movement without writing stale memory, cover creation
+under compacting GC, HRESULT failures with and without a partial reference, success without an interface,
+both actual owners' adapter enumeration through fake COM and repeated partial cleanup. No window or GPU
+device is created. This proves the defect and correction mechanism, not the exact GC history of a past
+application failure or real hardware/WPF compatibility. Consumer packages must be rebuilt to receive it.
+
 Independent source/data review finds no concrete new P1/P2 in this three-file patch; blocked runtime
 assertions and the documented idle-discovery boundary remain qualified. Graphify was rebuilt from1075
 source files:11068 nodes,20181 edges,3253 communities, zero model tokens and17 existing partial-parser warnings.
+
+## Invalidated curve frames and the offscreen evidence boundary
+
+The public viewport invalidation methods request render demand and visual invalidation; they
+neither clear color targets nor retire mesh buffers. Child add/remove requests scene-graph
+preparation, while geometry replacement recreates only that node's CPU buffer model. Each
+productive frame rebuilds its prepared candidates synchronously before recording the clear.
+
+`D3D12CurveFrameTests.cs` extends the existing windowless `OffscreenFrame` harness. Three
+public invalidation variants each exercise twenty individual frames through the productive
+recorder: dynamic line/point geometry, TopMost glyph replacement, null/empty curve geometry,
+and an invalidation during preparation with a preserved subsequent reservation. The actual
+device LUID resolves to a software DXGI adapter with Microsoft WARP vendor/device IDs before
+submission. All sixty frames retain the mesh draw, snapshot membership, geometry/CPU buffer
+owner and all 196 interior pixels. Four uncovered mesh samples stay exactly green RGBA;
+covered pixels may be opaque red. Thirty-four focused demand/TopMost/curve cases pass.
+
+The offscreen test ends at the completed D3D12 color target. It does not instantiate the
+D3D11/D3D9 WPF bridge, exercise D3DImage publication, establish frontbuffer or asynchronous
+MIL freshness, or identify modules loaded in an application session. Stable native pixels
+must not be presented as a correction or disproof of a whole-model presentation dropout.
+
+## Bounded input-triggered publication observation
+
+`Viewport3DX.ObserveNextWpfPublications` arms one passive window per viewport, retained across native
+recreation. It schedules no frame and is inactive at startup. Existing application input consumers choose
+when to call it. Limits are 48 naturally requested frames, 800 metadata events including the end marker,
+and 15 monotonic seconds; repeated input cannot reset the window. Expiry is observed on the next
+natural call, without a timer, so idle or blocked code need not emit an immediate end marker.
+
+The productive WPF owner correlates existing counters and serials with call boundaries before/after
+GPU submission, copy, image lock, backbuffer, dirty rectangle and unlock. Snapshot milestones include
+actual recorder draws, prepared mesh count and successful RenderVisible mesh-pass counts (including
+auxiliary/overlay passes, not unique patient scans). Surface identities are generation-local slot indexes;
+owner GUID plus native generation identifies the bridge. Module version/MVID/path is recorded at arm.
+No raw addresses, scene coordinates, pixels or application tokens are collected. The existing LoggerLib
+sink is reused. Image lock balancing, software fallback and native ownership are unchanged.
+
+Headless tests cover arm/budgets/expiry/correlation and the real uninitialized owner's counters/demand.
+They neither initialize a GPU device nor establish native interop/MIL output. Successful managed
+publication and missing warnings never establish absence of visible flicker.
+
+
+Integration follow-up: the shipped .NET 11 Unlock decrements before commit/Changed callbacks. The image
+clears its managed lease before that call (after dispatcher/mutability checks); a throwing callback leaves
+the completed serial ready for fresh-lock, copy-free publication retry. Two CPU regressions include a real
+WPF Changed failure and native lock-count check. Assembly metadata `WpfTransportPhases` describes the
+actual early-lock transport for consumers without product-version inference or additional render demand.

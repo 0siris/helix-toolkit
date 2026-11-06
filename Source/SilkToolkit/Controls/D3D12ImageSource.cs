@@ -24,9 +24,91 @@ internal sealed class D3D12ImageSource : IDisposable {
     /// <summary>Records successful detachment and subscription removal.</summary>
     private bool disposed;
 
+    /// <summary>Retains one successful dispatcher-owned write lock across nonwaiting copy polls.</summary>
+    internal bool IsWriteLocked { get; private set; }
+
+    /// <summary>Replaces only the native image calls in headless transport tests.</summary>
+    private readonly Func<bool>? tryLock;
+    /// <summary>Replaces only native binding in headless transport tests.</summary>
+    private readonly Action<nint>? setBackBuffer;
+    /// <summary>Replaces only native dirtying in headless transport tests.</summary>
+    private readonly Action<Int32Rect>? addDirtyRect;
+    /// <summary>Replaces only native unlocking in headless transport tests.</summary>
+    private readonly Action? unlock;
+
+    /// <summary>Uses the existing presentation owner's bounded metadata observer, if attached.</summary>
+    internal Action<string, int>? ObservePublication { get; set; }
+
+    /// <summary>Records call boundaries without swallowing native failures.</summary>
+    private void Observe(string phase, int status = 0) => ObservePublication?.Invoke(phase, status);
+
     /// <summary>Creates the retained image and its front-buffer notification subscription.</summary>
     internal D3D12ImageSource() {
         NativeImage.IsFrontBufferAvailableChanged += OnFrontBufferChanged;
+    }
+
+    /// <summary>Controls the existing image boundary without creating native surfaces in CPU tests.</summary>
+    internal D3D12ImageSource(Func<bool> tryLock, Action<nint> setBackBuffer,
+        Action<Int32Rect> addDirtyRect, Action unlock) : this() {
+        this.tryLock = tryLock;
+        this.setBackBuffer = setBackBuffer;
+        this.addDirtyRect = addDirtyRect;
+        this.unlock = unlock;
+    }
+
+    /// <summary>Acquires a write lease on this dispatcher; a normal false result is balanced immediately.</summary>
+    /// <returns>Whether a native copy may write the bound output on this thread.</returns>
+    internal bool TryBeginWrite() {
+        NativeImage.VerifyAccess();
+        ObjectDisposedException.ThrowIf(stopping, this);
+        return AcquireWrite();
+    }
+
+    /// <summary>Balances native zero-timeout locks, including during retryable detachment.</summary>
+    private bool AcquireWrite() {
+        NativeImage.VerifyAccess();
+        if (IsWriteLocked) throw new InvalidOperationException("The image already owns a write lock");
+        Observe("lock.begin");
+        bool acquired;
+        try {
+            acquired = tryLock?.Invoke() ?? NativeImage.TryLock(LockTimeout);
+        } catch (Exception error) {
+            Observe("lock.error", error.HResult);
+            throw;
+        }
+        IsWriteLocked = true;
+        try {
+            Observe(acquired ? "lock.acquired" : "lock.miss");
+        } finally {
+            // Confirmed in the shipped .NET 11 RC3 IL: a normal false also increments the lock count.
+            if (!acquired) EndWrite();
+        }
+        return acquired;
+    }
+
+    /// <summary>Releases the retained lease only after the owner has completed or retired its native copy.</summary>
+    internal void EndWrite() {
+        NativeImage.VerifyAccess();
+        if (!IsWriteLocked) return;
+        if (NativeImage.IsFrozen) throw new InvalidOperationException("The image must remain writable");
+        Observe("unlock.begin");
+        try {
+            // WPF decrements before commit/Changed callbacks can throw; a retry must acquire a fresh lock.
+            IsWriteLocked = false;
+            if (unlock is not null) unlock();
+            else NativeImage.Unlock();
+            Observe("unlock.done");
+        } catch (Exception error) {
+            Observe("unlock.error", error.HResult);
+            throw;
+        }
+    }
+
+    /// <summary>Updates actual binding bookkeeping only after the native call succeeds.</summary>
+    private void Bind(nint surface) {
+        if (setBackBuffer is not null) setBackBuffer(surface);
+        else NativeImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface, enableSoftwareFallback: true);
+        BoundSurface = surface;
     }
 
     /// <summary>Gets the actual retained WPF image for Image.Source binding and read-only inspection.</summary>
@@ -42,7 +124,7 @@ internal sealed class D3D12ImageSource : IDisposable {
     /// <summary>Notifies the owner of front-buffer loss or return without changing native ownership.</summary>
     internal event EventHandler? FrontBufferChanged;
 
-    /// <summary>Attempts to bind and dirty one completed immutable native surface without waiting.</summary>
+    /// <summary>Binds changed output and dirties a completed surface, ending its retained write lease.</summary>
     /// <param name="surface">The nonzero borrowed IDirect3DSurface9 pointer, kept alive by the caller.</param>
     /// <param name="width">The nonzero surface width in physical pixels.</param>
     /// <param name="height">The nonzero surface height in physical pixels.</param>
@@ -52,7 +134,7 @@ internal sealed class D3D12ImageSource : IDisposable {
     /// <exception cref="ArgumentOutOfRangeException">A dimension cannot describe a WPF surface.</exception>
     /// <remarks>
     /// Native WPF errors propagate; inspect BoundSurface before recovery, because SetBackBuffer may have
-    /// succeeded. Rebinding the same completed pointer is intentional for front-buffer recovery.
+    /// succeeded. The same completed pointer needs only DirtyRect and Unlock, including front-buffer recovery.
     /// </remarks>
     internal bool TryPublish(nint surface, uint width, uint height) {
         NativeImage.VerifyAccess();
@@ -63,16 +145,23 @@ internal sealed class D3D12ImageSource : IDisposable {
             throw new ArgumentOutOfRangeException(nameof(width));
         if (height == 0 || height > int.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(height));
-        var locked = NativeImage.TryLock(LockTimeout);
+        if (!IsWriteLocked && !TryBeginWrite()) return false;
         try {
-            if (!locked)
-                return false;
-            NativeImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface, enableSoftwareFallback: true);
-            BoundSurface = surface;
-            NativeImage.AddDirtyRect(new Int32Rect(0, 0, (int) width, (int) height));
+            if (BoundSurface != surface) {
+                Observe("backbuffer.begin");
+                Bind(surface);
+                Observe("backbuffer.done");
+            }
+            Observe("dirty.begin");
+            var rectangle = new Int32Rect(0, 0, (int) width, (int) height);
+            if (addDirtyRect is not null) addDirtyRect(rectangle);
+            else NativeImage.AddDirtyRect(rectangle);
+            Observe("dirty.done");
+        } catch (Exception error) {
+            Observe("image.error", error.HResult);
+            throw;
         } finally {
-            // The repository's .NET 10 proof requires balancing even a normally returned false TryLock.
-            NativeImage.Unlock();
+            EndWrite();
         }
 
         return true;
@@ -85,14 +174,18 @@ internal sealed class D3D12ImageSource : IDisposable {
         NativeImage.VerifyAccess();
         if (disposed)
             return true;
-        var locked = NativeImage.TryLock(LockTimeout);
+        // An unload or direct canvas disposal must not unlock an in-flight native write.
+        if (IsWriteLocked) return false;
+        if (!AcquireWrite()) return false;
         try {
-            if (!locked)
-                return false;
-            NativeImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, 0, enableSoftwareFallback: true);
-            BoundSurface = 0;
+            Observe("detach.begin");
+            Bind(0);
+            Observe("detach.done");
+        } catch (Exception error) {
+            Observe("image.error", error.HResult);
+            throw;
         } finally {
-            NativeImage.Unlock();
+            EndWrite();
         }
 
         return true;
@@ -112,7 +205,7 @@ internal sealed class D3D12ImageSource : IDisposable {
     }
 
     /// <summary>Completes image disposal only after actual detachment and successful Unlock.</summary>
-    /// <returns>False only when the existing zero-duration WPF lock attempt misses.</returns>
+    /// <returns>False while a native write lease is retained or the zero-duration WPF detach lock misses.</returns>
     internal bool TryDispose() {
         NativeImage.VerifyAccess();
         if (disposed) return true;

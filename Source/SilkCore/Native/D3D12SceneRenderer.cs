@@ -471,10 +471,15 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
         if (attachedNodes.Add(node) || isPreparing) node.RetainNativeAttachment(this, host);
     }
 
-    /// <summary>
-    ///     Recycles descriptor slots only after the presentation host has completed the preceding frame fence.
-    /// </summary>
+    /// <summary>Gets mesh candidates tested by actual RenderVisible passes in the current frame.</summary>
+    internal int FrameMeshCandidates { get; private set; }
+
+    /// <summary>Gets successful mesh draws in those passes, including auxiliary passes.</summary>
+    internal int FrameMeshDraws { get; private set; }
+
+    /// <summary>Recycles descriptors and resets frame counters after the preceding frame fence.</summary>
     internal void BeginFrame() {
+        FrameMeshCandidates = FrameMeshDraws = 0;
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         postProcessResources?.BeginFrame();
         bloomHalfResources?.BeginFrame();
@@ -1450,7 +1455,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
 
             drawMeshBindings?.BindHeaps(context);
             drawPointLineBindings?.BindHeaps(context);
-            recorded += node.RenderCore switch {
+            if (node.RenderCore is MeshRenderCore) FrameMeshCandidates++;
+            var nodeDraws = node.RenderCore switch {
                 BoneSkinRenderCore bone => bone.TryRenderD3D12(
                     context,
                     resources,
@@ -1499,6 +1505,8 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                     : 0,
                 _ => 0
             };
+            recorded += nodeDraws;
+            if (node.RenderCore is MeshRenderCore) FrameMeshDraws += nodeDraws;
         }
 
         return recorded;

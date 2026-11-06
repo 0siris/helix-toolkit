@@ -81,12 +81,13 @@ public partial class Viewport3DX {
     }
 
     /// <summary>Retires every renderer lease belonging to this consumer after bounded native completion.</summary>
+    /// <param name="reason">The known lifecycle boundary, retained only for bounded diagnostics.</param>
     /// <exception cref="InvalidOperationException">An application frame callback still owns the renderer.</exception>
-    internal void RetireSceneResourcesForManagerChange() {
+    internal void RetireSceneResourcesForManagerChange(string reason = "manager-retirement") {
         Dispatcher.VerifyAccess();
         if (IsPreparingPresentationFrame)
             throw new InvalidOperationException("Scene resources cannot retire while a presentation frame is active.");
-        wpfPresentation?.RetireSceneResources();
+        wpfPresentation?.RetireSceneResources(reason);
         if (d3d12Surface is { } surface) {
             _ = surface.CompletePendingFrame(true);
             RaiseCompletedD3D12Frames(surface);
@@ -215,10 +216,10 @@ public partial class Viewport3DX {
         viewport.managerResourcesResetPending = true;
         viewport.InvalidateSceneGraph();
         if (viewport.IsPreparingPresentationFrame || !viewport.CanRetireManagerWithoutWaiting()) {
-            viewport.wpfPresentation?.RequestRecreation();
+            viewport.wpfPresentation?.RequestRecreation("manager-changed");
             viewport.ScheduleManagerLifecycle();
         } else {
-            viewport.ApplyManagerLifecycle();
+            viewport.ApplyManagerLifecycle("manager-changed");
         }
     }
 
@@ -290,10 +291,10 @@ public partial class Viewport3DX {
         InvalidateSceneGraph();
         if (IsPreparingPresentationFrame) {
             // Submitted GPU work is complete; live permission checks discard any open CPU recording before submission.
-            wpfPresentation?.RequestRecreation();
+            wpfPresentation?.RequestRecreation(available ? "manager-reinitialized" : "manager-disposing");
             ScheduleManagerLifecycle();
         } else {
-            ApplyManagerLifecycle();
+            ApplyManagerLifecycle(available ? "manager-reinitialized" : "manager-disposing");
         }
     }
 
@@ -382,8 +383,9 @@ public partial class Viewport3DX {
     }
 
     /// <summary>Retires the old generation, transfers subscriptions to the latest value and preserves pending scene demand.</summary>
-    private void ApplyManagerLifecycle() {
-        RetireSceneResourcesForManagerChange();
+    /// <param name="reason">The known synchronous trigger, or the generic queued/shared retirement boundary.</param>
+    private void ApplyManagerLifecycle(string reason = "manager-retirement") {
+        RetireSceneResourcesForManagerChange(reason);
         if (IsDisposed) return;
         managerLifecycleRetryTimer?.Stop();
         SetSubscribedEffectsManager(EffectsManager);

@@ -13,12 +13,12 @@ using Dxgi = Silk.NET.DXGI;
 
 namespace HelixToolkit.Wpf.SharpDX.Controls;
 
-/// <summary>Copies a borrowed device's shared BGRA target into two explicitly acknowledged WPF slots.</summary>
+/// <summary>Copies a borrowed device's shared BGRA target into one stable WPF output.</summary>
 /// <remarks>
 /// All members are confined to the creating thread. The caller owns the D3D12 device, queue, command context,
 /// fence and scene. It must complete D3D12 work and restore Target to COMMON before BeginCopy, and must not
 /// reuse the source until copying and publication finish. Pixels must already be premultiplied BGRA8.
-/// Only a completed, unpublished surface is exposed. A failed WPF lock leaves that surface and serial retained.
+/// Bound output is written only under the caller's successful WPF write lease, held until query completion.
 /// ConfirmPublication follows successful publication and unlock; ConfirmDetached follows actual WPF detachment.
 /// Native code cannot inspect a partial WPF publication: the caller must retain its actual binding and detach
 /// it before teardown. Dispose requires drained D3D12 work and detached WPF surfaces, and never disposes the
@@ -64,8 +64,8 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
     /// <summary>Owns the D3D11 import of the NT-shared source, not another toolkit resource wrapper.</summary>
     private ComPtr<D11.ID3D11Texture2D> source11;
 
-    /// <summary>Owns D3D11 imports of the two D3D9Ex legacy-shared destinations.</summary>
-    private readonly ComPtr<D11.ID3D11Texture2D>[] destinations11 = new ComPtr<D11.ID3D11Texture2D>[2];
+    /// <summary>Owns the D3D11 import of the stable D3D9Ex legacy-shared output.</summary>
+    private readonly ComPtr<D11.ID3D11Texture2D>[] destinations11 = new ComPtr<D11.ID3D11Texture2D>[1];
 
     /// <summary>Owns the single reusable completion query.</summary>
     private ComPtr<D11.ID3D11Query> copyQuery11;
@@ -76,11 +76,11 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
     /// <summary>Owns the multithreaded, adapter-matched D3D9Ex device used by WPF.</summary>
     private ComPtr<D9.IDirect3DDevice9Ex> device9;
 
-    /// <summary>Owns the two independent legacy-shared BGRA destination textures.</summary>
-    private readonly ComPtr<D9.IDirect3DTexture9>[] textures9 = new ComPtr<D9.IDirect3DTexture9>[2];
+    /// <summary>Owns the generation's single legacy-shared BGRA output texture.</summary>
+    private readonly ComPtr<D9.IDirect3DTexture9>[] textures9 = new ComPtr<D9.IDirect3DTexture9>[1];
 
     /// <summary>Owns level-zero surfaces whose pointers are borrowed during publication.</summary>
-    private readonly ComPtr<D9.IDirect3DSurface9>[] surfaces9 = new ComPtr<D9.IDirect3DSurface9>[2];
+    private readonly ComPtr<D9.IDirect3DSurface9>[] surfaces9 = new ComPtr<D9.IDirect3DSurface9>[1];
 
     /// <summary>Identifies the last successfully published slot, or minus one after confirmed detachment.</summary>
     private int boundSlot = -1;
@@ -121,7 +121,7 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
     /// <summary>Indicates that all owned native resources have been released.</summary>
     private bool disposed;
 
-    /// <summary>Creates one shared source and two destination slots on the borrowed device's actual adapter.</summary>
+    /// <summary>Creates one shared source and one stable output on the borrowed device's actual adapter.</summary>
     /// <param name="device">The live presentation device, retained by the caller through bridge disposal.</param>
     /// <param name="hwnd">A live caller-owned WPF HWND used only to create the D3D9Ex device.</param>
     /// <param name="width">The nonzero physical width.</param>
@@ -213,6 +213,14 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
         }
     }
 
+    /// <summary>Maps a borrowed surface to its generation-local slot without exposing an address.</summary>
+    internal int SurfaceSlot(nint surface) {
+        if (surface == 0) return -1;
+        for (var index = 0; index < surfaces9.Length; index++)
+            if ((nint) surfaces9[index].Handle == surface) return index;
+        return -2;
+    }
+
     /// <summary>Gets the accepted copy count; failed validation and publication retries do not advance it.</summary>
     public ulong CopyCount {
         get {
@@ -237,26 +245,29 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
         }
     }
 
-    /// <summary>Copies the completed COMMON source into a destination that is neither bound nor unpublished.</summary>
+    /// <summary>Copies the completed COMMON source into the stable output under its WPF write lease.</summary>
     /// <param name="frameSerial">A nonzero serial strictly greater than the last accepted copy serial.</param>
     /// <remarks>
     /// D3D12 completion is a caller precondition: this bridge owns no fence and cannot verify it.
-    /// No WPF lock is needed for copying. Do not render into the source again before copy and publication finish.
+    /// Retain the successful write lease until query completion. Without an image only detached native tests
+    /// may copy; a bound allocation always requires its actual image lease.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The serial is zero or does not advance.</exception>
     /// <exception cref="InvalidOperationException">The source state or transport ownership forbids a copy.</exception>
-    public void BeginCopy(ulong frameSerial) {
+    public void BeginCopy(ulong frameSerial, D3D12ImageSource? image = null) {
         VerifyUsable();
         if (frameSerial == 0 || frameSerial <= copySerial)
             throw new ArgumentOutOfRangeException(nameof(frameSerial));
         if (copyPending || readySlot >= 0)
             throw new InvalidOperationException("A pending or unpublished copy still owns the transport.");
+        image?.NativeImage.VerifyAccess();
+        if (image is null ? boundSlot >= 0 :
+            !image.IsWriteLocked || (image.BoundSurface != 0 && image.BoundSurface != (nint) surfaces9[0].Handle))
+            throw new InvalidOperationException("Copying bound output requires its successful WPF write lock");
         if (source12!.State != D12.ResourceStates.Common)
             throw new InvalidOperationException("The completed D3D12 source must be in COMMON state.");
         SilkMarshal.ThrowHResult(device11.Handle->GetDeviceRemovedReason());
-        copySlot = boundSlot == 0
-            ? 1
-            : 0;
+        copySlot = 0;
         copyStarted = Stopwatch.GetTimestamp();
         copyPending = true;
         detached = false;
@@ -270,10 +281,10 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
         copyCount++;
     }
 
-    /// <summary>Acknowledges successful WPF publication and unlock, freeing the previously bound slot.</summary>
+    /// <summary>Acknowledges successful WPF dirtying and unlock while retaining the stable bound output.</summary>
     /// <param name="frameSerial">The exact ready serial, or last published serial for a copy-free rebind.</param>
     /// <remarks>
-    /// A partial publication must not call this method. Retain the actual WPF binding and both allocations
+    /// A partial publication must not call this method. Retain the actual WPF binding and its allocation
     /// until publication succeeds or actual detachment is confirmed. Native code cannot inspect WPF's binding.
     /// With no pending or ready copy, the last published serial may be acknowledged again after rebinding
     /// its retained surface. A newer ready frame always takes precedence over that older published serial.
@@ -368,7 +379,7 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
             SilkMarshal.ThrowHResult(result);
         }
 
-        SilkMarshal.ThrowHResult(D3D9Api.Direct3DCreate9Ex((uint) D9.D3D9.SdkVersion, ref direct3D9));
+        direct3D9 = D3DImageInteropNative.CreateDirect3D9(D3D9Api);
         var adapter9 = FindD3D9Adapter(luid);
         var present = new D9.PresentParameters {
             Windowed = true,
@@ -379,16 +390,17 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
             SwapEffect = D9.Swapeffect.Discard,
             BackBufferFormat = D9.Format.Unknown
         };
-        SilkMarshal.ThrowHResult(
-            direct3D9.Handle->CreateDeviceEx(
-                adapter9, D9.Devtype.Hal, hwnd,
-                (uint) (D9.D3D9.CreateMultithreaded | D9.D3D9.CreateFpuPreserve | D9.D3D9.CreateSoftwareVertexprocessing),
-                &present, null, ref device9
-            )
-        );
+        fixed (D9.IDirect3DDevice9Ex** output = &device9.Handle)
+            SilkMarshal.ThrowHResult(
+                direct3D9.Handle->CreateDeviceEx(
+                    adapter9, D9.Devtype.Hal, hwnd,
+                    (uint) (D9.D3D9.CreateMultithreaded | D9.D3D9.CreateFpuPreserve | D9.D3D9.CreateSoftwareVertexprocessing),
+                    &present, null, output
+                )
+            );
     }
 
-    /// <summary>Creates the canonical tracked source, its RTV, D3D11 imports and both D3D9Ex destinations.</summary>
+    /// <summary>Creates the canonical tracked source, its RTV and the single shared D3D9Ex output.</summary>
     /// <param name="width">The physical width.</param>
     /// <param name="height">The physical height.</param>
     private void InitializeTextures(uint width, uint height) {
@@ -406,7 +418,9 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
                         (D12.ID3D12DeviceChild*) source12.Handle, null, 0x10000000, (char*) null, &ntHandle
                     )
                 );
-                SilkMarshal.ThrowHResult(device11v1.OpenSharedResource1(ntHandle, out source11));
+                var textureGuid = D11.ID3D11Texture2D.Guid;
+                fixed (D11.ID3D11Texture2D** output = &source11.Handle)
+                    SilkMarshal.ThrowHResult(device11v1.Handle->OpenSharedResource1(ntHandle, &textureGuid, (void**) output));
             } finally {
                 // Only the D3D12 NT handle is owned by this process; the import retains the allocation.
                 if (ntHandle != null) CloseHandle((nint) ntHandle);
@@ -416,26 +430,31 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
         for (var slot = 0; slot < destinations11.Length; slot++) {
             // These D3D9 legacy sharing tokens must never be passed to CloseHandle.
             void* legacyHandle = null;
-            SilkMarshal.ThrowHResult(
-                device9.Handle->CreateTexture(
-                    width, height, 1, (uint) D9.D3D9.UsageRendertarget,
-                    D9.Format.A8R8G8B8, D9.Pool.Default, ref textures9[slot], &legacyHandle
-                )
-            );
+            fixed (D9.IDirect3DTexture9** output = &textures9[slot].Handle)
+                SilkMarshal.ThrowHResult(
+                    device9.Handle->CreateTexture(
+                        width, height, 1, (uint) D9.D3D9.UsageRendertarget,
+                        D9.Format.A8R8G8B8, D9.Pool.Default, output, &legacyHandle
+                    )
+                );
             if (legacyHandle == null)
                 throw new PlatformNotSupportedException("D3D9Ex did not provide a legacy texture sharing token.");
-            SilkMarshal.ThrowHResult(device11.OpenSharedResource(legacyHandle, out destinations11[slot]));
+            var textureGuid = D11.ID3D11Texture2D.Guid;
+            fixed (D11.ID3D11Texture2D** output = &destinations11[slot].Handle)
+                SilkMarshal.ThrowHResult(device11.Handle->OpenSharedResource(legacyHandle, &textureGuid, (void**) output));
             D11.Texture2DDesc description;
             destinations11[slot].Handle->GetDesc(&description);
             if (description.Format != target.Format || description.Width != width || description.Height != height ||
                 description.SampleDesc.Count != 1 || description.SampleDesc.Quality != 0 ||
                 description.MipLevels != 1 || description.ArraySize != 1)
                 throw new PlatformNotSupportedException("The legacy destination must match the BGRA source.");
-            SilkMarshal.ThrowHResult(textures9[slot].Handle->GetSurfaceLevel(0, ref surfaces9[slot]));
+            fixed (D9.IDirect3DSurface9** output = &surfaces9[slot].Handle)
+                SilkMarshal.ThrowHResult(textures9[slot].Handle->GetSurfaceLevel(0, output));
         }
 
         var query = new D11.QueryDesc { Query = D11.Query.Event };
-        SilkMarshal.ThrowHResult(device11.Handle->CreateQuery(&query, ref copyQuery11));
+        fixed (D11.ID3D11Query** output = &copyQuery11.Handle)
+            SilkMarshal.ThrowHResult(device11.Handle->CreateQuery(&query, output));
     }
 
     /// <summary>Finds the D3D9Ex adapter by LUID, independently of DXGI enumeration order.</summary>
@@ -494,15 +513,18 @@ internal sealed unsafe class D3D12ImageInteropBridge : IDisposable {
 
     /// <summary>Releases ownership only after safe teardown or before construction exposed any resource.</summary>
     private void ReleaseResources() {
-        copyQuery11.Dispose();
-        foreach (var destination in destinations11) destination.Dispose();
-        source11.Dispose();
-        context11.Dispose();
-        device11.Dispose();
-        foreach (var surface in surfaces9) surface.Dispose();
-        foreach (var texture in textures9) texture.Dispose();
-        device9.Dispose();
-        direct3D9.Dispose();
+        D3DImageInteropNative.Release(ref copyQuery11);
+        for (var slot = 0; slot < destinations11.Length; slot++)
+            D3DImageInteropNative.Release(ref destinations11[slot]);
+        D3DImageInteropNative.Release(ref source11);
+        D3DImageInteropNative.Release(ref context11);
+        D3DImageInteropNative.Release(ref device11);
+        for (var slot = 0; slot < surfaces9.Length; slot++)
+            D3DImageInteropNative.Release(ref surfaces9[slot]);
+        for (var slot = 0; slot < textures9.Length; slot++)
+            D3DImageInteropNative.Release(ref textures9[slot]);
+        D3DImageInteropNative.Release(ref device9);
+        D3DImageInteropNative.Release(ref direct3D9);
         rtv12?.Dispose();
         rtvHeap12?.Dispose();
         source12?.Dispose();

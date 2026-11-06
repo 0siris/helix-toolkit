@@ -9,12 +9,29 @@ generated: { by: "agent:gpt-6.1-sol", at: 2026-10-20T07:15:06Z }
 status: stable
 sources:
   - resource: ../../Source/SilkCore/SilkCore.csproj
+  - resource: ../../Source/SilkCore/Native/D3D12ScenePassCatalog.cs
+  - resource: ../../Source/SilkCore.Tests/SurfaceCurveDepthBiasTests.cs
   - resource: ../../Source/SilkToolkit/Controls/D3D12PresentationSurface.cs
   - resource: ../../Source/SilkToolkit/Controls/D3D12WpfPresentation.cs
   - resource: ../testing/wpf-composition-phase4.md
 ---
 
 # Project
+
+## Surface-curve rasterizer bias
+
+`D3D12ScenePassCatalog.ResolveMaterial` forwards `GeometryRenderCore.RasterDescription` for every supported
+geometry family, including the shared `PointLineRenderCore` used by lines, points and billboards. Mesh-only
+selection previously discarded those nodes' existing depth bias and selected the pass/default zero bias.
+The scene-pass key and native PSO key already include integer bias, slope scale and clamp; attached node
+updates invalidate rendering and the next draw resolves the matching immutable PSO. Returning to an earlier
+state reuses its cached pass. No shader offset, model-point displacement or depth-test override is required.
+
+`SurfaceCurveDepthBiasTests` covers all three key fields, attached changes across mesh/line/point/billboard
+and registered transparency stages. Its 32 by 32 offscreen checks verify the actual device LUID as Microsoft
+software WARP before submission: both source bias pairs (-50000/0 and -1000/-50) reveal a surface ribbon
+under orthographic/perspective projection while a nearer mesh still occludes it. They do not qualify physical
+GPU behavior or live WPF acceptance. Existing topmost, descriptor ownership and interop contracts remain intact.
 
 ## Diffuse helper meshes without normals
 

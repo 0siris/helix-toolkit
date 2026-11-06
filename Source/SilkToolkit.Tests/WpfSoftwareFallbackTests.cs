@@ -74,7 +74,7 @@ public sealed class WpfSoftwareFallbackTests(ITestOutputHelper output) {
                     Assert.Equal(copied + 1, owner.CopiedFrames);
                     Assert.Equal(published + 1, owner.PublishedFrames);
                     Assert.Equal(copies + 1, bridge.CopyCount);
-                    Assert.NotEqual(bound, canvas.ImageSource.BoundSurface);
+                    Assert.Equal(bound, canvas.ImageSource.BoundSurface);
                     Assert.Equal(owner.SubmittedFrames, P4PresentationDriver.ReadField<ulong>(owner, "publishedSerial"));
                     Assert.Equal(owner.SubmittedFrames, P4PresentationDriver.ReadField<ulong>(bridge, "lastPublishedSerial"));
                     Assert.False(bridge.IsCopyPending);
@@ -245,7 +245,7 @@ public sealed class WpfSoftwareFallbackTests(ITestOutputHelper output) {
                 Assert.Equal(published + 1, owner.PublishedFrames);
                 Assert.Equal(copies + 1, bridge.CopyCount);
                 Assert.Equal(before.Submitted + 1, P4PresentationDriver.ReadField<ulong>(owner, "publishedSerial"));
-                Assert.NotEqual(surface, canvas.ImageSource.BoundSurface);
+                Assert.Equal(surface, canvas.ImageSource.BoundSurface);
                 Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
                 Assert.False(bridge.IsCopyPending);
                 Assert.False(bridge.HasReadySurface);
@@ -262,129 +262,70 @@ public sealed class WpfSoftwareFallbackTests(ITestOutputHelper output) {
         }
     );
 
-    /// <summary>Preserves both actual slots under false TryLock and publishes the exact ready surface only after unlock.</summary>
-    /// <returns>The real WPF lock, immutable bound pixels and direct ImageSource publication regression.</returns>
+    /// <summary>Preserves the last completed output under false TryLock without starting a bound copy.</summary>
+    /// <returns>The explicit hardware regression; synchronous snapshots do not establish MIL freshness.</returns>
     [Fact(Explicit = true)]
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     [Trait("Category", "Wpf")]
-    public Task UnavailableImagePublishRetainsReadySlotUnderLockPressureTest() => StaThread.RunAsync(async () => {
-            var key = AvailabilityKey();
-            using var effects = new DefaultEffectsManager();
-            await using var driver = new P4PresentationDriver(hwnd: false, effects);
-            using var mesh = P4PresentationDriver.CreateMesh();
-            driver.Viewport.Items.Add(mesh);
-            var owner = Assert.IsType<D3D12WpfPresentation>(driver.Wpf);
-            var canvas = Assert.IsType<DPFCanvas>(driver.Canvas);
-            var image = canvas.ImageSource.NativeImage;
-            var originalAvailability = image.IsFrontBufferAvailable;
-            try {
-                await WarmSyntheticAvailabilityAsync(driver, key);
-                var bridge = P4PresentationDriver.ReadField<D3D12ImageInteropBridge>(owner, "bridge");
-                var before = driver.Counts;
-                var copied = owner.CopiedFrames;
-                var published = owner.PublishedFrames;
-                var copies = bridge.CopyCount;
-                var surface = canvas.ImageSource.BoundSurface;
-                var slot = P4PresentationDriver.ReadField<int>(bridge, "boundSlot");
-                var original = SnapshotBackBuffer(image);
-                nint ready = 0;
-                ulong serial = 0;
-                P4PresentationDriver.SetMeshColor(mesh, new Vector4(1, 0, 0, 1));
-                await P4PresentationDriver.PollAsync(
-                    () => {
-                        var draws = driver.Tick();
-                        if (owner.SubmittedFrames == before.Submitted) {
-                            Assert.Equal(0, draws);
-                            Assert.Equal(before, driver.Counts);
-                            Assert.True(canvas.IsActive);
-                            Assert.True(owner.IsRenderReady);
-                            Assert.False(owner.HasPendingTransport);
-                            Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-                            Assert.True(driver.Viewport.RenderDemand.HasPublicationDemand);
-                            return false;
-                        }
-
-                        Assert.True(draws > 0);
-                        Assert.Equal(before.Submitted + 1, owner.SubmittedFrames);
-                        Assert.Equal(copied, owner.CopiedFrames);
-                        Assert.Equal(published, owner.PublishedFrames);
-                        Assert.Equal(copies, bridge.CopyCount);
-                        Assert.False(bridge.HasReadySurface);
-                        // Borrow on this accepting predicate's stack, before any dispatcher continuation.
-                        WithBlockedImageWrites(image, () => {
-                            image.SetValue(key, false);
-                            PollWithoutDispatcher(
-                                () => {
-                                    _ = owner.RenderFrame(TimeSpan.FromSeconds(1), automaticFrame: true);
-                                    return bridge.HasReadySurface;
-                                }, "completed GPU fence and D3D11 query before blocked WPF publication"
-                            );
-                            ready = bridge.ReadySurface;
-                            serial = bridge.ReadySerial;
-                            Assert.NotEqual(nint.Zero, ready);
-                            Assert.NotEqual(surface, ready);
-                            Assert.Equal(before.Submitted + 1, serial);
-                            Assert.False(bridge.IsCopyPending);
-                            Assert.Equal(copied + 1, owner.CopiedFrames);
-                            Assert.Equal(copies + 1, bridge.CopyCount);
-                            driver.AssertAdvanced(before, 1);
-                            var retained = SnapshotBackBuffer(image);
-                            Assert.Equal(original.Pixels, retained.Pixels);
-                            driver.Viewport.InvalidateRender();
-                            var blocked = driver.Counts;
-                            for (var tick = 0; tick < 32; tick++) {
-                                var accepted = canvas.ImageSource.TryPublish(ready, canvas.PixelWidth, canvas.PixelHeight);
-                                Assert.False(accepted);
-                                var drawsBlocked = driver.Tick();
-                                Assert.Equal(0, drawsBlocked);
-                                Assert.False(image.IsFrontBufferAvailable);
-                                Assert.Equal(blocked, driver.Counts);
-                                Assert.Equal(published, owner.PublishedFrames);
-                                Assert.Equal(surface, canvas.ImageSource.BoundSurface);
-                                Assert.Equal(slot, P4PresentationDriver.ReadField<int>(bridge, "boundSlot"));
-                                Assert.Equal(ready, bridge.ReadySurface);
-                                Assert.Equal(serial, bridge.ReadySerial);
-                                Assert.Equal(copies + 1, bridge.CopyCount);
-                                Assert.True(driver.Viewport.RenderDemand.HasPublicationDemand);
-                                Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-                                Assert.Equal(0U, Convert.ToUInt32(P4PresentationDriver.ReadField<object>(image, "_lockCount")));
-                            }
-
-                            Assert.Throws<InvalidOperationException>(() => bridge.BeginCopy(serial + 1));
-                            Assert.False(bridge.IsDisposed);
-                        });
-
-                        // A successful direct bind is still unacknowledged by the bridge until the owner finishes publication.
-                        var accepted = canvas.ImageSource.TryPublish(ready, canvas.PixelWidth, canvas.PixelHeight);
-                        Assert.True(accepted);
-                        Assert.Equal(ready, canvas.ImageSource.BoundSurface);
-                        Assert.Equal(slot, P4PresentationDriver.ReadField<int>(bridge, "boundSlot"));
-                        Assert.Equal(serial, bridge.ReadySerial);
-                        Assert.Equal(published, owner.PublishedFrames);
-                        var fresh = SnapshotBackBuffer(image);
-                        P4PresentationDriver.AssertPixel(fresh, 32, 24, 0, 0, 255, 255);
-                        return true;
-                    }, "new scene submission before exclusive WPF write-event borrow"
-                );
-
-                await driver.FinishTransportAsync();
-                Assert.False(image.IsFrontBufferAvailable);
-                Assert.Equal(published + 1, owner.PublishedFrames);
-                Assert.Equal(serial, P4PresentationDriver.ReadField<ulong>(owner, "publishedSerial"));
-                Assert.Equal(ready, canvas.ImageSource.BoundSurface);
-                Assert.False(bridge.HasReadySurface);
-                Assert.Equal(copies + 1, bridge.CopyCount);
-                Assert.True(driver.Viewport.RenderDemand.HasRenderDemand);
-                await driver.DrainAsync();
-                driver.AssertAdvanced(before, 2);
-                AssertIdle(driver);
-            } finally {
-                image.SetValue(key, originalAvailability);
-            }
+    public Task UnavailableImagePublishRetainsAcceptedFrameUnderLockPressureTest() => StaThread.RunAsync(async () => {
+        var key = AvailabilityKey();
+        using var effects = new DefaultEffectsManager();
+        await using var driver = new P4PresentationDriver(hwnd: false, effects);
+        using var mesh = P4PresentationDriver.CreateMesh();
+        driver.Viewport.Items.Add(mesh);
+        var owner = Assert.IsType<D3D12WpfPresentation>(driver.Wpf);
+        var canvas = Assert.IsType<DPFCanvas>(driver.Canvas);
+        var image = canvas.ImageSource.NativeImage;
+        var originalAvailability = image.IsFrontBufferAvailable;
+        try {
+            await WarmSyntheticAvailabilityAsync(driver, key);
+            var bridge = P4PresentationDriver.ReadField<D3D12ImageInteropBridge>(owner, "bridge");
+            var before = driver.Counts;
+            var copied = owner.CopiedFrames;
+            var published = owner.PublishedFrames;
+            var copies = bridge.CopyCount;
+            var surface = canvas.ImageSource.BoundSurface;
+            var original = SnapshotBackBuffer(image);
+            P4PresentationDriver.SetMeshColor(mesh, new Vector4(1, 0, 0, 1));
+            WithBlockedImageWrites(image, () => {
+                image.SetValue(key, false);
+                PollWithoutDispatcher(() => {
+                    _ = owner.RenderFrame(TimeSpan.FromSeconds(1), automaticFrame: true);
+                    return owner.CompletedFrames == before.Completed + 1;
+                }, "completed D3D12 source waiting for WPF write permission");
+                var blocked = driver.Counts;
+                for (var tick = 0; tick < 32; tick++) {
+                    var draws = driver.Tick();
+                    Assert.Equal(0, draws);
+                    Assert.Equal(blocked, driver.Counts);
+                    Assert.Equal(copies, bridge.CopyCount);
+                    Assert.Equal(copied, owner.CopiedFrames);
+                    Assert.Equal(published, owner.PublishedFrames);
+                    Assert.False(bridge.HasReadySurface);
+                    Assert.False(bridge.IsCopyPending);
+                    Assert.Equal(surface, canvas.ImageSource.BoundSurface);
+                    Assert.False(canvas.ImageSource.IsWriteLocked);
+                    Assert.True(owner.HasPendingTransport);
+                    Assert.True(driver.Viewport.RenderDemand.HasPublicationDemand);
+                    var retained = SnapshotBackBuffer(image);
+                    Assert.Equal(original.Pixels, retained.Pixels);
+                }
+            });
+            await driver.FinishTransportAsync();
+            Assert.Equal(published + 1, owner.PublishedFrames);
+            Assert.Equal(copies + 1, bridge.CopyCount);
+            Assert.Equal(surface, canvas.ImageSource.BoundSurface);
+            Assert.False(bridge.HasReadySurface);
+            var fresh = SnapshotBackBuffer(image);
+            P4PresentationDriver.AssertPixel(fresh, 32, 24, 0, 0, 255, 255);
+            await driver.DrainAsync();
+            driver.AssertAdvanced(before, 2);
+            AssertIdle(driver);
+        } finally {
+            image.SetValue(key, originalAvailability);
         }
-    );
-
+    });
     /// <summary>Retains a requested rebind and fresh material demand across actual WPF lock misses.</summary>
     /// <returns>The transport-before-reservation, unchanged-budget and subsequent fresh-pixel regression.</returns>
     [Fact(Explicit = true)]
@@ -552,12 +493,12 @@ public sealed class WpfSoftwareFallbackTests(ITestOutputHelper output) {
                 Assert.Equal(copies + 1, bridge.CopyCount);
                 Assert.False(notificationWithoutDemand);
                 Assert.InRange(owner.ReboundFrames, rebound + 1, rebound + 1 + laterPublicationRequests);
-                Assert.NotEqual(surface, canvas.ImageSource.BoundSurface);
+                Assert.Equal(surface, canvas.ImageSource.BoundSurface);
                 Assert.Equal(before.Submitted + 1, P4PresentationDriver.ReadField<ulong>(owner, "publishedSerial"));
                 Assert.Equal(before.Submitted + 1, P4PresentationDriver.ReadField<ulong>(bridge, "lastPublishedSerial"));
                 var freshSlot = P4PresentationDriver.ReadField<int>(bridge, "boundSlot");
                 Assert.InRange(freshSlot, 0, 1);
-                Assert.NotEqual(slot, freshSlot);
+                Assert.Equal(slot, freshSlot);
                 Assert.False(bridge.IsCopyPending);
                 Assert.False(bridge.HasReadySurface);
                 Assert.Equal(-1, P4PresentationDriver.ReadField<int>(bridge, "readySlot"));

@@ -13,6 +13,15 @@ public partial class Viewport3DX {
     /// <summary>The composited owner selected by the public template or an internal presentation harness.</summary>
     private D3D12WpfPresentation? wpfPresentation;
 
+    /// <summary>Retains one finite input-triggered observation across native generation replacement.</summary>
+    internal D3D12PublicationObservation PublicationObservation { get; } = new();
+
+    /// <summary>Observes the next natural WPF publications once per viewport, without requesting a frame.</summary>
+    public void ObserveNextWpfPublications() {
+        Dispatcher.VerifyAccess();
+        PublicationObservation.Arm();
+    }
+
     /// <summary>Retains one permission delegate for native preparation across application node callbacks.</summary>
     private Func<bool>? scenePreparationPermission;
 

@@ -1808,6 +1808,7 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
         if (disposing) VerifyPresentationReplacement();
         if (disposing) wpfPresentation?.PrepareForDisposal();
         disposedValue = true;
+        FlightRecorder.Stop("viewport-disposed");
         if (!disposing) return;
         Exception? notificationFailure = null;
         try {

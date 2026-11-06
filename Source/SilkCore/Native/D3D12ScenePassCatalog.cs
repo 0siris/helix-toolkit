@@ -640,7 +640,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     }
 
     /// <summary>
-    ///     Pairs a productive material pass with its registered source wireframe pass and per-mesh rasterizer state.
+    ///     Pairs a productive material pass with its registered source wireframe pass and per-geometry rasterizer state.
     /// </summary>
     /// <param name="node">The current scene node.</param>
     /// <param name="techniqueName">The actual registered material technique.</param>
@@ -671,8 +671,8 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
             );
         }
 
-        var materialRaster = node.RenderCore is MeshRenderCore materialMesh
-            ? materialMesh.RasterDescription
+        var materialRaster = node.RenderCore is GeometryRenderCore geometry
+            ? geometry.RasterDescription
             : (RasterizerStateDescription?) null;
         return Resolve(
             techniqueName, passName, topology,

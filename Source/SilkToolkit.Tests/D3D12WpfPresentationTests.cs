@@ -444,7 +444,7 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
         }
     );
 
-    /// <summary>Retries genuine zero-duration WPF lock failures without replacing the ready frame or bound surface.</summary>
+    /// <summary>Retries genuine zero-duration WPF lock failures before copying into the stable bound output.</summary>
     /// <returns>The actual lock contention, retained transport and single-publication verification.</returns>
     [Fact(Explicit = true)]
     [Trait("Category", "Hardware")]
@@ -463,17 +463,16 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
                     PollWithoutDispatcher(
                         () => {
                             _ = driver.Owner.RenderFrame(FrameTime);
-                            return bridge.HasReadySurface;
-                        }, "real GPU and interop copy completion with WPF publication blocked"
+                            return driver.Owner.CompletedFrames == before.Completed + 1;
+                        }, "real GPU fence completion with WPF output writes blocked"
                     );
-                    ready = bridge.ReadySurface;
-                    Assert.NotEqual(nint.Zero, ready);
-                    Assert.NotEqual(bound, ready);
-                    Assert.Equal(before.Submitted + 1, bridge.ReadySerial);
+                    ready = bound;
+                    Assert.False(bridge.HasReadySurface);
+                    Assert.Equal(0UL, bridge.ReadySerial);
                     Assert.Equal(before.Submitted + 1, driver.Owner.SubmittedFrames);
                     Assert.Equal(before.Completed + 1, driver.Owner.CompletedFrames);
-                    Assert.Equal(before.Copied + 1, driver.Owner.CopiedFrames);
-                    Assert.Equal(copies + 1, bridge.CopyCount);
+                    Assert.Equal(before.Copied, driver.Owner.CopiedFrames);
+                    Assert.Equal(copies, bridge.CopyCount);
                     Assert.Equal(before.Published, driver.Owner.PublishedFrames);
                     Assert.Equal(before.Updates + 1, driver.Node.UpdateCount);
                     Assert.Equal(before.Maintenance + 1, driver.Node.MaintenanceCount);
@@ -483,11 +482,11 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
                     for (var tick = 0; tick < 256; tick++) {
                         Assert.Equal(0, driver.Owner.RenderFrame(FrameTime));
                         Assert.Equal(blocked, driver.Counts);
-                        Assert.True(bridge.HasReadySurface);
-                        Assert.Equal(ready, bridge.ReadySurface);
-                        Assert.Equal(before.Submitted + 1, bridge.ReadySerial);
+                        Assert.False(bridge.HasReadySurface);
+                        Assert.Equal(0, bridge.ReadySurface);
+                        Assert.Equal(0UL, bridge.ReadySerial);
                         Assert.Equal(bound, driver.Canvas.ImageSource.BoundSurface);
-                        Assert.Equal(copies + 1, bridge.CopyCount);
+                        Assert.Equal(copies, bridge.CopyCount);
                         Assert.True(driver.Owner.HasPendingTransport);
                         Assert.True(driver.Viewport.RenderDemand.HasPublicationDemand);
                         Assert.False(driver.Viewport.RenderDemand.HasRenderDemand);
@@ -549,11 +548,10 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
                     PollWithoutDispatcher(
                         () => {
                             _ = driver.Owner.RenderFrame(FrameTime);
-                            return bridge.HasReadySurface;
+                            return driver.Owner.CompletedFrames == before.Completed + 1;
                         }, "new scene completion before the blocked capture attempt"
                     );
-                    var ready = bridge.ReadySurface;
-                    var serial = bridge.ReadySerial;
+                    var serial = driver.Owner.SubmittedFrames;
                     var blocked = driver.Counts;
                     Assert.Equal(before.Submitted + 1, serial);
                     Assert.True(serial > originalSerial);
@@ -564,9 +562,9 @@ public sealed class D3D12WpfPresentationTests(ITestOutputHelper output) {
                         Assert.Null(driver.Owner.LastCapturedFrame);
                         Assert.Equal(0UL, driver.Owner.CapturedSerial);
                         Assert.Equal(blocked, driver.Counts);
-                        Assert.True(bridge.HasReadySurface);
-                        Assert.Equal(serial, bridge.ReadySerial);
-                        Assert.Equal(ready, bridge.ReadySurface);
+                        Assert.False(bridge.HasReadySurface);
+                        Assert.Equal(0UL, bridge.ReadySerial);
+                        Assert.Equal(0, bridge.ReadySurface);
                         Assert.Equal(bound, driver.Canvas.ImageSource.BoundSurface);
                     }
                 }

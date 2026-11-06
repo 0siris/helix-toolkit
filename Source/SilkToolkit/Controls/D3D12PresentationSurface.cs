@@ -198,6 +198,9 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// </summary>
     public bool IsInitialized => swapChain is not null;
 
+    /// <summary>Gets the existing device for dispatcher-bound diagnostics without creating a native host.</summary>
+    internal SilkD3D12Device? DiagnosticDevice => IsInitialized && device?.IsDisposed == false ? device : null;
+
     /// <summary>
     ///     Gets the current physical back-buffer width.
     /// </summary>

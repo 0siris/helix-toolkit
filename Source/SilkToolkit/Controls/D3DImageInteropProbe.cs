@@ -311,7 +311,7 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
             if (native11 != null) native11->Release();
             SilkMarshal.ThrowHResult(create11);
 
-            SilkMarshal.ThrowHResult(D3D9Api.Direct3DCreate9Ex((uint) D9.D3D9.SdkVersion, ref direct3D9));
+            direct3D9 = D3DImageInteropNative.CreateDirect3D9(D3D9Api);
             var adapter9 = FindD3D9Adapter(luid);
             var present = new D9.PresentParameters {
                 Windowed = true,
@@ -322,13 +322,14 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
                 SwapEffect = D9.Swapeffect.Discard,
                 BackBufferFormat = D9.Format.Unknown
             };
-            SilkMarshal.ThrowHResult(
-                direct3D9.Handle->CreateDeviceEx(
-                    adapter9, D9.Devtype.Hal, hwnd,
-                    (uint) (D9.D3D9.CreateMultithreaded | D9.D3D9.CreateFpuPreserve | D9.D3D9.CreateSoftwareVertexprocessing),
-                    &present, null, ref device9
-                )
-            );
+            fixed (D9.IDirect3DDevice9Ex** output = &device9.Handle)
+                SilkMarshal.ThrowHResult(
+                    direct3D9.Handle->CreateDeviceEx(
+                        adapter9, D9.Devtype.Hal, hwnd,
+                        (uint) (D9.D3D9.CreateMultithreaded | D9.D3D9.CreateFpuPreserve | D9.D3D9.CreateSoftwareVertexprocessing),
+                        &present, null, output
+                    )
+                );
         }
 
         queue12 = device12.CreateCommandQueue();
@@ -350,14 +351,18 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
             Layout = D12.TextureLayout.LayoutUnknown,
             Flags = D12.ResourceFlags.AllowRenderTarget | D12.ResourceFlags.AllowSimultaneousAccess
         };
-        SilkMarshal.ThrowHResult(
-            device12!.NativeDevice.CreateCommittedResource(
-                in heap, D12.HeapFlags.Shared,
-                in description, D12.ResourceStates.Common, null, out renderTarget12
-            )
-        );
+        var resourceGuid = D12.ID3D12Resource.Guid;
+        fixed (D12.ID3D12Resource** output = &renderTarget12.Handle)
+            SilkMarshal.ThrowHResult(
+                device12!.Handle->CreateCommittedResource(
+                    &heap, D12.HeapFlags.Shared,
+                    &description, D12.ResourceStates.Common, null, &resourceGuid, (void**) output
+                )
+            );
         var rtvDescription = new D12.DescriptorHeapDesc { Type = D12.DescriptorHeapType.Rtv, NumDescriptors = 1 };
-        SilkMarshal.ThrowHResult(device12.NativeDevice.CreateDescriptorHeap(in rtvDescription, out rtvHeap12));
+        var heapGuid = D12.ID3D12DescriptorHeap.Guid;
+        fixed (D12.ID3D12DescriptorHeap** output = &rtvHeap12.Handle)
+            SilkMarshal.ThrowHResult(device12.Handle->CreateDescriptorHeap(&rtvDescription, &heapGuid, (void**) output));
         device12.Handle->CreateRenderTargetView(
             renderTarget12.Handle, null,
             rtvHeap12.Handle->GetCPUDescriptorHandleForHeapStart()
@@ -374,7 +379,9 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
                         null, 0x10000000, (char*) null, &ntHandle
                     )
                 );
-                SilkMarshal.ThrowHResult(device11v1.OpenSharedResource1(ntHandle, out source11));
+                var textureGuid = D11.ID3D11Texture2D.Guid;
+                fixed (D11.ID3D11Texture2D** output = &source11.Handle)
+                    SilkMarshal.ThrowHResult(device11v1.Handle->OpenSharedResource1(ntHandle, &textureGuid, (void**) output));
             } finally {
                 if (ntHandle != null) CloseHandle((nint) ntHandle);
             }
@@ -384,26 +391,31 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
         // https://learn.microsoft.com/windows/win32/api/d3d11/nf-d3d11-id3d11device-opensharedresource
         for (var slot = 0; slot < destinations11.Length; slot++) {
             void* legacyHandle = null;
-            SilkMarshal.ThrowHResult(
-                device9.Handle->CreateTexture(
-                    Width, Height, 1, (uint) D9.D3D9.UsageRendertarget,
-                    D9.Format.A8R8G8B8, D9.Pool.Default, ref textures9[slot], &legacyHandle
-                )
-            );
+            fixed (D9.IDirect3DTexture9** output = &textures9[slot].Handle)
+                SilkMarshal.ThrowHResult(
+                    device9.Handle->CreateTexture(
+                        Width, Height, 1, (uint) D9.D3D9.UsageRendertarget,
+                        D9.Format.A8R8G8B8, D9.Pool.Default, output, &legacyHandle
+                    )
+                );
             if (legacyHandle == null)
                 throw new PlatformNotSupportedException("D3D9Ex did not provide a legacy texture sharing token.");
-            SilkMarshal.ThrowHResult(device11.OpenSharedResource(legacyHandle, out destinations11[slot]));
+            var textureGuid = D11.ID3D11Texture2D.Guid;
+            fixed (D11.ID3D11Texture2D** output = &destinations11[slot].Handle)
+                SilkMarshal.ThrowHResult(device11.Handle->OpenSharedResource(legacyHandle, &textureGuid, (void**) output));
             D11.Texture2DDesc destinationDescription;
             destinations11[slot].Handle->GetDesc(&destinationDescription);
             if (destinationDescription.Format != description.Format || destinationDescription.Width != Width ||
                 destinationDescription.Height != Height || destinationDescription.SampleDesc.Count != 1 ||
                 destinationDescription.MipLevels != 1)
                 throw new PlatformNotSupportedException("The legacy destination is not a matching single-sample BGRA texture.");
-            SilkMarshal.ThrowHResult(textures9[slot].Handle->GetSurfaceLevel(0, ref surfaces9[slot]));
+            fixed (D9.IDirect3DSurface9** output = &surfaces9[slot].Handle)
+                SilkMarshal.ThrowHResult(textures9[slot].Handle->GetSurfaceLevel(0, output));
         }
 
         var query = new D11.QueryDesc { Query = D11.Query.Event };
-        SilkMarshal.ThrowHResult(device11.Handle->CreateQuery(&query, ref copyQuery11));
+        fixed (D11.ID3D11Query** output = &copyQuery11.Handle)
+            SilkMarshal.ThrowHResult(device11.Handle->CreateQuery(&query, output));
     }
 
     /// <summary>Finds a DXGI index by identity rather than equating it with a D3D9 index.</summary>
@@ -493,17 +505,20 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
 
     /// <summary>Releases native references only after quiescence or before any submission during construction.</summary>
     private void ReleaseResources() {
-        copyQuery11.Dispose();
-        foreach (var destination in destinations11) destination.Dispose();
-        source11.Dispose();
-        context11.Dispose();
-        device11.Dispose();
-        foreach (var surface in surfaces9) surface.Dispose();
-        foreach (var texture in textures9) texture.Dispose();
-        device9.Dispose();
-        direct3D9.Dispose();
-        rtvHeap12.Dispose();
-        renderTarget12.Dispose();
+        D3DImageInteropNative.Release(ref copyQuery11);
+        for (var slot = 0; slot < destinations11.Length; slot++)
+            D3DImageInteropNative.Release(ref destinations11[slot]);
+        D3DImageInteropNative.Release(ref source11);
+        D3DImageInteropNative.Release(ref context11);
+        D3DImageInteropNative.Release(ref device11);
+        for (var slot = 0; slot < surfaces9.Length; slot++)
+            D3DImageInteropNative.Release(ref surfaces9[slot]);
+        for (var slot = 0; slot < textures9.Length; slot++)
+            D3DImageInteropNative.Release(ref textures9[slot]);
+        D3DImageInteropNative.Release(ref device9);
+        D3DImageInteropNative.Release(ref direct3D9);
+        D3DImageInteropNative.Release(ref rtvHeap12);
+        D3DImageInteropNative.Release(ref renderTarget12);
         commands12?.Dispose();
         fence12?.Dispose();
         queue12?.Dispose();

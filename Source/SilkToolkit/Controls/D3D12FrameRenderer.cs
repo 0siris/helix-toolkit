@@ -205,6 +205,15 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     /// <summary>Gets the hierarchy produced by actual scene preparation.</summary>
     internal FastList<KeyValuePair<int, SceneNode>> PerFrameFlattenedScene => SceneRenderer.PerFrameFlattenedScene;
 
+    /// <summary>Gets current prepared mesh nodes before pass and frustum selection.</summary>
+    internal int PreparedMeshes { get; private set; }
+
+    /// <summary>CPU scene preparation time for the last opted-in frame, before native command recording.</summary>
+    internal double LastSceneUpdateMs { get; private set; }
+
+    /// <summary>Gets actual RenderVisible mesh pass candidates and successful draws, not unique scene meshes.</summary>
+    internal (int Candidates, int Draws) FrameMeshes => (SceneRenderer.FrameMeshCandidates, SceneRenderer.FrameMeshDraws);
+
     /// <summary>Gets whether the owned scene resources have been released.</summary>
     internal bool IsDisposed { get; private set; }
 
@@ -378,6 +387,9 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         bool enableRenderOrder = false,
         IRenderHost? renderHost = null
     ) {
+        var measureTimings = (renderHost as Viewport3DX)?.FlightRecorder.IsRecording == true;
+        var updateStarted = measureTimings ? Stopwatch.GetTimestamp() : 0;
+        LastSceneUpdateMs = 0;
         ValidateTarget(in target);
         currentContext.AsGuardNotNull();
         roots.AsGuardNotNull();
@@ -385,6 +397,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         if (!float.IsFinite(dpiScale) || dpiScale <= 0) throw new ArgumentOutOfRangeException(nameof(dpiScale));
         var renderer = SceneRenderer;
         var catalog = PassCatalog;
+        PreparedMeshes = 0;
         opaqueNodes.Clear();
         transparentNodes.Clear();
         postEffectCandidates.Clear();
@@ -413,6 +426,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         var preparedNodes = renderer.PrepareScene(roots, updateContext, effectsManager, renderHost, canContinue);
         if (canContinue?.Invoke() == false) return 0;
         foreach (var node in preparedNodes) {
+            if (node.RenderCore is MeshRenderCore) PreparedMeshes++;
             if (IsOverlayRoot(node) || FindOverlayAncestor(node) is not null) {
                 screenSpacedNodes.Add(node);
                 continue;
@@ -459,6 +473,7 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         }
 
         SilkD3D12SceneRenderer.UpdateLights(lightNodes, lights);
+        if (measureTimings) LastSceneUpdateMs = Stopwatch.GetElapsedTime(updateStarted).TotalMilliseconds;
 
         var transforms = CreateViewportTransforms(
             camera,

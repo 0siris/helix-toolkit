@@ -16,13 +16,13 @@ namespace SilkToolkit.Tests;
 /// <remarks>Readback and publication acknowledgments are test-only; these tests never present CPU pixels.</remarks>
 [Collection(WpfCollection.Name)]
 public sealed class D3D12ImageInteropBridgeNativeTests {
-    /// <summary>Verifies actual D3D9 pixels, immutable bound slots and retained output across lock-retry analogues.</summary>
+    /// <summary>Verifies actual D3D9 pixels and stable output identity across detached native copies.</summary>
     /// <returns>The explicit STA hardware regression.</returns>
     [Fact(Explicit = true)]
     [Trait("Category", "Hardware")]
     [Trait("Category", "DX12")]
     [Trait("Category", "Wpf")]
-    public Task BorrowedDeviceCopiesPremultipliedBgraWithoutOverwritingPublishedSlot() => StaThread.RunAsync(() => {
+    public Task BorrowedDeviceCopiesPremultipliedBgraIntoStableOutput() => StaThread.RunAsync(() => {
             using var frame = new HardwareFrame();
             var bridge = frame.Bridge;
             Assert.True(bridge.IsCopyComplete);
@@ -58,16 +58,17 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
             bridge.ConfirmPublication(1);
             Assert.False(bridge.HasReadySurface);
             frame.Clear(0, 0, 1, 1);
+            Assert.Throws<InvalidOperationException>(() => bridge.BeginCopy(2));
+            bridge.ConfirmDetached(); // This native fixture never attaches WPF; bound output otherwise requires its lease.
             bridge.BeginCopy(2); // The earlier rejected serial remains available.
-            AssertSurface(first, [32, 64, 128, 128]);
             frame.WaitForCopy();
             var second = bridge.ReadySurface;
-            Assert.NotEqual(first, second);
+            Assert.Equal(first, second);
             AssertSurface(second, [255, 0, 0, 255]);
-            AssertSurface(first, [32, 64, 128, 128]);
             Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(1));
             bridge.ConfirmPublication(2);
             frame.Clear(1, 1, 1, 0);
+            bridge.ConfirmDetached();
             bridge.BeginCopy(3);
             frame.WaitForCopy();
             Assert.Equal(first, bridge.ReadySurface);
@@ -107,16 +108,18 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
             frame.Context.Transition(bridge.Target.ColorResource, ResourceStates.Common);
             frame.Context.Close();
             frame.SubmitAndDrain();
+            bridge.ConfirmDetached();
             bridge.BeginCopy(6);
             Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(5));
             frame.WaitForCopy();
             var second = bridge.ReadySurface;
-            Assert.NotEqual(first, second);
+            Assert.Equal(first, second);
             Assert.Throws<InvalidOperationException>(() => bridge.ConfirmPublication(5));
             bridge.ConfirmDetached();
             Assert.Equal(second, bridge.ReadySurface);
             Assert.Equal(6UL, bridge.ReadySerial);
             bridge.ConfirmPublication(6);
+            bridge.ConfirmDetached();
             bridge.BeginCopy(7);
             frame.WaitForCopy();
             Assert.Equal(first, bridge.ReadySurface);
@@ -140,6 +143,7 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
             var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
             Assert.Equal(64UL, frame.Bridge.CopyCount - countBefore);
             Assert.Equal(0L, allocated);
+            frame.Bridge.ConfirmDetached();
             frame.Bridge.BeginCopy(97);
             frame.WaitForCopy();
             var ready = frame.Bridge.ReadySurface;
@@ -355,6 +359,7 @@ public sealed class D3D12ImageInteropBridgeNativeTests {
         /// <summary>Executes one real GPU copy and acknowledges a successful publication analogue.</summary>
         /// <param name="serial">The next copy serial.</param>
         internal void CopyAndAcknowledge(ulong serial) {
+            Bridge.ConfirmDetached();
             Bridge.BeginCopy(serial);
             WaitForCopy();
             Bridge.ConfirmPublication(serial);

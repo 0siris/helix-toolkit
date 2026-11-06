@@ -4,6 +4,27 @@ okf_version: "0.2"
 
 # Helix Toolkit Knowledge Bundle
 
+* [Stable WPF output surface](projects/silktoolkit.md#stable-output-surface-per-wpf-generation) - One output
+  per generation, dispatcher write lease across nonwaiting copy polls, exact query completion and retryable
+  teardown and post-decrement Unlock retry; shipped .NET 11 lock accounting is separate from native MIL/RDP visibility and performance.
+
+* [Composition-independent accepted transport](projects/silktoolkit.md#composition-independent-accepted-transport-service) -
+  Existing Background timer for active pending transport, guarded nonwaiting service and idle shutdown;
+  real subscription tests use a controlled native boundary and do not establish MIL/RDP pixels.
+
+* [User-controlled render flight recorder](projects/silktoolkit.md#bounded-user-controlled-render-flight-recorder) -
+  Fixed opt-in value buffers, existing transport/counter correlation, CPU-only sections and explicit GPU/MIL limits.
+
+* [Read-only renderer diagnostics](projects/silktoolkit.md#read-only-renderer-diagnostics) - Existing-device
+  LUID and matching DXGI metadata, separate presentation/interop observations and explicit unknown state.
+
+* [Surface-curve rasterizer bias](projects/silkcore.md#surface-curve-rasterizer-bias) - Per-geometry rasterizer
+  forwarding, dynamic cached PSOs and small verified software-WARP occlusion regressions.
+
+* [Stable COM outputs in D3DImage interop](projects/silktoolkit.md#stable-com-outputs-in-d3dimage-interop) -
+  Stack or pinned native outputs, cleared ownership and nine headless GC/failure/enumeration cases;
+  hardware presentation and already published consumer binaries remain separate.
+
 ## Repository
 
 The [coding policy](/policies/csharp-coding-conventions.md#assertions) fixes ValidSphere at `0.3.1-preview`, shared
@@ -165,3 +186,9 @@ open lock-pressure, cursor cleanup and full-product limits remain separate.
 WPF lock-pressure knowledge now separates accepted scene submission from a retained-publication lock
 miss. One test file preserves all original checks and adds a real retained-demand regression; D/R two
 direct and ten policy cases pass. Product code is unchanged; the independent final review is complete without new confirmed findings.
+
+* [Invalidated curve frame evidence](projects/silktoolkit.md#invalidated-curve-frames-and-the-offscreen-evidence-boundary) -
+  Three actual public invalidation paths, sixty completed windowless WARP frames with full mesh
+  interior coverage, and the separate unmeasured WPF publication boundary.
+
+* [Bounded publication observation](projects/silktoolkit.md#bounded-input-triggered-publication-observation) — One input-triggered window with fixed budgets, real owner counters and managed publication/MIL evidence boundaries.

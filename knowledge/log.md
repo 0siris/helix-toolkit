@@ -1,5 +1,50 @@
 # Knowledge Bundle Update Log
 
+## 2026-11-03 — Retain one stable WPF output per presentation generation
+
+* Replace normal-frame destination rotation with a successful WPF write lease before the existing D3D11 copy.
+* Retain that dispatcher lease across nonwaiting polls; dirty/unlock only after query completion, retaining
+  live-copy resources on timeout/failure and draining before detach/disposal or confirmed device retirement.
+* Preserve schema 1 with actual lock/copy/publication phases and document the changed publish-begin ordering.
+* Record CPU COM/state/timer regressions and the actual shipped .NET 11 RC3 lock contract; keep native pixels,
+  asynchronous MIL continuity, legitimate recreation and desktop performance outside the headless evidence.
+
+## 2026-11-03 — Service active accepted transport independently of composition
+
+* Extend the existing 16-ms Background timer to active pending transport without scene reservation or camera work.
+* Preserve inactive retirement, owner/updating/stop/removal guards, last-image retention and native publication rules.
+* Record actual dispatcher-subscription regressions with controlled native service and separate native/MIL limits.
+
+## 2026-11-03 — Bounded user-controlled render flight recorder
+
+* Add disabled-by-default fixed frame/event buffers with nonblocking append, retained stopped data and explicit clear.
+* Reuse productive WPF publication callbacks and native serial/generation, adding presentation-owner identity and monotonic time.
+* Measure existing scene preparation/record/submission CPU sections only while enabled; never create queries, waits, devices or demand.
+* Keep one-shot observation/log budgets intact and separate fence latency from unknown GPU execution/MIL output.
+* Verify capacity/drops/lifecycle/expiry/correlation and productive image callback without windows or devices; regenerate source graph.
+
+## 2026-11-03 — Read actual presentation device diagnostics
+
+* Add dispatcher-bound `Viewport3DX.GetRenderDiagnostics` without device creation, render submission or probes.
+* Resolve the existing device's LUID through DXGI, retaining unknown metadata rather than inventing an adapter.
+* Keep presentation, bridge LUID and front-buffer availability separate from WPF/MIL acceleration claims.
+* Verify the lookup with an explicit software-WARP device and a missing-device case, without windows or frames.
+
+## 2026-11-03 — Restore surface-curve rasterizer bias
+
+* Forward existing geometry rasterizers through ordinary material-pass resolution, including line, point and
+  billboard cores; retain mesh, native depth testing and both existing complete rasterizer cache keys.
+* Document dynamic PSO selection and bounded 32 by 32 verified software-WARP ribbon/foreground checks with
+  original consumer bias pairs, plus the separate physical-GPU and live-application acceptance boundaries.
+
+## 2026-11-03 — Stabilize D3DImage COM output ownership
+
+* Document the unpinned Silk.NET 2.23.0 generic output into movable managed owners; use stack D3D9Ex
+  creation and pinned adjacent field/array outputs without changing native ABI or adapter policy.
+* Clear real owners before Release and preserve borrowed-device, detach and GPU-quiescence boundaries.
+* Nine headless cases cover legacy address movement, creation/failure references, both real owners'
+  fake-COM adapter enumeration and repeated partial cleanup. No hardware or visible acceptance claimed.
+
 ## 2026-10-25 — Prepare explicit and deferred WPF teardown before scene release
 
 * Add bounded dispatcher-owned preparation using the existing image/presentation owners; preserve zero-time lock, balanced Unlock, fence/query and device-loss guards, with no new timer or scheduler.
@@ -824,3 +869,25 @@ No changes to existing billboard lifetime or application label jobs; no visible 
   Graphify regeneration in this commit/push task. Rider/ReSharper tools are unavailable in this session.
 - Maintain both sides of the OKF concepts, index and log; check new concept provenance links and staged
   whitespace. The parent repository gitlink remains for its coordinator to record separately.
+
+## 2026-11-03 - Bounded invalidated curve-frame measurements
+
+- Add three windowless WARP theories to the existing offscreen frame-renderer host, verifying
+  the actual software adapter before submission and every mesh interior pixel in twenty frames
+  per public invalidation API. Curve/marker/glyph mutations, null/empty geometry and requests
+  during preparation retain the ordinary mesh. No product source changed for this task.
+- Debug test-host build succeeds; 34 focused curve/demand/TopMost tests pass. No hardware,
+  window, application or WPF bridge initialization. Full presentation dropout remains open.
+- Update toolkit concept and index, retaining the offscreen/WPF evidence boundary. Regenerate
+  Graphify from 1084 sources: 11231 nodes, 20461 edges, 17 existing partial-parser warnings.
+
+## 2026-11-03 — Bounded publication observation
+
+SilkToolkit concept and index record passive input arming, finite frames/events/time, productive metadata/counter/slot phases and headless proof without GPU or actual MIL acceptance. Renderer behavior is preserved.
+
+
+## 2026-11-03 – Integration review of stable-output Unlock retry
+
+The existing SilkToolkit concept adds post-decrement Unlock exception accounting and compiled transport
+phase metadata. Two red regressions become green, including the shipped WPF Changed-callback boundary;
+18 stable-output cases pass under .NET 11 RC3. No native window, GPU or MIL visibility acceptance.

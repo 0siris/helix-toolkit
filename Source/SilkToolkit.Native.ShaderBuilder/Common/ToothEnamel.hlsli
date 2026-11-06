@@ -32,7 +32,7 @@ cbuffer cbToothEnamel : register(b2)
     float MicrostructureStrength;
 
     float3 ToothBoundsMax;
-    float ToothEnamelPadding;
+    float CrownOnly;
 };
 
 struct PS_TOOTH_ENAMEL_IN
@@ -177,6 +177,7 @@ float4 ShadeToothEnamel(PS_TOOTH_ENAMEL_IN input, bool isFrontFace)
 {
     float3 v = normalize(input.vEye.xyz);
     float3 n = ResolveToothNormal(input, isFrontFace, v);
+    bool crownOnly = CrownOnly > 0.5;
 
     float height01 = ToothHeight01(input.posOS);
     float incisal = smoothstep(0.60, 1.0, height01);
@@ -186,16 +187,17 @@ float4 ShadeToothEnamel(PS_TOOTH_ENAMEL_IN input, bool isFrontFace)
     float concavity = smoothstep(0.58, 0.92, shapeIndex01);
     float curvatureDetail = concavity * curvedness01;
     float thinMask = saturate(max(incisal, curvatureDetail * 0.35 + borderHint * 0.15));
-    float enamelMask = saturate(0.52 + 0.48 * max(smoothstep(0.38, 1.0, height01), thinMask));
+    float enamelMask = crownOnly ? 1.0
+        : saturate(0.52 + 0.48 * max(smoothstep(0.38, 1.0, height01), thinMask));
 
-    float3 dentin = DentinColor * DentinStrength;
+    float3 dentin = DentinColor * (crownOnly ? 1.0 : DentinStrength);
     float enamelAmount = saturate(EnamelStrength * enamelMask);
-    float3 baseColor = lerp(dentin, EnamelTint, enamelAmount * 0.72);
+    float3 baseColor = lerp(dentin, EnamelTint, enamelAmount * (crownOnly ? 1.0 : 0.72));
 
     float gumGradient = 1.0 - height01;
     float localStainMask = saturate(0.15 + curvatureDetail * 0.85 + curvedness01 * 0.15 + borderHint * 0.35);
     float localStain = StainStrength * localStainMask;
-    float gumStain = GumStainStrength * pow(gumGradient, 1.8);
+    float gumStain = crownOnly ? 0.0 : GumStainStrength * pow(gumGradient, 1.8);
     float stain = saturate(localStain * 0.78 + gumStain * 0.75);
     baseColor = lerp(baseColor, StainColor, stain);
 

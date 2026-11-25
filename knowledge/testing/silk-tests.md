@@ -150,3 +150,25 @@ alone; unchanged frame/ordinary-mesh neighbors remain part of the passing624-cas
 No concrete Debug allocator or JIT cause was proved. Graphify completes with17 partial-parser
 warnings; no general performance, hardware, WPF, Original-pixel or product acceptance follows.
 Parent evidence: TEMP/meshmixer-isolated-build-20261025/intersection-baseline-results-r1.json.
+
+
+## Rebuild integration into silk-toolkit (2026-11-02)
+
+The published `meshmixer-rebuild` revision `344317ff12c1bbfda1ed9c9b020069f81bbce076`
+contains the previous `silk-toolkit` target `9e5b08091ab41d61ce6aacaf3f93861e5879ffcd`.
+Integration is a fast-forward preserving both histories, including the MeshMixer renderer/WPF work and
+published collision-resource, billboard-lifetime and TopMost fixes. No product or test source is edited
+for this integration. The consumer's pinned submodule revision is not changed by moving this branch.
+
+The Debug solution build succeeds. The standard `Category!=Hardware` run reports 984 passed and five
+failed cases: two `AssimpMaterialImportTests.LoadNativeGltfFactorsTest` cases, both
+`QueuedNativeMouseTests.RightDragMovesCameraBeforeOutsideRelease` cases, and
+`NonblockingFramePresentationTests.DelayedFenceKeepsDispatcherLiveAndRendersLatestCameraAfterCompletion`.
+Each failure is independently reproduced on the prior target revision, with the same message and first
+assertion stack frame. The suite is therefore explicitly not reported as fully green. These five existing
+failures remain open; integration does not weaken assertions or expand into an unrelated repair campaign.
+
+Evidence: `C:/Windows/Temp/silk-toolkit-merge-results` retains the combined candidate TRX files and the two
+focused `silk-toolkit-target-baseline-*.trx` files. Rider MCP was unavailable (connection refused on
+127.0.0.1:64482); the repository's standard CLI fallback was used. Hardware/DX12 opt-in categories were
+not newly enabled for this merge.

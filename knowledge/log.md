@@ -905,3 +905,11 @@ SilkToolkit concept and index record passive input arming, finite frames/events/
 The existing SilkToolkit concept adds post-decrement Unlock exception accounting and compiled transport
 phase metadata. Two red regressions become green, including the shipped WPF Changed-callback boundary;
 18 stable-output cases pass under .NET 11 RC3. No native window, GPU or MIL visibility acceptance.
+
+## 2026-11-02 - Integrate published reconstruction into silk-toolkit
+
+- Fast-forward the target to published rebuild344317ff1, retaining both WPF/renderer and newer Helix fixes.
+- Solution build succeeds; standard tests pass984 and fail5. All five failures reproduce at the identical
+  assertions on previous target9e5b08091; no product/tests are changed to conceal existing failures.
+- Preserve the consumer submodule pin. Details and exact evidence are recorded in
+  [Silk test strategy](/testing/silk-tests.md#rebuild-integration-into-silk-toolkit-2026-11-02).

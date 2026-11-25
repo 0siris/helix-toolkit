@@ -38,7 +38,7 @@ cbuffer cbGingiva : register(b2)
     int HasRoughnessMap;
     int HasCavityMap;
     int HasThicknessMap;
-    float GingivaPadding;
+    float MucosaContrast;
 
     float3 GypsumBaseColor;
     float GypsumRoughness;
@@ -479,6 +479,9 @@ float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
     float3 viewDir = normalize(input.vEye.xyz);
     // Organic mask convention: 0 = gypsum, 0.5 = transition/trim line, 1 = gum.
     float organicMask = SafeFinite01(input.hints.w, 1.0);
+    // Gum values above 1 carry the tissue zone: 1 = marginal gingiva at the teeth, 2 = alveolar mucosa.
+    float tissueZone = isfinite(input.hints.w) ? saturate(input.hints.w - 1.0) : 0.0;
+    float mucosa = tissueZone * MucosaContrast;
     // Gypsum takes the smooth vertex normal on gently curved walls but the face normal where both disagree strongly:
     // flat socket caps are fans of long triangles whose rim vertices share normals with the walls, and interpolating
     // those across the cap would shade it in dark streaks.
@@ -513,12 +516,13 @@ float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
     float cavity = HasCavityMap != 0 ? saturate(meshCavity * 0.35 + texGingivaCavityMap.Sample(samplerSurface, uv).r * 0.85) : meshCavity;
     float thickness = HasThicknessMap != 0 ? lerp(meshThickness, texGingivaThicknessMap.Sample(samplerSurface, uv).r, 0.85) : meshThickness;
 
-    float blood = saturate(BloodAmount * bloodMap);
+    // Mucosa is thin and unkeratinized, so more blood shows through than in the gingiva at the tooth margin.
+    float blood = saturate(BloodAmount * bloodMap + mucosa * 0.5);
     float moisture = saturate(Moisture * moistureMap * lerp(1.0, 0.82, border));
     float finalThickness = saturate(Thickness * thickness * edgeDamping);
     float3 n = ResolveGingivaNormal(input, isFrontFace, moisture);
     if (!bHasNormalMap)
-        n = StippleNormal(n, input.posWS, MicroBump * 0.05 * (1.0 - border));
+        n = StippleNormal(n, input.posWS, MicroBump * 0.05 * (1.0 - border) * (1.0 - 0.7 * mucosa));
     float roughness = SpecularAntiAliasRoughness(n, ComputeGingivaRoughness(roughnessMap, moisture));
     float3 tissueColor = ComputeGingivaColor(albedo, blood, saturate(cavity));
     float mottle = TissueNoise(input.posWS * 0.55) * 0.6 + TissueNoise(input.posWS * 1.7) * 0.4 - 0.5;
@@ -549,6 +553,8 @@ float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
         return float4(finalThickness.xxx, Alpha);
     if (GingivaDebugView == 9)
         return float4(saturate(withoutWet * ExposureCompensation), Alpha);
+    if (GingivaDebugView == 12)
+        return float4(tissueZone.xxx, Alpha);
 
     float organicBlend = smoothstep(0.0, 1.0, organicMask);
     return float4(lerp(gypsumColor, SoftClipTissueColor(color), organicBlend), Alpha);

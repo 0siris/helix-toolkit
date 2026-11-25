@@ -82,6 +82,29 @@ struct PS_GINGIVA_IN
 
 #if defined(GINGIVA_PIXEL)
 
+#if defined(SAMPLE_SSAO_MAP)
+#include "ScreenSpaceOcclusion.hlsli"
+#endif
+
+// Screen-space ambient occlusion from the renderer's SSAO map; one when SSAO is off. It darkens creases and the
+// contact between neighbouring bodies, for example an attachment on its tooth. Only the opaque pixel shaders
+// define SAMPLE_SSAO_MAP: the renderer binds t31 for opaque draws only, transparent passes keep a null view there.
+// The SSAO map is built from the interpolated vertex normals. Where they bend away from the face, as on the flat
+// socket caps, the sample hemisphere dips into the surface and the map shows stripes; the occlusion fades out there.
+// normalAgreement is the cosine between the unit vertex normal and the face normal.
+float TissueAmbientOcclusion(float4 pixelPosition, float normalAgreement)
+{
+#if defined(SAMPLE_SSAO_MAP)
+    if (!SSAOEnabled)
+        return 1.0;
+
+    float occlusion = SampleScreenSpaceOcclusion(pixelPosition);
+    return lerp(1.0, occlusion, 0.8 * smoothstep(0.90, 0.98, normalAgreement));
+#else
+    return 1.0;
+#endif
+}
+
 float SafeFinite01(float value, float fallback)
 {
     return isfinite(value) ? saturate(value) : fallback;
@@ -436,7 +459,8 @@ float3 ShadeGypsumLight(float3 posWS, float3 n, float3 viewDir, float3 baseColor
     return color;
 }
 
-float3 ShadeGypsumRegion(PS_GINGIVA_IN input, float3 flatNormal, float meshCavity, out float roughness)
+float3 ShadeGypsumRegion(PS_GINGIVA_IN input, float3 flatNormal, float normalAgreement, float meshCavity,
+                         out float roughness)
 {
     float cavity = HasCavityMap != 0
         ? saturate(meshCavity * 0.55 + texGingivaCavityMap.Sample(samplerSurface, input.uv).r * 0.45)
@@ -446,7 +470,7 @@ float3 ShadeGypsumRegion(PS_GINGIVA_IN input, float3 flatNormal, float meshCavit
     roughness = ComputeGypsumRoughness(input.posWS);
     float3 viewDir = normalize(input.vEye.xyz);
     float3 color = ShadeGypsumLight(input.posWS, flatNormal, viewDir, gypsumColor, roughness);
-    return SoftClipTissueColor(color * ExposureCompensation);
+    return SoftClipTissueColor(color * ExposureCompensation * TissueAmbientOcclusion(input.p, normalAgreement));
 }
 
 float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
@@ -462,6 +486,7 @@ float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
     float3 vertexNormal = isFrontFace ? input.n : -input.n;
     float vertexNormalLength = length(vertexNormal);
     float3 unitVertexNormal = vertexNormalLength > 0.001 ? vertexNormal / vertexNormalLength : faceNormal;
+    float normalAgreement = vertexNormalLength > 0.001 ? dot(unitVertexNormal, faceNormal) : 0.0;
     float smoothWeight = bRenderFlat ? 0.0 : smoothstep(0.92, 0.99, dot(unitVertexNormal, faceNormal));
     float3 flatNormal = normalize(lerp(faceNormal, unitVertexNormal, smoothWeight));
     float3 albedo = HealthyColor;
@@ -475,7 +500,7 @@ float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
     float edgeDamping = lerp(1.0, 0.72, border);
 
     float gypsumRoughness = 0.88;
-    float3 gypsumColor = ShadeGypsumRegion(input, flatNormal, meshCavity, gypsumRoughness);
+    float3 gypsumColor = ShadeGypsumRegion(input, flatNormal, normalAgreement, meshCavity, gypsumRoughness);
 
     if (GingivaDebugView == 10)
         return float4(organicMask.xxx, Alpha);
@@ -504,7 +529,7 @@ float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
     float3 color = ShadeGingivaLight(input.posWS, n, viewDir, tissueColor, roughness, blood, moisture, finalThickness, sss, wet);
     float3 withoutWet = color - wet;
     color *= lerp(1.0, 1.0 - CavityDarkness, saturate(cavity) * 0.35);
-    color *= ExposureCompensation;
+    color *= ExposureCompensation * TissueAmbientOcclusion(input.p, normalAgreement);
 
     if (GingivaDebugView == 1)
         return float4(saturate(tissueColor), Alpha);

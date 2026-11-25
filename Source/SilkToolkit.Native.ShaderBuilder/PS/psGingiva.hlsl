@@ -5,6 +5,7 @@
 #define PBR
 #define CLEARCOAT
 #define GINGIVA_PIXEL
+#define SAMPLE_SSAO_MAP
 #include "psCommon.hlsl"
 #include "../Common/Gingiva.hlsli"
 

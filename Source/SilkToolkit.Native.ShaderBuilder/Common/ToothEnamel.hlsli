@@ -63,6 +63,31 @@ struct PS_TOOTH_ENAMEL_IN
 
 #if defined(TOOTH_ENAMEL_PIXEL)
 
+#if defined(SAMPLE_SSAO_MAP)
+#include "ScreenSpaceOcclusion.hlsli"
+#endif
+
+// Screen-space ambient occlusion from the renderer's SSAO map; one when SSAO is off. It darkens creases and the
+// contact between neighbouring bodies, for example an attachment on its tooth. Only the opaque pixel shaders
+// define SAMPLE_SSAO_MAP: the renderer binds t31 for opaque draws only, transparent passes keep a null view there.
+// The SSAO map is built from the interpolated vertex normals. Where they bend away from the face, for example across
+// fans of long triangles, the sample hemisphere dips into the surface and the map shows stripes; the occlusion fades
+// out there.
+float ToothAmbientOcclusion(float4 pixelPosition, float3 posWS, float3 vertexNormal)
+{
+#if defined(SAMPLE_SSAO_MAP)
+    float3 faceNormalRaw = cross(ddy(posWS), ddx(posWS));
+    if (!SSAOEnabled || dot(vertexNormal, vertexNormal) < 0.000001 || dot(faceNormalRaw, faceNormalRaw) < 1e-12)
+        return 1.0;
+
+    float occlusion = SampleScreenSpaceOcclusion(pixelPosition);
+    float agreement = abs(dot(normalize(vertexNormal), normalize(faceNormalRaw)));
+    return lerp(1.0, occlusion, 0.8 * smoothstep(0.90, 0.98, agreement));
+#else
+    return 1.0;
+#endif
+}
+
 float ToothHeight01(float3 posOS)
 {
     float3 axis = ToothCrown - ToothRoot;
@@ -332,6 +357,8 @@ float4 ShadeComposite(PS_TOOTH_ENAMEL_IN input, bool isFrontFace)
 
     color += albedo * vLightAmbient.rgb * 0.18;
     color += lerp(albedo, 1.0.xxx, 0.45) * pow(1.0 - ndv, 3.0) * 0.20 * vLightAmbient.rgb;
+    // No SSAO on the resin itself: gsComposite rebuilds its crease normals, but the SSAO map sees the smoothed vertex
+    // normals across those creases and stripes the flat faces. The resin still occludes the tooth around it.
     return float4(SoftClipToothColor(color * ExposureCompensation), Alpha);
 }
 
@@ -385,7 +412,7 @@ float4 ShadeToothEnamel(PS_TOOTH_ENAMEL_IN input, bool isFrontFace)
     float3 color = ShadeToothLight(input.posWS, n, v, baseColor, thinMask, opalMask, dentinScatter,
                                    edgeTranslucency, clearcoat, sheen);
     float3 withoutClearcoat = color - clearcoat;
-    color *= ExposureCompensation;
+    color *= ExposureCompensation * ToothAmbientOcclusion(input.p, input.posWS, input.n);
 
     if (DebugView == 1)
         return float4(height01.xxx, Alpha);

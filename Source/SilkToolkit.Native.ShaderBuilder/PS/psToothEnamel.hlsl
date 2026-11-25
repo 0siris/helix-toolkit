@@ -5,6 +5,7 @@
 #define PBR
 #define CLEARCOAT
 #define TOOTH_ENAMEL_PIXEL
+#define SAMPLE_SSAO_MAP
 #include "psCommon.hlsl"
 #include "../Common/ToothEnamel.hlsli"
 

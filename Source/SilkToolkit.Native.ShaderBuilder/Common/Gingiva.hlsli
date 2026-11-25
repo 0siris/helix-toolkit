@@ -155,6 +155,56 @@ float3 ResolveGingivaNormal(PS_GINGIVA_IN input, bool isFrontFace, float moistur
     return normal;
 }
 
+// Widens the roughness where the normal changes quickly across a pixel, so dense scan noise does not glitter.
+float SpecularAntiAliasRoughness(float3 normal, float roughness)
+{
+    float3 dndx = ddx(normal);
+    float3 dndy = ddy(normal);
+    float variance = min(2.0 * (dot(dndx, dndx) + dot(dndy, dndy)), 0.25);
+    return sqrt(saturate(roughness * roughness + variance));
+}
+
+float TissueHash(float3 p)
+{
+    p = frac(p * 0.1031);
+    p += dot(p, p.zyx + 31.32);
+    return frac((p.x + p.y) * p.z);
+}
+
+// Smooth value noise in world millimetres.
+float TissueNoise(float3 p)
+{
+    float3 cell = floor(p);
+    float3 f = frac(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float x00 = lerp(TissueHash(cell), TissueHash(cell + float3(1, 0, 0)), f.x);
+    float x10 = lerp(TissueHash(cell + float3(0, 1, 0)), TissueHash(cell + float3(1, 1, 0)), f.x);
+    float x01 = lerp(TissueHash(cell + float3(0, 0, 1)), TissueHash(cell + float3(1, 0, 1)), f.x);
+    float x11 = lerp(TissueHash(cell + float3(0, 1, 1)), TissueHash(cell + float3(1, 1, 1)), f.x);
+    return lerp(lerp(x00, x10, f.y), lerp(x01, x11, f.y), f.z);
+}
+
+// Orange-peel stippling of attached gingiva: tilts the normal along the gradient of fine noise in the tangent plane.
+float3 StippleNormal(float3 normal, float3 posWS, float strength)
+{
+    const float frequency = 2.6;
+    const float delta = 0.08;
+    float3 p = posWS * frequency;
+    float center = TissueNoise(p);
+    float3 gradient = float3(TissueNoise(p + float3(delta, 0, 0)), TissueNoise(p + float3(0, delta, 0)),
+                             TissueNoise(p + float3(0, 0, delta))) - center;
+    gradient -= dot(gradient, normal) * normal;
+    return normalize(normal - gradient * (strength / delta));
+}
+
+// Keeps mid tones linear and rolls highlights off smoothly instead of clipping them to flat white.
+float3 SoftClipTissueColor(float3 color)
+{
+    const float knee = 0.78;
+    float3 over = max(color - knee, 0.0);
+    return min(color, knee) + (1.0 - knee) * (1.0 - exp(-over / (1.0 - knee)));
+}
+
 float3 ComputeGingivaColor(float3 albedo, float bloodMask, float cavity)
 {
     float bloodInfluence = saturate(bloodMask + Inflammation * 0.45);
@@ -188,7 +238,7 @@ float3 ComputeWetClearcoat(float3 normalWS, float3 viewDirWS, float3 lightDirWS,
     float3 h = normalize(viewDirWS + lightDirWS);
     float ndoth = saturate(dot(normalWS, h));
     float vdoth = saturate(dot(viewDirWS, h));
-    float rough = saturate(WetRoughness);
+    float rough = SpecularAntiAliasRoughness(normalWS, saturate(WetRoughness));
     float clearcoatRoughness = lerp(0.089, 0.6, rough);
     float linearRoughness = clearcoatRoughness * clearcoatRoughness;
     float d = Filament_D_GGX(linearRoughness, ndoth, normalWS, h);
@@ -245,14 +295,17 @@ float3 ShadeGingivaLight(float3 posWS, float3 n, float3 viewDir, float3 baseColo
         float ldoth = max(saturate(dot(l, h)), 0.01);
         float ndoth = saturate(dot(n, h));
         float diffuseFactor = Diffuse_Burley(ndotl, ndotv, ldoth, roughness);
-        float3 diffuse = diffuseColor * diffuseFactor;
+        float ndotlRaw = dot(n, l);
+        float3 channelWrap = SssStrength * float3(0.62, 0.30, 0.22) + 0.04;
+        float3 wrappedDiffuse = saturate((ndotlRaw + channelWrap) / (1.0 + channelWrap));
+        float3 diffuse = diffuseColor * lerp(diffuseFactor * ndotl, wrappedDiffuse, saturate(SssStrength * 1.4));
         float3 specular = Specular_BRDF(alphaRoughness, specularColor, ndotv, ndotl, ldoth, ndoth, n, h);
         float3 sss = ComputeGingivaSSS(n, viewDir, l, thickness, blood);
         float3 wet = ComputeWetClearcoat(n, viewDir, l, moisture, ndotl);
 
         sssAccum += sss * lightColor * attenuation;
         wetAccum += wet * lightColor * attenuation;
-        color += (diffuse + specular) * ndotl * lightColor * attenuation + (sss + wet) * lightColor * attenuation;
+        color += (diffuse + specular * ndotl) * lightColor * attenuation + (sss + wet) * lightColor * attenuation;
     }
 
     color += baseColor * vLightAmbient.rgb * 0.16;
@@ -307,6 +360,9 @@ float3 ComputeGypsumColor(float3 posWS, float cavity)
 
     float3 color = lerp(GypsumBaseColor, GypsumChalkColor, powder * saturate(GypsumChalkAmount));
     color = lerp(color, GypsumMineralColor, saturate((1.0 - powder) * GypsumMineralAmount));
+    // Tiny air pores of cast dental stone show as sparse, slightly darker specks.
+    float pores = smoothstep(0.86, 0.97, TissueHash(floor(posWS * 9.0)) * GypsumValueNoise(posWS * 4.5));
+    color *= 1.0 - pores * 0.10;
     color *= lerp(1.0, 1.0 - saturate(GypsumCavityDarkness), saturate(cavity) * saturate(GypsumCavityInfluence));
     return color;
 }
@@ -362,12 +418,14 @@ float3 ShadeGypsumLight(float3 posWS, float3 n, float3 viewDir, float3 baseColor
         float ldoth = max(saturate(dot(l, h)), 0.01);
         float ndoth = saturate(dot(n, h));
         float diffuseFactor = Diffuse_Burley(ndotl, ndotv, ldoth, roughness);
-        float3 diffuse = diffuseColor * diffuseFactor;
+        // Gypsum is slightly translucent; a small wrap softens the terminator like real dental stone.
+        float wrapped = saturate((dot(n, l) + 0.30) / 1.30);
+        float3 diffuse = diffuseColor * lerp(diffuseFactor * ndotl, wrapped, 0.65);
         float3 specular = Specular_BRDF(alphaRoughness, specularColor, ndotv, ndotl, ldoth, ndoth, n, h);
-        color += (diffuse + specular * 0.55) * ndotl * lightColor * attenuation;
+        color += (diffuse + specular * 0.55 * ndotl) * lightColor * attenuation;
     }
 
-    color += baseColor * vLightAmbient.rgb * 0.24;
+    color += baseColor * vLightAmbient.rgb * 0.30;
 
     if (bHasCubeMap)
     {
@@ -388,7 +446,7 @@ float3 ShadeGypsumRegion(PS_GINGIVA_IN input, float3 flatNormal, float meshCavit
     roughness = ComputeGypsumRoughness(input.posWS);
     float3 viewDir = normalize(input.vEye.xyz);
     float3 color = ShadeGypsumLight(input.posWS, flatNormal, viewDir, gypsumColor, roughness);
-    return saturate(color * ExposureCompensation);
+    return SoftClipTissueColor(color * ExposureCompensation);
 }
 
 float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
@@ -397,7 +455,15 @@ float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
     float3 viewDir = normalize(input.vEye.xyz);
     // Organic mask convention: 0 = gypsum, 0.5 = transition/trim line, 1 = gum.
     float organicMask = SafeFinite01(input.hints.w, 1.0);
-    float3 flatNormal = ResolveFaceNormal(input, isFrontFace);
+    // Gypsum takes the smooth vertex normal on gently curved walls but the face normal where both disagree strongly:
+    // flat socket caps are fans of long triangles whose rim vertices share normals with the walls, and interpolating
+    // those across the cap would shade it in dark streaks.
+    float3 faceNormal = ResolveFaceNormal(input, isFrontFace);
+    float3 vertexNormal = isFrontFace ? input.n : -input.n;
+    float vertexNormalLength = length(vertexNormal);
+    float3 unitVertexNormal = vertexNormalLength > 0.001 ? vertexNormal / vertexNormalLength : faceNormal;
+    float smoothWeight = bRenderFlat ? 0.0 : smoothstep(0.92, 0.99, dot(unitVertexNormal, faceNormal));
+    float3 flatNormal = normalize(lerp(faceNormal, unitVertexNormal, smoothWeight));
     float3 albedo = HealthyColor;
     if (bHasDiffuseMap)
         albedo *= texDiffuseMap.Sample(samplerSurface, uv).rgb;
@@ -425,9 +491,13 @@ float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
     float blood = saturate(BloodAmount * bloodMap);
     float moisture = saturate(Moisture * moistureMap * lerp(1.0, 0.82, border));
     float finalThickness = saturate(Thickness * thickness * edgeDamping);
-    float roughness = ComputeGingivaRoughness(roughnessMap, moisture);
     float3 n = ResolveGingivaNormal(input, isFrontFace, moisture);
+    if (!bHasNormalMap)
+        n = StippleNormal(n, input.posWS, MicroBump * 0.05 * (1.0 - border));
+    float roughness = SpecularAntiAliasRoughness(n, ComputeGingivaRoughness(roughnessMap, moisture));
     float3 tissueColor = ComputeGingivaColor(albedo, blood, saturate(cavity));
+    float mottle = TissueNoise(input.posWS * 0.55) * 0.6 + TissueNoise(input.posWS * 1.7) * 0.4 - 0.5;
+    tissueColor = lerp(tissueColor, BloodColor, saturate(mottle) * 0.35) * (1.0 + mottle * 0.10);
 
     float3 sss = 0;
     float3 wet = 0;
@@ -456,7 +526,7 @@ float4 ShadeGingiva(PS_GINGIVA_IN input, bool isFrontFace)
         return float4(saturate(withoutWet * ExposureCompensation), Alpha);
 
     float organicBlend = smoothstep(0.0, 1.0, organicMask);
-    return float4(saturate(lerp(gypsumColor, color, organicBlend)), Alpha);
+    return float4(lerp(gypsumColor, SoftClipTissueColor(color), organicBlend), Alpha);
 }
 
 #endif

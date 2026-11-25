@@ -17,6 +17,9 @@
     <DxcShader Include="CS\csMeshIntersectSharedRenderBuffer.hlsl">
       <ShaderProfile>cs_6_0</ShaderProfile>
     </DxcShader>
+    <DxcShader Include="GS\gsComposite.hlsl">
+      <ShaderProfile>gs_6_0</ShaderProfile>
+    </DxcShader>
     <DxcShader Include="GS\gsFlatShade.hlsl">
       <ShaderProfile>gs_6_0</ShaderProfile>
     </DxcShader>
@@ -25,6 +28,17 @@
     </DxcShader>
     <DxcShader Include="GS\gsGooch.hlsl">
       <ShaderProfile>gs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psComposite.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="PS\psCompositeOIT.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>compositeOIT</EntryPointName>
+    </DxcShader>
+    <DxcShader Include="PS\psCompositeOITDP.hlsl">
+      <ShaderProfile>ps_6_0</ShaderProfile>
+      <EntryPointName>compositeOITDP</EntryPointName>
     </DxcShader>
     <DxcShader Include="PS\psFlatShade.hlsl">
       <ShaderProfile>ps_6_0</ShaderProfile>
@@ -61,6 +75,9 @@
       <EntryPointName>toothEnamelOITDP</EntryPointName>
     </DxcShader>
     <DxcShader Include="VS\vsCollisionSegmentLine.hlsl">
+      <ShaderProfile>vs_6_0</ShaderProfile>
+    </DxcShader>
+    <DxcShader Include="VS\vsComposite.hlsl">
       <ShaderProfile>vs_6_0</ShaderProfile>
     </DxcShader>
     <DxcShader Include="VS\vsFlatShade.hlsl">

@@ -44,7 +44,8 @@ cbuffer cbToothEnamel : register(b2)
 
     float CrownCervical;
     float CrownTip;
-    float2 CrownSpanPadding;
+    float CompositeVertexColorBlending;
+    float CrownSpanPadding;
 };
 
 struct PS_TOOTH_ENAMEL_IN
@@ -249,6 +250,89 @@ float3 ResolveToothNormal(PS_TOOTH_ENAMEL_IN input, bool isFrontFace, float3 vie
         n = normalize(lerp(n, faceNormal, 0.65));
 
     return n;
+}
+
+// Appliance composite (attachments, bite supports): a tinted, slightly translucent resin in the same saliva film as
+// the teeth. Constant buffer roles: DentinColor = body color, EnamelTint = tooth color seen through thin edges,
+// ToothBoundsMin/Max.z = the appliance height range in its own space (Z points away from the tooth),
+// EdgeTranslucency = how far the tooth color shows through thin edges,
+// BaseRoughness = soft sheen roughness, SalivaClearcoat and ClearcoatRoughness = wet film, SheenStrength and
+// SubsurfaceStrength as for enamel.
+float4 ShadeComposite(PS_TOOTH_ENAMEL_IN input, bool isFrontFace)
+{
+    float3 v = normalize(input.vEye.xyz);
+
+    // gsComposite already replaced crease normals per triangle; the interpolated normal is valid as it is.
+    float3 n = normalize(isFrontFace ? input.n : -input.n);
+
+    // Where the resin runs out thin toward the tooth, the tooth color shows through.
+    float heightRange = max(ToothBoundsMax.z - ToothBoundsMin.z, 0.0001);
+    float thin = 1.0 - saturate((input.posOS.z - ToothBoundsMin.z) / heightRange);
+    // Thick resin looks deeper and more saturated, thin resin lighter.
+    float3 body = DentinColor * lerp(1.06, 0.90, 1.0 - thin);
+    float3 albedo = lerp(body, lerp(body, EnamelTint, 0.7),
+                         smoothstep(0.70, 1.0, thin) * 0.75 * saturate(EdgeTranslucency));
+    // Analysis views such as the undercut display color appliances per vertex; the vertex shader passes it in curv.
+    albedo = lerp(albedo, input.curv.rgb, saturate(CompositeVertexColorBlending));
+
+    // Facet changes across a pixel widen the highlights instead of producing sparkles.
+    float3 dndx = ddx(n);
+    float3 dndy = ddy(n);
+    float variance = min(4.0 * (dot(dndx, dndx) + dot(dndy, dndy)), 0.30);
+    float coatBase = lerp(0.089, 0.6, saturate(ClearcoatRoughness));
+    float coatRoughness = sqrt(saturate(coatBase * coatBase + variance));
+    float sheenRoughness = sqrt(saturate(BaseRoughness * BaseRoughness + variance));
+    float3 channelWrap = SubsurfaceStrength * float3(0.34, 0.28, 0.22);
+    float ndv = saturate(dot(n, v));
+    float3 color = 0;
+
+    [loop]
+    for (int i = 0; i < NumLights; ++i)
+    {
+        float3 l = 0;
+        float3 lightColor = Lights[i].vLightColor.rgb;
+        float attenuation = 1.0;
+
+        if (Lights[i].iLightType == 1)
+        {
+            l = normalize(Lights[i].vLightDir.xyz);
+        }
+        else
+        {
+            l = Lights[i].vLightPos.xyz - input.posWS;
+            float distanceToLight = length(l);
+            if (Lights[i].vLightAtt.w < distanceToLight)
+                continue;
+
+            l /= max(distanceToLight, 0.0001);
+            attenuation = 1.0 / max(Lights[i].vLightAtt.x + Lights[i].vLightAtt.y * distanceToLight +
+                                    Lights[i].vLightAtt.z * distanceToLight * distanceToLight, 0.0001);
+
+            if (Lights[i].iLightType == 3)
+            {
+                float3 spotDir = normalize(Lights[i].vLightDir.xyz);
+                float rho = dot(-l, spotDir);
+                attenuation *= pow(saturate((rho - Lights[i].vLightSpot.x) /
+                                             max(Lights[i].vLightSpot.y - Lights[i].vLightSpot.x, 0.0001)),
+                                   Lights[i].vLightSpot.z);
+            }
+        }
+
+        float ndotlRaw = dot(n, l);
+        float ndotl = saturate(ndotlRaw);
+        float3 h = normalize(l + v);
+        float ndoth = saturate(dot(n, h));
+        float ldoth = max(saturate(dot(l, h)), 0.01);
+        float3 diffuse = albedo * saturate((ndotlRaw + channelWrap) / (1.0 + channelWrap));
+        float coat = Filament_D_GGX(coatRoughness * coatRoughness, ndoth, n, h) * V_Kelemen(ldoth) *
+                     Filament_F_Schlick(0.04, ldoth) * SalivaClearcoat * ndotl;
+        float sheen = Filament_D_GGX(sheenRoughness * sheenRoughness, ndoth, n, h) * SheenStrength * 0.25 * ndotl;
+        color += (diffuse + coat.xxx + albedo * sheen) * lightColor * attenuation;
+    }
+
+    color += albedo * vLightAmbient.rgb * 0.18;
+    color += lerp(albedo, 1.0.xxx, 0.45) * pow(1.0 - ndv, 3.0) * 0.20 * vLightAmbient.rgb;
+    return float4(SoftClipToothColor(color * ExposureCompensation), Alpha);
 }
 
 float4 ShadeToothEnamel(PS_TOOTH_ENAMEL_IN input, bool isFrontFace)

@@ -18,9 +18,7 @@ public class DrawScreenQuadCore : RenderCore {
 
     private ShaderPass pass = ShaderPass.NullPass;
 
-    private int samplerSlot;
 
-    private int textureSlot;
 
     public DrawScreenQuadCore() : base(RenderType.Opaque) {
         ModelStruct = new ScreenQuadModelStruct {

@@ -51,7 +51,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <value>
     ///     The metadata.
     /// </value>
-    public Metadata Metadata { get; set; } = new();
+    public Metadata Metadata { get; set; } = [];
 
     /// <summary>Notifies observers after adding a child.</summary>
     public event EventHandler<OnChildNodeChangedArgs>? ChildNodeAdded;
@@ -69,8 +69,7 @@ public abstract class GroupNodeBase : SceneNode {
     /// <returns>Whether the child was newly added.</returns>
     /// <exception cref="System.ArgumentException">SceneNode already attach to a different node</exception>
     public bool AddChildNode(SceneNode node) {
-        if (!ItemHashSet.ContainsKey(node.Guid)) {
-            ItemHashSet.Add(node.Guid, node);
+        if (ItemHashSet.TryAdd(node.Guid, node)) {
             ItemsInternal.Add(node);
             if (node.Parent != null && node.Parent != this)
                 throw new ArgumentException("SceneNode already attach to a different node");

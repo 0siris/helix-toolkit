@@ -113,7 +113,7 @@ public class BoneSkinnedMeshGeometry3D : MeshGeometry3D {
         return mesh;
     }
 
-    private static IEnumerable<Triangle> SkinnedTriangles(Vector3[] skinnedVertices, IList<int> indices) {
+    private static IEnumerable<Triangle> SkinnedTriangles(Vector3[] skinnedVertices, IntCollection indices) {
         for (var i = 0; i < indices.Count; i += 3)
             yield return new Triangle {
                 P0 = skinnedVertices[indices[i]], P1 = skinnedVertices[indices[i + 1]],

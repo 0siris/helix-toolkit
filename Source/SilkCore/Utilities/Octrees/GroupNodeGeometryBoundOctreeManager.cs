@@ -192,7 +192,7 @@ public sealed class GroupNodeGeometryBoundOctreeManager : OctreeManagerBase {
                     ++counter;
                     if (counter > 10) {
 #if DEBUG
-                        throw new Exception("Expand tree failed");
+                        throw new InvalidOperationException("Tree expansion failed");
 #else
                             succeed = false;
                             break;

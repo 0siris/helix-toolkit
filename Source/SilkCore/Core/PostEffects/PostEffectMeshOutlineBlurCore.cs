@@ -94,9 +94,7 @@ public class PostEffectMeshOutlineBlurCore : RenderCore, IPostEffectOutlineBlur 
 
     private ShaderPass screenOutlinePass = ShaderPass.NullPass;
 
-    private int textureSlot;
 
-    private int samplerSlot;
     private BorderEffectStruct modelStruct;
     private static readonly OffScreenTextureSize TextureSize = OffScreenTextureSize.Full;
     private static readonly Color4 Transparent = new(0, 0, 0, 0);

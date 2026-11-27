@@ -4,6 +4,7 @@ Copyright(c) 2018 Helix Toolkit contributors
 */
 
 
+using System.Globalization;
 using System.Reflection;
 #if !WINDOWS_UWP
 using Microsoft.CSharp;
@@ -124,7 +125,8 @@ public class DynamicCodeSurface3DNode : ParametricSurface3DNode {
                                             BindingFlags.InvokeMethod,
                                             null,
                                             instance,
-                                            parameters);
+                                            parameters,
+                                            CultureInfo.CurrentCulture);
         if (result is not Tuple<double, double, double, double> p) {
             texCoord = new Vector2((float)u, (float)v);
             return Vector3.Zero;

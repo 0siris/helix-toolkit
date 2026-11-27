@@ -434,7 +434,7 @@ public sealed class DoubleKeyDictionary<K, T, V> : IEnumerable<KeyValuePair<(K, 
     /// <param name="key2">The second key.</param>
     /// <param name="value">The stored value when found; otherwise, the default value.</param>
     /// <returns><see langword="true"/> if the pair is present; otherwise, <see langword="false"/>.</returns>
-    public bool TryGetValue(K key1, T key2, [NotNullWhen(true)] out V? value)
+    public bool TryGetValue(K key1, T key2, [MaybeNullWhen(false)] out V value)
         => dictionary.TryGetValue((key1, key2), out value);
 
     /// Removes all entries from the dictionary.

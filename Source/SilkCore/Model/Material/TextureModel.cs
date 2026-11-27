@@ -411,9 +411,8 @@ public sealed class TextureInfo {
         bool generateMipMaps = true
     )
         : this(texture, pixelFormat, width, height, generateMipMaps) {
-        Depth = depth == 0
-            ? throw new ArgumentOutOfRangeException("Depth cannot be zero.")
-            : depth;
+        ArgumentOutOfRangeException.ThrowIfZero(depth);
+        Depth = depth;
         Dimension = 3;
     }
 
@@ -474,9 +473,8 @@ public sealed class TextureInfo {
         bool generateMipMaps = true
     )
         : this(texture, pixelFormat, width, height, generateMipMaps) {
-        Depth = depth == 0
-            ? throw new ArgumentOutOfRangeException("Depth cannot be zero.")
-            : depth;
+        ArgumentOutOfRangeException.ThrowIfZero(depth);
+        Depth = depth;
         Dimension = 3;
     }
 
@@ -539,9 +537,8 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentOutOfRangeException">Depth cannot be zero.</exception>
     public TextureInfo(Color4[] texture, int width, int height, int depth, bool generateMipMaps = true)
         : this(texture, width, height, generateMipMaps) {
-        Depth = depth == 0
-            ? throw new ArgumentOutOfRangeException("Depth cannot be zero.")
-            : depth;
+        ArgumentOutOfRangeException.ThrowIfZero(depth);
+        Depth = depth;
         Dimension = 3;
     }
 
@@ -597,9 +594,8 @@ public sealed class TextureInfo {
     /// <exception cref="ArgumentOutOfRangeException">Depth cannot be zero.</exception>
     public TextureInfo(nint texture, Format pixelFormat, int width, int height, int depth, bool generateMipMaps = true)
         : this(texture, pixelFormat, width, height, generateMipMaps) {
-        Depth = depth == 0
-            ? throw new ArgumentOutOfRangeException("Depth cannot be zero.")
-            : depth;
+        ArgumentOutOfRangeException.ThrowIfZero(depth);
+        Depth = depth;
         Dimension = 3;
     }
 

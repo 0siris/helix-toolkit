@@ -135,7 +135,7 @@ internal static unsafe class D3D12PathTessellator {
             }
         } catch (Exception exception) {
             self->FailureHResult = CallbackError;
-            if (collector is not null) collector.Failure = exception;
+            collector?.Failure = exception;
         }
     }
 

@@ -37,9 +37,7 @@ public readonly record struct D3D12InputElementDescription(
 ///     Holds immutable SM6 DXIL and its pipeline-cache identity.
 /// </summary>
 public sealed class D3D12ShaderModule {
-    private static readonly HashSet<string> SupportedStages = new(StringComparer.OrdinalIgnoreCase) {
-        "VS", "PS", "GS", "HS", "DS", "CS"
-    };
+    private static readonly HashSet<string> SupportedStages = [with(StringComparer.OrdinalIgnoreCase), "VS", "PS", "GS", "HS", "DS", "CS"];
 
     /// <summary>
     ///     Creates a shader module from precompiled DXIL.
@@ -120,7 +118,7 @@ public static class D3D12ShaderManifest {
     ///     Reads the embedded manifest into its case-insensitive stage/name index.
     /// </summary>
     /// <returns>The immutable entry-point index.</returns>
-    private static IReadOnlyDictionary<string, string> ReadEntryPoints() {
+    private static Dictionary<string, string> ReadEntryPoints() {
         var assembly = typeof(D3D12ShaderManifest).Assembly;
         using var stream = assembly.GetManifestResourceStream("SilkCore.Resources.DX12.shader-manifest.txt")
                            ?? throw new FileNotFoundException("The embedded DXC shader manifest is missing.");
@@ -529,13 +527,13 @@ public static unsafe class SilkD3D12PipelineExtensions {
             depthStencilFormat: depthStencilFormat);
 
         var vertexBytes = vertexShader.ByteCode.Span;
-        var pixelBytes = pixelShader is null ? ReadOnlySpan<byte>.Empty : pixelShader.ByteCode.Span;
-        var geometryBytes = geometryShader is null ? ReadOnlySpan<byte>.Empty : geometryShader.ByteCode.Span;
-        var hullBytes = hullShader is null ? ReadOnlySpan<byte>.Empty : hullShader.ByteCode.Span;
-        var domainBytes = domainShader is null ? ReadOnlySpan<byte>.Empty : domainShader.ByteCode.Span;
-        var elements = inputElements ?? Array.Empty<D3D12InputElementDescription>();
-        var outputElements = streamOutputElements ?? Array.Empty<StreamOutputElement>();
-        var outputStrides = streamOutputStrides ?? Array.Empty<int>();
+        ReadOnlySpan<byte> pixelBytes = pixelShader is null ? [] : pixelShader.ByteCode.Span;
+        ReadOnlySpan<byte> geometryBytes = geometryShader is null ? [] : geometryShader.ByteCode.Span;
+        ReadOnlySpan<byte> hullBytes = hullShader is null ? [] : hullShader.ByteCode.Span;
+        ReadOnlySpan<byte> domainBytes = domainShader is null ? [] : domainShader.ByteCode.Span;
+        var elements = inputElements ?? [];
+        var outputElements = streamOutputElements ?? [];
+        var outputStrides = streamOutputStrides ?? [];
         if (outputElements.Count > 0 && geometryShader is null)
             throw new ArgumentException("Stream output requires a geometry shader.", nameof(streamOutputElements));
         if (outputElements.Count > 0 && outputStrides.Count == 0)

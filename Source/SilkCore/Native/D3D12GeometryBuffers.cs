@@ -331,10 +331,10 @@ internal sealed class SilkD3D12DefaultMeshBuffers : IDisposable {
         }
         return (defaults,
             geometry.TextureCoordinates is {Count: > 0} textureCoordinates
-                ? textureCoordinates.ToArray()
+                ? [.. textureCoordinates]
                 : new Vector2[positions.Count],
             geometry.Colors is {Count: > 0} colors
-                ? colors.ToArray()
+                ? [.. colors]
                 : new Color4[positions.Count],
             indices.ToArray(),
             source.Topology);
@@ -532,7 +532,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     ) {
         device.AsGuardNotNull();
         var vertices = Prepare(source);
-        return Create(device, vertices, ReadOnlySpan<int>.Empty, PointsVertex.SizeInBytes,
+        return Create(device, vertices, [], PointsVertex.SizeInBytes,
             PrimitiveTopology.PointList);
     }
 
@@ -548,7 +548,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     ) {
         device.AsGuardNotNull();
         var vertices = Prepare(source);
-        return Create(device, vertices, ReadOnlySpan<int>.Empty, BillboardVertex.SizeInBytes,
+        return Create(device, vertices, [], BillboardVertex.SizeInBytes,
             PrimitiveTopology.PointList);
     }
 
@@ -572,7 +572,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (Topology != PrimitiveTopology.PointList)
             throw new InvalidOperationException("Line buffers cannot be updated with point geometry.");
-        Update(Prepare(source), ReadOnlySpan<int>.Empty);
+        Update(Prepare(source), []);
     }
 
     /// <summary>
@@ -583,7 +583,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (Topology != PrimitiveTopology.PointList || vertexStride != BillboardVertex.SizeInBytes)
             throw new InvalidOperationException("The buffer does not contain billboard vertices.");
-        Update(Prepare(source), ReadOnlySpan<int>.Empty);
+        Update(Prepare(source), []);
     }
 
     /// <summary>
@@ -752,7 +752,7 @@ internal sealed class SilkD3D12PointLineBuffers : IDisposable {
     /// <summary>
     ///     Rejects indices that refer outside the position stream.
     /// </summary>
-    private static void ValidateIndices(IReadOnlyList<int> indices, int vertexCount, object source) {
+    private static void ValidateIndices(IntCollection indices, int vertexCount, object source) {
         for (var index = 0; index < indices.Count; index++)
             if ((uint) indices[index] >= (uint) vertexCount)
                 throw new ArgumentException($"Index {index} refers to a vertex outside the geometry.",

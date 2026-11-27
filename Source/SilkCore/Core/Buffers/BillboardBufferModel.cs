@@ -18,8 +18,6 @@ public abstract class BillboardBufferModel<VertexStruct> : GeometryBufferModel, 
     where VertexStruct : unmanaged {
     private static readonly VertexStruct[] EmptyVerts = [];
 
-    private TextureModel? texture;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="BillboardBufferModel{VertexStruct}" /> class.
     /// </summary>

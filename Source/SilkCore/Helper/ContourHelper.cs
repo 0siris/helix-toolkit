@@ -19,7 +19,7 @@ public class ContourHelper {
     /// <summary>
     ///     Provides the indices for the various <see cref="ContourFacetResult" /> cases.
     /// </summary>
-    private static readonly IDictionary<ContourFacetResult, int[,]> ResultIndices
+    private static readonly Dictionary<ContourFacetResult, int[,]> ResultIndices
         = new Dictionary<ContourFacetResult, int[,]> {
             {ContourFacetResult.ZeroOnly, new[,] {{0, 1}, {0, 2}}},
             {ContourFacetResult.OneAndTwo, new[,] {{0, 2}, {0, 1}}},

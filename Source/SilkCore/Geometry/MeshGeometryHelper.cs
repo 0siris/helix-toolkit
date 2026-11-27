@@ -7,6 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Globalization;
 using System.Diagnostics;
 using System.Text;
 using HelixToolkit.SharpDX.Core.Helper;
@@ -104,10 +105,7 @@ public static class MeshGeometryHelper {
                 var minIndex = Math.Min(index0, index1);
                 var maxIndex = Math.Max(index1, index0);
                 var key = CreateKey((uint) minIndex, (uint) maxIndex);
-                if (dict.ContainsKey(key))
-                    dict[key] = dict[key] + 1;
-                else
-                    dict.Add(key, 1);
+                dict[key] = dict.TryGetValue(key, out var count) ? count + 1 : 1;
             }
         }
 
@@ -349,7 +347,7 @@ public static class MeshGeometryHelper {
         for (var i = 0; i < triangleIndices.Count; i++) {
             var index = triangleIndices[i];
             if (index < 0 || index >= positions.Count) {
-                sb.AppendFormat("Wrong index {0} in triangle {1} vertex {2}", index, i / 3, i % 3);
+                sb.AppendFormat(CultureInfo.CurrentCulture, "Wrong index {0} in triangle {1} vertex {2}", index, i / 3, i % 3);
                 sb.AppendLine();
             }
         }
@@ -655,10 +653,10 @@ public static class MeshGeometryHelper {
             if (tracking[i].Count == 0)
                 vertToRemove.Add(i);
 
-        verticesOut = new Point3DCollection(vertices.Count - vertToRemove.Count);
+        verticesOut = [with(vertices.Count - vertToRemove.Count)];
         trianglesOut = [.. triangles];
-        if (texture != null) textureOut = new PointCollection(vertices.Count - vertToRemove.Count);
-        if (normals != null) normalOut = new Vector3DCollection(vertices.Count - vertToRemove.Count);
+        if (texture != null) textureOut = [with(vertices.Count - vertToRemove.Count)];
+        if (normals != null) normalOut = [with(vertices.Count - vertToRemove.Count)];
         if (vertices.Count == vertToRemove.Count) return;
         var counter = 0;
         for (var i = 0; i < vertices.Count; ++i)

@@ -324,7 +324,7 @@ internal sealed class SilkD3D12GraphicsBindings : IDisposable {
     /// <param name="parameterName">The shader-register parameter name.</param>
     /// <returns>The resolved descriptor.</returns>
     private static SilkD3D12Descriptor GetDescriptor(
-        IReadOnlyList<SilkD3D12Descriptor> descriptors,
+        SilkD3D12Descriptor[] descriptors,
         int shaderRegister,
         int registerCount,
         int tableOffset,
@@ -1316,9 +1316,9 @@ internal static class D3D12VolumeMaterialData {
         int depth
     ) {
         material.AsGuardNotNull();
-        if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
-        if (depth <= 0) throw new ArgumentOutOfRangeException(nameof(depth));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(depth);
         var sampleDistance = (float) material.SampleDistance;
         if (!float.IsFinite(sampleDistance) || sampleDistance <= 0)
             throw new ArgumentOutOfRangeException(nameof(material), "Sample distance must be positive and finite.");

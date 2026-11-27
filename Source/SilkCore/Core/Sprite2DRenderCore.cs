@@ -13,11 +13,9 @@ namespace HelixToolkit.SharpDX.Core.Core;
 
 public sealed class Sprite2DRenderCore : RenderCore {
 
-    private int samplerSlot;
 
     private ShaderPass spritePass = ShaderPass.NullPass;
 
-    private int texSlot;
 
     public Sprite2DRenderCore()
         : base(RenderType.ScreenSpaced) {

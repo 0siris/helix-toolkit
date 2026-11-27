@@ -430,7 +430,7 @@ public class MeshBuilder {
         Int32Collection triangleIndices,
         out Vector3DCollection normals
     ) {
-        normals = new Vector3DCollection(positions.Count);
+        normals = [with(positions.Count)];
         for (var i = 0; i < positions.Count; i++) normals.Add(new Vector3D(0, 0, 0));
         for (var t = 0; t < triangleIndices.Count; t += 3) {
             var i1 = triangleIndices[t];
@@ -524,8 +524,8 @@ public class MeshBuilder {
             tan1[i3] += udir;
         }
 
-        tangents = new Vector3DCollection(positions.Count);
-        bitangents = new Vector3DCollection(positions.Count);
+        tangents = [with(positions.Count)];
+        bitangents = [with(positions.Count)];
         for (var i = 0; i < positions.Count; i++) {
             var n = normals[i];
             var t = tan1[i];
@@ -584,8 +584,8 @@ public class MeshBuilder {
             tan1[i4] += udir;
         }
 
-        tangents = new Vector3DCollection(positions.Count);
-        bitangents = new Vector3DCollection(positions.Count);
+        tangents = [with(positions.Count)];
+        bitangents = [with(positions.Count)];
         for (var i = 0; i < positions.Count; i++) {
             var n = normals[i];
             var t = tan1[i];

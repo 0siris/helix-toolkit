@@ -159,8 +159,8 @@ internal sealed class SilkD3D12VolumeResources : IDisposable {
     /// <param name="width">The target width.</param>
     /// <param name="height">The target height.</param>
     private void Resize(uint width, uint height) {
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
         if (backPositions is { Description.Width: var currentWidth, Description.Height: var currentHeight } &&
             currentWidth == width && currentHeight == height)
             return;

@@ -218,7 +218,7 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
         int layer,
         SilkD3D12Descriptor depthStencil
     ) {
-        if (layer < 1) throw new ArgumentOutOfRangeException(nameof(layer));
+        ArgumentOutOfRangeException.ThrowIfLessThan(layer, 1);
         var current = 2 + layer % 2;
         var previous = 2 + 1 - layer % 2;
         context.Transition(Target(previous), ResourceStates.PixelShaderResource | ResourceStates.NonPixelShaderResource);
@@ -291,8 +291,8 @@ internal sealed class SilkD3D12TransparencyResources : IDisposable {
     /// <param name="height">The target height.</param>
     /// <param name="peelingColorFormat">The presentation-compatible peeling color format.</param>
     private void Resize(uint width, uint height, Format peelingColorFormat = PeelingColorFormat) {
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
         if (targets[0] is { Description.Width: var oldWidth, Description.Height: var oldHeight } &&
             oldWidth == width && oldHeight == height && targets[4]!.Description.Format == peelingColorFormat)
             return;

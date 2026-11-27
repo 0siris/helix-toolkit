@@ -527,7 +527,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         ResourceFlags flags = ResourceFlags.None
     ) {
         device.AsGuardNotNull();
-        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        ArgumentOutOfRangeException.ThrowIfZero(sizeInBytes);
         if (heapType != HeapType.Default && flags != ResourceFlags.None)
             throw new ArgumentException("Upload and readback buffers do not support resource flags.", nameof(flags));
 
@@ -591,8 +591,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         ushort mipLevels = 1
     ) {
         device.AsGuardNotNull();
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
         if (format == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(format));
         if (arraySize == 0) throw new ArgumentOutOfRangeException(nameof(arraySize));
         if (mipLevels == 0) throw new ArgumentOutOfRangeException(nameof(mipLevels));
@@ -687,7 +687,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         ushort mipLevels = 1
     ) {
         device.AsGuardNotNull();
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
         if (format == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(format));
         if (arraySize == 0) throw new ArgumentOutOfRangeException(nameof(arraySize));
         if (mipLevels == 0) throw new ArgumentOutOfRangeException(nameof(mipLevels));
@@ -745,8 +745,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         ushort mipLevels = 1
     ) {
         device.AsGuardNotNull();
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
         if (depth == 0) throw new ArgumentOutOfRangeException(nameof(depth));
         if (format == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(format));
         if (mipLevels == 0) throw new ArgumentOutOfRangeException(nameof(mipLevels));
@@ -1100,8 +1100,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             throw new ArgumentException("The resource must be a buffer.", nameof(buffer));
         if (descriptor.Type != DescriptorHeapType.CbvSrvUav)
             throw new ArgumentException("The descriptor must come from a CBV/SRV/UAV heap.", nameof(descriptor));
-        if (elementCount == 0) throw new ArgumentOutOfRangeException(nameof(elementCount));
-        if (strideInBytes == 0) throw new ArgumentOutOfRangeException(nameof(strideInBytes));
+        ArgumentOutOfRangeException.ThrowIfZero(elementCount);
+        ArgumentOutOfRangeException.ThrowIfZero(strideInBytes);
         if (checked((ulong) elementCount * strideInBytes) > buffer.SizeInBytes)
             throw new ArgumentOutOfRangeException(nameof(elementCount));
         var description = new ShaderResourceViewDesc {
@@ -1149,8 +1149,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             throw new ArgumentException("A 32-bit counter buffer is required.", nameof(counter));
         if (descriptor.Type != DescriptorHeapType.CbvSrvUav)
             throw new ArgumentException("The descriptor must come from a CBV/SRV/UAV heap.", nameof(descriptor));
-        if (elementCount == 0) throw new ArgumentOutOfRangeException(nameof(elementCount));
-        if (strideInBytes == 0) throw new ArgumentOutOfRangeException(nameof(strideInBytes));
+        ArgumentOutOfRangeException.ThrowIfZero(elementCount);
+        ArgumentOutOfRangeException.ThrowIfZero(strideInBytes);
         if (checked((ulong) elementCount * strideInBytes) > buffer.SizeInBytes)
             throw new ArgumentOutOfRangeException(nameof(elementCount));
         var description = new UnorderedAccessViewDesc {
@@ -1218,8 +1218,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             throw new ArgumentException("The texture does not allow unordered access.", nameof(texture));
         if (descriptor.Type != DescriptorHeapType.CbvSrvUav)
             throw new ArgumentException("The descriptor must come from a CBV/SRV/UAV heap.", nameof(descriptor));
-        if (mipSlice >= texture.Description.MipLevels)
-            throw new ArgumentOutOfRangeException(nameof(mipSlice));
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(mipSlice, texture.Description.MipLevels);
 
         var description = new UnorderedAccessViewDesc {
             Format = texture.Description.Format,
@@ -1369,7 +1368,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             : checked((uint) (texture.Description.DepthOrArraySize * texture.Description.MipLevels));
         if (texture.Description.Format is Format.FormatD24UnormS8Uint or Format.FormatD32FloatS8X24Uint)
             subresourceCount *= 2;
-        if (subresource >= subresourceCount) throw new ArgumentOutOfRangeException(nameof(subresource));
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(subresource, subresourceCount);
 
         var description = texture.Description;
         PlacedSubresourceFootprint footprint;
@@ -1546,7 +1545,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
         context.AsGuardNotNull();
         destination.AsGuardNotNull();
         source.AsGuardNotNull();
-        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        ArgumentOutOfRangeException.ThrowIfZero(sizeInBytes);
         if (destinationOffset > destination.SizeInBytes || sizeInBytes > destination.SizeInBytes - destinationOffset)
             throw new ArgumentOutOfRangeException(nameof(destinationOffset));
         if (sourceOffset > source.SizeInBytes || sizeInBytes > source.SizeInBytes - sourceOffset)
@@ -1758,8 +1757,8 @@ public static unsafe class SilkD3D12RuntimeExtensions {
 
         var flags = clearStencil && texture.Description.Format is
             (Format.FormatD24UnormS8Uint or Format.FormatD32FloatS8X24Uint)
-            ? ClearFlags.ClearFlagDepth | ClearFlags.ClearFlagStencil
-            : ClearFlags.ClearFlagDepth;
+            ? ClearFlags.Depth | ClearFlags.Stencil
+            : ClearFlags.Depth;
         context.CommandList.ClearDepthStencilView(descriptor.CpuHandle,
             flags,
             depth,
@@ -1815,8 +1814,7 @@ public static unsafe class SilkD3D12RuntimeExtensions {
             : checked((uint) (source.Description.DepthOrArraySize * source.Description.MipLevels));
         if (source.Description.Format is Format.FormatD24UnormS8Uint or Format.FormatD32FloatS8X24Uint)
             subresourceCount *= 2;
-        if (sourceSubresource >= subresourceCount)
-            throw new ArgumentOutOfRangeException(nameof(sourceSubresource));
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(sourceSubresource, subresourceCount);
         if (destination.State != ResourceStates.CopyDest)
             throw new InvalidOperationException("The destination must be in copy-destination state.");
         if (source.State != ResourceStates.CopySource)

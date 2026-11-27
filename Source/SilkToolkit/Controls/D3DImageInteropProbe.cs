@@ -111,7 +111,7 @@ internal sealed unsafe class D3DImageInteropProbe : IDisposable {
         if (hwnd == 0) throw new ArgumentException("A live HWND is required.", nameof(hwnd));
         if (width == 0 || width > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(width));
         if (height == 0 || height > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(height));
-        if (adapterIndex < -1) throw new ArgumentOutOfRangeException(nameof(adapterIndex));
+        ArgumentOutOfRangeException.ThrowIfLessThan(adapterIndex, -1);
         Width = width;
         Height = height;
         try {

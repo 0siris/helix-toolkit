@@ -101,9 +101,8 @@ public sealed class IntersectionMeshSnapshot {
         DefaultMeshGeometryBufferModel? renderBuffer = null,
         MeshNode? renderNode = null
     ) {
-        Positions = positions.Select(position => new Vector4(position, 1))
-            .ToArray();
-        Indices = indices.ToArray();
+        Positions = [.. positions.Select(position => new Vector4(position, 1))];
+        Indices = [.. indices];
         if (Indices.Length % 3 != 0 || Indices.Any(index => index < 0 || index >= Positions.Length) ||
             Positions.Any(position => !float.IsFinite(position.X) || !float.IsFinite(position.Y) || !float.IsFinite(position.Z)))
             throw new ArgumentException("Intersection geometry must contain finite positions and complete valid triangles");
@@ -172,7 +171,7 @@ public sealed class IntersectionDispatchInput {
         Second = second;
         WorldA = worldA;
         WorldB = worldB;
-        Candidates = candidates.ToArray();
+        Candidates = [.. candidates];
         if (Candidates.Any(candidate => candidate.TriangleA < 0 || candidate.TriangleA >= first.TriangleCount ||
                                         candidate.TriangleB < 0 || candidate.TriangleB >= second.TriangleCount
             ) ||

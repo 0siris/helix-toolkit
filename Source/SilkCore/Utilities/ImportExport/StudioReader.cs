@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace HelixToolkit.SharpDX.Core;
-using FileFormatException = Exception;
 using Object3DGroup = List<Object3D>;
 using PhongMaterial = PhongMaterialCore;
 
@@ -50,7 +49,6 @@ public class StudioReader : IModelReader {
         EditUnknw11 = 0x2300,
         EditUnknw12 = 0x2302,
         EditUnknw13 = 0x3000,
-        EditUnknw14 = 0xAFFF,
 
         // sub defines of EDIT_MATERIAL
         MatName01 = 0xA000,
@@ -105,7 +103,6 @@ public class StudioReader : IModelReader {
 
         // defines for viewport chunks
         Top = 0x0001,
-        Bottom = 0x0002,
         Left = 0x0003,
         Right = 0x0004,
         Front = 0x0005,
@@ -113,8 +110,6 @@ public class StudioReader : IModelReader {
         User = 0x0007,
         Camera = 0x0008, // = 0xFFFF is the actual code read from file
         Light = 0x0009,
-        Disabled = 0x0010,
-        Bogus = 0x0011,
         // ReSharper restore UnusedMember.Local
         // ReSharper restore InconsistentNaming
         Percentw = 0x0030,
@@ -153,12 +148,12 @@ public class StudioReader : IModelReader {
         using (var reader = new BinaryReader(s)) {
             var headerId = ReadChunkId(reader);
             if (headerId != ChunkId.Main3Ds) 
-                throw new FileFormatException("Unknown file");
+                throw new InvalidDataException("Unknown file");
             
             ReadChunkSize(reader);
             //if (headerSize != length)
             //{
-            //    throw new FileFormatException("Incomplete file (file length does not match header)");
+            //    throw new InvalidDataException("Incomplete file (file length does not match header)");
             //}
             while (reader.BaseStream.Position < reader.BaseStream.Length) {
                 var id = ReadChunkId(reader);
@@ -385,8 +380,7 @@ public class StudioReader : IModelReader {
         } else {
             foreach (var fm in facesets) {
                 triangleIndices = ConvertFaceIndices(fm.Faces, faces);
-                MaterialCore? mat = null;
-                if (materials.ContainsKey(fm.Name)) mat = materials[fm.Name];
+                materials.TryGetValue(fm.Name, out var mat);
                 CreateMesh(positions,
                            textureCoordinates,
                            triangleIndices,
@@ -461,7 +455,7 @@ public class StudioReader : IModelReader {
         IntCollection triangleIndices,
         out Vector3Collection normals
     ) {
-        normals = new Vector3Collection(positions.Count);
+        normals = [with(positions.Count)];
         normals.AddRange(Enumerable.Repeat(Vector3.Zero, positions.Count));
 
         for (var t = 0; t < triangleIndices.Count; t += 3) {
@@ -493,7 +487,7 @@ public class StudioReader : IModelReader {
         }
     }
 
-    private static IntCollection ConvertFaceIndices(List<int> subFaces, IList<int> faces) {
+    private static IntCollection ConvertFaceIndices(List<int> subFaces, IntCollection faces) {
         var triangleIndices = new IntCollection(subFaces.Count * 3); // new List<int>(subFaces.Count * 3);
         foreach (var f in subFaces) {
             triangleIndices.Add(faces[f * 3]);
@@ -643,7 +637,7 @@ public class StudioReader : IModelReader {
         /// <param name="texture"></param>
         /// <param name="fallBackColor"></param>
         /// <returns></returns>
-    private Stream? ReadBitmapSoure(string? texture, Color fallBackColor) {
+    private MemoryStream? ReadBitmapSoure(string? texture, Color fallBackColor) {
         if (texture == null) return null;
         try {
             var ext = Path.GetExtension(texture).ToLowerInvariant();
@@ -660,7 +654,7 @@ public class StudioReader : IModelReader {
             return null;
         } catch (Exception ex) //Not really nice
         {
-            throw new FileFormatException(ex.Message);
+            throw new InvalidDataException(ex.Message, ex);
         }
     }
 

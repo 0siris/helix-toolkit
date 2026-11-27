@@ -29,7 +29,7 @@ public class PointGeometryOctree : DynamicOctreeBase<int> {
     {
         this.positions = positions;
         Bound = BoundingBoxExtensions.FromPoints(positions);
-        Objects = new List<int>(this.positions.Count);
+        Objects = [with(this.positions.Count)];
         
         for (var i = 0; i < this.positions.Count; ++i) 
             Objects.Add(i);

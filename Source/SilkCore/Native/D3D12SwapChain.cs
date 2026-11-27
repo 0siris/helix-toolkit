@@ -48,8 +48,8 @@ public sealed unsafe class SilkD3D12SwapChain : IDisposable {
         this.device = device ?? throw new ArgumentNullException(nameof(device));
         queue.AsGuardNotNull();
         if (window == 0) throw new ArgumentException("A valid HWND is required.", nameof(window));
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
         if (format == Format.FormatUnknown) throw new ArgumentOutOfRangeException(nameof(format));
 
         Window = window;
@@ -131,8 +131,8 @@ public sealed unsafe class SilkD3D12SwapChain : IDisposable {
     /// <param name="height">The new height in pixels.</param>
     public void Resize(uint width, uint height) {
         ThrowIfDisposed();
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
         if (width == Width && height == Height) return;
 
         ReleaseBackBuffers();

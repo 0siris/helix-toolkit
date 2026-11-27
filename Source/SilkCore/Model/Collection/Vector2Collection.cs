@@ -43,7 +43,7 @@ public sealed class Vector2Collection : FastList<Vector2> {
         for (var i = 0; i < Count; i++) {
             //str.AppendFormat(provider, "{0:" + format + "}", this[i]);
             str.AppendFormat(provider, "{0},{1}", this[i].X, this[i].Y);
-            if (i != Count - 1) str.Append(" ");
+            if (i != Count - 1) str.Append(' ');
         }
 
         return str.ToString();

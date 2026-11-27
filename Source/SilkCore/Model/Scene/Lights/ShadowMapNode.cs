@@ -30,7 +30,6 @@ public class ShadowMapNode : SceneNode {
     private float distance = 200;
 
     private float orthoWidth = 100;
-    private bool sceneChanged;
 
     private ShadowMapCore ShadowCore => (ShadowMapCore) RenderCore;
 
@@ -183,18 +182,7 @@ public class ShadowMapNode : SceneNode {
     /// </returns>
     protected override bool OnAttach(IEffectsManager effectsManager) {
         base.OnAttach(effectsManager);
-        Invalidated += Host_SceneGraphUpdated;
-        sceneChanged = true;
         return true;
-    }
-
-    protected override void OnDetach() {
-        Invalidated -= Host_SceneGraphUpdated;
-        base.OnDetach();
-    }
-
-    private void Host_SceneGraphUpdated(object? sender, InvalidateTypes type) {
-        if (type == InvalidateTypes.SceneGraph) sceneChanged = true;
     }
 
     /// <summary>

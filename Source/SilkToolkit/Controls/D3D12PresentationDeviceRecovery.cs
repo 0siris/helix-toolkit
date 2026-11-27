@@ -62,7 +62,7 @@ internal sealed class D3D12PresentationDeviceRecovery {
     /// <remarks>Probes never mark an owner removed; only its own dispatcher may confirm native removal.</remarks>
     internal static void ProbeForRemoval() {
         D3D12PresentationDeviceRecovery[] owners;
-        lock (Gate) owners = Owners.ToArray();
+        lock (Gate) owners = [.. Owners];
         foreach (var owner in owners) {
             if (owner.IsRemovalRequested || !owner.retire.TryGetTarget(out _) || owner.dispatcher.HasShutdownStarted ||
                 Interlocked.CompareExchange(ref owner.probeRequested, 1, 0) != 0) continue;

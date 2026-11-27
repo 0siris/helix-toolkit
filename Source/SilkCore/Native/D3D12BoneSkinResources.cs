@@ -215,12 +215,7 @@ internal sealed class SilkD3D12BoneSkinResources : IDisposable {
             ClearStructuredBuffer(ref morphTargetOffsets, MorphTargetOffsetRegister);
         }
 
-        Span<int> constants = stackalloc int[4] {
-            morphTargets.MorphTargetCount,
-            morphTargets.MorphTargetPitch,
-            0,
-            0
-        };
+        ReadOnlySpan<int> constants = [morphTargets.MorphTargetCount, morphTargets.MorphTargetPitch, 0, 0];
         morphTargetConstants.Write(constants);
 
         OutputSizeInBytes = checked((ulong) vertexCount * DefaultVertex.SizeInBytes);

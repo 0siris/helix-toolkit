@@ -236,7 +236,7 @@ public class OffReader : IModelReader {
     private static int[] GetIntValues(string input) {
         var fields = RemoveComments(input).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         var result = new int[fields.Length];
-        for (var i = 0; i < fields.Length; i++) result[i] = int.Parse(fields[i]);
+        for (var i = 0; i < fields.Length; i++) result[i] = int.Parse(fields[i], CultureInfo.InvariantCulture);
 
         return result;
     }

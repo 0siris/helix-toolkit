@@ -3,6 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
@@ -136,6 +137,7 @@ public struct ImageDescription : IEquatable<ImageDescription> {
     /// </summary>
     /// <returns></returns>
     public override string ToString() => string.Format(
+        CultureInfo.CurrentCulture,
         "Dimension: {0}, Width: {1}, Height: {2}, Depth: {3}, Format: {4}, ArraySize: {5}, MipLevels: {6}",
         Dimension,
         Width,

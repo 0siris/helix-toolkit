@@ -42,7 +42,7 @@ public class DefaultTexturePathResolver : ITexturePathResolver {
     /// <remarks>A directory without a parent retains itself as the parent fallback base.</remarks>
     protected virtual string HandleTexturePathNotFound(string dir, string texturePath) {
         //If file not found in texture path dir, try to find the file in the same dir as the model file
-        if (texturePath.StartsWith(ToUpperDictString)) {
+        if (texturePath.StartsWith(ToUpperDictString, StringComparison.Ordinal)) {
             var t = texturePath[ToUpperDictString.Length..];
             var p = Path.GetFullPath(Path.Combine(dir, t));
             if (FileExists(p))

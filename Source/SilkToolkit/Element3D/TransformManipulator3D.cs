@@ -203,8 +203,7 @@ public class TransformManipulator3D : GroupElement3D {
     }
 
     private void SceneNode_OnDetached(object? sender, EventArgs e) {
-        if (target != null)
-            target.SceneNode.TransformChanged -= SceneNode_OnTransformChanged;
+        target?.SceneNode.TransformChanged -= SceneNode_OnTransformChanged;
     }
 
     private void SceneNode_OnAttached(object? sender, EventArgs e) {
@@ -233,8 +232,7 @@ public class TransformManipulator3D : GroupElement3D {
     /// <param name="elem3DTarget">The target.</param>
     private void OnTargetChanged(Element3D? elem3DTarget) {
         Debug.WriteLine("OnTargetChanged");
-        if (target != null)
-            target.SceneNode.TransformChanged -= SceneNode_OnTransformChanged;
+        target?.SceneNode.TransformChanged -= SceneNode_OnTransformChanged;
 
         target = elem3DTarget;
         if (elem3DTarget == null)

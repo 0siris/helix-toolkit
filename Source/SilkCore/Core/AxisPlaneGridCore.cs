@@ -13,11 +13,8 @@ using HelixToolkit.SharpDX.Core.Shaders;
 namespace HelixToolkit.SharpDX.Core.Core;
 
 public class AxisPlaneGridCore : RenderCore {
-    private ShaderPass? defaultShaderPass;
 
     private PlaneGridModelStruct modelStruct;
-    private int samplerSlot;
-    private int shadowMapSlot;
 
     private Vector3 upDirection = Vector3.UnitY;
 

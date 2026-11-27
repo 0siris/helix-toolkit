@@ -22,7 +22,6 @@ public abstract class StaticGeometryBatchingBufferBase<BatchedGeometry, VertStru
     private static readonly int[] EmptyIntArray = [];
 
     private IElementsBufferProxy? indexBuffer;
-    private bool isGeometryChanged = true;
 
     public StaticGeometryBatchingBufferBase(
         PrimitiveTopology topology,
@@ -50,10 +49,10 @@ public abstract class StaticGeometryBatchingBufferBase<BatchedGeometry, VertStru
     /// <value>
     ///     The vertex buffer.
     /// </value>
-    public IElementsBufferProxy[] VertexBuffer { get; }
+    public IElementsBufferProxy?[] VertexBuffer { get; }
 
     public IEnumerable<int> VertexStructSize
-        => VertexBuffer.Select(x => x.StructureSize);
+        => VertexBuffer.Select(buffer => buffer.AsNotNull("The batching vertex buffer has been disposed").StructureSize);
 
     /// <summary>
     ///     Gets or sets the index buffer.
@@ -75,7 +74,6 @@ public abstract class StaticGeometryBatchingBufferBase<BatchedGeometry, VertStru
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void InvalidateGeometries() {
-        isGeometryChanged = true;
         InvalidateRender?.Invoke(this, EventArgs.Empty);
     }
 

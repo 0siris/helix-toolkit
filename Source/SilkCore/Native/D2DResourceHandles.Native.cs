@@ -354,15 +354,15 @@ public sealed unsafe class D2DDeviceContext : D2DNativeResource {
     private static Media.Brush ToManagedBrush(Brush brush, RectangleF bounds) => brush switch {
         SolidColorBrush solid => ToManagedBrush(solid.Color),
         LinearGradientBrush linear => new Media.LinearGradientBrush(
-            new Media.GradientStopCollection(linear.GradientStops.Gradients.Select(stop =>
-                new Media.GradientStop(ToManagedColor(stop.Color), stop.Position))),
+            [.. linear.GradientStops.Gradients.Select(stop =>
+                new Media.GradientStop(ToManagedColor(stop.Color), stop.Position))],
             new System.Windows.Point(linear.Properties.StartPoint.X, linear.Properties.StartPoint.Y),
             new System.Windows.Point(linear.Properties.EndPoint.X, linear.Properties.EndPoint.Y)) {
             MappingMode = Media.BrushMappingMode.Absolute
         },
         RadialGradientBrush radial => new Media.RadialGradientBrush(
-            new Media.GradientStopCollection(radial.GradientStops.Gradients.Select(stop =>
-                new Media.GradientStop(ToManagedColor(stop.Color), stop.Position)))) {
+            [.. radial.GradientStops.Gradients.Select(stop =>
+                new Media.GradientStop(ToManagedColor(stop.Color), stop.Position))]) {
             MappingMode = Media.BrushMappingMode.Absolute,
             Center = new System.Windows.Point(radial.Properties.Center.X, radial.Properties.Center.Y),
             GradientOrigin = new System.Windows.Point(

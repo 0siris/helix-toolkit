@@ -17,7 +17,7 @@ public sealed class GeometryBufferManager : IGeometryBufferManager {
     /// The structured logger used by the original registry diagnostics.
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     /// The original two-key buffer registry.
-    private readonly DoubleKeyDictionary<Type, Guid, IDisposeObject> bufferDictionary = new();
+    private readonly DoubleKeyDictionary<Type, Guid, IDisposeObject> bufferDictionary = [];
     /// The effects manager assigned to new buffers.
     private readonly IEffectsManager manager;
     /// Whether the registry has been disposed.

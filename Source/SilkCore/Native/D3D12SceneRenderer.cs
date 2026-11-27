@@ -83,7 +83,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     ///     Per-core mesh constant buffers and descriptor tables.
     /// </summary>
     private readonly Dictionary<MeshRenderCore, SilkD3D12MeshBindings> meshBindings =
-        new(ReferenceEqualityComparer.Instance);
+        [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>Mesh bindings with fixed peeling inputs; the first input borrows the ordinary per-core cache.</summary>
     private readonly Dictionary<SilkD3D12Resource, Dictionary<MeshRenderCore, SilkD3D12MeshBindings>>
@@ -97,33 +97,33 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     ///     Per-core point, line, and billboard constant buffers and descriptor tables.
     /// </summary>
     private readonly Dictionary<PointLineRenderCore, SilkD3D12PointLineBindings> pointLineBindings =
-        new(ReferenceEqualityComparer.Instance);
+        [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>
     ///     Per-core volume constant buffers and descriptor tables.
     /// </summary>
     private readonly Dictionary<VolumeRenderCore, SilkD3D12VolumeBindings> volumeBindings =
-        new(ReferenceEqualityComparer.Instance);
+        [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>
     ///     Per-core particle simulation and indirect-draw resources.
     /// </summary>
     private readonly Dictionary<ParticleRenderCore, SilkD3D12ParticleResources> particleResources =
-        new(ReferenceEqualityComparer.Instance);
+        [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>
     ///     Per-core desktop frame uploads and screen-pass bindings.
     /// </summary>
     private readonly Dictionary<ScreenCloneRenderCore, SilkD3D12ScreenCaptureResources> screenCaptureResources =
-        new(ReferenceEqualityComparer.Instance);
+        [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>
     ///     Nodes attached by this renderer and detached with it.
     /// </summary>
-    private readonly HashSet<SceneNode> attachedNodes = new(ReferenceEqualityComparer.Instance);
+    private readonly HashSet<SceneNode> attachedNodes = [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>Retains the current hierarchy's attachment membership without per-frame snapshots.</summary>
-    private readonly HashSet<SceneNode> preparationAttachments = new(ReferenceEqualityComparer.Instance);
+    private readonly HashSet<SceneNode> preparationAttachments = [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>
     ///     Reused visible-node list for allocation-free per-frame selection.
@@ -1420,10 +1420,9 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 drawMeshBindings.EnvironmentSource = environmentSource;
             }
 
-            if (drawPointLineBindings is not null)
-                drawPointLineBindings.Owner = (PointLineRenderCore) node.RenderCore;
+            drawPointLineBindings?.Owner = (PointLineRenderCore) node.RenderCore;
             if (passTexture is not null) {
-                if (passTextureRegister < 0) throw new ArgumentOutOfRangeException(nameof(passTextureRegister));
+                ArgumentOutOfRangeException.ThrowIfNegative(passTextureRegister);
                 drawMeshBindings?.BindPassTexture(passTexture, passTextureRegister);
                 drawPointLineBindings?.BindPassTexture(passTexture, passTextureRegister);
             }
@@ -1620,7 +1619,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
     ) {
         using var profile = D3D12Profiler.Begin(context, "Silk.Transparency.DepthPeeling");
         if (nodes.Count == 0) return 0;
-        if (iterations < 1) throw new ArgumentOutOfRangeException(nameof(iterations));
+        ArgumentOutOfRangeException.ThrowIfLessThan(iterations, 1);
         transparencyResources ??= new SilkD3D12TransparencyResources(Device, resourceHeap, samplerHeap, colorFormat, outputMode);
         transparencyResources.BeginDepthPeeling(context, mainColor, mainDepthStencil, width, height);
         var recorded = RenderVisible(
@@ -2064,7 +2063,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 !entry.Key.IsDisposed && ReferenceEquals(entry.Value, meshBindings)
             );
             cache = primaryInUse
-                ? new Dictionary<MeshRenderCore, SilkD3D12MeshBindings>(ReferenceEqualityComparer.Instance)
+                ? [with(ReferenceEqualityComparer.Instance)]
                 : meshBindings;
             _peelingMeshBindings.Add(peelingTexture, cache);
         }
@@ -2128,7 +2127,7 @@ internal sealed class SilkD3D12SceneRenderer : IDisposable {
                 !entry.Key.IsDisposed && ReferenceEquals(entry.Value, pointLineBindings)
             );
             cache = primaryInUse
-                ? new Dictionary<PointLineRenderCore, SilkD3D12PointLineBindings>(ReferenceEqualityComparer.Instance)
+                ? [with(ReferenceEqualityComparer.Instance)]
                 : pointLineBindings;
             _peelingPointLineBindings.Add(peelingTexture, cache);
         }

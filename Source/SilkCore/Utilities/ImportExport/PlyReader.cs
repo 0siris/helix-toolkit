@@ -1,3 +1,5 @@
+using System.Globalization;
+
 
 namespace HelixToolkit.SharpDX.Core;
 
@@ -465,26 +467,26 @@ public class PlyReader : ModelReader {
                  */
 
                 if (strarr[1] == "vertex") {
-                    VerticesNumber = int.Parse(strarr[2]);
+                    VerticesNumber = int.Parse(strarr[2], CultureInfo.InvariantCulture);
                     //Add the vertex element to the dictionary, including its contextual range
                     elementsRange.Add("vertex",
                                        new PlyElement(elementLinesCount + 1, elementLinesCount + VerticesNumber));
-                    elementLinesCount += int.Parse(strarr[2]);
+                    elementLinesCount += int.Parse(strarr[2], CultureInfo.InvariantCulture);
                     //set the current element as a "vertex"element
                     currentElement = PlyElements.Vertex;
                 } else if (strarr[1] == "face") {
-                    FacesNumber = int.Parse(strarr[2]);
+                    FacesNumber = int.Parse(strarr[2], CultureInfo.InvariantCulture);
 
                     elementsRange.Add("face",
                                        new PlyElement(elementLinesCount + 1, elementLinesCount + FacesNumber));
-                    elementLinesCount += int.Parse(strarr[2]);
+                    elementLinesCount += int.Parse(strarr[2], CultureInfo.InvariantCulture);
                     currentElement = PlyElements.Face;
                 } else {
-                    var miscElementNumber = int.Parse(strarr[2]);
+                    var miscElementNumber = int.Parse(strarr[2], CultureInfo.InvariantCulture);
 
                     elementsRange.Add(strarr[1],
                                        new PlyElement(elementLinesCount, elementLinesCount + miscElementNumber));
-                    elementLinesCount += int.Parse(strarr[2]);
+                    elementLinesCount += int.Parse(strarr[2], CultureInfo.InvariantCulture);
                     currentElement = PlyElements.None;
                 }
             }
@@ -526,48 +528,48 @@ public class PlyReader : ModelReader {
              */
             else if (IsDigitChar(strarr[0][0])) {
                 elementLineCurrent++;
-                if (elementsRange.ContainsKey("vertex"))
-                    if (elementsRange["vertex"].ContainsNumber(elementLineCurrent)) {
+                if (elementsRange.TryGetValue("vertex", out var vertexElement))
+                    if (vertexElement.ContainsNumber(elementLineCurrent)) {
                         //Get vertices
-                        var xIndx = elementsRange["vertex"].PropertyWithIndex["x"];
-                        var yIndx = elementsRange["vertex"].PropertyWithIndex["y"];
-                        var zIndx = elementsRange["vertex"].PropertyWithIndex["z"];
+                        var xIndx = vertexElement.PropertyWithIndex["x"];
+                        var yIndx = vertexElement.PropertyWithIndex["y"];
+                        var zIndx = vertexElement.PropertyWithIndex["z"];
                         var pt = new Vector3 {
-                            X = float.Parse(strarr[xIndx]),
-                            Y = float.Parse(strarr[yIndx]),
-                            Z = float.Parse(strarr[zIndx])
+                            X = float.Parse(strarr[xIndx], CultureInfo.InvariantCulture),
+                            Y = float.Parse(strarr[yIndx], CultureInfo.InvariantCulture),
+                            Z = float.Parse(strarr[zIndx], CultureInfo.InvariantCulture)
                         };
                         Vertices.Add(pt);
 
-                        if (elementsRange["vertex"].ContainsNormals) {
-                            var nxIndx = elementsRange["vertex"].PropertyWithIndex["nx"];
-                            var nyIndx = elementsRange["vertex"].PropertyWithIndex["ny"];
-                            var nzIndx = elementsRange["vertex"].PropertyWithIndex["nz"];
+                        if (vertexElement.ContainsNormals) {
+                            var nxIndx = vertexElement.PropertyWithIndex["nx"];
+                            var nyIndx = vertexElement.PropertyWithIndex["ny"];
+                            var nzIndx = vertexElement.PropertyWithIndex["nz"];
 
                             var vect3D = new Vector3 {
-                                X = float.Parse(strarr[nxIndx]),
-                                Y = float.Parse(strarr[nyIndx]),
-                                Z = float.Parse(strarr[nzIndx])
+                                X = float.Parse(strarr[nxIndx], CultureInfo.InvariantCulture),
+                                Y = float.Parse(strarr[nyIndx], CultureInfo.InvariantCulture),
+                                Z = float.Parse(strarr[nzIndx], CultureInfo.InvariantCulture)
                             };
                             Normals.Add(vect3D);
                         }
 
-                        if (elementsRange["vertex"].ContainsTextureCoordinates) {
-                            var sIndx = elementsRange["vertex"].PropertyWithIndex["s"];
-                            var tIndx = elementsRange["vertex"].PropertyWithIndex["t"];
+                        if (vertexElement.ContainsTextureCoordinates) {
+                            var sIndx = vertexElement.PropertyWithIndex["s"];
+                            var tIndx = vertexElement.PropertyWithIndex["t"];
 
                             var texpt = new Vector2 {
-                                X = float.Parse(strarr[sIndx]),
-                                Y = float.Parse(strarr[tIndx])
+                                X = float.Parse(strarr[sIndx], CultureInfo.InvariantCulture),
+                                Y = float.Parse(strarr[tIndx], CultureInfo.InvariantCulture)
                             };
                             TextureCoordinates?.Add(texpt);
                         }
                     }
 
-                if (elementsRange.ContainsKey("face"))
-                    if (elementsRange["face"].ContainsNumber(elementLineCurrent)) {
+                if (elementsRange.TryGetValue("face", out var faceElement))
+                    if (faceElement.ContainsNumber(elementLineCurrent)) {
                         var facepos = new List<int>();
-                        for (var i = 1; i <= int.Parse(strarr[0]); i++) facepos.Add(int.Parse(strarr[i]));
+                        for (var i = 1; i <= int.Parse(strarr[0], CultureInfo.InvariantCulture); i++) facepos.Add(int.Parse(strarr[i], CultureInfo.InvariantCulture));
                         Faces.Add([.. facepos]);
                     }
 
@@ -590,7 +592,7 @@ public class PlyReader : ModelReader {
                 if (strarr[0] == "comment") continue;
 
                 //obj_info Line
-                if (strarr[0] == "obj_info") ObjectInformation.Add(strarr[1], double.Parse(strarr[2]));
+                if (strarr[0] == "obj_info") ObjectInformation.Add(strarr[1], double.Parse(strarr[2], CultureInfo.InvariantCulture));
 
                 //element Line
                 if (strarr[0] == "element") {
@@ -600,26 +602,26 @@ public class PlyReader : ModelReader {
                      */
 
                     if (strarr[1] == "vertex") {
-                        VerticesNumber = int.Parse(strarr[2]);
+                        VerticesNumber = int.Parse(strarr[2], CultureInfo.InvariantCulture);
 
                         //Add the vertex element to the dictionary, including its contextual range
                         elementsRange.Add("vertex",
                                            new PlyElement(elementLinesCount, elementLinesCount + VerticesNumber));
-                        elementLinesCount += int.Parse(strarr[2]);
+                        elementLinesCount += int.Parse(strarr[2], CultureInfo.InvariantCulture);
                         currentElement = PlyElements.Vertex;
                     } else if (strarr[1] == "face") {
-                        FacesNumber = int.Parse(strarr[2]);
+                        FacesNumber = int.Parse(strarr[2], CultureInfo.InvariantCulture);
 
                         elementsRange.Add("face",
                                            new PlyElement(elementLinesCount, elementLinesCount + FacesNumber));
-                        elementLinesCount += int.Parse(strarr[2]);
+                        elementLinesCount += int.Parse(strarr[2], CultureInfo.InvariantCulture);
                         currentElement = PlyElements.Face;
                     } else {
-                        var miscElementNumber = int.Parse(strarr[2]);
+                        var miscElementNumber = int.Parse(strarr[2], CultureInfo.InvariantCulture);
 
                         elementsRange.Add(strarr[1],
                                            new PlyElement(elementLinesCount, elementLinesCount + miscElementNumber));
-                        elementLinesCount += int.Parse(strarr[2]);
+                        elementLinesCount += int.Parse(strarr[2], CultureInfo.InvariantCulture);
                     }
                 }
 
@@ -657,9 +659,9 @@ public class PlyReader : ModelReader {
                     var yIndx = elementsRange["vertex"].PropertyWithIndex["y"];
                     var zIndx = elementsRange["vertex"].PropertyWithIndex["z"];
                     var pt = new Vector3 {
-                        X = float.Parse(strarr[xIndx]),
-                        Y = float.Parse(strarr[yIndx]),
-                        Z = float.Parse(strarr[zIndx])
+                        X = float.Parse(strarr[xIndx], CultureInfo.InvariantCulture),
+                        Y = float.Parse(strarr[yIndx], CultureInfo.InvariantCulture),
+                        Z = float.Parse(strarr[zIndx], CultureInfo.InvariantCulture)
                     };
                     Vertices.Add(pt);
 
@@ -674,7 +676,7 @@ public class PlyReader : ModelReader {
 
                 if (elementsRange["face"].ContainsNumber(elementLineCurrent)) {
                     var facepos = new List<int>();
-                    for (var i = 1; i <= int.Parse(strarr[0]); i++) facepos.Add(int.Parse(strarr[i]));
+                    for (var i = 1; i <= int.Parse(strarr[0], CultureInfo.InvariantCulture); i++) facepos.Add(int.Parse(strarr[i], CultureInfo.InvariantCulture));
                     Faces.Add([.. facepos]);
                 }
 

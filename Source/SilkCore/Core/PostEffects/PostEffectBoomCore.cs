@@ -58,13 +58,10 @@ public class PostEffectBloomCore : RenderCore, IPostEffectBloom {
 
     private ShaderPass screenOutlinePass = ShaderPass.NullPass;
 
-    private int textureSlot;
 
-    private int samplerSlot;
 
     private BorderEffectStruct modelStruct;
 
-    private PostEffectBlurCore? blurCore;
 
 
     #region Properties

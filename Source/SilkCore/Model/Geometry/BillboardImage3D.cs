@@ -125,7 +125,7 @@ public class BillboardImage3D : BillboardBase {
     protected override void OnAssignTo(Geometry3D target) {
         base.OnAssignTo(target);
         if (target is BillboardImage3D t) {
-            t.ImageInfos = new ObservableCollection<ImageInfo>(ImageInfos);
+            t.ImageInfos = [.. ImageInfos];
             t.IsInitialized = false;
         }
     }

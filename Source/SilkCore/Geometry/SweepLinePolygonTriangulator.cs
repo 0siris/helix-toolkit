@@ -188,7 +188,7 @@ public static class SweepLinePolygonTriangulator {
                     else if (top.Next == newPoint)
                         left = newPoint;
                     else
-                        throw new Exception("Triangulation error");
+                        throw new InvalidOperationException("Triangulation error");
                 } else if (left.Next == newPoint) {
                     left = newPoint;
                 } else if (right.Last == newPoint) {
@@ -692,7 +692,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     internal PolygonPointClass PointClass(bool reverse = false) {
         // If the Point has no Next- and Last-PolygonPoint, there's an Error
         if (Last is not { } last || Next is not { } next)
-            throw new Exception("No closed Polygon");
+            throw new InvalidOperationException("The polygon is not closed");
 
         // If we use the normal Order (top-to-bottom)
         if (!reverse) {
@@ -736,7 +736,7 @@ internal class PolygonPoint : IComparable<PolygonPoint> {
     private bool IsConvexPoint() {
         // If the Point has no Next- and Last-PolygonPoint, there's an Error
         if (Last is not { } last || Next is not { } next)
-            throw new Exception("No closed Polygon");
+            throw new InvalidOperationException("The polygon is not closed");
         // Calculate the necessary Vectors
         // From-last-to-this Vector
         var vecFromLast = Point - last.Point;

@@ -93,8 +93,8 @@ internal static class D3D12ResourceLayout {
     /// <param name="sizeInBytes">The unaligned byte size.</param>
     /// <returns>The aligned byte size.</returns>
     public static ulong AlignConstantBufferSize(ulong sizeInBytes) {
-        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-        if (sizeInBytes > ulong.MaxValue - 255) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        ArgumentOutOfRangeException.ThrowIfZero(sizeInBytes);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(sizeInBytes, ulong.MaxValue - 255);
         return (sizeInBytes + 255) & ~255UL;
     }
 
@@ -106,9 +106,9 @@ internal static class D3D12ResourceLayout {
     /// <param name="depth">The texture depth.</param>
     /// <returns>The number of mip levels.</returns>
     public static uint CalculateMipLevels(uint width, uint height = 1, uint depth = 1) {
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
-        if (depth == 0) throw new ArgumentOutOfRangeException(nameof(depth));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
+        ArgumentOutOfRangeException.ThrowIfZero(depth);
 
         return (uint) BitOperations.Log2(Math.Max(width, Math.Max(height, depth))) + 1;
     }
@@ -129,10 +129,10 @@ internal static class D3D12ResourceLayout {
         uint mipLevels,
         uint arraySize
     ) {
-        if (mipLevels == 0) throw new ArgumentOutOfRangeException(nameof(mipLevels));
-        if (arraySize == 0) throw new ArgumentOutOfRangeException(nameof(arraySize));
-        if (mipSlice >= mipLevels) throw new ArgumentOutOfRangeException(nameof(mipSlice));
-        if (arraySlice >= arraySize) throw new ArgumentOutOfRangeException(nameof(arraySlice));
+        ArgumentOutOfRangeException.ThrowIfZero(mipLevels);
+        ArgumentOutOfRangeException.ThrowIfZero(arraySize);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(mipSlice, mipLevels);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(arraySlice, arraySize);
 
         return checked(mipSlice + arraySlice * mipLevels + planeSlice * mipLevels * arraySize);
     }
@@ -153,7 +153,7 @@ internal sealed class D3D12DescriptorIndexAllocator {
         capacity.Guard().Range(1, int.MaxValue);
 
         allocated = new bool[capacity];
-        freeIndices = new SortedSet<int>(Enumerable.Range(0, capacity));
+        freeIndices = [with(Enumerable.Range(0, capacity))];
     }
 
     /// <summary>

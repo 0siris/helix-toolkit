@@ -130,7 +130,7 @@ public sealed class DefaultEffectAttributeParser : IEffectAttributeParser {
                     foreach (var attToken in attTokens) {
                         var token = attToken.Split(AttributeNameValueSeparator,
                                                    StringSplitOptions.RemoveEmptyEntries);
-                        if (token.Length == 2) att.AddAttribute(token[0].ToLower(), token[1]);
+                        if (token.Length == 2) att.AddAttribute(token[0].ToLowerInvariant(), token[1]);
                     }
                 }
 

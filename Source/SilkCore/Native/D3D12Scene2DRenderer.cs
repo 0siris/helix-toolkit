@@ -68,7 +68,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <summary>
     ///     Texture models keyed by the existing image stream identity.
     /// </summary>
-    private readonly Dictionary<Stream, TextureModel> images = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<Stream, TextureModel> images = [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>The current stream owned by each original image node.</summary>
     private readonly Dictionary<ImageNode2D, Stream> imageOwners = [];
@@ -576,13 +576,7 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
             : default;
         Span<SpriteStruct> vertices = stackalloc SpriteStruct[4];
         FillQuadVertices(vertices, bounds, node.TotalModelMatrix, color, uv);
-        Span<uint> indices = stackalloc uint[6];
-        indices[0] = 0;
-        indices[1] = 1;
-        indices[2] = 2;
-        indices[3] = 0;
-        indices[4] = 2;
-        indices[5] = 3;
+        ReadOnlySpan<uint> indices = [0, 1, 2, 0, 2, 3];
         StoreDraw(node, vertices, indices, ToScissor(clip), image, entry);
     }
 
@@ -729,8 +723,8 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="clip">The inherited physical scissor rectangle.</param>
     private void AddConvexOrRing(
         SceneNode2D node,
-        IReadOnlyList<Vector2> outer,
-        IReadOnlyList<Vector2> inner,
+        List<Vector2> outer,
+        List<Vector2> inner,
         Color4 color,
         RectangleF clip
     ) {
@@ -973,10 +967,10 @@ internal sealed class D3D12Scene2DRenderer : IDisposable {
     /// <param name="transform">The accumulated affine transform or native output pointer.</param>
     /// <returns>The axis-aligned physical bounds of the transformed corners.</returns>
     internal static RectangleF TransformBounds(RectangleF bounds, Matrix3X2 transform) {
-        ReadOnlySpan<Vector2> points = stackalloc Vector2[4] {
+        ReadOnlySpan<Vector2> points = [
             Matrix3X2.TransformPoint(transform, bounds.TopLeft), Matrix3X2.TransformPoint(transform, bounds.TopRight),
             Matrix3X2.TransformPoint(transform, bounds.BottomRight), Matrix3X2.TransformPoint(transform, bounds.BottomLeft)
-        };
+        ];
         var left = points[0].X;
         var top = points[0].Y;
         var right = left;

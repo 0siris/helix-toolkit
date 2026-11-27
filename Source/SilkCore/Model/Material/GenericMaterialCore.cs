@@ -82,19 +82,14 @@ public abstract class GenericMaterialCore : MaterialCore {
         TextureModel? value = texture;
         if (value is not { } textureModel) {
             TextureDict.Remove(name);
-        } else if (TextureDict.ContainsKey(name)) {
-            TextureDict[name] = textureModel;
         } else {
-            TextureDict.Add(name, textureModel);
+            TextureDict[name] = textureModel;
         }
     }
 
 
     public void SetSampler(string name, SamplerStateDescription samplerDesc) {
-        if (SamplerDict.ContainsKey(name))
-            SamplerDict[name] = samplerDesc;
-        else
-            SamplerDict.Add(name, samplerDesc);
+        SamplerDict[name] = samplerDesc;
     }
 
     public TextureModel? GetTexture(string name) {
@@ -111,52 +106,31 @@ public abstract class GenericMaterialCore : MaterialCore {
 
 
     public void SetProperty(string name, int value) {
-        if (FloatDict.ContainsKey(name))
-            FloatDict[name] = value;
-        else
-            FloatDict.Add(name, value);
+        FloatDict[name] = value;
     }
 
     public void SetProperty(string name, float value) {
-        if (FloatDict.ContainsKey(name))
-            FloatDict[name] = value;
-        else
-            FloatDict.Add(name, value);
+        FloatDict[name] = value;
     }
 
     public void SetProperty(string name, bool value) {
-        if (FloatDict.ContainsKey(name))
-            FloatDict[name] = value ? 1 : 0;
-        else
-            FloatDict.Add(name, value ? 1 : 0);
+        FloatDict[name] = value ? 1 : 0;
     }
 
     public void SetProperty(string name, Vector2 value) {
-        if (Vector2Dict.ContainsKey(name))
-            Vector2Dict[name] = value;
-        else
-            Vector2Dict.Add(name, value);
+        Vector2Dict[name] = value;
     }
 
     public void SetProperty(string name, Vector3 value) {
-        if (Vector3Dict.ContainsKey(name))
-            Vector3Dict[name] = value;
-        else
-            Vector3Dict.Add(name, value);
+        Vector3Dict[name] = value;
     }
 
     public void SetProperty(string name, Vector4 value) {
-        if (Vector4Dict.ContainsKey(name))
-            Vector4Dict[name] = value;
-        else
-            Vector4Dict.Add(name, value);
+        Vector4Dict[name] = value;
     }
 
     public void SetProperty(string name, Matrix value) {
-        if (MatrixDict.ContainsKey(name))
-            MatrixDict[name] = value;
-        else
-            MatrixDict.Add(name, value);
+        MatrixDict[name] = value;
     }
 }
 

@@ -86,10 +86,8 @@ public class BatchedMeshGeometryModel3D : Element3D, IHitable, IThrowingShadow, 
                                                              ((d as BatchedMeshGeometryModel3D).SceneNode as
                                                               BatchedMeshNode).Materials = e.NewValue == null
                                                                  ? null
-                                                                 : ((IList<Material>)e.NewValue)
-                                                                   .Select(x => x.Core)
-                                                                   .OfType<PhongMaterialCore>()
-                                                                   .ToArray();
+                                                                 : [.. ((IList<Material>)e.NewValue)
+                                                                     .Select(x => x.Core).OfType<PhongMaterialCore>()];
                                                          }));
 
     public static readonly DependencyProperty IsThrowingShadowProperty =

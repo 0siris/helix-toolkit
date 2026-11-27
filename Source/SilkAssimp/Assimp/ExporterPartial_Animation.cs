@@ -17,12 +17,14 @@ public partial class Exporter {
         
 
         for (var i = 0; i < animations.Count; ++i) {
+            var animation = animations[i];
+            var name = animation.Name;
             var ani = new Animation {
-                Name = string.IsNullOrEmpty(animations[i].Name) ? $"Animation_{i}" : animations[i].Name,
+                Name = string.IsNullOrEmpty(name) ? $"Animation_{i}" : name,
                 TicksPerSecond = DefaultTicksPerSecond,
-                DurationInTicks = (animations[i].EndTime - animations[i].StartTime) * DefaultTicksPerSecond
+                DurationInTicks = (animation.EndTime - animation.StartTime) * DefaultTicksPerSecond
             };
-            foreach (var f in animations[i].NodeAnimationCollection) {
+            foreach (var f in animation.NodeAnimationCollection) {
                 if (f.Node == null || string.IsNullOrEmpty(f.Node.Name)) {
                     Logger.Warn("Node Animation NodeName is empty. AnimationName:{Value0}", ani.Name);
                     continue;

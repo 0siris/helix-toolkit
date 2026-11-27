@@ -325,7 +325,7 @@ public abstract class Geometry3D : ObservableObject, IGUID {
         if (Bound.Maximum.IsUndefined() || Bound.Minimum.IsUndefined() || BoundingSphere.Center.IsUndefined()
             || float.IsInfinity(Bound.Center().X) || float.IsInfinity(Bound.Center().Y) ||
             float.IsInfinity(Bound.Center().Z))
-            throw new Exception("Position vertex contains invalid value(Example: Float.NaN, Float.Infinity).");
+            throw new InvalidOperationException("Geometry contains a non-finite vertex position");
     }
 
     public struct Triangle {

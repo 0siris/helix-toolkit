@@ -87,18 +87,25 @@ public sealed class InputLayoutDescription {
     ///     Gets the Direct3D 12 input elements without requiring vertex-shader bytecode reflection.
     /// </summary>
     [IgnoreDataMember]
-    public IReadOnlyList<D3D12InputElementDescription> D3D12InputElements => InputElements.Select(element =>
-        new D3D12InputElementDescription(element.SemanticName,
-            checked((uint) element.SemanticIndex),
-            (Silk.NET.DXGI.Format) element.Format,
-            checked((uint) element.Slot),
-            element.AlignedByteOffset == InputElement.AppendAligned
-                ? uint.MaxValue
-                : checked((uint) element.AlignedByteOffset),
-            element.Classification == InputClassification.PerInstanceData
-                ? Silk.NET.Direct3D12.InputClassification.PerInstanceData
-                : Silk.NET.Direct3D12.InputClassification.PerVertexData,
-            checked((uint) element.InstanceDataStepRate))).ToArray();
+    public IReadOnlyList<D3D12InputElementDescription> D3D12InputElements {
+        get {
+            D3D12InputElementDescription[] elements = [
+                .. InputElements.Select(element => new D3D12InputElementDescription(
+                    element.SemanticName,
+                    checked((uint) element.SemanticIndex),
+                    (Silk.NET.DXGI.Format) element.Format,
+                    checked((uint) element.Slot),
+                    element.AlignedByteOffset == InputElement.AppendAligned
+                        ? uint.MaxValue
+                        : checked((uint) element.AlignedByteOffset),
+                    element.Classification == InputClassification.PerInstanceData
+                        ? Silk.NET.Direct3D12.InputClassification.PerInstanceData
+                        : Silk.NET.Direct3D12.InputClassification.PerVertexData,
+                    checked((uint) element.InstanceDataStepRate)))
+            ];
+            return elements;
+        }
+    }
 
     public KeyValuePair<byte[], InputElement[]> Description => new(ShaderByteCode ?? [], InputElements);
 }

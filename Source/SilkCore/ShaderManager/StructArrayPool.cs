@@ -18,7 +18,7 @@ public sealed unsafe class ArrayStorage : DisposeObject {
     private static LoggerLib.ILog Logger => LoggerLib.Logger.Current;
     public static int MinArraySize = 1024 * 4;
     public static int MaxArraySizeExpoentialIncrement = 1024 * 1024;
-    private readonly FastList<byte> binaryArray = new(MinArraySize);
+    private readonly FastList<byte> binaryArray = [with(MinArraySize)];
     private readonly IdHelper idHelper = new();
     private readonly ReaderWriterLockSlim rwLock = new();
 

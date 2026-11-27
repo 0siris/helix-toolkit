@@ -196,7 +196,7 @@ public sealed class D3D12PresentationSurface : Grid, IDisposable {
     /// <summary>
     ///     Gets whether native presentation resources are initialized.
     /// </summary>
-    public bool IsInitialized => swapChain is not null;
+    public new bool IsInitialized => swapChain is not null;
 
     /// <summary>Gets the existing device for dispatcher-bound diagnostics without creating a native host.</summary>
     internal SilkD3D12Device? DiagnosticDevice => IsInitialized && device?.IsDisposed == false ? device : null;
@@ -1026,8 +1026,8 @@ internal sealed class D3D12ResizeQueue {
     /// <param name="height">The height in pixels.</param>
     /// <returns><see langword="true" /> when a dispatcher operation must be scheduled.</returns>
     internal bool Request(uint width, uint height) {
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
 
         var schedule = pending is null;
         pending = (width, height);

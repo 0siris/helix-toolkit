@@ -175,9 +175,9 @@ public sealed class RenderContext : DisposeObject, IRenderMatrices {
                 return;
             }
 
-            if (camera is not null) camera.PropertyChanged -= Camera_PropertyChanged;
+            camera?.PropertyChanged -= Camera_PropertyChanged;
             camera = value;
-            if (camera is not null) camera.PropertyChanged += Camera_PropertyChanged;
+            camera?.PropertyChanged += Camera_PropertyChanged;
             Update();
         }
     }

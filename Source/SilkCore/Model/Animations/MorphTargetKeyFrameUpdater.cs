@@ -20,7 +20,7 @@ public class MorphTargetKeyFrameUpdater : IAnimationUpdater {
         EndTime = animation.EndTime;
         kfs = new FastList<MorphTargetKeyframe>[weights.Count];
         for (var i = 0; i < kfs.Length; ++i)
-            kfs[i] = new FastList<MorphTargetKeyframe>(animation.MorphTargetKeyframes.Count / weights.Count);
+            kfs[i] = [with(animation.MorphTargetKeyframes.Count / weights.Count)];
         foreach (var ani in animation.MorphTargetKeyframes.OrderBy(x => x.Time)) kfs[ani.Index].Add(ani);
         foreach (var ani in kfs) Debug.Assert(ani.First().Time < ani.Last().Time);
     }

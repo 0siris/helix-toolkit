@@ -552,10 +552,10 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     /// <param name="height">The viewport height.</param>
     public void SetViewport(uint width, uint height) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
-        if (width > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(width, (uint)int.MaxValue);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(height, (uint)int.MaxValue);
         var viewport = new Silk.NET.Direct3D12.Viewport(0, 0, width, height, 0, 1);
         var scissor = new Silk.NET.Maths.Box2D<int>(0, 0, (int) width, (int) height);
         commandList.RSSetViewports(1, in viewport);
@@ -586,10 +586,10 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     /// <param name="bottom">The exclusive bottom pixel coordinate.</param>
     public void SetScissorRectangle(int left, int top, int right, int bottom) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (left < 0) throw new ArgumentOutOfRangeException(nameof(left));
-        if (top < 0) throw new ArgumentOutOfRangeException(nameof(top));
-        if (right <= left) throw new ArgumentOutOfRangeException(nameof(right));
-        if (bottom <= top) throw new ArgumentOutOfRangeException(nameof(bottom));
+        ArgumentOutOfRangeException.ThrowIfNegative(left);
+        ArgumentOutOfRangeException.ThrowIfNegative(top);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(right, left);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(bottom, top);
         var scissor = new Silk.NET.Maths.Box2D<int>(left, top, right, bottom);
         commandList.RSSetScissorRects(1, in scissor);
     }
@@ -612,7 +612,7 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         ObjectDisposedException.ThrowIf(buffer.IsDisposed, buffer);
         if (buffer.Description.Dimension != ResourceDimension.Buffer)
             throw new ArgumentException("The resource must be a buffer.", nameof(buffer));
-        if (strideInBytes == 0) throw new ArgumentOutOfRangeException(nameof(strideInBytes));
+        ArgumentOutOfRangeException.ThrowIfZero(strideInBytes);
         if ((buffer.State & ResourceStates.VertexAndConstantBuffer) == 0)
             throw new InvalidOperationException("The buffer must be in a vertex-buffer-compatible state.");
         var size = sizeInBytes == 0 ? checked((uint) buffer.SizeInBytes) : sizeInBytes;
@@ -723,8 +723,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         uint startInstanceLocation = 0
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (vertexCountPerInstance == 0) throw new ArgumentOutOfRangeException(nameof(vertexCountPerInstance));
-        if (instanceCount == 0) throw new ArgumentOutOfRangeException(nameof(instanceCount));
+        ArgumentOutOfRangeException.ThrowIfZero(vertexCountPerInstance);
+        ArgumentOutOfRangeException.ThrowIfZero(instanceCount);
         if (!graphicsPipelineBound)
             throw new InvalidOperationException("Bind a graphics pipeline before recording a draw.");
         commandList.DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
@@ -746,8 +746,8 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
         uint startInstanceLocation = 0
     ) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (indexCountPerInstance == 0) throw new ArgumentOutOfRangeException(nameof(indexCountPerInstance));
-        if (instanceCount == 0) throw new ArgumentOutOfRangeException(nameof(instanceCount));
+        ArgumentOutOfRangeException.ThrowIfZero(indexCountPerInstance);
+        ArgumentOutOfRangeException.ThrowIfZero(instanceCount);
         if (!graphicsPipelineBound)
             throw new InvalidOperationException("Bind a graphics pipeline before recording a draw.");
         commandList.DrawIndexedInstanced(indexCountPerInstance,
@@ -797,9 +797,9 @@ public sealed unsafe class SilkD3D12CommandContext : IDisposable {
     /// <param name="z">The thread-group count along Z.</param>
     public void Dispatch(uint x, uint y, uint z) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (x == 0) throw new ArgumentOutOfRangeException(nameof(x));
-        if (y == 0) throw new ArgumentOutOfRangeException(nameof(y));
-        if (z == 0) throw new ArgumentOutOfRangeException(nameof(z));
+        ArgumentOutOfRangeException.ThrowIfZero(x);
+        ArgumentOutOfRangeException.ThrowIfZero(y);
+        ArgumentOutOfRangeException.ThrowIfZero(z);
         if (!computePipelineBound)
             throw new InvalidOperationException("Bind a compute pipeline before recording a dispatch.");
         commandList.Dispatch(x, y, z);

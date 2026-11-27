@@ -14,7 +14,6 @@ using System.Text.RegularExpressions;
 
 namespace HelixToolkit.SharpDX.Core;
 
-using FileFormatException = Exception;
 using Mesh3DGroup = List<Object3D>;
 using Point3D = Color3;
 
@@ -153,7 +152,7 @@ public class StLReader : ModelReader {
         input = input.Replace("nan", "NaN");
         var match = NormalRegex.Match(input);
         if (!match.Success) 
-            throw new FileFormatException("Unexpected line");
+            throw new InvalidDataException("Unexpected line");
 
         var x = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         var y = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
@@ -184,7 +183,7 @@ public class StLReader : ModelReader {
     /// <param name="token">
     ///     The expected token ID.
     /// </param>
-    /// <exception cref="FileFormatException">
+    /// <exception cref="InvalidDataException">
     ///     The expected token ID was not matched.
     /// </exception>
     private static void ReadLine(StreamReader reader, string token) {
@@ -196,7 +195,7 @@ public class StLReader : ModelReader {
         ParseLine(line, out var id, out _);
 
         if (!string.Equals(token, id, StringComparison.OrdinalIgnoreCase))
-            throw new FileFormatException("Unexpected line.");
+            throw new InvalidDataException("Unexpected line.");
     }
 
     /// <summary>
@@ -420,7 +419,7 @@ public class StLReader : ModelReader {
     private bool TryReadBinary(Stream stream) {
         var length = stream.Length;
         if (length < 84) 
-            throw new FileFormatException("Incomplete file");
+            throw new InvalidDataException("Incomplete file");
 
         var reader = new BinaryReader(stream);
         Header = Encoding.ASCII.GetString(reader.ReadBytes(80)).Trim();

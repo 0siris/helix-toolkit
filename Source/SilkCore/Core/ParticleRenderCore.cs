@@ -350,7 +350,6 @@ public class ParticleRenderCore : RenderCore {
         Dimension = ShaderResourceViewDimension.Buffer
     };
 
-    private ParticleCountIndirectArgs drawArgument;
 
     #endregion
 
@@ -413,11 +412,6 @@ public class ParticleRenderCore : RenderCore {
 
     #endregion
 
-    private int currentStateSlot;
-    private int newStateSlot;
-    private int renderStateSlot;
-    private int textureSlot;
-    private int samplerSlot;
 
     #endregion
 

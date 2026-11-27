@@ -115,7 +115,7 @@ internal sealed unsafe class D3D12GlyphAtlas : IDisposable {
     /// <param name="initialSize">The positive initial width and height.</param>
     /// <exception cref="ArgumentOutOfRangeException">The initial extent is smaller than two pixels.</exception>
     internal D3D12GlyphAtlas(int initialSize = 128) {
-        if (initialSize < 2) throw new ArgumentOutOfRangeException(nameof(initialSize));
+        ArgumentOutOfRangeException.ThrowIfLessThan(initialSize, 2);
         this.initialSize = initialSize;
         width = initialSize;
         height = initialSize;

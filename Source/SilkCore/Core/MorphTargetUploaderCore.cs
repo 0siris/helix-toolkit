@@ -20,10 +20,6 @@ internal class MorphTargetUploaderCore : RenderCore {
     private int mtCount;
 
     private int mtPitch;
-    private bool setCBuffer = true;
-
-    private bool setDeltas;
-    private bool weightUpdated;
 
     public MorphTargetUploaderCore()
         : base(RenderType.None) {
@@ -35,7 +31,6 @@ internal class MorphTargetUploaderCore : RenderCore {
         get => morphTargetWeights;
         set {
             if (SetAffectsRender(ref morphTargetWeights, value)) {
-                weightUpdated = true;
                 WeightsChanged?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -148,12 +143,9 @@ internal class MorphTargetUploaderCore : RenderCore {
             mtPitch = 0;
             return true;
         }
-        if (pitch <= 0) throw new ArgumentOutOfRangeException(nameof(pitch));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pitch);
         if (targets.Length % pitch != 0)
             throw new ArgumentException("Morph-target data must contain complete vertex pitches.", nameof(targets));
-
-        //Setup buffer and keep track of data to update
-        setDeltas = true;
 
         //Setup arrays for morph target data
         var mtdList = new FastList<Vector3>(targets.Length * 3);
@@ -186,7 +178,6 @@ internal class MorphTargetUploaderCore : RenderCore {
         morphTargetsDeltas = [.. mtdList];
 
         //Set cbuffer data {int count, int pitch}
-        setCBuffer = true;
         mtCount = targets.Length / pitch;
         mtPitch = pitch;
         return true;
@@ -198,7 +189,6 @@ internal class MorphTargetUploaderCore : RenderCore {
     }
 
     public void InvalidateWeight() {
-        weightUpdated = true;
         WeightsChanged?.Invoke(this, EventArgs.Empty);
     }
 }

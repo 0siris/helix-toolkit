@@ -13,7 +13,7 @@ namespace HelixToolkit.SharpDX.Core;
 ///     Ref https://referencesource.microsoft.com/#System.Drawing/commonui/System/Drawing/ColorConverter.cs
 /// </summary>
 public static class Color4Extensions {
-    private static readonly Dictionary<string, object> Colors = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, object> Colors = [with(StringComparer.OrdinalIgnoreCase)];
 
     /// <summary>
     ///     Initializes the <see cref="Color4Extensions" /> class.
@@ -68,7 +68,7 @@ public static class Color4Extensions {
             // If the value is a 6 digit hex number only, then
             // we want to treat the Alpha as 255, not 0
             //
-            if (text.IndexOf(sep) == -1) {
+            if (!text.Contains(sep)) {
                 // text can be '' (empty quoted string)
                 if (text.Length >= 2 && (text[0] == '\'' || text[0] == '"') && text[0] == text[text.Length - 1]) {
                     // In quotes means a named value
@@ -76,8 +76,8 @@ public static class Color4Extensions {
                     obj = GetNamedColor(colorName);
                     tryMappingToKnownColor = false;
                 } else if (text is ['#', _, _, _, _, _, _] ||
-                           (text.Length == 8 && (text.StartsWith("0x") || text.StartsWith("0X"))) ||
-                           (text.Length == 8 && (text.StartsWith("&h") || text.StartsWith("&H")))) {
+                           (text.Length == 8 && (text.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ||
+                                                 text.StartsWith("&h", StringComparison.OrdinalIgnoreCase)))) {
                     // Note: ConvertFromString will raise exception if value cannot be converted.
                     if (intConverter.ConvertFromString(text) is not int intValue)
                         throw new FormatException($"Cannot convert '{text}' to an integer.");
@@ -88,7 +88,7 @@ public static class Color4Extensions {
             // Nope.  Parse the RGBA from the text.
             //
             if (obj == null) {
-                var tokens = text.Split([sep]);
+                var tokens = text.Split(sep);
                 var values = new int[tokens.Length];
                 for (var i = 0; i < values.Length; i++) {
                     if (intConverter.ConvertFromString(tokens[i]) is not int intValue)

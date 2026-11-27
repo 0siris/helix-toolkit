@@ -41,13 +41,9 @@ public static class ViewportExtensions {
     /// <returns>The total number of triangles</returns>
     public static int GetTotalNumberOfTriangles(this Viewport3DX viewport) {
         var count = 0;
-        viewport.Renderables.PreorderDft(x => {
-            if (x is GeometryNode g)
-                if (g is {Visible: true, Geometry.Indices: not null})
-                    count += g.Geometry.Indices.Count / 3;
-
-            return true;
-        }).Count();
+        foreach (var node in viewport.Renderables.PreorderDft(static _ => true))
+            if (node is GeometryNode { Visible: true, Geometry.Indices: { } indices })
+                count += indices.Count / 3;
         return count;
     }
 

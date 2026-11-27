@@ -63,12 +63,6 @@ public partial class Viewport3DX {
     private static void MinimumUpdateCountChanged(DependencyObject owner, DependencyPropertyChangedEventArgs args) =>
         ((Viewport3DX) owner).renderDemand.MinimumUpdateCount = (int) args.NewValue;
 
-    /// <summary>Retains the historical nonnegative public frame-budget setting.</summary>
-    /// <param name="owner">The viewport whose metadata is being evaluated.</param>
-    /// <param name="value">The requested frame budget.</param>
-    /// <returns>The requested budget clamped to zero.</returns>
-    private static object CoerceMinimumUpdateCount(DependencyObject owner, object value) => Math.Max(0, (int) value);
-
     /// <summary>Updates lightweight camera state and records only when frame ownership and demand permit it.</summary>
     /// <param name="renderingTime">The WPF rendering timestamp.</param>
     /// <param name="captureFrame">Whether an explicit caller requests synchronous readback.</param>

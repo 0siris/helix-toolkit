@@ -44,8 +44,6 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
 
         public RenderContext Context { get; private set; }
     }
-    private int currentFrame;
-    private bool resolutionChanged = true;
     private ShadowMapParamStruct modelStruct;
 
     /// <summary>
@@ -94,18 +92,14 @@ public class ShadowMapCore : RenderCore, IShadowMapRenderParams {
     /// </summary>
     public int Width {
         get => (int)modelStruct.ShadowMapSize.X;
-        set {
-            if (SetAffectsRender(ref modelStruct.ShadowMapSize.X, value)) resolutionChanged = true;
-        }
+        set => SetAffectsRender(ref modelStruct.ShadowMapSize.X, value);
     }
 
     /// <summary>
     /// </summary>
     public int Height {
         get => (int)modelStruct.ShadowMapSize.Y;
-        set {
-            if (SetAffectsRender(ref modelStruct.ShadowMapSize.Y, value)) resolutionChanged = true;
-        }
+        set => SetAffectsRender(ref modelStruct.ShadowMapSize.Y, value);
     }
 
     /// <summary>

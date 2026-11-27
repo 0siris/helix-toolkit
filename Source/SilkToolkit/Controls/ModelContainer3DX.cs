@@ -29,7 +29,7 @@ public class ModelContainer3DX : HelixItemsControl, IModelContainer {
     internal long SceneRevision => Interlocked.Read(ref sceneRevision);
 
     /// <summary>Retains unique root subscriptions while notifications or native attachment owners remain.</summary>
-    private readonly HashSet<SceneNode> observedRoots = new(ReferenceEqualityComparer.Instance);
+    private readonly HashSet<SceneNode> observedRoots = [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>Reuses the dispatcher callback for a manager change deferred by an active scene frame.</summary>
     private readonly Action synchronizeEffectsManagerCallback;

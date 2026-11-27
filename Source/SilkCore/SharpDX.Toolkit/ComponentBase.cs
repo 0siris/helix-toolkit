@@ -50,7 +50,7 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
             if (ReferenceEquals(field, value))
                 return;
             field = value;
-            OnPropertyChanged("Tag");
+            OnPropertyChanged(nameof(Tag));
         }
     }
 
@@ -67,7 +67,7 @@ public abstract class ComponentBase : IComponent, INotifyPropertyChanged {
             if (name == value)
                 return;
             name = value;
-            OnPropertyChanged("Name");
+            OnPropertyChanged(nameof(Name));
         }
     }
 

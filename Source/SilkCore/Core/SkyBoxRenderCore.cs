@@ -85,10 +85,7 @@ public class SkyBoxRenderCore : GeometryRenderCore, ISkyboxRenderParams {
 
     #region Variables
 
-    private int cubeTextureSlot;
-    private int textureSamplerSlot;
     private ShaderPass defaultShaderPass = ShaderPass.NullPass;
-    private SkyBoxBufferModel? skyBuffer;
 
     #endregion
 

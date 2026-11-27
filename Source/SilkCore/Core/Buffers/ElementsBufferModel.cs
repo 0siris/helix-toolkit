@@ -62,7 +62,7 @@ public class ElementsBufferModel<T> : DisposeObject, IElementsBufferModel<T> whe
             
             elements = value;
             instanceChanged = true;
-            HasElements = elements != null && elements.Any();
+            HasElements = elements is { Count: > 0 };
             ElementChanged?.Invoke(this, EventArgs.Empty);
         }
     }

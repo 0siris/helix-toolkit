@@ -3,6 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Globalization;
 namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
 
 /// <summary>
@@ -60,6 +61,7 @@ public sealed class PixelBuffer {
         set {
             if (PixelSize != FormatHelper.SizeOfInBytes(value))
                 throw new ArgumentException(string.Format(
+                CultureInfo.CurrentCulture,
                                                 "Format [{0}] doesn't have same pixel size in bytes than current format [{1}]",
                                                 value,
                                                 format));
@@ -166,7 +168,7 @@ public sealed class PixelBuffer {
         var totalSize = Width * Height * PixelSize;
         if (totalSize % sizeOfOutputPixel != 0)
             throw new ArgumentException(
-                string.Format("Invalid sizeof(T), not a multiple of current size [{0}]in bytes ", totalSize));
+                string.Format(CultureInfo.CurrentCulture, "Invalid sizeof(T), not a multiple of current size [{0}]in bytes ", totalSize));
 
         var buffer = new T[totalSize / sizeOfOutputPixel];
         GetPixels(buffer, yOffset);

@@ -25,7 +25,7 @@ public partial class Importer : IDisposable {
 
     protected static readonly HashSet<string> SupportedTextureFormatDict;
     private readonly Dictionary<string, EmbeddedTexture> embeddedTextureDict = [];
-    private readonly List<EmbeddedTexture> embeddedTextures = [];
+    private readonly List<EmbeddedTexture?> embeddedTextures = [];
 
     private int materialIndexForNoName;
     private int meshIndexForNoName;
@@ -414,10 +414,13 @@ public partial class Importer : IDisposable {
                     if (scene.HasTextures) {
                         embeddedTextures.AddRange(scene.Textures);
                         for (var i = 0; i < embeddedTextures.Count; ++i) {
-                            var key = embeddedTextures[i].Filename;
-                            if (string.IsNullOrEmpty(key)) key = "*" + i;
-                            if (!embeddedTextureDict.ContainsKey(key))
-                                embeddedTextureDict.Add(key, embeddedTextures[i]);
+                            if (embeddedTextures[i] is not { } texture)
+                                continue;
+
+                            var key = texture.Filename;
+                            if (string.IsNullOrEmpty(key))
+                                key = "*" + i;
+                            embeddedTextureDict.TryAdd(key, texture);
                         }
                     }
 
@@ -486,8 +489,7 @@ public partial class Importer : IDisposable {
     public void Dispose() {
         // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         Dispose(true);
-        // TODO: uncomment the following line if the finalizer is overridden above.
-        // GC.SuppressFinalize(this);
+        GC.SuppressFinalize(this);
     }
 
     #endregion

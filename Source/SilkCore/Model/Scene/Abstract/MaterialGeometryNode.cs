@@ -70,9 +70,9 @@ public abstract class MaterialGeometryNode : GeometryNode {
     private void ObserveMaterial(MaterialCore? value) {
         if (materialObservationSuppressionDepth != 0) value = null;
         if (ReferenceEquals(observedMaterial, value)) return;
-        if (observedMaterial is not null) observedMaterial.PropertyChanged -= materialPropertyChanged;
+        observedMaterial?.PropertyChanged -= materialPropertyChanged;
         observedMaterial = value;
-        if (observedMaterial is not null) observedMaterial.PropertyChanged += materialPropertyChanged;
+        observedMaterial?.PropertyChanged += materialPropertyChanged;
     }
 
     /// <summary>Wakes this node and its ancestor consumers after any material parameter changes.</summary>

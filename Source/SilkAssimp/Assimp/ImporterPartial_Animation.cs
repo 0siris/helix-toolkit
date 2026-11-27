@@ -178,7 +178,7 @@ public partial class Importer {
             StartTime = 0,
             EndTime = (float)(ani.DurationInTicks / ani.TicksPerSecond),
             Name = ani.Name,
-            NodeAnimationCollection = new List<NodeAnimation>(ani.NodeAnimationChannelCount)
+            NodeAnimationCollection = [with(ani.NodeAnimationChannelCount)]
         };
 
         if (ani.HasNodeAnimations) {

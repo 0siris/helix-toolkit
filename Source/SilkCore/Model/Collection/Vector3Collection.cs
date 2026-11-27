@@ -44,7 +44,7 @@ public sealed class Vector3Collection : FastList<Vector3> {
         for (var i = 0; i < Count; i++) {
             //str.AppendFormat(provider, "{0:" + format + "}", this[i]);
             str.AppendFormat(provider, "{0},{1},{2}", this[i].X, this[i].Y, this[i].Z);
-            if (i != Count - 1) str.Append(" ");
+            if (i != Count - 1) str.Append(' ');
         }
 
         return str.ToString();

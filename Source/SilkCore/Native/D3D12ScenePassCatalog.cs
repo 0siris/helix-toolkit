@@ -24,7 +24,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
     /// <summary>
     ///     The complete existing technique descriptions keyed by name.
     /// </summary>
-    private readonly IReadOnlyDictionary<string, TechniqueDescription> techniques;
+    private readonly Dictionary<string, TechniqueDescription> techniques;
 
     /// <summary>
     ///     The optional application technique registry used by custom scene nodes.
@@ -517,8 +517,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
             pipelineCache,
             technique.InputLayoutDescription,
             fallbackTopology,
-            selectedTargetFormats.Where(format => format != Format.FormatUnknown)
-                .ToArray(),
+            [.. selectedTargetFormats.Where(format => format != Format.FormatUnknown)],
             selectedDepthFormat
         );
         pass.D3D12WireframePass = wireframePass;
@@ -573,10 +572,10 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
         BlendStateDescription? original,
         string technique,
         string pass,
-        IReadOnlyList<Format> formats
+        Format[] formats
     ) {
         if (outputMode != D3D12ColorOutputMode.Premultiplied) return original;
-        if (formats.Count == 3 && formats[0] == SilkD3D12TransparencyResources.PeelingDepthFormat) {
+        if (formats.Length == 3 && formats[0] == SilkD3D12TransparencyResources.PeelingDepthFormat) {
             var peeling = original ?? new BlendStateDescription();
             peeling.RenderTarget = (RenderTargetBlendDescription[]) peeling.RenderTarget.Clone();
             peeling.RenderTarget[2].SourceAlphaBlend = BlendOption.One;
@@ -584,7 +583,7 @@ internal sealed class D3D12ScenePassCatalog : IDisposable {
             return peeling;
         }
 
-        if (formats.Count != 1 || formats[0] is not (Format.FormatR8G8B8A8Unorm or Format.FormatB8G8R8A8Unorm))
+        if (formats.Length != 1 || formats[0] is not (Format.FormatR8G8B8A8Unorm or Format.FormatB8G8R8A8Unorm))
             return original;
         if (technique is DefaultRenderTechniqueNames.PostEffectFxaa or DefaultRenderTechniqueNames.MeshOitDepthPeeling)
             return original;

@@ -11,10 +11,12 @@ internal sealed class D3D12PostEffectStencil : IDisposable {
     private readonly SilkD3D12DescriptorHeap heap;
     /// Generations still referenced by recorded commands.
     private readonly List<(SilkD3D12Resource Resource, SilkD3D12Descriptor View)> retired = [];
+    /// The size-dependent resource and its view are published together.
+    private (SilkD3D12Resource Resource, SilkD3D12Descriptor View)? current;
     /// The current size-dependent stencil resource.
-    internal SilkD3D12Resource? Resource { get; private set; }
+    internal SilkD3D12Resource? Resource => current?.Resource;
     /// The descriptor of the current generation.
-    internal SilkD3D12Descriptor? View { get; private set; }
+    internal SilkD3D12Descriptor? View => current?.View;
 
     /// <summary>
     ///     Creates the private descriptor owner.
@@ -45,38 +47,43 @@ internal sealed class D3D12PostEffectStencil : IDisposable {
     internal unsafe SilkD3D12Descriptor Begin(SilkD3D12CommandContext context, uint width, uint height,
         SilkD3D12Resource? sceneDepth = null) {
         var format = sceneDepth?.Description.Format ?? Format.FormatD32FloatS8X24Uint;
-        if (Resource is null || Resource.Description.Width != width || Resource.Description.Height != height ||
-            Resource.Description.Format != format) {
+        if (current is not { } generation || generation.Resource.Description.Width != width ||
+            generation.Resource.Description.Height != height || generation.Resource.Description.Format != format) {
             var replacement = device.CreateDepthStencilTexture2D(width, height, format);
             var view = heap.Allocate();
             device.CreateDepthStencilView(replacement, view);
-            if (Resource is not null) retired.Add((Resource, View!));
-            Resource = replacement;
-            View = view;
+
+            if (current is { } previous)
+                retired.Add(previous);
+            generation = (replacement, view);
+            current = generation;
         }
+
+        var (resource, descriptor) = generation;
         if (sceneDepth is not null) {
             var originalState = sceneDepth.State;
             context.Transition(sceneDepth, ResourceStates.CopySource);
-            context.Transition(Resource, ResourceStates.CopyDest);
-            context.CopyTexture(Resource, sceneDepth);
+            context.Transition(resource, ResourceStates.CopyDest);
+            context.CopyTexture(resource, sceneDepth);
             context.Transition(sceneDepth, originalState);
-            context.Transition(Resource, ResourceStates.DepthWrite);
-            context.CommandList.ClearDepthStencilView(View!.CpuHandle, ClearFlags.ClearFlagStencil, 1, 0, 0,
+            context.Transition(resource, ResourceStates.DepthWrite);
+            context.CommandList.ClearDepthStencilView(descriptor.CpuHandle, ClearFlags.Stencil, 1, 0, 0,
                 (Silk.NET.Maths.Box2D<int>*)null);
         } else {
-            context.Transition(Resource, ResourceStates.DepthWrite);
-            context.ClearDepthStencil(Resource, View!, 1, 0);
+            context.Transition(resource, ResourceStates.DepthWrite);
+            context.ClearDepthStencil(resource, descriptor, 1, 0);
         }
-        return View!;
+        return descriptor;
     }
 
     /// Releases every retained resource and descriptor after the owning host has completed submission.
     public void Dispose() {
         BeginFrame();
-        Resource?.Dispose();
-        View?.Dispose();
-        Resource = null;
-        View = null;
+        if (current is { } generation) {
+            generation.Resource.Dispose();
+            generation.View.Dispose();
+            current = null;
+        }
         heap.Dispose();
     }
 }

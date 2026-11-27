@@ -216,7 +216,7 @@ internal sealed class SilkD3D12SsaoResources : IDisposable {
         int textureScale
     ) {
         if (!float.IsFinite(radius) || radius <= 0) throw new ArgumentOutOfRangeException(nameof(radius));
-        if (textureScale < 1) throw new ArgumentOutOfRangeException(nameof(textureScale));
+        ArgumentOutOfRangeException.ThrowIfLessThan(textureScale, 1);
         var normalTarget = normals ?? throw new InvalidOperationException("SSAO resources are not initialized.");
         var rawTarget = rawOcclusion ?? throw new InvalidOperationException("SSAO resources are not initialized.");
         var finalTarget = Occlusion;

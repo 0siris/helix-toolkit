@@ -3,6 +3,7 @@ The MIT License (MIT)
 Copyright (c) 2018 Helix Toolkit contributors
 */
 
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics;
@@ -623,5 +624,5 @@ public struct PixelFormat : IEquatable<PixelFormat> {
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public override string ToString() => string.Format("{0}", Value);
+    public override string ToString() => string.Format(CultureInfo.CurrentCulture, "{0}", Value);
 }

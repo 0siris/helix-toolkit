@@ -17,14 +17,8 @@ namespace HelixToolkit.SharpDX.Core.Core;
 
 public sealed class VolumeRenderCore : RenderCore {
     private static readonly MeshGeometry3D BoxMesh;
-    private int backTexSlot;
 
-    private VolumeCubeBufferModel? buffer;
 
-    private ShaderPass? cubeBackPass;
-    private ShaderPass? meshFrontPass;
-    private ModelMatrices modelMatrices;
-    private ShaderPass? volumePass;
 
     /// <summary>
     ///     Gets or sets the material supplied by the DX12 scene-node boundary.

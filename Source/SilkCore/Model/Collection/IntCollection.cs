@@ -36,7 +36,7 @@ public sealed class IntCollection : FastList<int> {
         var str = new StringBuilder();
         for (var i = 0; i < Count; i++) {
             str.AppendFormat(provider, "{0:" + format + "}", this[i]);
-            if (i != Count - 1) str.Append(" ");
+            if (i != Count - 1) str.Append(' ');
         }
 
         return str.ToString();

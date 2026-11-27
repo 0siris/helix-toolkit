@@ -112,7 +112,7 @@ internal sealed class SilkD3D12ParticleResources : IDisposable {
         uint capacity
     ) {
         device.AsGuardNotNull();
-        if (capacity == 0) throw new ArgumentOutOfRangeException(nameof(capacity));
+        ArgumentOutOfRangeException.ThrowIfZero(capacity);
         this.device = device;
         Capacity = capacity;
         bindings = new SilkD3D12GraphicsBindings(resourceHeap, samplerHeap);

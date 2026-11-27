@@ -83,8 +83,6 @@ public class DynamicCubeMapCore : RenderCore, IDynamicReflector {
         ArraySize = 6
     };
 
-    private int cubeTextureSlot;
-    private int textureSamplerSlot;
 
     #endregion
 

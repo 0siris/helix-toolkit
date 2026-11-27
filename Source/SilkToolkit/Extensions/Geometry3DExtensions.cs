@@ -29,11 +29,11 @@ public static class Geometry3DExtensions {
             throw new InvalidOperationException("Unshared geometry requires indices and positions.");
 
         var result = new T {
-            Indices = new IntCollection(indices.Count),
-            Positions = new Vector3Collection(indices.Count)
+            Indices = [with(indices.Count)],
+            Positions = [with(indices.Count)]
         };
         if (source.Colors is { } colors && colors.Count == positions.Count) {
-            result.Colors = new Color4Collection(indices.Count);
+            result.Colors = [with(indices.Count)];
             for (var i = 0; i < indices.Count; i++) {
                 result.Colors.Add(colors[indices[i]]);
                 result.Positions.Add(positions[indices[i]]);

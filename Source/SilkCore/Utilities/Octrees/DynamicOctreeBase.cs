@@ -711,7 +711,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         //This will contain all of our objects which fit within each respective octant.
         var octList = new List<T>[8];
         for (var i = 0; i < 8; ++i)
-            octList[i] = new List<T>(Objects.Count / 8);
+            octList[i] = [with(Objects.Count / 8)];
 
         var count = Objects.Count;
         for (var i = Objects.Count - 1; i >= 0; --i) {
@@ -867,7 +867,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
                     if(childNodes is DynamicOctreeBase<T> dynTree)
                         dynTree.Objects.Add(item);
                     else
-                        throw new Exception("Invalid child node type");
+                        throw new InvalidOperationException("Invalid child node type");
                     
                     octant = childNodes;
                 } else {
@@ -988,7 +988,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
             }
 
             if (!succ) 
-                throw new Exception("Expand failed.");
+                throw new InvalidOperationException("Expand failed");
             
         }
 
@@ -1105,7 +1105,7 @@ public abstract class DynamicOctreeBase<T> : IDynamicOctree {
         if (node == null) {
 #if DEBUG
             if (!RemoveSafe(item)) 
-                throw new Exception("item not found using bound.");
+                throw new InvalidOperationException("item not found using bound");
             
             return true;
 #else

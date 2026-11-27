@@ -100,7 +100,7 @@ internal sealed unsafe class D3D11DesktopCaptureSource : IDesktopCaptureSource {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (duplication == null || context == null)
             throw new InvalidOperationException("Desktop capture has not started.");
-        if (timeout < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(timeout));
+        ArgumentOutOfRangeException.ThrowIfLessThan(timeout, TimeSpan.Zero);
 
         frame = default;
         OutduplFrameInfo info = default;
@@ -180,7 +180,7 @@ internal sealed unsafe class D3D11DesktopCaptureSource : IDesktopCaptureSource {
         staging = null;
         stagingDescription = description;
         stagingDescription.BindFlags = 0;
-        stagingDescription.Usage = Usage.UsageStaging;
+        stagingDescription.Usage = Usage.Staging;
         stagingDescription.CPUAccessFlags = (uint) CpuAccessFlag.Read;
         stagingDescription.MiscFlags = 0;
         SilkMarshal.ThrowHResult(device->CreateTexture2D(in stagingDescription, null, ref staging));

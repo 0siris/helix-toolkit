@@ -404,7 +404,7 @@ internal sealed class SilkD3D12TextureModelResource : IDisposable {
     ) {
         if (dimension is < 1 or > 3)
             throw new NotSupportedException("The texture dimension must be 1D, 2D, or 3D.");
-        if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
         if (dimension >= 2 && height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
         if (dimension == 3 && depth <= 0) throw new ArgumentOutOfRangeException(nameof(depth));
         var toolkitFormat = (HelixToolkit.SharpDX.Core.SharpDX.Toolkit.Graphics.Format) format;

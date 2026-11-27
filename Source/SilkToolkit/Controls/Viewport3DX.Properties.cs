@@ -1590,7 +1590,7 @@ public partial class Viewport3DX {
             "MinimumUpdateCount",
             typeof(int),
             typeof(Viewport3DX),
-            new PropertyMetadata(6, MinimumUpdateCountChanged, CoerceMinimumUpdateCount)
+            new PropertyMetadata(6, MinimumUpdateCountChanged, static (_, value) => Math.Max(0, (int) value))
         );
 
     /// <summary>

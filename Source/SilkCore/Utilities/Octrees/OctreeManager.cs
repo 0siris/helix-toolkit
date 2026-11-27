@@ -7,7 +7,6 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 // --------------------------------------------------------------------------------------------------------------------
 
 
-using System.Diagnostics.CodeAnalysis;
 using HelixToolkit.SharpDX.Core.Interface;
 using HelixToolkit.SharpDX.Core.Model;
 
@@ -88,10 +87,9 @@ public abstract class OctreeManagerBase : ObservableObject, IOctreeManager {
     public abstract void Clear();
 
     /// <summary>
-    ///     Rebuilds the tree. 
+    ///     Rebuilds the tree when enough boundable items are available.
     /// </summary>
     /// <param name="items">The items.</param>
-    [MemberNotNull(nameof(Octree))]
     public abstract void RebuildTree(IEnumerable<SceneNode>? items);
 
     /// <summary>

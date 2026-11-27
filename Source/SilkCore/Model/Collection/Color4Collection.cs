@@ -50,7 +50,7 @@ public sealed class Color4Collection : FastList<Color4> {
                              this[i].GetGreen(),
                              this[i].GetBlue(),
                              this[i].GetAlpha());
-            if (i != Count - 1) str.Append(" ");
+            if (i != Count - 1) str.Append(' ');
         }
 
         return str.ToString();

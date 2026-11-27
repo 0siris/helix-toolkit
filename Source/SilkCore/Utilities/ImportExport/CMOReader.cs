@@ -215,7 +215,7 @@ public class CMOReader : IModelReader {
         return Meshes;
     }
 
-    private IList<Object3D> Load(BinaryReader reader) {
+    private List<Object3D> Load(BinaryReader reader) {
         var name = reader.ReadCMO_wchar() ?? string.Empty;
         var numMaterials = (int)reader.ReadUInt32();
         var materials = new List<Tuple<PhongMaterial, IList<string>>>(numMaterials);

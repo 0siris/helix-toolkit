@@ -17,13 +17,8 @@ public class BoneSkinRenderCore : MeshRenderCore {
     private readonly BoneUploaderCore internalBoneBuffer = new();
     private readonly MorphTargetUploaderCore internalMtBuffer = new();
 
-    private int boneSkinSbSlot;
     private bool matricsChanged = true;
 
-    private bool mtChanged;
-    private int mtDeltasBSlot;
-    private int mtOffsetsBSlot;
-    private int mtWeightsBSlot;
     private IBoneSkinPreComputehBufferModel? preComputeBoneBuffer;
     private ShaderPass preComputeBoneSkinPass = ShaderPass.NullPass;
 
@@ -135,7 +130,7 @@ public class BoneSkinRenderCore : MeshRenderCore {
                 DrawIndexed(context, buffers, instances, topology: pass.Topology);
         } else {
             var instanceSlot = buffers.BindSkinned(context, skinning.Output, skinning.OutputSizeInBytes);
-            if (instances is not null) instances.Bind(context, instanceSlot);
+            instances?.Bind(context, instanceSlot);
             context.SetPrimitiveTopology(pass.Topology);
             context.DrawIndexedInstanced(buffers.IndexCount, instances?.ElementCount ?? 1);
         }
@@ -146,7 +141,6 @@ public class BoneSkinRenderCore : MeshRenderCore {
             context.DrawIndexedInstanced(buffers.IndexCount, instances?.ElementCount ?? 1);
         }
         matricsChanged = false;
-        mtChanged = false;
         return true;
     }
 
@@ -163,7 +157,6 @@ public class BoneSkinRenderCore : MeshRenderCore {
         get => internalMtBuffer.MorphTargetWeights;
         set {
             internalMtBuffer.MorphTargetWeights = value;
-            mtChanged = true;
         }
     }
 
@@ -204,7 +197,6 @@ public class BoneSkinRenderCore : MeshRenderCore {
     }
 
     public void SetWeight(int i, float w) {
-        mtChanged = true;
         internalMtBuffer.SetWeight(i, w);
     }
 
@@ -212,7 +204,6 @@ public class BoneSkinRenderCore : MeshRenderCore {
         => matricsChanged = true;
 
     public void InvalidateMorphTargetWeights() {
-        mtChanged = true;
         internalMtBuffer.InvalidateWeight();
     }
 }

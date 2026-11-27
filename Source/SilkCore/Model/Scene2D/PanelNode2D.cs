@@ -17,8 +17,7 @@ public class PanelNode2D : SceneNode2D {
     }
 
     public virtual bool AddChildNode(SceneNode2D node) {
-        if (!ItemHashSet.ContainsKey(node.Guid)) {
-            ItemHashSet.Add(node.Guid, node);
+        if (ItemHashSet.TryAdd(node.Guid, node)) {
             ItemsInternal.Add(node);
             node.Parent = this;
             if (IsAttached) node.Attach(DpiScale);

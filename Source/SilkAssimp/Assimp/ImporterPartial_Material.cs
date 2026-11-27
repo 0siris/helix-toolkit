@@ -361,10 +361,9 @@ public partial class Importer {
             //Check if is embedded material
             if (texturePath.StartsWith("*", StringComparison.OrdinalIgnoreCase) && int.TryParse(
                     texturePath.AsSpan(1, texturePath.Length - 1),
-                    out var idx)
-                                            
-                && embeddedTextures.Count > idx)
-                return OnLoadEmbeddedTexture(embeddedTextures[idx]);
+                    out var index)
+                && index >= 0 && index < embeddedTextures.Count)
+                return embeddedTextures[index] is { } texture ? OnLoadEmbeddedTexture(texture) : null;
 
             if (embeddedTextureDict.TryGetValue(texturePath, out var embeddedTex))
                 return OnLoadEmbeddedTexture(embeddedTex);

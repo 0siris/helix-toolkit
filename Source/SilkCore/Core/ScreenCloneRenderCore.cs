@@ -112,7 +112,7 @@ public class ScreenCloneRenderCore : RenderCore, IScreenClone {
     /// <param name="timeout">The bounded duplication wait.</param>
     /// <returns>The acquired frame, or <see langword="null" /> on timeout.</returns>
     internal ScreenCaptureFrame? TryAcquireFrame(TimeSpan timeout) {
-        if (timeout < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(timeout));
+        ArgumentOutOfRangeException.ThrowIfLessThan(timeout, TimeSpan.Zero);
         if (source is null) {
             var createdSource = sourceFactory();
             try {

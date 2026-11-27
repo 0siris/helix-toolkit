@@ -35,7 +35,7 @@ public class KeyFrameUpdater : IAnimationUpdater {
         Bones = bones;
         keyframes = new List<Keyframe>[boneCount];
         for (var i = 0; i < boneCount; ++i)
-            keyframes[i] = new List<Keyframe>(animation.Keyframes.Count / boneCount);
+            keyframes[i] = [with(animation.Keyframes.Count / boneCount)];
         foreach (var frame in animation.Keyframes.OrderBy(x => x.Time)) keyframes[frame.BoneIndex].Add(frame);
     }
 

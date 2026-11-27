@@ -25,7 +25,7 @@ public sealed class ObservableFastList<T> : INotifyCollectionChanged, INotifyPro
     }
 
     public ObservableFastList(int capacity) {
-        list = new FastList<T>(capacity);
+        list = [with(capacity)];
     }
 
     public int Count => list.Count;

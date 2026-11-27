@@ -14,15 +14,7 @@ namespace HelixToolkit.SharpDX.Core.Core;
 
 public sealed class PostEffectFXAA : RenderCore, IPostEffect {
 
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-    private ShaderPass fxaaPass;
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-    private ShaderPass lumaPass;
     private BorderEffectStruct modelStruct;
-
-    private int samplerSlot;
-
-    private int textureSlot;
 
     public PostEffectFXAA() : base(RenderType.GlobalEffect) {
     }

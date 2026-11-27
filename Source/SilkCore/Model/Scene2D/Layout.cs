@@ -54,4 +54,19 @@ public struct Thickness : IEquatable<Thickness> {
     public static implicit operator Vector4(Thickness t) => new(t.Left, t.Top, t.Right, t.Bottom);
 
     public override bool Equals(object? obj) => obj is Thickness && Equals((Thickness)obj);
+
+    /// <inheritdoc/>
+    public override int GetHashCode() => HashCode.Combine(Left, Right, Top, Bottom);
+
+    /// <summary>Compares thicknesses for equality.</summary>
+    /// <param name="left">The first thickness.</param>
+    /// <param name="right">The second thickness.</param>
+    /// <returns>Whether all four edges are equal.</returns>
+    public static bool operator ==(Thickness left, Thickness right) => left.Equals(right);
+
+    /// <summary>Compares thicknesses for inequality.</summary>
+    /// <param name="left">The first thickness.</param>
+    /// <param name="right">The second thickness.</param>
+    /// <returns>Whether any edge differs.</returns>
+    public static bool operator !=(Thickness left, Thickness right) => !left.Equals(right);
 }

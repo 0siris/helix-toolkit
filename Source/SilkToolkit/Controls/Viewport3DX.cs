@@ -922,22 +922,15 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
     ///     Updates the property <see cref="CurrentPosition" />.
     /// </summary>
     /// <param name="pt">The current mouse hit point.</param>
-    [Obsolete]
     private void UpdateCurrentPosition(Point pt) {
         if (EnableCursorPosition) {
             CursorOnElementPosition = FindNearestPoint(pt);
             CursorPosition = this.UnProjectOnPlane(pt);
         }
 
-        if (EnableCurrentPosition) {
-            var pos = FindNearestPoint(pt);
-            if (pos != null) {
-                CurrentPosition = pos.Value;
-            } else {
-                var p = this.UnProjectOnPlane(pt);
-                if (p != null) CurrentPosition = p.Value;
-            }
-        }
+        if ((bool) GetValue(EnableCurrentPositionProperty) &&
+            (FindNearestPoint(pt) ?? this.UnProjectOnPlane(pt)) is { } position)
+            SetValue(CurrentPositionProperty, position);
     }
 
     /// <inheritdoc />
@@ -1820,34 +1813,36 @@ public partial class Viewport3DX : Control, IViewport3DX, IDisposable {
                         notificationFailure ??= exception;
                     }
                 }
-        } finally {
-            Disposing = null;
-            try {
-                RetirePresentation();
-            } catch {
-                disposedValue = false;
-                throw;
+        } catch (Exception exception) {
+            notificationFailure = exception;
+        }
+
+        Disposing = null;
+        try {
+            RetirePresentation();
+        } catch {
+            disposedValue = false;
+            throw;
+        }
+
+        DetachHostContracts();
+        d3d12CompositionTarget.Dispose();
+        Loaded -= ControlLoaded;
+        Unloaded -= ControlUnloaded;
+        if (parentWindow is { } window) window.Closed -= ParentWindow_Closed;
+        parentWindow = null;
+        if (!BelongsToParentWindow) {
+            if (hostPresenter?.Content is IDisposable d) {
+                hostPresenter.Content = null;
+                d.Dispose();
             }
 
-            DetachHostContracts();
-            d3d12CompositionTarget.Dispose();
-            Loaded -= ControlLoaded;
-            Unloaded -= ControlUnloaded;
-            if (parentWindow is { } window) window.Closed -= ParentWindow_Closed;
-            parentWindow = null;
-            if (!BelongsToParentWindow) {
-                if (hostPresenter?.Content is IDisposable d) {
-                    hostPresenter.Content = null;
-                    d.Dispose();
-                }
-
-                ClearValue(CameraProperty);
-                EffectsManager = null;
-                foreach (var item in Items) item.Dispose();
-                viewCube?.Dispose();
-                coordinateView?.Dispose();
-                Items.Clear();
-            }
+            ClearValue(CameraProperty);
+            EffectsManager = null;
+            foreach (var item in Items) item.Dispose();
+            viewCube?.Dispose();
+            coordinateView?.Dispose();
+            Items.Clear();
         }
 
         if (notificationFailure is not null)

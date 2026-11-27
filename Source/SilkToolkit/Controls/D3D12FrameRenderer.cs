@@ -986,8 +986,8 @@ internal sealed class D3D12FrameRenderer : IDisposable {
     /// <param name="height">The nonzero physical height.</param>
     internal void Resize(uint width, uint height) {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
         if (depthStencilBuffer is { } current && current.Description.Width == width &&
             current.Description.Height == height) return;
         var replacement = device.CreateDepthStencilTexture2D(width, height, DepthStencilFormat);
@@ -1043,8 +1043,8 @@ internal sealed class D3D12FrameRenderer : IDisposable {
         out BoundingFrustum frustum
     ) {
         camera.AsGuardNotNull();
-        if (width == 0) throw new ArgumentOutOfRangeException(nameof(width));
-        if (height == 0) throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfZero(width);
+        ArgumentOutOfRangeException.ThrowIfZero(height);
         if (!float.IsFinite(dpiScale) || dpiScale <= 0) throw new ArgumentOutOfRangeException(nameof(dpiScale));
         var aspectRatio = width / (float) height;
         var view = camera.CreateViewMatrix();

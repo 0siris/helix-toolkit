@@ -66,8 +66,8 @@ public sealed class MappingCollection<Indextype, Nametype, Datatype>
     /// <param name="index"></param>
     /// <returns></returns>
     public bool Remove(Indextype index) {
-        if (indexNameMapping.ContainsKey(index)) {
-            nameIndexMapping.Remove(indexNameMapping[index]);
+        if (indexNameMapping.TryGetValue(index, out var name)) {
+            nameIndexMapping.Remove(name);
             indexNameMapping.Remove(index);
             indexDataMapping.Remove(index);
             MappingArray = [.. indexDataMapping];
@@ -82,9 +82,9 @@ public sealed class MappingCollection<Indextype, Nametype, Datatype>
     /// <param name="name"></param>
     /// <returns></returns>
     public bool Remove(Nametype name) {
-        if (nameIndexMapping.ContainsKey(name)) {
-            indexNameMapping.Remove(nameIndexMapping[name]);
-            indexDataMapping.Remove(nameIndexMapping[name]);
+        if (nameIndexMapping.TryGetValue(name, out var index)) {
+            indexNameMapping.Remove(index);
+            indexDataMapping.Remove(index);
             nameIndexMapping.Remove(name);
             MappingArray = [.. indexDataMapping];
             return true;

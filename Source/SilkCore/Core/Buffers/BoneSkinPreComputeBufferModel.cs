@@ -33,7 +33,7 @@ public sealed class BoneSkinPreComputeBufferModel : DisposeObject, IAttachableBu
 
     public IElementsBufferProxy?[] VertexBuffer => meshBuffer.VertexBuffer;
 
-    public IEnumerable<int> VertexStructSize => VertexBuffer.Select(x => x.StructureSize);
+    public IEnumerable<int> VertexStructSize => meshBuffer.VertexStructSize;
 
     public IElementsBufferProxy? IndexBuffer => meshBuffer.IndexBuffer;
 

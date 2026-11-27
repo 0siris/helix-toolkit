@@ -89,7 +89,7 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
         => new BoundableNodeOctree(bound, objList, parent, parent.Parameter, Stack);
 
     public override void BuildTree() {
-        if (IsRoot) octantDictionary = new Dictionary<Guid, IDynamicOctree>(Objects.Count);
+        if (IsRoot) octantDictionary = [with(Objects.Count)];
         base.BuildTree();
         if (IsRoot)
             TreeTraversal(this,
@@ -130,8 +130,7 @@ public class BoundableNodeOctree : DynamicOctreeBase<SceneNode> {
     public override bool Add(SceneNode item, out IDynamicOctree? octant) {
         if (base.Add(item, out octant) && octant is { } octantNode) {
             var root = GetRoot(this);
-            if (!root.octantDictionary.ContainsKey(item.Guid))
-                root.octantDictionary.Add(item.Guid, octantNode);
+            root.octantDictionary.TryAdd(item.Guid, octantNode);
 
             return true;
         }

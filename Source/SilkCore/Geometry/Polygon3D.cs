@@ -81,7 +81,7 @@ public class Polygon3D {
         m.M41 = -offs.X;
         m.M42 = -offs.Y;
 
-        var polygon = new Polygon { Points = new PointCollection(Points.Count) };
+        var polygon = new Polygon { Points = [with(Points.Count)] };
         foreach (var p in Points) {
             var pp = SilkMath.TransformCoordinate(p, m);
             polygon.Points.Add(new Point(pp.X, pp.Y));

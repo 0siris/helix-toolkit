@@ -30,13 +30,13 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
     ///     Geometry resources keyed by their existing model identity.
     /// </summary>
     private readonly Dictionary<IGeometryBufferModel, GeometryEntry> geometries =
-        new(ReferenceEqualityComparer.Instance);
+        [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>
     ///     Matrix-instance resources keyed by their existing model identity.
     /// </summary>
     private readonly Dictionary<IElementsBufferModel<Matrix>, InstanceEntry> instances =
-        new(ReferenceEqualityComparer.Instance);
+        [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>
     ///     Texture resources keyed by the existing content identifier contract.
@@ -499,7 +499,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
         internal GeometryEntry(Geometry3D? geometry, PrimitiveTopology topology) {
             this.geometry = geometry;
             this.topology = topology;
-            if (geometry is not null) geometry.PropertyChanged += OnGeometryChanged;
+            geometry?.PropertyChanged += OnGeometryChanged;
         }
 
         /// <summary>
@@ -518,9 +518,9 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
         /// <param name="source">The current geometry model.</param>
         internal void Synchronize(IGeometryBufferModel source) {
             if (!ReferenceEquals(geometry, source.Geometry)) {
-                if (geometry is not null) geometry.PropertyChanged -= OnGeometryChanged;
+                geometry?.PropertyChanged -= OnGeometryChanged;
                 geometry = source.Geometry;
-                if (geometry is not null) geometry.PropertyChanged += OnGeometryChanged;
+                geometry?.PropertyChanged += OnGeometryChanged;
                 isDirty = true;
             }
             if (topology == source.Topology) return;
@@ -542,7 +542,7 @@ internal sealed class SilkD3D12ResourceManager : IDisposable {
         ///     Releases the observed event and native resources.
         /// </summary>
         public void Dispose() {
-            if (geometry is not null) geometry.PropertyChanged -= OnGeometryChanged;
+            geometry?.PropertyChanged -= OnGeometryChanged;
             geometry = null;
             MeshBuffers?.Dispose();
             PointLineBuffers?.Dispose();

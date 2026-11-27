@@ -16,7 +16,6 @@ namespace HelixToolkit.SharpDX.Core.Core;
 /// </summary>
 public sealed class BoneSkinnedMeshBufferModel : DefaultMeshGeometryBufferModel, IBoneSkinMeshBufferModel {
     private IElementsBufferProxy? boneIdBuffer;
-    private bool boneIdChanged = true;
 
     public BoneSkinnedMeshBufferModel() {
         boneIdBuffer = new ImmutableBufferProxy(BoneIds.SizeInBytes, BindFlags.VertexBuffer);
@@ -27,10 +26,8 @@ public sealed class BoneSkinnedMeshBufferModel : DefaultMeshGeometryBufferModel,
         ?? throw new ObjectDisposedException(nameof(BoneSkinnedMeshBufferModel));
 
     protected override bool IsVertexBufferChanged(string? propertyName, int bufferIndex) {
-        if (propertyName?.Equals(nameof(BoneSkinnedMeshGeometry3D.VertexBoneIds)) == true) {
-            boneIdChanged = true;
+        if (propertyName == nameof(BoneSkinnedMeshGeometry3D.VertexBoneIds))
             return false;
-        }
 
         return base.IsVertexBufferChanged(propertyName, bufferIndex);
     }

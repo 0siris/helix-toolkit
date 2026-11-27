@@ -36,7 +36,7 @@ public class MeshGeometryOctree
         Positions = positions;
         Indices = indices;
         Bound = BoundingBoxExtensions.FromPoints(positions);
-        Objects = new List<KeyValuePair<int, BoundingBox>>(indices.Count / 3);
+        Objects = [with(indices.Count / 3)];
         
         // Construct triangle index and its bounding box KeyValuePair
         for (var i = 0; i < indices.Count / 3; ++i)

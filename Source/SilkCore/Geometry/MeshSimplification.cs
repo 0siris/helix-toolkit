@@ -165,7 +165,7 @@ public class MeshSimplification {
         return new MeshGeometry3D { Positions = pos, TriangleIndices = tris };
     }
 
-    private bool Flipped(ref Vector3D p, int i0, int i1, ref Vertex v0, ref Vertex v1, IList<bool> deleted) {
+    private bool Flipped(ref Vector3D p, int i0, int i1, ref Vertex v0, ref Vertex v1, List<bool> deleted) {
         for (var i = 0; i < v0.TCount; ++i) {
             var t = triangles[refs[v0.TStart + i].Tid];
             if (t.Deleted) continue;
@@ -191,7 +191,7 @@ public class MeshSimplification {
         return false;
     }
 
-    private void UpdateTriangles(int i0, ref Vertex v, IList<bool> deleted, ref int deletedTriangles) {
+    private void UpdateTriangles(int i0, ref Vertex v, List<bool> deleted, ref int deletedTriangles) {
         Vector3D p;
         for (var i = 0; i < v.TCount; ++i) {
             var r = refs[v.TStart + i];
@@ -457,7 +457,7 @@ public class MeshSimplification {
                     case 9:
                         return M44;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException(nameof(c), c, "The matrix component index must be between zero and nine");
                 }
             }
         }

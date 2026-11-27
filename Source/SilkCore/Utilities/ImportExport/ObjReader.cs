@@ -510,9 +510,7 @@ public class ObjReader : IModelReader {
             if (vi - 1 >= Points.Count) {
                 if (IgnoreErrors) return;
 
-                throw new FileFormatException(string.Format("Invalid vertex index ({0}) on line {1}.",
-                                                            vi,
-                                                            currentLineNo));
+                throw new FileFormatException($"Invalid vertex index ({vi}) on line {currentLineNo}.");
             }
 
             if (vti == int.MaxValue)
